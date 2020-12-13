@@ -1,0 +1,72 @@
+ 
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/build"
+            },
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}/build",
+                "--config",
+                "Debug",
+                "--target",
+                "all", 
+                "--", 
+                "-j", 
+                "10"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "run clang-tidy",
+            "type": "shell",
+            "command": "clang-tidy",
+            "args": [
+                "--checks=*,-fuchsia-default-arguments,-google-build-using-namespace",
+                "-p=${workspaceFolder}/build",
+                "${file}"
+            ],
+            "problemMatcher":"$gcc",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "revealProblems": "onProblem",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
+            "label": "run cppcheck",
+            "type": "process",
+            "command": "cppcheck",
+            "args": [
+                "--enable=all",
+                "--inconclusive",
+                "--std=posix",
+                "--force",
+                "${file}"
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "revealProblems": "onProblem",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher":"$gcc"
+        }
+    ]
+}
