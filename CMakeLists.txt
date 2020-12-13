@@ -34,3 +34,4 @@ include(GoogleTest)
 
 add_subdirectory("twUI")
 add_subdirectory("theWarrior")
+add_subdirectory("mapEditor")
