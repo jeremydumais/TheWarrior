@@ -32,6 +32,7 @@ endif()
 enable_testing()
 include(GoogleTest)
 
+add_subdirectory("twModels")
 add_subdirectory("twUI")
 add_subdirectory("theWarrior")
 add_subdirectory("mapEditor")

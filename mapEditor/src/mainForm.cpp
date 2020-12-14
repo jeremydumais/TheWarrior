@@ -5,6 +5,7 @@
 #include <QtCore/qfile.h>
 #include <QtWidgets/qmessagebox.h>
 #include <qtimer.h>
+#include <QtOpenGL/QtOpenGL>
 #ifdef _WIN32
 	#include <windows.h>
 #endif
@@ -14,11 +15,16 @@ using namespace std;
 MainForm::MainForm(QWidget *parent)
 	: QMainWindow(parent),
 	  ui(Ui::MainForm()),
+	  map(nullptr),
 	  functionAfterShownCalled(false)
 {
 	ui.setupUi(this);
-	this->showMaximized();
 	connectUIActions();
+
+	map = make_shared<GameMap>(30, 30);
+	ui.mapOpenGLWidget->setCurrentMap(map);
+	ui.lineEditMapWidth->setText(to_string(map->getWidth()).c_str());
+	ui.lineEditMapHeight->setText(to_string(map->getHeight()).c_str());
 }
 
 void MainForm::connectUIActions() 
@@ -27,6 +33,7 @@ void MainForm::connectUIActions()
 	connect(ui.action_About, &QAction::triggered, this, &MainForm::action_About_Click);
 	connect(ui.action_LightTheme, &QAction::triggered, this, &MainForm::action_LightTheme_Click);
 	connect(ui.action_DarkTheme, &QAction::triggered, this, &MainForm::action_DarkTheme_Click);
+	connect(ui.mapOpenGLWidget, &MapOpenGLWidget::onTileClicked, this, &MainForm::onTileClicked);
 }
 
 MainForm::~MainForm()
@@ -125,4 +132,14 @@ void MainForm::setAppStylesheet(const std::string &style)
 		this->setStyleSheet("");
 		ui.action_LightTheme->setChecked(true);
 	}
+}
+
+void MainForm::resizeEvent(QResizeEvent *)
+{
+    ui.mapOpenGLWidget->resizeGL(ui.mapOpenGLWidget->width(), ui.mapOpenGLWidget->height());
+}
+
+void MainForm::onTileClicked(int tileIndex) 
+{
+	showErrorMessage(fmt::format("{}", tileIndex), "");
 }

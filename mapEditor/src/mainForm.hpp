@@ -1,6 +1,8 @@
 #ifndef MAINFORM_H
 #define MAINFORM_H
 
+#include "map.hpp"
+#include <memory>
 #include "ui_mainForm.h"
 
 class MainForm : public QMainWindow
@@ -14,6 +16,7 @@ public:
     void functionAfterShown();
 private:
 	Ui::MainForm ui;
+	std::shared_ptr<GameMap> map;
 	bool functionAfterShownCalled;
 	void showErrorMessage(const std::string &message,
 						  const std::string &internalError) const;
@@ -22,6 +25,9 @@ private:
 	void action_About_Click();
 	void action_LightTheme_Click();
 	void action_DarkTheme_Click();
+	void mapPaint(QPaintEvent *e);
+	void resizeEvent(QResizeEvent *);
+	void onTileClicked(int tileIndex);
 };
 
 #endif // MAINFORM_H

@@ -71,7 +71,9 @@
         "*.moc": "cpp",
         "qtablewidget": "cpp",
         "random": "cpp",
-        "bit": "cpp"
+        "bit": "cpp",
+        "qglwidget": "cpp",
+        "future": "cpp"
     },
     "editor.tokenColorCustomizations": {
         "textMateRules": [
