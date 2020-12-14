@@ -35,6 +35,7 @@ private:
     const float TILESIZE { 0.2f };
     const float TILEHALFSIZE { TILESIZE / 2.0f };
     const unsigned int ONSCREENTILESIZE { 42 };
+    const float TRANSLATIONTOPIXEL { 4.7615f };
     void draw();
     int getTileIndex(unsigned int onScreenX, unsigned int onScreenY);
 };

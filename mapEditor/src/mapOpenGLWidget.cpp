@@ -109,7 +109,7 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event)
         emit onTileClicked(getTileIndex(lastPos.x(), lastPos.y()));
     }
     else {
-        emit onTileClicked(translationX);
+        //emit onTileClicked(translationX);
     }
     updateGL();
 }
@@ -117,11 +117,11 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event)
 void MapOpenGLWidget::mouseMoveEvent(QMouseEvent *event)
 {
     if (mousePressed) {
-        translationTempX = (float)(event->pos().x() - lastPos.x()) / ((float)ONSCREENTILESIZE * 4.8f);
+        translationTempX = (float)(event->pos().x() - lastPos.x()) / ((float)ONSCREENTILESIZE * TRANSLATIONTOPIXEL);
         /*if (translationX + translationTempX > 0) {
             translationTempX = 0;
         }*/
-        translationTempY = (float)(lastPos.y() - event->pos().y()) / (float)ONSCREENTILESIZE;
+        translationTempY = (float)(lastPos.y() - event->pos().y()) / ((float)ONSCREENTILESIZE * TRANSLATIONTOPIXEL);
         /*if (translationTempY > 0) {
             translationTempY = 0;
         }*/
@@ -170,8 +170,8 @@ int MapOpenGLWidget::getTileIndex(unsigned int onScreenX, unsigned int onScreenY
     if (onScreenY / ONSCREENTILESIZE > currentMap->getWidth() - 1) {
         return -1;
     }
-    unsigned int x = onScreenX - (translationX * (float)ONSCREENTILESIZE * 4.8f);
-    unsigned int y = onScreenY + (translationY * (float)ONSCREENTILESIZE);
+    unsigned int x = onScreenX - (translationX * (float)ONSCREENTILESIZE * TRANSLATIONTOPIXEL);
+    unsigned int y = onScreenY + (translationY * (float)ONSCREENTILESIZE * TRANSLATIONTOPIXEL);
     unsigned int indexX = x / ONSCREENTILESIZE;
     unsigned int indexY = y / ONSCREENTILESIZE;
     unsigned int tileIndex { indexX + (indexY * currentMap->getWidth()) };
