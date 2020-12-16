@@ -1,8 +1,10 @@
 #include "mapOpenGLWidget.hpp"
 #include <fmt/format.h>
 #include <GL/glut.h>
+#include <iostream>
 #include <QtWidgets>
-#include <QtOpenGL/QtOpenGL>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 #include <string>
 
 using namespace std;
@@ -46,13 +48,41 @@ static void qNormalizeAngle(int &angle)
 
 void MapOpenGLWidget::initializeGL()
 {
-    qglClearColor(Qt::black);
+    glGenTextures(1, &tex1);
+    glBindTexture(GL_TEXTURE_2D, tex1); 
+     // set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+    int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char *data = stbi_load("/home/jed/Programming/TheWarrior/resources/tile2.png", &width, &height, &nrChannels, STBI_rgb_alpha);
+    if (data)
+    {
+        // note that the awesomeface.png has transparency and thus an alpha channel, so make sure to tell OpenGL the data type is of GL_RGBA
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        //glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        cerr << "Failed to load texture" << endl;
+    }
+    glBindTexture(GL_TEXTURE_2D, 0);
+    stbi_image_free(data);
+
+    qglClearColor(Qt::black);
+    glClearDepth(1.0f);
+    glEnable(GL_TEXTURE_2D);
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
     //glEnable(GL_CULL_FACE);
     glShadeModel(GL_SMOOTH);
     //glEnable(GL_LIGHTING);
     //glEnable(GL_LIGHT0);
+
 
     //static GLfloat lightPosition[4] = { 0, 0, 10, 1.0 };
     //glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
@@ -131,6 +161,9 @@ void MapOpenGLWidget::mouseMoveEvent(QMouseEvent *event)
 
 void MapOpenGLWidget::draw()
 {
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, tex1);
+
     float x { -1.9f };
     float y { 1.9f };
     glTranslatef(x + translationX + translationTempX, y + translationY + translationTempY, 0.0);
@@ -138,13 +171,18 @@ void MapOpenGLWidget::draw()
     for(const auto &row : currentMap->getTiles()) {
         for(const auto &col : row) {
             
-            qglColor(Qt::green);
+            qglColor(Qt::white);
+            
             glBegin(GL_QUADS);
-                glNormal3f(0, 0, -1);
-                glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
-                glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
+                //glNormal3f(0, 0, -1);
+                glTexCoord2f(0.125f, 1.0f-0.045454545f);
                 glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
+                glTexCoord2f(0.125f, 1.0f-0.0f);
                 glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
+                glTexCoord2f(0.0f, 1.0f-0.0f);
+                glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
+                glTexCoord2f(0.0f, 1.0f-0.045454545f);
+                glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
             glEnd();
             glColor3f (1.0, 0.0, 0.0);
             string indexStr { fmt::format("{}", index) };
@@ -160,6 +198,9 @@ void MapOpenGLWidget::draw()
         y += -(TILESIZE + 0.01f);
         glTranslatef(row.size() * -(TILESIZE + 0.01f), -(TILESIZE + 0.01f), 0);
     }
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D);
+
 }
 
 int MapOpenGLWidget::getTileIndex(unsigned int onScreenX, unsigned int onScreenY) 

@@ -73,7 +73,8 @@
         "random": "cpp",
         "bit": "cpp",
         "qglwidget": "cpp",
-        "future": "cpp"
+        "future": "cpp",
+        "qtopengl": "cpp"
     },
     "editor.tokenColorCustomizations": {
         "textMateRules": [

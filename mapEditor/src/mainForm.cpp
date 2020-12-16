@@ -21,7 +21,7 @@ MainForm::MainForm(QWidget *parent)
 	ui.setupUi(this);
 	connectUIActions();
 
-	map = make_shared<GameMap>(30, 30);
+	map = make_shared<GameMap>(10, 10);
 	ui.mapOpenGLWidget->setCurrentMap(map);
 	ui.lineEditMapWidth->setText(to_string(map->getWidth()).c_str());
 	ui.lineEditMapHeight->setText(to_string(map->getHeight()).c_str());

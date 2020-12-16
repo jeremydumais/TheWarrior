@@ -28,7 +28,7 @@ endif()
     boost/1.73.0
     gtest/1.10.0
     fmt/7.0.1
-    sqlite3/3.32.3
+    stb/20200203
     SETTINGS ${COMPILER_RUNTIME}
     OPTIONS
     ${CONAN_EXTRA_OPTIONS}

@@ -4,6 +4,7 @@
 #include "map.hpp"
 #include <memory>
 #include <QtOpenGL/QGLWidget>
+#include <QtOpenGL/QtOpenGL>
 
 class MapOpenGLWidget : public QGLWidget
 {
@@ -30,6 +31,7 @@ private:
     float translationTempX;
     float translationY;
     float translationTempY;
+    unsigned int tex1;
     std::shared_ptr<GameMap> currentMap;
     QPoint lastPos;
     const float TILESIZE { 0.2f };
