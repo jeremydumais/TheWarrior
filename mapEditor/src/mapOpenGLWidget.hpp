@@ -1,7 +1,8 @@
 #ifndef MAPOPENGLWIDGET_H
 #define MAPOPENGLWIDGET_H
 
-#include "map.hpp"
+#include "gameMap.hpp"
+#include <map>
 #include <memory>
 #include <QtOpenGL/QGLWidget>
 #include <QtOpenGL/QtOpenGL>
@@ -28,18 +29,19 @@ signals:
 private:
     bool mousePressed;
     float translationX;
-    float translationTempX;
-    float translationY;
-    float translationTempY;
-    unsigned int tex1;
+    float translationDragAndDropX; 
+    float translationY;     
+    float translationDragAndDropY;
+    std::map<std::string, unsigned int> texturesGLMap; //Mapping between texture name and OpenGL texture id
     std::shared_ptr<GameMap> currentMap;
-    QPoint lastPos;
+    QPoint lastCursorPosition;
     const float TILESIZE { 0.2f };
     const float TILEHALFSIZE { TILESIZE / 2.0f };
     const unsigned int ONSCREENTILESIZE { 42 };
     const float TRANSLATIONTOPIXEL { 4.7615f };
     void draw();
     int getTileIndex(unsigned int onScreenX, unsigned int onScreenY);
+    std::string getExecutablePath();
 };
 
 #endif // MAPOPENGLWIDGET_H

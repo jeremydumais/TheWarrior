@@ -1,9 +1,16 @@
-#include "map.hpp"
+#include "gameMap.hpp"
+#include <stdexcept>
 
 using namespace std;
 
 GameMap::GameMap(unsigned int width, unsigned int height) 
 {
+    if (width == 0) {
+        throw invalid_argument("width must be greater than zero.");
+    }
+    if (height == 0) {
+        throw invalid_argument("height must be greater than zero.");
+    }
 
     for(unsigned int i = 0; i < width; i++) {
         vector<MapTile> col;
@@ -33,4 +40,10 @@ unsigned int GameMap::getWidth() const
 unsigned int GameMap::getHeight() const
 {
     return tiles.size();
+}
+
+void GameMap::addTexture(const std::string &name, const string &filename) 
+{
+    //Check that name doesn't already exist in the list
+    textures.emplace_back(Texture(name, filename));
 }

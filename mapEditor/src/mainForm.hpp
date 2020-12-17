@@ -1,7 +1,7 @@
 #ifndef MAINFORM_H
 #define MAINFORM_H
 
-#include "map.hpp"
+#include "gameMap.hpp"
 #include <memory>
 #include "ui_mainForm.h"
 

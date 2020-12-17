@@ -22,6 +22,7 @@ MainForm::MainForm(QWidget *parent)
 	connectUIActions();
 
 	map = make_shared<GameMap>(10, 10);
+	map->addTexture("terrain1", "tile2.png");
 	ui.mapOpenGLWidget->setCurrentMap(map);
 	ui.lineEditMapWidth->setText(to_string(map->getWidth()).c_str());
 	ui.lineEditMapHeight->setText(to_string(map->getHeight()).c_str());

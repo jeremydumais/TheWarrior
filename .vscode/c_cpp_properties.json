@@ -10,7 +10,8 @@
             "compileCommands": "",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/twUI/include"
+                "${workspaceFolder}/twUI/include",
+                "${workspaceFolder}/twModels/include"
             ],
             "configurationProvider": "vector-of-bool.cmake-tools"
         }
