@@ -161,7 +161,7 @@ void MapOpenGLWidget::draw()
     unsigned int index {0};
     for(const auto &row : currentMap->getTiles()) {
         for(const auto &tile : row) {        
-            glBindTexture(GL_TEXTURE_2D, texturesGLMap[tile.textureName]);
+            glBindTexture(GL_TEXTURE_2D, texturesGLMap[tile.getTextureName()]);
             qglColor(Qt::white);
             glBegin(GL_QUADS);
                 glTexCoord2f(0.125f, 1.0f-0.045454545f);

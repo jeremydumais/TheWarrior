@@ -18,7 +18,8 @@ GameMap::GameMap(unsigned int width, unsigned int height)
     for(unsigned int i = 0; i < width; i++) {
         vector<MapTile> col;
         for(unsigned int j = 0; j < height; j++) {
-            col.emplace_back(MapTile());
+            MapTile newTile;
+            col.emplace_back(newTile);
         }
         tiles.emplace_back(col);
     }
