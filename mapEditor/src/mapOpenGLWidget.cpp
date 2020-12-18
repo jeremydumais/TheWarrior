@@ -44,29 +44,31 @@ void MapOpenGLWidget::initializeGL()
 {
     string executablePath = getExecutablePath();
 
-    
-    glGenTextures(1, &texturesGLMap["Tex1"]);
-    glBindTexture(GL_TEXTURE_2D, texturesGLMap["Tex1"]); 
-     // set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    for(const auto &texture : currentMap->getTextures()) {  
+        const auto &textureName { texture.getName() }; 
+        glGenTextures(1, &texturesGLMap[textureName]);
+        glBindTexture(GL_TEXTURE_2D, texturesGLMap[textureName]); 
+        // set the texture wrapping parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        // set texture filtering parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true);
-    string texFileName { "tile2.png" };
-    string fullResourcePath = fmt::format("{0}/resources/{1}", executablePath, texFileName);
-    unsigned char *imageBytes = stbi_load(fullResourcePath.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
-    if (imageBytes) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageBytes);
+        int width, height, nrChannels;
+        stbi_set_flip_vertically_on_load(true);
+        string texFileName { texture.getFilename() };
+        string fullResourcePath = fmt::format("{0}/resources/{1}", executablePath, texFileName);
+        unsigned char *imageBytes = stbi_load(fullResourcePath.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
+        if (imageBytes) {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageBytes);
+        }
+        else {
+            throw runtime_error(fmt::format("Failed to load texture {0}", fullResourcePath));
+        }
+        glBindTexture(GL_TEXTURE_2D, 0);
+        stbi_image_free(imageBytes);
     }
-    else {
-        throw runtime_error(fmt::format("Failed to load texture {0}", fullResourcePath));
-    }
-    glBindTexture(GL_TEXTURE_2D, 0);
-    stbi_image_free(imageBytes);
 
     qglClearColor(Qt::black);
     glClearDepth(1.0f);
@@ -152,14 +154,14 @@ void MapOpenGLWidget::mouseMoveEvent(QMouseEvent *event)
 void MapOpenGLWidget::draw()
 {
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, texturesGLMap["Tex1"]);
 
     float x { -1.9f };
     float y { 1.9f };
     glTranslatef(x + translationX + translationDragAndDropX, y + translationY + translationDragAndDropY, 0.0);
     unsigned int index {0};
     for(const auto &row : currentMap->getTiles()) {
-        for(const auto &col : row) {            
+        for(const auto &tile : row) {        
+            glBindTexture(GL_TEXTURE_2D, texturesGLMap[tile.textureName]);
             qglColor(Qt::white);
             glBegin(GL_QUADS);
                 glTexCoord2f(0.125f, 1.0f-0.045454545f);
