@@ -17,7 +17,8 @@ MapOpenGLWidget::MapOpenGLWidget(QWidget *parent)
       translationX(0.0f),
       translationDragAndDropX(0.0f),
       translationY(0.0f),
-      translationDragAndDropY(0.0f)
+      translationDragAndDropY(0.0f),
+      selectedTileIndex(-1)
 {
 }
 
@@ -128,7 +129,8 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event)
     if (event->pos().x() == lastCursorPosition.x() && 
         event->pos().y() == lastCursorPosition.y()) {
         //Found which tile was clicked
-        emit onTileClicked(getTileIndex(lastCursorPosition.x(), lastCursorPosition.y()));
+        selectedTileIndex = getTileIndex(lastCursorPosition.x(), lastCursorPosition.y());
+        emit onTileClicked(selectedTileIndex);
     }
     else {
         //emit onTileClicked(translationX);
@@ -162,7 +164,12 @@ void MapOpenGLWidget::draw()
     for(const auto &row : currentMap->getTiles()) {
         for(const auto &tile : row) {        
             glBindTexture(GL_TEXTURE_2D, texturesGLMap[tile.getTextureName()]);
-            qglColor(Qt::white);
+            if (index == selectedTileIndex) {
+                qglColor(Qt::green);
+            }
+            else {
+                qglColor(Qt::white);
+            }
             glBegin(GL_QUADS);
                 glTexCoord2f(0.125f, 1.0f-0.045454545f);
                 glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);

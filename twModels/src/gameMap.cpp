@@ -19,6 +19,7 @@ GameMap::GameMap(unsigned int width, unsigned int height)
         vector<MapTile> col;
         for(unsigned int j = 0; j < height; j++) {
             MapTile newTile;
+            newTile.setTextureName("terrain1");
             col.emplace_back(newTile);
         }
         tiles.emplace_back(col);

@@ -17,6 +17,7 @@ set (RESOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/res/darkstyle/darkstyle.qss)
 
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mainForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/viewTextureForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mapOpenGLWidget.cpp)
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_FILES})

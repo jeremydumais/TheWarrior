@@ -100,5 +100,6 @@
     },
     "C_Cpp.default.includePath": ["${default}", 
                                   "${workspaceFolder}/twUI/include/",
+                                  "${workspaceFolder}/twModels/include/",
                                   "/usr/include/x86_64-linux-gnu/qt5/"]
 }

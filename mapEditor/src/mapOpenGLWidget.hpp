@@ -32,6 +32,7 @@ private:
     float translationDragAndDropX; 
     float translationY;     
     float translationDragAndDropY;
+    int selectedTileIndex;
     std::map<std::string, unsigned int> texturesGLMap; //Mapping between texture name and OpenGL texture id
     std::shared_ptr<GameMap> currentMap;
     QPoint lastCursorPosition;

@@ -28,6 +28,8 @@ private:
 	void mapPaint(QPaintEvent *e);
 	void resizeEvent(QResizeEvent *);
 	void onTileClicked(int tileIndex);
+	void refreshTextureList();
+	void onPushButtonViewTextureClick();
 };
 
 #endif // MAINFORM_H

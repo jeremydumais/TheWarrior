@@ -1,5 +1,5 @@
 #include "mainForm.hpp"
-//#include "aboutBoxForm.h"
+#include "viewTextureForm.h"
 #include <algorithm>
 #include <fmt/format.h>
 #include <QtCore/qfile.h>
@@ -26,6 +26,7 @@ MainForm::MainForm(QWidget *parent)
 	ui.mapOpenGLWidget->setCurrentMap(map);
 	ui.lineEditMapWidth->setText(to_string(map->getWidth()).c_str());
 	ui.lineEditMapHeight->setText(to_string(map->getHeight()).c_str());
+	refreshTextureList();
 }
 
 void MainForm::connectUIActions() 
@@ -35,6 +36,7 @@ void MainForm::connectUIActions()
 	connect(ui.action_LightTheme, &QAction::triggered, this, &MainForm::action_LightTheme_Click);
 	connect(ui.action_DarkTheme, &QAction::triggered, this, &MainForm::action_DarkTheme_Click);
 	connect(ui.mapOpenGLWidget, &MapOpenGLWidget::onTileClicked, this, &MainForm::onTileClicked);
+	connect(ui.pushButtonViewTexture, &QPushButton::clicked, this, &MainForm::onPushButtonViewTextureClick);
 }
 
 MainForm::~MainForm()
@@ -142,5 +144,23 @@ void MainForm::resizeEvent(QResizeEvent *)
 
 void MainForm::onTileClicked(int tileIndex) 
 {
-	showErrorMessage(fmt::format("{}", tileIndex), "");
+	if (tileIndex != -1) {
+		ui.toolBox->setCurrentWidget(ui.page_TileProperties);
+	}
+}
+
+void MainForm::refreshTextureList() 
+{
+	ui.listWidgetTextures->model()->removeRows(0, ui.listWidgetTextures->count());
+	int index {0};
+	for(const auto &texture : map->getTextures()) {
+		ui.listWidgetTextures->insertItem(index, texture.getName().c_str());
+		index++;
+	}
+}
+
+void MainForm::onPushButtonViewTextureClick() 
+{
+	ViewTextureForm formViewTexture(this);
+	formViewTexture.exec();
 }
