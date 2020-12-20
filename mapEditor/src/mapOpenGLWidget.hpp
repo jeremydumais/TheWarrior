@@ -6,6 +6,7 @@
 #include <memory>
 #include <QtOpenGL/QGLWidget>
 #include <QtOpenGL/QtOpenGL>
+#include <string>
 
 class MapOpenGLWidget : public QGLWidget
 {
@@ -15,10 +16,10 @@ public:
     ~MapOpenGLWidget();
     void setCurrentMap(std::shared_ptr<GameMap> map);
     void resizeGL(int width, int height);
+    void setExecutablePath(const std::string &path);
 protected:
     void initializeGL();
     void paintGL();
-
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
     void mousePressEvent(QMouseEvent *event);
@@ -27,6 +28,7 @@ protected:
 signals:
     void onTileClicked(int tileIndex);
 private:
+    std::string executablePath;
     bool mousePressed;
     float translationX;
     float translationDragAndDropX; 
@@ -34,6 +36,7 @@ private:
     float translationDragAndDropY;
     int selectedTileIndex;
     std::map<std::string, unsigned int> texturesGLMap; //Mapping between texture name and OpenGL texture id
+    std::map<std::string, Texture &> texturesObjMap; //Mapping between texture name and texture object
     std::shared_ptr<GameMap> currentMap;
     QPoint lastCursorPosition;
     const float TILESIZE { 0.2f };
@@ -42,7 +45,6 @@ private:
     const float TRANSLATIONTOPIXEL { 4.7615f };
     void draw();
     int getTileIndex(unsigned int onScreenX, unsigned int onScreenY);
-    std::string getExecutablePath();
 };
 
 #endif // MAPOPENGLWIDGET_H

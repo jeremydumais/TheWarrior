@@ -18,6 +18,7 @@ private:
 	Ui::MainForm ui;
 	std::shared_ptr<GameMap> map;
 	bool functionAfterShownCalled;
+    std::string getExecutablePath();
 	void showErrorMessage(const std::string &message,
 						  const std::string &internalError) const;
 	void setAppStylesheet(const std::string &style);

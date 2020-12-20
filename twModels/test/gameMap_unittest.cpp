@@ -50,7 +50,12 @@ TEST(GameMap_getTextures, EmptyTextureList_ReturnEmptyList)
 TEST(GameMap_getTextures, OneTexture_ReturnOneTexture)
 {
 	GameMap map(5, 6);
-	map.addTexture("a", "a.png");
+	TextureInfo textureInfo {
+			"a", "a.png",
+			512, 512,
+			32, 32
+		};
+	map.addTexture(textureInfo);
 	ASSERT_EQ(1, map.getTextures().size());
 	const auto &firstTexture = map.getTextures()[0];
 	ASSERT_EQ("a", firstTexture.getName());
@@ -60,8 +65,18 @@ TEST(GameMap_getTextures, OneTexture_ReturnOneTexture)
 TEST(GameMap_getTextures, TwoTextures_ReturnTwoTextures)
 {
 	GameMap map(5, 6);
-	map.addTexture("a", "a.png");
-	map.addTexture("b", "b.png");
+	TextureInfo textureInfoA {
+			"a", "a.png",
+			512, 512,
+			32, 32
+		};
+	map.addTexture(textureInfoA);
+	TextureInfo textureInfoB {
+			"b", "b.png",
+			512, 512,
+			32, 32
+		};
+	map.addTexture(textureInfoB);
 	ASSERT_EQ(2, map.getTextures().size());
 	const auto &firstTexture = map.getTextures()[0];
 	ASSERT_EQ("a", firstTexture.getName());
@@ -95,7 +110,12 @@ TEST(GameMap_getTextureByName, NonExistantName_ReturnEmpty)
 TEST(GameMap_getTextureByName, ExistingNameWithListOfOneTexture_ReturnTexture)
 {
 	GameMap map(5, 6);
-	map.addTexture("a", "a.png");
+	TextureInfo textureInfoA {
+			"a", "a.png",
+			512, 512,
+			32, 32
+		};
+	map.addTexture(textureInfoA);
 	auto actual { map.getTextureByName("a") };
 	ASSERT_TRUE(actual.has_value());
 	ASSERT_EQ("a", actual->getName());
@@ -105,8 +125,18 @@ TEST(GameMap_getTextureByName, ExistingNameWithListOfOneTexture_ReturnTexture)
 TEST(GameMap_getTextureByName, ExistingNameWithListOfTwoTextures_ReturnTexture)
 {
 	GameMap map(5, 6);
-	map.addTexture("a", "a.png");
-	map.addTexture("b", "b.png");
+	TextureInfo textureInfoA {
+			"a", "a.png",
+			512, 512,
+			32, 32
+		};
+	map.addTexture(textureInfoA);
+	TextureInfo textureInfoB {
+			"b", "b.png",
+			512, 512,
+			32, 32
+		};
+	map.addTexture(textureInfoB);
 	auto actual { map.getTextureByName("b") };
 	ASSERT_TRUE(actual.has_value());
 	ASSERT_EQ("b", actual->getName());
@@ -116,12 +146,22 @@ TEST(GameMap_getTextureByName, ExistingNameWithListOfTwoTextures_ReturnTexture)
 TEST(GameMap_addTexture, FirstTextureUniqueName_ReturnTrue)
 {
 	GameMap map(5, 6);
-	ASSERT_TRUE(map.addTexture("Terrain", "file.png"));	
+	TextureInfo textureInfo {
+			"Terrain", "file.png",
+			512, 512,
+			32, 32
+		};
+	ASSERT_TRUE(map.addTexture(textureInfo));	
 }
 
 TEST(GameMap_addTexture, SameTextureNameTwice_ReturnFalse)
 {
 	GameMap map(5, 6);
-	ASSERT_TRUE(map.addTexture("Terrain", "file.png"));	
-	ASSERT_FALSE(map.addTexture("Terrain", "file.png"));	
+	TextureInfo textureInfo {
+			"Terrain", "file.png",
+			512, 512,
+			32, 32
+		};
+	ASSERT_TRUE(map.addTexture(textureInfo));	
+	ASSERT_FALSE(map.addTexture(textureInfo));	
 }

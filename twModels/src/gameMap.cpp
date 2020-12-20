@@ -20,6 +20,12 @@ GameMap::GameMap(unsigned int width, unsigned int height)
         for(unsigned int j = 0; j < height; j++) {
             MapTile newTile;
             newTile.setTextureName("terrain1");
+            if (i < 5) {
+                newTile.setTextureIndex(i);
+            }
+            else {
+                newTile.setTextureIndex(1);
+            }
             col.emplace_back(newTile);
         }
         tiles.emplace_back(col);
@@ -62,13 +68,13 @@ boost::optional<const Texture &> GameMap::getTextureByName(const std::string &na
 }
 
 
-bool GameMap::addTexture(const std::string &name, const string &filename) 
+bool GameMap::addTexture(const TextureInfo &textureInfo) 
 {
     //Check that name doesn't already exist in the list
-    if (getTextureByName(name).has_value()) {
-        lastError = fmt::format("The texture name {0} already exist in the list", name);
+    if (getTextureByName(textureInfo.name).has_value()) {
+        lastError = fmt::format("The texture name {0} already exist in the list", textureInfo.name);
         return false;
     }
-    textures.emplace_back(Texture(name, filename));
+    textures.emplace_back(Texture(textureInfo));
     return true;
 }

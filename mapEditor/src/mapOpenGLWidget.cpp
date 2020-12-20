@@ -5,9 +5,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <string>
-#include <libgen.h>         // dirname
-#include <unistd.h>         // readlink
-#include <linux/limits.h>   // PATH_MAX
 
 using namespace std;
 
@@ -43,8 +40,6 @@ QSize MapOpenGLWidget::sizeHint() const
 
 void MapOpenGLWidget::initializeGL()
 {
-    string executablePath = getExecutablePath();
-
     for(const auto &texture : currentMap->getTextures()) {  
         const auto &textureName { texture.getName() }; 
         glGenTextures(1, &texturesGLMap[textureName]);
@@ -57,7 +52,7 @@ void MapOpenGLWidget::initializeGL()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         int width, height, nrChannels;
-        stbi_set_flip_vertically_on_load(true);
+        //stbi_set_flip_vertically_on_load(true);
         string texFileName { texture.getFilename() };
         string fullResourcePath = fmt::format("{0}/resources/{1}", executablePath, texFileName);
         unsigned char *imageBytes = stbi_load(fullResourcePath.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
@@ -106,6 +101,11 @@ void MapOpenGLWidget::resizeGL(int width, int height)
     glOrtho(-2, +2, -2, +2, 1.0, 15.0);
 #endif
     glMatrixMode(GL_MODELVIEW);
+}
+
+void MapOpenGLWidget::setExecutablePath(const std::string &path) 
+{
+    this->executablePath = path;
 }
 
 void MapOpenGLWidget::mousePressEvent(QMouseEvent *event)
@@ -160,7 +160,7 @@ void MapOpenGLWidget::draw()
     float x { -1.9f };
     float y { 1.9f };
     glTranslatef(x + translationX + translationDragAndDropX, y + translationY + translationDragAndDropY, 0.0);
-    unsigned int index {0};
+    int index {0};
     for(const auto &row : currentMap->getTiles()) {
         for(const auto &tile : row) {        
             glBindTexture(GL_TEXTURE_2D, texturesGLMap[tile.getTextureName()]);
@@ -213,16 +213,4 @@ int MapOpenGLWidget::getTileIndex(unsigned int onScreenX, unsigned int onScreenY
     unsigned int indexY = y / ONSCREENTILESIZE;
     unsigned int tileIndex { indexX + (indexY * currentMap->getWidth()) };
     return tileIndex;
-}
-
-std::string MapOpenGLWidget::getExecutablePath() 
-{
-    char result[PATH_MAX];
-    ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
-    if (count != -1) {
-        return dirname(result);
-    }
-    else {
-        return "";
-    }
 }

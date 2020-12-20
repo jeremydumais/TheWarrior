@@ -6,10 +6,9 @@
 #include <QtWidgets/qmessagebox.h>
 #include <qtimer.h>
 #include <QtOpenGL/QtOpenGL>
-#ifdef _WIN32
-	#include <windows.h>
-#endif
-
+#include <libgen.h>         // dirname
+#include <unistd.h>         // readlink
+#include <linux/limits.h>   // PATH_MAX
 using namespace std;
 
 MainForm::MainForm(QWidget *parent)
@@ -21,8 +20,14 @@ MainForm::MainForm(QWidget *parent)
 	ui.setupUi(this);
 	connectUIActions();
 
+	ui.mapOpenGLWidget->setExecutablePath(getExecutablePath());
 	map = make_shared<GameMap>(10, 10);
-	map->addTexture("terrain1", "tile2.png");
+	TextureInfo textureInfo {
+		"terrain1", "tile2.png",
+		256, 704,
+		32, 32
+	};
+	map->addTexture(textureInfo);
 	ui.mapOpenGLWidget->setCurrentMap(map);
 	ui.lineEditMapWidth->setText(to_string(map->getWidth()).c_str());
 	ui.lineEditMapHeight->setText(to_string(map->getHeight()).c_str());
@@ -46,6 +51,18 @@ MainForm::~MainForm()
 void MainForm::functionAfterShown()
 {
 	//setWindowIcon(QIcon(":/global/TeacherHelper Icon256.png"));
+}
+
+std::string MainForm::getExecutablePath() 
+{
+    char result[PATH_MAX];
+    ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+    if (count != -1) {
+        return dirname(result);
+    }
+    else {
+        return "";
+    }
 }
 
 bool MainForm::event(QEvent *event)
@@ -161,6 +178,13 @@ void MainForm::refreshTextureList()
 
 void MainForm::onPushButtonViewTextureClick() 
 {
-	ViewTextureForm formViewTexture(this);
-	formViewTexture.exec();
+	if (ui.listWidgetTextures->selectionModel()->hasSelection()) {
+		//Find the selected texture
+		auto selectedItemName { ui.listWidgetTextures->selectionModel()->selectedRows()[0].data().toString().toStdString() };
+		auto selectedTexture { map->getTextureByName(selectedItemName) };
+		if (selectedTexture.has_value()) {
+			ViewTextureForm formViewTexture(this, getExecutablePath(), selectedTexture.get_ptr());
+			formViewTexture.exec();
+		}
+	}
 }
