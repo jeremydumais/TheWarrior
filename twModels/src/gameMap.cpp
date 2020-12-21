@@ -14,18 +14,19 @@ GameMap::GameMap(unsigned int width, unsigned int height)
     if (height == 0) {
         throw invalid_argument("height must be greater than zero.");
     }
-
+    int texIndex { 0 };
     for(unsigned int i = 0; i < width; i++) {
         vector<MapTile> col;
         for(unsigned int j = 0; j < height; j++) {
             MapTile newTile;
             newTile.setTextureName("terrain1");
-            if (i < 5) {
-                newTile.setTextureIndex(i);
-            }
+            //if (j && i == 0) {
+                newTile.setTextureIndex(texIndex);
+                texIndex++;
+            /*}
             else {
                 newTile.setTextureIndex(1);
-            }
+            }*/
             col.emplace_back(newTile);
         }
         tiles.emplace_back(col);

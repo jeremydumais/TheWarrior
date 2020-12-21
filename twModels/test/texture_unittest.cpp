@@ -185,6 +185,35 @@ TEST_F(TextureWithDefaultValidTextureInfo, Constructor_Minus1TileHeight_ThrowInv
 	}
 }
 
+TEST_F(TextureWithDefaultValidTextureInfo, Constructor_WidthLessThanTileWidth_ThrowInvalidArgument)
+{
+	try
+	{
+		textureInfo.width = 31;
+		Texture texture(textureInfo);
+		FAIL();
+	}
+	catch(invalid_argument &err) 
+	{
+        ASSERT_STREQ("tile width must be less than the width.", err.what());
+	}
+}
+
+TEST_F(TextureWithDefaultValidTextureInfo, Constructor_HeightLessThanTileHeight_ThrowInvalidArgument)
+{
+	try
+	{
+		textureInfo.height = 15;
+		Texture texture(textureInfo);
+		FAIL();
+	}
+	catch(invalid_argument &err) 
+	{
+        ASSERT_STREQ("tile height must be less than the height.", err.what());
+	}
+}
+
+
 TEST_F(TextureWithDefaultValidTextureInfo, Constructor_ValidInfo_ReturnSuccess)
 {
 	Texture texture(textureInfo);
@@ -253,7 +282,7 @@ TEST_F(TextureWithDefaultValidTextureInfo, setName_EmptyName_ThrowInvalidArgumen
 	}
 }
 
-TEST_F(TextureWithDefaultValidTextureInfo, setName_WhiteSpacesName_ThrowInvalidArgument)
+TEST_F(TextureWithDefaultValidTextureInfo, setName_WhiteSpaces_ThrowInvalidArgument)
 {
 	try
 	{
@@ -274,7 +303,7 @@ TEST_F(TextureWithDefaultValidTextureInfo, setFilename_ValidFilename_ReturnSucce
 	ASSERT_EQ("file2.png", texture.getFilename());
 }
 
-TEST_F(TextureWithDefaultValidTextureInfo, setFilename_EmptyFilename_ThrowInvalidArgument)
+TEST_F(TextureWithDefaultValidTextureInfo, setFilename_Empty_ThrowInvalidArgument)
 {
 	try
 	{
@@ -288,7 +317,7 @@ TEST_F(TextureWithDefaultValidTextureInfo, setFilename_EmptyFilename_ThrowInvali
 	}
 }
 
-TEST_F(TextureWithDefaultValidTextureInfo, setFilename_WhiteSpacesFilename_ThrowInvalidArgument)
+TEST_F(TextureWithDefaultValidTextureInfo, setFilename_WhiteSpaces_ThrowInvalidArgument)
 {
 	try
 	{
@@ -300,4 +329,200 @@ TEST_F(TextureWithDefaultValidTextureInfo, setFilename_WhiteSpacesFilename_Throw
 	{
         ASSERT_STREQ("filename cannot be null or empty.", err.what());
 	}
+}
+
+TEST_F(TextureWithDefaultValidTextureInfo, setwidth_WithZero_ThrowInvalidArgument)
+{
+	try
+	{
+		Texture texture(textureInfo);
+		texture.setWidth(0);
+		FAIL();
+	}
+	catch(invalid_argument &err) 
+	{
+        ASSERT_STREQ("width must be greater than zero.", err.what());
+	}
+}
+
+TEST_F(TextureWithDefaultValidTextureInfo, setwidth_WithMinus1_ThrowInvalidArgument)
+{
+	try
+	{
+		Texture texture(textureInfo);
+		texture.setWidth(-1);
+		FAIL();
+	}
+	catch(invalid_argument &err) 
+	{
+        ASSERT_STREQ("width must be greater than zero.", err.what());
+	}
+}
+
+TEST_F(TextureWithDefaultValidTextureInfo, setwidth_LessThanTileWidth_ThrowInvalidArgument)
+{
+	try
+	{
+		Texture texture(textureInfo);
+		texture.setWidth(31);
+		FAIL();
+	}
+	catch(invalid_argument &err) 
+	{
+        ASSERT_STREQ("tile width must be less than the width.", err.what());
+	}
+}
+
+TEST_F(TextureWithDefaultValidTextureInfo, setwidth_With1024_ReturnSuccess)
+{
+	Texture texture(textureInfo);
+	texture.setWidth(1024);
+	ASSERT_EQ(1024, texture.getWidth());
+}
+
+TEST_F(TextureWithDefaultValidTextureInfo, setHeight_WithZero_ThrowInvalidArgument)
+{
+	try
+	{
+		Texture texture(textureInfo);
+		texture.setHeight(0);
+		FAIL();
+	}
+	catch(invalid_argument &err) 
+	{
+        ASSERT_STREQ("height must be greater than zero.", err.what());
+	}
+}
+
+TEST_F(TextureWithDefaultValidTextureInfo, setHeight_WithMinus1_ThrowInvalidArgument)
+{
+	try
+	{
+		Texture texture(textureInfo);
+		texture.setHeight(-1);
+		FAIL();
+	}
+	catch(invalid_argument &err) 
+	{
+        ASSERT_STREQ("height must be greater than zero.", err.what());
+	}
+}
+
+TEST_F(TextureWithDefaultValidTextureInfo, setHeight_LessThanTileHeight_ThrowInvalidArgument)
+{
+	try
+	{
+		Texture texture(textureInfo);
+		texture.setHeight(15);
+		FAIL();
+	}
+	catch(invalid_argument &err) 
+	{
+        ASSERT_STREQ("tile height must be less than the height.", err.what());
+	}
+}
+
+TEST_F(TextureWithDefaultValidTextureInfo, setHeight_With1024_ReturnSuccess)
+{
+	Texture texture(textureInfo);
+	texture.setHeight(1024);
+	ASSERT_EQ(1024, texture.getHeight());
+}
+
+TEST_F(TextureWithDefaultValidTextureInfo, setTileWidth_WithZero_ThrowInvalidArgument)
+{
+	try
+	{
+		Texture texture(textureInfo);
+		texture.setTileWidth(0);
+		FAIL();
+	}
+	catch(invalid_argument &err) 
+	{
+        ASSERT_STREQ("tile width must be greater than zero.", err.what());
+	}
+}
+
+TEST_F(TextureWithDefaultValidTextureInfo, setTileWidth_WithMinus1_ThrowInvalidArgument)
+{
+	try
+	{
+		Texture texture(textureInfo);
+		texture.setTileWidth(-1);
+		FAIL();
+	}
+	catch(invalid_argument &err) 
+	{
+        ASSERT_STREQ("tile width must be greater than zero.", err.what());
+	}
+}
+
+TEST_F(TextureWithDefaultValidTextureInfo, setTileWidth_GreaterThanWidth_ThrowInvalidArgument)
+{
+	try
+	{
+		Texture texture(textureInfo);
+		texture.setTileWidth(513);
+		FAIL();
+	}
+	catch(invalid_argument &err) 
+	{
+        ASSERT_STREQ("tile width must be less than the width.", err.what());
+	}
+}
+
+TEST_F(TextureWithDefaultValidTextureInfo, setTileWidth_With64_ReturnSuccess)
+{
+	Texture texture(textureInfo);
+	texture.setTileWidth(64);
+	ASSERT_EQ(64, texture.getTileWidth());
+}
+
+TEST_F(TextureWithDefaultValidTextureInfo, setTileHeight_WithZero_ThrowInvalidArgument)
+{
+	try
+	{
+		Texture texture(textureInfo);
+		texture.setTileHeight(0);
+		FAIL();
+	}
+	catch(invalid_argument &err) 
+	{
+        ASSERT_STREQ("tile height must be greater than zero.", err.what());
+	}
+}
+
+TEST_F(TextureWithDefaultValidTextureInfo, setTileHeight_WithMinus1_ThrowInvalidArgument)
+{
+	try
+	{
+		Texture texture(textureInfo);
+		texture.setTileHeight(-1);
+		FAIL();
+	}
+	catch(invalid_argument &err) 
+	{
+        ASSERT_STREQ("tile height must be greater than zero.", err.what());
+	}
+}
+
+TEST_F(TextureWithDefaultValidTextureInfo, setTileHeight_GreaterThanHeight_ThrowInvalidArgument)
+{
+	try
+	{
+		Texture texture(textureInfo);
+		texture.setTileHeight(257);
+		FAIL();
+	}
+	catch(invalid_argument &err) 
+	{
+        ASSERT_STREQ("tile height must be less than the height.", err.what());
+	}
+}
+
+TEST_F(TextureWithDefaultValidTextureInfo, setTileHeight_With64_ReturnSuccess)
+{
+	Texture texture(textureInfo);
+	texture.setTileHeight(64);
+	ASSERT_EQ(64, texture.getTileHeight());
 }

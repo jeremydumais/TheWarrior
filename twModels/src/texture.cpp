@@ -32,6 +32,14 @@ Texture::Texture(const TextureInfo &textureInfo)
     if (textureInfo.tileHeight <= 0) {
         throw invalid_argument("tile height must be greater than zero.");
     }
+    //Ensure that the tile width is less than width
+    if (textureInfo.width < textureInfo.tileWidth) {
+        throw invalid_argument("tile width must be less than the width.");
+    }
+    //Ensure that the tile height is less than height
+    if (textureInfo.height < textureInfo.tileHeight) {
+        throw invalid_argument("tile height must be less than the height.");
+    }
 }
 
 const std::string &Texture::getName() const
@@ -82,20 +90,44 @@ int Texture::getTileHeight() const
 
 void Texture::setWidth(int value) 
 {
-    //TODO complete method and tests
+    if (value <= 0) {
+        throw invalid_argument("width must be greater than zero.");
+    }
+    if (value < this->tileWidth) {
+        throw invalid_argument("tile width must be less than the width.");
+    }
+    this->width = value;
 }
 
 void Texture::setHeight(int value) 
 {
-    //TODO complete method and tests
+    if (value <= 0) {
+        throw invalid_argument("height must be greater than zero.");
+    }
+    if (value < this->tileHeight) {
+        throw invalid_argument("tile height must be less than the height.");
+    }
+    this->height = value;
 }
 
 void Texture::setTileWidth(int value) 
 {
-    //TODO complete method and tests
+    if (value <= 0) {
+        throw invalid_argument("tile width must be greater than zero.");
+    }
+    if (value > this->width) {
+        throw invalid_argument("tile width must be less than the width.");
+    }
+    this->tileWidth = value;
 }
 
 void Texture::setTileHeight(int value) 
 {
-    //TODO complete method and tests
+    if (value <= 0) {
+        throw invalid_argument("tile height must be greater than zero.");
+    }
+    if (value > this->height) {
+        throw invalid_argument("tile height must be less than the height.");
+    }
+    this->tileHeight = value;
 }

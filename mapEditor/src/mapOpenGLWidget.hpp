@@ -36,7 +36,7 @@ private:
     float translationDragAndDropY;
     int selectedTileIndex;
     std::map<std::string, unsigned int> texturesGLMap; //Mapping between texture name and OpenGL texture id
-    std::map<std::string, Texture &> texturesObjMap; //Mapping between texture name and texture object
+    std::map<std::string, const Texture &> texturesObjMap; //Mapping between texture name and texture object
     std::shared_ptr<GameMap> currentMap;
     QPoint lastCursorPosition;
     const float TILESIZE { 0.2f };

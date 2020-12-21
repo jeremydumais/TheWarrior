@@ -44,6 +44,7 @@ void MapOpenGLWidget::initializeGL()
         const auto &textureName { texture.getName() }; 
         glGenTextures(1, &texturesGLMap[textureName]);
         glBindTexture(GL_TEXTURE_2D, texturesGLMap[textureName]); 
+        texturesObjMap.emplace(textureName, texture);
         // set the texture wrapping parameters
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -171,13 +172,22 @@ void MapOpenGLWidget::draw()
                 qglColor(Qt::white);
             }
             glBegin(GL_QUADS);
-                glTexCoord2f(0.125f, 1.0f-0.045454545f);
+                float indexTile = static_cast<float>(tile.getTextureIndex());
+                const Texture &currentTexture { texturesObjMap.find(tile.getTextureName())->second };
+                const int NBTEXTUREPERLINE = currentTexture.getWidth() / currentTexture.getTileWidth();
+                float lineIndex = static_cast<int>(indexTile / NBTEXTUREPERLINE);
+                
+                //glTexCoord2f(0.125f, 1.0f-0.045454545f);
+                glTexCoord2f((0.125f * indexTile) + 0.125f, 1.0f-(0.045454545f * lineIndex) - 0.045454545f);
                 glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
-                glTexCoord2f(0.125f, 1.0f-0.0f);
+                //glTexCoord2f(0.125f, 1.0f-0.0f);
+                glTexCoord2f((0.125f * indexTile) + 0.125f, 1.0f-(0.045454545f * lineIndex));
                 glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
-                glTexCoord2f(0.0f, 1.0f-0.0f);
+                //glTexCoord2f(0.0f, 1.0f-0.0f);
+                glTexCoord2f(0.125f * indexTile, 1.0f-(0.045454545f * lineIndex));
                 glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
-                glTexCoord2f(0.0f, 1.0f-0.045454545f);
+                //glTexCoord2f(0.0f, 1.0f-0.045454545f);
+                glTexCoord2f(0.125f * indexTile, 1.0f-(0.045454545f * lineIndex) - 0.045454545f);
                 glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
             glEnd();
             glColor3f (1.0, 0.0, 0.0);
