@@ -261,6 +261,32 @@ TEST_F(TextureWithDefaultValidTextureInfo, getTileHeight_With16_Return16)
 	ASSERT_EQ(16, texture.getTileHeight());
 }
 
+TEST_F(TextureWithDefaultValidTextureInfo, getTileWidthGL_AssignedByConstructorWith512And32_Return0_0625)
+{
+	Texture texture(textureInfo);
+	ASSERT_EQ(0.0625f, texture.getTileWidthGL());	
+}
+
+TEST_F(TextureWithDefaultValidTextureInfo, getTileWidthGL_AssignedByConstructorWith32And32_Return1)
+{
+	textureInfo.width = 32;
+	Texture texture(textureInfo);
+	ASSERT_EQ(1.0f, texture.getTileWidthGL());	
+}
+
+TEST_F(TextureWithDefaultValidTextureInfo, getTileHeightGL_AssignedByConstructorWith256And16_Return0_0625)
+{
+	Texture texture(textureInfo);
+	ASSERT_EQ(0.0625f, texture.getTileHeightGL());	
+}
+
+TEST_F(TextureWithDefaultValidTextureInfo, getTileHeightGL_AssignedByConstructorWith16And16_Return1)
+{
+	textureInfo.height = 16;
+	Texture texture(textureInfo);
+	ASSERT_EQ(1.0f, texture.getTileHeightGL());	
+}
+
 TEST_F(TextureWithDefaultValidTextureInfo, setName_ValidName_ReturnSuccess)
 {
 	Texture texture(textureInfo);
@@ -378,6 +404,7 @@ TEST_F(TextureWithDefaultValidTextureInfo, setwidth_With1024_ReturnSuccess)
 	Texture texture(textureInfo);
 	texture.setWidth(1024);
 	ASSERT_EQ(1024, texture.getWidth());
+	ASSERT_EQ(0.03125f, texture.getTileWidthGL());
 }
 
 TEST_F(TextureWithDefaultValidTextureInfo, setHeight_WithZero_ThrowInvalidArgument)
@@ -427,6 +454,7 @@ TEST_F(TextureWithDefaultValidTextureInfo, setHeight_With1024_ReturnSuccess)
 	Texture texture(textureInfo);
 	texture.setHeight(1024);
 	ASSERT_EQ(1024, texture.getHeight());
+	ASSERT_EQ(0.015625f, texture.getTileHeightGL());
 }
 
 TEST_F(TextureWithDefaultValidTextureInfo, setTileWidth_WithZero_ThrowInvalidArgument)
@@ -476,6 +504,7 @@ TEST_F(TextureWithDefaultValidTextureInfo, setTileWidth_With64_ReturnSuccess)
 	Texture texture(textureInfo);
 	texture.setTileWidth(64);
 	ASSERT_EQ(64, texture.getTileWidth());
+	ASSERT_EQ(0.125f, texture.getTileWidthGL());
 }
 
 TEST_F(TextureWithDefaultValidTextureInfo, setTileHeight_WithZero_ThrowInvalidArgument)
@@ -525,4 +554,6 @@ TEST_F(TextureWithDefaultValidTextureInfo, setTileHeight_With64_ReturnSuccess)
 	Texture texture(textureInfo);
 	texture.setTileHeight(64);
 	ASSERT_EQ(64, texture.getTileHeight());
+	ASSERT_EQ(0.25f, texture.getTileHeightGL());
+
 }

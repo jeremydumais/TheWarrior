@@ -40,6 +40,8 @@ Texture::Texture(const TextureInfo &textureInfo)
     if (textureInfo.height < textureInfo.tileHeight) {
         throw invalid_argument("tile height must be less than the height.");
     }
+    updateTileWidthGL();
+    updateTileHeightGL();
 }
 
 const std::string &Texture::getName() const
@@ -88,6 +90,16 @@ int Texture::getTileHeight() const
     return tileHeight;
 }
 
+float Texture::getTileWidthGL() const
+{
+    return tileWidthGL;
+}
+
+float Texture::getTileHeightGL() const
+{
+    return tileHeightGL;
+}
+
 void Texture::setWidth(int value) 
 {
     if (value <= 0) {
@@ -97,6 +109,7 @@ void Texture::setWidth(int value)
         throw invalid_argument("tile width must be less than the width.");
     }
     this->width = value;
+    updateTileWidthGL();
 }
 
 void Texture::setHeight(int value) 
@@ -108,6 +121,8 @@ void Texture::setHeight(int value)
         throw invalid_argument("tile height must be less than the height.");
     }
     this->height = value;
+    updateTileHeightGL();
+
 }
 
 void Texture::setTileWidth(int value) 
@@ -119,6 +134,7 @@ void Texture::setTileWidth(int value)
         throw invalid_argument("tile width must be less than the width.");
     }
     this->tileWidth = value;
+    updateTileWidthGL();
 }
 
 void Texture::setTileHeight(int value) 
@@ -130,4 +146,15 @@ void Texture::setTileHeight(int value)
         throw invalid_argument("tile height must be less than the height.");
     }
     this->tileHeight = value;
+    updateTileHeightGL();
+}
+
+void Texture::updateTileWidthGL() 
+{
+    this->tileWidthGL = static_cast<float>(this->tileWidth) / static_cast<float>(this->width);
+}
+
+void Texture::updateTileHeightGL() 
+{
+    this->tileHeightGL = static_cast<float>(this->tileHeight) / static_cast<float>(this->height);
 }

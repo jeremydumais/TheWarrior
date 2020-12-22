@@ -19,10 +19,11 @@ GameMap::GameMap(unsigned int width, unsigned int height)
         vector<MapTile> col;
         for(unsigned int j = 0; j < height; j++) {
             MapTile newTile;
-            newTile.setTextureName("terrain1");
-            //if (j && i == 0) {
+            if (j < 5) {
+                newTile.setTextureName("terrain1");
                 newTile.setTextureIndex(texIndex);
                 texIndex++;
+            }
             /*}
             else {
                 newTile.setTextureIndex(1);

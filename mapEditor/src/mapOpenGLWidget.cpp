@@ -163,8 +163,12 @@ void MapOpenGLWidget::draw()
     glTranslatef(x + translationX + translationDragAndDropX, y + translationY + translationDragAndDropY, 0.0);
     int index {0};
     for(const auto &row : currentMap->getTiles()) {
-        for(const auto &tile : row) {        
-            glBindTexture(GL_TEXTURE_2D, texturesGLMap[tile.getTextureName()]);
+        for(const auto &tile : row) {      
+            bool hasTexture { false };  
+            if (texturesGLMap.find(tile.getTextureName()) != texturesGLMap.end()) {
+                hasTexture = true;
+                glBindTexture(GL_TEXTURE_2D, texturesGLMap[tile.getTextureName()]);
+            }
             if (index == selectedTileIndex) {
                 qglColor(Qt::green);
             }
@@ -172,39 +176,46 @@ void MapOpenGLWidget::draw()
                 qglColor(Qt::white);
             }
             glBegin(GL_QUADS);
-                float indexTile = static_cast<float>(tile.getTextureIndex());
-                const Texture &currentTexture { texturesObjMap.find(tile.getTextureName())->second };
-                const int NBTEXTUREPERLINE = currentTexture.getWidth() / currentTexture.getTileWidth();
-                float lineIndex = static_cast<int>(indexTile / NBTEXTUREPERLINE);
-                
-                //glTexCoord2f(0.125f, 1.0f-0.045454545f);
-                glTexCoord2f((0.125f * indexTile) + 0.125f, 1.0f-(0.045454545f * lineIndex) - 0.045454545f);
-                glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
-                //glTexCoord2f(0.125f, 1.0f-0.0f);
-                glTexCoord2f((0.125f * indexTile) + 0.125f, 1.0f-(0.045454545f * lineIndex));
-                glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
-                //glTexCoord2f(0.0f, 1.0f-0.0f);
-                glTexCoord2f(0.125f * indexTile, 1.0f-(0.045454545f * lineIndex));
-                glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
-                //glTexCoord2f(0.0f, 1.0f-0.045454545f);
-                glTexCoord2f(0.125f * indexTile, 1.0f-(0.045454545f * lineIndex) - 0.045454545f);
-                glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
+                if (hasTexture) {
+                    float indexTile { static_cast<float>(tile.getTextureIndex()) };
+                    const Texture &currentTexture { texturesObjMap.find(tile.getTextureName())->second };
+                    const int NBTEXTUREPERLINE { currentTexture.getWidth() / currentTexture.getTileWidth() };
+                    float lineIndex = static_cast<int>(indexTile / NBTEXTUREPERLINE);
+                    const float TEXTURETILEWIDTH { currentTexture.getTileWidthGL() };
+                    const float TEXTURETILEHEIGHT { currentTexture.getTileHeightGL() };
+
+                    glTexCoord2f((TEXTURETILEWIDTH * indexTile) + TEXTURETILEWIDTH, 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTURETILEHEIGHT);
+                    glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
+                    glTexCoord2f((TEXTURETILEWIDTH * indexTile) + TEXTURETILEWIDTH, 1.0f-(TEXTURETILEHEIGHT * lineIndex));
+                    glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
+                    glTexCoord2f(TEXTURETILEWIDTH * indexTile, 1.0f-(TEXTURETILEHEIGHT * lineIndex));
+                    glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
+                    glTexCoord2f(TEXTURETILEWIDTH * indexTile, 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTURETILEHEIGHT);
+                    glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
+                }
+                else {
+                    glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
+                    glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
+                    glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
+                    glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
+                }
             glEnd();
             glColor3f (1.0, 0.0, 0.0);
             string indexStr { fmt::format("{}", index) };
             glRasterPos3f(-0.02 * indexStr.size(), 0, 0.1);
             for(size_t i = 0; i < indexStr.size(); i++) {
-            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, indexStr[i]);
+                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, indexStr[i]);
             }
             x += TILESIZE + 0.01f;
             glTranslatef(TILESIZE + 0.01f, 0, 0);
+            glBindTexture(GL_TEXTURE_2D, 0);
             index++;
         }
         x += row.size() * -(TILESIZE + 0.01f);
         y += -(TILESIZE + 0.01f);
         glTranslatef(row.size() * -(TILESIZE + 0.01f), -(TILESIZE + 0.01f), 0);
     }
-    glBindTexture(GL_TEXTURE_2D, 0);
+
     glDisable(GL_TEXTURE_2D);
 
 }

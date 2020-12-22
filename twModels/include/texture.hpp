@@ -13,6 +13,8 @@ public:
     int getHeight() const;
     int getTileWidth() const;
     int getTileHeight() const;
+    float getTileWidthGL() const;
+    float getTileHeightGL() const;
     void setName(const std::string &name);
     void setFilename(const std::string &filename);
     void setWidth(int value);
@@ -26,5 +28,8 @@ private:
     int height;
     int tileWidth;
     int tileHeight;
-    
+    float tileWidthGL;    
+    float tileHeightGL;    
+    void updateTileWidthGL();
+    void updateTileHeightGL();
 };
