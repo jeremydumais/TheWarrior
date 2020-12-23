@@ -16,7 +16,7 @@ public:
     ~MapOpenGLWidget();
     void setCurrentMap(std::shared_ptr<GameMap> map);
     void resizeGL(int width, int height);
-    void setExecutablePath(const std::string &path);
+    void setResourcesPath(const std::string &path);
 protected:
     void initializeGL();
     void paintGL();
@@ -28,7 +28,7 @@ protected:
 signals:
     void onTileClicked(int tileIndex);
 private:
-    std::string executablePath;
+    std::string resourcesPath;
     bool mousePressed;
     float translationX;
     float translationDragAndDropX; 
@@ -41,9 +41,11 @@ private:
     QPoint lastCursorPosition;
     const float TILESIZE { 0.2f };
     const float TILEHALFSIZE { TILESIZE / 2.0f };
-    const unsigned int ONSCREENTILESIZE { 42 };
-    const float TRANSLATIONTOPIXEL { 4.7615f };
+    const unsigned int ONSCREENTILESIZE { 40 };
+    const float TRANSLATIONTOPIXEL { 5.0f };
+    const float TILESPACING { 0.0f };
     void draw();
+    void drawTileWithTexture(const std::string &textureName, int textureIndex);
     int getTileIndex(unsigned int onScreenX, unsigned int onScreenY);
 };
 

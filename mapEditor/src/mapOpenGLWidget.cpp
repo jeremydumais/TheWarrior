@@ -55,7 +55,7 @@ void MapOpenGLWidget::initializeGL()
         int width, height, nrChannels;
         //stbi_set_flip_vertically_on_load(true);
         string texFileName { texture.getFilename() };
-        string fullResourcePath = fmt::format("{0}/resources/{1}", executablePath, texFileName);
+        string fullResourcePath = fmt::format("{0}/{1}", resourcesPath, texFileName);
         unsigned char *imageBytes = stbi_load(fullResourcePath.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
         if (imageBytes) {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageBytes);
@@ -74,8 +74,11 @@ void MapOpenGLWidget::initializeGL()
     glDepthFunc(GL_LEQUAL);
     //glEnable(GL_CULL_FACE);
     glShadeModel(GL_SMOOTH);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     /*glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
+    
 
 
     static GLfloat lightPosition[4] = { 0, 0, 10, 1.0 };
@@ -104,9 +107,9 @@ void MapOpenGLWidget::resizeGL(int width, int height)
     glMatrixMode(GL_MODELVIEW);
 }
 
-void MapOpenGLWidget::setExecutablePath(const std::string &path) 
+void MapOpenGLWidget::setResourcesPath(const std::string &path) 
 {
-    this->executablePath = path;
+    this->resourcesPath = path;
 }
 
 void MapOpenGLWidget::mousePressEvent(QMouseEvent *event)
@@ -156,10 +159,12 @@ void MapOpenGLWidget::mouseMoveEvent(QMouseEvent *event)
 
 void MapOpenGLWidget::draw()
 {
+    glClearColor(0.0f, 0.0f, 0.6f, 1.0f);
     glEnable(GL_TEXTURE_2D);
 
     float x { -1.9f };
     float y { 1.9f };
+
     glTranslatef(x + translationX + translationDragAndDropX, y + translationY + translationDragAndDropY, 0.0);
     int index {0};
     for(const auto &row : currentMap->getTiles()) {
@@ -177,48 +182,60 @@ void MapOpenGLWidget::draw()
             }
             glBegin(GL_QUADS);
                 if (hasTexture) {
-                    float indexTile { static_cast<float>(tile.getTextureIndex()) };
-                    const Texture &currentTexture { texturesObjMap.find(tile.getTextureName())->second };
-                    const int NBTEXTUREPERLINE { currentTexture.getWidth() / currentTexture.getTileWidth() };
-                    float lineIndex = static_cast<int>(indexTile / NBTEXTUREPERLINE);
-                    const float TEXTURETILEWIDTH { currentTexture.getTileWidthGL() };
-                    const float TEXTURETILEHEIGHT { currentTexture.getTileHeightGL() };
-
-                    glTexCoord2f((TEXTURETILEWIDTH * indexTile) + TEXTURETILEWIDTH, 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTURETILEHEIGHT);
-                    glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
-                    glTexCoord2f((TEXTURETILEWIDTH * indexTile) + TEXTURETILEWIDTH, 1.0f-(TEXTURETILEHEIGHT * lineIndex));
-                    glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
-                    glTexCoord2f(TEXTURETILEWIDTH * indexTile, 1.0f-(TEXTURETILEHEIGHT * lineIndex));
-                    glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
-                    glTexCoord2f(TEXTURETILEWIDTH * indexTile, 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTURETILEHEIGHT);
-                    glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
+                    drawTileWithTexture(tile.getTextureName(), tile.getTextureIndex());
+                    //Check if it has an optionnal object
+                    //TODO create a method and test for bool hasAndObjectDefined() on the mapTile
+                    if (tile.getObjectTextureName() != "" && tile.getObjectTextureIndex() != -1) {
+                        drawTileWithTexture(tile.getObjectTextureName(), tile.getObjectTextureIndex());
+                    }
                 }
                 else {
+                    //not defined tile (no texture)
                     glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
                     glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
                     glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
                     glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
                 }
             glEnd();
-            glColor3f (1.0, 0.0, 0.0);
+            glColor3f (1.0f, 0.0f, 0.0f);
             string indexStr { fmt::format("{}", index) };
             glRasterPos3f(-0.02 * indexStr.size(), 0, 0.1);
             for(size_t i = 0; i < indexStr.size(); i++) {
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, indexStr[i]);
             }
-            x += TILESIZE + 0.01f;
-            glTranslatef(TILESIZE + 0.01f, 0, 0);
+            x += TILESIZE + TILESPACING;
+            glTranslatef(TILESIZE + TILESPACING, 0, 0);
             glBindTexture(GL_TEXTURE_2D, 0);
             index++;
         }
-        x += row.size() * -(TILESIZE + 0.01f);
-        y += -(TILESIZE + 0.01f);
-        glTranslatef(row.size() * -(TILESIZE + 0.01f), -(TILESIZE + 0.01f), 0);
+        x += row.size() * -(TILESIZE + TILESPACING);
+        y += -(TILESIZE + TILESPACING);
+        glTranslatef(row.size() * -(TILESIZE + TILESPACING), -(TILESIZE + TILESPACING), 0);
     }
 
     glDisable(GL_TEXTURE_2D);
 
 }
+
+void MapOpenGLWidget::drawTileWithTexture(const std::string &textureName, int textureIndex) 
+{
+    float indexTile { static_cast<float>(textureIndex) };
+    const Texture &currentTexture { texturesObjMap.find(textureName)->second };
+    const int NBTEXTUREPERLINE { currentTexture.getWidth() / currentTexture.getTileWidth() };
+    float lineIndex = static_cast<int>(indexTile / NBTEXTUREPERLINE);
+    const float TEXTURETILEWIDTH { currentTexture.getTileWidthGL() };
+    const float TEXTURETILEHEIGHT { currentTexture.getTileHeightGL() };
+
+    glTexCoord2f((TEXTURETILEWIDTH * indexTile) + TEXTURETILEWIDTH, 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTURETILEHEIGHT);
+    glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
+    glTexCoord2f((TEXTURETILEWIDTH * indexTile) + TEXTURETILEWIDTH, 1.0f-(TEXTURETILEHEIGHT * lineIndex));
+    glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
+    glTexCoord2f(TEXTURETILEWIDTH * indexTile, 1.0f-(TEXTURETILEHEIGHT * lineIndex));
+    glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
+    glTexCoord2f(TEXTURETILEWIDTH * indexTile, 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTURETILEHEIGHT);
+    glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
+}
+
 
 int MapOpenGLWidget::getTileIndex(unsigned int onScreenX, unsigned int onScreenY) 
 {
@@ -228,8 +245,8 @@ int MapOpenGLWidget::getTileIndex(unsigned int onScreenX, unsigned int onScreenY
     if (onScreenY / ONSCREENTILESIZE > currentMap->getWidth() - 1) {
         return -1;
     }
-    unsigned int x = onScreenX - (translationX * (float)ONSCREENTILESIZE * TRANSLATIONTOPIXEL);
-    unsigned int y = onScreenY + (translationY * (float)ONSCREENTILESIZE * TRANSLATIONTOPIXEL);
+    unsigned int x = onScreenX - ((translationX * TRANSLATIONTOPIXEL) * (float)ONSCREENTILESIZE);
+    unsigned int y = onScreenY + ((translationY * TRANSLATIONTOPIXEL) * (float)ONSCREENTILESIZE);
     unsigned int indexX = x / ONSCREENTILESIZE;
     unsigned int indexY = y / ONSCREENTILESIZE;
     unsigned int tileIndex { indexX + (indexY * currentMap->getWidth()) };

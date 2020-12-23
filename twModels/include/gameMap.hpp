@@ -11,6 +11,7 @@ class GameMap
 public:
     GameMap(unsigned int width, unsigned int height);
     const std::vector<std::vector<MapTile>> &getTiles() const;
+    MapTile &getTileForEditing(int index);
     unsigned int getWidth() const;
     unsigned int getHeight() const;
     const std::vector<Texture> &getTextures() const;

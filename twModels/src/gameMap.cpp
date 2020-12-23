@@ -19,11 +19,19 @@ GameMap::GameMap(unsigned int width, unsigned int height)
         vector<MapTile> col;
         for(unsigned int j = 0; j < height; j++) {
             MapTile newTile;
-            if (j < 5) {
+            if (i == 0 && j == 0) {
+                newTile.setTextureName("terrain1");
+                newTile.setTextureIndex(258);
+                newTile.setObjectTextureName("terrain1");
+                newTile.setObjectTextureIndex(7);
+            }
+            else {
+            //if (j < 5) {
                 newTile.setTextureName("terrain1");
                 newTile.setTextureIndex(texIndex);
                 texIndex++;
             }
+            //}
             /*}
             else {
                 newTile.setTextureIndex(1);
@@ -37,6 +45,11 @@ GameMap::GameMap(unsigned int width, unsigned int height)
 const std::vector<std::vector<MapTile>>& GameMap::getTiles() const
 {
     return tiles;
+}
+
+MapTile& GameMap::getTileForEditing(int index)
+{
+    return tiles.at(index / getWidth()).at(index % getWidth());
 }
 
 unsigned int GameMap::getWidth() const

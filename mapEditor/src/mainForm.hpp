@@ -17,8 +17,13 @@ public:
 private:
 	Ui::MainForm ui;
 	std::shared_ptr<GameMap> map;
+	MapTile *currentMapTile;
+	int lastSelectedTextureIndex;
 	bool functionAfterShownCalled;
-    std::string getExecutablePath();
+	std::string executablePath;
+	std::string resourcesPath;
+    const std::string &getExecutablePath();
+    const std::string &getResourcesPath();
 	void showErrorMessage(const std::string &message,
 						  const std::string &internalError) const;
 	void setAppStylesheet(const std::string &style);
@@ -31,6 +36,9 @@ private:
 	void onTileClicked(int tileIndex);
 	void refreshTextureList();
 	void onPushButtonViewTextureClick();
+	void onLabelImageTextureMouseReleaseEvent(QMouseEvent *event);
+	int getTextureIndexFromPosition(const QPoint &pos, const Texture &texture);
+	void onLineEditTexIndexTextChange(const QString &text);
 };
 
 #endif // MAINFORM_H

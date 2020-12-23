@@ -15,16 +15,18 @@ MainForm::MainForm(QWidget *parent)
 	: QMainWindow(parent),
 	  ui(Ui::MainForm()),
 	  map(nullptr),
-	  functionAfterShownCalled(false)
+	  currentMapTile(nullptr),
+	  functionAfterShownCalled(false), 
+	  executablePath("")
 {
 	ui.setupUi(this);
 	connectUIActions();
 
-	ui.mapOpenGLWidget->setExecutablePath(getExecutablePath());
-	map = make_shared<GameMap>(10, 10);
+	ui.mapOpenGLWidget->setResourcesPath(getResourcesPath());
+	map = make_shared<GameMap>(160, 160);
 	TextureInfo textureInfo {
-		"terrain1", "tile2.png",
-		256, 704,
+		"terrain1", "tile.png",
+		256, 4256,
 		32, 32
 	};
 	map->addTexture(textureInfo);
@@ -42,6 +44,8 @@ void MainForm::connectUIActions()
 	connect(ui.action_DarkTheme, &QAction::triggered, this, &MainForm::action_DarkTheme_Click);
 	connect(ui.mapOpenGLWidget, &MapOpenGLWidget::onTileClicked, this, &MainForm::onTileClicked);
 	connect(ui.pushButtonViewTexture, &QPushButton::clicked, this, &MainForm::onPushButtonViewTextureClick);
+	connect(ui.labelImageTexture, &QClickableLabel::onMouseReleaseEvent, this, &MainForm::onLabelImageTextureMouseReleaseEvent);
+	connect(ui.lineEditTexIndex, &QLineEdit::textChanged, this, &MainForm::onLineEditTexIndexTextChange);
 }
 
 MainForm::~MainForm()
@@ -53,16 +57,24 @@ void MainForm::functionAfterShown()
 	//setWindowIcon(QIcon(":/global/TeacherHelper Icon256.png"));
 }
 
-std::string MainForm::getExecutablePath() 
+const std::string &MainForm::getExecutablePath() 
 {
-    char result[PATH_MAX];
-    ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
-    if (count != -1) {
-        return dirname(result);
-    }
-    else {
-        return "";
-    }
+	if (executablePath.empty()) {
+		char result[PATH_MAX];
+		ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+		if (count != -1) {
+			executablePath = dirname(result);
+		}
+	}
+	return executablePath;
+}
+
+const std::string& MainForm::getResourcesPath() 
+{
+	if (resourcesPath.empty()) {
+		resourcesPath = fmt::format("{0}/resources/", getExecutablePath());
+	}
+	return resourcesPath;
 }
 
 bool MainForm::event(QEvent *event)
@@ -162,17 +174,38 @@ void MainForm::resizeEvent(QResizeEvent *)
 void MainForm::onTileClicked(int tileIndex) 
 {
 	if (tileIndex != -1) {
+		currentMapTile = &map->getTileForEditing(tileIndex);
+		ui.lineEditTexName->setText(currentMapTile->getTextureName().c_str());
+		ui.lineEditTexIndex->setText(to_string(currentMapTile->getTextureIndex()).c_str());
+		ui.lineEditObjTexName->setText(currentMapTile->getObjectTextureName().c_str());
+		ui.lineEditObjTexIndex->setText(to_string(currentMapTile->getObjectTextureIndex()).c_str());
 		ui.toolBox->setCurrentWidget(ui.page_TileProperties);
+
+		//currentMapTile->setTextureIndex(lastSelectedTextureIndex);
+	}
+	else {
+		currentMapTile = nullptr;
 	}
 }
 
 void MainForm::refreshTextureList() 
 {
 	ui.listWidgetTextures->model()->removeRows(0, ui.listWidgetTextures->count());
+	ui.comboBoxTexture->model()->removeRows(0, ui.comboBoxTexture->count());
 	int index {0};
 	for(const auto &texture : map->getTextures()) {
 		ui.listWidgetTextures->insertItem(index, texture.getName().c_str());
+		ui.comboBoxTexture->insertItem(index, texture.getName().c_str());
 		index++;
+	}
+	//Find the selected texture
+	auto texture { map->getTextureByName(ui.comboBoxTexture->itemText(ui.comboBoxTexture->currentIndex()).toStdString()) };
+	if (texture.has_value()) {
+		QImageReader reader(fmt::format("{0}/resources/{1}", getExecutablePath(), texture->getFilename()).c_str());
+		const QImage image = reader.read();
+		ui.labelImageTexture->setFixedSize(image.width(), image.height());
+		//this->setFixedSize(image.width() + 20, image.height() + 80);
+		ui.labelImageTexture->setPixmap(QPixmap::fromImage(image));
 	}
 }
 
@@ -186,5 +219,32 @@ void MainForm::onPushButtonViewTextureClick()
 			ViewTextureForm formViewTexture(this, getExecutablePath(), selectedTexture.get_ptr());
 			formViewTexture.exec();
 		}
+	}
+}
+
+void MainForm::onLabelImageTextureMouseReleaseEvent(QMouseEvent *event) 
+{
+	auto texture { map->getTextureByName(ui.comboBoxTexture->itemText(ui.comboBoxTexture->currentIndex()).toStdString()) };
+	if (texture.has_value()) {
+		lastSelectedTextureIndex = getTextureIndexFromPosition(event->pos(), texture.get());
+		//showErrorMessage(fmt::format("{0}", lastTextureIndex), "");
+	}
+	
+}
+
+int MainForm::getTextureIndexFromPosition(const QPoint &pos, const Texture &texture) 
+{
+	int realY { texture.getHeight() - pos.y()};
+	int indexX = pos.x() / texture.getTileWidth();
+	int indexY = realY / texture.getTileHeight();
+	int tileIndex { indexX + (indexY * (texture.getWidth()/texture.getTileWidth())) };
+	return tileIndex;
+}
+
+void MainForm::onLineEditTexIndexTextChange(const QString &text) 
+{
+	if (currentMapTile != nullptr) {
+		currentMapTile->setTextureIndex(text.toInt());
+		ui.mapOpenGLWidget->updateGL();
 	}
 }

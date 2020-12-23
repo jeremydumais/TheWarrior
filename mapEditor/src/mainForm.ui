@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1126</width>
-    <height>881</height>
+    <width>1390</width>
+    <height>897</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,6 +19,12 @@
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QToolBox" name="toolBox">
+        <property name="minimumSize">
+         <size>
+          <width>300</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="maximumSize">
          <size>
           <width>300</width>
@@ -26,7 +32,7 @@
          </size>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="pageMapProperties">
          <property name="geometry">
@@ -34,7 +40,7 @@
            <x>0</x>
            <y>0</y>
            <width>300</width>
-           <height>692</height>
+           <height>708</height>
           </rect>
          </property>
          <attribute name="label">
@@ -79,7 +85,7 @@
            <x>0</x>
            <y>0</y>
            <width>300</width>
-           <height>692</height>
+           <height>708</height>
           </rect>
          </property>
          <attribute name="label">
@@ -94,10 +100,59 @@
             <height>411</height>
            </rect>
           </property>
-          <layout class="QFormLayout" name="formLayout_2"/>
+          <layout class="QFormLayout" name="formLayout_2">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>Tex Name</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Tex Index</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="lineEditTexName"/>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="lineEditTexIndex"/>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="lineEditObjTexName"/>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLineEdit" name="lineEditObjTexIndex"/>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>Obj Tex Name</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>Obj Tex Index</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </widget>
         <widget class="QWidget" name="page_TextureList">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>300</width>
+           <height>708</height>
+          </rect>
+         </property>
          <attribute name="label">
           <string>Texture list</string>
          </attribute>
@@ -154,7 +209,60 @@
        </widget>
       </item>
       <item>
-       <widget class="MapOpenGLWidget" name="mapOpenGLWidget"/>
+       <widget class="MapOpenGLWidget" name="mapOpenGLWidget">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>800</width>
+          <height>800</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="0" column="1">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>Texture : </string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="comboBoxTexture"/>
+      </item>
+      <item>
+       <widget class="QScrollArea" name="scrollArea">
+        <property name="widgetResizable">
+         <bool>true</bool>
+        </property>
+        <widget class="QWidget" name="scrollAreaWidgetContents">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>254</width>
+           <height>745</height>
+          </rect>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="0" column="0">
+           <widget class="QClickableLabel" name="labelImageTexture">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
       </item>
      </layout>
     </item>
@@ -165,7 +273,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1126</width>
+     <width>1390</width>
      <height>22</height>
     </rect>
    </property>
@@ -217,7 +325,10 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="action_Select"/>
+   <addaction name="action_MoveMap"/>
    <addaction name="action_ApplyTexture"/>
+   <addaction name="action_ApplyObject"/>
    <addaction name="separator"/>
    <addaction name="separator"/>
   </widget>
@@ -257,12 +368,24 @@
     <string>&amp;Save...</string>
    </property>
   </action>
+  <action name="action_Select">
+   <property name="text">
+    <string>Select</string>
+   </property>
+  </action>
+  <action name="action_MoveMap">
+   <property name="text">
+    <string>Move Map</string>
+   </property>
+  </action>
   <action name="action_ApplyTexture">
    <property name="text">
     <string>Apply texture</string>
    </property>
-   <property name="toolTip">
-    <string>Apply texture</string>
+  </action>
+  <action name="action_ApplyObject">
+   <property name="text">
+    <string>Apply Object</string>
    </property>
   </action>
  </widget>
@@ -271,6 +394,11 @@
    <class>MapOpenGLWidget</class>
    <extends>QOpenGLWidget</extends>
    <header>../../../../mapEditor/src/mapOpenGLWidget.hpp</header>
+  </customwidget>
+  <customwidget>
+   <class>QClickableLabel</class>
+   <extends>QLabel</extends>
+   <header>../../../../mapEditor/src/qClickableLabel.hpp</header>
   </customwidget>
  </customwidgets>
  <resources>
