@@ -14,16 +14,21 @@ using namespace std;
 MainForm::MainForm(QWidget *parent)
 	: QMainWindow(parent),
 	  ui(Ui::MainForm()),
+	  selectionMode(SelectionMode::Select),
 	  map(nullptr),
 	  currentMapTile(nullptr),
+	  lastSelectedTextureName(""),
+	  lastSelectedTextureIndex(-1),
 	  functionAfterShownCalled(false), 
-	  executablePath("")
+	  executablePath(""),
+	  resourcesPath(""),
+	  lastBulkUpdatedTileIndex(-1)
 {
 	ui.setupUi(this);
 	connectUIActions();
 
 	ui.mapOpenGLWidget->setResourcesPath(getResourcesPath());
-	map = make_shared<GameMap>(160, 160);
+	map = make_shared<GameMap>(20, 20);
 	TextureInfo textureInfo {
 		"terrain1", "tile.png",
 		256, 4256,
@@ -42,7 +47,13 @@ void MainForm::connectUIActions()
 	connect(ui.action_About, &QAction::triggered, this, &MainForm::action_About_Click);
 	connect(ui.action_LightTheme, &QAction::triggered, this, &MainForm::action_LightTheme_Click);
 	connect(ui.action_DarkTheme, &QAction::triggered, this, &MainForm::action_DarkTheme_Click);
+	connect(ui.action_Select, &QAction::triggered, this, &MainForm::action_SelectClick);
+	connect(ui.action_MoveMap, &QAction::triggered, this, &MainForm::action_MoveMapClick);
+	connect(ui.action_ApplyTexture, &QAction::triggered, this, &MainForm::action_ApplyTextureClick);
+	connect(ui.action_ApplyObject, &QAction::triggered, this, &MainForm::action_ApplyObjectClick);
 	connect(ui.mapOpenGLWidget, &MapOpenGLWidget::onTileClicked, this, &MainForm::onTileClicked);
+	connect(ui.mapOpenGLWidget, &MapOpenGLWidget::onTileMouseReleaseEvent, this, &MainForm::onTileMouseReleaseEvent);
+	connect(ui.mapOpenGLWidget, &MapOpenGLWidget::onTileMouseMoveEvent, this, &MainForm::onTileMouseMoveEvent);
 	connect(ui.pushButtonViewTexture, &QPushButton::clicked, this, &MainForm::onPushButtonViewTextureClick);
 	connect(ui.labelImageTexture, &QClickableLabel::onMouseReleaseEvent, this, &MainForm::onLabelImageTextureMouseReleaseEvent);
 	connect(ui.lineEditTexIndex, &QLineEdit::textChanged, this, &MainForm::onLineEditTexIndexTextChange);
@@ -114,6 +125,30 @@ void MainForm::action_DarkTheme_Click()
 		showErrorMessage("An error occurred while saving the configuration file.", 
 						 configManager.getLastError());
 	}*/
+}
+
+void MainForm::action_SelectClick() 
+{
+	selectionMode = SelectionMode::Select;
+	ui.mapOpenGLWidget->setSelectionMode(selectionMode);
+}
+
+void MainForm::action_MoveMapClick() 
+{
+	selectionMode = SelectionMode::MoveMap;
+	ui.mapOpenGLWidget->setSelectionMode(selectionMode);
+}
+
+void MainForm::action_ApplyTextureClick() 
+{
+	selectionMode = SelectionMode::ApplyTexture;
+	ui.mapOpenGLWidget->setSelectionMode(selectionMode);
+}
+
+void MainForm::action_ApplyObjectClick() 
+{
+	selectionMode = SelectionMode::ApplyObject;
+	ui.mapOpenGLWidget->setSelectionMode(selectionMode);
 }
 
 void MainForm::showErrorMessage(const string &message,
@@ -188,6 +223,45 @@ void MainForm::onTileClicked(int tileIndex)
 	}
 }
 
+void MainForm::onTileMouseReleaseEvent(int tileIndex) 
+{
+	if (selectionMode == SelectionMode::ApplyTexture) {
+		currentMapTile = &map->getTileForEditing(tileIndex);
+		currentMapTile->setTextureName(lastSelectedTextureName);
+		currentMapTile->setTextureIndex(lastSelectedTextureIndex);
+	}
+	else if (selectionMode == SelectionMode::ApplyObject) {
+		currentMapTile = &map->getTileForEditing(tileIndex);
+		currentMapTile->setObjectTextureName(lastSelectedTextureName);
+		currentMapTile->setObjectTextureIndex(lastSelectedTextureIndex);
+	}
+	lastBulkUpdatedTileIndex = -1;
+	setCursor(Qt::CursorShape::ArrowCursor);
+}
+
+void MainForm::onTileMouseMoveEvent(bool mousePressed, int tileIndex) 
+{
+
+	if (mousePressed && selectionMode == SelectionMode::ApplyTexture && tileIndex != lastBulkUpdatedTileIndex) {
+		setCursor(Qt::CursorShape::PointingHandCursor);
+		if (currentMapTile != nullptr) {
+			currentMapTile = &map->getTileForEditing(tileIndex);
+			currentMapTile->setTextureName(lastSelectedTextureName);
+			currentMapTile->setTextureIndex(lastSelectedTextureIndex);
+			lastBulkUpdatedTileIndex = tileIndex;
+		}
+	}
+	else if (mousePressed && selectionMode == SelectionMode::ApplyObject && tileIndex != lastBulkUpdatedTileIndex) {
+		setCursor(Qt::CursorShape::PointingHandCursor);
+		if (currentMapTile != nullptr) {
+			currentMapTile = &map->getTileForEditing(tileIndex);
+			currentMapTile->setObjectTextureName(lastSelectedTextureName);
+			currentMapTile->setObjectTextureIndex(lastSelectedTextureIndex);
+			lastBulkUpdatedTileIndex = tileIndex;
+		}
+	}
+}
+
 void MainForm::refreshTextureList() 
 {
 	ui.listWidgetTextures->model()->removeRows(0, ui.listWidgetTextures->count());
@@ -224,12 +298,14 @@ void MainForm::onPushButtonViewTextureClick()
 
 void MainForm::onLabelImageTextureMouseReleaseEvent(QMouseEvent *event) 
 {
-	auto texture { map->getTextureByName(ui.comboBoxTexture->itemText(ui.comboBoxTexture->currentIndex()).toStdString()) };
+	int comboBoxTextureCurrentIndex { ui.comboBoxTexture->currentIndex() };
+	std::string textureName { ui.comboBoxTexture->itemText(comboBoxTextureCurrentIndex).toStdString() };
+	auto texture { map->getTextureByName(textureName) };
 	if (texture.has_value()) {
+		lastSelectedTextureName = textureName;
 		lastSelectedTextureIndex = getTextureIndexFromPosition(event->pos(), texture.get());
 		//showErrorMessage(fmt::format("{0}", lastTextureIndex), "");
-	}
-	
+	}	
 }
 
 int MainForm::getTextureIndexFromPosition(const QPoint &pos, const Texture &texture) 

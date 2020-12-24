@@ -10,6 +10,7 @@ using namespace std;
 
 MapOpenGLWidget::MapOpenGLWidget(QWidget *parent)
     : QGLWidget(QGLFormat(QGL::SampleBuffers), parent),
+      selectionMode(SelectionMode::Select),
       mousePressed(false),
       translationX(0.0f),
       translationDragAndDropX(0.0f),
@@ -112,14 +113,19 @@ void MapOpenGLWidget::setResourcesPath(const std::string &path)
     this->resourcesPath = path;
 }
 
+void MapOpenGLWidget::setSelectionMode(SelectionMode mode) 
+{
+    selectionMode = mode;
+}
+
 void MapOpenGLWidget::mousePressEvent(QMouseEvent *event)
 {
-    if (!mousePressed) {
+    if (!mousePressed && selectionMode == SelectionMode::MoveMap) {
         translationDragAndDropX = 0.0f;
         translationDragAndDropY = 0.0f;
-        lastCursorPosition = event->pos();
-        mousePressed = true;
     }
+    lastCursorPosition = event->pos();
+    mousePressed = true;
     updateGL();
 }
 
@@ -130,8 +136,7 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event)
     translationDragAndDropX = 0;
     translationY += translationDragAndDropY;
     translationDragAndDropY = 0;
-    if (event->pos().x() == lastCursorPosition.x() && 
-        event->pos().y() == lastCursorPosition.y()) {
+    if (selectionMode == SelectionMode::Select) {
         //Found which tile was clicked
         selectedTileIndex = getTileIndex(lastCursorPosition.x(), lastCursorPosition.y());
         emit onTileClicked(selectedTileIndex);
@@ -139,12 +144,16 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event)
     else {
         //emit onTileClicked(translationX);
     }
+    auto currentTileIndex { getTileIndex(event->pos().x(), event->pos().y()) };
+    if (currentTileIndex != -1) {
+        emit onTileMouseReleaseEvent(currentTileIndex);
+    }
     updateGL();
 }
 
 void MapOpenGLWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    if (mousePressed) {
+    if (mousePressed && selectionMode == SelectionMode::MoveMap) {
         translationDragAndDropX = (float)(event->pos().x() - lastCursorPosition.x()) / ((float)ONSCREENTILESIZE * TRANSLATIONTOPIXEL);
         /*if (translationX + translationTempX > 0) {
             translationTempX = 0;
@@ -154,6 +163,7 @@ void MapOpenGLWidget::mouseMoveEvent(QMouseEvent *event)
             translationTempY = 0;
         }*/
     }
+    emit onTileMouseMoveEvent(mousePressed, getTileIndex(event->pos().x(), event->pos().y()));
     updateGL();
 }
 
@@ -197,12 +207,12 @@ void MapOpenGLWidget::draw()
                     glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
                 }
             glEnd();
-            glColor3f (1.0f, 0.0f, 0.0f);
+            /*glColor3f (1.0f, 0.0f, 0.0f);
             string indexStr { fmt::format("{}", index) };
             glRasterPos3f(-0.02 * indexStr.size(), 0, 0.1);
             for(size_t i = 0; i < indexStr.size(); i++) {
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, indexStr[i]);
-            }
+            }*/
             x += TILESIZE + TILESPACING;
             glTranslatef(TILESIZE + TILESPACING, 0, 0);
             glBindTexture(GL_TEXTURE_2D, 0);
@@ -237,18 +247,18 @@ void MapOpenGLWidget::drawTileWithTexture(const std::string &textureName, int te
 }
 
 
-int MapOpenGLWidget::getTileIndex(unsigned int onScreenX, unsigned int onScreenY) 
+int MapOpenGLWidget::getTileIndex(int onScreenX, int onScreenY) 
 {
     if (onScreenX / ONSCREENTILESIZE > currentMap->getWidth() - 1) {
         return -1;
     }
-    if (onScreenY / ONSCREENTILESIZE > currentMap->getWidth() - 1) {
+    if (onScreenY / ONSCREENTILESIZE > currentMap->getHeight() - 1) {
         return -1;
     }
-    unsigned int x = onScreenX - ((translationX * TRANSLATIONTOPIXEL) * (float)ONSCREENTILESIZE);
-    unsigned int y = onScreenY + ((translationY * TRANSLATIONTOPIXEL) * (float)ONSCREENTILESIZE);
-    unsigned int indexX = x / ONSCREENTILESIZE;
-    unsigned int indexY = y / ONSCREENTILESIZE;
-    unsigned int tileIndex { indexX + (indexY * currentMap->getWidth()) };
+    int x = onScreenX - ((translationX * TRANSLATIONTOPIXEL) * (float)ONSCREENTILESIZE);
+    int y = onScreenY + ((translationY * TRANSLATIONTOPIXEL) * (float)ONSCREENTILESIZE);
+    int indexX = x / ONSCREENTILESIZE;
+    int indexY = y / ONSCREENTILESIZE;
+    int tileIndex { indexX + (indexY * static_cast<int>(currentMap->getWidth())) };
     return tileIndex;
 }

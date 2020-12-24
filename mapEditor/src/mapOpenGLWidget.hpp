@@ -2,6 +2,7 @@
 #define MAPOPENGLWIDGET_H
 
 #include "gameMap.hpp"
+#include "selectionMode.hpp"
 #include <map>
 #include <memory>
 #include <QtOpenGL/QGLWidget>
@@ -17,6 +18,7 @@ public:
     void setCurrentMap(std::shared_ptr<GameMap> map);
     void resizeGL(int width, int height);
     void setResourcesPath(const std::string &path);
+    void setSelectionMode(SelectionMode mode);
 protected:
     void initializeGL();
     void paintGL();
@@ -27,7 +29,10 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event);
 signals:
     void onTileClicked(int tileIndex);
+    void onTileMouseReleaseEvent(int tileIndex);
+    void onTileMouseMoveEvent(bool mousePressed, int tileIndex);
 private:
+	SelectionMode selectionMode;
     std::string resourcesPath;
     bool mousePressed;
     float translationX;
@@ -46,7 +51,7 @@ private:
     const float TILESPACING { 0.0f };
     void draw();
     void drawTileWithTexture(const std::string &textureName, int textureIndex);
-    int getTileIndex(unsigned int onScreenX, unsigned int onScreenY);
+    int getTileIndex(int onScreenX, int onScreenY);
 };
 
 #endif // MAPOPENGLWIDGET_H

@@ -19,18 +19,18 @@ GameMap::GameMap(unsigned int width, unsigned int height)
         vector<MapTile> col;
         for(unsigned int j = 0; j < height; j++) {
             MapTile newTile;
-            if (i == 0 && j == 0) {
+            /*if (i == 0 && j == 0) {
                 newTile.setTextureName("terrain1");
                 newTile.setTextureIndex(258);
                 newTile.setObjectTextureName("terrain1");
                 newTile.setObjectTextureIndex(7);
-            }
-            else {
+            }*/
+            //else {
             //if (j < 5) {
-                newTile.setTextureName("terrain1");
-                newTile.setTextureIndex(texIndex);
-                texIndex++;
-            }
+                //newTile.setTextureName("terrain1");
+                //newTile.setTextureIndex(texIndex);
+                //texIndex++;
+            //}
             //}
             /*}
             else {
