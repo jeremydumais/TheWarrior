@@ -1,5 +1,5 @@
 #include "mainForm.hpp"
-#include "viewTextureForm.h"
+#include "editTextureForm.hpp"
 #include <algorithm>
 #include <fmt/format.h>
 #include <QtCore/qfile.h>
@@ -18,11 +18,12 @@ MainForm::MainForm(QWidget *parent)
 	  map(nullptr),
 	  currentMapTile(nullptr),
 	  lastSelectedTextureName(""),
+	  lastSelectedObjectName(""),
 	  lastSelectedTextureIndex(-1),
+	  lastSelectedObjectIndex(-1),
 	  functionAfterShownCalled(false), 
 	  executablePath(""),
-	  resourcesPath(""),
-	  lastBulkUpdatedTileIndex(-1)
+	  resourcesPath("")
 {
 	ui.setupUi(this);
 	connectUIActions();
@@ -54,7 +55,9 @@ void MainForm::connectUIActions()
 	connect(ui.mapOpenGLWidget, &MapOpenGLWidget::onTileClicked, this, &MainForm::onTileClicked);
 	connect(ui.mapOpenGLWidget, &MapOpenGLWidget::onTileMouseReleaseEvent, this, &MainForm::onTileMouseReleaseEvent);
 	connect(ui.mapOpenGLWidget, &MapOpenGLWidget::onTileMouseMoveEvent, this, &MainForm::onTileMouseMoveEvent);
-	connect(ui.pushButtonViewTexture, &QPushButton::clicked, this, &MainForm::onPushButtonViewTextureClick);
+	connect(ui.pushButtonEditTexture, &QPushButton::clicked, this, &MainForm::onPushButtonEditTextureClick);
+	connect(ui.pushButtonSelectedTextureClear, &QPushButton::clicked, this, &MainForm::onPushButtonSelectedTextureClearClick);
+	connect(ui.pushButtonSelectedObjectClear, &QPushButton::clicked, this, &MainForm::onPushButtonSelectedObjectClearClick);
 	connect(ui.labelImageTexture, &QClickableLabel::onMouseReleaseEvent, this, &MainForm::onLabelImageTextureMouseReleaseEvent);
 	connect(ui.lineEditTexIndex, &QLineEdit::textChanged, this, &MainForm::onLineEditTexIndexTextChange);
 }
@@ -223,43 +226,27 @@ void MainForm::onTileClicked(int tileIndex)
 	}
 }
 
-void MainForm::onTileMouseReleaseEvent(int tileIndex) 
+void MainForm::onTileMouseReleaseEvent(vector<int> selectedTileIndexes) 
 {
 	if (selectionMode == SelectionMode::ApplyTexture) {
-		currentMapTile = &map->getTileForEditing(tileIndex);
-		currentMapTile->setTextureName(lastSelectedTextureName);
-		currentMapTile->setTextureIndex(lastSelectedTextureIndex);
+		for(const int index : selectedTileIndexes) {
+			currentMapTile = &map->getTileForEditing(index);
+			currentMapTile->setTextureName(lastSelectedTextureName);
+			currentMapTile->setTextureIndex(lastSelectedTextureIndex);
+		}
 	}
 	else if (selectionMode == SelectionMode::ApplyObject) {
-		currentMapTile = &map->getTileForEditing(tileIndex);
-		currentMapTile->setObjectTextureName(lastSelectedTextureName);
-		currentMapTile->setObjectTextureIndex(lastSelectedTextureIndex);
+		for(const int index : selectedTileIndexes) {
+			currentMapTile = &map->getTileForEditing(index);
+			currentMapTile->setObjectTextureName(lastSelectedObjectName);
+			currentMapTile->setObjectTextureIndex(lastSelectedObjectIndex);
+		}
 	}
-	lastBulkUpdatedTileIndex = -1;
 	setCursor(Qt::CursorShape::ArrowCursor);
 }
 
 void MainForm::onTileMouseMoveEvent(bool mousePressed, int tileIndex) 
 {
-
-	if (mousePressed && selectionMode == SelectionMode::ApplyTexture && tileIndex != lastBulkUpdatedTileIndex) {
-		setCursor(Qt::CursorShape::PointingHandCursor);
-		if (currentMapTile != nullptr) {
-			currentMapTile = &map->getTileForEditing(tileIndex);
-			currentMapTile->setTextureName(lastSelectedTextureName);
-			currentMapTile->setTextureIndex(lastSelectedTextureIndex);
-			lastBulkUpdatedTileIndex = tileIndex;
-		}
-	}
-	else if (mousePressed && selectionMode == SelectionMode::ApplyObject && tileIndex != lastBulkUpdatedTileIndex) {
-		setCursor(Qt::CursorShape::PointingHandCursor);
-		if (currentMapTile != nullptr) {
-			currentMapTile = &map->getTileForEditing(tileIndex);
-			currentMapTile->setObjectTextureName(lastSelectedTextureName);
-			currentMapTile->setObjectTextureIndex(lastSelectedTextureIndex);
-			lastBulkUpdatedTileIndex = tileIndex;
-		}
-	}
 }
 
 void MainForm::refreshTextureList() 
@@ -283,17 +270,31 @@ void MainForm::refreshTextureList()
 	}
 }
 
-void MainForm::onPushButtonViewTextureClick() 
+void MainForm::onPushButtonEditTextureClick() 
 {
 	if (ui.listWidgetTextures->selectionModel()->hasSelection()) {
 		//Find the selected texture
 		auto selectedItemName { ui.listWidgetTextures->selectionModel()->selectedRows()[0].data().toString().toStdString() };
 		auto selectedTexture { map->getTextureByName(selectedItemName) };
 		if (selectedTexture.has_value()) {
-			ViewTextureForm formViewTexture(this, getExecutablePath(), selectedTexture.get_ptr());
-			formViewTexture.exec();
+			EditTextureForm formEditTexture(this, getExecutablePath(), selectedTexture.get_ptr());
+			formEditTexture.exec();
 		}
 	}
+}
+
+void MainForm::onPushButtonSelectedTextureClearClick() 
+{
+	lastSelectedTextureName = "";
+	lastSelectedTextureIndex = -1;
+	ui.labelSelectedTexture->clear();
+}
+
+void MainForm::onPushButtonSelectedObjectClearClick() 
+{
+	lastSelectedObjectName = "";
+	lastSelectedObjectIndex = -1;
+	ui.labelSelectedObject->clear();
 }
 
 void MainForm::onLabelImageTextureMouseReleaseEvent(QMouseEvent *event) 
@@ -302,9 +303,20 @@ void MainForm::onLabelImageTextureMouseReleaseEvent(QMouseEvent *event)
 	std::string textureName { ui.comboBoxTexture->itemText(comboBoxTextureCurrentIndex).toStdString() };
 	auto texture { map->getTextureByName(textureName) };
 	if (texture.has_value()) {
-		lastSelectedTextureName = textureName;
-		lastSelectedTextureIndex = getTextureIndexFromPosition(event->pos(), texture.get());
-		//showErrorMessage(fmt::format("{0}", lastTextureIndex), "");
+		string name = textureName;
+		int index = getTextureIndexFromPosition(event->pos(), texture.get());
+		//Display the selected texture or object on the selected image
+		auto imagePart { getTextureTileImageFromTexture(index, texture.get()) };
+		if (selectionMode == SelectionMode::ApplyTexture) {
+			lastSelectedTextureName = name;
+			lastSelectedTextureIndex = index;
+			ui.labelSelectedTexture->setPixmap(imagePart);
+		}
+		else if (selectionMode == SelectionMode::ApplyObject) {
+			lastSelectedObjectName = name;
+			lastSelectedObjectIndex = index;
+			ui.labelSelectedObject->setPixmap(imagePart);
+		}
 	}	
 }
 
@@ -323,4 +335,14 @@ void MainForm::onLineEditTexIndexTextChange(const QString &text)
 		currentMapTile->setTextureIndex(text.toInt());
 		ui.mapOpenGLWidget->updateGL();
 	}
+}
+
+QPixmap MainForm::getTextureTileImageFromTexture(int tileIndex, const Texture &texture) const 
+{
+	int textureWidthInPixel { texture.getWidth() };
+	int textureHeightInPixel { texture.getHeight() };
+	int x { (tileIndex * texture.getTileWidth()) % textureWidthInPixel };
+	int y { textureHeightInPixel - (((tileIndex * texture.getTileWidth()) / textureWidthInPixel) * texture.getTileHeight()) };
+	QPixmap imagePart = ui.labelImageTexture->pixmap()->copy(x, y - texture.getTileHeight(), texture.getTileWidth(), texture.getTileHeight());
+	return imagePart;
 }

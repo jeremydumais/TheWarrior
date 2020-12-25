@@ -3,11 +3,13 @@
 
 #include "gameMap.hpp"
 #include "selectionMode.hpp"
+#include <glm/glm.hpp>
 #include <map>
 #include <memory>
 #include <QtOpenGL/QGLWidget>
 #include <QtOpenGL/QtOpenGL>
 #include <string>
+#include <vector>
 
 class MapOpenGLWidget : public QGLWidget
 {
@@ -29,7 +31,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event);
 signals:
     void onTileClicked(int tileIndex);
-    void onTileMouseReleaseEvent(int tileIndex);
+    void onTileMouseReleaseEvent(std::vector<int> tileIndex);
     void onTileMouseMoveEvent(bool mousePressed, int tileIndex);
 private:
 	SelectionMode selectionMode;
@@ -44,6 +46,7 @@ private:
     std::map<std::string, const Texture &> texturesObjMap; //Mapping between texture name and texture object
     std::shared_ptr<GameMap> currentMap;
     QPoint lastCursorPosition;
+    QPoint currentCursorPosition;
     const float TILESIZE { 0.2f };
     const float TILEHALFSIZE { TILESIZE / 2.0f };
     const unsigned int ONSCREENTILESIZE { 40 };
@@ -51,7 +54,9 @@ private:
     const float TILESPACING { 0.0f };
     void draw();
     void drawTileWithTexture(const std::string &textureName, int textureIndex);
+    void drawSelectionZone() const;
     int getTileIndex(int onScreenX, int onScreenY);
+    glm::vec2 convertScreenCoordToGlCoord(QPoint coord) const;
 };
 
 #endif // MAPOPENGLWIDGET_H

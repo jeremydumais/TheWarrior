@@ -4,6 +4,7 @@
 #include "gameMap.hpp"
 #include "selectionMode.hpp"
 #include <memory>
+#include <vector>
 #include "ui_mainForm.h"
 
 class MainForm : public QMainWindow
@@ -21,11 +22,12 @@ private:
 	std::shared_ptr<GameMap> map;
 	MapTile *currentMapTile;
 	std::string lastSelectedTextureName;
+	std::string lastSelectedObjectName;
 	int lastSelectedTextureIndex;
+	int lastSelectedObjectIndex;
 	bool functionAfterShownCalled;
 	std::string executablePath;
 	std::string resourcesPath;
-	int lastBulkUpdatedTileIndex;
     const std::string &getExecutablePath();
     const std::string &getResourcesPath();
 	void showErrorMessage(const std::string &message,
@@ -42,13 +44,16 @@ private:
 	void mapPaint(QPaintEvent *e);
 	void resizeEvent(QResizeEvent *);
 	void onTileClicked(int tileIndex);
-    void onTileMouseReleaseEvent(int tileIndex);
+    void onTileMouseReleaseEvent(std::vector<int> selectedTileIndexes);
     void onTileMouseMoveEvent(bool mousePressed, int tileIndex);
 	void refreshTextureList();
-	void onPushButtonViewTextureClick();
+	void onPushButtonEditTextureClick();
+	void onPushButtonSelectedTextureClearClick();
+	void onPushButtonSelectedObjectClearClick();
 	void onLabelImageTextureMouseReleaseEvent(QMouseEvent *event);
 	int getTextureIndexFromPosition(const QPoint &pos, const Texture &texture);
 	void onLineEditTexIndexTextChange(const QString &text);
+	QPixmap getTextureTileImageFromTexture(int tileIndex, const Texture &texture) const;
 };
 
 #endif // MAINFORM_H

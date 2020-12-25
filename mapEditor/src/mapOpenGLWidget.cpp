@@ -125,6 +125,7 @@ void MapOpenGLWidget::mousePressEvent(QMouseEvent *event)
         translationDragAndDropY = 0.0f;
     }
     lastCursorPosition = event->pos();
+    currentCursorPosition = event->pos();
     mousePressed = true;
     updateGL();
 }
@@ -141,12 +142,38 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event)
         selectedTileIndex = getTileIndex(lastCursorPosition.x(), lastCursorPosition.y());
         emit onTileClicked(selectedTileIndex);
     }
-    else {
-        //emit onTileClicked(translationX);
+    else if (selectionMode == SelectionMode::ApplyTexture || selectionMode == SelectionMode::ApplyObject) {
+        //Calculate the list of index selected
+        vector<int> selectedTileIndexes;
+        QPoint startCoord;
+        QPoint endCoord;
+        if (currentCursorPosition.x() < lastCursorPosition.x()) {
+            startCoord = currentCursorPosition;
+            endCoord = lastCursorPosition;
+        } 
+        else {
+            startCoord = lastCursorPosition;
+            endCoord = currentCursorPosition;
+        }
+        QPoint calculatedCoord { startCoord };
+        int yDirection { 1 };
+        if (startCoord.y() > endCoord.y()) {
+            yDirection = -1;
+        }
+        while(calculatedCoord.x() < endCoord.x() && 
+             ((yDirection == 1 && calculatedCoord.y() < endCoord.y()) || (yDirection == -1 && calculatedCoord.y() > endCoord.y()))) {
+            selectedTileIndexes.emplace_back(getTileIndex(calculatedCoord.x(), calculatedCoord.y()));
+            calculatedCoord.setX(calculatedCoord.x() + ONSCREENTILESIZE);
+            if (calculatedCoord.x() > endCoord.x()) {
+                calculatedCoord.setX(startCoord.x());
+                calculatedCoord.setY(calculatedCoord.y() + (ONSCREENTILESIZE * yDirection));
+            }
+        }
+        emit onTileMouseReleaseEvent(selectedTileIndexes);
     }
     auto currentTileIndex { getTileIndex(event->pos().x(), event->pos().y()) };
     if (currentTileIndex != -1) {
-        emit onTileMouseReleaseEvent(currentTileIndex);
+        emit onTileMouseReleaseEvent(vector<int> { currentTileIndex });
     }
     updateGL();
 }
@@ -155,14 +182,9 @@ void MapOpenGLWidget::mouseMoveEvent(QMouseEvent *event)
 {
     if (mousePressed && selectionMode == SelectionMode::MoveMap) {
         translationDragAndDropX = (float)(event->pos().x() - lastCursorPosition.x()) / ((float)ONSCREENTILESIZE * TRANSLATIONTOPIXEL);
-        /*if (translationX + translationTempX > 0) {
-            translationTempX = 0;
-        }*/
         translationDragAndDropY = (float)(lastCursorPosition.y() - event->pos().y()) / ((float)ONSCREENTILESIZE * TRANSLATIONTOPIXEL);
-        /*if (translationTempY > 0) {
-            translationTempY = 0;
-        }*/
     }
+    currentCursorPosition = event->pos();
     emit onTileMouseMoveEvent(mousePressed, getTileIndex(event->pos().x(), event->pos().y()));
     updateGL();
 }
@@ -174,8 +196,9 @@ void MapOpenGLWidget::draw()
 
     float x { -1.9f };
     float y { 1.9f };
-
-    glTranslatef(x + translationX + translationDragAndDropX, y + translationY + translationDragAndDropY, 0.0);
+    glTranslatef(x, y, 0.0);
+    glPushMatrix();
+    glTranslatef(translationX + translationDragAndDropX, translationY + translationDragAndDropY, 0.0);
     int index {0};
     for(const auto &row : currentMap->getTiles()) {
         for(const auto &tile : row) {      
@@ -222,6 +245,12 @@ void MapOpenGLWidget::draw()
         y += -(TILESIZE + TILESPACING);
         glTranslatef(row.size() * -(TILESIZE + TILESPACING), -(TILESIZE + TILESPACING), 0);
     }
+    glPopMatrix();
+    glPushMatrix();
+    if (mousePressed && (selectionMode == SelectionMode::ApplyTexture || selectionMode == SelectionMode::ApplyObject)) {
+        drawSelectionZone();
+    }
+    glPopMatrix();
 
     glDisable(GL_TEXTURE_2D);
 
@@ -246,19 +275,46 @@ void MapOpenGLWidget::drawTileWithTexture(const std::string &textureName, int te
     glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
 }
 
+void MapOpenGLWidget::drawSelectionZone() const
+{
+    glm::vec2 startCoord = convertScreenCoordToGlCoord(lastCursorPosition);
+    glm::vec2 endCoord = convertScreenCoordToGlCoord(currentCursorPosition - lastCursorPosition);
+    glTranslatef(startCoord.x, -startCoord.y, 0.0f);
+    glColor4f (0.0f, 0.0f, 1.0f, 0.3f);
+    glBegin(GL_QUADS);
+        glVertex3f(endCoord.x -TILEHALFSIZE, TILEHALFSIZE, 0);
+        glVertex3f(endCoord.x -TILEHALFSIZE, -endCoord.y + TILEHALFSIZE, 0);
+        glVertex3f(-TILEHALFSIZE, -endCoord.y + TILEHALFSIZE, 0);
+        glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
+    glEnd();
+}
+
 
 int MapOpenGLWidget::getTileIndex(int onScreenX, int onScreenY) 
 {
-    if (onScreenX / ONSCREENTILESIZE > currentMap->getWidth() - 1) {
+    if (onScreenX / static_cast<int>(ONSCREENTILESIZE) > static_cast<int>(currentMap->getWidth()) - 1) {
         return -1;
     }
-    if (onScreenY / ONSCREENTILESIZE > currentMap->getHeight() - 1) {
+    if (onScreenY / static_cast<int>(ONSCREENTILESIZE) > static_cast<int>(currentMap->getHeight()) - 1) {
         return -1;
     }
-    int x = onScreenX - ((translationX * TRANSLATIONTOPIXEL) * (float)ONSCREENTILESIZE);
-    int y = onScreenY + ((translationY * TRANSLATIONTOPIXEL) * (float)ONSCREENTILESIZE);
-    int indexX = x / ONSCREENTILESIZE;
-    int indexY = y / ONSCREENTILESIZE;
+    int x = onScreenX - ((translationX * TRANSLATIONTOPIXEL) * static_cast<float>(ONSCREENTILESIZE));
+    int y = onScreenY + ((translationY * TRANSLATIONTOPIXEL) * static_cast<float>(ONSCREENTILESIZE));
+    int indexX = x / static_cast<int>(ONSCREENTILESIZE);
+    int indexY = y / static_cast<int>(ONSCREENTILESIZE);
     int tileIndex { indexX + (indexY * static_cast<int>(currentMap->getWidth())) };
+    if (tileIndex < 0 || (tileIndex > static_cast<int>(currentMap->getWidth() * currentMap->getHeight() -1))) {
+        return -1;
+    }
     return tileIndex;
+}
+
+glm::vec2 MapOpenGLWidget::convertScreenCoordToGlCoord(QPoint coord) const
+{
+    float x = static_cast<float>(coord.x()) - ((translationX / TRANSLATIONTOPIXEL / static_cast<float>(ONSCREENTILESIZE)) * static_cast<float>(ONSCREENTILESIZE));
+    float y = static_cast<float>(coord.y()) + ((translationY / TRANSLATIONTOPIXEL / static_cast<float>(ONSCREENTILESIZE)) * static_cast<float>(ONSCREENTILESIZE));
+    glm::vec2 retVal;
+    retVal.x = x / TRANSLATIONTOPIXEL / static_cast<float>(ONSCREENTILESIZE);
+    retVal.y = y / TRANSLATIONTOPIXEL / static_cast<float>(ONSCREENTILESIZE);
+    return retVal;
 }
