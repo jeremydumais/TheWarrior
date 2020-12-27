@@ -41,32 +41,7 @@ QSize MapOpenGLWidget::sizeHint() const
 
 void MapOpenGLWidget::initializeGL()
 {
-    for(const auto &texture : currentMap->getTextures()) {  
-        const auto &textureName { texture.getName() }; 
-        glGenTextures(1, &texturesGLMap[textureName]);
-        glBindTexture(GL_TEXTURE_2D, texturesGLMap[textureName]); 
-        texturesObjMap.emplace(textureName, texture);
-        // set the texture wrapping parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        // set texture filtering parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        int width, height, nrChannels;
-        //stbi_set_flip_vertically_on_load(true);
-        string texFileName { texture.getFilename() };
-        string fullResourcePath = fmt::format("{0}/{1}", resourcesPath, texFileName);
-        unsigned char *imageBytes = stbi_load(fullResourcePath.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
-        if (imageBytes) {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageBytes);
-        }
-        else {
-            throw runtime_error(fmt::format("Failed to load texture {0}", fullResourcePath));
-        }
-        glBindTexture(GL_TEXTURE_2D, 0);
-        stbi_image_free(imageBytes);
-    }
+    reloadTextures();
 
     qglClearColor(Qt::black);
     glClearDepth(1.0f);
@@ -116,6 +91,42 @@ void MapOpenGLWidget::setResourcesPath(const std::string &path)
 void MapOpenGLWidget::setSelectionMode(SelectionMode mode) 
 {
     selectionMode = mode;
+}
+
+void MapOpenGLWidget::reloadTextures() 
+{
+    //Clear existing textures in graphics memory
+    for(auto &glTexture : texturesGLMap) {
+        glDeleteTextures(1, &glTexture.second);
+    }
+    texturesGLMap.clear();
+    texturesObjMap.clear();
+    //Load texture in graphics memory
+    for(const auto &texture : currentMap->getTextures()) {  
+        const auto &textureName { texture.getName() }; 
+        glGenTextures(1, &texturesGLMap[textureName]);
+        glBindTexture(GL_TEXTURE_2D, texturesGLMap[textureName]); 
+        texturesObjMap.emplace(textureName, texture);
+        // set the texture wrapping parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        // set texture filtering parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        int width, height, nrChannels;
+        string texFileName { texture.getFilename() };
+        string fullResourcePath = fmt::format("{0}/{1}", resourcesPath, texFileName);
+        unsigned char *imageBytes = stbi_load(fullResourcePath.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
+        if (imageBytes) {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageBytes);
+        }
+        else {
+            throw runtime_error(fmt::format("Failed to load texture {0}", fullResourcePath));
+        }
+        glBindTexture(GL_TEXTURE_2D, 0);
+        stbi_image_free(imageBytes);
+    }
 }
 
 void MapOpenGLWidget::mousePressEvent(QMouseEvent *event)

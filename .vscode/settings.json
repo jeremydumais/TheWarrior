@@ -74,7 +74,9 @@
         "bit": "cpp",
         "qglwidget": "cpp",
         "future": "cpp",
-        "qtopengl": "cpp"
+        "qtopengl": "cpp",
+        "csignal": "cpp",
+        "valarray": "cpp"
     },
     "editor.tokenColorCustomizations": {
         "textMateRules": [

@@ -15,6 +15,7 @@ public:
     int getTileHeight() const;
     float getTileWidthGL() const;
     float getTileHeightGL() const;
+    TextureInfo getTextureInfo() const;
     void setName(const std::string &name);
     void setFilename(const std::string &filename);
     void setWidth(int value);

@@ -1,4 +1,5 @@
 #include "gameMap.hpp"
+#include <algorithm>
 #include <fmt/format.h>
 #include <stdexcept>
 
@@ -14,32 +15,19 @@ GameMap::GameMap(unsigned int width, unsigned int height)
     if (height == 0) {
         throw invalid_argument("height must be greater than zero.");
     }
-    int texIndex { 0 };
     for(unsigned int i = 0; i < width; i++) {
         vector<MapTile> col;
         for(unsigned int j = 0; j < height; j++) {
             MapTile newTile;
-            /*if (i == 0 && j == 0) {
-                newTile.setTextureName("terrain1");
-                newTile.setTextureIndex(258);
-                newTile.setObjectTextureName("terrain1");
-                newTile.setObjectTextureIndex(7);
-            }*/
-            //else {
-            //if (j < 5) {
-                //newTile.setTextureName("terrain1");
-                //newTile.setTextureIndex(texIndex);
-                //texIndex++;
-            //}
-            //}
-            /*}
-            else {
-                newTile.setTextureIndex(1);
-            }*/
             col.emplace_back(newTile);
         }
         tiles.emplace_back(col);
     }
+}
+
+const std::string GameMap::getLastError() const
+{
+    return lastError;
 }
 
 const std::vector<std::vector<MapTile>>& GameMap::getTiles() const
@@ -90,6 +78,48 @@ bool GameMap::addTexture(const TextureInfo &textureInfo)
         lastError = fmt::format("The texture name {0} already exist in the list", textureInfo.name);
         return false;
     }
-    textures.emplace_back(Texture(textureInfo));
+    try {
+        textures.emplace_back(textureInfo);
+    }
+    catch(invalid_argument &err) {
+        lastError = err.what();
+        return false;
+    }
+    return true;
+}
+
+bool GameMap::replaceTexture(const std::string &name, const TextureInfo &textureInfo) 
+{
+    //Find the texture to replace
+    auto iter { find_if(textures.begin(), textures.end(), [&name](const Texture &x) {
+        return x.getName() == name;
+    }) };
+    if (iter == textures.end()) {
+        lastError = fmt::format("Unable to find the texture {0} in the texture list.");
+        return false;
+    }
+    //Try to construct the new texture
+    try {
+        Texture newTexture(textureInfo);
+        swap(*iter, newTexture);
+    }
+    catch(invalid_argument &err) {
+        lastError = err.what();
+        return false;
+    }
+    return true;
+}
+
+bool GameMap::removeTexture(const std::string &name) 
+{
+    //Find the texture to delete
+    auto iter { find_if(textures.begin(), textures.end(), [&name](const Texture &x) {
+        return x.getName() == name;
+    }) };
+    if (iter == textures.end()) {
+        lastError = fmt::format("Unable to find the texture {0} in the texture list.");
+        return false;
+    }
+    textures.erase(iter);
     return true;
 }

@@ -100,6 +100,18 @@ float Texture::getTileHeightGL() const
     return tileHeightGL;
 }
 
+TextureInfo Texture::getTextureInfo() const
+{
+    return TextureInfo {
+        name,
+        filename,
+        width,
+        height,
+        tileWidth,
+        tileHeight
+    };
+}
+
 void Texture::setWidth(int value) 
 {
     if (value <= 0) {

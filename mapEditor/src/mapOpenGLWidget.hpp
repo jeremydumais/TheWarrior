@@ -21,6 +21,7 @@ public:
     void resizeGL(int width, int height);
     void setResourcesPath(const std::string &path);
     void setSelectionMode(SelectionMode mode);
+    void reloadTextures();
 protected:
     void initializeGL();
     void paintGL();

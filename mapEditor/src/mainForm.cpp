@@ -55,7 +55,9 @@ void MainForm::connectUIActions()
 	connect(ui.mapOpenGLWidget, &MapOpenGLWidget::onTileClicked, this, &MainForm::onTileClicked);
 	connect(ui.mapOpenGLWidget, &MapOpenGLWidget::onTileMouseReleaseEvent, this, &MainForm::onTileMouseReleaseEvent);
 	connect(ui.mapOpenGLWidget, &MapOpenGLWidget::onTileMouseMoveEvent, this, &MainForm::onTileMouseMoveEvent);
+	connect(ui.pushButtonAddTexture, &QPushButton::clicked, this, &MainForm::onPushButtonAddTextureClick);
 	connect(ui.pushButtonEditTexture, &QPushButton::clicked, this, &MainForm::onPushButtonEditTextureClick);
+	connect(ui.pushButtonDeleteTexture, &QPushButton::clicked, this, &MainForm::onPushButtonDeleteTextureClick);
 	connect(ui.pushButtonSelectedTextureClear, &QPushButton::clicked, this, &MainForm::onPushButtonSelectedTextureClearClick);
 	connect(ui.pushButtonSelectedObjectClear, &QPushButton::clicked, this, &MainForm::onPushButtonSelectedObjectClearClick);
 	connect(ui.labelImageTexture, &QClickableLabel::onMouseReleaseEvent, this, &MainForm::onLabelImageTextureMouseReleaseEvent);
@@ -218,8 +220,6 @@ void MainForm::onTileClicked(int tileIndex)
 		ui.lineEditObjTexName->setText(currentMapTile->getObjectTextureName().c_str());
 		ui.lineEditObjTexIndex->setText(to_string(currentMapTile->getObjectTextureIndex()).c_str());
 		ui.toolBox->setCurrentWidget(ui.page_TileProperties);
-
-		//currentMapTile->setTextureIndex(lastSelectedTextureIndex);
 	}
 	else {
 		currentMapTile = nullptr;
@@ -249,6 +249,75 @@ void MainForm::onTileMouseMoveEvent(bool mousePressed, int tileIndex)
 {
 }
 
+void MainForm::onPushButtonAddTextureClick() 
+{
+	auto alreadyUsedTextureNames { getAlreadyUsedTextureNames() };
+	EditTextureForm formEditTexture(this, getResourcesPath(), nullptr, alreadyUsedTextureNames);
+	if (formEditTexture.exec() == QDialog::Accepted) {
+		map->addTexture(formEditTexture.getTextureInfo());
+		refreshTextureList();
+	}
+}
+
+void MainForm::onPushButtonEditTextureClick() 
+{
+	auto selectedTexture = getSelectedTextureInTextureList();
+	if (selectedTexture.has_value()) {
+		auto alreadyUsedTextureNames = getAlreadyUsedTextureNames();
+		//Remove the actual selected texture name
+		auto iter = std::find(alreadyUsedTextureNames.begin(), alreadyUsedTextureNames.end(), selectedTexture->getName());
+		if (iter != alreadyUsedTextureNames.end()) {
+			alreadyUsedTextureNames.erase(iter);
+		}
+		EditTextureForm formEditTexture(this, getResourcesPath(), selectedTexture.get_ptr(), alreadyUsedTextureNames);
+		if (formEditTexture.exec() == QDialog::Accepted) {
+			if (!map->replaceTexture(selectedTexture->getName(), formEditTexture.getTextureInfo())) {
+				showErrorMessage(map->getLastError(), "");
+			}
+			refreshTextureList();
+		}
+	}
+}
+
+void MainForm::onPushButtonDeleteTextureClick() 
+{
+	auto selectedTexture = getSelectedTextureInTextureList();
+	if (selectedTexture.has_value()) {
+		QMessageBox msgBox;
+		msgBox.setText(fmt::format("Are you sure you want to delete the texture {0}?", selectedTexture->getName()).c_str());
+		msgBox.setWindowTitle("Confirmation");
+		msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+		msgBox.setDefaultButton(QMessageBox::Cancel);
+		if (msgBox.exec() == QMessageBox::Yes) {
+			if (!map->removeTexture(selectedTexture->getName())) {
+				showErrorMessage(map->getLastError(), "");
+			}
+			refreshTextureList();
+		}
+
+	}
+}
+
+std::vector<std::string> MainForm::getAlreadyUsedTextureNames() const
+{
+	vector<string> alreadyUsedTextureNames;
+    transform(map->getTextures().begin(), map->getTextures().end(), std::back_inserter(alreadyUsedTextureNames),
+               [](Texture const& x) { return x.getName(); });
+	return alreadyUsedTextureNames;
+}
+
+boost::optional<const Texture &> MainForm::getSelectedTextureInTextureList() 
+{
+	if (ui.listWidgetTextures->selectionModel()->hasSelection()) {
+		//Find the selected texture
+		auto selectedItemName { ui.listWidgetTextures->selectionModel()->selectedRows()[0].data().toString().toStdString() };
+		return map->getTextureByName(selectedItemName);
+	}
+	else {
+		return {};
+	}
+}
+
 void MainForm::refreshTextureList() 
 {
 	ui.listWidgetTextures->model()->removeRows(0, ui.listWidgetTextures->count());
@@ -268,19 +337,16 @@ void MainForm::refreshTextureList()
 		//this->setFixedSize(image.width() + 20, image.height() + 80);
 		ui.labelImageTexture->setPixmap(QPixmap::fromImage(image));
 	}
-}
-
-void MainForm::onPushButtonEditTextureClick() 
-{
-	if (ui.listWidgetTextures->selectionModel()->hasSelection()) {
-		//Find the selected texture
-		auto selectedItemName { ui.listWidgetTextures->selectionModel()->selectedRows()[0].data().toString().toStdString() };
-		auto selectedTexture { map->getTextureByName(selectedItemName) };
-		if (selectedTexture.has_value()) {
-			EditTextureForm formEditTexture(this, getExecutablePath(), selectedTexture.get_ptr());
-			formEditTexture.exec();
-		}
+	else {
+		ui.labelImageTexture->clear();
+		lastSelectedTextureName = "";
+		lastSelectedTextureIndex = -1;
+		lastSelectedObjectName = "";
+		lastSelectedObjectIndex = -1;
+		ui.labelSelectedTexture->clear();
+		ui.labelSelectedObject->clear();
 	}
+	ui.mapOpenGLWidget->reloadTextures();
 }
 
 void MainForm::onPushButtonSelectedTextureClearClick() 

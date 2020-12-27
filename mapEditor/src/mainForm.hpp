@@ -46,8 +46,12 @@ private:
 	void onTileClicked(int tileIndex);
     void onTileMouseReleaseEvent(std::vector<int> selectedTileIndexes);
     void onTileMouseMoveEvent(bool mousePressed, int tileIndex);
-	void refreshTextureList();
+	void onPushButtonAddTextureClick();
 	void onPushButtonEditTextureClick();
+	void onPushButtonDeleteTextureClick();
+	std::vector<std::string> getAlreadyUsedTextureNames() const;
+	boost::optional<const Texture &> getSelectedTextureInTextureList();
+	void refreshTextureList();
 	void onPushButtonSelectedTextureClearClick();
 	void onPushButtonSelectedObjectClearClick();
 	void onLabelImageTextureMouseReleaseEvent(QMouseEvent *event);

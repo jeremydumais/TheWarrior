@@ -287,6 +287,18 @@ TEST_F(TextureWithDefaultValidTextureInfo, getTileHeightGL_AssignedByConstructor
 	ASSERT_EQ(1.0f, texture.getTileHeightGL());	
 }
 
+TEST_F(TextureWithDefaultValidTextureInfo, getTextureInfo_ReturnValidTextureInfo)
+{
+	Texture texture(textureInfo);
+	TextureInfo actual { texture.getTextureInfo() };
+	ASSERT_EQ("file", actual.name);	
+	ASSERT_EQ("file.png", actual.filename);	
+	ASSERT_EQ(512, actual.width);	
+	ASSERT_EQ(256, actual.height);	
+	ASSERT_EQ(32, actual.tileWidth);	
+	ASSERT_EQ(16, actual.tileHeight);	
+}
+
 TEST_F(TextureWithDefaultValidTextureInfo, setName_ValidName_ReturnSuccess)
 {
 	Texture texture(textureInfo);
