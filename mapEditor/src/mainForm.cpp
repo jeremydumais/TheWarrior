@@ -15,7 +15,6 @@ MainForm::MainForm(QWidget *parent)
 	: QMainWindow(parent),
 	  ui(Ui::MainForm()),
 	  selectionMode(SelectionMode::Select),
-	  map(nullptr),
 	  currentMapTile(nullptr),
 	  lastSelectedTextureName(""),
 	  lastSelectedObjectName(""),
@@ -29,13 +28,8 @@ MainForm::MainForm(QWidget *parent)
 	connectUIActions();
 
 	ui.mapOpenGLWidget->setResourcesPath(getResourcesPath());
-	map = make_shared<GameMap>(20, 20);
-	TextureInfo textureInfo {
-		"terrain1", "tile.png",
-		256, 4256,
-		32, 32
-	};
-	map->addTexture(textureInfo);
+	controller.generateTestMap();
+	auto map { controller.getMap() };
 	ui.mapOpenGLWidget->setCurrentMap(map);
 	ui.lineEditMapWidth->setText(to_string(map->getWidth()).c_str());
 	ui.lineEditMapHeight->setText(to_string(map->getHeight()).c_str());
@@ -54,7 +48,7 @@ void MainForm::connectUIActions()
 	connect(ui.action_ApplyObject, &QAction::triggered, this, &MainForm::action_ApplyObjectClick);
 	connect(ui.mapOpenGLWidget, &MapOpenGLWidget::onTileClicked, this, &MainForm::onTileClicked);
 	connect(ui.mapOpenGLWidget, &MapOpenGLWidget::onTileMouseReleaseEvent, this, &MainForm::onTileMouseReleaseEvent);
-	connect(ui.mapOpenGLWidget, &MapOpenGLWidget::onTileMouseMoveEvent, this, &MainForm::onTileMouseMoveEvent);
+	//connect(ui.mapOpenGLWidget, &MapOpenGLWidget::onTileMouseMoveEvent, this, &MainForm::onTileMouseMoveEvent);
 	connect(ui.pushButtonAddTexture, &QPushButton::clicked, this, &MainForm::onPushButtonAddTextureClick);
 	connect(ui.pushButtonEditTexture, &QPushButton::clicked, this, &MainForm::onPushButtonEditTextureClick);
 	connect(ui.pushButtonDeleteTexture, &QPushButton::clicked, this, &MainForm::onPushButtonDeleteTextureClick);
@@ -214,7 +208,7 @@ void MainForm::resizeEvent(QResizeEvent *)
 void MainForm::onTileClicked(int tileIndex) 
 {
 	if (tileIndex != -1) {
-		currentMapTile = &map->getTileForEditing(tileIndex);
+		currentMapTile = &controller.getMap()->getTileForEditing(tileIndex);
 		ui.lineEditTexName->setText(currentMapTile->getTextureName().c_str());
 		ui.lineEditTexIndex->setText(to_string(currentMapTile->getTextureIndex()).c_str());
 		ui.lineEditObjTexName->setText(currentMapTile->getObjectTextureName().c_str());
@@ -230,14 +224,14 @@ void MainForm::onTileMouseReleaseEvent(vector<int> selectedTileIndexes)
 {
 	if (selectionMode == SelectionMode::ApplyTexture) {
 		for(const int index : selectedTileIndexes) {
-			currentMapTile = &map->getTileForEditing(index);
+			currentMapTile = &controller.getMap()->getTileForEditing(index);
 			currentMapTile->setTextureName(lastSelectedTextureName);
 			currentMapTile->setTextureIndex(lastSelectedTextureIndex);
 		}
 	}
 	else if (selectionMode == SelectionMode::ApplyObject) {
 		for(const int index : selectedTileIndexes) {
-			currentMapTile = &map->getTileForEditing(index);
+			currentMapTile = &controller.getMap()->getTileForEditing(index);
 			currentMapTile->setObjectTextureName(lastSelectedObjectName);
 			currentMapTile->setObjectTextureIndex(lastSelectedObjectIndex);
 		}
@@ -245,16 +239,16 @@ void MainForm::onTileMouseReleaseEvent(vector<int> selectedTileIndexes)
 	setCursor(Qt::CursorShape::ArrowCursor);
 }
 
-void MainForm::onTileMouseMoveEvent(bool mousePressed, int tileIndex) 
+/*void MainForm::onTileMouseMoveEvent(bool mousePressed, int tileIndex) 
 {
-}
+}*/
 
 void MainForm::onPushButtonAddTextureClick() 
 {
-	auto alreadyUsedTextureNames { getAlreadyUsedTextureNames() };
+	auto alreadyUsedTextureNames { controller.getAlreadyUsedTextureNames() };
 	EditTextureForm formEditTexture(this, getResourcesPath(), nullptr, alreadyUsedTextureNames);
 	if (formEditTexture.exec() == QDialog::Accepted) {
-		map->addTexture(formEditTexture.getTextureInfo());
+		controller.getMap()->addTexture(formEditTexture.getTextureInfo());
 		refreshTextureList();
 	}
 }
@@ -263,7 +257,7 @@ void MainForm::onPushButtonEditTextureClick()
 {
 	auto selectedTexture = getSelectedTextureInTextureList();
 	if (selectedTexture.has_value()) {
-		auto alreadyUsedTextureNames = getAlreadyUsedTextureNames();
+		auto alreadyUsedTextureNames = controller.getAlreadyUsedTextureNames();
 		//Remove the actual selected texture name
 		auto iter = std::find(alreadyUsedTextureNames.begin(), alreadyUsedTextureNames.end(), selectedTexture->getName());
 		if (iter != alreadyUsedTextureNames.end()) {
@@ -271,7 +265,16 @@ void MainForm::onPushButtonEditTextureClick()
 		}
 		EditTextureForm formEditTexture(this, getResourcesPath(), selectedTexture.get_ptr(), alreadyUsedTextureNames);
 		if (formEditTexture.exec() == QDialog::Accepted) {
-			if (!map->replaceTexture(selectedTexture->getName(), formEditTexture.getTextureInfo())) {
+			const TextureInfo &updatedTextureInfo { formEditTexture.getTextureInfo() };
+			string oldTextureName { selectedTexture->getName() };
+			auto map { controller.getMap() };
+			if (map->replaceTexture(selectedTexture->getName(), updatedTextureInfo)) {
+				//If the texture name has changed, update all tiles that was using the old texture name	
+				if (oldTextureName != updatedTextureInfo.name) {
+					controller.replaceTilesTextureName(oldTextureName, updatedTextureInfo.name);
+				}
+			}
+			else {
 				showErrorMessage(map->getLastError(), "");
 			}
 			refreshTextureList();
@@ -289,21 +292,15 @@ void MainForm::onPushButtonDeleteTextureClick()
 		msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
 		msgBox.setDefaultButton(QMessageBox::Cancel);
 		if (msgBox.exec() == QMessageBox::Yes) {
-			if (!map->removeTexture(selectedTexture->getName())) {
+			auto map { controller.getMap() };
+			//Check if the texture is used in the map
+
+			if (!controller.getMap()->removeTexture(selectedTexture->getName())) {
 				showErrorMessage(map->getLastError(), "");
 			}
 			refreshTextureList();
 		}
-
 	}
-}
-
-std::vector<std::string> MainForm::getAlreadyUsedTextureNames() const
-{
-	vector<string> alreadyUsedTextureNames;
-    transform(map->getTextures().begin(), map->getTextures().end(), std::back_inserter(alreadyUsedTextureNames),
-               [](Texture const& x) { return x.getName(); });
-	return alreadyUsedTextureNames;
 }
 
 boost::optional<const Texture &> MainForm::getSelectedTextureInTextureList() 
@@ -311,15 +308,21 @@ boost::optional<const Texture &> MainForm::getSelectedTextureInTextureList()
 	if (ui.listWidgetTextures->selectionModel()->hasSelection()) {
 		//Find the selected texture
 		auto selectedItemName { ui.listWidgetTextures->selectionModel()->selectedRows()[0].data().toString().toStdString() };
-		return map->getTextureByName(selectedItemName);
+		return controller.getMap()->getTextureByName(selectedItemName);
 	}
 	else {
 		return {};
 	}
 }
 
+bool MainForm::isTextureUsedInMap(const std::string &name) 
+{
+	return false;
+}
+
 void MainForm::refreshTextureList() 
 {
+	auto map { controller.getMap() };
 	ui.listWidgetTextures->model()->removeRows(0, ui.listWidgetTextures->count());
 	ui.comboBoxTexture->model()->removeRows(0, ui.comboBoxTexture->count());
 	int index {0};
@@ -365,12 +368,13 @@ void MainForm::onPushButtonSelectedObjectClearClick()
 
 void MainForm::onLabelImageTextureMouseReleaseEvent(QMouseEvent *event) 
 {
+	auto map { controller.getMap() };
 	int comboBoxTextureCurrentIndex { ui.comboBoxTexture->currentIndex() };
 	std::string textureName { ui.comboBoxTexture->itemText(comboBoxTextureCurrentIndex).toStdString() };
 	auto texture { map->getTextureByName(textureName) };
 	if (texture.has_value()) {
-		string name = textureName;
-		int index = getTextureIndexFromPosition(event->pos(), texture.get());
+		string name { textureName };
+		int index = controller.getTextureIndexFromPosition(to_Point(event->pos()), texture.get());
 		//Display the selected texture or object on the selected image
 		auto imagePart { getTextureTileImageFromTexture(index, texture.get()) };
 		if (selectionMode == SelectionMode::ApplyTexture) {
@@ -384,15 +388,6 @@ void MainForm::onLabelImageTextureMouseReleaseEvent(QMouseEvent *event)
 			ui.labelSelectedObject->setPixmap(imagePart);
 		}
 	}	
-}
-
-int MainForm::getTextureIndexFromPosition(const QPoint &pos, const Texture &texture) 
-{
-	int realY { texture.getHeight() - pos.y()};
-	int indexX = pos.x() / texture.getTileWidth();
-	int indexY = realY / texture.getTileHeight();
-	int tileIndex { indexX + (indexY * (texture.getWidth()/texture.getTileWidth())) };
-	return tileIndex;
 }
 
 void MainForm::onLineEditTexIndexTextChange(const QString &text) 
@@ -411,4 +406,9 @@ QPixmap MainForm::getTextureTileImageFromTexture(int tileIndex, const Texture &t
 	int y { textureHeightInPixel - (((tileIndex * texture.getTileWidth()) / textureWidthInPixel) * texture.getTileHeight()) };
 	QPixmap imagePart = ui.labelImageTexture->pixmap()->copy(x, y - texture.getTileHeight(), texture.getTileWidth(), texture.getTileHeight());
 	return imagePart;
+}
+
+Point MainForm::to_Point(QPoint point) 
+{
+	return Point(point.x(), point.y());
 }

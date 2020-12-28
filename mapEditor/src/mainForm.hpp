@@ -2,7 +2,9 @@
 #define MAINFORM_H
 
 #include "gameMap.hpp"
+#include "point.hpp"
 #include "selectionMode.hpp"
+#include "mainController.hpp"
 #include <memory>
 #include <vector>
 #include "ui_mainForm.h"
@@ -18,8 +20,8 @@ public:
     void functionAfterShown();
 private:
 	Ui::MainForm ui;
+	MainController controller;
 	SelectionMode selectionMode;
-	std::shared_ptr<GameMap> map;
 	MapTile *currentMapTile;
 	std::string lastSelectedTextureName;
 	std::string lastSelectedObjectName;
@@ -45,19 +47,19 @@ private:
 	void resizeEvent(QResizeEvent *);
 	void onTileClicked(int tileIndex);
     void onTileMouseReleaseEvent(std::vector<int> selectedTileIndexes);
-    void onTileMouseMoveEvent(bool mousePressed, int tileIndex);
+    //void onTileMouseMoveEvent(bool mousePressed, int tileIndex);
 	void onPushButtonAddTextureClick();
 	void onPushButtonEditTextureClick();
 	void onPushButtonDeleteTextureClick();
-	std::vector<std::string> getAlreadyUsedTextureNames() const;
 	boost::optional<const Texture &> getSelectedTextureInTextureList();
+	bool isTextureUsedInMap(const std::string &name);
 	void refreshTextureList();
 	void onPushButtonSelectedTextureClearClick();
 	void onPushButtonSelectedObjectClearClick();
 	void onLabelImageTextureMouseReleaseEvent(QMouseEvent *event);
-	int getTextureIndexFromPosition(const QPoint &pos, const Texture &texture);
 	void onLineEditTexIndexTextChange(const QString &text);
 	QPixmap getTextureTileImageFromTexture(int tileIndex, const Texture &texture) const;
+	Point to_Point(QPoint point);
 };
 
 #endif // MAINFORM_H
