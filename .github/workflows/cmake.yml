@@ -40,6 +40,8 @@ jobs:
       # You may pin to the exact commit or the version.
       # uses: jurplel/install-qt-action@77a08b2a8764a816015ebb66dc4f3964259a1626
       uses: jurplel/install-qt-action@v2.8.0
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
 
     - name: Configure CMake (Ubuntu)
       # Use a bash shell so we can use the same syntax for environment variable
