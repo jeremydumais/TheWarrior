@@ -533,10 +533,7 @@
     <string>Apply Object</string>
    </property>
    <property name="font">
-    <font>
-     <weight>50</weight>
-     <bold>false</bold>
-    </font>
+    <font/>
    </property>
   </action>
  </widget>
@@ -544,12 +541,12 @@
   <customwidget>
    <class>MapOpenGLWidget</class>
    <extends>QOpenGLWidget</extends>
-   <header>../../../../mapEditor/src/mapOpenGLWidget.hpp</header>
+   <header>mapOpenGLWidget.hpp</header>
   </customwidget>
   <customwidget>
    <class>QClickableLabel</class>
    <extends>QLabel</extends>
-   <header>../../../../mapEditor/src/qClickableLabel.hpp</header>
+   <header>qClickableLabel.hpp</header>
   </customwidget>
  </customwidgets>
  <resources>

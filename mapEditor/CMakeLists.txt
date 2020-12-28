@@ -2,6 +2,7 @@
 set(PROJECT_NAME    "MapEditor")
 
 include_directories(${QT_INCLUDE_PATH},
+                    ${CMAKE_CURRENT_SOURCE_DIR}/src
                     ${CMAKE_CURRENT_SOURCE_DIR}/../twModels/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../mapEditor.Controllers/include)
 
