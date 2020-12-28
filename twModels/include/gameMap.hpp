@@ -24,4 +24,5 @@ private:
     std::string lastError;
     std::vector<std::vector<MapTile>> tiles;
     std::vector<Texture> textures;
+    std::vector<Texture>::iterator getTextureIterator(const std::string &name);
 };

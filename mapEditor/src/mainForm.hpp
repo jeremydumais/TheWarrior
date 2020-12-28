@@ -33,7 +33,7 @@ private:
     const std::string &getExecutablePath();
     const std::string &getResourcesPath();
 	void showErrorMessage(const std::string &message,
-						  const std::string &internalError) const;
+						  const std::string &internalError = "") const;
 	void setAppStylesheet(const std::string &style);
 	void connectUIActions();
 	void action_About_Click();
@@ -52,7 +52,6 @@ private:
 	void onPushButtonEditTextureClick();
 	void onPushButtonDeleteTextureClick();
 	boost::optional<const Texture &> getSelectedTextureInTextureList();
-	bool isTextureUsedInMap(const std::string &name);
 	void refreshTextureList();
 	void onPushButtonSelectedTextureClearClick();
 	void onPushButtonSelectedObjectClearClick();

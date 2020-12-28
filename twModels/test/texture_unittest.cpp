@@ -16,7 +16,6 @@ public:
 	TextureInfo textureInfo;
 };
 
-
 TEST_F(TextureWithDefaultValidTextureInfo, Constructor_EmptyName_ThrowInvalidArgument)
 {
 	try

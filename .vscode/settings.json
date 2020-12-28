@@ -104,5 +104,7 @@
                                   "${workspaceFolder}/twUI/include/",
                                   "${workspaceFolder}/twModels/include/",
                                   "${workspaceFolder}/mapEditor.Controllers/include/",
-                                  "/usr/include/x86_64-linux-gnu/qt5/"]
+                                "/usr/include/x86_64-linux-gnu/qt5/"
+                            ],
+                            "output.smartScroll.enabled": false
 }

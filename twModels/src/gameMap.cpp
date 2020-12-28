@@ -47,12 +47,7 @@ unsigned int GameMap::getWidth() const
 
 unsigned int GameMap::getHeight() const
 {
-    if (tiles.size() == 0) {
-        return 0;
-    } 
-    else {
-        return tiles[0].size();
-    }
+    return tiles[0].size();
 }
 
 const vector<Texture>& GameMap::getTextures() const
@@ -69,7 +64,6 @@ boost::optional<const Texture &> GameMap::getTextureByName(const std::string &na
     }
     return {};
 }
-
 
 bool GameMap::addTexture(const TextureInfo &textureInfo) 
 {
@@ -91,11 +85,14 @@ bool GameMap::addTexture(const TextureInfo &textureInfo)
 bool GameMap::replaceTexture(const std::string &name, const TextureInfo &textureInfo) 
 {
     //Find the texture to replace
-    auto iter { find_if(textures.begin(), textures.end(), [&name](const Texture &x) {
-        return x.getName() == name;
-    }) };
+    auto iter { getTextureIterator(name) };
     if (iter == textures.end()) {
-        lastError = fmt::format("Unable to find the texture {0} in the texture list.");
+        lastError = fmt::format("Unable to find the texture {0} in the texture list.", name);
+        return false;
+    }
+    //Ensure the new name doesn't exist
+    if (name != textureInfo.name && getTextureIterator(textureInfo.name) != textures.end()) {
+        lastError = fmt::format("The texture {0} already exist in the texture list.", textureInfo.name);
         return false;
     }
     //Try to construct the new texture
@@ -113,13 +110,18 @@ bool GameMap::replaceTexture(const std::string &name, const TextureInfo &texture
 bool GameMap::removeTexture(const std::string &name) 
 {
     //Find the texture to delete
-    auto iter { find_if(textures.begin(), textures.end(), [&name](const Texture &x) {
-        return x.getName() == name;
-    }) };
+    auto iter { getTextureIterator(name) };
     if (iter == textures.end()) {
-        lastError = fmt::format("Unable to find the texture {0} in the texture list.");
+        lastError = fmt::format("Unable to find the texture {0} in the texture list.", name);
         return false;
     }
     textures.erase(iter);
     return true;
+}
+
+std::vector<Texture>::iterator GameMap::getTextureIterator(const std::string &name) 
+{
+    return find_if(textures.begin(), textures.end(), [&name](const Texture &x) {
+        return x.getName() == name;
+    });
 }

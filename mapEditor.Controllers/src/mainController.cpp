@@ -4,26 +4,26 @@
 using namespace std;
 
 MainController::MainController() 
-    : map(nullptr)
+    : lastError(""),
+	  map(nullptr)
 {
 }
 
-
-void MainController::createMap(unsigned int width, unsigned int height) 
+const string& MainController::getLastError() const
 {
-	map = make_shared<GameMap>(width, height);
+	return lastError;
 }
 
-std::shared_ptr<GameMap> MainController::getMap() 
+shared_ptr<GameMap> MainController::getMap() 
 {
     return map;
 }
 
-std::vector<std::string> MainController::getAlreadyUsedTextureNames() const
+vector<string> MainController::getAlreadyUsedTextureNames() const
 {
 	vector<string> alreadyUsedTextureNames;
 	if (map != nullptr) {
-    	transform(map->getTextures().begin(), map->getTextures().end(), std::back_inserter(alreadyUsedTextureNames),
+    	transform(map->getTextures().begin(), map->getTextures().end(), back_inserter(alreadyUsedTextureNames),
                   [](Texture const& x) { return x.getName(); });
 	}
 	return alreadyUsedTextureNames;
@@ -38,16 +38,60 @@ int MainController::getTextureIndexFromPosition(const Point &pos, const Texture 
 	return tileIndex;
 }
 
-void MainController::generateTestMap() 
+bool MainController::createMap(unsigned int width, unsigned int height) 
 {
-    map = make_shared<GameMap>(20, 20);
-	TextureInfo textureInfo {
-		"terrain1", "tile.png",
-		256, 4256,
-		32, 32
-	};
-	map->addTexture(textureInfo);
+	try {
+		map = make_shared<GameMap>(width, height);
+	}
+	catch(invalid_argument &err) {
+		lastError = err.what();
+		return false;
+	}
+	return true;
 }
+
+const std::vector<Texture>& MainController::getTextures() const
+{
+	return map->getTextures();
+}
+
+bool MainController::addTexture(const TextureInfo &textureInfo) 
+{
+	if (!map->addTexture(textureInfo)) {
+		lastError = map->getLastError();
+		return false;
+	}
+	return true;
+}
+
+bool MainController::replaceTexture(const string &name, const TextureInfo &textureInfo) 
+{
+    string oldTextureName { name };
+	if (!map->replaceTexture(name, textureInfo)) {
+		lastError = map->getLastError();
+		return false;
+	}
+	//If the texture name has changed, update all tiles that was using the old texture name	
+    if (oldTextureName != textureInfo.name) {
+        replaceTilesTextureName(oldTextureName, textureInfo.name);
+    }
+	return true;
+}
+
+bool MainController::removeTexture(const string &name) 
+{
+	if (!map->removeTexture(name)) {
+		lastError = map->getLastError();
+		return false;
+	}
+	return true;
+}
+
+bool MainController::isTextureUsedInMap(const string &name) 
+{
+	return false;
+}
+
 
 void MainController::replaceTilesTextureName(const string &oldName, const string &newName) 
 {

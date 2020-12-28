@@ -28,7 +28,19 @@ MainForm::MainForm(QWidget *parent)
 	connectUIActions();
 
 	ui.mapOpenGLWidget->setResourcesPath(getResourcesPath());
-	controller.generateTestMap();
+	//Generate a test map
+	if (!controller.createMap(20, 20)) {
+		showErrorMessage(controller.getLastError());
+		exit(1);
+	}
+	if (!controller.addTexture({
+		"terrain1", "tile.png",
+		256, 4256,
+		32, 32
+	})) {
+		showErrorMessage(controller.getLastError());
+		exit(1);
+	}
 	auto map { controller.getMap() };
 	ui.mapOpenGLWidget->setCurrentMap(map);
 	ui.lineEditMapWidth->setText(to_string(map->getWidth()).c_str());
@@ -248,7 +260,9 @@ void MainForm::onPushButtonAddTextureClick()
 	auto alreadyUsedTextureNames { controller.getAlreadyUsedTextureNames() };
 	EditTextureForm formEditTexture(this, getResourcesPath(), nullptr, alreadyUsedTextureNames);
 	if (formEditTexture.exec() == QDialog::Accepted) {
-		controller.getMap()->addTexture(formEditTexture.getTextureInfo());
+		if (!controller.addTexture(formEditTexture.getTextureInfo())) {
+			showErrorMessage(controller.getLastError());
+		}
 		refreshTextureList();
 	}
 }
@@ -266,16 +280,8 @@ void MainForm::onPushButtonEditTextureClick()
 		EditTextureForm formEditTexture(this, getResourcesPath(), selectedTexture.get_ptr(), alreadyUsedTextureNames);
 		if (formEditTexture.exec() == QDialog::Accepted) {
 			const TextureInfo &updatedTextureInfo { formEditTexture.getTextureInfo() };
-			string oldTextureName { selectedTexture->getName() };
-			auto map { controller.getMap() };
-			if (map->replaceTexture(selectedTexture->getName(), updatedTextureInfo)) {
-				//If the texture name has changed, update all tiles that was using the old texture name	
-				if (oldTextureName != updatedTextureInfo.name) {
-					controller.replaceTilesTextureName(oldTextureName, updatedTextureInfo.name);
-				}
-			}
-			else {
-				showErrorMessage(map->getLastError(), "");
+			if (!controller.replaceTexture(selectedTexture->getName(), updatedTextureInfo)) {
+				showErrorMessage(controller.getLastError());
 			}
 			refreshTextureList();
 		}
@@ -292,11 +298,10 @@ void MainForm::onPushButtonDeleteTextureClick()
 		msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
 		msgBox.setDefaultButton(QMessageBox::Cancel);
 		if (msgBox.exec() == QMessageBox::Yes) {
-			auto map { controller.getMap() };
 			//Check if the texture is used in the map
 
-			if (!controller.getMap()->removeTexture(selectedTexture->getName())) {
-				showErrorMessage(map->getLastError(), "");
+			if (!controller.removeTexture(selectedTexture->getName())) {
+				showErrorMessage(controller.getLastError());
 			}
 			refreshTextureList();
 		}
@@ -313,11 +318,6 @@ boost::optional<const Texture &> MainForm::getSelectedTextureInTextureList()
 	else {
 		return {};
 	}
-}
-
-bool MainForm::isTextureUsedInMap(const std::string &name) 
-{
-	return false;
 }
 
 void MainForm::refreshTextureList() 
@@ -337,7 +337,6 @@ void MainForm::refreshTextureList()
 		QImageReader reader(fmt::format("{0}/resources/{1}", getExecutablePath(), texture->getFilename()).c_str());
 		const QImage image = reader.read();
 		ui.labelImageTexture->setFixedSize(image.width(), image.height());
-		//this->setFixedSize(image.width() + 20, image.height() + 80);
 		ui.labelImageTexture->setPixmap(QPixmap::fromImage(image));
 	}
 	else {

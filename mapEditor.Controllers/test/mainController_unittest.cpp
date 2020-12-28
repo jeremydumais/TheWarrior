@@ -60,6 +60,35 @@ TEST_F(SampleMainController, getTextureIndexFromPosition_WithSample2_ReturnValid
     ASSERT_EQ(1, actual);
 }
 
+TEST(MainController_createMap, WithInvalidWidth_ReturnFalse)
+{
+    MainController mainController;
+    ASSERT_FALSE(mainController.createMap(0, 10));
+    ASSERT_EQ("width must be greater than zero.", mainController.getLastError());
+}
+
+TEST_F(SampleMainController, addTexture_WithValidArg_ReturnTrue)
+{
+    ASSERT_TRUE(mainController.addTexture({
+            "tex3",
+            "tex3.png",
+            512, 256,
+            32, 32
+        }));
+    ASSERT_EQ(3, mainController.getTextures().size());
+}
+
+TEST_F(SampleMainController, addTexture_WithInvalidArg_ReturnFalse)
+{
+    ASSERT_FALSE(mainController.addTexture({
+            "",
+            "tex3.png",
+            512, 256,
+            32, 32
+        }));
+    ASSERT_EQ("name cannot be null or empty.", mainController.getLastError());
+}
+
 TEST_F(SampleMainController, replaceTilesTextureName_WithOneTileAffected_ReturnSuccess)
 {
     mainController.replaceTilesTextureName("tex1", "newTex1");
