@@ -89,6 +89,13 @@ bool MainController::removeTexture(const string &name)
 
 bool MainController::isTextureUsedInMap(const string &name) 
 {
+	for(const auto &row : map->getTiles()) {
+		for (const auto &tile : row) {
+			if (tile.getTextureName() == name || tile.getObjectTextureName() == name) {
+				return true;
+			}
+		}
+	}
 	return false;
 }
 

@@ -299,11 +299,14 @@ void MainForm::onPushButtonDeleteTextureClick()
 		msgBox.setDefaultButton(QMessageBox::Cancel);
 		if (msgBox.exec() == QMessageBox::Yes) {
 			//Check if the texture is used in the map
-
-			if (!controller.removeTexture(selectedTexture->getName())) {
-				showErrorMessage(controller.getLastError());
+			msgBox.setText(fmt::format("The texture {0} is used by some map tiles.\nAre you sure you want to proceed?", selectedTexture->getName()).c_str());
+			bool isUsed = controller.isTextureUsedInMap(selectedTexture->getName());
+			if (!isUsed || (isUsed && msgBox.exec() == QMessageBox::Yes)) {
+				if (!controller.removeTexture(selectedTexture->getName())) {
+					showErrorMessage(controller.getLastError());
+				}
+				refreshTextureList();
 			}
-			refreshTextureList();
 		}
 	}
 }

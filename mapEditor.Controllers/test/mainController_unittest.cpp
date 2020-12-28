@@ -9,11 +9,6 @@ public:
     SampleMainController() {
         mainController.createMap(6, 6);
         auto map { mainController.getMap() };
-        auto &tile { map->getTileForEditing(0) };
-        tile.setTextureName("tex1");
-        tile.setTextureIndex(0);
-        tile.setObjectTextureName("tex1");
-        tile.setObjectTextureIndex(0);
         map->addTexture({
             "tex1",
             "tex1.png",
@@ -26,6 +21,11 @@ public:
             1024, 512,
             32, 32
         });
+        auto &tile { map->getTileForEditing(0) };
+        tile.setTextureName("tex1");
+        tile.setTextureIndex(0);
+        tile.setObjectTextureName("tex1");
+        tile.setObjectTextureIndex(0);    
     }
 	MainController mainController;
 };
@@ -87,6 +87,48 @@ TEST_F(SampleMainController, addTexture_WithInvalidArg_ReturnFalse)
             32, 32
         }));
     ASSERT_EQ("name cannot be null or empty.", mainController.getLastError());
+}
+
+TEST_F(SampleMainController, replaceTexture_WithNonExistantName_ReturnFalse)
+{
+    ASSERT_FALSE(mainController.replaceTexture("x", {
+            "tex3",
+            "tex3.png",
+            512, 256,
+            32, 32
+        }));
+    ASSERT_EQ("Unable to find the texture x in the texture list.", mainController.getLastError());
+}
+
+TEST_F(SampleMainController, replaceTexture_WithValidArgs_ReturnTrue)
+{
+    ASSERT_TRUE(mainController.replaceTexture("tex1", {
+            "tex3",
+            "tex3.png",
+            512, 256,
+            32, 32
+        }));
+}
+
+TEST_F(SampleMainController, removeTexture_WithNonExistantName_ReturnFalse)
+{
+    ASSERT_FALSE(mainController.removeTexture("x"));
+    ASSERT_EQ("Unable to find the texture x in the texture list.", mainController.getLastError());
+}
+
+TEST_F(SampleMainController, removeTexture_WithExistingName_ReturnTrue)
+{
+    ASSERT_TRUE(mainController.removeTexture("tex1"));
+}
+
+TEST_F(SampleMainController, isTextureUsedInMap_WithUnusedTexture_ReturnFalse)
+{
+    ASSERT_FALSE(mainController.isTextureUsedInMap("x"));
+}
+
+TEST_F(SampleMainController, isTextureUsedInMap_WithUsedTexture_ReturnTrue)
+{
+    ASSERT_TRUE(mainController.isTextureUsedInMap("tex1"));
 }
 
 TEST_F(SampleMainController, replaceTilesTextureName_WithOneTileAffected_ReturnSuccess)
