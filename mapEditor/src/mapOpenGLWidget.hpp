@@ -8,6 +8,7 @@
 #include <memory>
 #include <QtOpenGL/QGLWidget>
 #include <QtOpenGL/QtOpenGL>
+#include <QTimer>
 #include <string>
 #include <vector>
 
@@ -18,6 +19,7 @@ public:
     explicit MapOpenGLWidget(QWidget *parent = 0);
     ~MapOpenGLWidget();
     void setCurrentMap(std::shared_ptr<GameMap> map);
+    void setGridEnabled(bool enabled);
     void resizeGL(int width, int height);
     void setResourcesPath(const std::string &path);
     void setSelectionMode(SelectionMode mode);
@@ -27,14 +29,17 @@ protected:
     void paintGL();
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
-    void mousePressEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void leaveEvent(QEvent *event) override;
 signals:
     void onTileClicked(int tileIndex);
     void onTileMouseReleaseEvent(std::vector<int> tileIndex);
     void onTileMouseMoveEvent(bool mousePressed, int tileIndex);
 private:
+    QTimer repaintTimer;
+    bool isGridEnabled;
 	SelectionMode selectionMode;
     std::string resourcesPath;
     bool mousePressed;
@@ -43,6 +48,8 @@ private:
     float translationY;     
     float translationDragAndDropY;
     int selectedTileIndex;
+	int selectedTileColor;
+    bool selectedTileColorGrowing;
     std::map<std::string, unsigned int> texturesGLMap; //Mapping between texture name and OpenGL texture id
     std::map<std::string, const Texture &> texturesObjMap; //Mapping between texture name and texture object
     std::shared_ptr<GameMap> currentMap;
@@ -53,11 +60,14 @@ private:
     const unsigned int ONSCREENTILESIZE { 40 };
     const float TRANSLATIONTOPIXEL { 5.0f };
     const float TILESPACING { 0.0f };
+    void updateCursor();
     void draw();
     void drawTileWithTexture(const std::string &textureName, int textureIndex);
     void drawSelectionZone() const;
+    void drawGrid() const;
     int getTileIndex(int onScreenX, int onScreenY);
     glm::vec2 convertScreenCoordToGlCoord(QPoint coord) const;
+    void updateSelectedTileColor();
 };
 
 #endif // MAPOPENGLWIDGET_H

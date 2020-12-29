@@ -21,6 +21,7 @@ public:
 private:
 	Ui::MainForm ui;
 	MainController controller;
+	std::string userConfigFolder;
 	SelectionMode selectionMode;
 	MapTile *currentMapTile;
 	std::string lastSelectedTextureName;
@@ -39,6 +40,7 @@ private:
 	void action_About_Click();
 	void action_LightTheme_Click();
 	void action_DarkTheme_Click();
+	void action_DisplayGrid_Click();
 	void action_SelectClick();
 	void action_MoveMapClick();
 	void action_ApplyTextureClick();
@@ -57,8 +59,11 @@ private:
 	void onPushButtonSelectedTextureClearClick();
 	void onPushButtonSelectedObjectClearClick();
 	void onLabelImageTextureMouseReleaseEvent(QMouseEvent *event);
-	void onLineEditTexIndexTextChange(const QString &text);
-    void onComboBoxTextureCurrentIndexChanged(int index);
+	void onLineEditTexNameTextChanged(const QString &text);
+	void onSpinBoxTexIndexValueChanged(int value);
+	void onLineEditObjTexNameTextChanged(const QString &text);
+	void onSpinBoxObjTexIndexValueChanged(int value);
+    void onComboBoxTextureCurrentIndexChanged();
 	QPixmap getTextureTileImageFromTexture(int tileIndex, const Texture &texture) const;
 	Point to_Point(QPoint point);
 };

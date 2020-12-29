@@ -21,7 +21,9 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mainForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editTextureForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mapOpenGLWidget.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/qClickableLabel.cpp)
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/qClickableLabel.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/configurationManager.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/specialFolders.cpp)
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -65,3 +67,4 @@ install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 install(FILES ${RESOURCE_FILES} DESTINATION share/${PROJECT_NAME}/res)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../resources/tile.png ${CMAKE_BINARY_DIR}/bin/resources/tile.png COPYONLY)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../resources/tile2.png ${CMAKE_BINARY_DIR}/bin/resources/tile2.png COPYONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../resources/tileNPC1.png ${CMAKE_BINARY_DIR}/bin/resources/tileNPC1.png COPYONLY)

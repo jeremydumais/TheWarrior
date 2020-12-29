@@ -32,7 +32,7 @@
          </size>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>3</number>
         </property>
         <widget class="QWidget" name="pageMapProperties">
          <property name="geometry">
@@ -40,7 +40,7 @@
            <x>0</x>
            <y>0</y>
            <width>300</width>
-           <height>708</height>
+           <height>677</height>
           </rect>
          </property>
          <attribute name="label">
@@ -85,7 +85,7 @@
            <x>0</x>
            <y>0</y>
            <width>300</width>
-           <height>708</height>
+           <height>677</height>
           </rect>
          </property>
          <attribute name="label">
@@ -118,14 +118,8 @@
            <item row="0" column="1">
             <widget class="QLineEdit" name="lineEditTexName"/>
            </item>
-           <item row="1" column="1">
-            <widget class="QLineEdit" name="lineEditTexIndex"/>
-           </item>
            <item row="2" column="1">
             <widget class="QLineEdit" name="lineEditObjTexName"/>
-           </item>
-           <item row="3" column="1">
-            <widget class="QLineEdit" name="lineEditObjTexIndex"/>
            </item>
            <item row="2" column="0">
             <widget class="QLabel" name="label_5">
@@ -141,6 +135,26 @@
              </property>
             </widget>
            </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="spinBoxTexIndex">
+             <property name="minimum">
+              <number>-1</number>
+             </property>
+             <property name="maximum">
+              <number>16777215</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QSpinBox" name="spinBoxObjTexIndex">
+             <property name="minimum">
+              <number>-1</number>
+             </property>
+             <property name="maximum">
+              <number>16777215</number>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </widget>
@@ -150,7 +164,7 @@
            <x>0</x>
            <y>0</y>
            <width>300</width>
-           <height>708</height>
+           <height>677</height>
           </rect>
          </property>
          <attribute name="label">
@@ -162,7 +176,7 @@
             <x>10</x>
             <y>10</y>
             <width>281</width>
-            <height>641</height>
+            <height>631</height>
            </rect>
           </property>
          </widget>
@@ -170,7 +184,7 @@
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>660</y>
+            <y>650</y>
             <width>89</width>
             <height>25</height>
            </rect>
@@ -183,7 +197,7 @@
           <property name="geometry">
            <rect>
             <x>100</x>
-            <y>660</y>
+            <y>650</y>
             <width>89</width>
             <height>25</height>
            </rect>
@@ -196,13 +210,67 @@
           <property name="geometry">
            <rect>
             <x>190</x>
-            <y>660</y>
+            <y>650</y>
             <width>89</width>
             <height>25</height>
            </rect>
           </property>
           <property name="text">
            <string>&amp;Delete</string>
+          </property>
+         </widget>
+        </widget>
+        <widget class="QWidget" name="page_NPCList">
+         <attribute name="label">
+          <string>NPC list</string>
+         </attribute>
+         <widget class="QListWidget" name="listWidgetTextures_2">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>10</y>
+            <width>281</width>
+            <height>621</height>
+           </rect>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="pushButtonDeleteTexture_2">
+          <property name="geometry">
+           <rect>
+            <x>190</x>
+            <y>640</y>
+            <width>89</width>
+            <height>25</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>&amp;Delete</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="pushButtonAddTexture_2">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>640</y>
+            <width>89</width>
+            <height>25</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>&amp;Add...</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="pushButtonEditTexture_2">
+          <property name="geometry">
+           <rect>
+            <x>100</x>
+            <y>640</y>
+            <width>89</width>
+            <height>25</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>&amp;Edit...</string>
           </property>
          </widget>
         </widget>
@@ -448,6 +516,7 @@
      <addaction name="action_DarkTheme"/>
     </widget>
     <addaction name="menu_Color_theme"/>
+    <addaction name="action_DisplayGrid"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
@@ -534,6 +603,17 @@
    </property>
    <property name="font">
     <font/>
+   </property>
+  </action>
+  <action name="action_DisplayGrid">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Display &amp;grid</string>
    </property>
   </action>
  </widget>

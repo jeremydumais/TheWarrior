@@ -1,6 +1,9 @@
 #include "mainForm.hpp"
+#include "configurationManager.hpp"
 #include "editTextureForm.hpp"
+#include "specialFolders.hpp"
 #include <algorithm>
+#include <boost/filesystem.hpp>
 #include <fmt/format.h>
 #include <QtCore/qfile.h>
 #include <QtWidgets/qmessagebox.h>
@@ -27,6 +30,19 @@ MainForm::MainForm(QWidget *parent)
 	ui.setupUi(this);
 	connectUIActions();
 
+	//Check if the user configuration folder exist
+	userConfigFolder = SpecialFolders::getUserConfigDirectory();
+	if (!boost::filesystem::exists(userConfigFolder)) {
+		if (!boost::filesystem::create_directory(userConfigFolder)) {
+			showErrorMessage(fmt::format("Unable to create the folder {0}", userConfigFolder), "");
+			exit(1);
+		}
+	}
+
+	//Check if the configuration file exist
+	ConfigurationManager configManager(userConfigFolder + "config.json");
+	setAppStylesheet(configManager.getStringValue(ConfigurationManager::THEME_PATH));
+
 	ui.mapOpenGLWidget->setResourcesPath(getResourcesPath());
 	//Generate a test map
 	if (!controller.createMap(20, 20)) {
@@ -34,8 +50,16 @@ MainForm::MainForm(QWidget *parent)
 		exit(1);
 	}
 	if (!controller.addTexture({
-		"terrain1", "tile.png",
+		"Terrain1", "tile.png",
 		256, 4256,
+		32, 32
+	})) {
+		showErrorMessage(controller.getLastError());
+		exit(1);
+	}
+	if (!controller.addTexture({
+		"NPC1", "tileNPC1.png",
+		384, 256,
 		32, 32
 	})) {
 		showErrorMessage(controller.getLastError());
@@ -54,6 +78,7 @@ void MainForm::connectUIActions()
 	connect(ui.action_About, &QAction::triggered, this, &MainForm::action_About_Click);
 	connect(ui.action_LightTheme, &QAction::triggered, this, &MainForm::action_LightTheme_Click);
 	connect(ui.action_DarkTheme, &QAction::triggered, this, &MainForm::action_DarkTheme_Click);
+	connect(ui.action_DisplayGrid, &QAction::triggered, this, &MainForm::action_DisplayGrid_Click);
 	connect(ui.action_Select, &QAction::triggered, this, &MainForm::action_SelectClick);
 	connect(ui.action_MoveMap, &QAction::triggered, this, &MainForm::action_MoveMapClick);
 	connect(ui.action_ApplyTexture, &QAction::triggered, this, &MainForm::action_ApplyTextureClick);
@@ -67,7 +92,10 @@ void MainForm::connectUIActions()
 	connect(ui.pushButtonSelectedTextureClear, &QPushButton::clicked, this, &MainForm::onPushButtonSelectedTextureClearClick);
 	connect(ui.pushButtonSelectedObjectClear, &QPushButton::clicked, this, &MainForm::onPushButtonSelectedObjectClearClick);
 	connect(ui.labelImageTexture, &QClickableLabel::onMouseReleaseEvent, this, &MainForm::onLabelImageTextureMouseReleaseEvent);
-	connect(ui.lineEditTexIndex, &QLineEdit::textChanged, this, &MainForm::onLineEditTexIndexTextChange);
+	connect(ui.lineEditTexName, &QLineEdit::textChanged, this, &MainForm::onLineEditTexNameTextChanged);
+	connect(ui.spinBoxTexIndex, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainForm::onSpinBoxTexIndexValueChanged);
+	connect(ui.lineEditObjTexName, &QLineEdit::textChanged, this, &MainForm::onLineEditObjTexNameTextChanged);
+	connect(ui.spinBoxObjTexIndex, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainForm::onSpinBoxObjTexIndexValueChanged);
 	connect(ui.comboBoxTexture, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm::onComboBoxTextureCurrentIndexChanged);
 }
 
@@ -119,24 +147,29 @@ void MainForm::action_About_Click()
 
 void MainForm::action_LightTheme_Click()
 {
-	/*ConfigurationManager configManager(userConfigFolder + "config.json");
+	ConfigurationManager configManager(userConfigFolder + "config.json");
 	configManager.setStringValue(ConfigurationManager::THEME_PATH, "");
 	setAppStylesheet(configManager.getStringValue(ConfigurationManager::THEME_PATH));
 	if (!configManager.save()) {
 		showErrorMessage("An error occurred while saving the configuration file.", 
 						 configManager.getLastError());
-	}*/
+	}
 }
 
 void MainForm::action_DarkTheme_Click()
 {
-	/*ConfigurationManager configManager(userConfigFolder + "config.json");
+	ConfigurationManager configManager(userConfigFolder + "config.json");
 	configManager.setStringValue(ConfigurationManager::THEME_PATH, "Dark");
 	setAppStylesheet(configManager.getStringValue(ConfigurationManager::THEME_PATH));
 	if (!configManager.save()) {
 		showErrorMessage("An error occurred while saving the configuration file.", 
 						 configManager.getLastError());
-	}*/
+	}
+}
+
+void MainForm::action_DisplayGrid_Click() 
+{
+	ui.mapOpenGLWidget->setGridEnabled(ui.action_DisplayGrid->isChecked());
 }
 
 void MainForm::action_SelectClick() 
@@ -223,9 +256,9 @@ void MainForm::onTileClicked(int tileIndex)
 	if (tileIndex != -1) {
 		currentMapTile = &controller.getMap()->getTileForEditing(tileIndex);
 		ui.lineEditTexName->setText(currentMapTile->getTextureName().c_str());
-		ui.lineEditTexIndex->setText(to_string(currentMapTile->getTextureIndex()).c_str());
+		ui.spinBoxTexIndex->setValue(currentMapTile->getTextureIndex());
 		ui.lineEditObjTexName->setText(currentMapTile->getObjectTextureName().c_str());
-		ui.lineEditObjTexIndex->setText(to_string(currentMapTile->getObjectTextureIndex()).c_str());
+		ui.spinBoxObjTexIndex->setValue(currentMapTile->getObjectTextureIndex());
 		ui.toolBox->setCurrentWidget(ui.page_TileProperties);
 	}
 	else {
@@ -249,11 +282,10 @@ void MainForm::onTileMouseReleaseEvent(vector<int> selectedTileIndexes)
 			currentMapTile->setObjectTextureIndex(lastSelectedObjectIndex);
 		}
 	}
-	setCursor(Qt::CursorShape::ArrowCursor);
 }
 
 /*void MainForm::onTileMouseMoveEvent(bool mousePressed, int tileIndex) 
-{
+{	
 }*/
 
 void MainForm::onPushButtonAddTextureClick() 
@@ -399,15 +431,39 @@ void MainForm::onLabelImageTextureMouseReleaseEvent(QMouseEvent *event)
 	}	
 }
 
-void MainForm::onLineEditTexIndexTextChange(const QString &text) 
+void MainForm::onLineEditTexNameTextChanged(const QString &text) 
 {
 	if (currentMapTile != nullptr) {
-		currentMapTile->setTextureIndex(text.toInt());
+		currentMapTile->setTextureName(text.toStdString());
 		ui.mapOpenGLWidget->updateGL();
 	}
 }
 
-void MainForm::onComboBoxTextureCurrentIndexChanged(int index) 
+void MainForm::onSpinBoxTexIndexValueChanged(int value) 
+{
+	if (currentMapTile != nullptr) {
+		currentMapTile->setTextureIndex(value);
+		ui.mapOpenGLWidget->updateGL();
+	}
+}
+
+void MainForm::onLineEditObjTexNameTextChanged(const QString &text) 
+{
+	if (currentMapTile != nullptr) {
+		currentMapTile->setObjectTextureName(text.toStdString());
+		ui.mapOpenGLWidget->updateGL();
+	}
+}
+
+void MainForm::onSpinBoxObjTexIndexValueChanged(int value) 
+{
+	if (currentMapTile != nullptr) {
+		currentMapTile->setObjectTextureIndex(value);
+		ui.mapOpenGLWidget->updateGL();
+	}
+}
+
+void MainForm::onComboBoxTextureCurrentIndexChanged() 
 {
 	displaySelectedTextureImage();
 }
