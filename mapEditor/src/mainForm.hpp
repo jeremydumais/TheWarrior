@@ -53,10 +53,12 @@ private:
 	void onPushButtonDeleteTextureClick();
 	boost::optional<const Texture &> getSelectedTextureInTextureList();
 	void refreshTextureList();
+	void displaySelectedTextureImage();
 	void onPushButtonSelectedTextureClearClick();
 	void onPushButtonSelectedObjectClearClick();
 	void onLabelImageTextureMouseReleaseEvent(QMouseEvent *event);
 	void onLineEditTexIndexTextChange(const QString &text);
+    void onComboBoxTextureCurrentIndexChanged(int index);
 	QPixmap getTextureTileImageFromTexture(int tileIndex, const Texture &texture) const;
 	Point to_Point(QPoint point);
 };

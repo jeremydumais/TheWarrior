@@ -68,6 +68,7 @@ void MainForm::connectUIActions()
 	connect(ui.pushButtonSelectedObjectClear, &QPushButton::clicked, this, &MainForm::onPushButtonSelectedObjectClearClick);
 	connect(ui.labelImageTexture, &QClickableLabel::onMouseReleaseEvent, this, &MainForm::onLabelImageTextureMouseReleaseEvent);
 	connect(ui.lineEditTexIndex, &QLineEdit::textChanged, this, &MainForm::onLineEditTexIndexTextChange);
+	connect(ui.comboBoxTexture, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm::onComboBoxTextureCurrentIndexChanged);
 }
 
 MainForm::~MainForm()
@@ -334,6 +335,13 @@ void MainForm::refreshTextureList()
 		ui.comboBoxTexture->insertItem(index, texture.getName().c_str());
 		index++;
 	}
+	displaySelectedTextureImage();
+	ui.mapOpenGLWidget->reloadTextures();
+}
+
+void MainForm::displaySelectedTextureImage() 
+{
+	auto map { controller.getMap() };
 	//Find the selected texture
 	auto texture { map->getTextureByName(ui.comboBoxTexture->itemText(ui.comboBoxTexture->currentIndex()).toStdString()) };
 	if (texture.has_value()) {
@@ -351,7 +359,6 @@ void MainForm::refreshTextureList()
 		ui.labelSelectedTexture->clear();
 		ui.labelSelectedObject->clear();
 	}
-	ui.mapOpenGLWidget->reloadTextures();
 }
 
 void MainForm::onPushButtonSelectedTextureClearClick() 
@@ -398,6 +405,11 @@ void MainForm::onLineEditTexIndexTextChange(const QString &text)
 		currentMapTile->setTextureIndex(text.toInt());
 		ui.mapOpenGLWidget->updateGL();
 	}
+}
+
+void MainForm::onComboBoxTextureCurrentIndexChanged(int index) 
+{
+	displaySelectedTextureImage();
 }
 
 QPixmap MainForm::getTextureTileImageFromTexture(int tileIndex, const Texture &texture) const 
