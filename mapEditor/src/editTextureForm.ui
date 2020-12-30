@@ -187,6 +187,10 @@
        <property name="text">
         <string>&amp;OK</string>
        </property>
+       <property name="icon">
+        <iconset resource="../res/global.qrc">
+         <normaloff>:/dialog-ok.svg</normaloff>:/dialog-ok.svg</iconset>
+       </property>
       </widget>
      </item>
      <item>
@@ -194,12 +198,18 @@
        <property name="text">
         <string>&amp;Cancel</string>
        </property>
+       <property name="icon">
+        <iconset resource="../res/global.qrc">
+         <normaloff>:/gtk-delete.svg</normaloff>:/gtk-delete.svg</iconset>
+       </property>
       </widget>
      </item>
     </layout>
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../res/global.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -2,6 +2,7 @@
 
 #include "gameMap.hpp"
 #include "point.hpp"
+#include <boost/serialization/access.hpp>
 #include <memory>
 #include <string>
 #include <vector>
@@ -22,6 +23,7 @@ public:
     bool isTextureUsedInMap(const std::string &name);
     void replaceTilesTextureName(const std::string &oldName, const std::string &newName);
 private:
+    friend class boost::serialization::access;
     std::string lastError;
 	std::shared_ptr<GameMap> map;
 };

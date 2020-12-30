@@ -23,7 +23,9 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mapOpenGLWidget.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/qClickableLabel.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/configurationManager.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/specialFolders.cpp)
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/specialFolders.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/res/darkstyle/darkstyle.qrc
+                         ${CMAKE_CURRENT_SOURCE_DIR}/res/global.qrc)
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -65,6 +67,6 @@ endif()
 
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 install(FILES ${RESOURCE_FILES} DESTINATION share/${PROJECT_NAME}/res)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../resources/tile.png ${CMAKE_BINARY_DIR}/bin/resources/tile.png COPYONLY)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../resources/tile2.png ${CMAKE_BINARY_DIR}/bin/resources/tile2.png COPYONLY)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../resources/tileNPC1.png ${CMAKE_BINARY_DIR}/bin/resources/tileNPC1.png COPYONLY)
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/../resources DESTINATION ${CMAKE_BINARY_DIR}/bin)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res  DESTINATION ${CMAKE_BINARY_DIR}/bin)

@@ -2,6 +2,9 @@
 
 #include "textureInfo.hpp"
 #include <string>
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/version.hpp>
 
 class Texture
 {
@@ -23,6 +26,7 @@ public:
     void setTileWidth(int value);
     void setTileHeight(int value);  
 private:
+    friend class boost::serialization::access;
     std::string name;
     std::string filename;
     int width;
@@ -33,4 +37,21 @@ private:
     float tileHeightGL;    
     void updateTileWidthGL();
     void updateTileHeightGL();
+    Texture() {}; //Needed for deserialization
+    //Serialization method
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        /*if(version > 0)
+            ar & name;*/
+        ar & name;
+        ar & filename;
+        ar & width;
+        ar & height;
+        ar & tileWidth;
+        ar & tileHeight;
+        ar & tileWidthGL;
+        ar & tileHeightGL;
+    }
 };
+BOOST_CLASS_VERSION(Texture, 0)

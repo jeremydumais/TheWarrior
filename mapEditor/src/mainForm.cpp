@@ -3,8 +3,12 @@
 #include "editTextureForm.hpp"
 #include "specialFolders.hpp"
 #include <algorithm>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 #include <fmt/format.h>
+#include <fstream>
 #include <QtCore/qfile.h>
 #include <QtWidgets/qmessagebox.h>
 #include <qtimer.h>
@@ -18,6 +22,7 @@ MainForm::MainForm(QWidget *parent)
 	: QMainWindow(parent),
 	  ui(Ui::MainForm()),
 	  selectionMode(SelectionMode::Select),
+	  currentFilePath(""),
 	  currentMapTile(nullptr),
 	  lastSelectedTextureName(""),
 	  lastSelectedObjectName(""),
@@ -76,6 +81,9 @@ void MainForm::connectUIActions()
 {
 	connect(ui.action_Quit, &QAction::triggered, this, &MainForm::close);
 	connect(ui.action_About, &QAction::triggered, this, &MainForm::action_About_Click);
+	connect(ui.action_Open, &QAction::triggered, this, &MainForm::action_Open_Click);
+	connect(ui.action_Save, &QAction::triggered, this, &MainForm::action_Save_Click);
+	connect(ui.action_SaveAs, &QAction::triggered, this, &MainForm::action_SaveAs_Click);
 	connect(ui.action_LightTheme, &QAction::triggered, this, &MainForm::action_LightTheme_Click);
 	connect(ui.action_DarkTheme, &QAction::triggered, this, &MainForm::action_DarkTheme_Click);
 	connect(ui.action_DisplayGrid, &QAction::triggered, this, &MainForm::action_DisplayGrid_Click);
@@ -97,6 +105,46 @@ void MainForm::connectUIActions()
 	connect(ui.lineEditObjTexName, &QLineEdit::textChanged, this, &MainForm::onLineEditObjTexNameTextChanged);
 	connect(ui.spinBoxObjTexIndex, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainForm::onSpinBoxObjTexIndexValueChanged);
 	connect(ui.comboBoxTexture, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm::onComboBoxTextureCurrentIndexChanged);
+}
+
+void MainForm::action_Open_Click() 
+{
+	QString fullFilePath { QFileDialog::getOpenFileName(this, 
+							tr("Open map"),
+							"",
+							tr("Map file (*.map)")) };
+	if (fullFilePath != "") {
+		currentFilePath = fullFilePath.toStdString();
+		ifstream ofs(currentFilePath, ifstream::binary);
+		boost::archive::binary_iarchive oa(ofs);
+		oa >> *controller.getMap();
+		refreshTextureList();
+	}
+	refreshWindowTitle();
+}
+
+void MainForm::action_Save_Click() 
+{
+	if (currentFilePath == "") {
+		action_SaveAs_Click();
+	}
+	else {
+		saveMap(currentFilePath);
+	}
+}
+
+void MainForm::action_SaveAs_Click() 
+{
+	QString filter = "Map Files (*.map)";
+	QString fullFilePath { QFileDialog::getSaveFileName(this, 
+							tr("Save map"),
+							"",
+							filter, &filter) };
+	if (fullFilePath != "") {
+		currentFilePath = fullFilePath.toStdString();
+		saveMap(currentFilePath);
+	}
+	refreshWindowTitle();
 }
 
 MainForm::~MainForm()
@@ -196,6 +244,23 @@ void MainForm::action_ApplyObjectClick()
 	ui.mapOpenGLWidget->setSelectionMode(selectionMode);
 }
 
+void MainForm::saveMap(const std::string &filePath) 
+{
+	ofstream ofs(currentFilePath, ofstream::binary);
+	boost::archive::binary_oarchive oa(ofs);
+	oa << *controller.getMap();
+}
+
+void MainForm::refreshWindowTitle() 
+{
+	if (currentFilePath == "") {
+		setWindowTitle("MapEditor");
+	}
+	else {
+		setWindowTitle(fmt::format("MapEditor - {0}", currentFilePath).c_str());
+	}
+}
+
 void MainForm::showErrorMessage(const string &message,
 								const string &internalError) const
 {
@@ -220,21 +285,7 @@ void MainForm::setAppStylesheet(const std::string &style)
 	ui.action_LightTheme->setChecked(false);
 	ui.action_DarkTheme->setChecked(false);
 	if (style == "Dark") {
-		#ifdef _WIN32
-			char exePath[MAX_PATH]; 
-			// When NULL is passed to GetModuleHandle, the handle of the exe itself is returned
-			HMODULE hModule = GetModuleHandle(nullptr);
-			if (hModule != nullptr)
-			{
-				// Use GetModuleFileName() with module handle to get the path
-				GetModuleFileName(hModule, exePath, (sizeof(exePath))); 
-			}
-			boost::filesystem::path path(exePath);
-			string stylePath { fmt::format("{0}\\res\\", path.parent_path().string())};
-		#else
-			string stylePath = "/usr/local/share/TeacherHelperApp/res/";
-		#endif
-		QFile file(fmt::format("{0}darkstyle.qss", stylePath).c_str());
+		QFile file(fmt::format("{0}/res/darkstyle/darkstyle.qss", getExecutablePath()).c_str());
 		file.open(QFile::ReadOnly);
 		const QString styleSheet = QLatin1String(file.readAll());
 		this->setStyleSheet(styleSheet);

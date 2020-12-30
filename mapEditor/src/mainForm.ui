@@ -21,7 +21,7 @@
        <widget class="QToolBox" name="toolBox">
         <property name="minimumSize">
          <size>
-          <width>300</width>
+          <width>320</width>
           <height>0</height>
          </size>
         </property>
@@ -32,14 +32,14 @@
          </size>
         </property>
         <property name="currentIndex">
-         <number>3</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="pageMapProperties">
          <property name="geometry">
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>300</width>
+           <width>320</width>
            <height>677</height>
           </rect>
          </property>
@@ -84,7 +84,7 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>300</width>
+           <width>320</width>
            <height>677</height>
           </rect>
          </property>
@@ -163,116 +163,110 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>300</width>
+           <width>320</width>
            <height>677</height>
           </rect>
          </property>
          <attribute name="label">
           <string>Texture list</string>
          </attribute>
-         <widget class="QListWidget" name="listWidgetTextures">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>10</y>
-            <width>281</width>
-            <height>631</height>
-           </rect>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="pushButtonAddTexture">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>650</y>
-            <width>89</width>
-            <height>25</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>&amp;Add...</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="pushButtonEditTexture">
-          <property name="geometry">
-           <rect>
-            <x>100</x>
-            <y>650</y>
-            <width>89</width>
-            <height>25</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>&amp;Edit...</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="pushButtonDeleteTexture">
-          <property name="geometry">
-           <rect>
-            <x>190</x>
-            <y>650</y>
-            <width>89</width>
-            <height>25</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>&amp;Delete</string>
-          </property>
-         </widget>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QListWidget" name="listWidgetTextures"/>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <item>
+             <widget class="QPushButton" name="pushButtonAddTexture">
+              <property name="text">
+               <string>&amp;Add...</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../res/global.qrc">
+                <normaloff>:/gtk-add.svg</normaloff>:/gtk-add.svg</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButtonEditTexture">
+              <property name="text">
+               <string>&amp;Edit...</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../res/global.qrc">
+                <normaloff>:/gtk-edit.svg</normaloff>:/gtk-edit.svg</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButtonDeleteTexture">
+              <property name="text">
+               <string>&amp;Delete</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../res/global.qrc">
+                <normaloff>:/dialog-close.svg</normaloff>:/dialog-close.svg</iconset>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
         </widget>
         <widget class="QWidget" name="page_NPCList">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>320</width>
+           <height>677</height>
+          </rect>
+         </property>
          <attribute name="label">
           <string>NPC list</string>
          </attribute>
-         <widget class="QListWidget" name="listWidgetTextures_2">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>10</y>
-            <width>281</width>
-            <height>621</height>
-           </rect>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="pushButtonDeleteTexture_2">
-          <property name="geometry">
-           <rect>
-            <x>190</x>
-            <y>640</y>
-            <width>89</width>
-            <height>25</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>&amp;Delete</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="pushButtonAddTexture_2">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>640</y>
-            <width>89</width>
-            <height>25</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>&amp;Add...</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="pushButtonEditTexture_2">
-          <property name="geometry">
-           <rect>
-            <x>100</x>
-            <y>640</y>
-            <width>89</width>
-            <height>25</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>&amp;Edit...</string>
-          </property>
-         </widget>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QListWidget" name="listWidgetTextures_2"/>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <widget class="QPushButton" name="pushButtonAddTexture_2">
+              <property name="text">
+               <string>&amp;Add...</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../res/global.qrc">
+                <normaloff>:/gtk-add.svg</normaloff>:/gtk-add.svg</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButtonEditTexture_2">
+              <property name="text">
+               <string>&amp;Edit...</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../res/global.qrc">
+                <normaloff>:/gtk-edit.svg</normaloff>:/gtk-edit.svg</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButtonDeleteTexture_2">
+              <property name="text">
+               <string>&amp;Delete</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../res/global.qrc">
+                <normaloff>:/dialog-close.svg</normaloff>:/dialog-close.svg</iconset>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
         </widget>
        </widget>
       </item>
@@ -461,7 +455,7 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>265</width>
+           <width>261</width>
            <height>639</height>
           </rect>
          </property>
@@ -491,11 +485,35 @@
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
+    <property name="geometry">
+     <rect>
+      <x>2193</x>
+      <y>144</y>
+      <width>260</width>
+      <height>179</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>260</width>
+      <height>0</height>
+     </size>
+    </property>
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <addaction name="action_New"/>
     <addaction name="action_Open"/>
+    <addaction name="separator"/>
     <addaction name="action_Save"/>
+    <addaction name="action_SaveAs"/>
+    <addaction name="separator"/>
     <addaction name="action_Quit"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -547,6 +565,10 @@
    <addaction name="separator"/>
   </widget>
   <action name="action_Quit">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/exit.svg</normaloff>:/exit.svg</iconset>
+   </property>
    <property name="text">
     <string>&amp;Quit</string>
    </property>
@@ -573,13 +595,27 @@
    </property>
   </action>
   <action name="action_Open">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/document-open.svg</normaloff>:/document-open.svg</iconset>
+   </property>
    <property name="text">
     <string>&amp;Open...</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
   </action>
   <action name="action_Save">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/document-save.svg</normaloff>:/document-save.svg</iconset>
+   </property>
    <property name="text">
-    <string>&amp;Save...</string>
+    <string>&amp;Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
   <action name="action_Select">
@@ -614,6 +650,27 @@
    </property>
    <property name="text">
     <string>Display &amp;grid</string>
+   </property>
+  </action>
+  <action name="action_SaveAs">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/document-save-as.svg</normaloff>:/document-save-as.svg</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Save As...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="action_New">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/document-new.svg</normaloff>:/document-new.svg</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;New</string>
    </property>
   </action>
  </widget>

@@ -23,6 +23,7 @@ private:
 	MainController controller;
 	std::string userConfigFolder;
 	SelectionMode selectionMode;
+	std::string currentFilePath;
 	MapTile *currentMapTile;
 	std::string lastSelectedTextureName;
 	std::string lastSelectedObjectName;
@@ -37,6 +38,9 @@ private:
 						  const std::string &internalError = "") const;
 	void setAppStylesheet(const std::string &style);
 	void connectUIActions();
+	void action_Open_Click();
+	void action_Save_Click();
+	void action_SaveAs_Click();
 	void action_About_Click();
 	void action_LightTheme_Click();
 	void action_DarkTheme_Click();
@@ -45,6 +49,8 @@ private:
 	void action_MoveMapClick();
 	void action_ApplyTextureClick();
 	void action_ApplyObjectClick();
+	void saveMap(const std::string &filePath);
+	void refreshWindowTitle();
 	void mapPaint(QPaintEvent *e);
 	void resizeEvent(QResizeEvent *);
 	void onTileClicked(int tileIndex);
