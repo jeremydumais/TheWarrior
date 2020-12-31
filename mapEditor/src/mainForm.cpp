@@ -74,6 +74,7 @@ MainForm::MainForm(QWidget *parent)
 	ui.mapOpenGLWidget->setCurrentMap(map);
 	ui.lineEditMapWidth->setText(to_string(map->getWidth()).c_str());
 	ui.lineEditMapHeight->setText(to_string(map->getHeight()).c_str());
+	refreshRecentMapsMenu();
 	refreshTextureList();
 }
 
@@ -82,6 +83,11 @@ void MainForm::connectUIActions()
 	connect(ui.action_Quit, &QAction::triggered, this, &MainForm::close);
 	connect(ui.action_About, &QAction::triggered, this, &MainForm::action_About_Click);
 	connect(ui.action_Open, &QAction::triggered, this, &MainForm::action_Open_Click);
+	connect(ui.action_RecentMap1, &QAction::triggered, this, &MainForm::action_OpenRecentMap_Click);
+	connect(ui.action_RecentMap2, &QAction::triggered, this, &MainForm::action_OpenRecentMap_Click);
+	connect(ui.action_RecentMap3, &QAction::triggered, this, &MainForm::action_OpenRecentMap_Click);
+	connect(ui.action_RecentMap4, &QAction::triggered, this, &MainForm::action_OpenRecentMap_Click);
+	connect(ui.action_RecentMap5, &QAction::triggered, this, &MainForm::action_OpenRecentMap_Click);
 	connect(ui.action_Save, &QAction::triggered, this, &MainForm::action_Save_Click);
 	connect(ui.action_SaveAs, &QAction::triggered, this, &MainForm::action_SaveAs_Click);
 	connect(ui.action_LightTheme, &QAction::triggered, this, &MainForm::action_LightTheme_Click);
@@ -109,18 +115,26 @@ void MainForm::connectUIActions()
 
 void MainForm::action_Open_Click() 
 {
+	ui.mapOpenGLWidget->stopAutoUpdate();
 	QString fullFilePath { QFileDialog::getOpenFileName(this, 
 							tr("Open map"),
 							"",
 							tr("Map file (*.map)")) };
 	if (fullFilePath != "") {
-		currentFilePath = fullFilePath.toStdString();
-		ifstream ofs(currentFilePath, ifstream::binary);
-		boost::archive::binary_iarchive oa(ofs);
-		oa >> *controller.getMap();
-		refreshTextureList();
+		openMap(fullFilePath.toStdString());
 	}
 	refreshWindowTitle();
+	ui.mapOpenGLWidget->startAutoUpdate();
+}
+
+void MainForm::action_OpenRecentMap_Click() 
+{
+	QAction *recentAction = qobject_cast<QAction *>(sender());
+	string filename = recentAction->text().toStdString();
+	ui.mapOpenGLWidget->stopAutoUpdate();
+	openMap(filename);
+	refreshWindowTitle();
+	ui.mapOpenGLWidget->startAutoUpdate();
 }
 
 void MainForm::action_Save_Click() 
@@ -135,6 +149,7 @@ void MainForm::action_Save_Click()
 
 void MainForm::action_SaveAs_Click() 
 {
+	ui.mapOpenGLWidget->stopAutoUpdate();
 	QString filter = "Map Files (*.map)";
 	QString fullFilePath { QFileDialog::getSaveFileName(this, 
 							tr("Save map"),
@@ -143,8 +158,10 @@ void MainForm::action_SaveAs_Click()
 	if (fullFilePath != "") {
 		currentFilePath = fullFilePath.toStdString();
 		saveMap(currentFilePath);
+		addNewRecentMap(currentFilePath);
 	}
 	refreshWindowTitle();
+	ui.mapOpenGLWidget->startAutoUpdate();
 }
 
 MainForm::~MainForm()
@@ -244,6 +261,21 @@ void MainForm::action_ApplyObjectClick()
 	ui.mapOpenGLWidget->setSelectionMode(selectionMode);
 }
 
+void MainForm::openMap(const std::string &filePath) 
+{
+	try {
+		ifstream ofs(filePath, ifstream::binary);
+		boost::archive::binary_iarchive oa(ofs);
+		oa >> *controller.getMap();
+		currentFilePath = filePath;
+		addNewRecentMap(currentFilePath);
+		refreshTextureList();
+	}
+	catch(...) {
+		showErrorMessage(fmt::format("Unable to open the map {0}", filePath));
+	}
+}
+
 void MainForm::saveMap(const std::string &filePath) 
 {
 	ofstream ofs(currentFilePath, ofstream::binary);
@@ -259,6 +291,47 @@ void MainForm::refreshWindowTitle()
 	else {
 		setWindowTitle(fmt::format("MapEditor - {0}", currentFilePath).c_str());
 	}
+}
+
+void MainForm::refreshRecentMapsMenu() 
+{
+	ConfigurationManager configManager(userConfigFolder + "config.json");
+	auto recents = configManager.getVectorOfStringValue(ConfigurationManager::RECENT_MAPS);
+	if (recents.size() > 5) {
+		recents.resize(5);
+	}
+	ui.menu_RecentMaps->setEnabled(!recents.empty());
+	vector<QAction *> actions { 
+		ui.action_RecentMap1, 
+		ui.action_RecentMap2, 
+		ui.action_RecentMap3, 
+		ui.action_RecentMap4, 
+		ui.action_RecentMap5 
+	};
+	for(size_t i = 0; i < recents.size(); i++) {
+		actions[i]->setVisible(true);
+		actions[i]->setText(recents[i].c_str());
+	}
+}
+
+void MainForm::addNewRecentMap(const std::string &filePath) 
+{
+	//Load existing recent maps
+	ConfigurationManager configManager(userConfigFolder + "config.json");
+	auto recents = configManager.getVectorOfStringValue(ConfigurationManager::RECENT_MAPS);
+	//Scan to find the currentMap, if found remove it from the list
+	auto iter = std::find(recents.begin(), recents.end(), filePath);
+	if (iter != recents.end()) {
+		recents.erase(iter);
+	}
+	//Add it at the beginning of the vector
+	recents.insert(recents.begin(), filePath);
+	if (recents.size() > 5) {
+		recents.resize(5);
+	}
+	configManager.setVectorOfStringValue(ConfigurationManager::RECENT_MAPS, recents);
+	configManager.save();
+	refreshRecentMapsMenu();
 }
 
 void MainForm::showErrorMessage(const string &message,

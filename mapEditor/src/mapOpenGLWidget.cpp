@@ -69,7 +69,7 @@ void MapOpenGLWidget::initializeGL()
     glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);*/
 
     //Configure for 60FPS
-    repaintTimer.start(1000.0f / 60.0f);
+    startAutoUpdate();
 }
 
 void MapOpenGLWidget::paintGL()
@@ -138,6 +138,16 @@ void MapOpenGLWidget::reloadTextures()
         glBindTexture(GL_TEXTURE_2D, 0);
         stbi_image_free(imageBytes);
     }
+}
+
+void MapOpenGLWidget::startAutoUpdate() 
+{
+    repaintTimer.start(1000.0f / 60.0f);
+}
+
+void MapOpenGLWidget::stopAutoUpdate() 
+{
+    repaintTimer.stop();
 }
 
 void MapOpenGLWidget::mousePressEvent(QMouseEvent *event)

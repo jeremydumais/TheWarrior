@@ -24,6 +24,8 @@ public:
     void setResourcesPath(const std::string &path);
     void setSelectionMode(SelectionMode mode);
     void reloadTextures();
+    void startAutoUpdate();
+    void stopAutoUpdate();
 protected:
     void initializeGL();
     void paintGL();

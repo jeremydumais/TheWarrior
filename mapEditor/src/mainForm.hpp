@@ -39,6 +39,7 @@ private:
 	void setAppStylesheet(const std::string &style);
 	void connectUIActions();
 	void action_Open_Click();
+	void action_OpenRecentMap_Click();
 	void action_Save_Click();
 	void action_SaveAs_Click();
 	void action_About_Click();
@@ -49,8 +50,11 @@ private:
 	void action_MoveMapClick();
 	void action_ApplyTextureClick();
 	void action_ApplyObjectClick();
+	void openMap(const std::string &filePath);
 	void saveMap(const std::string &filePath);
 	void refreshWindowTitle();
+	void refreshRecentMapsMenu();
+	void addNewRecentMap(const std::string &filePath);
 	void mapPaint(QPaintEvent *e);
 	void resizeEvent(QResizeEvent *);
 	void onTileClicked(int tileIndex);
