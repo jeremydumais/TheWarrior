@@ -101,6 +101,7 @@ void MainForm::connectUIActions()
 	connect(ui.mapOpenGLWidget, &MapOpenGLWidget::onTileClicked, this, &MainForm::onTileClicked);
 	connect(ui.mapOpenGLWidget, &MapOpenGLWidget::onTileMouseReleaseEvent, this, &MainForm::onTileMouseReleaseEvent);
 	//connect(ui.mapOpenGLWidget, &MapOpenGLWidget::onTileMouseMoveEvent, this, &MainForm::onTileMouseMoveEvent);
+	connect(ui.pushButtonApplySizeChange, &QPushButton::clicked, this, &MainForm::onPushButtonApplySizeChangeClick);
 	connect(ui.pushButtonAddTexture, &QPushButton::clicked, this, &MainForm::onPushButtonAddTextureClick);
 	connect(ui.pushButtonEditTexture, &QPushButton::clicked, this, &MainForm::onPushButtonEditTextureClick);
 	connect(ui.pushButtonDeleteTexture, &QPushButton::clicked, this, &MainForm::onPushButtonDeleteTextureClick);
@@ -409,12 +410,40 @@ void MainForm::onTileMouseReleaseEvent(vector<int> selectedTileIndexes)
 	}
 }
 
+void MainForm::onPushButtonApplySizeChangeClick() 
+{
+	int offsetLeft { ui.spinBoxMapSizeLeft->value() };
+	int offsetTop { ui.spinBoxMapSizeTop->value() };
+	int offsetRight { ui.spinBoxMapSizeRight->value() };
+	int offsetBottom { ui.spinBoxMapSizeBottom->value() };
+	if (offsetLeft < 0 || 
+		offsetTop < 0 ||
+		offsetRight < 0 ||
+		offsetBottom < 0) {	
+		//Check if there's tiles that are already assigned in the ones we will remove
+		if (controller.isShrinkMapImpactAssignedTiles(offsetLeft,
+													  offsetTop,
+													  offsetRight,
+													  offsetBottom)) {
+			showErrorMessage("Cannot resize the map because some tile are\n"
+								"already assigned in the ones you try to remove.");
+			return;
+		}
+	}
+	//Apply new size
+	controller.resizeMap(offsetLeft,
+						 offsetTop,
+						 offsetRight,
+						 offsetBottom);
+}
+
 /*void MainForm::onTileMouseMoveEvent(bool mousePressed, int tileIndex) 
 {	
 }*/
 
 void MainForm::onPushButtonAddTextureClick() 
 {
+	ui.mapOpenGLWidget->stopAutoUpdate();
 	auto alreadyUsedTextureNames { controller.getAlreadyUsedTextureNames() };
 	EditTextureForm formEditTexture(this, getResourcesPath(), nullptr, alreadyUsedTextureNames);
 	if (formEditTexture.exec() == QDialog::Accepted) {
@@ -423,10 +452,12 @@ void MainForm::onPushButtonAddTextureClick()
 		}
 		refreshTextureList();
 	}
+	ui.mapOpenGLWidget->startAutoUpdate();
 }
 
 void MainForm::onPushButtonEditTextureClick() 
 {
+	ui.mapOpenGLWidget->stopAutoUpdate();
 	auto selectedTexture = getSelectedTextureInTextureList();
 	if (selectedTexture.has_value()) {
 		auto alreadyUsedTextureNames = controller.getAlreadyUsedTextureNames();
@@ -444,6 +475,7 @@ void MainForm::onPushButtonEditTextureClick()
 			refreshTextureList();
 		}
 	}
+	ui.mapOpenGLWidget->startAutoUpdate();
 }
 
 void MainForm::onPushButtonDeleteTextureClick() 

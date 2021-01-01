@@ -60,6 +60,7 @@ private:
 	void onTileClicked(int tileIndex);
     void onTileMouseReleaseEvent(std::vector<int> selectedTileIndexes);
     //void onTileMouseMoveEvent(bool mousePressed, int tileIndex);
+	void onPushButtonApplySizeChangeClick();
 	void onPushButtonAddTextureClick();
 	void onPushButtonEditTextureClick();
 	void onPushButtonDeleteTextureClick();

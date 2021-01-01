@@ -99,6 +99,27 @@ bool MainController::isTextureUsedInMap(const string &name)
 	return false;
 }
 
+bool MainController::isShrinkMapImpactAssignedTiles(int offsetLeft, 
+													int offsetTop, 
+													int offsetRight, 
+													int offsetBottom) const
+{
+	return map->isShrinkMapImpactAssignedTiles(offsetLeft,
+											   offsetTop,
+											   offsetRight,
+											   offsetBottom);
+}
+
+void MainController::resizeMap(int offsetLeft, 
+                   int offsetTop, 
+                   int offsetRight, 
+                   int offsetBottom) 
+{
+	map->resizeMap(offsetLeft,
+				   offsetTop,
+				   offsetRight,
+				   offsetBottom);
+}
 
 void MainController::replaceTilesTextureName(const string &oldName, const string &newName) 
 {

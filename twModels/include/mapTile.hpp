@@ -13,6 +13,7 @@ public:
     int getTextureIndex() const;
     const std::string &getObjectTextureName() const;
     int getObjectTextureIndex() const;
+    bool isAssigned() const;
     void setTextureName(const std::string &name);
     void setTextureIndex(int index);
     void setObjectTextureName(const std::string &name);

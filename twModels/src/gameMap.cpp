@@ -15,13 +15,13 @@ GameMap::GameMap(unsigned int width, unsigned int height)
     if (height == 0) {
         throw invalid_argument("height must be greater than zero.");
     }
-    for(unsigned int i = 0; i < width; i++) {
-        vector<MapTile> col;
-        for(unsigned int j = 0; j < height; j++) {
+    for(unsigned int i = 0; i < height; i++) {
+        vector<MapTile> row;
+        for(unsigned int j = 0; j < width; j++) {
             MapTile newTile;
-            col.emplace_back(newTile);
+            row.emplace_back(newTile);
         }
-        tiles.emplace_back(col);
+        tiles.emplace_back(row);
     }
 }
 
@@ -42,12 +42,12 @@ MapTile& GameMap::getTileForEditing(int index)
 
 unsigned int GameMap::getWidth() const
 {
-    return tiles.size();    
+    return tiles[0].size();    
 }
 
 unsigned int GameMap::getHeight() const
 {
-    return tiles[0].size();
+    return tiles.size();
 }
 
 const vector<Texture>& GameMap::getTextures() const
@@ -117,6 +117,80 @@ bool GameMap::removeTexture(const std::string &name)
     }
     textures.erase(iter);
     return true;
+}
+
+bool GameMap::isShrinkMapImpactAssignedTiles(int offsetLeft, 
+                                             int offsetTop, 
+                                             int offsetRight, 
+                                             int offsetBottom) const
+{
+	//Left
+	if (offsetLeft < 0) {
+		size_t col { 0 };
+		for(int index = offsetLeft; index < 0; index++) {
+			//Check all tiles of the column
+			for(const auto &row : tiles) {
+				if (row[col].isAssigned()) {
+					return true;
+				}
+			}
+			col++;
+		}
+	}
+	//Top
+	if (offsetTop < 0 ) {
+		size_t rowIndex { 0 };
+		for(int index = offsetTop; index < 0; index++) {
+			//Check all tiles of the column
+			for(const auto &row : tiles[rowIndex]) {
+				if (row.isAssigned()) {
+					return true;
+				}
+			}
+			rowIndex++;
+		}
+	}
+	//Right
+	if (offsetRight < 0) {
+		size_t col { tiles[0].size() - 1 };
+		for(int index = offsetRight; index < 0; index++) {
+			//Check all tiles of the column
+			for(const auto &row : tiles) {
+				if (row[col].isAssigned()) {
+					return true;
+				}
+			}
+			col--;
+		}
+	}
+	//Bottom
+	if (offsetBottom < 0 ) {
+		size_t rowIndex { tiles.size() - 1 };
+		for(int index = offsetBottom; index < 0; index++) {
+			//Check all tiles of the column
+			for(const auto &row : tiles[rowIndex]) {
+				if (row.isAssigned()) {
+					return true;
+				}
+			}
+			rowIndex--;
+		}
+	}
+	return false;
+}
+
+void GameMap::resizeMap(int offsetLeft, 
+                   int offsetTop, 
+                   int offsetRight, 
+                   int offsetBottom) 
+{
+    if (offsetLeft < 0) {
+        for(auto &row : tiles) {
+            for(int index=offsetLeft; index<0; index++) {
+                row.erase(row.begin());
+            }
+        }
+    }
 }
 
 std::vector<Texture>::iterator GameMap::getTextureIterator(const std::string &name) 

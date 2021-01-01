@@ -24,6 +24,14 @@ public:
     bool addTexture(const TextureInfo &textureInfo);
     bool replaceTexture(const std::string &name, const TextureInfo &textureInfo);
     bool removeTexture(const std::string &name);
+    bool isShrinkMapImpactAssignedTiles(int offsetLeft, 
+                                        int offsetTop, 
+                                        int offsetRight, 
+                                        int offsetBottom) const;
+    void resizeMap(int offsetLeft, 
+                   int offsetTop, 
+                   int offsetRight, 
+                   int offsetBottom);
 private:
     friend class boost::serialization::access;
     std::string lastError;
