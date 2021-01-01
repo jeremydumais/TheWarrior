@@ -431,10 +431,15 @@ void MainForm::onPushButtonApplySizeChangeClick()
 		}
 	}
 	//Apply new size
-	controller.resizeMap(offsetLeft,
-						 offsetTop,
-						 offsetRight,
-						 offsetBottom);
+	try {
+		controller.resizeMap(offsetLeft,
+							 offsetTop,
+							 offsetRight,
+							 offsetBottom);
+	}
+	catch(invalid_argument &err) {
+		showErrorMessage(err.what());
+	}
 }
 
 /*void MainForm::onTileMouseMoveEvent(bool mousePressed, int tileIndex) 

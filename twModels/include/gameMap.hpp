@@ -37,7 +37,15 @@ private:
     std::string lastError;
     std::vector<std::vector<MapTile>> tiles;
     std::vector<Texture> textures;
-    std::vector<Texture>::iterator getTextureIterator(const std::string &name);
+    std::vector<Texture>::iterator _getTextureIterator(const std::string &name);
+    bool _isShrinkMapFromLeftImpactAssignedTiles(int offset) const;
+    bool _isShrinkMapFromTopImpactAssignedTiles(int offset) const;
+    bool _isShrinkMapFromRightImpactAssignedTiles(int offset) const;
+    bool _isShrinkMapFromBottomImpactAssignedTiles(int offset) const;
+    void _resizeMapFromLeft(int offset);
+    void _resizeMapFromTop(int offset);
+    void _resizeMapFromRight(int offset);
+    void _resizeMapFromBottom(int offset);
     //Serialization method
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
