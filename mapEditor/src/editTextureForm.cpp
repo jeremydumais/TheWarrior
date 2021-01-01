@@ -18,6 +18,7 @@ EditTextureForm::EditTextureForm(QWidget *parent,
 	  isEditMode(texture != nullptr)
 {
 	ui.setupUi(this);
+	setWindowIcon(QIcon(":/MapEditor Icon.png"));
 	connect(ui.pushButtonOK, &QPushButton::clicked, this, &EditTextureForm::onPushButtonOK);
 	connect(ui.pushButtonCancel, &QPushButton::clicked, this, &EditTextureForm::reject);
 	connect(ui.pushButtonOpenFilename, &QPushButton::clicked, this, &EditTextureForm::onPushButtonOpenFilenameClick);

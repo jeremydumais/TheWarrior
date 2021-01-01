@@ -1,5 +1,6 @@
 <RCC>
   <qresource>
+    <file>MapEditor Icon.png</file>
     <file>dialog-close.svg</file>
     <file>dialog-ok.svg</file>
     <file>gtk-add.svg</file>

@@ -1,6 +1,7 @@
 #include "mainForm.hpp"
 #include "configurationManager.hpp"
 #include "editTextureForm.hpp"
+#include "aboutBoxForm.hpp"
 #include "specialFolders.hpp"
 #include <algorithm>
 #include <boost/archive/binary_oarchive.hpp>
@@ -170,7 +171,7 @@ MainForm::~MainForm()
 
 void MainForm::functionAfterShown()
 {
-	//setWindowIcon(QIcon(":/global/TeacherHelper Icon256.png"));
+	setWindowIcon(QIcon(":/MapEditor Icon.png"));
 }
 
 const std::string &MainForm::getExecutablePath() 
@@ -206,8 +207,8 @@ bool MainForm::event(QEvent *event)
 
 void MainForm::action_About_Click()
 {
-	/*AboutBoxForm aboutBoxForm(this);
-	aboutBoxForm.exec();*/
+	AboutBoxForm aboutBoxForm(this);
+	aboutBoxForm.exec();
 }
 
 void MainForm::action_LightTheme_Click()
