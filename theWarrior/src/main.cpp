@@ -4,7 +4,7 @@
 
 int main()
 {
-    GameWindow gameWindow("The Warrior", 0, 0, 1024, 768);
+    GameWindow gameWindow("The Warrior", 100, 50, 1024, 900);
     gameWindow.show();
 
     while(gameWindow.isAlive()) {
