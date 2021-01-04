@@ -90,13 +90,16 @@ GameWindow::GameWindow(const string &title,
     loadMap(fmt::format("{0}/maps/homeHouse.map", getResourcesPath()));
     loadTextures();
     generateGLMapObjects();
-    generateGLPlayerObject();
-    linkShaders();
+    glPlayer.textureName = "NPC1";
     glPlayer.x = 7;
     glPlayer.y = 14;
     glPlayer.xMove = 0.0f;
     glPlayer.yMove = 0.0f;
-    glPlayer.currentMovementTexture = 1;
+    glPlayer.baseTextureIndex = 9;
+    glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex + 1;
+    //glPlayer.textureIndex = glPlayer.currentMovementTextureIndex;
+    generateGLPlayerObject();
+    linkShaders();
     setPlayerPosition();
 
     glEnable(GL_BLEND);
@@ -153,28 +156,28 @@ void GameWindow::processEvents()
                     playerMovement = PlayerMovement::MoveUp;
                     glPlayer.y -= 1;
                     glPlayer.yMove = 1.0f;
-                    glPlayer.currentMovementTexture = 0;
+                    glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex;
                     setPlayerTexture();
                     break;
                 case SDLK_DOWN:
                     playerMovement = PlayerMovement::MoveDown;
                     glPlayer.y += 1;
                     glPlayer.yMove = -1.0f;
-                    glPlayer.currentMovementTexture = 36;
+                    glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex + 36;
                     setPlayerTexture();
                     break;
                 case SDLK_LEFT:
                     playerMovement = PlayerMovement::MoveLeft;
                     glPlayer.x -= 1;
                     glPlayer.xMove = 1.0f;
-                    glPlayer.currentMovementTexture = 24;
+                    glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex + 24;
                     setPlayerTexture();
                     break;
                 case SDLK_RIGHT:
                     playerMovement = PlayerMovement::MoveRight;
                     glPlayer.x += 1;
                     glPlayer.xMove = -1.0f;
-                    glPlayer.currentMovementTexture = 12;
+                    glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex + 12;
                     setPlayerTexture();
                     break;
             };
@@ -195,14 +198,14 @@ void GameWindow::update(double delta_time)
             playerMovement = PlayerMovement::None;
         }
         else if(glPlayer.yMove < 0.3f) {
-            if (glPlayer.currentMovementTexture != 1) {
-                glPlayer.currentMovementTexture = 1;
+            if (glPlayer.currentMovementTextureIndex != 1) {
+                glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex + 1;
                 setPlayerTexture();
             }
         }
         else if(glPlayer.yMove < 0.6f) {
-            if (glPlayer.currentMovementTexture != 2) {
-                glPlayer.currentMovementTexture = 2;
+            if (glPlayer.currentMovementTextureIndex != 2) {
+                glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex + 2;
                 setPlayerTexture();
             }
         }
@@ -215,14 +218,14 @@ void GameWindow::update(double delta_time)
             playerMovement = PlayerMovement::None;
         }
         else if(glPlayer.yMove > -0.3f) {
-            if (glPlayer.currentMovementTexture != 37) {
-                glPlayer.currentMovementTexture = 37;
+            if (glPlayer.currentMovementTextureIndex != glPlayer.baseTextureIndex + 37) {
+                glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex + 37;
                 setPlayerTexture();
             }
         }
         else if(glPlayer.yMove > -0.6f) {
-            if (glPlayer.currentMovementTexture != 38) {
-                glPlayer.currentMovementTexture = 38;
+            if (glPlayer.currentMovementTextureIndex != glPlayer.baseTextureIndex + 38) {
+                glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex + 38;
                 setPlayerTexture();
             }
         }
@@ -235,14 +238,14 @@ void GameWindow::update(double delta_time)
             playerMovement = PlayerMovement::None;
         }
         else if(glPlayer.xMove < 0.3f) {
-            if (glPlayer.currentMovementTexture != 25) {
-                glPlayer.currentMovementTexture = 25;
+            if (glPlayer.currentMovementTextureIndex != glPlayer.baseTextureIndex + 25) {
+                glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex + 25;
                 setPlayerTexture();
             }
         }
         else if(glPlayer.xMove < 0.6f) {
-            if (glPlayer.currentMovementTexture != 26) {
-                glPlayer.currentMovementTexture = 26;
+            if (glPlayer.currentMovementTextureIndex != glPlayer.baseTextureIndex + 26) {
+                glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex + 26;
                 setPlayerTexture();
             }
         }
@@ -255,14 +258,14 @@ void GameWindow::update(double delta_time)
             playerMovement = PlayerMovement::None;
         }
         else if(glPlayer.xMove > -0.3f) {
-            if (glPlayer.currentMovementTexture != 13) {
-                glPlayer.currentMovementTexture = 13;
+            if (glPlayer.currentMovementTextureIndex != glPlayer.baseTextureIndex + 13) {
+                glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex + 13;
                 setPlayerTexture();
             }
         }
         else if(glPlayer.xMove > -0.6f) {
-            if (glPlayer.currentMovementTexture != 14) {
-                glPlayer.currentMovementTexture = 14;
+            if (glPlayer.currentMovementTextureIndex != glPlayer.baseTextureIndex + 14) {
+                glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex + 14;
                 setPlayerTexture();
             }
         }
@@ -410,15 +413,13 @@ void GameWindow::generateGLPlayerObject()
     {  TILEHALFWIDTH + startPosX, -TILEHALFHEIGHT + startPosY },     /* Bottom Right point */
     { -TILEHALFWIDTH + startPosX, -TILEHALFHEIGHT + startPosY } };   /* Bottom Left point */
     
-    glPlayer.textureName = "NPC1";
-    glPlayer.textureIndex = 1;
     glGenBuffers(1, &glPlayer.vboPosition);
     glGenBuffers(1, &glPlayer.vboColor);
     GenerateGLObjectInfo infoGenTexture {
             nullptr,
             &glPlayer.vao,
             glPlayer.textureName,
-            glPlayer.textureIndex,
+            glPlayer.currentMovementTextureIndex,
             &glPlayer.vboPosition,
             &glPlayer.vboColor,
             &glPlayer.vboTexture };
@@ -651,10 +652,9 @@ void GameWindow::setPlayerPosition()
 
 void GameWindow::setPlayerTexture() 
 {
-
     auto texture { map->getTextureByName(glPlayer.textureName) };
-    if (texture.has_value() && !glPlayer.textureName.empty() && glPlayer.textureIndex != -1) {
-        setTextureUVFromIndex(texture.get_ptr(), texCoordBuf, glPlayer.currentMovementTexture);
+    if (texture.has_value() && !glPlayer.textureName.empty() && glPlayer.currentMovementTextureIndex != -1) {
+        setTextureUVFromIndex(texture.get_ptr(), texCoordBuf, glPlayer.currentMovementTextureIndex);
     }
     glBindVertexArray(glPlayer.vao);
 

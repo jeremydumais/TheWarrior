@@ -7,12 +7,12 @@ struct GLPlayer {
     int x;
     int y;
     std::string textureName;
-    int textureIndex;
     GLuint vao;
     GLuint vboPosition;
     GLuint vboColor;
     GLuint vboTexture;
     float xMove;
     float yMove;
-    int currentMovementTexture;
+    int baseTextureIndex;
+    int currentMovementTextureIndex;
 };
