@@ -19,10 +19,15 @@ GameWindow::GameWindow(const string &title,
     : width(width),
       height(height),
       mustExit(false),
-      uv{ { 0.0f, 0.0f },
-           { 0.0f, 0.0f }, 
-           { 0.0f, 0.0f }, 
-           { 0.0f, 0.0f } }
+      playerMovement(PlayerMovement::None),
+      texCoordBuf { { 0.0f, 0.0f },
+                    { 0.0f, 0.0f }, 
+                    { 0.0f, 0.0f }, 
+                    { 0.0f, 0.0f } },
+      texColorBuf { { 1.0f, 1.0f, 1.0f },   /* Red */
+                    { 1.0f, 1.0f, 1.0f },   /* Green */
+                    { 1.0f, 1.0f, 1.0f },   /* Blue */
+                    { 1.0f, 1.0f, 1.0f } }
 {
     //Initialize SDL
 	if(SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -87,7 +92,12 @@ GameWindow::GameWindow(const string &title,
     generateGLMapObjects();
     generateGLPlayerObject();
     linkShaders();
-    setPlayerPosition(7, 14);
+    glPlayer.x = 7;
+    glPlayer.y = 14;
+    glPlayer.xMove = 0.0f;
+    glPlayer.yMove = 0.0f;
+    glPlayer.currentMovementTexture = 1;
+    setPlayerPosition();
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -136,9 +146,128 @@ void GameWindow::processEvents()
         if(e.type == SDL_QUIT){
             mustExit = true;
         }
+        else if(e.type == SDL_KEYDOWN && playerMovement == PlayerMovement::None) {
+            switch( e.key.keysym.sym )
+            {
+                case SDLK_UP:
+                    playerMovement = PlayerMovement::MoveUp;
+                    glPlayer.y -= 1;
+                    glPlayer.yMove = 1.0f;
+                    glPlayer.currentMovementTexture = 0;
+                    setPlayerTexture();
+                    break;
+                case SDLK_DOWN:
+                    playerMovement = PlayerMovement::MoveDown;
+                    glPlayer.y += 1;
+                    glPlayer.yMove = -1.0f;
+                    glPlayer.currentMovementTexture = 36;
+                    setPlayerTexture();
+                    break;
+                case SDLK_LEFT:
+                    playerMovement = PlayerMovement::MoveLeft;
+                    glPlayer.x -= 1;
+                    glPlayer.xMove = 1.0f;
+                    glPlayer.currentMovementTexture = 24;
+                    setPlayerTexture();
+                    break;
+                case SDLK_RIGHT:
+                    playerMovement = PlayerMovement::MoveRight;
+                    glPlayer.x += 1;
+                    glPlayer.xMove = -1.0f;
+                    glPlayer.currentMovementTexture = 12;
+                    setPlayerTexture();
+                    break;
+            };
+        }
     }
+    update(1.0f / 60.0f);
 	render();
 	SDL_GL_SwapWindow(window);
+}
+
+void GameWindow::update(double delta_time) 
+{
+    const float SPEED = 8.0f;
+    if (playerMovement == PlayerMovement::MoveUp) {
+        glPlayer.yMove -= SPEED * delta_time;
+        if (glPlayer.yMove < 0.0f) {
+            glPlayer.yMove = 0.0f;
+            playerMovement = PlayerMovement::None;
+        }
+        else if(glPlayer.yMove < 0.3f) {
+            if (glPlayer.currentMovementTexture != 1) {
+                glPlayer.currentMovementTexture = 1;
+                setPlayerTexture();
+            }
+        }
+        else if(glPlayer.yMove < 0.6f) {
+            if (glPlayer.currentMovementTexture != 2) {
+                glPlayer.currentMovementTexture = 2;
+                setPlayerTexture();
+            }
+        }
+        setPlayerPosition();
+    }
+    else if (playerMovement == PlayerMovement::MoveDown) {
+        glPlayer.yMove += SPEED * delta_time;
+        if (glPlayer.yMove > 0.0f) {
+            glPlayer.yMove = 0.0f;
+            playerMovement = PlayerMovement::None;
+        }
+        else if(glPlayer.yMove > -0.3f) {
+            if (glPlayer.currentMovementTexture != 37) {
+                glPlayer.currentMovementTexture = 37;
+                setPlayerTexture();
+            }
+        }
+        else if(glPlayer.yMove > -0.6f) {
+            if (glPlayer.currentMovementTexture != 38) {
+                glPlayer.currentMovementTexture = 38;
+                setPlayerTexture();
+            }
+        }
+        setPlayerPosition();
+    }
+    else if (playerMovement == PlayerMovement::MoveLeft) {
+        glPlayer.xMove -= SPEED * delta_time;
+        if (glPlayer.xMove < 0.0f) {
+            glPlayer.xMove = 0.0f;
+            playerMovement = PlayerMovement::None;
+        }
+        else if(glPlayer.xMove < 0.3f) {
+            if (glPlayer.currentMovementTexture != 25) {
+                glPlayer.currentMovementTexture = 25;
+                setPlayerTexture();
+            }
+        }
+        else if(glPlayer.xMove < 0.6f) {
+            if (glPlayer.currentMovementTexture != 26) {
+                glPlayer.currentMovementTexture = 26;
+                setPlayerTexture();
+            }
+        }
+        setPlayerPosition();
+    }    
+    else if (playerMovement == PlayerMovement::MoveRight) {
+        glPlayer.xMove += SPEED * delta_time;
+        if (glPlayer.xMove > 0.0f) {
+            glPlayer.xMove = 0.0f;
+            playerMovement = PlayerMovement::None;
+        }
+        else if(glPlayer.xMove > -0.3f) {
+            if (glPlayer.currentMovementTexture != 13) {
+                glPlayer.currentMovementTexture = 13;
+                setPlayerTexture();
+            }
+        }
+        else if(glPlayer.xMove > -0.6f) {
+            if (glPlayer.currentMovementTexture != 14) {
+                glPlayer.currentMovementTexture = 14;
+                setPlayerTexture();
+            }
+        }
+        setPlayerPosition();
+    }
 }
 
 string GameWindow::loadShaderFile(const string &file)
@@ -166,12 +295,6 @@ void GameWindow::generateGLMapObjects()
     {  TILEHALFWIDTH + startPosX,  TILEHALFHEIGHT + startPosY },     /* Top Right point */
     {  TILEHALFWIDTH + startPosX, -TILEHALFHEIGHT + startPosY },     /* Bottom Right point */
     { -TILEHALFWIDTH + startPosX, -TILEHALFHEIGHT + startPosY } };   /* Bottom Left point */
-
-    const GLfloat colors[4][3] = {
-    {  1.0,  1.0,  1.0  },   /* Red */
-    {  1.0,  1.0,  1.0  },   /* Green */
-    {  1.0,  1.0,  1.0  },   /* Blue */
-    {  1.0,  1.0,  1.0  } }; /* White */
     
     int indexRow {0};
     const Texture *lastUsedTexture { nullptr };
@@ -205,7 +328,7 @@ void GameWindow::generateGLMapObjects()
                     &glTile.vboPosition,
                     &glTile.vboColor,
                     &glTile.vboTexture };
-            generateGLObject(infoGenTexture, tileCoord, colors);
+            generateGLObject(infoGenTexture, tileCoord, texColorBuf);
             if (glTile.hasObjectTexture) {
                 GenerateGLObjectInfo infoGenObject {
                     lastUsedTexture,
@@ -215,12 +338,8 @@ void GameWindow::generateGLMapObjects()
                     &glTile.vboPosition,
                     &glTile.vboColor,
                     &glTile.vboTextureObject };
-                generateGLObject(infoGenObject, tileCoord, colors);
+                generateGLObject(infoGenObject, tileCoord, texColorBuf);
             }
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-            glDisableVertexAttribArray(0);
-            glDisableVertexAttribArray(1);
-            glDisableVertexAttribArray(2);
             indexCol++;
             glTiles.push_back(glTile);
         }
@@ -249,7 +368,7 @@ void GameWindow::generateGLObject(GenerateGLObjectInfo &info, const GLfloat tile
         }
     }
     if (info.lastUsedTexture != nullptr && !info.textureName.empty() && info.textureIndex != -1) {
-        setTextureUVFromIndex(info.lastUsedTexture, uv, info.textureIndex);
+        setTextureUVFromIndex(info.lastUsedTexture, texCoordBuf, info.textureIndex);
     }
     glBindVertexArray(0);
     glGenVertexArrays(1, info.vao);
@@ -270,9 +389,14 @@ void GameWindow::generateGLObject(GenerateGLObjectInfo &info, const GLfloat tile
     /* Bind our third VBO as being the active buffer and storing vertex attributes (textures) */
     glGenBuffers(1, info.vboTexture);
     glBindBuffer(GL_ARRAY_BUFFER, *info.vboTexture);
-    glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), uv, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), texCoordBuf, GL_STATIC_DRAW);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(2);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(2);
 }
 
 void GameWindow::generateGLPlayerObject() 
@@ -285,12 +409,6 @@ void GameWindow::generateGLPlayerObject()
     {  TILEHALFWIDTH + startPosX,  TILEHALFHEIGHT + startPosY },     /* Top Right point */
     {  TILEHALFWIDTH + startPosX, -TILEHALFHEIGHT + startPosY },     /* Bottom Right point */
     { -TILEHALFWIDTH + startPosX, -TILEHALFHEIGHT + startPosY } };   /* Bottom Left point */
-
-    const GLfloat colors[4][3] = {
-    {  1.0,  1.0,  1.0  },   /* Red */
-    {  1.0,  1.0,  1.0  },   /* Green */
-    {  1.0,  1.0,  1.0  },   /* Blue */
-    {  1.0,  1.0,  1.0  } }; /* White */
     
     glPlayer.textureName = "NPC1";
     glPlayer.textureIndex = 1;
@@ -304,7 +422,7 @@ void GameWindow::generateGLPlayerObject()
             &glPlayer.vboPosition,
             &glPlayer.vboColor,
             &glPlayer.vboTexture };
-    generateGLObject(infoGenTexture, tileCoord, colors);
+    generateGLObject(infoGenTexture, tileCoord, texColorBuf);
 }
 
 void GameWindow::linkShaders() 
@@ -501,27 +619,52 @@ void GameWindow::setTextureUVFromIndex(const Texture *texture, GLfloat uvMap[4][
     uvMap[3][1] = 1.0f-(TEXTURETILEHEIGHT * lineIndex);
 }
 
-void GameWindow::setPlayerPosition(int x, int y) 
+void GameWindow::setTileCoordToOrigin() 
 {
     float startPosX { -1.0f + TILEHALFWIDTH };
-    float startPosY { 1.0f - TILEHALFHEIGHT };
-    float xFloat { static_cast<float>(x) };
-    float yFloat { static_cast<float>(y) };
+    float startPosY {  1.0f - TILEHALFHEIGHT };
+    tileCoordBuf[0][0] = -TILEHALFWIDTH + startPosX + TILEWIDTH;
+    tileCoordBuf[0][1] =  TILEHALFHEIGHT + startPosY - TILEHALFHEIGHT;
+    tileCoordBuf[1][0] =  TILEHALFWIDTH + startPosX + TILEWIDTH;
+    tileCoordBuf[1][1] =  TILEHALFHEIGHT + startPosY - TILEHALFHEIGHT;
+    tileCoordBuf[2][0] =  TILEHALFWIDTH + startPosX + TILEWIDTH;
+    tileCoordBuf[2][1] = -TILEHALFHEIGHT + startPosY - TILEHALFHEIGHT;
+    tileCoordBuf[3][0] = -TILEHALFWIDTH + startPosX + TILEWIDTH;
+    tileCoordBuf[3][1] = -TILEHALFHEIGHT + startPosY - TILEHALFHEIGHT;
+}
 
+void GameWindow::setPlayerPosition() 
+{
     glBindVertexArray(glPlayer.vao);
-
-    GLfloat tileCoord[4][2] = {
-    { -TILEHALFWIDTH + startPosX + (TILEWIDTH * xFloat),  TILEHALFHEIGHT + startPosY - (TILEHALFHEIGHT * 2.0f * yFloat) },     /* Top Left point */
-    {  TILEHALFWIDTH + startPosX + (TILEWIDTH * xFloat),  TILEHALFHEIGHT + startPosY - (TILEHALFHEIGHT * 2.0f * yFloat) },     /* Top Right point */
-    {  TILEHALFWIDTH + startPosX + (TILEWIDTH * xFloat), -TILEHALFHEIGHT + startPosY - (TILEHALFHEIGHT * 2.0f * yFloat) },     /* Bottom Right point */
-    { -TILEHALFWIDTH + startPosX + (TILEWIDTH * xFloat), -TILEHALFHEIGHT + startPosY - (TILEHALFHEIGHT * 2.0f * yFloat) } };   /* Bottom Left point */
-
-    /* Bind our first VBO as being the active buffer and storing vertex attributes (coordinates) */
+    setTileCoordToOrigin();
+    for(int i = 0; i < 4; i++) {
+        tileCoordBuf[i][0] += ((static_cast<float>(glPlayer.x) - 1.0f) * TILEWIDTH) + 
+                              (glPlayer.xMove * TILEWIDTH);
+        tileCoordBuf[i][1] -= (((static_cast<float>(glPlayer.y) * (TILEHALFHEIGHT * 2.0f)) - TILEHALFHEIGHT)) + 
+                              (glPlayer.yMove * (TILEHALFHEIGHT * 2.0f));
+    }
     glBindBuffer(GL_ARRAY_BUFFER, glPlayer.vboPosition);
-    glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), tileCoord, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), tileCoordBuf, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
 }
+
+void GameWindow::setPlayerTexture() 
+{
+
+    auto texture { map->getTextureByName(glPlayer.textureName) };
+    if (texture.has_value() && !glPlayer.textureName.empty() && glPlayer.textureIndex != -1) {
+        setTextureUVFromIndex(texture.get_ptr(), texCoordBuf, glPlayer.currentMovementTexture);
+    }
+    glBindVertexArray(glPlayer.vao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, glPlayer.vboTexture);
+    glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), texCoordBuf, GL_STATIC_DRAW);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(2);
+    glDisableVertexAttribArray(2);
+}
+
 
 const std::string &GameWindow::getExecutablePath() 
 {

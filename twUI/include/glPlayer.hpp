@@ -12,4 +12,7 @@ struct GLPlayer {
     GLuint vboPosition;
     GLuint vboColor;
     GLuint vboTexture;
+    float xMove;
+    float yMove;
+    int currentMovementTexture;
 };

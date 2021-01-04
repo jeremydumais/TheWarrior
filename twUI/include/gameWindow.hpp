@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-//enum class TileMode { Texture, Object };
+enum class PlayerMovement { None, MoveLeft, MoveRight, MoveUp, MoveDown };
 struct GenerateGLObjectInfo {
     const Texture *lastUsedTexture;
     GLuint *vao;
@@ -29,6 +29,7 @@ public:
                int x, int y,
                int width, int height);
     ~GameWindow();
+    void update(double delta_time);
     void render();
     void show();
     void hide();
@@ -49,9 +50,12 @@ private:
     std::string fragmentShaderContent;
     std::vector<GLTile> glTiles;
     GLPlayer glPlayer;
+    PlayerMovement playerMovement;
     std::shared_ptr<GameMap> map; 
     std::map<std::string, unsigned int> texturesGLMap;
-    GLfloat uv[4][2];
+    GLfloat tileCoordBuf[4][2];
+    GLfloat texCoordBuf[4][2];
+    GLfloat texColorBuf[4][3];
     float TILEWIDTH { 0.1f };
     float TILEHALFWIDTH { TILEWIDTH / 2.0f };
     float TILEHALFHEIGHT;
@@ -64,7 +68,9 @@ private:
     void loadMap(const std::string &filePath);
     void loadTextures();
     void setTextureUVFromIndex(const Texture *texture, GLfloat uvMap[4][2], int index);
-    void setPlayerPosition(int x, int y);
+    void setTileCoordToOrigin();
+    void setPlayerPosition();
+    void setPlayerTexture();
     const std::string &getExecutablePath();
     const std::string &getResourcesPath();
 };
