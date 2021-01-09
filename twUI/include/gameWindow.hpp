@@ -59,9 +59,19 @@ private:
     float TILEWIDTH { 0.1f };
     float TILEHALFWIDTH { TILEWIDTH / 2.0f };
     float TILEHALFHEIGHT;
+    const std::string &getExecutablePath();
+    const std::string &getResourcesPath();
+    //FPS variables
+    int frameNo { 0 };
+    int updateTicks;
+    int fpsTicks;
+    void initializePlayer();
+    void calculateTileSize();
     void generateGLMapObjects();
+    void unloadGLMapObjects();
     void generateGLObject(GenerateGLObjectInfo &info, const GLfloat tileCoord[4][2], const GLfloat colors[4][3]);
     void generateGLPlayerObject();
+    void unloadGLPlayerObject();
     std::string loadShaderFile(const std::string &file);
     bool compileShaders();
     void linkShaders();
@@ -71,6 +81,4 @@ private:
     void setTileCoordToOrigin();
     void setPlayerPosition();
     void setPlayerTexture();
-    const std::string &getExecutablePath();
-    const std::string &getResourcesPath();
 };

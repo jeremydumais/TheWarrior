@@ -47,7 +47,7 @@ GameWindow::GameWindow(const string &title,
         y, 
         width, 
         height, 
-        SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL);
+        SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL | SDL_WINDOW_MAXIMIZED);
     if(window == NULL)
     {
         cerr << fmt::format("Window could not be created! SDL_Error: %s\n", SDL_GetError());
@@ -72,7 +72,7 @@ GameWindow::GameWindow(const string &title,
     }
 
     //Use Vsync
-    if( SDL_GL_SetSwapInterval( 1 ) < 0 )
+    if( SDL_GL_SetSwapInterval(1) < 0 )
     {
         cerr << fmt::format("Warning: Unable to set VSync! SDL Error: {0}\n", SDL_GetError());
         return;
@@ -83,13 +83,24 @@ GameWindow::GameWindow(const string &title,
         return;
     }
 
-    TILEWIDTH = 0.1f;
-    TILEHALFWIDTH = TILEWIDTH / 2.0f;
-    TILEHALFHEIGHT = (static_cast<float>(width) * TILEHALFWIDTH) / static_cast<float>(height);
-
+    calculateTileSize();
     loadMap(fmt::format("{0}/maps/homeHouse.map", getResourcesPath()));
     loadTextures();
     generateGLMapObjects();
+    initializePlayer();
+    generateGLPlayerObject();
+    linkShaders();
+    setPlayerPosition();
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    updateTicks = SDL_GetTicks();
+    fpsTicks = SDL_GetTicks();
+}
+
+void GameWindow::initializePlayer() 
+{
     glPlayer.textureName = "NPC1";
     glPlayer.x = 7;
     glPlayer.y = 14;
@@ -97,13 +108,6 @@ GameWindow::GameWindow(const string &title,
     glPlayer.yMove = 0.0f;
     glPlayer.baseTextureIndex = 9;
     glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex + 1;
-    //glPlayer.textureIndex = glPlayer.currentMovementTextureIndex;
-    generateGLPlayerObject();
-    linkShaders();
-    setPlayerPosition();
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 GameWindow::~GameWindow() 
@@ -113,16 +117,8 @@ GameWindow::~GameWindow()
     glDeleteProgram(shaderprogram);
     glDeleteShader(vertexshader);
     glDeleteShader(fragmentshader);
-    for(auto &item : glTiles) {
-       glDeleteBuffers(1, &item.vboPosition); 
-       glDeleteBuffers(1, &item.vboColor); 
-       glDeleteBuffers(1, &item.vboTexture); 
-       glDeleteBuffers(1, &item.vboTextureObject); 
-       glDeleteVertexArrays(1, &item.vao);
-       if (item.hasObjectTexture) {
-        glDeleteVertexArrays(1, &item.vaoObject);
-       }
-    }
+    unloadGLMapObjects();
+    unloadGLPlayerObject();
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
@@ -182,10 +178,41 @@ void GameWindow::processEvents()
                     break;
             };
         }
+        else if (e.type == SDL_WINDOWEVENT) {
+            if (e.window.event == SDL_WINDOWEVENT_RESIZED) {
+                SDL_GetWindowSize(window, &width, &height);
+                glViewport(0,0,width,height);
+                calculateTileSize();
+                unloadGLMapObjects();
+                unloadGLPlayerObject();
+                generateGLMapObjects();
+                generateGLPlayerObject();
+                setPlayerPosition();
+
+            }
+        }
     }
     update(1.0f / 60.0f);
 	render();
+    //Calculate FPS
+    frameNo++;
+    if( SDL_GetTicks() - updateTicks > 1000 )
+    {
+        std::stringstream caption;
+        caption << "Average Frames Per Second: " << frameNo / ((SDL_GetTicks() - fpsTicks) / 1000.f);
+        SDL_SetWindowTitle(window, caption.str().c_str());
+        updateTicks = SDL_GetTicks();
+        frameNo = 0;
+        fpsTicks = SDL_GetTicks();
+    }
 	SDL_GL_SwapWindow(window);
+}
+
+void GameWindow::calculateTileSize() 
+{
+    TILEWIDTH = (1.0f / (static_cast<float>(width) / 51.2f)) * 2.0f;
+    TILEHALFWIDTH = TILEWIDTH / 2.0f;
+    TILEHALFHEIGHT = (static_cast<float>(width) * TILEHALFWIDTH) / static_cast<float>(height);
 }
 
 void GameWindow::update(double delta_time) 
@@ -402,6 +429,20 @@ void GameWindow::generateGLObject(GenerateGLObjectInfo &info, const GLfloat tile
     glDisableVertexAttribArray(2);
 }
 
+void GameWindow::unloadGLMapObjects() 
+{
+    for(auto &item : glTiles) {
+       glDeleteBuffers(1, &item.vboPosition); 
+       glDeleteBuffers(1, &item.vboColor); 
+       glDeleteBuffers(1, &item.vboTexture); 
+       glDeleteBuffers(1, &item.vboTextureObject); 
+       glDeleteVertexArrays(1, &item.vao);
+       if (item.hasObjectTexture) {
+        glDeleteVertexArrays(1, &item.vaoObject);
+       }
+    }
+}
+
 void GameWindow::generateGLPlayerObject() 
 {
     float startPosX { -1.0f + TILEHALFWIDTH };
@@ -424,6 +465,14 @@ void GameWindow::generateGLPlayerObject()
             &glPlayer.vboColor,
             &glPlayer.vboTexture };
     generateGLObject(infoGenTexture, tileCoord, texColorBuf);
+}
+
+void GameWindow::unloadGLPlayerObject() 
+{
+    glDeleteBuffers(1, &glPlayer.vboPosition); 
+    glDeleteBuffers(1, &glPlayer.vboColor); 
+    glDeleteBuffers(1, &glPlayer.vboTexture); 
+    glDeleteVertexArrays(1, &glPlayer.vao);
 }
 
 void GameWindow::linkShaders() 
@@ -453,9 +502,28 @@ void GameWindow::linkShaders()
 
 void GameWindow::render()
 {
-    //int vertexTranslationLocation = glGetUniformLocation(shaderprogram, "translation");
+    int vertexTranslationLocation = glGetUniformLocation(shaderprogram, "translation");
     glUseProgram(shaderprogram);
-    //glUniform2f(vertexTranslationLocation, 0.5f, 0.5f);
+    float mapMiddleH { 0.0f };
+    float mapMiddleV { 0.0f };
+    if (static_cast<float>(map->getWidth()) * 51.2f <= width) {
+        //Center map
+        mapMiddleH = 1.0f - ((static_cast<float>(map->getWidth()) * 51.2f) / static_cast<float>(width));
+    }
+    else {
+        //Center player
+        mapMiddleH = 1.0f - (((static_cast<float>(glPlayer.x) + glPlayer.xMove) * 2.0f * 51.2f) / static_cast<float>(width));
+
+    }
+    if (static_cast<float>(map->getHeight()) * 51.2f <= height) {
+        //Center map
+        mapMiddleV = (1.0f - (static_cast<float>(map->getHeight()) * 51.2f) / static_cast<float>(height)) * -1.0f;
+    }
+    else {
+        //Center player
+        mapMiddleV = (1.0f - ((static_cast<float>(glPlayer.y) + glPlayer.yMove) * 2.0f * 51.2f) / static_cast<float>(height)) * -1.0f;
+    }
+    glUniform2f(vertexTranslationLocation, mapMiddleH, mapMiddleV);
     GLuint TextureID  = glGetUniformLocation(shaderprogram, "myTextureSampler");
     glUniform1i(TextureID, 0);
 
@@ -503,7 +571,8 @@ void GameWindow::render()
     glBindTexture(GL_TEXTURE_2D, 0);
     /* Swap our buffers to make our changes visible */
     SDL_GL_SwapWindow(window);
-           
+
+
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
     glUseProgram(0);
