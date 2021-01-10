@@ -98,6 +98,8 @@ void MainForm::connectUIActions()
 	connect(ui.action_MoveMap, &QAction::triggered, this, &MainForm::action_MoveMapClick);
 	connect(ui.action_ApplyTexture, &QAction::triggered, this, &MainForm::action_ApplyTextureClick);
 	connect(ui.action_ApplyObject, &QAction::triggered, this, &MainForm::action_ApplyObjectClick);
+	connect(ui.action_EnableCanStep, &QAction::triggered, this, &MainForm::action_EnableCanStepClick);
+	connect(ui.action_DisableCanStep, &QAction::triggered, this, &MainForm::action_DisableCanStepClick);
 	connect(ui.mapOpenGLWidget, &MapOpenGLWidget::onTileClicked, this, &MainForm::onTileClicked);
 	connect(ui.mapOpenGLWidget, &MapOpenGLWidget::onTileMouseReleaseEvent, this, &MainForm::onTileMouseReleaseEvent);
 	//connect(ui.mapOpenGLWidget, &MapOpenGLWidget::onTileMouseMoveEvent, this, &MainForm::onTileMouseMoveEvent);
@@ -112,6 +114,7 @@ void MainForm::connectUIActions()
 	connect(ui.spinBoxTexIndex, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainForm::onSpinBoxTexIndexValueChanged);
 	connect(ui.lineEditObjTexName, &QLineEdit::textChanged, this, &MainForm::onLineEditObjTexNameTextChanged);
 	connect(ui.spinBoxObjTexIndex, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainForm::onSpinBoxObjTexIndexValueChanged);
+	connect(ui.checkBoxTileCanSteppedOn, &QCheckBox::stateChanged, this, &MainForm::onCheckBoxTileCanSteppedOnChanged);
 	connect(ui.comboBoxTexture, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm::onComboBoxTextureCurrentIndexChanged);
 }
 
@@ -263,6 +266,18 @@ void MainForm::action_ApplyObjectClick()
 	ui.mapOpenGLWidget->setSelectionMode(selectionMode);
 }
 
+void MainForm::action_EnableCanStepClick() 
+{
+	selectionMode = SelectionMode::EnableCanStep;
+	ui.mapOpenGLWidget->setSelectionMode(selectionMode);
+}
+
+void MainForm::action_DisableCanStepClick() 
+{
+	selectionMode = SelectionMode::DisableCanStep;
+	ui.mapOpenGLWidget->setSelectionMode(selectionMode);
+}
+
 void MainForm::openMap(const std::string &filePath) 
 {
 	try {
@@ -385,6 +400,7 @@ void MainForm::onTileClicked(int tileIndex)
 		ui.spinBoxTexIndex->setValue(currentMapTile->getTextureIndex());
 		ui.lineEditObjTexName->setText(currentMapTile->getObjectTextureName().c_str());
 		ui.spinBoxObjTexIndex->setValue(currentMapTile->getObjectTextureIndex());
+		ui.checkBoxTileCanSteppedOn->setChecked(currentMapTile->canPlayerSteppedOn());
 		ui.toolBox->setCurrentWidget(ui.page_TileProperties);
 	}
 	else {
@@ -406,6 +422,18 @@ void MainForm::onTileMouseReleaseEvent(vector<int> selectedTileIndexes)
 			currentMapTile = &controller.getMap()->getTileForEditing(index);
 			currentMapTile->setObjectTextureName(lastSelectedObjectName);
 			currentMapTile->setObjectTextureIndex(lastSelectedObjectIndex);
+		}
+	}
+	else if (selectionMode == SelectionMode::EnableCanStep) {
+		for(const int index : selectedTileIndexes) {
+			currentMapTile = &controller.getMap()->getTileForEditing(index);
+			currentMapTile->setCanPlayerSteppedOn(true);
+		}
+	}
+	else if (selectionMode == SelectionMode::DisableCanStep) {
+		for(const int index : selectedTileIndexes) {
+			currentMapTile = &controller.getMap()->getTileForEditing(index);
+			currentMapTile->setCanPlayerSteppedOn(false);
 		}
 	}
 }
@@ -621,6 +649,14 @@ void MainForm::onSpinBoxObjTexIndexValueChanged(int value)
 {
 	if (currentMapTile != nullptr) {
 		currentMapTile->setObjectTextureIndex(value);
+		ui.mapOpenGLWidget->updateGL();
+	}
+}
+
+void MainForm::onCheckBoxTileCanSteppedOnChanged(int state) 
+{
+	if (currentMapTile != nullptr) {
+		currentMapTile->setCanPlayerSteppedOn(state == 1);
 		ui.mapOpenGLWidget->updateGL();
 	}
 }

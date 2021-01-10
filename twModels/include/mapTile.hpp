@@ -14,10 +14,12 @@ public:
     const std::string &getObjectTextureName() const;
     int getObjectTextureIndex() const;
     bool isAssigned() const;
+    bool canPlayerSteppedOn() const;
     void setTextureName(const std::string &name);
     void setTextureIndex(int index);
     void setObjectTextureName(const std::string &name);
     void setObjectTextureIndex(int index);
+    void setCanPlayerSteppedOn(bool value);
 private:
     friend class boost::serialization::access;
     std::string textureName;
@@ -25,16 +27,17 @@ private:
     //Optional object on the tile
     std::string objectTextureName;
     int objectTextureIndex;
+    bool canSteppedOn;
     //Serialization method
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
     {
-        /*if(version > 0)
-            ar & textureName;*/
         ar & textureName;
         ar & textureIndex;
         ar & objectTextureName;
         ar & objectTextureIndex;
+        if(version > 0)
+            ar & canSteppedOn;
     }
 };
-BOOST_CLASS_VERSION(MapTile, 0)
+BOOST_CLASS_VERSION(MapTile, 1)

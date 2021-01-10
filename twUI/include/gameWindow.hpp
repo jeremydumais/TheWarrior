@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 
-enum class PlayerMovement { None, MoveLeft, MoveRight, MoveUp, MoveDown };
 struct GenerateGLObjectInfo {
     const Texture *lastUsedTexture;
     GLuint *vao;
@@ -50,7 +49,6 @@ private:
     std::string fragmentShaderContent;
     std::vector<GLTile> glTiles;
     GLPlayer glPlayer;
-    PlayerMovement playerMovement;
     std::shared_ptr<GameMap> map; 
     std::map<std::string, unsigned int> texturesGLMap;
     GLfloat tileCoordBuf[4][2];
@@ -65,7 +63,11 @@ private:
     int frameNo { 0 };
     int updateTicks;
     int fpsTicks;
-    void initializePlayer();
+    SDL_Joystick *joystick;
+    void moveUpPressed();
+    void moveDownPressed();
+    void moveLeftPressed();
+    void moveRightPressed();
     void calculateTileSize();
     void generateGLMapObjects();
     void unloadGLMapObjects();
@@ -73,6 +75,7 @@ private:
     void generateGLPlayerObject();
     void unloadGLPlayerObject();
     std::string loadShaderFile(const std::string &file);
+    void setShaderTranslation();
     bool compileShaders();
     void linkShaders();
     void loadMap(const std::string &filePath);

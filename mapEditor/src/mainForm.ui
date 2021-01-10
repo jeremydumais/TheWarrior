@@ -32,7 +32,7 @@
          </size>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="pageMapProperties">
          <property name="geometry">
@@ -250,6 +250,20 @@
              </property>
              <property name="maximum">
               <number>16777215</number>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QCheckBox" name="checkBoxTileCanSteppedOn">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_11">
+             <property name="text">
+              <string>Can player stepped on?</string>
              </property>
             </widget>
            </item>
@@ -671,6 +685,8 @@
    <addaction name="action_ApplyTexture"/>
    <addaction name="action_ApplyObject"/>
    <addaction name="separator"/>
+   <addaction name="action_EnableCanStep"/>
+   <addaction name="action_DisableCanStep"/>
    <addaction name="separator"/>
   </widget>
   <action name="action_Quit">
@@ -820,6 +836,22 @@
    </property>
    <property name="visible">
     <bool>false</bool>
+   </property>
+  </action>
+  <action name="action_EnableCanStep">
+   <property name="text">
+    <string>Enable can step</string>
+   </property>
+   <property name="toolTip">
+    <string>Enable can step</string>
+   </property>
+  </action>
+  <action name="action_DisableCanStep">
+   <property name="text">
+    <string>Disable can step</string>
+   </property>
+   <property name="toolTip">
+    <string>Disable can step</string>
    </property>
   </action>
  </widget>

@@ -50,6 +50,8 @@ private:
 	void action_MoveMapClick();
 	void action_ApplyTextureClick();
 	void action_ApplyObjectClick();
+	void action_EnableCanStepClick();
+	void action_DisableCanStepClick();
 	void openMap(const std::string &filePath);
 	void saveMap(const std::string &filePath);
 	void refreshWindowTitle();
@@ -74,6 +76,7 @@ private:
 	void onSpinBoxTexIndexValueChanged(int value);
 	void onLineEditObjTexNameTextChanged(const QString &text);
 	void onSpinBoxObjTexIndexValueChanged(int value);
+	void onCheckBoxTileCanSteppedOnChanged(int state);
     void onComboBoxTextureCurrentIndexChanged();
 	QPixmap getTextureTileImageFromTexture(int tileIndex, const Texture &texture) const;
 	Point to_Point(QPoint point);

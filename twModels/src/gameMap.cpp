@@ -293,3 +293,12 @@ std::vector<Texture>::iterator GameMap::_getTextureIterator(const std::string &n
         return x.getName() == name;
     });
 }
+
+bool GameMap::canSteppedOnTile(int playerX, int playerY) 
+{
+    return (playerX < getWidth() &&
+            playerX >= 0 &&
+            playerY < getHeight() &&
+            playerY >= 0 &&
+            tiles[playerY][playerX].canPlayerSteppedOn());
+}

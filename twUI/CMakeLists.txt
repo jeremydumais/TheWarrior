@@ -4,7 +4,8 @@ set(PROJECT_NAME    "twUI")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../twModels/include)
 
-set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindow.cpp)
+set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindow.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/glPlayer.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")

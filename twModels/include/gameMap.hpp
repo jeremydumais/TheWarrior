@@ -32,6 +32,7 @@ public:
                    int offsetTop, 
                    int offsetRight, 
                    int offsetBottom);
+    bool canSteppedOnTile(int playerX, int playerY);
 private:
     friend class boost::serialization::access;
     std::string lastError;

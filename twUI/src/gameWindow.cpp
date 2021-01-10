@@ -19,7 +19,6 @@ GameWindow::GameWindow(const string &title,
     : width(width),
       height(height),
       mustExit(false),
-      playerMovement(PlayerMovement::None),
       texCoordBuf { { 0.0f, 0.0f },
                     { 0.0f, 0.0f }, 
                     { 0.0f, 0.0f }, 
@@ -30,7 +29,7 @@ GameWindow::GameWindow(const string &title,
                     { 1.0f, 1.0f, 1.0f } }
 {
     //Initialize SDL
-	if(SDL_Init(SDL_INIT_VIDEO) < 0)
+	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0)
 	{
 		cerr << fmt::format("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
         return;
@@ -84,10 +83,10 @@ GameWindow::GameWindow(const string &title,
     }
 
     calculateTileSize();
-    loadMap(fmt::format("{0}/maps/homeHouse.map", getResourcesPath()));
+    loadMap(fmt::format("{0}/maps/homeHouseV1.map", getResourcesPath()));
     loadTextures();
     generateGLMapObjects();
-    initializePlayer();
+    glPlayer.initialize();
     generateGLPlayerObject();
     linkShaders();
     setPlayerPosition();
@@ -97,17 +96,9 @@ GameWindow::GameWindow(const string &title,
 
     updateTicks = SDL_GetTicks();
     fpsTicks = SDL_GetTicks();
-}
 
-void GameWindow::initializePlayer() 
-{
-    glPlayer.textureName = "NPC1";
-    glPlayer.x = 7;
-    glPlayer.y = 14;
-    glPlayer.xMove = 0.0f;
-    glPlayer.yMove = 0.0f;
-    glPlayer.baseTextureIndex = 9;
-    glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex + 1;
+    SDL_JoystickEventState(SDL_DISABLE);
+    joystick = SDL_JoystickOpen(0);
 }
 
 GameWindow::~GameWindow() 
@@ -119,6 +110,7 @@ GameWindow::~GameWindow()
     glDeleteShader(fragmentshader);
     unloadGLMapObjects();
     unloadGLPlayerObject();
+    SDL_JoystickClose(joystick);
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
@@ -141,40 +133,25 @@ bool GameWindow::isAlive() const
 void GameWindow::processEvents() 
 {
     SDL_Event e;
+    SDL_JoystickUpdate();
     while(SDL_PollEvent(&e) != 0) {
         if(e.type == SDL_QUIT){
             mustExit = true;
         }
-        else if(e.type == SDL_KEYDOWN && playerMovement == PlayerMovement::None) {
+        else if(e.type == SDL_KEYDOWN && !glPlayer.isInMovement()) {
             switch( e.key.keysym.sym )
             {
                 case SDLK_UP:
-                    playerMovement = PlayerMovement::MoveUp;
-                    glPlayer.y -= 1;
-                    glPlayer.yMove = 1.0f;
-                    glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex;
-                    setPlayerTexture();
+                    moveUpPressed();
                     break;
                 case SDLK_DOWN:
-                    playerMovement = PlayerMovement::MoveDown;
-                    glPlayer.y += 1;
-                    glPlayer.yMove = -1.0f;
-                    glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex + 36;
-                    setPlayerTexture();
+                    moveDownPressed();
                     break;
                 case SDLK_LEFT:
-                    playerMovement = PlayerMovement::MoveLeft;
-                    glPlayer.x -= 1;
-                    glPlayer.xMove = 1.0f;
-                    glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex + 24;
-                    setPlayerTexture();
+                    moveLeftPressed();
                     break;
                 case SDLK_RIGHT:
-                    playerMovement = PlayerMovement::MoveRight;
-                    glPlayer.x += 1;
-                    glPlayer.xMove = -1.0f;
-                    glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex + 12;
-                    setPlayerTexture();
+                    moveRightPressed();
                     break;
             };
         }
@@ -188,8 +165,25 @@ void GameWindow::processEvents()
                 generateGLMapObjects();
                 generateGLPlayerObject();
                 setPlayerPosition();
-
             }
+        } 
+    }
+    for (int i = 0 ; i < SDL_JoystickNumHats(joystick) ; i++ ) {
+        if (SDL_JoystickGetHat(joystick, i) == SDL_HAT_UP && !glPlayer.isInMovement()) {
+            moveUpPressed();
+            break;
+        }
+        else if (SDL_JoystickGetHat(joystick, i) == SDL_HAT_DOWN && !glPlayer.isInMovement()) {
+            moveDownPressed();
+            break;
+        }
+        else if (SDL_JoystickGetHat(joystick, i) == SDL_HAT_LEFT && !glPlayer.isInMovement()) {
+            moveLeftPressed();
+            break;
+        }
+        else if (SDL_JoystickGetHat(joystick, i) == SDL_HAT_RIGHT && !glPlayer.isInMovement()) {
+            moveRightPressed();
+            break;
         }
     }
     update(1.0f / 60.0f);
@@ -208,6 +202,50 @@ void GameWindow::processEvents()
 	SDL_GL_SwapWindow(window);
 }
 
+void GameWindow::moveUpPressed() 
+{
+    if (map->canSteppedOnTile(glPlayer.x, glPlayer.y - 1)) {
+        glPlayer.moveUp();
+    } 
+    else {
+        glPlayer.faceUp();
+    }
+    setPlayerTexture();
+}
+
+void GameWindow::moveDownPressed() 
+{
+    if (map->canSteppedOnTile(glPlayer.x, glPlayer.y + 1)) {
+        glPlayer.moveDown();
+    } 
+    else {
+        glPlayer.faceDown();
+    }
+    setPlayerTexture();
+}
+
+void GameWindow::moveLeftPressed() 
+{
+    if (map->canSteppedOnTile(glPlayer.x - 1, glPlayer.y)) {
+        glPlayer.moveLeft();
+    } 
+    else {
+        glPlayer.faceLeft();
+    }
+    setPlayerTexture();
+}
+
+void GameWindow::moveRightPressed() 
+{
+    if (map->canSteppedOnTile(glPlayer.x + 1, glPlayer.y)) {
+        glPlayer.moveRight();
+    } 
+    else {
+        glPlayer.faceRight();
+    }
+    setPlayerTexture();
+}
+
 void GameWindow::calculateTileSize() 
 {
     TILEWIDTH = (1.0f / (static_cast<float>(width) / 51.2f)) * 2.0f;
@@ -217,84 +255,10 @@ void GameWindow::calculateTileSize()
 
 void GameWindow::update(double delta_time) 
 {
-    const float SPEED = 8.0f;
-    if (playerMovement == PlayerMovement::MoveUp) {
-        glPlayer.yMove -= SPEED * delta_time;
-        if (glPlayer.yMove < 0.0f) {
-            glPlayer.yMove = 0.0f;
-            playerMovement = PlayerMovement::None;
-        }
-        else if(glPlayer.yMove < 0.3f) {
-            if (glPlayer.currentMovementTextureIndex != 1) {
-                glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex + 1;
-                setPlayerTexture();
-            }
-        }
-        else if(glPlayer.yMove < 0.6f) {
-            if (glPlayer.currentMovementTextureIndex != 2) {
-                glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex + 2;
-                setPlayerTexture();
-            }
-        }
-        setPlayerPosition();
-    }
-    else if (playerMovement == PlayerMovement::MoveDown) {
-        glPlayer.yMove += SPEED * delta_time;
-        if (glPlayer.yMove > 0.0f) {
-            glPlayer.yMove = 0.0f;
-            playerMovement = PlayerMovement::None;
-        }
-        else if(glPlayer.yMove > -0.3f) {
-            if (glPlayer.currentMovementTextureIndex != glPlayer.baseTextureIndex + 37) {
-                glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex + 37;
-                setPlayerTexture();
-            }
-        }
-        else if(glPlayer.yMove > -0.6f) {
-            if (glPlayer.currentMovementTextureIndex != glPlayer.baseTextureIndex + 38) {
-                glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex + 38;
-                setPlayerTexture();
-            }
-        }
-        setPlayerPosition();
-    }
-    else if (playerMovement == PlayerMovement::MoveLeft) {
-        glPlayer.xMove -= SPEED * delta_time;
-        if (glPlayer.xMove < 0.0f) {
-            glPlayer.xMove = 0.0f;
-            playerMovement = PlayerMovement::None;
-        }
-        else if(glPlayer.xMove < 0.3f) {
-            if (glPlayer.currentMovementTextureIndex != glPlayer.baseTextureIndex + 25) {
-                glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex + 25;
-                setPlayerTexture();
-            }
-        }
-        else if(glPlayer.xMove < 0.6f) {
-            if (glPlayer.currentMovementTextureIndex != glPlayer.baseTextureIndex + 26) {
-                glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex + 26;
-                setPlayerTexture();
-            }
-        }
-        setPlayerPosition();
-    }    
-    else if (playerMovement == PlayerMovement::MoveRight) {
-        glPlayer.xMove += SPEED * delta_time;
-        if (glPlayer.xMove > 0.0f) {
-            glPlayer.xMove = 0.0f;
-            playerMovement = PlayerMovement::None;
-        }
-        else if(glPlayer.xMove > -0.3f) {
-            if (glPlayer.currentMovementTextureIndex != glPlayer.baseTextureIndex + 13) {
-                glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex + 13;
-                setPlayerTexture();
-            }
-        }
-        else if(glPlayer.xMove > -0.6f) {
-            if (glPlayer.currentMovementTextureIndex != glPlayer.baseTextureIndex + 14) {
-                glPlayer.currentMovementTextureIndex = glPlayer.baseTextureIndex + 14;
-                setPlayerTexture();
-            }
+    if (glPlayer.isInMovement()) {
+        MovingResult result { glPlayer.processMoving(delta_time) };
+        if (result.needToRefreshTexture) {
+            setPlayerTexture();
         }
         setPlayerPosition();
     }
@@ -459,8 +423,8 @@ void GameWindow::generateGLPlayerObject()
     GenerateGLObjectInfo infoGenTexture {
             nullptr,
             &glPlayer.vao,
-            glPlayer.textureName,
-            glPlayer.currentMovementTextureIndex,
+            glPlayer.getTextureName(),
+            glPlayer.getTextureIndex(),
             &glPlayer.vboPosition,
             &glPlayer.vboColor,
             &glPlayer.vboTexture };
@@ -502,28 +466,8 @@ void GameWindow::linkShaders()
 
 void GameWindow::render()
 {
-    int vertexTranslationLocation = glGetUniformLocation(shaderprogram, "translation");
     glUseProgram(shaderprogram);
-    float mapMiddleH { 0.0f };
-    float mapMiddleV { 0.0f };
-    if (static_cast<float>(map->getWidth()) * 51.2f <= width) {
-        //Center map
-        mapMiddleH = 1.0f - ((static_cast<float>(map->getWidth()) * 51.2f) / static_cast<float>(width));
-    }
-    else {
-        //Center player
-        mapMiddleH = 1.0f - (((static_cast<float>(glPlayer.x) + glPlayer.xMove) * 2.0f * 51.2f) / static_cast<float>(width));
-
-    }
-    if (static_cast<float>(map->getHeight()) * 51.2f <= height) {
-        //Center map
-        mapMiddleV = (1.0f - (static_cast<float>(map->getHeight()) * 51.2f) / static_cast<float>(height)) * -1.0f;
-    }
-    else {
-        //Center player
-        mapMiddleV = (1.0f - ((static_cast<float>(glPlayer.y) + glPlayer.yMove) * 2.0f * 51.2f) / static_cast<float>(height)) * -1.0f;
-    }
-    glUniform2f(vertexTranslationLocation, mapMiddleH, mapMiddleV);
+    setShaderTranslation();
     GLuint TextureID  = glGetUniformLocation(shaderprogram, "myTextureSampler");
     glUniform1i(TextureID, 0);
 
@@ -559,7 +503,7 @@ void GameWindow::render()
         }
     }
     //Render the player
-    glBindTexture(GL_TEXTURE_2D, texturesGLMap[glPlayer.textureName]);
+    glBindTexture(GL_TEXTURE_2D, texturesGLMap[glPlayer.getTextureName()]);
     glBindVertexArray(glPlayer.vao);
     glBindBuffer(GL_ARRAY_BUFFER, glPlayer.vboPosition);
     glEnableVertexAttribArray(0);
@@ -580,6 +524,32 @@ void GameWindow::render()
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
     glDisableVertexAttribArray(2);
+}
+
+void GameWindow::setShaderTranslation() 
+{
+    int vertexTranslationLocation = glGetUniformLocation(shaderprogram, "translation");
+    float mapMiddleH { 0.0f };
+    float mapMiddleV { 0.0f };
+    //If the map width is smaller than the window width
+    if (static_cast<float>(map->getWidth()) * 51.2f <= width) {
+        //Center target: map
+        mapMiddleH = 1.0f - ((static_cast<float>(map->getWidth()) * 51.2f) / static_cast<float>(width));
+    }
+    else {
+        //Center target: player
+        mapMiddleH = 1.0f - (((static_cast<float>(glPlayer.x) + glPlayer.xMove) * 2.0f * 51.2f) / static_cast<float>(width));
+    }
+    //If the map height is smaller than the window height
+    if (static_cast<float>(map->getHeight()) * 51.2f <= height) {
+        //Center target: map
+        mapMiddleV = (1.0f - (static_cast<float>(map->getHeight()) * 51.2f) / static_cast<float>(height)) * -1.0f;
+    }
+    else {
+        //Center target: player
+        mapMiddleV = (1.0f - ((static_cast<float>(glPlayer.y) + glPlayer.yMove) * 2.0f * 51.2f) / static_cast<float>(height)) * -1.0f;
+    }
+    glUniform2f(vertexTranslationLocation, mapMiddleH, mapMiddleV);
 }
 
 bool GameWindow::compileShaders() 
@@ -721,9 +691,9 @@ void GameWindow::setPlayerPosition()
 
 void GameWindow::setPlayerTexture() 
 {
-    auto texture { map->getTextureByName(glPlayer.textureName) };
-    if (texture.has_value() && !glPlayer.textureName.empty() && glPlayer.currentMovementTextureIndex != -1) {
-        setTextureUVFromIndex(texture.get_ptr(), texCoordBuf, glPlayer.currentMovementTextureIndex);
+    auto texture { map->getTextureByName(glPlayer.getTextureName()) };
+    if (texture.has_value() && !glPlayer.getTextureName().empty() && glPlayer.getTextureIndex() != -1) {
+        setTextureUVFromIndex(texture.get_ptr(), texCoordBuf, glPlayer.getTextureIndex());
     }
     glBindVertexArray(glPlayer.vao);
 
