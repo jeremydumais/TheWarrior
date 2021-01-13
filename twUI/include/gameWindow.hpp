@@ -1,11 +1,13 @@
 #pragma once
 
+#include "fpsCalculator.hpp"
 #include "glPlayer.hpp"
 #include "glTile.hpp"
 #include "gameMap.hpp"
 #include <SDL2/SDL.h>
 #include <GL/glew.h>
 #include <SDL2/SDL_opengl.h>
+#include <SDL2/SDL_ttf.h>
 #include <map>
 #include <memory>
 #include <string>
@@ -36,6 +38,7 @@ public:
     void processEvents();
 private:
     SDL_Window *window;
+    SDL_Renderer *renderer;
     SDL_GLContext gContext;
     int width;
     int height;
@@ -60,9 +63,8 @@ private:
     const std::string &getExecutablePath();
     const std::string &getResourcesPath();
     //FPS variables
-    int frameNo { 0 };
-    int updateTicks;
-    int fpsTicks;
+    FPSCalculator fpsCalculator;
+    bool toggleFPS;
     SDL_Joystick *joystick;
     void moveUpPressed();
     void moveDownPressed();
@@ -84,4 +86,7 @@ private:
     void setTileCoordToOrigin();
     void setPlayerPosition();
     void setPlayerTexture();
+    SDL_Surface* surfaceMessage;
+    SDL_Rect Message_rect;
+    TTF_Font* Sans;
 };

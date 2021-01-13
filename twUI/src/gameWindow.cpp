@@ -1,5 +1,6 @@
 #include "gameWindow.hpp"
 #include <GL/glu.h>
+#include <GL/glut.h>
 #include <iostream>
 #include <fmt/format.h>
 #include <fstream>
@@ -10,6 +11,8 @@
 #include <libgen.h>         // dirname
 #include <unistd.h>         // readlink
 #include <linux/limits.h>   // PATH_MAX
+#include <ft2build.h>
+#include FT_FREETYPE_H  
 
 using namespace std;
 
@@ -26,7 +29,8 @@ GameWindow::GameWindow(const string &title,
       texColorBuf { { 1.0f, 1.0f, 1.0f },   /* Red */
                     { 1.0f, 1.0f, 1.0f },   /* Green */
                     { 1.0f, 1.0f, 1.0f },   /* Blue */
-                    { 1.0f, 1.0f, 1.0f } }
+                    { 1.0f, 1.0f, 1.0f } },
+      toggleFPS(false)
 {
     //Initialize SDL
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0)
@@ -61,6 +65,13 @@ GameWindow::GameWindow(const string &title,
         return;
     }
 
+    //Create renderer
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    if (renderer == NULL) {
+        cerr << fmt::format("Renderer could not be created: {0}\n", SDL_GetError());
+        return;
+    }
+
     //Initialize GLEW
     glewExperimental = GL_TRUE; 
     GLenum glewError = glewInit();
@@ -82,6 +93,20 @@ GameWindow::GameWindow(const string &title,
         return;
     }
 
+    if (TTF_Init() == -1) {
+        cerr << "Unable initialize ttf\n";
+        return;
+    }   
+
+    Sans = TTF_OpenFont(fmt::format("{0}/Sans.ttf", getResourcesPath()).c_str(), 24);
+    Message_rect.x = 0;
+    Message_rect.y = 0;
+    Message_rect.w = 200;
+    Message_rect.h = 200;
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     calculateTileSize();
     loadMap(fmt::format("{0}/maps/homeHouseV1.map", getResourcesPath()));
     loadTextures();
@@ -91,11 +116,7 @@ GameWindow::GameWindow(const string &title,
     linkShaders();
     setPlayerPosition();
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    updateTicks = SDL_GetTicks();
-    fpsTicks = SDL_GetTicks();
+    fpsCalculator.initialize();
 
     SDL_JoystickEventState(SDL_DISABLE);
     joystick = SDL_JoystickOpen(0);
@@ -111,6 +132,8 @@ GameWindow::~GameWindow()
     unloadGLMapObjects();
     unloadGLPlayerObject();
     SDL_JoystickClose(joystick);
+    TTF_Quit();
+    SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
@@ -186,20 +209,10 @@ void GameWindow::processEvents()
             break;
         }
     }
-    update(1.0f / 60.0f);
+    update(1.0f / 90.0f);
 	render();
-    //Calculate FPS
-    frameNo++;
-    if( SDL_GetTicks() - updateTicks > 1000 )
-    {
-        std::stringstream caption;
-        caption << "Average Frames Per Second: " << frameNo / ((SDL_GetTicks() - fpsTicks) / 1000.f);
-        SDL_SetWindowTitle(window, caption.str().c_str());
-        updateTicks = SDL_GetTicks();
-        frameNo = 0;
-        fpsTicks = SDL_GetTicks();
-    }
-	SDL_GL_SwapWindow(window);
+    fpsCalculator.calculate();
+	//SDL_GL_SwapWindow(window);
 }
 
 void GameWindow::moveUpPressed() 
@@ -474,6 +487,7 @@ void GameWindow::render()
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
     glEnable(GL_TEXTURE_2D);
+
     for(auto &item : glTiles) {
         glBindVertexArray(item.vao);
         glBindBuffer(GL_ARRAY_BUFFER, item.vboPosition);
@@ -513,10 +527,21 @@ void GameWindow::render()
     glEnableVertexAttribArray(2);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     glBindTexture(GL_TEXTURE_2D, 0);
-    /* Swap our buffers to make our changes visible */
+    //Display the FPS
+    SDL_SetWindowTitle(window, to_string(static_cast<int>(fpsCalculator.getFPS())).c_str());
+    /*surfaceMessage = TTF_RenderText_Solid(Sans, "Allo", {255, 255, 255}); 
+    SDL_Texture *Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage); 
+    SDL_RenderCopy(renderer, Message, NULL, &Message_rect); */
+
+    //SDL_RenderPresent(renderer);
+
+    
+    // Swap our buffers to make our changes visible 
     SDL_GL_SwapWindow(window);
 
-
+    //SDL_DestroyTexture(Message);
+    //SDL_FreeSurface(surfaceMessage);
+    
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
     glUseProgram(0);

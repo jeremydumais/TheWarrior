@@ -83,7 +83,7 @@ void GLPlayer::faceRight()
 MovingResult GLPlayer::processMoving(double delta_time) 
 {
     MovingResult result;
-    const float SPEED = 8.0f;
+    const float SPEED = 7.0f;
     if (playerMovement == PlayerMovement::MoveUp) {
         yMove -= SPEED * delta_time;
         if (yMove < 0.0f) {

@@ -5,14 +5,15 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../twModels/include)
 
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindow.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/glPlayer.cpp)
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/glPlayer.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/fpsCalculator.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   target_compile_definitions(${PROJECT_NAME} PRIVATE SUPPORT_MAYBE_UNUSED)
 endif()
 
-target_link_libraries(${PROJECT_NAME} twModels glut GLU GL GLEW)
+target_link_libraries(${PROJECT_NAME} twModels glut GLU GL GLEW SDL2_ttf)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
