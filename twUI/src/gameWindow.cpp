@@ -13,6 +13,8 @@
 #include <linux/limits.h>   // PATH_MAX
 #include <ft2build.h>
 #include FT_FREETYPE_H  
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 using namespace std;
 
@@ -65,13 +67,6 @@ GameWindow::GameWindow(const string &title,
         return;
     }
 
-    //Create renderer
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    if (renderer == NULL) {
-        cerr << fmt::format("Renderer could not be created: {0}\n", SDL_GetError());
-        return;
-    }
-
     //Initialize GLEW
     glewExperimental = GL_TRUE; 
     GLenum glewError = glewInit();
@@ -92,18 +87,10 @@ GameWindow::GameWindow(const string &title,
         cerr << "Unable to compile shaders\n";
         return;
     }
-
-    if (TTF_Init() == -1) {
-        cerr << "Unable initialize ttf\n";
+    if (!compileTextShaders()) {
+        cerr << "Unable to compile text shaders\n";
         return;
-    }   
-
-    Sans = TTF_OpenFont(fmt::format("{0}/Sans.ttf", getResourcesPath()).c_str(), 24);
-    Message_rect.x = 0;
-    Message_rect.y = 0;
-    Message_rect.w = 200;
-    Message_rect.h = 200;
-
+    }
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -114,12 +101,21 @@ GameWindow::GameWindow(const string &title,
     glPlayer.initialize();
     generateGLPlayerObject();
     linkShaders();
+    glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height));
+    linkTextShaders();
+    glUseProgram(shaderTextProgram);
+    GLuint test  = glGetUniformLocation(shaderTextProgram, "projection");
+    glUniformMatrix4fv(test, 1, GL_FALSE, glm::value_ptr(projection));
     setPlayerPosition();
 
     fpsCalculator.initialize();
 
     SDL_JoystickEventState(SDL_DISABLE);
     joystick = SDL_JoystickOpen(0);
+
+    if (!initFont()) {
+        return;
+    }
 }
 
 GameWindow::~GameWindow() 
@@ -129,10 +125,17 @@ GameWindow::~GameWindow()
     glDeleteProgram(shaderprogram);
     glDeleteShader(vertexshader);
     glDeleteShader(fragmentshader);
+    glDetachShader(shaderTextProgram, vertexTextShader);
+    glDetachShader(shaderTextProgram, fragmentTextShader);
+    glDeleteProgram(shaderTextProgram);
+    glDeleteShader(vertexTextShader);
+    glDeleteShader(fragmentTextShader);
     unloadGLMapObjects();
     unloadGLPlayerObject();
+    for(auto &character : Characters) {
+        glDeleteBuffers(1, &character.second.TextureID);
+    }
     SDL_JoystickClose(joystick);
-    TTF_Quit();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
@@ -188,6 +191,11 @@ void GameWindow::processEvents()
                 generateGLMapObjects();
                 generateGLPlayerObject();
                 setPlayerPosition();
+
+                glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height));
+                glUseProgram(shaderTextProgram);
+                GLuint test  = glGetUniformLocation(shaderTextProgram, "projection");
+                glUniformMatrix4fv(test, 1, GL_FALSE, glm::value_ptr(projection));
             }
         } 
     }
@@ -477,6 +485,29 @@ void GameWindow::linkShaders()
     }
 }
 
+void GameWindow::linkTextShaders() 
+{
+    shaderTextProgram = glCreateProgram();
+    glAttachShader(shaderTextProgram, vertexTextShader);
+    glAttachShader(shaderTextProgram, fragmentTextShader);
+
+    /* Bind attribute index 0 (coordinates) to in_Position and attribute index 1 (color) to in_Color */
+    glBindAttribLocation(shaderTextProgram, 0, "vertex");
+
+    glLinkProgram(shaderTextProgram);
+    int IsLinked;
+    glGetProgramiv(shaderTextProgram, GL_LINK_STATUS, (int *)&IsLinked);
+    if(IsLinked == false)
+    {
+       int maxLength;
+       glGetProgramiv(shaderTextProgram, GL_INFO_LOG_LENGTH, &maxLength);
+       char *shaderProgramInfoLog = (char *)malloc(maxLength);
+       glGetProgramInfoLog(shaderTextProgram, maxLength, &maxLength, shaderProgramInfoLog);
+       cerr << shaderProgramInfoLog << '\n';
+       free(shaderProgramInfoLog);
+    }
+}
+
 void GameWindow::render()
 {
     glUseProgram(shaderprogram);
@@ -484,7 +515,7 @@ void GameWindow::render()
     GLuint TextureID  = glGetUniformLocation(shaderprogram, "myTextureSampler");
     glUniform1i(TextureID, 0);
 
-    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glClearColor(0.3, 0.3, 0.3, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
     glEnable(GL_TEXTURE_2D);
 
@@ -528,19 +559,12 @@ void GameWindow::render()
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     glBindTexture(GL_TEXTURE_2D, 0);
     //Display the FPS
-    SDL_SetWindowTitle(window, to_string(static_cast<int>(fpsCalculator.getFPS())).c_str());
-    /*surfaceMessage = TTF_RenderText_Solid(Sans, "Allo", {255, 255, 255}); 
-    SDL_Texture *Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage); 
-    SDL_RenderCopy(renderer, Message, NULL, &Message_rect); */
-
-    //SDL_RenderPresent(renderer);
+    glUseProgram(shaderTextProgram);
+    RenderText(fpsCalculator.getFPSDisplayText(), 1.0f, static_cast<float>(height) - 24.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 
     
     // Swap our buffers to make our changes visible 
     SDL_GL_SwapWindow(window);
-
-    //SDL_DestroyTexture(Message);
-    //SDL_FreeSurface(surfaceMessage);
     
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
@@ -584,8 +608,8 @@ bool GameWindow::compileShaders()
     char *vertexInfoLog;
     char *fragmentInfoLog;
     /* Read our shaders into the appropriate buffers */
-    vertexShaderContent = loadShaderFile(fmt::format("{0}/shaders/tile_330_vs.glsl", getResourcesPath()));
-    fragmentShaderContent = loadShaderFile(fmt::format("{0}/shaders/tile_330_fs.glsl", getResourcesPath()));
+    string vertexShaderContent = loadShaderFile(fmt::format("{0}/shaders/tile_330_vs.glsl", getResourcesPath()));
+    string fragmentShaderContent = loadShaderFile(fmt::format("{0}/shaders/tile_330_fs.glsl", getResourcesPath()));
 
     vertexshader = glCreateShader(GL_VERTEX_SHADER);
     const char *vertexShaderSource = vertexShaderContent.c_str();
@@ -614,6 +638,50 @@ bool GameWindow::compileShaders()
        glGetShaderiv(fragmentshader, GL_INFO_LOG_LENGTH, &maxLength);
        fragmentInfoLog = (char *)malloc(maxLength);
        glGetShaderInfoLog(fragmentshader, maxLength, &maxLength, fragmentInfoLog);
+       cerr << fragmentInfoLog << '\n';
+       free(fragmentInfoLog);
+       return false;
+    }
+    return true;
+}
+
+bool GameWindow::compileTextShaders() 
+{
+    int IsCompiled_VS;
+    int IsCompiled_FS;
+    char *vertexInfoLog;
+    char *fragmentInfoLog;
+    /* Read our shaders into the appropriate buffers */
+    string vertexTextShaderContent = loadShaderFile(fmt::format("{0}/shaders/text_330_vs.glsl", getResourcesPath()));
+    string fragmentTextShaderContent = loadShaderFile(fmt::format("{0}/shaders/text_330_fs.glsl", getResourcesPath()));
+
+    vertexTextShader = glCreateShader(GL_VERTEX_SHADER);
+    const char *vertexShaderSource = vertexTextShaderContent.c_str();
+    glShaderSource(vertexTextShader, 1, (const GLchar**)&vertexShaderSource, 0);
+    glCompileShader(vertexTextShader);
+    glGetShaderiv(vertexTextShader, GL_COMPILE_STATUS, &IsCompiled_VS);
+    if(IsCompiled_VS == false)
+    {
+       int maxLength;
+       glGetShaderiv(vertexTextShader, GL_INFO_LOG_LENGTH, &maxLength);
+       vertexInfoLog = (char *)malloc(maxLength);
+       glGetShaderInfoLog(vertexTextShader, maxLength, &maxLength, vertexInfoLog);
+       cerr << vertexInfoLog << '\n';
+       free(vertexInfoLog);
+       return false;
+    }
+
+    fragmentTextShader = glCreateShader(GL_FRAGMENT_SHADER);
+    const char *fragmentShaderSource = fragmentTextShaderContent.c_str();
+    glShaderSource(fragmentTextShader, 1, (const GLchar**)&fragmentShaderSource, 0);
+    glCompileShader(fragmentTextShader);
+    glGetShaderiv(fragmentTextShader, GL_COMPILE_STATUS, &IsCompiled_FS);
+    if(IsCompiled_FS == false)
+    {
+       int maxLength;
+       glGetShaderiv(fragmentTextShader, GL_INFO_LOG_LENGTH, &maxLength);
+       fragmentInfoLog = (char *)malloc(maxLength);
+       glGetShaderInfoLog(fragmentTextShader, maxLength, &maxLength, fragmentInfoLog);
        cerr << fragmentInfoLog << '\n';
        free(fragmentInfoLog);
        return false;
@@ -748,4 +816,128 @@ const std::string &GameWindow::getResourcesPath()
 		resourcesPath = fmt::format("{0}/resources/", getExecutablePath());
 	}
 	return resourcesPath;
+}
+
+bool GameWindow::initFont() 
+{
+    FT_Library ft;
+    if (FT_Init_FreeType(&ft)) {
+        cerr << "ERROR::FREETYPE: Could not init FreeType Library\n";
+        return false;
+    }
+
+	// find path to font
+    std::string font_name = fmt::format("{0}/arial.ttf", getResourcesPath());
+    if (font_name.empty()) {
+        cerr << "ERROR::FREETYPE: Failed to load font_name\n";
+        return false;
+    }
+    FT_Face face;
+    if (FT_New_Face(ft, font_name.c_str(), 0, &face)) {
+        cerr << "ERROR::FREETYPE: Failed to load font\n";
+        return false;
+    }
+    else {
+        FT_Set_Pixel_Sizes(face, 0, 48);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        for (unsigned char c = 0; c < 128; c++)
+        {
+            if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+            {
+                cerr << "ERROR::FREETYTPE: Failed to load Glyph\n";
+                continue;
+            }
+            // generate texture
+            unsigned int texture;
+            glGenTextures(1, &texture);
+            glBindTexture(GL_TEXTURE_2D, texture);
+            glTexImage2D(
+                GL_TEXTURE_2D,
+                0,
+                GL_RED,
+                face->glyph->bitmap.width,
+                face->glyph->bitmap.rows,
+                0,
+                GL_RED,
+                GL_UNSIGNED_BYTE,
+                face->glyph->bitmap.buffer
+            );
+            // set texture options
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            // now store character for later use
+            Character character = {
+                texture,
+                glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+                glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+                static_cast<unsigned int>(face->glyph->advance.x)
+            };
+            Characters.insert(std::pair<char, Character>(c, character));
+        }
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+    // destroy FreeType once we're finished
+    FT_Done_Face(face);
+    FT_Done_FreeType(ft);
+
+    
+    // configure VAO/VBO for texture quads
+    // -----------------------------------
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    return true;
+}
+
+void GameWindow::RenderText(std::string text, float x, float y, float scale, glm::vec3 color)
+{
+    // activate corresponding render state	
+    //shader.use();
+    glUniform3f(glGetUniformLocation(shaderTextProgram, "textColor"), color.x, color.y, color.z);
+    glActiveTexture(GL_TEXTURE0);
+    glBindVertexArray(VAO);
+
+    // iterate through all characters
+    std::string::const_iterator c;
+    for (c = text.begin(); c != text.end(); c++) 
+    {
+        Character ch = Characters[*c];
+
+        float xpos = x + ch.Bearing.x * scale;
+        float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+
+        float w = ch.Size.x * scale;
+        float h = ch.Size.y * scale;
+        // update VBO for each character
+        float vertices[6][4] = {
+            { xpos,     ypos + h,   0.0f, 0.0f },            
+            { xpos,     ypos,       0.0f, 1.0f },
+            { xpos + w, ypos,       1.0f, 1.0f },
+
+            { xpos,     ypos + h,   0.0f, 0.0f },
+            { xpos + w, ypos,       1.0f, 1.0f },
+            { xpos + w, ypos + h,   1.0f, 0.0f }           
+        };
+        // render glyph texture over quad
+        glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+        // update content of VBO memory
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // be sure to use glBufferSubData and not glBufferData
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        // render quad
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+        x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+    }
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }

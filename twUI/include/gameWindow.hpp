@@ -5,9 +5,9 @@
 #include "glTile.hpp"
 #include "gameMap.hpp"
 #include <SDL2/SDL.h>
+#include <glm/glm.hpp>
 #include <GL/glew.h>
 #include <SDL2/SDL_opengl.h>
-#include <SDL2/SDL_ttf.h>
 #include <map>
 #include <memory>
 #include <string>
@@ -21,6 +21,13 @@ struct GenerateGLObjectInfo {
     GLuint *vboPosition;
     GLuint *vboColor;
     GLuint *vboTexture;
+};
+
+struct Character {
+    unsigned int TextureID; // ID handle of the glyph texture
+    glm::ivec2   Size;      // Size of glyph
+    glm::ivec2   Bearing;   // Offset from baseline to left/top of glyph
+    unsigned int Advance;   // Horizontal offset to advance to next glyph
 };
 
 class GameWindow
@@ -48,8 +55,9 @@ private:
     GLuint vertexshader;
     GLuint fragmentshader;
     GLuint shaderprogram;
-    std::string vertexShaderContent;
-    std::string fragmentShaderContent;
+    GLuint shaderTextProgram;
+    GLuint vertexTextShader;
+    GLuint fragmentTextShader;
     std::vector<GLTile> glTiles;
     GLPlayer glPlayer;
     std::shared_ptr<GameMap> map; 
@@ -66,6 +74,9 @@ private:
     FPSCalculator fpsCalculator;
     bool toggleFPS;
     SDL_Joystick *joystick;
+    //Text
+    std::map<GLchar, Character> Characters;
+    unsigned int VAO, VBO;
     void moveUpPressed();
     void moveDownPressed();
     void moveLeftPressed();
@@ -79,14 +90,15 @@ private:
     std::string loadShaderFile(const std::string &file);
     void setShaderTranslation();
     bool compileShaders();
+    bool compileTextShaders();
     void linkShaders();
+    void linkTextShaders();
     void loadMap(const std::string &filePath);
     void loadTextures();
     void setTextureUVFromIndex(const Texture *texture, GLfloat uvMap[4][2], int index);
     void setTileCoordToOrigin();
     void setPlayerPosition();
     void setPlayerTexture();
-    SDL_Surface* surfaceMessage;
-    SDL_Rect Message_rect;
-    TTF_Font* Sans;
+    bool initFont();
+    void RenderText(std::string text, float x, float y, float scale, glm::vec3 color);
 };
