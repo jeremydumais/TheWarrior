@@ -83,8 +83,9 @@ GameWindow::GameWindow(const string &title,
         return;
     }
 
-    if (!compileShaders()) {
-        cerr << "Unable to compile shaders\n";
+    if (!tileProgram.init(fmt::format("{0}/shaders/tile_330_vs.glsl", getResourcesPath()),
+                          fmt::format("{0}/shaders/tile_330_fs.glsl", getResourcesPath()))) {
+        cerr << tileProgram.getLastError() << "\n";
         return;
     }
     if (!compileTextShaders()) {
@@ -100,7 +101,7 @@ GameWindow::GameWindow(const string &title,
     generateGLMapObjects();
     glPlayer.initialize();
     generateGLPlayerObject();
-    linkShaders();
+
     glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height));
     linkTextShaders();
     glUseProgram(shaderTextProgram);
@@ -120,11 +121,11 @@ GameWindow::GameWindow(const string &title,
 
 GameWindow::~GameWindow() 
 {
-    glDetachShader(shaderprogram, vertexshader);
+    /*glDetachShader(shaderprogram, vertexshader);
     glDetachShader(shaderprogram, fragmentshader);
     glDeleteProgram(shaderprogram);
     glDeleteShader(vertexshader);
-    glDeleteShader(fragmentshader);
+    glDeleteShader(fragmentshader);*/
     glDetachShader(shaderTextProgram, vertexTextShader);
     glDetachShader(shaderTextProgram, fragmentTextShader);
     glDeleteProgram(shaderTextProgram);
@@ -460,31 +461,6 @@ void GameWindow::unloadGLPlayerObject()
     glDeleteVertexArrays(1, &glPlayer.vao);
 }
 
-void GameWindow::linkShaders() 
-{
-    shaderprogram = glCreateProgram();
-    glAttachShader(shaderprogram, vertexshader);
-    glAttachShader(shaderprogram, fragmentshader);
-
-    /* Bind attribute index 0 (coordinates) to in_Position and attribute index 1 (color) to in_Color */
-    glBindAttribLocation(shaderprogram, 0, "in_Position");
-    glBindAttribLocation(shaderprogram, 1, "in_Color");
-    glBindAttribLocation(shaderprogram, 2, "in_VertexUV");
-
-    glLinkProgram(shaderprogram);
-    int IsLinked;
-    glGetProgramiv(shaderprogram, GL_LINK_STATUS, (int *)&IsLinked);
-    if(IsLinked == false)
-    {
-       int maxLength;
-       glGetProgramiv(shaderprogram, GL_INFO_LOG_LENGTH, &maxLength);
-       char *shaderProgramInfoLog = (char *)malloc(maxLength);
-       glGetProgramInfoLog(shaderprogram, maxLength, &maxLength, shaderProgramInfoLog);
-       cerr << shaderProgramInfoLog << '\n';
-       free(shaderProgramInfoLog);
-    }
-}
-
 void GameWindow::linkTextShaders() 
 {
     shaderTextProgram = glCreateProgram();
@@ -492,7 +468,7 @@ void GameWindow::linkTextShaders()
     glAttachShader(shaderTextProgram, fragmentTextShader);
 
     /* Bind attribute index 0 (coordinates) to in_Position and attribute index 1 (color) to in_Color */
-    glBindAttribLocation(shaderTextProgram, 0, "vertex");
+    //glBindAttribLocation(shaderTextProgram, 0, "vertex");
 
     glLinkProgram(shaderTextProgram);
     int IsLinked;
@@ -510,11 +486,10 @@ void GameWindow::linkTextShaders()
 
 void GameWindow::render()
 {
-    glUseProgram(shaderprogram);
-    setShaderTranslation();
-    GLuint TextureID  = glGetUniformLocation(shaderprogram, "myTextureSampler");
-    glUniform1i(TextureID, 0);
-
+    tileProgram.useShader();
+    tileProgram.setShaderTranslation(map->getWidth(), map->getHeight(),
+                                     width, height,
+                                     glPlayer);
     glClearColor(0.3, 0.3, 0.3, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
     glEnable(GL_TEXTURE_2D);
@@ -573,76 +548,6 @@ void GameWindow::render()
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
     glDisableVertexAttribArray(2);
-}
-
-void GameWindow::setShaderTranslation() 
-{
-    int vertexTranslationLocation = glGetUniformLocation(shaderprogram, "translation");
-    float mapMiddleH { 0.0f };
-    float mapMiddleV { 0.0f };
-    //If the map width is smaller than the window width
-    if (static_cast<float>(map->getWidth()) * 51.2f <= width) {
-        //Center target: map
-        mapMiddleH = 1.0f - ((static_cast<float>(map->getWidth()) * 51.2f) / static_cast<float>(width));
-    }
-    else {
-        //Center target: player
-        mapMiddleH = 1.0f - (((static_cast<float>(glPlayer.x) + glPlayer.xMove) * 2.0f * 51.2f) / static_cast<float>(width));
-    }
-    //If the map height is smaller than the window height
-    if (static_cast<float>(map->getHeight()) * 51.2f <= height) {
-        //Center target: map
-        mapMiddleV = (1.0f - (static_cast<float>(map->getHeight()) * 51.2f) / static_cast<float>(height)) * -1.0f;
-    }
-    else {
-        //Center target: player
-        mapMiddleV = (1.0f - ((static_cast<float>(glPlayer.y) + glPlayer.yMove) * 2.0f * 51.2f) / static_cast<float>(height)) * -1.0f;
-    }
-    glUniform2f(vertexTranslationLocation, mapMiddleH, mapMiddleV);
-}
-
-bool GameWindow::compileShaders() 
-{
-    int IsCompiled_VS;
-    int IsCompiled_FS;
-    char *vertexInfoLog;
-    char *fragmentInfoLog;
-    /* Read our shaders into the appropriate buffers */
-    string vertexShaderContent = loadShaderFile(fmt::format("{0}/shaders/tile_330_vs.glsl", getResourcesPath()));
-    string fragmentShaderContent = loadShaderFile(fmt::format("{0}/shaders/tile_330_fs.glsl", getResourcesPath()));
-
-    vertexshader = glCreateShader(GL_VERTEX_SHADER);
-    const char *vertexShaderSource = vertexShaderContent.c_str();
-    glShaderSource(vertexshader, 1, (const GLchar**)&vertexShaderSource, 0);
-    glCompileShader(vertexshader);
-    glGetShaderiv(vertexshader, GL_COMPILE_STATUS, &IsCompiled_VS);
-    if(IsCompiled_VS == false)
-    {
-       int maxLength;
-       glGetShaderiv(vertexshader, GL_INFO_LOG_LENGTH, &maxLength);
-       vertexInfoLog = (char *)malloc(maxLength);
-       glGetShaderInfoLog(vertexshader, maxLength, &maxLength, vertexInfoLog);
-       cerr << vertexInfoLog << '\n';
-       free(vertexInfoLog);
-       return false;
-    }
-
-    fragmentshader = glCreateShader(GL_FRAGMENT_SHADER);
-    const char *fragmentShaderSource = fragmentShaderContent.c_str();
-    glShaderSource(fragmentshader, 1, (const GLchar**)&fragmentShaderSource, 0);
-    glCompileShader(fragmentshader);
-    glGetShaderiv(fragmentshader, GL_COMPILE_STATUS, &IsCompiled_FS);
-    if(IsCompiled_FS == false)
-    {
-       int maxLength;
-       glGetShaderiv(fragmentshader, GL_INFO_LOG_LENGTH, &maxLength);
-       fragmentInfoLog = (char *)malloc(maxLength);
-       glGetShaderInfoLog(fragmentshader, maxLength, &maxLength, fragmentInfoLog);
-       cerr << fragmentInfoLog << '\n';
-       free(fragmentInfoLog);
-       return false;
-    }
-    return true;
 }
 
 bool GameWindow::compileTextShaders() 
@@ -827,7 +732,7 @@ bool GameWindow::initFont()
     }
 
 	// find path to font
-    std::string font_name = fmt::format("{0}/arial.ttf", getResourcesPath());
+    std::string font_name = fmt::format("{0}/verdana.ttf", getResourcesPath());
     if (font_name.empty()) {
         cerr << "ERROR::FREETYPE: Failed to load font_name\n";
         return false;

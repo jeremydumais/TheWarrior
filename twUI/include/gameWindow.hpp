@@ -3,6 +3,7 @@
 #include "fpsCalculator.hpp"
 #include "glPlayer.hpp"
 #include "glTile.hpp"
+#include "glTileProgram.hpp"
 #include "gameMap.hpp"
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
@@ -52,9 +53,7 @@ private:
     bool mustExit;
     std::string executablePath;
     std::string resourcesPath;
-    GLuint vertexshader;
-    GLuint fragmentshader;
-    GLuint shaderprogram;
+    GLTileProgram tileProgram;
     GLuint shaderTextProgram;
     GLuint vertexTextShader;
     GLuint fragmentTextShader;
@@ -88,10 +87,7 @@ private:
     void generateGLPlayerObject();
     void unloadGLPlayerObject();
     std::string loadShaderFile(const std::string &file);
-    void setShaderTranslation();
-    bool compileShaders();
     bool compileTextShaders();
-    void linkShaders();
     void linkTextShaders();
     void loadMap(const std::string &filePath);
     void loadTextures();
