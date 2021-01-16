@@ -3,7 +3,8 @@
 #include "fpsCalculator.hpp"
 #include "glPlayer.hpp"
 #include "glTile.hpp"
-#include "glTileProgram.hpp"
+#include "glTileService.hpp"
+#include "glTextService.hpp"
 #include "gameMap.hpp"
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
@@ -22,13 +23,6 @@ struct GenerateGLObjectInfo {
     GLuint *vboPosition;
     GLuint *vboColor;
     GLuint *vboTexture;
-};
-
-struct Character {
-    unsigned int TextureID; // ID handle of the glyph texture
-    glm::ivec2   Size;      // Size of glyph
-    glm::ivec2   Bearing;   // Offset from baseline to left/top of glyph
-    unsigned int Advance;   // Horizontal offset to advance to next glyph
 };
 
 class GameWindow
@@ -53,10 +47,8 @@ private:
     bool mustExit;
     std::string executablePath;
     std::string resourcesPath;
-    GLTileProgram tileProgram;
-    GLuint shaderTextProgram;
-    GLuint vertexTextShader;
-    GLuint fragmentTextShader;
+    GLTileService tileService;
+    GLTextService textService;
     std::vector<GLTile> glTiles;
     GLPlayer glPlayer;
     std::shared_ptr<GameMap> map; 
@@ -67,15 +59,13 @@ private:
     float TILEWIDTH { 0.1f };
     float TILEHALFWIDTH { TILEWIDTH / 2.0f };
     float TILEHALFHEIGHT;
-    const std::string &getExecutablePath();
-    const std::string &getResourcesPath();
     //FPS variables
     FPSCalculator fpsCalculator;
     bool toggleFPS;
+    bool blockToggleFPS;
     SDL_Joystick *joystick;
-    //Text
-    std::map<GLchar, Character> Characters;
-    unsigned int VAO, VBO;
+    const std::string &getExecutablePath();
+    const std::string &getResourcesPath();
     void moveUpPressed();
     void moveDownPressed();
     void moveLeftPressed();
@@ -87,14 +77,10 @@ private:
     void generateGLPlayerObject();
     void unloadGLPlayerObject();
     std::string loadShaderFile(const std::string &file);
-    bool compileTextShaders();
-    void linkTextShaders();
     void loadMap(const std::string &filePath);
     void loadTextures();
     void setTextureUVFromIndex(const Texture *texture, GLfloat uvMap[4][2], int index);
     void setTileCoordToOrigin();
     void setPlayerPosition();
     void setPlayerTexture();
-    bool initFont();
-    void RenderText(std::string text, float x, float y, float scale, glm::vec3 color);
 };

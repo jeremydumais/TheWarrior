@@ -1,9 +1,9 @@
-#include "glTileProgram.hpp"
+#include "glTileService.hpp"
 
 using namespace std;
 
 
-bool GLTileProgram::init(const std::string &vertexShaderFileName,
+bool GLTileService::initShader(const std::string &vertexShaderFileName,
                          const std::string &fragmentShaderFileName) 
 {
     shaderProgram = make_unique<GLShaderProgram>(vertexShaderFileName,
@@ -18,17 +18,17 @@ bool GLTileProgram::init(const std::string &vertexShaderFileName,
     }
 }
 
-const string& GLTileProgram::getLastError() const
+const string& GLTileService::getLastError() const
 {
     return lastError;
 }
 
-void GLTileProgram::useShader() 
+void GLTileService::useShader() 
 {
     shaderProgram->use();
 }
 
-void GLTileProgram::setShaderTranslation(unsigned int mapWidth, unsigned int mapHeight, int windowWidth, int windowHeight, const GLPlayer &glPlayer) 
+void GLTileService::setShaderTranslation(unsigned int mapWidth, unsigned int mapHeight, int windowWidth, int windowHeight, const GLPlayer &glPlayer) 
 {
     int vertexTranslationLocation = glGetUniformLocation(shaderProgram->getShaderProgramID(), "translation");
     float mapMiddleH { 0.0f };

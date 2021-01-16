@@ -2,14 +2,15 @@
 
 #include "glShaderProgram.hpp"
 #include "glPlayer.hpp"
+#include "IShaderService.hpp"
 #include <memory>
 #include <string>
 
-class GLTileProgram
+class GLTileService : public IShaderService
 {
 public:
-    bool init(const std::string &vertexShaderFileName,
-              const std::string &fragmentShaderFileName);
+    bool initShader(const std::string &vertexShaderFileName,
+              const std::string &fragmentShaderFileName) override;
     const std::string &getLastError() const;
     void useShader();
     void setShaderTranslation(unsigned int mapWidth, unsigned int mapHeight, int windowWidth, int windowHeight, const GLPlayer &glPlayer);
