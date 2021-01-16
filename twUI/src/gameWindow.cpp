@@ -187,7 +187,7 @@ void GameWindow::processEvents()
         } 
     }
     const Uint8 *keystate = SDL_GetKeyboardState(NULL);
-    if ((keystate[SDL_SCANCODE_RCTRL] || keystate[SDL_SCANCODE_LCTRL]) && keystate[SDL_SCANCODE_G]) {
+    if ((keystate[SDL_SCANCODE_RCTRL] || keystate[SDL_SCANCODE_LCTRL]) && keystate[SDL_SCANCODE_F]) {
         if (!blockToggleFPS) {
             toggleFPS = !toggleFPS;
             blockToggleFPS = true;
