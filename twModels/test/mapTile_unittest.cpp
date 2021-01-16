@@ -64,11 +64,63 @@ TEST(MapTile_getObjectTextureIndex, With1_Return1)
 	ASSERT_EQ(1, tile.getObjectTextureIndex());
 }
 
+TEST(MapTile_isAssigned, WithAllFieldsEmpty_ReturnFalse)
+{
+	MapTile tile;
+	ASSERT_FALSE(tile.isAssigned());
+}
+
+TEST(MapTile_isAssigned, WithOnlyTextureNameNotEmpty_ReturnTrue)
+{
+	MapTile tile;
+	tile.setTextureName("Tex1");
+	ASSERT_TRUE(tile.isAssigned());
+}
+
+TEST(MapTile_isAssigned, WithOnlyTextureIndex0_ReturnTrue)
+{
+	MapTile tile;
+	tile.setTextureIndex(0);
+	ASSERT_TRUE(tile.isAssigned());
+}
+
+TEST(MapTile_isAssigned, WithOnlyObjectTextureNameNotEmpty_ReturnTrue)
+{
+	MapTile tile;
+	tile.setObjectTextureName("Tex1");
+	ASSERT_TRUE(tile.isAssigned());
+}
+
+TEST(MapTile_isAssigned, WithOnlyObjectTextureIndex0_ReturnTrue)
+{
+	MapTile tile;
+	tile.setObjectTextureIndex(0);
+	ASSERT_TRUE(tile.isAssigned());
+}
+
 TEST(MapTile_setTextureName, WithABC_ReturnSuccess)
 {
 	MapTile tile;
 	tile.setTextureName("ABC");
 	ASSERT_EQ("ABC", tile.getTextureName());
+}
+
+TEST(MapTile_isAssigned, WithTextureNameAndIndexNotEmpty_ReturnTrue)
+{
+	MapTile tile;
+	tile.setTextureName("Tex1");
+	tile.setTextureIndex(0);
+	ASSERT_TRUE(tile.isAssigned());
+}
+
+TEST(MapTile_isAssigned, WithAllFieldsNotEmpty_ReturnTrue)
+{
+	MapTile tile;
+	tile.setTextureName("Tex1");
+	tile.setTextureIndex(0);
+	tile.setObjectTextureName("Tex1");
+	tile.setObjectTextureIndex(0);
+	ASSERT_TRUE(tile.isAssigned());
 }
 
 TEST(MapTile_setTextureName, WithEmptyName_ReturnSuccess)

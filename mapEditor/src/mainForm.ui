@@ -32,7 +32,7 @@
          </size>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="pageMapProperties">
          <property name="geometry">
@@ -51,8 +51,8 @@
            <rect>
             <x>10</x>
             <y>0</y>
-            <width>281</width>
-            <height>241</height>
+            <width>301</width>
+            <height>71</height>
            </rect>
           </property>
           <layout class="QFormLayout" name="formLayout">
@@ -64,7 +64,11 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QLineEdit" name="lineEditMapWidth"/>
+            <widget class="QLineEdit" name="lineEditMapWidth">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="label_2">
@@ -74,9 +78,103 @@
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QLineEdit" name="lineEditMapHeight"/>
+            <widget class="QLineEdit" name="lineEditMapHeight">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
           </layout>
+         </widget>
+         <widget class="QSpinBox" name="spinBoxMapSizeLeft">
+          <property name="geometry">
+           <rect>
+            <x>80</x>
+            <y>140</y>
+            <width>48</width>
+            <height>26</height>
+           </rect>
+          </property>
+          <property name="minimum">
+           <number>-100</number>
+          </property>
+          <property name="maximum">
+           <number>100</number>
+          </property>
+         </widget>
+         <widget class="QSpinBox" name="spinBoxMapSizeRight">
+          <property name="geometry">
+           <rect>
+            <x>180</x>
+            <y>140</y>
+            <width>48</width>
+            <height>26</height>
+           </rect>
+          </property>
+          <property name="minimum">
+           <number>-100</number>
+          </property>
+          <property name="maximum">
+           <number>100</number>
+          </property>
+         </widget>
+         <widget class="QSpinBox" name="spinBoxMapSizeBottom">
+          <property name="geometry">
+           <rect>
+            <x>130</x>
+            <y>170</y>
+            <width>48</width>
+            <height>26</height>
+           </rect>
+          </property>
+          <property name="minimum">
+           <number>-100</number>
+          </property>
+          <property name="maximum">
+           <number>100</number>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_9">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>80</y>
+            <width>101</width>
+            <height>17</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Change size :</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="pushButtonApplySizeChange">
+          <property name="geometry">
+           <rect>
+            <x>110</x>
+            <y>210</y>
+            <width>89</width>
+            <height>25</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Apply</string>
+          </property>
+         </widget>
+         <widget class="QSpinBox" name="spinBoxMapSizeTop">
+          <property name="geometry">
+           <rect>
+            <x>130</x>
+            <y>110</y>
+            <width>48</width>
+            <height>26</height>
+           </rect>
+          </property>
+          <property name="minimum">
+           <number>-100</number>
+          </property>
+          <property name="maximum">
+           <number>100</number>
+          </property>
          </widget>
         </widget>
         <widget class="QWidget" name="page_TileProperties">
@@ -96,7 +194,7 @@
            <rect>
             <x>10</x>
             <y>0</y>
-            <width>281</width>
+            <width>301</width>
             <height>411</height>
            </rect>
           </property>
@@ -104,14 +202,14 @@
            <item row="0" column="0">
             <widget class="QLabel" name="label_3">
              <property name="text">
-              <string>Tex Name</string>
+              <string>Texure Name :</string>
              </property>
             </widget>
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="label_4">
              <property name="text">
-              <string>Tex Index</string>
+              <string>Texture Index :</string>
              </property>
             </widget>
            </item>
@@ -124,14 +222,14 @@
            <item row="2" column="0">
             <widget class="QLabel" name="label_5">
              <property name="text">
-              <string>Obj Tex Name</string>
+              <string>Object Texture Name :</string>
              </property>
             </widget>
            </item>
            <item row="3" column="0">
             <widget class="QLabel" name="label_6">
              <property name="text">
-              <string>Obj Tex Index</string>
+              <string>Object Texture Index :</string>
              </property>
             </widget>
            </item>
@@ -152,6 +250,20 @@
              </property>
              <property name="maximum">
               <number>16777215</number>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QCheckBox" name="checkBoxTileCanSteppedOn">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_11">
+             <property name="text">
+              <string>Can player stepped on?</string>
              </property>
             </widget>
            </item>
@@ -573,6 +685,8 @@
    <addaction name="action_ApplyTexture"/>
    <addaction name="action_ApplyObject"/>
    <addaction name="separator"/>
+   <addaction name="action_EnableCanStep"/>
+   <addaction name="action_DisableCanStep"/>
    <addaction name="separator"/>
   </widget>
   <action name="action_Quit">
@@ -722,6 +836,22 @@
    </property>
    <property name="visible">
     <bool>false</bool>
+   </property>
+  </action>
+  <action name="action_EnableCanStep">
+   <property name="text">
+    <string>Enable can step</string>
+   </property>
+   <property name="toolTip">
+    <string>Enable can step</string>
+   </property>
+  </action>
+  <action name="action_DisableCanStep">
+   <property name="text">
+    <string>Disable can step</string>
+   </property>
+   <property name="toolTip">
+    <string>Disable can step</string>
    </property>
   </action>
  </widget>

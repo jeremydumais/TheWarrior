@@ -98,9 +98,12 @@ void MainForm::connectUIActions()
 	connect(ui.action_MoveMap, &QAction::triggered, this, &MainForm::action_MoveMapClick);
 	connect(ui.action_ApplyTexture, &QAction::triggered, this, &MainForm::action_ApplyTextureClick);
 	connect(ui.action_ApplyObject, &QAction::triggered, this, &MainForm::action_ApplyObjectClick);
+	connect(ui.action_EnableCanStep, &QAction::triggered, this, &MainForm::action_EnableCanStepClick);
+	connect(ui.action_DisableCanStep, &QAction::triggered, this, &MainForm::action_DisableCanStepClick);
 	connect(ui.mapOpenGLWidget, &MapOpenGLWidget::onTileClicked, this, &MainForm::onTileClicked);
 	connect(ui.mapOpenGLWidget, &MapOpenGLWidget::onTileMouseReleaseEvent, this, &MainForm::onTileMouseReleaseEvent);
 	//connect(ui.mapOpenGLWidget, &MapOpenGLWidget::onTileMouseMoveEvent, this, &MainForm::onTileMouseMoveEvent);
+	connect(ui.pushButtonApplySizeChange, &QPushButton::clicked, this, &MainForm::onPushButtonApplySizeChangeClick);
 	connect(ui.pushButtonAddTexture, &QPushButton::clicked, this, &MainForm::onPushButtonAddTextureClick);
 	connect(ui.pushButtonEditTexture, &QPushButton::clicked, this, &MainForm::onPushButtonEditTextureClick);
 	connect(ui.pushButtonDeleteTexture, &QPushButton::clicked, this, &MainForm::onPushButtonDeleteTextureClick);
@@ -111,6 +114,7 @@ void MainForm::connectUIActions()
 	connect(ui.spinBoxTexIndex, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainForm::onSpinBoxTexIndexValueChanged);
 	connect(ui.lineEditObjTexName, &QLineEdit::textChanged, this, &MainForm::onLineEditObjTexNameTextChanged);
 	connect(ui.spinBoxObjTexIndex, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainForm::onSpinBoxObjTexIndexValueChanged);
+	connect(ui.checkBoxTileCanSteppedOn, &QCheckBox::stateChanged, this, &MainForm::onCheckBoxTileCanSteppedOnChanged);
 	connect(ui.comboBoxTexture, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm::onComboBoxTextureCurrentIndexChanged);
 }
 
@@ -262,6 +266,18 @@ void MainForm::action_ApplyObjectClick()
 	ui.mapOpenGLWidget->setSelectionMode(selectionMode);
 }
 
+void MainForm::action_EnableCanStepClick() 
+{
+	selectionMode = SelectionMode::EnableCanStep;
+	ui.mapOpenGLWidget->setSelectionMode(selectionMode);
+}
+
+void MainForm::action_DisableCanStepClick() 
+{
+	selectionMode = SelectionMode::DisableCanStep;
+	ui.mapOpenGLWidget->setSelectionMode(selectionMode);
+}
+
 void MainForm::openMap(const std::string &filePath) 
 {
 	try {
@@ -384,6 +400,7 @@ void MainForm::onTileClicked(int tileIndex)
 		ui.spinBoxTexIndex->setValue(currentMapTile->getTextureIndex());
 		ui.lineEditObjTexName->setText(currentMapTile->getObjectTextureName().c_str());
 		ui.spinBoxObjTexIndex->setValue(currentMapTile->getObjectTextureIndex());
+		ui.checkBoxTileCanSteppedOn->setChecked(currentMapTile->canPlayerSteppedOn());
 		ui.toolBox->setCurrentWidget(ui.page_TileProperties);
 	}
 	else {
@@ -407,6 +424,50 @@ void MainForm::onTileMouseReleaseEvent(vector<int> selectedTileIndexes)
 			currentMapTile->setObjectTextureIndex(lastSelectedObjectIndex);
 		}
 	}
+	else if (selectionMode == SelectionMode::EnableCanStep) {
+		for(const int index : selectedTileIndexes) {
+			currentMapTile = &controller.getMap()->getTileForEditing(index);
+			currentMapTile->setCanPlayerSteppedOn(true);
+		}
+	}
+	else if (selectionMode == SelectionMode::DisableCanStep) {
+		for(const int index : selectedTileIndexes) {
+			currentMapTile = &controller.getMap()->getTileForEditing(index);
+			currentMapTile->setCanPlayerSteppedOn(false);
+		}
+	}
+}
+
+void MainForm::onPushButtonApplySizeChangeClick() 
+{
+	int offsetLeft { ui.spinBoxMapSizeLeft->value() };
+	int offsetTop { ui.spinBoxMapSizeTop->value() };
+	int offsetRight { ui.spinBoxMapSizeRight->value() };
+	int offsetBottom { ui.spinBoxMapSizeBottom->value() };
+	if (offsetLeft < 0 || 
+		offsetTop < 0 ||
+		offsetRight < 0 ||
+		offsetBottom < 0) {	
+		//Check if there's tiles that are already assigned in the ones we will remove
+		if (controller.isShrinkMapImpactAssignedTiles(offsetLeft,
+													  offsetTop,
+													  offsetRight,
+													  offsetBottom)) {
+			showErrorMessage("Cannot resize the map because some tile are\n"
+								"already assigned in the ones you try to remove.");
+			return;
+		}
+	}
+	//Apply new size
+	try {
+		controller.resizeMap(offsetLeft,
+							 offsetTop,
+							 offsetRight,
+							 offsetBottom);
+	}
+	catch(invalid_argument &err) {
+		showErrorMessage(err.what());
+	}
 }
 
 /*void MainForm::onTileMouseMoveEvent(bool mousePressed, int tileIndex) 
@@ -415,6 +476,7 @@ void MainForm::onTileMouseReleaseEvent(vector<int> selectedTileIndexes)
 
 void MainForm::onPushButtonAddTextureClick() 
 {
+	ui.mapOpenGLWidget->stopAutoUpdate();
 	auto alreadyUsedTextureNames { controller.getAlreadyUsedTextureNames() };
 	EditTextureForm formEditTexture(this, getResourcesPath(), nullptr, alreadyUsedTextureNames);
 	if (formEditTexture.exec() == QDialog::Accepted) {
@@ -423,10 +485,12 @@ void MainForm::onPushButtonAddTextureClick()
 		}
 		refreshTextureList();
 	}
+	ui.mapOpenGLWidget->startAutoUpdate();
 }
 
 void MainForm::onPushButtonEditTextureClick() 
 {
+	ui.mapOpenGLWidget->stopAutoUpdate();
 	auto selectedTexture = getSelectedTextureInTextureList();
 	if (selectedTexture.has_value()) {
 		auto alreadyUsedTextureNames = controller.getAlreadyUsedTextureNames();
@@ -444,6 +508,7 @@ void MainForm::onPushButtonEditTextureClick()
 			refreshTextureList();
 		}
 	}
+	ui.mapOpenGLWidget->startAutoUpdate();
 }
 
 void MainForm::onPushButtonDeleteTextureClick() 
@@ -584,6 +649,14 @@ void MainForm::onSpinBoxObjTexIndexValueChanged(int value)
 {
 	if (currentMapTile != nullptr) {
 		currentMapTile->setObjectTextureIndex(value);
+		ui.mapOpenGLWidget->updateGL();
+	}
+}
+
+void MainForm::onCheckBoxTileCanSteppedOnChanged(int state) 
+{
+	if (currentMapTile != nullptr) {
+		currentMapTile->setCanPlayerSteppedOn(state == 1);
 		ui.mapOpenGLWidget->updateGL();
 	}
 }

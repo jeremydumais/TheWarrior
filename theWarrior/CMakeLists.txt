@@ -2,6 +2,7 @@
 set(PROJECT_NAME    "TheWarrior")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include,
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../twModels/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../twUI/include)
 
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
@@ -46,3 +47,5 @@ endif()
 
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 install(FILES ${RESOURCE_FILES} DESTINATION share/${PROJECT_NAME}/res)
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/../resources DESTINATION ${CMAKE_BINARY_DIR}/bin)

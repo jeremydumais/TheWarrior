@@ -24,12 +24,29 @@ public:
     bool addTexture(const TextureInfo &textureInfo);
     bool replaceTexture(const std::string &name, const TextureInfo &textureInfo);
     bool removeTexture(const std::string &name);
+    bool isShrinkMapImpactAssignedTiles(int offsetLeft, 
+                                        int offsetTop, 
+                                        int offsetRight, 
+                                        int offsetBottom) const;
+    void resizeMap(int offsetLeft, 
+                   int offsetTop, 
+                   int offsetRight, 
+                   int offsetBottom);
+    bool canSteppedOnTile(int playerX, int playerY);
 private:
     friend class boost::serialization::access;
     std::string lastError;
     std::vector<std::vector<MapTile>> tiles;
     std::vector<Texture> textures;
-    std::vector<Texture>::iterator getTextureIterator(const std::string &name);
+    std::vector<Texture>::iterator _getTextureIterator(const std::string &name);
+    bool _isShrinkMapFromLeftImpactAssignedTiles(int offset) const;
+    bool _isShrinkMapFromTopImpactAssignedTiles(int offset) const;
+    bool _isShrinkMapFromRightImpactAssignedTiles(int offset) const;
+    bool _isShrinkMapFromBottomImpactAssignedTiles(int offset) const;
+    void _resizeMapFromLeft(int offset);
+    void _resizeMapFromTop(int offset);
+    void _resizeMapFromRight(int offset);
+    void _resizeMapFromBottom(int offset);
     //Serialization method
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)

@@ -5,5 +5,7 @@ enum class SelectionMode
     Select,
     MoveMap,
     ApplyTexture,
-    ApplyObject
+    ApplyObject,
+    EnableCanStep,
+    DisableCanStep,
 };

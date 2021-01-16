@@ -29,6 +29,7 @@ endif()
     gtest/1.10.0
     fmt/7.0.1
     stb/20200203
+    freetype/2.10.4
     SETTINGS ${COMPILER_RUNTIME}
     OPTIONS
     ${CONAN_EXTRA_OPTIONS}

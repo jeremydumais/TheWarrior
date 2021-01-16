@@ -175,7 +175,10 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event)
         selectedTileColorGrowing = true;
         emit onTileClicked(selectedTileIndex);
     }
-    else if (selectionMode == SelectionMode::ApplyTexture || selectionMode == SelectionMode::ApplyObject) {
+    else if (selectionMode == SelectionMode::ApplyTexture || 
+             selectionMode == SelectionMode::ApplyObject || 
+             selectionMode == SelectionMode::EnableCanStep ||
+             selectionMode == SelectionMode::DisableCanStep) {
         //Calculate the list of index selected
         vector<int> selectedTileIndexes;
         QPoint startCoord;
@@ -234,7 +237,10 @@ void MapOpenGLWidget::updateCursor()
     else if (selectionMode == SelectionMode::Select) {
 		setCursor(Qt::PointingHandCursor);
 	}
-    else if (selectionMode == SelectionMode::ApplyTexture || selectionMode == SelectionMode::ApplyObject) {
+    else if (selectionMode == SelectionMode::ApplyTexture || 
+             selectionMode == SelectionMode::ApplyObject ||
+             selectionMode == SelectionMode::EnableCanStep ||
+             selectionMode == SelectionMode::DisableCanStep) {
 		setCursor(Qt::CrossCursor);
 	}
 	else {
@@ -266,7 +272,17 @@ void MapOpenGLWidget::draw()
             }
             else {
                 qglColor(Qt::white);
-            }   
+            }
+            //Filter to enable/disable can step on tile
+            if (selectionMode == SelectionMode::EnableCanStep || selectionMode == SelectionMode::DisableCanStep) {
+                if (tile.canPlayerSteppedOn()) {
+                    qglColor(QColor(64, 255, 64));
+                }
+                else {
+                    qglColor(QColor(255, 64, 64));
+                }
+            }
+
             if (hasTexture) {
                 drawTileWithTexture(tile.getTextureName(), tile.getTextureIndex());
                 //Check if it has an optionnal object
@@ -314,7 +330,10 @@ void MapOpenGLWidget::draw()
     }
     glPopMatrix();
     glPushMatrix();
-    if (mousePressed && (selectionMode == SelectionMode::ApplyTexture || selectionMode == SelectionMode::ApplyObject)) {
+    if (mousePressed && (selectionMode == SelectionMode::ApplyTexture || 
+                         selectionMode == SelectionMode::ApplyObject ||
+                         selectionMode == SelectionMode::EnableCanStep ||
+                         selectionMode == SelectionMode::DisableCanStep)) {
         drawSelectionZone();
     }
     glPopMatrix();
