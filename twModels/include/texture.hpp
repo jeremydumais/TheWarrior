@@ -40,10 +40,8 @@ private:
     Texture() {}; //Needed for deserialization
     //Serialization method
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version)
+    void serialize(Archive & ar, const unsigned int)
     {
-        /*if(version > 0)
-            ar & name;*/
         ar & name;
         ar & filename;
         ar & width;

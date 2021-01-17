@@ -232,6 +232,27 @@ void GameWindow::moveUpPressed()
 
 void GameWindow::moveDownPressed() 
 {
+    //Check if there is an action on mouse down.
+    const auto tile = map->getTiles()[glPlayer.y][glPlayer.x];
+    if (tile.getTrigger() == TileTrigger::MoveDownPressed) {
+        if (tile.getAction() == TileAction::ChangeMap) {
+            unloadGLPlayerObject();
+            unloadGLMapObjects();
+            loadMap(fmt::format("{0}/maps/krikruVillage.map", getResourcesPath()));
+            loadTextures();
+            generateGLMapObjects();
+            glPlayer.initialize();
+            if (tile.getActionProperties().at("playerFacing") == "1") {
+                glPlayer.faceDown();
+            }
+            generateGLPlayerObject();
+            glPlayer.x = stoi(tile.getActionProperties().at("playerX"));
+            glPlayer.y = stoi(tile.getActionProperties().at("playerY"));
+            
+            setPlayerPosition();
+            return;
+        }
+    }
     if (map->canSteppedOnTile(glPlayer.x, glPlayer.y + 1)) {
         glPlayer.moveDown();
     } 
@@ -313,7 +334,10 @@ void GameWindow::generateGLMapObjects()
         int indexCol {0};
         for(const auto &tile : row) { 
             GLTile glTile;
-            glTile.hasTexture = !tile.getTextureName().empty() && tile.getTextureIndex() != -1;
+            glTile.x = indexCol;
+            glTile.y = indexRow;
+            glTile.tile = tile;
+            /*glTile.hasTexture = !tile.getTextureName().empty() && tile.getTextureIndex() != -1;
             if (glTile.hasTexture) {
                 glTile.textureName = tile.getTextureName();
                 glTile.textureIndex = tile.getTextureIndex();
@@ -323,7 +347,7 @@ void GameWindow::generateGLMapObjects()
                 glTile.objectTextureName = tile.getObjectTextureName();
                 glTile.objectTextureIndex = tile.getObjectTextureIndex();
             }
-            
+            glTile.objectAbovePlayer = tile.getObjectAbovePlayer();*/
             if (indexCol > 0) {
                 for (int indexVertex=0; indexVertex<4; indexVertex++) {
                     tileCoord[indexVertex][0] += TILEWIDTH;
@@ -340,7 +364,7 @@ void GameWindow::generateGLMapObjects()
                     &glTile.vboColor,
                     &glTile.vboTexture };
             generateGLObject(infoGenTexture, tileCoord, texColorBuf);
-            if (glTile.hasObjectTexture) {
+            if (glTile.tile.hasObjectTexture()) {
                 GenerateGLObjectInfo infoGenObject {
                     lastUsedTexture,
                     &glTile.vaoObject,
@@ -418,7 +442,7 @@ void GameWindow::unloadGLMapObjects()
        glDeleteBuffers(1, &item.vboTexture); 
        glDeleteBuffers(1, &item.vboTextureObject); 
        glDeleteVertexArrays(1, &item.vao);
-       if (item.hasObjectTexture) {
+       if (item.tile.hasObjectTexture()) {
         glDeleteVertexArrays(1, &item.vaoObject);
        }
     }
@@ -466,45 +490,38 @@ void GameWindow::render()
     glClear(GL_COLOR_BUFFER_BIT);
     glEnable(GL_TEXTURE_2D);
 
+    vector<GLTile *> tilesToBeDrawedAfterPlayer;
     for(auto &item : glTiles) {
         glBindVertexArray(item.vao);
         glBindBuffer(GL_ARRAY_BUFFER, item.vboPosition);
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, item.vboColor);
         glEnableVertexAttribArray(1);
-        if (item.hasTexture) {
+        if (item.tile.hasTexture()) {
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texturesGLMap[item.textureName]);
+            glBindTexture(GL_TEXTURE_2D, texturesGLMap[item.tile.getTextureName()]);
             glBindBuffer(GL_ARRAY_BUFFER, item.vboTexture);
             glEnableVertexAttribArray(2);
         }
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
         glBindTexture(GL_TEXTURE_2D, 0);
         //Object
-        if (item.hasTexture && item.hasObjectTexture) {
-            glBindTexture(GL_TEXTURE_2D, texturesGLMap[item.objectTextureName]);
-            glBindVertexArray(item.vaoObject);
-            glBindBuffer(GL_ARRAY_BUFFER, item.vboPosition);
-            glEnableVertexAttribArray(0);
-            glBindBuffer(GL_ARRAY_BUFFER, item.vboColor);
-            glEnableVertexAttribArray(1);
-            glBindBuffer(GL_ARRAY_BUFFER, item.vboTextureObject);
-            glEnableVertexAttribArray(2);
-            glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-            glBindTexture(GL_TEXTURE_2D, 0);
+        if (item.tile.hasTexture() && item.tile.hasObjectTexture()) {
+            if (!item.tile.getObjectAbovePlayer()) {
+                drawObjectTile(item);
+            }
+            else {
+                //Add the tile to a list that will be drawed after the player
+                tilesToBeDrawedAfterPlayer.push_back(&item);
+            }
         }
     }
     //Render the player
-    glBindTexture(GL_TEXTURE_2D, texturesGLMap[glPlayer.getTextureName()]);
-    glBindVertexArray(glPlayer.vao);
-    glBindBuffer(GL_ARRAY_BUFFER, glPlayer.vboPosition);
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, glPlayer.vboColor);
-    glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, glPlayer.vboTexture);
-    glEnableVertexAttribArray(2);
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    drawPlayer();
+    //Draw all the object that appears above the player
+    for (auto item : tilesToBeDrawedAfterPlayer) {
+        drawObjectTile(*item);
+    }
     //Display the FPS
     if (toggleFPS) {
         textService.useShader();
@@ -526,6 +543,35 @@ void GameWindow::render()
     glDisableVertexAttribArray(1);
     glDisableVertexAttribArray(2);
 }
+
+void GameWindow::drawPlayer() 
+{
+    glBindTexture(GL_TEXTURE_2D, texturesGLMap[glPlayer.getTextureName()]);
+    glBindVertexArray(glPlayer.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, glPlayer.vboPosition);
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, glPlayer.vboColor);
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, glPlayer.vboTexture);
+    glEnableVertexAttribArray(2);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void GameWindow::drawObjectTile(GLTile &tile) 
+{
+    glBindTexture(GL_TEXTURE_2D, texturesGLMap[tile.tile.getObjectTextureName()]);
+    glBindVertexArray(tile.vaoObject);
+    glBindBuffer(GL_ARRAY_BUFFER, tile.vboPosition);
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, tile.vboColor);
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, tile.vboTextureObject);
+    glEnableVertexAttribArray(2);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 
 void GameWindow::loadMap(const std::string &filePath) 
 {

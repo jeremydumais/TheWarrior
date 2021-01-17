@@ -38,6 +38,7 @@ private:
 						  const std::string &internalError = "") const;
 	void setAppStylesheet(const std::string &style);
 	void connectUIActions();
+	void generateComboxItems();
 	void action_Open_Click();
 	void action_OpenRecentMap_Click();
 	void action_Save_Click();
@@ -76,7 +77,12 @@ private:
 	void onSpinBoxTexIndexValueChanged(int value);
 	void onLineEditObjTexNameTextChanged(const QString &text);
 	void onSpinBoxObjTexIndexValueChanged(int value);
+	void onCheckBoxObjectAbovePlayerChanged(int state);
 	void onCheckBoxTileCanSteppedOnChanged(int state);
+    void onComboBoxTileTriggerChanged();
+    void onComboBoxTileConditionChanged();
+    void onComboBoxTileActionChanged();
+	void onPushButtonTileActionPropertiesClick();
     void onComboBoxTextureCurrentIndexChanged();
 	QPixmap getTextureTileImageFromTexture(int tileIndex, const Texture &texture) const;
 	Point to_Point(QPoint point);

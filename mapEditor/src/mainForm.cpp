@@ -1,6 +1,7 @@
 #include "mainForm.hpp"
 #include "configurationManager.hpp"
 #include "editTextureForm.hpp"
+#include "editTileActionChangeMapPropertiesForm.hpp"
 #include "aboutBoxForm.hpp"
 #include "specialFolders.hpp"
 #include <algorithm>
@@ -35,6 +36,7 @@ MainForm::MainForm(QWidget *parent)
 {
 	ui.setupUi(this);
 	connectUIActions();
+	generateComboxItems();
 
 	//Check if the user configuration folder exist
 	userConfigFolder = SpecialFolders::getUserConfigDirectory();
@@ -115,7 +117,35 @@ void MainForm::connectUIActions()
 	connect(ui.lineEditObjTexName, &QLineEdit::textChanged, this, &MainForm::onLineEditObjTexNameTextChanged);
 	connect(ui.spinBoxObjTexIndex, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainForm::onSpinBoxObjTexIndexValueChanged);
 	connect(ui.checkBoxTileCanSteppedOn, &QCheckBox::stateChanged, this, &MainForm::onCheckBoxTileCanSteppedOnChanged);
+	connect(ui.checkBoxObjectAbovePlayer, &QCheckBox::stateChanged, this, &MainForm::onCheckBoxObjectAbovePlayerChanged);
+	connect(ui.comboBoxTileTrigger, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm::onComboBoxTileTriggerChanged);
+	connect(ui.comboBoxTileCondition, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm::onComboBoxTileConditionChanged);
+	connect(ui.comboBoxTileAction, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm::onComboBoxTileActionChanged);
+	connect(ui.pushButtonTileActionProperties, &QPushButton::clicked, this, &MainForm::onPushButtonTileActionPropertiesClick);
 	connect(ui.comboBoxTexture, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm::onComboBoxTextureCurrentIndexChanged);
+}
+
+void MainForm::generateComboxItems() 
+{
+	//comboBoxTileTrigger
+	ui.comboBoxTileTrigger->model()->removeRows(0, ui.comboBoxTileTrigger->count());
+	ui.comboBoxTileTrigger->insertItem(0, "None");
+	ui.comboBoxTileTrigger->insertItem(1, "SteppedOn");
+	ui.comboBoxTileTrigger->insertItem(2, "MoveUpPressed");
+	ui.comboBoxTileTrigger->insertItem(3, "MoveDownPressed");
+	ui.comboBoxTileTrigger->insertItem(4, "MoveLeftPressed");
+	ui.comboBoxTileTrigger->insertItem(5, "MoveRightLeft");
+	ui.comboBoxTileTrigger->insertItem(6, "ActionButtonPressed");
+	//comboBoxTileCondition
+	ui.comboBoxTileCondition->model()->removeRows(0, ui.comboBoxTileCondition->count());
+	ui.comboBoxTileCondition->insertItem(0, "None");
+	ui.comboBoxTileCondition->insertItem(1, "MustBeFacing");
+	ui.comboBoxTileCondition->insertItem(2, "MustHaveItem");
+	//comboBoxTileAction
+	ui.comboBoxTileAction->model()->removeRows(0, ui.comboBoxTileAction->count());
+	ui.comboBoxTileAction->insertItem(0, "None");
+	ui.comboBoxTileAction->insertItem(1, "OpenChest");
+	ui.comboBoxTileAction->insertItem(2, "ChangeMap");
 }
 
 void MainForm::action_Open_Click() 
@@ -295,7 +325,7 @@ void MainForm::openMap(const std::string &filePath)
 
 void MainForm::saveMap(const std::string &filePath) 
 {
-	ofstream ofs(currentFilePath, ofstream::binary);
+	ofstream ofs(filePath, ofstream::binary);
 	boost::archive::binary_oarchive oa(ofs);
 	oa << *controller.getMap();
 }
@@ -394,13 +424,19 @@ void MainForm::resizeEvent(QResizeEvent *)
 
 void MainForm::onTileClicked(int tileIndex) 
 {
-	if (tileIndex != -1) {
-		currentMapTile = &controller.getMap()->getTileForEditing(tileIndex);
-		ui.lineEditTexName->setText(currentMapTile->getTextureName().c_str());
-		ui.spinBoxTexIndex->setValue(currentMapTile->getTextureIndex());
-		ui.lineEditObjTexName->setText(currentMapTile->getObjectTextureName().c_str());
-		ui.spinBoxObjTexIndex->setValue(currentMapTile->getObjectTextureIndex());
-		ui.checkBoxTileCanSteppedOn->setChecked(currentMapTile->canPlayerSteppedOn());
+	if (selectionMode == SelectionMode::Select && tileIndex != -1) {
+		currentMapTile = nullptr;
+		auto tempTile { &controller.getMap()->getTileForEditing(tileIndex) };
+		ui.lineEditTexName->setText(tempTile->getTextureName().c_str());
+		ui.spinBoxTexIndex->setValue(tempTile->getTextureIndex());
+		ui.lineEditObjTexName->setText(tempTile->getObjectTextureName().c_str());
+		ui.spinBoxObjTexIndex->setValue(tempTile->getObjectTextureIndex());
+		ui.checkBoxTileCanSteppedOn->setChecked(tempTile->canPlayerSteppedOn());
+		ui.checkBoxObjectAbovePlayer->setChecked(tempTile->getObjectAbovePlayer());
+		ui.comboBoxTileTrigger->setCurrentIndex(static_cast<int>(tempTile->getTrigger()));
+		ui.comboBoxTileCondition->setCurrentIndex(static_cast<int>(tempTile->getCondition()));
+		ui.comboBoxTileAction->setCurrentIndex(static_cast<int>(tempTile->getAction()));
+		currentMapTile = tempTile;
 		ui.toolBox->setCurrentWidget(ui.page_TileProperties);
 	}
 	else {
@@ -653,11 +689,59 @@ void MainForm::onSpinBoxObjTexIndexValueChanged(int value)
 	}
 }
 
+void MainForm::onCheckBoxObjectAbovePlayerChanged(int state) 
+{
+	if (currentMapTile != nullptr) {
+		currentMapTile->setObjectAbovePlayer(state == Qt::Checked);
+		ui.mapOpenGLWidget->updateGL();
+	}
+}
+
 void MainForm::onCheckBoxTileCanSteppedOnChanged(int state) 
 {
 	if (currentMapTile != nullptr) {
-		currentMapTile->setCanPlayerSteppedOn(state == 1);
+		currentMapTile->setCanPlayerSteppedOn(state == Qt::Checked);
 		ui.mapOpenGLWidget->updateGL();
+	}
+}
+
+void MainForm::onComboBoxTileTriggerChanged() 
+{
+	if (currentMapTile != nullptr) {
+		currentMapTile->setTrigger(static_cast<TileTrigger>(ui.comboBoxTileTrigger->currentIndex()));
+		ui.mapOpenGLWidget->updateGL();
+	}
+}
+
+void MainForm::onComboBoxTileConditionChanged() 
+{
+	if (currentMapTile != nullptr) {
+		currentMapTile->setCondition(static_cast<TileCondition>(ui.comboBoxTileCondition->currentIndex()));
+		ui.mapOpenGLWidget->updateGL();
+	}
+}
+
+void MainForm::onComboBoxTileActionChanged() 
+{
+	if (currentMapTile != nullptr) {
+		currentMapTile->setAction(static_cast<TileAction>(ui.comboBoxTileAction->currentIndex()));
+		ui.mapOpenGLWidget->updateGL();
+	}
+}
+
+void MainForm::onPushButtonTileActionPropertiesClick() 
+{
+	if (currentMapTile != nullptr && ui.comboBoxTileAction->currentIndex() != static_cast<int>(TileAction::None)) {
+		ui.mapOpenGLWidget->stopAutoUpdate();
+		if (ui.comboBoxTileAction->currentIndex() == static_cast<int>(TileAction::ChangeMap)) {
+			EditTileActionChangeMapPropertiesForm formEditActionProperties(this, 
+																		   getResourcesPath(), 
+																		   currentMapTile->getActionProperties());
+			if (formEditActionProperties.exec() == QDialog::Accepted) {
+				currentMapTile->setActionProperties(formEditActionProperties.getUpdatedProperties());
+			}
+		}
+		ui.mapOpenGLWidget->startAutoUpdate();
 	}
 }
 

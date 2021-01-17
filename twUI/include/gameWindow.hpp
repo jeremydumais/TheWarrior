@@ -83,4 +83,6 @@ private:
     void setTileCoordToOrigin();
     void setPlayerPosition();
     void setPlayerTexture();
+    void drawPlayer();
+    void drawObjectTile(GLTile &tile);
 };

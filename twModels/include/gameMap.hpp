@@ -49,7 +49,7 @@ private:
     void _resizeMapFromBottom(int offset);
     //Serialization method
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version)
+    void serialize(Archive & ar, const unsigned int)
     {
         /*if(version > 0)
             ar & lastError;*/
