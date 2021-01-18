@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mapTile.hpp"
+#include "point.hpp"
 #include "texture.hpp"
 #include <string>
 #include <vector>
@@ -17,8 +18,10 @@ public:
     const std::string getLastError() const;
     const std::vector<std::vector<MapTile>> &getTiles() const;
     MapTile &getTileForEditing(int index);
+    const MapTile &getTileFromCoord(Point coord) const;
     unsigned int getWidth() const;
     unsigned int getHeight() const;
+    Point getCoordFromTileIndex(int index);
     const std::vector<Texture> &getTextures() const;
     boost::optional<const Texture &> getTextureByName(const std::string &name) const;
     bool addTexture(const TextureInfo &textureInfo);
@@ -32,7 +35,7 @@ public:
                    int offsetTop, 
                    int offsetRight, 
                    int offsetBottom);
-    bool canSteppedOnTile(int playerX, int playerY);
+    bool canSteppedOnTile(Point playerCoord);
 private:
     friend class boost::serialization::access;
     std::string lastError;

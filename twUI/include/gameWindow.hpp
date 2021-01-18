@@ -78,6 +78,8 @@ private:
     void unloadGLPlayerObject();
     std::string loadShaderFile(const std::string &file);
     void loadMap(const std::string &filePath);
+    void changeMap(const std::string &filePath);
+    void processAction(TileAction action, const std::map<std::string, std::string> &properties);
     void loadTextures();
     void setTextureUVFromIndex(const Texture *texture, GLfloat uvMap[4][2], int index);
     void setTileCoordToOrigin();

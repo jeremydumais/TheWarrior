@@ -2,6 +2,12 @@
 
 using namespace std;
 
+
+GLPlayer::GLPlayer()
+    : coord(0, 0)
+{
+}
+
 const string& GLPlayer::getTextureName() const
 {
     return textureName;
@@ -20,8 +26,7 @@ bool GLPlayer::isInMovement() const
 void GLPlayer::initialize() 
 {
     textureName = "NPC1";
-    x = 7;
-    y = 14;
+    coord = Point(7, 14);
     xMove = 0.0f;
     yMove = 0.0f;
     baseTextureIndex = 9;
@@ -32,7 +37,7 @@ void GLPlayer::initialize()
 void GLPlayer::moveUp() 
 {
     playerMovement = PlayerMovement::MoveUp;
-    y -= 1;
+    coord.setY(coord.y() - 1);
     yMove = 1.0f;
     currentMovementTextureIndex = baseTextureIndex;
 }
@@ -40,7 +45,7 @@ void GLPlayer::moveUp()
 void GLPlayer::moveDown() 
 {
     playerMovement = PlayerMovement::MoveDown;
-    y += 1;
+    coord.setY(coord.y() + 1);
     yMove = -1.0f;
     currentMovementTextureIndex = baseTextureIndex + 36;
 }
@@ -48,7 +53,7 @@ void GLPlayer::moveDown()
 void GLPlayer::moveLeft() 
 {
     playerMovement = PlayerMovement::MoveLeft;
-    x -= 1;
+    coord.setX(coord.x() - 1);
     xMove = 1.0f;
     currentMovementTextureIndex = baseTextureIndex + 24;
 }
@@ -56,7 +61,7 @@ void GLPlayer::moveLeft()
 void GLPlayer::moveRight() 
 {
     playerMovement = PlayerMovement::MoveRight;
-    x += 1;
+    coord.setX(coord.x() + 1);
     xMove = -1.0f;
     currentMovementTextureIndex = baseTextureIndex + 12;
 }

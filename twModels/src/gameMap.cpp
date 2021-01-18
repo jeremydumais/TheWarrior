@@ -40,6 +40,11 @@ MapTile& GameMap::getTileForEditing(int index)
     return tiles.at(index / getWidth()).at(index % getWidth());
 }
 
+const MapTile& GameMap::getTileFromCoord(Point coord) const
+{
+    return tiles.at(coord.y()).at(coord.x());
+}
+
 unsigned int GameMap::getWidth() const
 {
     return tiles[0].size();    
@@ -48,6 +53,13 @@ unsigned int GameMap::getWidth() const
 unsigned int GameMap::getHeight() const
 {
     return tiles.size();
+}
+
+Point GameMap::getCoordFromTileIndex(int index) 
+{
+    int x = index % getWidth();
+    int y = index / getWidth();
+    return Point(x, y);
 }
 
 const vector<Texture>& GameMap::getTextures() const
@@ -294,11 +306,11 @@ std::vector<Texture>::iterator GameMap::_getTextureIterator(const std::string &n
     });
 }
 
-bool GameMap::canSteppedOnTile(int playerX, int playerY) 
+bool GameMap::canSteppedOnTile(Point playerCoord) 
 {
-    return (playerX < getWidth() &&
-            playerX >= 0 &&
-            playerY < getHeight() &&
-            playerY >= 0 &&
-            tiles[playerY][playerX].canPlayerSteppedOn());
+    return (playerCoord.x() < static_cast<int>(getWidth()) &&
+            playerCoord.x() >= 0 &&
+            playerCoord.y() < static_cast<int>(getHeight()) &&
+            playerCoord.y() >= 0 &&
+            getTileFromCoord(playerCoord).canPlayerSteppedOn());
 }

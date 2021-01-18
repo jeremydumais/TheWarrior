@@ -1,5 +1,6 @@
 #pragma once
 
+#include "point.hpp"
 #include <GL/glew.h>
 #include <string>
 
@@ -11,8 +12,8 @@ struct MovingResult {
 
 class GLPlayer {
 public:
-    int x;
-    int y;
+    GLPlayer();
+    Point coord;
     GLuint vao;
     GLuint vboPosition;
     GLuint vboColor;

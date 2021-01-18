@@ -107,6 +107,26 @@ TEST(GameMap_getHeight, HeightFive_ReturnFive)
 	ASSERT_EQ(5, map.getHeight());
 }
 
+TEST_F(SampleGameMap5x6WithTwoTextures, getCoordFromTileIndex_WithIndex0_Return0_0)
+{
+	ASSERT_EQ(Point(0,0), map.getCoordFromTileIndex(0));
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getCoordFromTileIndex_WithIndex1_Return1_0)
+{
+	ASSERT_EQ(Point(1,0), map.getCoordFromTileIndex(1));
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getCoordFromTileIndex_WithIndex4_Return5_0)
+{
+	ASSERT_EQ(Point(4,0), map.getCoordFromTileIndex(4));
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getCoordFromTileIndex_WithIndex5_Return0_1)
+{
+	ASSERT_EQ(Point(0,1), map.getCoordFromTileIndex(5));
+}
+
 TEST(GameMap_getTextures, EmptyTextureList_ReturnEmptyList)
 {
 	GameMap map(5, 6);

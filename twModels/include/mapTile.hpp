@@ -14,7 +14,7 @@ enum class TileTrigger
     MoveUpPressed,
     MoveDownPressed,
     MoveLeftPressed,
-    MoveRightLeft,
+    MoveRightPressed,
     ActionButtonPressed
 };
 

@@ -35,3 +35,43 @@ TEST(point_setY, With4_ReturnSuccess)
     actual.setY(4);
     ASSERT_EQ(4, actual.y());
 }
+
+TEST(point_operatorEqual, With0_0And0_0_ReturnTrue)
+{
+    ASSERT_EQ(Point(0, 0), Point(0, 0));
+}
+
+TEST(point_operatorEqual, With0_0And1_0_ReturnFalse)
+{
+    ASSERT_FALSE(Point(0, 0) == Point(1, 0));
+}
+
+TEST(point_operatorEqual, With0_0And0_1_ReturnFalse)
+{
+    ASSERT_FALSE(Point(0, 0) == Point(0, 1));
+}
+
+TEST(point_operatorEqual, With0_0And1_1_ReturnFalse)
+{
+    ASSERT_FALSE(Point(0, 0) == Point(1, 1));
+}
+
+TEST(point_operatorNotEqual, With0_0And0_0_ReturnFalse)
+{
+    ASSERT_FALSE(Point(0, 0) != Point(0, 0));
+}
+
+TEST(point_operatorNotEqual, With0_0And1_0_ReturnTrue)
+{
+    ASSERT_NE(Point(0, 0), Point(1, 0));
+}
+
+TEST(point_operatorNotEqual, With0_0And0_1_ReturnTrue)
+{
+    ASSERT_NE(Point(0, 0), Point(0, 1));
+}
+
+TEST(point_operatorNotEqual, With0_0And1_1_ReturnTrue)
+{
+    ASSERT_NE(Point(0, 0), Point(1, 1));
+}

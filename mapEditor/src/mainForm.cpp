@@ -427,6 +427,8 @@ void MainForm::onTileClicked(int tileIndex)
 	if (selectionMode == SelectionMode::Select && tileIndex != -1) {
 		currentMapTile = nullptr;
 		auto tempTile { &controller.getMap()->getTileForEditing(tileIndex) };
+		auto coord { controller.getMap()->getCoordFromTileIndex(tileIndex) };
+		ui.labelTileCoordXY->setText(fmt::format("X: {0}, Y: {1}", coord.x(), coord.y()).c_str());
 		ui.lineEditTexName->setText(tempTile->getTextureName().c_str());
 		ui.spinBoxTexIndex->setValue(tempTile->getTextureIndex());
 		ui.lineEditObjTexName->setText(tempTile->getObjectTextureName().c_str());

@@ -40,7 +40,7 @@ void GLTileService::setShaderTranslation(unsigned int mapWidth, unsigned int map
     }
     else {
         //Center target: player
-        mapMiddleH = 1.0f - (((static_cast<float>(glPlayer.x) + glPlayer.xMove) * 2.0f * 51.2f) / static_cast<float>(windowWidth));
+        mapMiddleH = 1.0f - (((static_cast<float>(glPlayer.coord.x()) + glPlayer.xMove) * 2.0f * 51.2f) / static_cast<float>(windowWidth));
     }
     //If the map height is smaller than the window height
     if (static_cast<float>(mapHeight) * 51.2f <= windowHeight) {
@@ -49,7 +49,7 @@ void GLTileService::setShaderTranslation(unsigned int mapWidth, unsigned int map
     }
     else {
         //Center target: player
-        mapMiddleV = (1.0f - ((static_cast<float>(glPlayer.y) + glPlayer.yMove) * 2.0f * 51.2f) / static_cast<float>(windowHeight)) * -1.0f;
+        mapMiddleV = (1.0f - ((static_cast<float>(glPlayer.coord.y()) + glPlayer.yMove) * 2.0f * 51.2f) / static_cast<float>(windowHeight)) * -1.0f;
     }
     glUniform2f(vertexTranslationLocation, mapMiddleH, mapMiddleV);
     GLuint TextureID  = glGetUniformLocation(shaderProgram->getShaderProgramID(), "myTextureSampler");

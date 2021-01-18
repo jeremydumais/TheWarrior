@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1417</width>
-    <height>897</height>
+    <width>1483</width>
+    <height>902</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -40,7 +40,7 @@
            <x>0</x>
            <y>0</y>
            <width>360</width>
-           <height>677</height>
+           <height>668</height>
           </rect>
          </property>
          <attribute name="label">
@@ -183,7 +183,7 @@
            <x>0</x>
            <y>0</y>
            <width>360</width>
-           <height>677</height>
+           <height>668</height>
           </rect>
          </property>
          <attribute name="label">
@@ -199,41 +199,41 @@
            </rect>
           </property>
           <layout class="QFormLayout" name="formLayout_2">
-           <item row="0" column="0">
+           <item row="1" column="0">
             <widget class="QLabel" name="label_3">
              <property name="text">
               <string>Texure Name :</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
+           <item row="2" column="0">
             <widget class="QLabel" name="label_4">
              <property name="text">
               <string>Texture Index :</string>
              </property>
             </widget>
            </item>
-           <item row="0" column="1">
+           <item row="1" column="1">
             <widget class="QLineEdit" name="lineEditTexName"/>
            </item>
-           <item row="2" column="1">
+           <item row="3" column="1">
             <widget class="QLineEdit" name="lineEditObjTexName"/>
            </item>
-           <item row="2" column="0">
+           <item row="3" column="0">
             <widget class="QLabel" name="label_5">
              <property name="text">
               <string>Object Texture Name :</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
+           <item row="4" column="0">
             <widget class="QLabel" name="label_6">
              <property name="text">
               <string>Object Texture Index :</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
+           <item row="2" column="1">
             <widget class="QSpinBox" name="spinBoxTexIndex">
              <property name="minimum">
               <number>-1</number>
@@ -243,7 +243,7 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
+           <item row="4" column="1">
             <widget class="QSpinBox" name="spinBoxObjTexIndex">
              <property name="minimum">
               <number>-1</number>
@@ -253,28 +253,28 @@
              </property>
             </widget>
            </item>
-           <item row="5" column="1">
+           <item row="6" column="1">
             <widget class="QCheckBox" name="checkBoxTileCanSteppedOn">
              <property name="text">
               <string/>
              </property>
             </widget>
            </item>
-           <item row="5" column="0">
+           <item row="6" column="0">
             <widget class="QLabel" name="label_11">
              <property name="text">
               <string>Can player stepped on?</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="0">
+           <item row="5" column="0">
             <widget class="QLabel" name="label_12">
              <property name="text">
               <string>Object above player?</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
+           <item row="5" column="1">
             <widget class="QCheckBox" name="checkBoxObjectAbovePlayer">
              <property name="text">
               <string/>
@@ -284,41 +284,41 @@
              </property>
             </widget>
            </item>
-           <item row="6" column="0">
+           <item row="7" column="0">
             <widget class="QLabel" name="label_13">
              <property name="text">
               <string>Event</string>
              </property>
             </widget>
            </item>
-           <item row="7" column="0">
+           <item row="8" column="0">
             <widget class="QLabel" name="label_14">
              <property name="text">
               <string>Trigger :</string>
              </property>
             </widget>
            </item>
-           <item row="8" column="0">
+           <item row="9" column="0">
             <widget class="QLabel" name="label_15">
              <property name="text">
               <string>Condition :</string>
              </property>
             </widget>
            </item>
-           <item row="9" column="0">
+           <item row="10" column="0">
             <widget class="QLabel" name="label_16">
              <property name="text">
               <string>Action : </string>
              </property>
             </widget>
            </item>
-           <item row="7" column="1">
+           <item row="8" column="1">
             <widget class="QComboBox" name="comboBoxTileTrigger"/>
            </item>
-           <item row="8" column="1">
+           <item row="9" column="1">
             <widget class="QComboBox" name="comboBoxTileCondition"/>
            </item>
-           <item row="9" column="1">
+           <item row="10" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_6">
              <item>
               <widget class="QComboBox" name="comboBoxTileAction"/>
@@ -338,6 +338,20 @@
              </item>
             </layout>
            </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_17">
+             <property name="text">
+              <string>Position :</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="labelTileCoordXY">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </widget>
@@ -347,7 +361,7 @@
            <x>0</x>
            <y>0</y>
            <width>360</width>
-           <height>677</height>
+           <height>668</height>
           </rect>
          </property>
          <attribute name="label">
@@ -402,7 +416,7 @@
            <x>0</x>
            <y>0</y>
            <width>360</width>
-           <height>677</height>
+           <height>668</height>
           </rect>
          </property>
          <attribute name="label">
@@ -651,8 +665,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>261</width>
-           <height>639</height>
+           <width>281</width>
+           <height>634</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
@@ -676,8 +690,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1417</width>
-     <height>22</height>
+     <width>1483</width>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -686,7 +700,7 @@
       <x>2193</x>
       <y>146</y>
       <width>260</width>
-      <height>204</height>
+      <height>220</height>
      </rect>
     </property>
     <property name="sizePolicy">

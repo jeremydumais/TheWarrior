@@ -221,7 +221,13 @@ void GameWindow::processEvents()
 
 void GameWindow::moveUpPressed() 
 {
-    if (map->canSteppedOnTile(glPlayer.x, glPlayer.y - 1)) {
+    //Check if there is an action
+    const auto tile = map->getTileFromCoord(glPlayer.coord);
+    if (tile.getTrigger() == TileTrigger::MoveUpPressed) {
+        processAction(tile.getAction(), tile.getActionProperties());
+        return;
+    }
+    if (map->canSteppedOnTile(Point(glPlayer.coord.x(), glPlayer.coord.y() - 1))) {
         glPlayer.moveUp();
     } 
     else {
@@ -232,28 +238,13 @@ void GameWindow::moveUpPressed()
 
 void GameWindow::moveDownPressed() 
 {
-    //Check if there is an action on mouse down.
-    const auto tile = map->getTiles()[glPlayer.y][glPlayer.x];
+    //Check if there is an action
+    const auto tile = map->getTileFromCoord(glPlayer.coord);
     if (tile.getTrigger() == TileTrigger::MoveDownPressed) {
-        if (tile.getAction() == TileAction::ChangeMap) {
-            unloadGLPlayerObject();
-            unloadGLMapObjects();
-            loadMap(fmt::format("{0}/maps/krikruVillage.map", getResourcesPath()));
-            loadTextures();
-            generateGLMapObjects();
-            glPlayer.initialize();
-            if (tile.getActionProperties().at("playerFacing") == "1") {
-                glPlayer.faceDown();
-            }
-            generateGLPlayerObject();
-            glPlayer.x = stoi(tile.getActionProperties().at("playerX"));
-            glPlayer.y = stoi(tile.getActionProperties().at("playerY"));
-            
-            setPlayerPosition();
-            return;
-        }
+        processAction(tile.getAction(), tile.getActionProperties());
+        return;
     }
-    if (map->canSteppedOnTile(glPlayer.x, glPlayer.y + 1)) {
+    if (map->canSteppedOnTile(Point(glPlayer.coord.x(), glPlayer.coord.y() + 1))) {
         glPlayer.moveDown();
     } 
     else {
@@ -264,7 +255,13 @@ void GameWindow::moveDownPressed()
 
 void GameWindow::moveLeftPressed() 
 {
-    if (map->canSteppedOnTile(glPlayer.x - 1, glPlayer.y)) {
+    //Check if there is an action
+    const auto tile = map->getTileFromCoord(glPlayer.coord);
+    if (tile.getTrigger() == TileTrigger::MoveLeftPressed) {
+        processAction(tile.getAction(), tile.getActionProperties());
+        return;
+    }
+    if (map->canSteppedOnTile(Point(glPlayer.coord.x() - 1, glPlayer.coord.y()))) {
         glPlayer.moveLeft();
     } 
     else {
@@ -275,7 +272,13 @@ void GameWindow::moveLeftPressed()
 
 void GameWindow::moveRightPressed() 
 {
-    if (map->canSteppedOnTile(glPlayer.x + 1, glPlayer.y)) {
+    //Check if there is an action
+    const auto tile = map->getTileFromCoord(glPlayer.coord);
+    if (tile.getTrigger() == TileTrigger::MoveRightPressed) {
+        processAction(tile.getAction(), tile.getActionProperties());
+        return;
+    }
+    if (map->canSteppedOnTile(Point(glPlayer.coord.x() + 1, glPlayer.coord.y()))) {
         glPlayer.moveRight();
     } 
     else {
@@ -555,7 +558,12 @@ void GameWindow::drawPlayer()
     glBindBuffer(GL_ARRAY_BUFFER, glPlayer.vboTexture);
     glEnableVertexAttribArray(2);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+    glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(2);
 }
 
 void GameWindow::drawObjectTile(GLTile &tile) 
@@ -569,7 +577,12 @@ void GameWindow::drawObjectTile(GLTile &tile)
     glBindBuffer(GL_ARRAY_BUFFER, tile.vboTextureObject);
     glEnableVertexAttribArray(2);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+    
+    glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(2);
 }
 
 
@@ -580,6 +593,31 @@ void GameWindow::loadMap(const std::string &filePath)
     map = make_shared<GameMap>(1, 1);
 	oa >> *map;
 }
+
+void GameWindow::changeMap(const std::string &filePath) 
+{
+    unloadGLPlayerObject();
+    unloadGLMapObjects();
+    loadMap(filePath);
+    loadTextures();
+    generateGLMapObjects();
+    generateGLPlayerObject();
+    setPlayerPosition();
+}
+
+void GameWindow::processAction(TileAction action, const std::map<std::string, std::string> &properties) 
+{
+    if (action == TileAction::ChangeMap) {
+        if (properties.at("playerFacing") == "1") {
+            glPlayer.faceDown();
+        }
+        glPlayer.coord.setX(stoi(properties.at("playerX")));
+        glPlayer.coord.setY(stoi(properties.at("playerY")));
+        changeMap(fmt::format("{0}/maps/{1}", getResourcesPath(), properties.at("mapFileName")));
+        return;
+    }
+}
+
 
 void GameWindow::loadTextures() 
 {
@@ -655,9 +693,9 @@ void GameWindow::setPlayerPosition()
     glBindVertexArray(glPlayer.vao);
     setTileCoordToOrigin();
     for(int i = 0; i < 4; i++) {
-        tileCoordBuf[i][0] += ((static_cast<float>(glPlayer.x) - 1.0f) * TILEWIDTH) + 
+        tileCoordBuf[i][0] += ((static_cast<float>(glPlayer.coord.x()) - 1.0f) * TILEWIDTH) + 
                               (glPlayer.xMove * TILEWIDTH);
-        tileCoordBuf[i][1] -= (((static_cast<float>(glPlayer.y) * (TILEHALFHEIGHT * 2.0f)) - TILEHALFHEIGHT)) + 
+        tileCoordBuf[i][1] -= (((static_cast<float>(glPlayer.coord.y()) * (TILEHALFHEIGHT * 2.0f)) - TILEHALFHEIGHT)) + 
                               (glPlayer.yMove * (TILEHALFHEIGHT * 2.0f));
     }
     glBindBuffer(GL_ARRAY_BUFFER, glPlayer.vboPosition);

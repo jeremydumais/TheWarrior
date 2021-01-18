@@ -25,3 +25,14 @@ void Point::setY(int y)
 {
     m_y = y;
 }
+
+bool operator==(const Point &lhs, const Point &rhs)
+{
+    return lhs.m_x == rhs.m_x &&
+           lhs.m_y == rhs.m_y;
+}
+
+bool operator!=(const Point &lhs, const Point &rhs)
+{
+    return !(lhs == rhs);
+}
