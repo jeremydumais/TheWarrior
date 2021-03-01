@@ -23,6 +23,7 @@ bool GLTextService::initShader(const std::string &vertexShaderFileName,
         lastError = shaderProgram->getLastError();
         return false;
     }
+    return true;
 }
 
 const string& GLTextService::getLastError() const

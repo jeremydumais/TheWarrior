@@ -16,6 +16,7 @@ bool GLTileService::initShader(const std::string &vertexShaderFileName,
         lastError = shaderProgram->getLastError();
         return false;
     }
+    return true;
 }
 
 const string& GLTileService::getLastError() const
