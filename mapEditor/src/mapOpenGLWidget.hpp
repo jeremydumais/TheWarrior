@@ -22,6 +22,7 @@ public:
     void setGridEnabled(bool enabled);
     void resizeGL(int width, int height);
     void setResourcesPath(const std::string &path);
+    SelectionMode getSelectionMode() const;
     void setSelectionMode(SelectionMode mode);
     void reloadTextures();
     void startAutoUpdate();

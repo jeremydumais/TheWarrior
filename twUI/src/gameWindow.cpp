@@ -223,7 +223,7 @@ void GameWindow::moveUpPressed()
 {
     //Check if there is an action
     const auto tile = map->getTileFromCoord(glPlayer.coord);
-    if (tile.getTrigger() == TileTrigger::MoveUpPressed) {
+    if (tile.getTrigger() == MapTileTriggerEvent::MoveUpPressed) {
         processAction(tile.getAction(), tile.getActionProperties());
         return;
     }
@@ -240,7 +240,7 @@ void GameWindow::moveDownPressed()
 {
     //Check if there is an action
     const auto tile = map->getTileFromCoord(glPlayer.coord);
-    if (tile.getTrigger() == TileTrigger::MoveDownPressed) {
+    if (tile.getTrigger() == MapTileTriggerEvent::MoveDownPressed) {
         processAction(tile.getAction(), tile.getActionProperties());
         return;
     }
@@ -257,7 +257,7 @@ void GameWindow::moveLeftPressed()
 {
     //Check if there is an action
     const auto tile = map->getTileFromCoord(glPlayer.coord);
-    if (tile.getTrigger() == TileTrigger::MoveLeftPressed) {
+    if (tile.getTrigger() == MapTileTriggerEvent::MoveLeftPressed) {
         processAction(tile.getAction(), tile.getActionProperties());
         return;
     }
@@ -274,7 +274,7 @@ void GameWindow::moveRightPressed()
 {
     //Check if there is an action
     const auto tile = map->getTileFromCoord(glPlayer.coord);
-    if (tile.getTrigger() == TileTrigger::MoveRightPressed) {
+    if (tile.getTrigger() == MapTileTriggerEvent::MoveRightPressed) {
         processAction(tile.getAction(), tile.getActionProperties());
         return;
     }
@@ -440,15 +440,16 @@ void GameWindow::generateGLObject(GenerateGLObjectInfo &info, const GLfloat tile
 void GameWindow::unloadGLMapObjects() 
 {
     for(auto &item : glTiles) {
-       glDeleteBuffers(1, &item.vboPosition); 
-       glDeleteBuffers(1, &item.vboColor); 
-       glDeleteBuffers(1, &item.vboTexture); 
-       glDeleteBuffers(1, &item.vboTextureObject); 
-       glDeleteVertexArrays(1, &item.vao);
-       if (item.tile.hasObjectTexture()) {
-        glDeleteVertexArrays(1, &item.vaoObject);
-       }
+        glDeleteBuffers(1, &item.vboPosition); 
+        glDeleteBuffers(1, &item.vboColor); 
+        glDeleteBuffers(1, &item.vboTexture); 
+        glDeleteBuffers(1, &item.vboTextureObject); 
+        glDeleteVertexArrays(1, &item.vao);
+        if (item.tile.hasObjectTexture()) {
+            glDeleteVertexArrays(1, &item.vaoObject);
+        }
     }
+    glTiles.clear();
 }
 
 void GameWindow::generateGLPlayerObject() 
@@ -588,6 +589,7 @@ void GameWindow::drawObjectTile(GLTile &tile)
 
 void GameWindow::loadMap(const std::string &filePath) 
 {
+    map.reset();
     ifstream ofs(filePath, ifstream::binary);
 	boost::archive::binary_iarchive oa(ofs);
     map = make_shared<GameMap>(1, 1);
@@ -605,9 +607,9 @@ void GameWindow::changeMap(const std::string &filePath)
     setPlayerPosition();
 }
 
-void GameWindow::processAction(TileAction action, const std::map<std::string, std::string> &properties) 
+void GameWindow::processAction(MapTileTriggerAction action, const std::map<std::string, std::string> &properties) 
 {
-    if (action == TileAction::ChangeMap) {
+    if (action == MapTileTriggerAction::ChangeMap) {
         if (properties.at("playerFacing") == "1") {
             glPlayer.faceDown();
         }

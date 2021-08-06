@@ -19,7 +19,10 @@ set (RESOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/res/darkstyle/darkstyle.qss)
 
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mainForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/mainForm_GLComponent.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/mainForm_TileTabComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editTextureForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/editMapTileTriggerForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editTileActionChangeMapPropertiesForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mapOpenGLWidget.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/qClickableLabel.cpp

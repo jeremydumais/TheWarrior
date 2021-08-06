@@ -1,36 +1,14 @@
 #pragma once
 
-#include <string>
-#include <map>
+#include "mapTileTrigger.hpp"
 #include <boost/serialization/access.hpp>
-#include <boost/serialization/string.hpp>
 #include <boost/serialization/map.hpp>
+#include <boost/serialization/string.hpp>
 #include <boost/serialization/version.hpp>
+#include <map>
+#include <string>
+#include <vector>
 
-enum class TileTrigger
-{
-    None,
-    SteppedOn,
-    MoveUpPressed,
-    MoveDownPressed,
-    MoveLeftPressed,
-    MoveRightPressed,
-    ActionButtonPressed
-};
-
-enum class TileCondition
-{
-    None,
-    MustBeFacing,
-    MustHaveItem
-};
-
-enum class TileAction
-{
-    None,
-    OpenChest,
-    ChangeMap
-};
 
 enum class PlayerFacing
 {
@@ -53,9 +31,10 @@ public:
     bool isAssigned() const;
     bool canPlayerSteppedOn() const;
     bool getObjectAbovePlayer() const;
-    TileTrigger getTrigger() const;
-    TileCondition getCondition() const;
-    TileAction getAction() const;
+    const std::vector<MapTileTrigger> getTriggers() const;
+    MapTileTriggerEvent getTrigger() const;
+    MapTileTriggerCondition getCondition() const;
+    MapTileTriggerAction getAction() const;
     const std::map<std::string, std::string> &getActionProperties() const;
     void setTextureName(const std::string &name);
     void setTextureIndex(int index);
@@ -63,9 +42,9 @@ public:
     void setObjectTextureIndex(int index);
     void setCanPlayerSteppedOn(bool value);
     void setObjectAbovePlayer(bool value);
-    void setTrigger(TileTrigger value);
-    void setCondition(TileCondition value);
-    void setAction(TileAction value);
+    void setTrigger(MapTileTriggerEvent value);
+    void setCondition(MapTileTriggerCondition value);
+    void setAction(MapTileTriggerAction value);
     void setActionProperties(const std::map<std::string, std::string> &properties);
 private:
     friend class boost::serialization::access;
@@ -76,9 +55,10 @@ private:
     int objectTextureIndex;
     bool canSteppedOn;
     bool objectAbovePlayer;
-    TileTrigger trigger;
-    TileCondition condition;
-    TileAction action;
+    std::vector<MapTileTrigger> triggers;
+    MapTileTriggerEvent trigger;
+    MapTileTriggerCondition condition;
+    MapTileTriggerAction action;
     std::map<std::string, std::string> actionProperties;
     //Serialization method
     template<class Archive>
@@ -99,7 +79,13 @@ private:
             ar & condition;
             ar & action;
             ar & actionProperties;
+            if (trigger != MapTileTriggerEvent::None) {
+                triggers.emplace_back(MapTileTrigger(trigger, condition, action, actionProperties));
+            }
+        }
+        if(version > 4) {
+            ar & triggers;
         }
     }
 };
-BOOST_CLASS_VERSION(MapTile, 3)
+BOOST_CLASS_VERSION(MapTile, 4)

@@ -38,6 +38,13 @@ int MainController::getTextureIndexFromPosition(const Point &pos, const Texture 
 	return tileIndex;
 }
 
+
+MapTile& MainController::getTileForEditing(int index) 
+{
+	return map->getTileForEditing(index);
+}
+
+
 bool MainController::createMap(unsigned int width, unsigned int height) 
 {
 	try {
@@ -48,6 +55,11 @@ bool MainController::createMap(unsigned int width, unsigned int height)
 		return false;
 	}
 	return true;
+}
+
+Point MainController::getCoordFromTileIndex(int index) 
+{
+	return map->getCoordFromTileIndex(index);
 }
 
 const std::vector<Texture>& MainController::getTextures() const

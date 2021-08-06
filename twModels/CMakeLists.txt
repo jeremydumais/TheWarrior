@@ -6,6 +6,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/point.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/gameMap.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mapTile.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/mapTileTrigger.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/texture.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})

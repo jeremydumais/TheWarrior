@@ -2,9 +2,11 @@
 #define MAINFORM_H
 
 #include "gameMap.hpp"
+#include "mainController.hpp"
+#include "mainForm_GLComponent.hpp"
+#include "mainForm_TileTabComponent.hpp"
 #include "point.hpp"
 #include "selectionMode.hpp"
-#include "mainController.hpp"
 #include <memory>
 #include <vector>
 #include "ui_mainForm.h"
@@ -20,15 +22,12 @@ public:
     void functionAfterShown();
 private:
 	Ui::MainForm ui;
+	MainForm_GLComponent glComponent;
+	MainForm_TileTabComponent tileTabComponent;
 	MainController controller;
 	std::string userConfigFolder;
 	SelectionMode selectionMode;
 	std::string currentFilePath;
-	MapTile *currentMapTile;
-	std::string lastSelectedTextureName;
-	std::string lastSelectedObjectName;
-	int lastSelectedTextureIndex;
-	int lastSelectedObjectIndex;
 	bool functionAfterShownCalled;
 	std::string executablePath;
 	std::string resourcesPath;
@@ -60,8 +59,7 @@ private:
 	void addNewRecentMap(const std::string &filePath);
 	void mapPaint(QPaintEvent *e);
 	void resizeEvent(QResizeEvent *);
-	void onTileClicked(int tileIndex);
-    void onTileMouseReleaseEvent(std::vector<int> selectedTileIndexes);
+    void onTileSelected(MapTile *tile, Point coord);
     //void onTileMouseMoveEvent(bool mousePressed, int tileIndex);
 	void onPushButtonApplySizeChangeClick();
 	void onPushButtonAddTextureClick();
@@ -79,10 +77,10 @@ private:
 	void onSpinBoxObjTexIndexValueChanged(int value);
 	void onCheckBoxObjectAbovePlayerChanged(int state);
 	void onCheckBoxTileCanSteppedOnChanged(int state);
-    void onComboBoxTileTriggerChanged();
+    /*void onComboBoxTileTriggerChanged();
     void onComboBoxTileConditionChanged();
     void onComboBoxTileActionChanged();
-	void onPushButtonTileActionPropertiesClick();
+	void onPushButtonTileActionPropertiesClick();*/
     void onComboBoxTextureCurrentIndexChanged();
 	QPixmap getTextureTileImageFromTexture(int tileIndex, const Texture &texture) const;
 	Point to_Point(QPoint point);

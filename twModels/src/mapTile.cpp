@@ -7,9 +7,10 @@ MapTile::MapTile()
       objectTextureIndex(-1),
       canSteppedOn(true),
       objectAbovePlayer(false),
-      trigger(TileTrigger::None),
-      condition(TileCondition::None),
-      action(TileAction::None)
+      triggers(std::vector<MapTileTrigger>())
+      /*trigger(MapTileTriggerEvent::None),
+      condition(MapTileTriggerCondition::None),
+      action(MapTileTriggerAction::None)*/
 {
 }
 
@@ -61,24 +62,37 @@ bool MapTile::getObjectAbovePlayer() const
     return objectAbovePlayer;
 }
 
-TileTrigger MapTile::getTrigger() const
+const std::vector<MapTileTrigger> MapTile::getTriggers() const
 {
-    return trigger;
+    return triggers;
 }
 
-TileCondition MapTile::getCondition() const
+MapTileTriggerEvent MapTile::getTrigger() const
 {
-    return condition;
+    return MapTileTriggerEvent::None;
+    //TODO to Remove
+    //return trigger;
 }
 
-TileAction MapTile::getAction() const
+MapTileTriggerCondition MapTile::getCondition() const
 {
-    return action;
+    return MapTileTriggerCondition::None;
+    //TODO to Remove
+    //return condition;
+}
+
+MapTileTriggerAction MapTile::getAction() const
+{
+    return MapTileTriggerAction::None;
+    //TODO to Remove
+    //return action;
 }
 
 const std::map<std::string, std::string> &MapTile::getActionProperties() const
 {
-    return actionProperties;
+    return std::map<std::string, std::string>();
+    //TODO to Remove
+    //return actionProperties;
 }
 
 void MapTile::setTextureName(const std::string &name) 
@@ -111,22 +125,26 @@ void MapTile::setObjectAbovePlayer(bool value)
     this->objectAbovePlayer = value;
 }
 
-void MapTile::setTrigger(TileTrigger value) 
+void MapTile::setTrigger(MapTileTriggerEvent value) 
 {
-    this->trigger = value;
+    //this->trigger = value;
+    //TODO to Remove
 }
 
-void MapTile::setCondition(TileCondition value) 
+void MapTile::setCondition(MapTileTriggerCondition value) 
 {
-    this->condition = value;
+    //this->condition = value;
+    //TODO to Remove
 }
 
-void MapTile::setAction(TileAction value) 
+void MapTile::setAction(MapTileTriggerAction value) 
 {
-    this->action = value;
+    //this->action = value;
+    //TODO to Remove
 }
 
 void MapTile::setActionProperties(const std::map<std::string, std::string> &properties) 
 {
-    this->actionProperties = properties;
+    //this->actionProperties = properties;
+    //TODO to Remove
 }

@@ -99,6 +99,11 @@ void MapOpenGLWidget::setResourcesPath(const std::string &path)
     this->resourcesPath = path;
 }
 
+SelectionMode MapOpenGLWidget::getSelectionMode() const
+{
+    return selectionMode;
+}
+
 void MapOpenGLWidget::setSelectionMode(SelectionMode mode) 
 {
     selectionMode = mode;
@@ -213,7 +218,7 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
-void MapOpenGLWidget::leaveEvent(QEvent *event) 
+void MapOpenGLWidget::leaveEvent(QEvent *) 
 {
     setCursor(Qt::ArrowCursor);
 }
