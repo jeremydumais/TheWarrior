@@ -32,7 +32,9 @@ MainForm::MainForm(QWidget *parent)
 {
 	ui.setupUi(this);
 	glComponent.initializeUIObjects(ui.mapOpenGLWidget);
+	//TileTab Component initialisation
 	MainForm_TileTabComponent_Objects tileUIObjects;
+	tileUIObjects.glComponent = &glComponent;
 	tileUIObjects.labelTileCoordXY = ui.labelTileCoordXY;
 	tileUIObjects.lineEditTexName = ui.lineEditTexName;
 	tileUIObjects.spinBoxTexIndex = ui.spinBoxTexIndex;
@@ -41,6 +43,7 @@ MainForm::MainForm(QWidget *parent)
 	tileUIObjects.checkBoxObjectAbovePlayer = ui.checkBoxObjectAbovePlayer;
 	tileUIObjects.checkBoxTileCanSteppedOn = ui.checkBoxTileCanSteppedOn;
 	tileTabComponent.initializeUIObjects(tileUIObjects);
+
 	connectUIActions();
 	generateComboxItems();
 
@@ -127,9 +130,8 @@ void MainForm::connectUIActions()
 	connect(ui.pushButtonTileActionProperties, &QPushButton::clicked, this, &MainForm::onPushButtonTileActionPropertiesClick);*/
 	connect(ui.comboBoxTexture, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm::onComboBoxTextureCurrentIndexChanged);
 	glComponent.connectUIActions();
-	//Connect the glComponent and the different components
+	tileTabComponent.connectUIActions();
 	connect(&glComponent, &MainForm_GLComponent::tileSelected, this, &MainForm::onTileSelected);
-	connect(&glComponent, &MainForm_GLComponent::tileSelected, &tileTabComponent, &MainForm_TileTabComponent::onTileSelected);
 	
 }
 

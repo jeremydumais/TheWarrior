@@ -7,6 +7,7 @@ MainForm_TileTabComponent::MainForm_TileTabComponent()
 
 void MainForm_TileTabComponent::initializeUIObjects(const MainForm_TileTabComponent_Objects &objects) 
 { 
+    this->glComponent = objects.glComponent;
     this->labelTileCoordXY = objects.labelTileCoordXY;
 	this->lineEditTexName = objects.lineEditTexName;
     this->spinBoxTexIndex = objects.spinBoxTexIndex;
@@ -14,6 +15,11 @@ void MainForm_TileTabComponent::initializeUIObjects(const MainForm_TileTabCompon
 	this->spinBoxObjTexIndex = objects.spinBoxObjTexIndex;
 	this->checkBoxTileCanSteppedOn = objects.checkBoxTileCanSteppedOn;
 	this->checkBoxObjectAbovePlayer = objects.checkBoxObjectAbovePlayer;
+}
+
+void MainForm_TileTabComponent::connectUIActions() 
+{
+	connect(glComponent, &MainForm_GLComponent::tileSelected, this, &MainForm_TileTabComponent::onTileSelected);
 }
 
 void MainForm_TileTabComponent::onTileSelected(MapTile *tile, Point coord) 
