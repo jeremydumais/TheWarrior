@@ -1,5 +1,5 @@
 #include "uiUtils.hpp"
-#include <qt5/QtWidgets/QApplication>
+#include <QtWidgets/QApplication>
 #include <QtWidgets/QDesktopWidget>
 
 void UIUtils::CenterToScreen(QWidget* widget) 
