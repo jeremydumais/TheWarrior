@@ -21,6 +21,7 @@ public:
     void setCurrentMap(std::shared_ptr<GameMap> map);
     void setGridEnabled(bool enabled);
     void resizeGL(int width, int height);
+    const std::string &getResourcesPath() const;
     void setResourcesPath(const std::string &path);
     SelectionMode getSelectionMode() const;
     void setSelectionMode(SelectionMode mode);

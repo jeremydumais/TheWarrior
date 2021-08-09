@@ -1,30 +1,29 @@
 #include "mainForm.hpp"
-#include "configurationManager.hpp"
-#include "editTextureForm.hpp"
-#include "editMapTileTriggerForm.hpp"
-#include "editTileActionChangeMapPropertiesForm.hpp"
 #include "aboutBoxForm.hpp"
+#include "configurationManager.hpp"
+#include "editMapTileTriggerForm.hpp"
+#include "editTextureForm.hpp"
+#include "editTileActionChangeMapPropertiesForm.hpp"
+#include "errorMessage.hpp"
 #include "specialFolders.hpp"
+#include <QtCore/qfile.h>
+#include <QtOpenGL/QtOpenGL>
 #include <algorithm>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/filesystem.hpp>
 #include <fmt/format.h>
 #include <fstream>
-#include <QtCore/qfile.h>
-#include <QtWidgets/qmessagebox.h>
-#include <qtimer.h>
-#include <QtOpenGL/QtOpenGL>
 #include <libgen.h>         // dirname
-#include <unistd.h>         // readlink
 #include <linux/limits.h>   // PATH_MAX
+#include <qtimer.h>
+#include <unistd.h>         // readlink
 using namespace std;
 
 MainForm::MainForm(QWidget *parent)
 	: QMainWindow(parent),
 	  ui(Ui::MainForm()),
-	  selectionMode(SelectionMode::Select),
 	  currentFilePath(""),
 	  functionAfterShownCalled(false), 
 	  executablePath(""),
@@ -32,7 +31,20 @@ MainForm::MainForm(QWidget *parent)
 {
 	ui.setupUi(this);
 	glComponent.initializeUIObjects(ui.mapOpenGLWidget);
-	//TileTab Component initialisation
+	glComponent.setResourcesPath(getResourcesPath());
+	glComponent.setSelectionMode(SelectionMode::Select);
+	//MapTab Component initialization
+	MainForm_MapTabComponent_Objects mapUIObjects;
+	mapUIObjects.glComponent = &glComponent;
+	mapUIObjects.lineEditMapWidth = ui.lineEditMapWidth;
+	mapUIObjects.lineEditMapHeight = ui.lineEditMapHeight;
+	mapUIObjects.spinBoxMapSizeTop = ui.spinBoxMapSizeTop;
+	mapUIObjects.spinBoxMapSizeLeft = ui.spinBoxMapSizeLeft;
+	mapUIObjects.spinBoxMapSizeRight = ui.spinBoxMapSizeRight;
+	mapUIObjects.spinBoxMapSizeBottom = ui.spinBoxMapSizeBottom;
+	mapUIObjects.pushButtonApplySizeChange = ui.pushButtonApplySizeChange;
+	mapTabComponent.initializeUIObjects(mapUIObjects);
+	//TileTab Component initialization
 	MainForm_TileTabComponent_Objects tileUIObjects;
 	tileUIObjects.glComponent = &glComponent;
 	tileUIObjects.labelTileCoordXY = ui.labelTileCoordXY;
@@ -43,7 +55,24 @@ MainForm::MainForm(QWidget *parent)
 	tileUIObjects.checkBoxObjectAbovePlayer = ui.checkBoxObjectAbovePlayer;
 	tileUIObjects.checkBoxTileCanSteppedOn = ui.checkBoxTileCanSteppedOn;
 	tileTabComponent.initializeUIObjects(tileUIObjects);
-
+	//TextureListTab Component initialization
+	MainForm_TextureListTabComponent_Objects textureListUIObjects;
+	textureListUIObjects.glComponent = &glComponent;
+	textureListUIObjects.listWidgetTextures = ui.listWidgetTextures;
+	textureListUIObjects.pushButtonAddTexture = ui.pushButtonAddTexture;
+	textureListUIObjects.pushButtonEditTexture = ui.pushButtonEditTexture;
+	textureListUIObjects.pushButtonDeleteTexture = ui.pushButtonDeleteTexture;
+	textureListTabComponent.initializeUIObjects(textureListUIObjects);
+	//TextureSelection Component initialization
+	MainForm_TextureSelectionComponent_Objects textureSelectionUIObjects;
+	textureSelectionUIObjects.glComponent = &glComponent;
+	textureSelectionUIObjects.comboBoxTexture = ui.comboBoxTexture;
+	textureSelectionUIObjects.labelSelectedTexture = ui.labelSelectedTexture;
+	textureSelectionUIObjects.pushButtonSelectedTextureClear = ui.pushButtonSelectedTextureClear;
+	textureSelectionUIObjects.labelSelectedObject = ui.labelSelectedObject;
+	textureSelectionUIObjects.pushButtonSelectedObjectClear = ui.pushButtonSelectedObjectClear;
+	textureSelectionUIObjects.labelImageTexture = ui.labelImageTexture;
+	textureSelectionComponent.initializeUIObjects(textureSelectionUIObjects);
 	connectUIActions();
 	generateComboxItems();
 
@@ -51,7 +80,7 @@ MainForm::MainForm(QWidget *parent)
 	userConfigFolder = SpecialFolders::getUserConfigDirectory();
 	if (!boost::filesystem::exists(userConfigFolder)) {
 		if (!boost::filesystem::create_directory(userConfigFolder)) {
-			showErrorMessage(fmt::format("Unable to create the folder {0}", userConfigFolder), "");
+			ErrorMessage::show(fmt::format("Unable to create the folder {0}", userConfigFolder), "");
 			exit(1);
 		}
 	}
@@ -60,26 +89,9 @@ MainForm::MainForm(QWidget *parent)
 	ConfigurationManager configManager(userConfigFolder + "config.json");
 	setAppStylesheet(configManager.getStringValue(ConfigurationManager::THEME_PATH));
 
-	ui.mapOpenGLWidget->setResourcesPath(getResourcesPath());
 	//Generate a test map
 	if (!controller.createMap(20, 20)) {
-		showErrorMessage(controller.getLastError());
-		exit(1);
-	}
-	if (!controller.addTexture({
-		"Terrain1", "tile.png",
-		256, 4256,
-		32, 32
-	})) {
-		showErrorMessage(controller.getLastError());
-		exit(1);
-	}
-	if (!controller.addTexture({
-		"NPC1", "tileNPC1.png",
-		384, 256,
-		32, 32
-	})) {
-		showErrorMessage(controller.getLastError());
+		ErrorMessage::show(controller.getLastError());
 		exit(1);
 	}
 	auto map { controller.getMap() };
@@ -111,27 +123,19 @@ void MainForm::connectUIActions()
 	connect(ui.action_ApplyObject, &QAction::triggered, this, &MainForm::action_ApplyObjectClick);
 	connect(ui.action_EnableCanStep, &QAction::triggered, this, &MainForm::action_EnableCanStepClick);
 	connect(ui.action_DisableCanStep, &QAction::triggered, this, &MainForm::action_DisableCanStepClick);
-	connect(ui.pushButtonApplySizeChange, &QPushButton::clicked, this, &MainForm::onPushButtonApplySizeChangeClick);
-	connect(ui.pushButtonAddTexture, &QPushButton::clicked, this, &MainForm::onPushButtonAddTextureClick);
-	connect(ui.pushButtonEditTexture, &QPushButton::clicked, this, &MainForm::onPushButtonEditTextureClick);
-	connect(ui.pushButtonDeleteTexture, &QPushButton::clicked, this, &MainForm::onPushButtonDeleteTextureClick);
-	connect(ui.pushButtonSelectedTextureClear, &QPushButton::clicked, this, &MainForm::onPushButtonSelectedTextureClearClick);
+	/*connect(ui.pushButtonSelectedTextureClear, &QPushButton::clicked, this, &MainForm::onPushButtonSelectedTextureClearClick);
 	connect(ui.pushButtonSelectedObjectClear, &QPushButton::clicked, this, &MainForm::onPushButtonSelectedObjectClearClick);
 	connect(ui.labelImageTexture, &QClickableLabel::onMouseReleaseEvent, this, &MainForm::onLabelImageTextureMouseReleaseEvent);
-	connect(ui.lineEditTexName, &QLineEdit::textChanged, this, &MainForm::onLineEditTexNameTextChanged);
-	connect(ui.spinBoxTexIndex, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainForm::onSpinBoxTexIndexValueChanged);
-	connect(ui.lineEditObjTexName, &QLineEdit::textChanged, this, &MainForm::onLineEditObjTexNameTextChanged);
-	connect(ui.spinBoxObjTexIndex, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainForm::onSpinBoxObjTexIndexValueChanged);
-	connect(ui.checkBoxTileCanSteppedOn, &QCheckBox::stateChanged, this, &MainForm::onCheckBoxTileCanSteppedOnChanged);
-	connect(ui.checkBoxObjectAbovePlayer, &QCheckBox::stateChanged, this, &MainForm::onCheckBoxObjectAbovePlayerChanged);
-	/*connect(ui.comboBoxTileTrigger, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm::onComboBoxTileTriggerChanged);
-	connect(ui.comboBoxTileCondition, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm::onComboBoxTileConditionChanged);
-	connect(ui.comboBoxTileAction, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm::onComboBoxTileActionChanged);
-	connect(ui.pushButtonTileActionProperties, &QPushButton::clicked, this, &MainForm::onPushButtonTileActionPropertiesClick);*/
-	connect(ui.comboBoxTexture, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm::onComboBoxTextureCurrentIndexChanged);
+	connect(ui.comboBoxTexture, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm::onComboBoxTextureCurrentIndexChanged);*/
 	glComponent.connectUIActions();
+	mapTabComponent.connectUIActions();
 	tileTabComponent.connectUIActions();
+	textureListTabComponent.connectUIActions();
+	textureSelectionComponent.connectUIActions();
 	connect(&glComponent, &MainForm_GLComponent::tileSelected, this, &MainForm::onTileSelected);
+	connect(&textureListTabComponent, &MainForm_TextureListTabComponent::textureAdded, this, &MainForm::onTextureAdded);
+	connect(&textureListTabComponent, &MainForm_TextureListTabComponent::textureUpdated, this, &MainForm::onTextureUpdated);
+	connect(&textureListTabComponent, &MainForm_TextureListTabComponent::textureDeleted, this, &MainForm::onTextureDeleted);
 	
 }
 
@@ -261,7 +265,7 @@ void MainForm::action_LightTheme_Click()
 	configManager.setStringValue(ConfigurationManager::THEME_PATH, "");
 	setAppStylesheet(configManager.getStringValue(ConfigurationManager::THEME_PATH));
 	if (!configManager.save()) {
-		showErrorMessage("An error occurred while saving the configuration file.", 
+		ErrorMessage::show("An error occurred while saving the configuration file.", 
 						 configManager.getLastError());
 	}
 }
@@ -272,7 +276,7 @@ void MainForm::action_DarkTheme_Click()
 	configManager.setStringValue(ConfigurationManager::THEME_PATH, "Dark");
 	setAppStylesheet(configManager.getStringValue(ConfigurationManager::THEME_PATH));
 	if (!configManager.save()) {
-		showErrorMessage("An error occurred while saving the configuration file.", 
+		ErrorMessage::show("An error occurred while saving the configuration file.", 
 						 configManager.getLastError());
 	}
 }
@@ -284,38 +288,32 @@ void MainForm::action_DisplayGrid_Click()
 
 void MainForm::action_SelectClick() 
 {
-	selectionMode = SelectionMode::Select;
-	glComponent.setSelectionMode(selectionMode);
+	glComponent.setSelectionMode(SelectionMode::Select);
 }
 
 void MainForm::action_MoveMapClick() 
 {
-	selectionMode = SelectionMode::MoveMap;
-	glComponent.setSelectionMode(selectionMode);
+	glComponent.setSelectionMode(SelectionMode::MoveMap);
 }
 
 void MainForm::action_ApplyTextureClick() 
 {
-	selectionMode = SelectionMode::ApplyTexture;
-	glComponent.setSelectionMode(selectionMode);
+	glComponent.setSelectionMode(SelectionMode::ApplyTexture);
 }
 
 void MainForm::action_ApplyObjectClick() 
 {
-	selectionMode = SelectionMode::ApplyObject;
-	glComponent.setSelectionMode(selectionMode);
+	glComponent.setSelectionMode(SelectionMode::ApplyObject);
 }
 
 void MainForm::action_EnableCanStepClick() 
 {
-	selectionMode = SelectionMode::EnableCanStep;
-	glComponent.setSelectionMode(selectionMode);
+	glComponent.setSelectionMode(SelectionMode::EnableCanStep);
 }
 
 void MainForm::action_DisableCanStepClick() 
 {
-	selectionMode = SelectionMode::DisableCanStep;
-	glComponent.setSelectionMode(selectionMode);
+	glComponent.setSelectionMode(SelectionMode::DisableCanStep);
 }
 
 void MainForm::openMap(const std::string &filePath) 
@@ -329,7 +327,7 @@ void MainForm::openMap(const std::string &filePath)
 		refreshTextureList();
 	}
 	catch(...) {
-		showErrorMessage(fmt::format("Unable to open the map {0}", filePath));
+		ErrorMessage::show(fmt::format("Unable to open the map {0}", filePath));
 	}
 }
 
@@ -391,20 +389,6 @@ void MainForm::addNewRecentMap(const std::string &filePath)
 	refreshRecentMapsMenu();
 }
 
-void MainForm::showErrorMessage(const string &message,
-								const string &internalError) const
-{
-	QMessageBox msgBox;
-	msgBox.setText(message.c_str());
-	if (internalError.length() > 0) {
-		msgBox.setInformativeText(internalError.c_str());
-	}
-	msgBox.setIcon(QMessageBox::Critical);
-	msgBox.setWindowTitle("Error");
-	msgBox.setStandardButtons(QMessageBox::Ok);
-	msgBox.exec();
-}
-
 void MainForm::setAppStylesheet(const std::string &style) 
 {
 	/*
@@ -437,236 +421,37 @@ void MainForm::onTileSelected(MapTile *, Point)
 	ui.toolBox->setCurrentWidget(ui.page_TileProperties);
 }
 
-void MainForm::onPushButtonApplySizeChangeClick() 
+void MainForm::onTextureAdded(TextureInfo textureInfo) 
 {
-	int offsetLeft { ui.spinBoxMapSizeLeft->value() };
-	int offsetTop { ui.spinBoxMapSizeTop->value() };
-	int offsetRight { ui.spinBoxMapSizeRight->value() };
-	int offsetBottom { ui.spinBoxMapSizeBottom->value() };
-	if (offsetLeft < 0 || 
-		offsetTop < 0 ||
-		offsetRight < 0 ||
-		offsetBottom < 0) {	
-		//Check if there's tiles that are already assigned in the ones we will remove
-		if (controller.isShrinkMapImpactAssignedTiles(offsetLeft,
-													  offsetTop,
-													  offsetRight,
-													  offsetBottom)) {
-			showErrorMessage("Cannot resize the map because some tile are\n"
-								"already assigned in the ones you try to remove.");
-			return;
-		}
+	if (!controller.addTexture(textureInfo)) {
+		ErrorMessage::show(controller.getLastError());
 	}
-	//Apply new size
-	try {
-		controller.resizeMap(offsetLeft,
-							 offsetTop,
-							 offsetRight,
-							 offsetBottom);
-	}
-	catch(invalid_argument &err) {
-		showErrorMessage(err.what());
-	}
+	refreshTextureList();
 }
 
-/*void MainForm::onTileMouseMoveEvent(bool mousePressed, int tileIndex) 
-{	
-}*/
-
-void MainForm::onPushButtonAddTextureClick() 
+void MainForm::onTextureUpdated(const std::string &name, TextureInfo textureInfo) 
 {
-	ui.mapOpenGLWidget->stopAutoUpdate();
-	auto alreadyUsedTextureNames { controller.getAlreadyUsedTextureNames() };
-	EditTextureForm formEditTexture(this, getResourcesPath(), nullptr, alreadyUsedTextureNames);
-	if (formEditTexture.exec() == QDialog::Accepted) {
-		if (!controller.addTexture(formEditTexture.getTextureInfo())) {
-			showErrorMessage(controller.getLastError());
-		}
-		refreshTextureList();
+	if (!controller.replaceTexture(name, textureInfo)) {
+		ErrorMessage::show(controller.getLastError());
 	}
-	ui.mapOpenGLWidget->startAutoUpdate();
+	refreshTextureList();
 }
 
-void MainForm::onPushButtonEditTextureClick() 
+void MainForm::onTextureDeleted(const std::string &name) 
 {
-	ui.mapOpenGLWidget->stopAutoUpdate();
-	auto selectedTexture = getSelectedTextureInTextureList();
-	if (selectedTexture.has_value()) {
-		auto alreadyUsedTextureNames = controller.getAlreadyUsedTextureNames();
-		//Remove the actual selected texture name
-		auto iter = std::find(alreadyUsedTextureNames.begin(), alreadyUsedTextureNames.end(), selectedTexture->getName());
-		if (iter != alreadyUsedTextureNames.end()) {
-			alreadyUsedTextureNames.erase(iter);
-		}
-		EditTextureForm formEditTexture(this, getResourcesPath(), selectedTexture.get_ptr(), alreadyUsedTextureNames);
-		if (formEditTexture.exec() == QDialog::Accepted) {
-			const TextureInfo &updatedTextureInfo { formEditTexture.getTextureInfo() };
-			if (!controller.replaceTexture(selectedTexture->getName(), updatedTextureInfo)) {
-				showErrorMessage(controller.getLastError());
-			}
-			refreshTextureList();
-		}
+	if (!controller.removeTexture(name)) {
+		ErrorMessage::show(controller.getLastError());
 	}
-	ui.mapOpenGLWidget->startAutoUpdate();
-}
-
-void MainForm::onPushButtonDeleteTextureClick() 
-{
-	auto selectedTexture = getSelectedTextureInTextureList();
-	if (selectedTexture.has_value()) {
-		QMessageBox msgBox;
-		msgBox.setText(fmt::format("Are you sure you want to delete the texture {0}?", selectedTexture->getName()).c_str());
-		msgBox.setWindowTitle("Confirmation");
-		msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
-		msgBox.setDefaultButton(QMessageBox::Cancel);
-		if (msgBox.exec() == QMessageBox::Yes) {
-			//Check if the texture is used in the map
-			msgBox.setText(fmt::format("The texture {0} is used by some map tiles.\nAre you sure you want to proceed?", selectedTexture->getName()).c_str());
-			bool isUsed = controller.isTextureUsedInMap(selectedTexture->getName());
-			if (!isUsed || (isUsed && msgBox.exec() == QMessageBox::Yes)) {
-				if (!controller.removeTexture(selectedTexture->getName())) {
-					showErrorMessage(controller.getLastError());
-				}
-				refreshTextureList();
-			}
-		}
-	}
-}
-
-boost::optional<const Texture &> MainForm::getSelectedTextureInTextureList() 
-{
-	if (ui.listWidgetTextures->selectionModel()->hasSelection()) {
-		//Find the selected texture
-		auto selectedItemName { ui.listWidgetTextures->selectionModel()->selectedRows()[0].data().toString().toStdString() };
-		return controller.getMap()->getTextureByName(selectedItemName);
-	}
-	else {
-		return {};
-	}
+	refreshTextureList();
 }
 
 void MainForm::refreshTextureList() 
 {
-	auto map { controller.getMap() };
-	ui.listWidgetTextures->model()->removeRows(0, ui.listWidgetTextures->count());
-	ui.comboBoxTexture->model()->removeRows(0, ui.comboBoxTexture->count());
-	int index {0};
-	for(const auto &texture : map->getTextures()) {
-		ui.listWidgetTextures->insertItem(index, texture.getName().c_str());
-		ui.comboBoxTexture->insertItem(index, texture.getName().c_str());
-		index++;
-	}
-	displaySelectedTextureImage();
-	ui.mapOpenGLWidget->reloadTextures();
+	textureListTabComponent.refreshTextureList();
+	textureSelectionComponent.refreshTextureList();
+	glComponent.reloadTextures();
 }
 
-void MainForm::displaySelectedTextureImage() 
-{
-	auto map { controller.getMap() };
-	//Find the selected texture
-	auto texture { map->getTextureByName(ui.comboBoxTexture->itemText(ui.comboBoxTexture->currentIndex()).toStdString()) };
-	if (texture.has_value()) {
-		QImageReader reader(fmt::format("{0}/resources/{1}", getExecutablePath(), texture->getFilename()).c_str());
-		const QImage image = reader.read();
-		ui.labelImageTexture->setFixedSize(image.width(), image.height());
-		ui.labelImageTexture->setPixmap(QPixmap::fromImage(image));
-	}
-	else {
-		ui.labelImageTexture->clear();
-		glComponent.clearLastSelectedTexture();
-		glComponent.clearLastSelectedObject();
-		ui.labelSelectedTexture->clear();
-		ui.labelSelectedObject->clear();
-	}
-}
-
-void MainForm::onPushButtonSelectedTextureClearClick() 
-{
-	glComponent.clearLastSelectedTexture();
-	ui.labelSelectedTexture->clear();
-}
-
-void MainForm::onPushButtonSelectedObjectClearClick() 
-{
-	glComponent.clearLastSelectedObject();
-	ui.labelSelectedObject->clear();
-}
-
-void MainForm::onLabelImageTextureMouseReleaseEvent(QMouseEvent *event) 
-{
-	auto map { controller.getMap() };
-	int comboBoxTextureCurrentIndex { ui.comboBoxTexture->currentIndex() };
-	std::string textureName { ui.comboBoxTexture->itemText(comboBoxTextureCurrentIndex).toStdString() };
-	auto texture { map->getTextureByName(textureName) };
-	if (texture.has_value()) {
-		string name { textureName };
-		int index = controller.getTextureIndexFromPosition(to_Point(event->pos()), texture.get());
-		//Display the selected texture or object on the selected image
-		auto imagePart { getTextureTileImageFromTexture(index, texture.get()) };
-		if (selectionMode == SelectionMode::ApplyTexture) {
-			glComponent.setLastSelectedTexture(name, index);
-			ui.labelSelectedTexture->setPixmap(imagePart);
-		}
-		else if (selectionMode == SelectionMode::ApplyObject) {
-			glComponent.setLastSelectedObject(name, index);
-			ui.labelSelectedObject->setPixmap(imagePart);
-		}
-	}	
-}
-
-void MainForm::onLineEditTexNameTextChanged(const QString &text) 
-{
-	auto currentMapTile = glComponent.getCurrentMapTile();
-	if (currentMapTile != nullptr) {
-		currentMapTile->setTextureName(text.toStdString());
-		ui.mapOpenGLWidget->updateGL();
-	}
-}
-
-void MainForm::onSpinBoxTexIndexValueChanged(int value) 
-{
-	auto currentMapTile = glComponent.getCurrentMapTile();
-	if (currentMapTile != nullptr) {
-		currentMapTile->setTextureIndex(value);
-		ui.mapOpenGLWidget->updateGL();
-	}
-}
-
-void MainForm::onLineEditObjTexNameTextChanged(const QString &text) 
-{
-	auto currentMapTile = glComponent.getCurrentMapTile();
-	if (currentMapTile != nullptr) {
-		currentMapTile->setObjectTextureName(text.toStdString());
-		ui.mapOpenGLWidget->updateGL();
-	}
-}
-
-void MainForm::onSpinBoxObjTexIndexValueChanged(int value) 
-{
-	auto currentMapTile = glComponent.getCurrentMapTile();
-	if (currentMapTile != nullptr) {
-		currentMapTile->setObjectTextureIndex(value);
-		ui.mapOpenGLWidget->updateGL();
-	}
-}
-
-void MainForm::onCheckBoxObjectAbovePlayerChanged(int state) 
-{
-	auto currentMapTile = glComponent.getCurrentMapTile();
-	if (currentMapTile != nullptr) {
-		currentMapTile->setObjectAbovePlayer(state == Qt::Checked);
-		ui.mapOpenGLWidget->updateGL();
-	}
-}
-
-void MainForm::onCheckBoxTileCanSteppedOnChanged(int state) 
-{
-	auto currentMapTile = glComponent.getCurrentMapTile();
-	if (currentMapTile != nullptr) {
-		currentMapTile->setCanPlayerSteppedOn(state == Qt::Checked);
-		ui.mapOpenGLWidget->updateGL();
-	}
-}
 /*
 void MainForm::onComboBoxTileTriggerChanged() 
 {
@@ -680,15 +465,7 @@ void MainForm::onComboBoxTileConditionChanged()
 {
 	if (currentMapTile != nullptr) {
 		currentMapTile->setCondition(static_cast<MapTileTriggerCondition>(ui.comboBoxTileCondition->currentIndex()));
-		ui.mapOpenGLWidget->updateGL();
-	}
-}
-
-void MainForm::onComboBoxTileActionChanged() 
-{
-	if (currentMapTile != nullptr) {
-		currentMapTile->setAction(static_cast<MapTileTriggerAction>(ui.comboBoxTileAction->currentIndex()));
-		ui.mapOpenGLWidget->updateGL();
+		ui.mapOpenGLWidget-gyugyug>updateGL();
 	}
 }
 
@@ -708,22 +485,3 @@ void MainForm::onPushButtonTileActionPropertiesClick()
 	}
 }
 */
-void MainForm::onComboBoxTextureCurrentIndexChanged() 
-{
-	displaySelectedTextureImage();
-}
-
-QPixmap MainForm::getTextureTileImageFromTexture(int tileIndex, const Texture &texture) const 
-{
-	int textureWidthInPixel { texture.getWidth() };
-	int textureHeightInPixel { texture.getHeight() };
-	int x { (tileIndex * texture.getTileWidth()) % textureWidthInPixel };
-	int y { textureHeightInPixel - (((tileIndex * texture.getTileWidth()) / textureWidthInPixel) * texture.getTileHeight()) };
-	QPixmap imagePart = ui.labelImageTexture->pixmap()->copy(x, y - texture.getTileHeight(), texture.getTileWidth(), texture.getTileHeight());
-	return imagePart;
-}
-
-Point MainForm::to_Point(QPoint point) 
-{
-	return Point(point.x(), point.y());
-}

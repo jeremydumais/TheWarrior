@@ -32,6 +32,21 @@ void MainForm_GLComponent::setCurrentMap(std::shared_ptr<GameMap> map)
 	this->glWidget->setCurrentMap(map); 
 }
 
+const std::string &MainForm_GLComponent::getResourcesPath() const
+{
+	return this->glWidget->getResourcesPath();
+}
+
+SelectionMode MainForm_GLComponent::getSelectionMode() const
+{
+	return this->glWidget->getSelectionMode();
+}
+
+void MainForm_GLComponent::setResourcesPath(const std::string &path) 
+{
+	this->glWidget->setResourcesPath(path);
+}
+
 void MainForm_GLComponent::setSelectionMode(SelectionMode mode) 
 {
     this->glWidget->setSelectionMode(mode);
@@ -64,6 +79,80 @@ void MainForm_GLComponent::clearLastSelectedObject()
 {
     lastSelectedObjectName = "";
 	lastSelectedObjectIndex = -1;
+}
+
+void MainForm_GLComponent::stopAutoUpdate() 
+{
+	glWidget->stopAutoUpdate();
+}
+
+void MainForm_GLComponent::startAutoUpdate() 
+{
+	glWidget->startAutoUpdate();
+}
+
+void MainForm_GLComponent::updateGL() 
+{
+	glWidget->updateGL();
+}
+
+const vector<Texture> &MainForm_GLComponent::getTextures() const
+{
+	return map->getTextures();
+}
+
+boost::optional<const Texture &> MainForm_GLComponent::getTextureByName(const std::string &name) const
+{
+	return map->getTextureByName(name);
+}
+
+std::vector<std::string> MainForm_GLComponent::getAlreadyUsedTextureNames() const
+{
+	vector<string> alreadyUsedTextureNames;
+	if (map != nullptr) {
+    	transform(map->getTextures().begin(), map->getTextures().end(), back_inserter(alreadyUsedTextureNames),
+                  [](Texture const& x) { return x.getName(); });
+	}
+	return alreadyUsedTextureNames;
+}
+
+bool MainForm_GLComponent::isTextureUsedInMap(const std::string &name) 
+{
+	for(const auto &row : map->getTiles()) {
+		for (const auto &tile : row) {
+			if (tile.getTextureName() == name || tile.getObjectTextureName() == name) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+void MainForm_GLComponent::reloadTextures() 
+{
+    glWidget->reloadTextures();
+}
+
+bool MainForm_GLComponent::isShrinkMapImpactAssignedTiles(int offsetLeft, 
+													      int offsetTop, 
+														  int offsetRight, 
+														  int offsetBottom) const
+{
+	return map->isShrinkMapImpactAssignedTiles(offsetLeft,
+											   offsetTop,
+											   offsetRight,
+											   offsetBottom);
+}
+
+void MainForm_GLComponent::resizeMap(int offsetLeft, 
+                   int offsetTop, 
+                   int offsetRight, 
+                   int offsetBottom) 
+{
+	map->resizeMap(offsetLeft,
+				   offsetTop,
+				   offsetRight,
+				   offsetBottom);
 }
 
 void MainForm_GLComponent::onTileClicked(int tileIndex) 

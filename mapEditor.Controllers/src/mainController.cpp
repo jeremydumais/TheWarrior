@@ -19,26 +19,6 @@ shared_ptr<GameMap> MainController::getMap()
     return map;
 }
 
-vector<string> MainController::getAlreadyUsedTextureNames() const
-{
-	vector<string> alreadyUsedTextureNames;
-	if (map != nullptr) {
-    	transform(map->getTextures().begin(), map->getTextures().end(), back_inserter(alreadyUsedTextureNames),
-                  [](Texture const& x) { return x.getName(); });
-	}
-	return alreadyUsedTextureNames;
-}
-
-int MainController::getTextureIndexFromPosition(const Point &pos, const Texture &texture) 
-{
-	int realY { texture.getHeight() - pos.y()};
-	int indexX = pos.x() / texture.getTileWidth();
-	int indexY = realY / texture.getTileHeight();
-	int tileIndex { indexX + (indexY * (texture.getWidth()/texture.getTileWidth())) };
-	return tileIndex;
-}
-
-
 MapTile& MainController::getTileForEditing(int index) 
 {
 	return map->getTileForEditing(index);
@@ -97,40 +77,6 @@ bool MainController::removeTexture(const string &name)
 		return false;
 	}
 	return true;
-}
-
-bool MainController::isTextureUsedInMap(const string &name) 
-{
-	for(const auto &row : map->getTiles()) {
-		for (const auto &tile : row) {
-			if (tile.getTextureName() == name || tile.getObjectTextureName() == name) {
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-bool MainController::isShrinkMapImpactAssignedTiles(int offsetLeft, 
-													int offsetTop, 
-													int offsetRight, 
-													int offsetBottom) const
-{
-	return map->isShrinkMapImpactAssignedTiles(offsetLeft,
-											   offsetTop,
-											   offsetRight,
-											   offsetBottom);
-}
-
-void MainController::resizeMap(int offsetLeft, 
-                   int offsetTop, 
-                   int offsetRight, 
-                   int offsetBottom) 
-{
-	map->resizeMap(offsetLeft,
-				   offsetTop,
-				   offsetRight,
-				   offsetBottom);
 }
 
 void MainController::replaceTilesTextureName(const string &oldName, const string &newName) 

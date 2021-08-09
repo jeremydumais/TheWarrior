@@ -4,6 +4,9 @@
 #include "gameMap.hpp"
 #include "mainController.hpp"
 #include "mainForm_GLComponent.hpp"
+#include "mainForm_MapTabComponent.hpp"
+#include "mainForm_TextureListTabComponent.hpp"
+#include "mainForm_TextureSelectionComponent.hpp"
 #include "mainForm_TileTabComponent.hpp"
 #include "point.hpp"
 #include "selectionMode.hpp"
@@ -23,18 +26,18 @@ public:
 private:
 	Ui::MainForm ui;
 	MainForm_GLComponent glComponent;
+	MainForm_MapTabComponent mapTabComponent;
 	MainForm_TileTabComponent tileTabComponent;
+	MainForm_TextureListTabComponent textureListTabComponent;
+	MainForm_TextureSelectionComponent textureSelectionComponent;
 	MainController controller;
 	std::string userConfigFolder;
-	SelectionMode selectionMode;
 	std::string currentFilePath;
 	bool functionAfterShownCalled;
 	std::string executablePath;
 	std::string resourcesPath;
     const std::string &getExecutablePath();
     const std::string &getResourcesPath();
-	void showErrorMessage(const std::string &message,
-						  const std::string &internalError = "") const;
 	void setAppStylesheet(const std::string &style);
 	void connectUIActions();
 	void generateComboxItems();
@@ -61,29 +64,14 @@ private:
 	void resizeEvent(QResizeEvent *);
     void onTileSelected(MapTile *tile, Point coord);
     //void onTileMouseMoveEvent(bool mousePressed, int tileIndex);
-	void onPushButtonApplySizeChangeClick();
-	void onPushButtonAddTextureClick();
-	void onPushButtonEditTextureClick();
-	void onPushButtonDeleteTextureClick();
-	boost::optional<const Texture &> getSelectedTextureInTextureList();
+	void onTextureAdded(TextureInfo textureInfo);
+	void onTextureUpdated(const std::string &name, TextureInfo textureInfo);
+	void onTextureDeleted(const std::string &name);
 	void refreshTextureList();
-	void displaySelectedTextureImage();
-	void onPushButtonSelectedTextureClearClick();
-	void onPushButtonSelectedObjectClearClick();
-	void onLabelImageTextureMouseReleaseEvent(QMouseEvent *event);
-	void onLineEditTexNameTextChanged(const QString &text);
-	void onSpinBoxTexIndexValueChanged(int value);
-	void onLineEditObjTexNameTextChanged(const QString &text);
-	void onSpinBoxObjTexIndexValueChanged(int value);
-	void onCheckBoxObjectAbovePlayerChanged(int state);
-	void onCheckBoxTileCanSteppedOnChanged(int state);
     /*void onComboBoxTileTriggerChanged();
     void onComboBoxTileConditionChanged();
     void onComboBoxTileActionChanged();
 	void onPushButtonTileActionPropertiesClick();*/
-    void onComboBoxTextureCurrentIndexChanged();
-	QPixmap getTextureTileImageFromTexture(int tileIndex, const Texture &texture) const;
-	Point to_Point(QPoint point);
 };
 
 #endif // MAINFORM_H

@@ -4,8 +4,8 @@
 
 #include "texture.hpp"
 #include "ui_editTextureForm.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 class EditTextureForm : public QDialog
 {
@@ -16,7 +16,6 @@ public:
 							 const std::string &resourcesPath, 
 							 const Texture * const texture,
 							 const std::vector<std::string> &alreadyUsedNames);
-	~EditTextureForm() = default;
 	const TextureInfo &getTextureInfo() const;
 private:
 	Ui::editTextureFormClass ui;

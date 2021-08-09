@@ -1,9 +1,9 @@
 #include "editTextureForm.hpp"
-#include <algorithm>
-#include <fmt/format.h>
 #include <QFileDialog>
 #include <QImageReader>
 #include <QMessageBox>
+#include <algorithm>
+#include <fmt/format.h>
 
 using namespace std;
 
@@ -14,6 +14,7 @@ EditTextureForm::EditTextureForm(QWidget *parent,
 	: QDialog(parent),
 	  ui(Ui::editTextureFormClass()),
 	  resourcesPath(resourcesPath),
+	  textureInfo(TextureInfo()),
 	  alreadyUsedNames(alreadyUsedNames),
 	  isEditMode(texture != nullptr)
 {

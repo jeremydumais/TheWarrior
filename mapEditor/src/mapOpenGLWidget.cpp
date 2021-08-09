@@ -94,6 +94,11 @@ void MapOpenGLWidget::resizeGL(int width, int height)
     glMatrixMode(GL_MODELVIEW);
 }
 
+const std::string& MapOpenGLWidget::getResourcesPath() const
+{
+    return this->resourcesPath;
+}
+
 void MapOpenGLWidget::setResourcesPath(const std::string &path) 
 {
     this->resourcesPath = path;

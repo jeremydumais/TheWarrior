@@ -18,12 +18,31 @@ public:
     void initializeUIObjects(MapOpenGLWidget *glWidget);
     void connectUIActions();
     void setCurrentMap(std::shared_ptr<GameMap> map);
+    const std::string &getResourcesPath() const;
+    SelectionMode getSelectionMode() const;
+    void setResourcesPath(const std::string &path);
     void setSelectionMode(SelectionMode mode);
     MapTile *getCurrentMapTile(); 
     void setLastSelectedTexture(const std::string &name, int index);
     void setLastSelectedObject(const std::string &name, int index);
     void clearLastSelectedTexture();
     void clearLastSelectedObject();
+    void stopAutoUpdate();
+    void startAutoUpdate();
+    void updateGL();
+    const std::vector<Texture>& getTextures() const;
+    boost::optional<const Texture &> getTextureByName(const std::string &name) const;
+    std::vector<std::string> getAlreadyUsedTextureNames() const;
+    bool isTextureUsedInMap(const std::string &name);
+    void reloadTextures();
+    bool isShrinkMapImpactAssignedTiles(int offsetLeft, 
+                                        int offsetTop, 
+                                        int offsetRight, 
+                                        int offsetBottom) const;
+    void resizeMap(int offsetLeft, 
+                   int offsetTop, 
+                   int offsetRight, 
+                   int offsetBottom);
 signals:
     void tileSelected(MapTile *tile, Point coord);
 private:
