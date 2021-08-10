@@ -63,15 +63,6 @@ void MainForm_TextureSelectionComponent::displaySelectedTextureImage()
 	}
 }
 
-int MainForm_TextureSelectionComponent::getTextureIndexFromPosition(const Point &pos, const Texture &texture) 
-{
-	int realY { texture.getHeight() - pos.y()};
-	int indexX = pos.x() / texture.getTileWidth();
-	int indexY = realY / texture.getTileHeight();
-	int tileIndex { indexX + (indexY * (texture.getWidth()/texture.getTileWidth())) };
-	return tileIndex;
-}
-
 QPixmap MainForm_TextureSelectionComponent::getTextureTileImageFromTexture(int tileIndex, const Texture &texture) const 
 {
 	int textureWidthInPixel { texture.getWidth() };
@@ -101,7 +92,7 @@ void MainForm_TextureSelectionComponent::onLabelImageTextureMouseReleaseEvent(QM
 	auto texture { glComponent->getTextureByName(textureName) };
 	if (texture.has_value()) {
 		string name { textureName };
-		int index = getTextureIndexFromPosition(Point(event->pos().x(), event->pos().y()), texture.get());
+		int index = controller.getTextureIndexFromPosition(Point(event->pos().x(), event->pos().y()), texture.get());
 		//Display the selected texture or object on the selected image
 		auto imagePart { getTextureTileImageFromTexture(index, texture.get()) };
         auto selectionMode { glComponent->getSelectionMode() };

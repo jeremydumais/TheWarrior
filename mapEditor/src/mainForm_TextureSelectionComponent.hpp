@@ -3,6 +3,7 @@
 #include "mainForm_GLComponent.hpp"
 #include "point.hpp"
 #include "qClickableLabel.hpp"
+#include "textureSelectionComponentController.hpp"
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>
@@ -30,6 +31,7 @@ public:
 	void displaySelectedTextureImage();
 signals:
 private:
+    TextureSelectionComponentController controller;
     MainForm_GLComponent *glComponent;
     QComboBox *comboBoxTexture;
     QLabel *labelSelectedTexture;
@@ -37,7 +39,6 @@ private:
     QLabel *labelSelectedObject;
     QPushButton *pushButtonSelectedObjectClear;
     QClickableLabel *labelImageTexture;
-    int getTextureIndexFromPosition(const Point &pos, const Texture &texture);
 	QPixmap getTextureTileImageFromTexture(int tileIndex, const Texture &texture) const;
     void onPushButtonSelectedTextureClearClick();
 	void onPushButtonSelectedObjectClearClick();

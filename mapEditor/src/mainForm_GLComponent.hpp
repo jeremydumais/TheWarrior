@@ -1,12 +1,13 @@
 #pragma once
 
 #include "gameMap.hpp"
+#include "glComponentController.hpp"
 #include "mapOpenGLWidget.hpp"
 #include "mapTile.hpp"
 #include "point.hpp"
 #include "selectionMode.hpp"
-#include <memory>
 #include <QtWidgets/QWidget>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -47,7 +48,7 @@ signals:
     void tileSelected(MapTile *tile, Point coord);
 private:
     MapOpenGLWidget *glWidget;
-	std::shared_ptr<GameMap> map;
+    GLComponentController controller;
     MapTile *currentMapTile;
     std::string lastSelectedTextureName;
 	std::string lastSelectedObjectName;

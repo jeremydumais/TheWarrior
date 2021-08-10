@@ -4,7 +4,6 @@ using namespace std;
 
 MainForm_GLComponent::MainForm_GLComponent() 
 	: glWidget(nullptr),
-      map(nullptr),
       currentMapTile(nullptr),
       lastSelectedTextureName(""),
 	  lastSelectedObjectName(""),
@@ -28,7 +27,7 @@ void MainForm_GLComponent::connectUIActions()
 
 void MainForm_GLComponent::setCurrentMap(std::shared_ptr<GameMap> map) 
 {
-    this->map = map;
+    this->controller.setCurrentMap(map);
 	this->glWidget->setCurrentMap(map); 
 }
 
@@ -98,34 +97,22 @@ void MainForm_GLComponent::updateGL()
 
 const vector<Texture> &MainForm_GLComponent::getTextures() const
 {
-	return map->getTextures();
+	return controller.getMap()->getTextures();
 }
 
 boost::optional<const Texture &> MainForm_GLComponent::getTextureByName(const std::string &name) const
 {
-	return map->getTextureByName(name);
+	return controller.getMap()->getTextureByName(name);
 }
 
 std::vector<std::string> MainForm_GLComponent::getAlreadyUsedTextureNames() const
 {
-	vector<string> alreadyUsedTextureNames;
-	if (map != nullptr) {
-    	transform(map->getTextures().begin(), map->getTextures().end(), back_inserter(alreadyUsedTextureNames),
-                  [](Texture const& x) { return x.getName(); });
-	}
-	return alreadyUsedTextureNames;
+	return controller.getAlreadyUsedTextureNames();
 }
 
 bool MainForm_GLComponent::isTextureUsedInMap(const std::string &name) 
 {
-	for(const auto &row : map->getTiles()) {
-		for (const auto &tile : row) {
-			if (tile.getTextureName() == name || tile.getObjectTextureName() == name) {
-				return true;
-			}
-		}
-	}
-	return false;
+	return controller.isTextureUsedInMap(name);
 }
 
 void MainForm_GLComponent::reloadTextures() 
@@ -138,10 +125,10 @@ bool MainForm_GLComponent::isShrinkMapImpactAssignedTiles(int offsetLeft,
 														  int offsetRight, 
 														  int offsetBottom) const
 {
-	return map->isShrinkMapImpactAssignedTiles(offsetLeft,
-											   offsetTop,
-											   offsetRight,
-											   offsetBottom);
+	return controller.isShrinkMapImpactAssignedTiles(offsetLeft,
+											   		 offsetTop,
+											   		 offsetRight,
+											   		 offsetBottom);
 }
 
 void MainForm_GLComponent::resizeMap(int offsetLeft, 
@@ -149,18 +136,18 @@ void MainForm_GLComponent::resizeMap(int offsetLeft,
                    int offsetRight, 
                    int offsetBottom) 
 {
-	map->resizeMap(offsetLeft,
-				   offsetTop,
-				   offsetRight,
-				   offsetBottom);
+	controller.resizeMap(offsetLeft,
+				   		 offsetTop,
+				   		 offsetRight,
+				   		 offsetBottom);
 }
 
 void MainForm_GLComponent::onTileClicked(int tileIndex) 
 {
 	if (glWidget->getSelectionMode() == SelectionMode::Select && tileIndex != -1) {
 		currentMapTile = nullptr;
-		auto tempTile { &map->getTileForEditing(tileIndex) };
-		auto coord { map->getCoordFromTileIndex(tileIndex) };
+		auto tempTile { &controller.getMap()->getTileForEditing(tileIndex) };
+		auto coord { controller.getMap()->getCoordFromTileIndex(tileIndex) };
         emit tileSelected(tempTile, coord);
 		currentMapTile = tempTile;
 	}
@@ -173,27 +160,27 @@ void MainForm_GLComponent::onTileMouseReleaseEvent(vector<int> selectedTileIndex
 {
 	if (glWidget->getSelectionMode() == SelectionMode::ApplyTexture) {
 		for(const int index : selectedTileIndexes) {
-			currentMapTile = &map->getTileForEditing(index);
+			currentMapTile = &controller.getMap()->getTileForEditing(index);
 			currentMapTile->setTextureName(lastSelectedTextureName);
 			currentMapTile->setTextureIndex(lastSelectedTextureIndex);
 		}
 	}
 	else if (glWidget->getSelectionMode() == SelectionMode::ApplyObject) {
 		for(const int index : selectedTileIndexes) {
-			currentMapTile = &map->getTileForEditing(index);
+			currentMapTile = &controller.getMap()->getTileForEditing(index);
 			currentMapTile->setObjectTextureName(lastSelectedObjectName);
 			currentMapTile->setObjectTextureIndex(lastSelectedObjectIndex);
 		}
 	}
 	else if (glWidget->getSelectionMode() == SelectionMode::EnableCanStep) {
 		for(const int index : selectedTileIndexes) {
-			currentMapTile = &map->getTileForEditing(index);
+			currentMapTile = &controller.getMap()->getTileForEditing(index);
 			currentMapTile->setCanPlayerSteppedOn(true);
 		}
 	}
 	else if (glWidget->getSelectionMode() == SelectionMode::DisableCanStep) {
 		for(const int index : selectedTileIndexes) {
-			currentMapTile = &map->getTileForEditing(index);
+			currentMapTile = &controller.getMap()->getTileForEditing(index);
 			currentMapTile->setCanPlayerSteppedOn(false);
 		}
 	}

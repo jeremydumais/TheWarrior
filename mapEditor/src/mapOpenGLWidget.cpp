@@ -23,10 +23,6 @@ MapOpenGLWidget::MapOpenGLWidget(QWidget *parent)
     setMouseTracking(true);
 }
 
-MapOpenGLWidget::~MapOpenGLWidget()
-{
-}
-
 void MapOpenGLWidget::setCurrentMap(std::shared_ptr<GameMap> map) 
 {
     currentMap = map;

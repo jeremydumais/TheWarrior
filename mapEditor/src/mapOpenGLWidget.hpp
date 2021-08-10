@@ -17,7 +17,7 @@ class MapOpenGLWidget : public QGLWidget
     Q_OBJECT
 public:
     explicit MapOpenGLWidget(QWidget *parent = 0);
-    ~MapOpenGLWidget();
+    ~MapOpenGLWidget() = default;
     void setCurrentMap(std::shared_ptr<GameMap> map);
     void setGridEnabled(bool enabled);
     void resizeGL(int width, int height);

@@ -7,7 +7,6 @@
 #include "errorMessage.hpp"
 #include "specialFolders.hpp"
 #include <QtCore/qfile.h>
-#include <QtOpenGL/QtOpenGL>
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
 #include <boost/archive/binary_iarchive.hpp>
