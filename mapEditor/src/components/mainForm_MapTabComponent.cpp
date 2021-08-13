@@ -1,5 +1,5 @@
 #include "mainForm_MapTabComponent.hpp"
-#include "errorMessage.hpp"
+#include "../utils/errorMessage.hpp"
 
 using namespace std;
 

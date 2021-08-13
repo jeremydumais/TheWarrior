@@ -3,6 +3,7 @@
 #include "mainForm_GLComponent.hpp"
 #include "mapTile.hpp"
 #include "point.hpp"
+#include <boost/optional.hpp>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
@@ -19,6 +20,10 @@ struct MainForm_TileTabComponent_Objects
 	QSpinBox *spinBoxObjTexIndex = nullptr;
 	QCheckBox *checkBoxTileCanSteppedOn = nullptr;
 	QCheckBox *checkBoxObjectAbovePlayer = nullptr;
+	QListWidget *listWidgetMapTileTriggers = nullptr;
+	QPushButton *pushButtonAddTileEvent = nullptr;
+	QPushButton *pushButtonEditTileEvent = nullptr;
+	QPushButton *pushButtonDeleteTileEvent = nullptr;
 };
 
 class MainForm_TileTabComponent : public QWidget
@@ -37,6 +42,11 @@ private:
 	QSpinBox *spinBoxObjTexIndex;
 	QCheckBox *checkBoxTileCanSteppedOn;
 	QCheckBox *checkBoxObjectAbovePlayer;
+	QListWidget *listWidgetMapTileTriggers;
+	QPushButton *pushButtonAddTileEvent;
+	QPushButton *pushButtonEditTileEvent;
+	QPushButton *pushButtonDeleteTileEvent;
+	void refreshEventList(MapTile *tile);
     void onTileSelected(MapTile *tile, Point coord);
     void onLineEditTexNameTextChanged(const QString &text);
 	void onSpinBoxTexIndexValueChanged(int value);
@@ -44,4 +54,7 @@ private:
 	void onSpinBoxObjTexIndexValueChanged(int value);
 	void onCheckBoxObjectAbovePlayerChanged(int state);
 	void onCheckBoxTileCanSteppedOnChanged(int state);
+	boost::optional<MapTileTrigger &> getSelectedTrigger();
+	void onPushButtonAddTileEventClick();
+	void onPushButtonEditTileEventClick();
 };

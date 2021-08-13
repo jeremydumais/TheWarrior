@@ -3,6 +3,23 @@
 
 using namespace std;
 
+class MapTileWith2Triggers : public ::testing::Test
+{
+public:
+	MapTileWith2Triggers()
+	{
+		tile.addTrigger(MapTileTrigger(MapTileTriggerEvent::MoveUpPressed,
+								   	   MapTileTriggerCondition::None,
+								       MapTileTriggerAction::OpenChest,
+								       map<string, string>()));
+		tile.addTrigger(MapTileTrigger(MapTileTriggerEvent::MoveDownPressed,
+								   	   MapTileTriggerCondition::None,
+								       MapTileTriggerAction::ChangeMap,
+								       map<string, string>()));
+	}
+	MapTile tile;
+};
+
 TEST(MapTile_Constructor, DefaultConstructor_ReturnEmptyTile)
 {
 	MapTile tile;
@@ -178,4 +195,33 @@ TEST(MapTile_setObjectTextureIndex, WithMinus1_ReturnSuccess)
 	ASSERT_EQ(1, tile.getObjectTextureIndex());
 	tile.setObjectTextureIndex(-1);
 	ASSERT_EQ(-1, tile.getObjectTextureIndex());
+}
+
+TEST(MapTile_getTriggers, WithDefaultTile_ReturnNoTriggers)
+{
+	MapTile tile;
+	ASSERT_EQ(0, tile.getTriggers().size());
+}
+
+TEST_F(MapTileWith2Triggers, addTrigger_WithOneAddedTrigger_ReturnSuccess)
+{
+	ASSERT_EQ(2, tile.getTriggers().size());
+	tile.addTrigger(MapTileTrigger(MapTileTriggerEvent::MoveLeftPressed,
+								   MapTileTriggerCondition::None,
+								   MapTileTriggerAction::OpenChest,
+								   map<string, string>()));
+	ASSERT_EQ(3, tile.getTriggers().size());
+}
+
+TEST_F(MapTileWith2Triggers, findTrigger_WithExistantEvent_ReturnEmpty)
+{
+	auto actual { tile.findTrigger(MapTileTriggerEvent::MoveDownPressed) };
+	ASSERT_TRUE(actual.has_value());
+	ASSERT_EQ(MapTileTriggerAction::ChangeMap, actual->getAction());
+}
+
+TEST_F(MapTileWith2Triggers, findTrigger_WithNonExistantEvent_ReturnEmpty)
+{
+	auto actual { tile.findTrigger(MapTileTriggerEvent::MoveRightPressed) };
+	ASSERT_FALSE(actual.has_value());
 }

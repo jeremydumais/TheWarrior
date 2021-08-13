@@ -2,7 +2,7 @@
 
 #include "gameMap.hpp"
 #include "glComponentController.hpp"
-#include "mapOpenGLWidget.hpp"
+#include "../mapOpenGLWidget.hpp"
 #include "mapTile.hpp"
 #include "point.hpp"
 #include "selectionMode.hpp"

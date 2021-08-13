@@ -19,11 +19,11 @@ set (RESOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/res/darkstyle/darkstyle.qss)
 
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mainForm.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/mainForm_GLComponent.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/mainForm_TileTabComponent.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/mainForm_TextureListTabComponent.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/mainForm_TextureSelectionComponent.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/mainForm_MapTabComponent.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_GLComponent.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_TileTabComponent.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_TextureListTabComponent.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_TextureSelectionComponent.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_MapTabComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editTextureForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editMapTileTriggerForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editTileActionChangeMapPropertiesForm.cpp
@@ -31,10 +31,10 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/qClickableLabel.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/aboutBoxForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/imageAttributionsForm.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/configurationManager.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/specialFolders.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/uiUtils.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/errorMessage.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/configurationManager.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/specialFolders.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/uiUtils.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/errorMessage.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/res/darkstyle/darkstyle.qrc
                          ${CMAKE_CURRENT_SOURCE_DIR}/res/global.qrc)
 

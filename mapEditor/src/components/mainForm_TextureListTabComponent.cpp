@@ -1,6 +1,6 @@
 #include "mainForm_TextureListTabComponent.hpp"
 #include "editTextureForm.hpp"
-#include "uiUtils.hpp"
+#include "../utils/uiUtils.hpp"
 #include <QStyle>
 #include <fmt/format.h>
 

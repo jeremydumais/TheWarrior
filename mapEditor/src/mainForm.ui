@@ -371,7 +371,7 @@
              <item>
               <layout class="QHBoxLayout" name="horizontalLayout_7">
                <item>
-                <widget class="QPushButton" name="pushButtonAddEvent">
+                <widget class="QPushButton" name="pushButtonAddTileEvent">
                  <property name="text">
                   <string>&amp;Add...</string>
                  </property>
@@ -382,7 +382,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="pushButtonEditEvent">
+                <widget class="QPushButton" name="pushButtonEditTileEvent">
                  <property name="text">
                   <string>&amp;Edit...</string>
                  </property>
@@ -393,7 +393,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="pushButtonDeleteEvent">
+                <widget class="QPushButton" name="pushButtonDeleteTileEvent">
                  <property name="text">
                   <string>&amp;Delete</string>
                  </property>

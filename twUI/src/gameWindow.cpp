@@ -223,8 +223,9 @@ void GameWindow::moveUpPressed()
 {
     //Check if there is an action
     const auto tile = map->getTileFromCoord(glPlayer.coord);
-    if (tile.getTrigger() == MapTileTriggerEvent::MoveUpPressed) {
-        processAction(tile.getAction(), tile.getActionProperties());
+    auto moveUpTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveUpPressed);
+    if (moveUpTrigger.has_value()) {
+        processAction(moveUpTrigger->getAction(), moveUpTrigger->getActionProperties());
         return;
     }
     if (map->canSteppedOnTile(Point(glPlayer.coord.x(), glPlayer.coord.y() - 1))) {
@@ -240,8 +241,9 @@ void GameWindow::moveDownPressed()
 {
     //Check if there is an action
     const auto tile = map->getTileFromCoord(glPlayer.coord);
-    if (tile.getTrigger() == MapTileTriggerEvent::MoveDownPressed) {
-        processAction(tile.getAction(), tile.getActionProperties());
+    auto moveDownTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveDownPressed);
+    if (moveDownTrigger.has_value()) {
+        processAction(moveDownTrigger->getAction(), moveDownTrigger->getActionProperties());
         return;
     }
     if (map->canSteppedOnTile(Point(glPlayer.coord.x(), glPlayer.coord.y() + 1))) {
@@ -257,8 +259,9 @@ void GameWindow::moveLeftPressed()
 {
     //Check if there is an action
     const auto tile = map->getTileFromCoord(glPlayer.coord);
-    if (tile.getTrigger() == MapTileTriggerEvent::MoveLeftPressed) {
-        processAction(tile.getAction(), tile.getActionProperties());
+    auto moveLeftTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveLeftPressed);
+    if (moveLeftTrigger.has_value()) {
+        processAction(moveLeftTrigger->getAction(), moveLeftTrigger->getActionProperties());
         return;
     }
     if (map->canSteppedOnTile(Point(glPlayer.coord.x() - 1, glPlayer.coord.y()))) {
@@ -274,8 +277,9 @@ void GameWindow::moveRightPressed()
 {
     //Check if there is an action
     const auto tile = map->getTileFromCoord(glPlayer.coord);
-    if (tile.getTrigger() == MapTileTriggerEvent::MoveRightPressed) {
-        processAction(tile.getAction(), tile.getActionProperties());
+    auto moveRightTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveRightPressed);
+    if (moveRightTrigger.has_value()) {
+        processAction(moveRightTrigger->getAction(), moveRightTrigger->getActionProperties());
         return;
     }
     if (map->canSteppedOnTile(Point(glPlayer.coord.x() + 1, glPlayer.coord.y()))) {

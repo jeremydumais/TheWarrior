@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mapTileTrigger.hpp"
+#include <boost/optional.hpp>
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/string.hpp>
@@ -31,21 +32,16 @@ public:
     bool isAssigned() const;
     bool canPlayerSteppedOn() const;
     bool getObjectAbovePlayer() const;
-    const std::vector<MapTileTrigger> getTriggers() const;
-    MapTileTriggerEvent getTrigger() const;
-    MapTileTriggerCondition getCondition() const;
-    MapTileTriggerAction getAction() const;
-    const std::map<std::string, std::string> &getActionProperties() const;
+    const std::vector<MapTileTrigger> &getTriggers() const;
+    boost::optional<const MapTileTrigger &> findConstTrigger(MapTileTriggerEvent event) const;
+    boost::optional<MapTileTrigger &> findTrigger(MapTileTriggerEvent event);
     void setTextureName(const std::string &name);
     void setTextureIndex(int index);
     void setObjectTextureName(const std::string &name);
     void setObjectTextureIndex(int index);
     void setCanPlayerSteppedOn(bool value);
     void setObjectAbovePlayer(bool value);
-    void setTrigger(MapTileTriggerEvent value);
-    void setCondition(MapTileTriggerCondition value);
-    void setAction(MapTileTriggerAction value);
-    void setActionProperties(const std::map<std::string, std::string> &properties);
+    void addTrigger(const MapTileTrigger &trigger);
 private:
     friend class boost::serialization::access;
     std::string textureName;

@@ -3,11 +3,11 @@
 
 #include "gameMap.hpp"
 #include "mainController.hpp"
-#include "mainForm_GLComponent.hpp"
-#include "mainForm_MapTabComponent.hpp"
-#include "mainForm_TextureListTabComponent.hpp"
-#include "mainForm_TextureSelectionComponent.hpp"
-#include "mainForm_TileTabComponent.hpp"
+#include "components/mainForm_GLComponent.hpp"
+#include "components/mainForm_MapTabComponent.hpp"
+#include "components/mainForm_TextureListTabComponent.hpp"
+#include "components/mainForm_TextureSelectionComponent.hpp"
+#include "components/mainForm_TileTabComponent.hpp"
 #include "point.hpp"
 #include "selectionMode.hpp"
 #include <memory>
@@ -40,7 +40,6 @@ private:
     const std::string &getResourcesPath();
 	void setAppStylesheet(const std::string &style);
 	void connectUIActions();
-	void generateComboxItems();
 	void action_Open_Click();
 	void action_OpenRecentMap_Click();
 	void action_Save_Click();

@@ -1,11 +1,11 @@
 #include "mainForm.hpp"
 #include "aboutBoxForm.hpp"
-#include "configurationManager.hpp"
+#include "utils/configurationManager.hpp"
 #include "editMapTileTriggerForm.hpp"
 #include "editTextureForm.hpp"
 #include "editTileActionChangeMapPropertiesForm.hpp"
-#include "errorMessage.hpp"
-#include "specialFolders.hpp"
+#include "utils/errorMessage.hpp"
+#include "utils/specialFolders.hpp"
 #include <QtCore/qfile.h>
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
@@ -53,6 +53,10 @@ MainForm::MainForm(QWidget *parent)
 	tileUIObjects.spinBoxObjTexIndex = ui.spinBoxObjTexIndex;
 	tileUIObjects.checkBoxObjectAbovePlayer = ui.checkBoxObjectAbovePlayer;
 	tileUIObjects.checkBoxTileCanSteppedOn = ui.checkBoxTileCanSteppedOn;
+	tileUIObjects.listWidgetMapTileTriggers = ui.listWidgetMapTileTriggers;
+	tileUIObjects.pushButtonAddTileEvent = ui.pushButtonAddTileEvent;
+	tileUIObjects.pushButtonEditTileEvent = ui.pushButtonEditTileEvent;
+	tileUIObjects.pushButtonDeleteTileEvent = ui.pushButtonDeleteTileEvent;
 	tileTabComponent.initializeUIObjects(tileUIObjects);
 	//TextureListTab Component initialization
 	MainForm_TextureListTabComponent_Objects textureListUIObjects;
@@ -73,7 +77,6 @@ MainForm::MainForm(QWidget *parent)
 	textureSelectionUIObjects.labelImageTexture = ui.labelImageTexture;
 	textureSelectionComponent.initializeUIObjects(textureSelectionUIObjects);
 	connectUIActions();
-	generateComboxItems();
 
 	//Check if the user configuration folder exist
 	userConfigFolder = SpecialFolders::getUserConfigDirectory();
@@ -122,10 +125,6 @@ void MainForm::connectUIActions()
 	connect(ui.action_ApplyObject, &QAction::triggered, this, &MainForm::action_ApplyObjectClick);
 	connect(ui.action_EnableCanStep, &QAction::triggered, this, &MainForm::action_EnableCanStepClick);
 	connect(ui.action_DisableCanStep, &QAction::triggered, this, &MainForm::action_DisableCanStepClick);
-	/*connect(ui.pushButtonSelectedTextureClear, &QPushButton::clicked, this, &MainForm::onPushButtonSelectedTextureClearClick);
-	connect(ui.pushButtonSelectedObjectClear, &QPushButton::clicked, this, &MainForm::onPushButtonSelectedObjectClearClick);
-	connect(ui.labelImageTexture, &QClickableLabel::onMouseReleaseEvent, this, &MainForm::onLabelImageTextureMouseReleaseEvent);
-	connect(ui.comboBoxTexture, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm::onComboBoxTextureCurrentIndexChanged);*/
 	glComponent.connectUIActions();
 	mapTabComponent.connectUIActions();
 	tileTabComponent.connectUIActions();
@@ -136,29 +135,6 @@ void MainForm::connectUIActions()
 	connect(&textureListTabComponent, &MainForm_TextureListTabComponent::textureUpdated, this, &MainForm::onTextureUpdated);
 	connect(&textureListTabComponent, &MainForm_TextureListTabComponent::textureDeleted, this, &MainForm::onTextureDeleted);
 	
-}
-
-void MainForm::generateComboxItems() 
-{
-	//comboBoxTileTrigger
-	/*ui.comboBoxTileTrigger->model()->removeRows(0, ui.comboBoxTileTrigger->count());
-	ui.comboBoxTileTrigger->insertItem(0, "None");
-	ui.comboBoxTileTrigger->insertItem(1, "SteppedOn");
-	ui.comboBoxTileTrigger->insertItem(2, "MoveUpPressed");
-	ui.comboBoxTileTrigger->insertItem(3, "MoveDownPressed");
-	ui.comboBoxTileTrigger->insertItem(4, "MoveLeftPressed");
-	ui.comboBoxTileTrigger->insertItem(5, "MoveRightLeft");
-	ui.comboBoxTileTrigger->insertItem(6, "ActionButtonPressed");
-	//comboBoxTileCondition
-	ui.comboBoxTileCondition->model()->removeRows(0, ui.comboBoxTileCondition->count());
-	ui.comboBoxTileCondition->insertItem(0, "None");
-	ui.comboBoxTileCondition->insertItem(1, "MustBeFacing");
-	ui.comboBoxTileCondition->insertItem(2, "MustHaveItem");
-	//comboBoxTileAction
-	ui.comboBoxTileAction->model()->removeRows(0, ui.comboBoxTileAction->count());
-	ui.comboBoxTileAction->insertItem(0, "None");
-	ui.comboBoxTileAction->insertItem(1, "OpenChest");
-	ui.comboBoxTileAction->insertItem(2, "ChangeMap");*/
 }
 
 void MainForm::action_Open_Click() 
@@ -450,37 +426,3 @@ void MainForm::refreshTextureList()
 	textureSelectionComponent.refreshTextureList();
 	glComponent.reloadTextures();
 }
-
-/*
-void MainForm::onComboBoxTileTriggerChanged() 
-{
-	if (currentMapTile != nullptr) {
-		currentMapTile->setTrigger(static_cast<MapTileTriggerEvent>(ui.comboBoxTileTrigger->currentIndex()));
-		ui.mapOpenGLWidget->updateGL();
-	}
-}
-
-void MainForm::onComboBoxTileConditionChanged() 
-{
-	if (currentMapTile != nullptr) {
-		currentMapTile->setCondition(static_cast<MapTileTriggerCondition>(ui.comboBoxTileCondition->currentIndex()));
-		ui.mapOpenGLWidget-gyugyug>updateGL();
-	}
-}
-
-void MainForm::onPushButtonTileActionPropertiesClick() 
-{
-	if (currentMapTile != nullptr && ui.comboBoxTileAction->currentIndex() != static_cast<int>(MapTileTriggerAction::None)) {
-		ui.mapOpenGLWidget->stopAutoUpdate();
-		if (ui.comboBoxTileAction->currentIndex() == static_cast<int>(MapTileTriggerAction::ChangeMap)) {
-			EditTileActionChangeMapPropertiesForm formEditActionProperties(this, 
-																		   getResourcesPath(), 
-																		   currentMapTile->getActionProperties());
-			if (formEditActionProperties.exec() == QDialog::Accepted) {
-				currentMapTile->setActionProperties(formEditActionProperties.getUpdatedProperties());
-			}
-		}
-		ui.mapOpenGLWidget->startAutoUpdate();
-	}
-}
-*/
