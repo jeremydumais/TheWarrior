@@ -26,5 +26,6 @@ vector<string> MapTileTriggerActionConverter::allActionsToString()
 {
     return { "None"s,
              "OpenChest"s,
-             "ChangeMap"s };
+             "ChangeMap"s,
+             "DenyMove"s };
 }

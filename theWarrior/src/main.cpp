@@ -2,7 +2,7 @@
 #include "gameWindow.hpp"
 #include <SDL2/SDL.h>
 
-int main(int argc, char **argv)
+int main(int, char **)
 {
     GameWindow gameWindow("The Warrior", 100, 50, 1024, 900);
     gameWindow.show();

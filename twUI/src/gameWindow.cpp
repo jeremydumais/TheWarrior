@@ -111,7 +111,7 @@ GameWindow::GameWindow(const string &title,
 
     fpsCalculator.initialize();
 
-    SDL_JoystickEventState(SDL_DISABLE);
+    SDL_JoystickEventState(SDL_ENABLE);
     joystick = SDL_JoystickOpen(0);
 }
 
@@ -144,6 +144,7 @@ void GameWindow::processEvents()
 {
     SDL_Event e;
     SDL_JoystickUpdate();
+    
     while(SDL_PollEvent(&e) != 0) {
         if(e.type == SDL_QUIT){
             mustExit = true;
@@ -170,6 +171,16 @@ void GameWindow::processEvents()
                 blockToggleFPS = false;
             }
         }
+        else if (e.type == SDL_JOYBUTTONDOWN) {
+            if (e.jbutton.button == 0) {
+                glPlayer.enableRunMode();
+            }
+        }
+        else if (e.type == SDL_JOYBUTTONUP) {
+            if (e.jbutton.button == 0) {
+                glPlayer.disableRunMode();
+            }
+        }
         else if (e.type == SDL_WINDOWEVENT) {
             if (e.window.event == SDL_WINDOWEVENT_RESIZED) {
                 SDL_GetWindowSize(window, &width, &height);
@@ -193,6 +204,7 @@ void GameWindow::processEvents()
             blockToggleFPS = true;
         }
     }
+
     for (int i = 0 ; i < SDL_JoystickNumHats(joystick) ; i++ ) {
         if (SDL_JoystickGetHat(joystick, i) == SDL_HAT_UP && !glPlayer.isInMovement()) {
             moveUpPressed();
@@ -226,14 +238,11 @@ void GameWindow::moveUpPressed()
     auto moveUpTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveUpPressed);
     if (moveUpTrigger.has_value()) {
         processAction(moveUpTrigger->getAction(), moveUpTrigger->getActionProperties());
-        return;
     }
-    if (map->canSteppedOnTile(Point(glPlayer.coord.x(), glPlayer.coord.y() - 1))) {
+    else if (map->canSteppedOnTile(Point(glPlayer.coord.x(), glPlayer.coord.y() - 1))) {
         glPlayer.moveUp();
     } 
-    else {
-        glPlayer.faceUp();
-    }
+    glPlayer.faceUp();
     setPlayerTexture();
 }
 
@@ -244,11 +253,13 @@ void GameWindow::moveDownPressed()
     auto moveDownTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveDownPressed);
     if (moveDownTrigger.has_value()) {
         processAction(moveDownTrigger->getAction(), moveDownTrigger->getActionProperties());
-        return;
     }
-    if (map->canSteppedOnTile(Point(glPlayer.coord.x(), glPlayer.coord.y() + 1))) {
-        glPlayer.moveDown();
+    else if (map->canSteppedOnTile(Point(glPlayer.coord.x(), glPlayer.coord.y() + 1))) {
+        glPlayer.moveDown(tile.getIsWallToClimb());
     } 
+    if (tile.getIsWallToClimb()) {
+        glPlayer.faceUp();
+    }
     else {
         glPlayer.faceDown();
     }
@@ -262,11 +273,13 @@ void GameWindow::moveLeftPressed()
     auto moveLeftTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveLeftPressed);
     if (moveLeftTrigger.has_value()) {
         processAction(moveLeftTrigger->getAction(), moveLeftTrigger->getActionProperties());
-        return;
     }
-    if (map->canSteppedOnTile(Point(glPlayer.coord.x() - 1, glPlayer.coord.y()))) {
+    else if (map->canSteppedOnTile(Point(glPlayer.coord.x() - 1, glPlayer.coord.y()))) {
         glPlayer.moveLeft();
     } 
+    if (tile.getIsWallToClimb()) {
+        glPlayer.faceUp();
+    }
     else {
         glPlayer.faceLeft();
     }
@@ -280,11 +293,13 @@ void GameWindow::moveRightPressed()
     auto moveRightTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveRightPressed);
     if (moveRightTrigger.has_value()) {
         processAction(moveRightTrigger->getAction(), moveRightTrigger->getActionProperties());
-        return;
     }
-    if (map->canSteppedOnTile(Point(glPlayer.coord.x() + 1, glPlayer.coord.y()))) {
+    else if (map->canSteppedOnTile(Point(glPlayer.coord.x() + 1, glPlayer.coord.y()))) {
         glPlayer.moveRight();
     } 
+    if (tile.getIsWallToClimb()) {
+        glPlayer.faceUp();
+    }
     else {
         glPlayer.faceRight();
     }
@@ -613,14 +628,18 @@ void GameWindow::changeMap(const std::string &filePath)
 
 void GameWindow::processAction(MapTileTriggerAction action, const std::map<std::string, std::string> &properties) 
 {
-    if (action == MapTileTriggerAction::ChangeMap) {
-        if (properties.at("playerFacing") == "1") {
-            glPlayer.faceDown();
-        }
-        glPlayer.coord.setX(stoi(properties.at("playerX")));
-        glPlayer.coord.setY(stoi(properties.at("playerY")));
-        changeMap(fmt::format("{0}/maps/{1}", getResourcesPath(), properties.at("mapFileName")));
-        return;
+    switch (action) 
+    {
+        case MapTileTriggerAction::ChangeMap:
+            if (properties.at("playerFacing") == "1") {
+                glPlayer.faceDown();
+            }
+            glPlayer.coord.setX(stoi(properties.at("playerX")));
+            glPlayer.coord.setY(stoi(properties.at("playerY")));
+            changeMap(fmt::format("{0}/maps/{1}", getResourcesPath(), properties.at("mapFileName")));
+            break;
+        default:   
+            break;
     }
 }
 

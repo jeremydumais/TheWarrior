@@ -4,7 +4,9 @@ using namespace std;
 
 
 GLPlayer::GLPlayer()
-    : coord(0, 0)
+    : coord(0, 0),
+      isInClimbingMode(false),
+      isInRunningMode(false)
 {
 }
 
@@ -21,6 +23,11 @@ int GLPlayer::getTextureIndex() const
 bool GLPlayer::isInMovement() const
 {
     return playerMovement != PlayerMovement::None;
+}
+
+bool GLPlayer::isRunning() const
+{
+    return isInRunningMode;
 }
 
 void GLPlayer::initialize() 
@@ -42,12 +49,19 @@ void GLPlayer::moveUp()
     currentMovementTextureIndex = baseTextureIndex;
 }
 
-void GLPlayer::moveDown() 
+void GLPlayer::moveDown(bool isInClimbingMode) 
 {
     playerMovement = PlayerMovement::MoveDown;
+    this->isInClimbingMode = isInClimbingMode;
     coord.setY(coord.y() + 1);
     yMove = -1.0f;
-    currentMovementTextureIndex = baseTextureIndex + 36;
+    if (isInClimbingMode) {
+        //Face up
+        currentMovementTextureIndex = baseTextureIndex;
+    }
+    else {
+        currentMovementTextureIndex = baseTextureIndex + 36;
+    }
 }
 
 void GLPlayer::moveLeft() 
@@ -85,15 +99,26 @@ void GLPlayer::faceRight()
     currentMovementTextureIndex = baseTextureIndex + 13;
 }
 
+void GLPlayer::enableRunMode() 
+{
+    isInRunningMode = true;
+}
+
+void GLPlayer::disableRunMode() 
+{
+    isInRunningMode = false;
+}
+
 MovingResult GLPlayer::processMoving(double delta_time) 
 {
     MovingResult result;
-    const float SPEED = 7.0f;
+    const float SPEED = isInRunningMode ? 11.0f : 7.0f;
     if (playerMovement == PlayerMovement::MoveUp) {
         yMove -= SPEED * delta_time;
         if (yMove < 0.0f) {
             yMove = 0.0f;
             playerMovement = PlayerMovement::None;
+            isInClimbingMode = false;
         }
         else if(yMove < 0.3f) {
             if (currentMovementTextureIndex != 1) {
@@ -113,17 +138,34 @@ MovingResult GLPlayer::processMoving(double delta_time)
         if (yMove > 0.0f) {
             yMove = 0.0f;
             playerMovement = PlayerMovement::None;
+            isInClimbingMode = false;
         }
         else if(yMove > -0.3f) {
-            if (currentMovementTextureIndex != baseTextureIndex + 37) {
-                currentMovementTextureIndex = baseTextureIndex + 37;
-                result.needToRefreshTexture = true;
+            if (isInClimbingMode) {
+                if (currentMovementTextureIndex != 1) {
+                    currentMovementTextureIndex = baseTextureIndex + 1;
+                    result.needToRefreshTexture = true;
+                }
+            }
+            else {
+                if (currentMovementTextureIndex != baseTextureIndex + 37) {
+                    currentMovementTextureIndex = baseTextureIndex + 37;
+                    result.needToRefreshTexture = true;
+                }
             }
         }
         else if(yMove > -0.6f) {
-            if (currentMovementTextureIndex != baseTextureIndex + 38) {
-                currentMovementTextureIndex = baseTextureIndex + 38;
-                result.needToRefreshTexture = true;
+            if (isInClimbingMode) {
+                if (currentMovementTextureIndex != 2) {
+                    currentMovementTextureIndex = baseTextureIndex + 2;
+                    result.needToRefreshTexture = true;
+                }
+            }
+            else {
+                if (currentMovementTextureIndex != baseTextureIndex + 38) {
+                    currentMovementTextureIndex = baseTextureIndex + 38;
+                    result.needToRefreshTexture = true;
+                }
             }
         }
     }
@@ -132,6 +174,7 @@ MovingResult GLPlayer::processMoving(double delta_time)
         if (xMove < 0.0f) {
             xMove = 0.0f;
             playerMovement = PlayerMovement::None;
+            isInClimbingMode = false;
         }
         else if(xMove < 0.3f) {
             if (currentMovementTextureIndex != baseTextureIndex + 25) {
@@ -151,6 +194,7 @@ MovingResult GLPlayer::processMoving(double delta_time)
         if (xMove > 0.0f) {
             xMove = 0.0f;
             playerMovement = PlayerMovement::None;
+            isInClimbingMode = false;
         }
         else if(xMove > -0.3f) {
             if (currentMovementTextureIndex != baseTextureIndex + 13) {
@@ -165,4 +209,5 @@ MovingResult GLPlayer::processMoving(double delta_time)
             }
         }
     }
+    return result;
 }

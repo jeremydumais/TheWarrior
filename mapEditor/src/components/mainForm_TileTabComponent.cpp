@@ -1,5 +1,6 @@
 #include "mainForm_TileTabComponent.hpp"
 #include "editMapTileTriggerForm.hpp"
+#include "utils/errorMessage.hpp"
 #include "mapTileTriggerEventConverter.hpp"
 #include "../utils/uiUtils.hpp"
 #include <fmt/format.h>
@@ -13,6 +14,7 @@ MainForm_TileTabComponent::MainForm_TileTabComponent()
       spinBoxObjTexIndex(nullptr),
       checkBoxTileCanSteppedOn(nullptr),
       checkBoxObjectAbovePlayer(nullptr),
+	  checkBoxIsWallToClimb(nullptr),
 	  listWidgetMapTileTriggers(nullptr),
 	  pushButtonAddTileEvent(nullptr),
 	  pushButtonEditTileEvent(nullptr),
@@ -30,6 +32,7 @@ void MainForm_TileTabComponent::initializeUIObjects(const MainForm_TileTabCompon
 	this->spinBoxObjTexIndex = objects.spinBoxObjTexIndex;
 	this->checkBoxTileCanSteppedOn = objects.checkBoxTileCanSteppedOn;
 	this->checkBoxObjectAbovePlayer = objects.checkBoxObjectAbovePlayer;
+	this->checkBoxIsWallToClimb = objects.checkBoxIsWallToClimb;
 	this->listWidgetMapTileTriggers = objects.listWidgetMapTileTriggers;
 	this->pushButtonAddTileEvent = objects.pushButtonAddTileEvent;
 	this->pushButtonEditTileEvent = objects.pushButtonEditTileEvent;
@@ -45,8 +48,10 @@ void MainForm_TileTabComponent::connectUIActions()
 	connect(spinBoxObjTexIndex, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainForm_TileTabComponent::onSpinBoxObjTexIndexValueChanged);
 	connect(checkBoxTileCanSteppedOn, &QCheckBox::stateChanged, this, &MainForm_TileTabComponent::onCheckBoxTileCanSteppedOnChanged);
 	connect(checkBoxObjectAbovePlayer, &QCheckBox::stateChanged, this, &MainForm_TileTabComponent::onCheckBoxObjectAbovePlayerChanged);
+	connect(checkBoxIsWallToClimb, &QCheckBox::stateChanged, this, &MainForm_TileTabComponent::onCheckBoxIsWallToClimbChanged);
 	connect(pushButtonAddTileEvent, &QPushButton::clicked, this, &MainForm_TileTabComponent::onPushButtonAddTileEventClick);
 	connect(pushButtonEditTileEvent, &QPushButton::clicked, this, &MainForm_TileTabComponent::onPushButtonEditTileEventClick);
+	connect(pushButtonDeleteTileEvent, &QPushButton::clicked, this, &MainForm_TileTabComponent::onPushButtonDeleteTileEventClick);
 }
 
 void MainForm_TileTabComponent::refreshEventList(MapTile *tile) 
@@ -68,6 +73,7 @@ void MainForm_TileTabComponent::onTileSelected(MapTile *tile, Point coord)
 	spinBoxObjTexIndex->setValue(tile->getObjectTextureIndex());
 	checkBoxTileCanSteppedOn->setChecked(tile->canPlayerSteppedOn());
 	checkBoxObjectAbovePlayer->setChecked(tile->getObjectAbovePlayer());
+	checkBoxIsWallToClimb->setChecked(tile->getIsWallToClimb());
 	refreshEventList(tile);
 }
 
@@ -126,6 +132,15 @@ void MainForm_TileTabComponent::onCheckBoxTileCanSteppedOnChanged(int state)
 	}
 }
 
+void MainForm_TileTabComponent::onCheckBoxIsWallToClimbChanged(int state) 
+{
+	auto currentMapTile = glComponent->getCurrentMapTile();
+	if (currentMapTile != nullptr) {
+		currentMapTile->setIsWallToClimb(state == Qt::Checked);
+		glComponent->updateGL();
+	}
+}
+
 boost::optional<MapTileTrigger &> MainForm_TileTabComponent::getSelectedTrigger() 
 {
 	auto currentMapTile = glComponent->getCurrentMapTile();
@@ -177,7 +192,32 @@ void MainForm_TileTabComponent::onPushButtonEditTileEventClick()
 														currentMapTile->getTriggers());
 			UIUtils::CenterToScreen(&formEditMapTileTrigger);
 			if (formEditMapTileTrigger.exec() == QDialog::Accepted) {
-				//currentMapTile->updateTrigger(formEditMapTileTrigger.getUpdatedTrigger());
+				if (!currentMapTile->updateTrigger(selectedMapTileTrigger.get(), formEditMapTileTrigger.getUpdatedTrigger())) {
+					ErrorMessage::show("An error occurred while trying to update the selected trigger.");
+				}
+				refreshEventList(glComponent->getCurrentMapTile());
+			}
+		}
+	}
+	glComponent->startAutoUpdate();
+}
+
+void MainForm_TileTabComponent::onPushButtonDeleteTileEventClick() 
+{
+	glComponent->stopAutoUpdate();
+	auto currentMapTile = glComponent->getCurrentMapTile();
+	if (currentMapTile != nullptr) {
+		//Find the selected event
+		auto selectedMapTileTrigger { getSelectedTrigger() };
+		if (selectedMapTileTrigger.has_value()) {
+			QMessageBox msgBox;
+			msgBox.setText(fmt::format("Are you sure you want to delete the trigger {0}?", 
+									   MapTileTriggerEventConverter::eventToString(selectedMapTileTrigger->getEvent())).c_str());
+			msgBox.setWindowTitle("Confirmation");
+			msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+			msgBox.setDefaultButton(QMessageBox::Cancel);
+			if (msgBox.exec() == QMessageBox::Yes) {
+				currentMapTile->deleteTrigger(selectedMapTileTrigger.get());
 				refreshEventList(glComponent->getCurrentMapTile());
 			}
 		}

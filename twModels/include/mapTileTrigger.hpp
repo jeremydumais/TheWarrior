@@ -30,7 +30,8 @@ enum class MapTileTriggerAction
 {
     None,
     OpenChest,
-    ChangeMap
+    ChangeMap,
+    DenyMove
 };
 
 class MapTileTrigger 
@@ -59,7 +60,7 @@ private:
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
     {
-        if(version > 2) {
+        if(version > 0) {
             ar & event;
             ar & condition;
             ar & action;
@@ -67,6 +68,6 @@ private:
         }
     }
 };
-
+BOOST_CLASS_VERSION(MapTileTrigger, 1)
 
 

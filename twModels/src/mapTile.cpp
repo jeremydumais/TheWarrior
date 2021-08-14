@@ -1,4 +1,7 @@
 #include "mapTile.hpp"
+#include <algorithm>
+
+using namespace std;
 
 MapTile::MapTile() 
     : textureName(""),
@@ -7,6 +10,7 @@ MapTile::MapTile()
       objectTextureIndex(-1),
       canSteppedOn(true),
       objectAbovePlayer(false),
+      isWallToClimb(false),
       triggers(std::vector<MapTileTrigger>())
 {
 }
@@ -57,6 +61,11 @@ bool MapTile::canPlayerSteppedOn() const
 bool MapTile::getObjectAbovePlayer() const
 {
     return objectAbovePlayer;
+}
+
+bool MapTile::getIsWallToClimb() const
+{
+    return isWallToClimb;
 }
 
 const std::vector<MapTileTrigger> &MapTile::getTriggers() const
@@ -114,7 +123,35 @@ void MapTile::setObjectAbovePlayer(bool value)
     this->objectAbovePlayer = value;
 }
 
+void MapTile::setIsWallToClimb(bool value) 
+{
+    this->isWallToClimb = value;
+}
+
 void MapTile::addTrigger(const MapTileTrigger &trigger) 
 {
     triggers.emplace_back(trigger);
+}
+
+bool MapTile::updateTrigger(const MapTileTrigger &triggerToUpdate, const MapTileTrigger &updatedTrigger) 
+{
+    auto iter { find_if(triggers.begin(), triggers.end(), [&triggerToUpdate](const MapTileTrigger &trigger) {
+        return triggerToUpdate.getEvent() == trigger.getEvent();
+    })};
+    if (iter != triggers.end()) {
+        *iter = updatedTrigger;
+        return true;
+    }
+    return false;
+}
+
+bool MapTile::deleteTrigger(const MapTileTrigger &triggerToDelete) 
+{
+    auto oldSize { triggers.size() };
+    auto newTriggersEnd { remove_if(triggers.begin(), triggers.end(), [&triggerToDelete](const MapTileTrigger &trigger) {
+        return triggerToDelete.getEvent() == trigger.getEvent();
+    })};
+    auto newSize { distance(triggers.begin(), newTriggersEnd) };
+    triggers.erase(newTriggersEnd, triggers.end());
+    return oldSize - newSize > 0;
 }

@@ -7,17 +7,21 @@ class MapTileWith2Triggers : public ::testing::Test
 {
 public:
 	MapTileWith2Triggers()
+	  : firstTrigger(MapTileTrigger(MapTileTriggerEvent::MoveUpPressed,
+								   	MapTileTriggerCondition::None,
+								    MapTileTriggerAction::OpenChest,
+								    map<string, string>())),
+		secondTrigger(MapTileTrigger(MapTileTriggerEvent::MoveDownPressed,
+								   	 MapTileTriggerCondition::None,
+								     MapTileTriggerAction::ChangeMap,
+								     map<string, string>()))
 	{
-		tile.addTrigger(MapTileTrigger(MapTileTriggerEvent::MoveUpPressed,
-								   	   MapTileTriggerCondition::None,
-								       MapTileTriggerAction::OpenChest,
-								       map<string, string>()));
-		tile.addTrigger(MapTileTrigger(MapTileTriggerEvent::MoveDownPressed,
-								   	   MapTileTriggerCondition::None,
-								       MapTileTriggerAction::ChangeMap,
-								       map<string, string>()));
+		tile.addTrigger(firstTrigger);
+		tile.addTrigger(secondTrigger);
 	}
 	MapTile tile;
+	MapTileTrigger firstTrigger;
+	MapTileTrigger secondTrigger;
 };
 
 TEST(MapTile_Constructor, DefaultConstructor_ReturnEmptyTile)
@@ -224,4 +228,68 @@ TEST_F(MapTileWith2Triggers, findTrigger_WithNonExistantEvent_ReturnEmpty)
 {
 	auto actual { tile.findTrigger(MapTileTriggerEvent::MoveRightPressed) };
 	ASSERT_FALSE(actual.has_value());
+}
+
+TEST_F(MapTileWith2Triggers, updateTrigger_WithDifferentEvent_ReturnSuccess)
+{
+	auto updatedTrigger { MapTileTrigger(MapTileTriggerEvent::MoveLeftPressed,
+										 MapTileTriggerCondition::None,
+										 MapTileTriggerAction::ChangeMap,
+										 map<string, string>()) };
+	ASSERT_TRUE(tile.updateTrigger(secondTrigger, updatedTrigger));
+	ASSERT_EQ(MapTileTriggerEvent::MoveLeftPressed, tile.getTriggers()[1].getEvent());
+	ASSERT_EQ(MapTileTriggerCondition::None, tile.getTriggers()[1].getCondition());
+	ASSERT_EQ(MapTileTriggerAction::ChangeMap, tile.getTriggers()[1].getAction());
+	ASSERT_EQ(0, tile.getTriggers()[1].getActionProperties().size());
+}
+
+TEST_F(MapTileWith2Triggers, updateTrigger_WithDifferentEventAndCondition_ReturnSuccess)
+{
+	auto updatedTrigger { MapTileTrigger(MapTileTriggerEvent::MoveLeftPressed,
+										 MapTileTriggerCondition::MustBeFacing,
+										 MapTileTriggerAction::ChangeMap,
+										 map<string, string>()) };
+	ASSERT_TRUE(tile.updateTrigger(secondTrigger, updatedTrigger));
+	ASSERT_EQ(MapTileTriggerEvent::MoveLeftPressed, tile.getTriggers()[1].getEvent());
+	ASSERT_EQ(MapTileTriggerCondition::MustBeFacing, tile.getTriggers()[1].getCondition());
+	ASSERT_EQ(MapTileTriggerAction::ChangeMap, tile.getTriggers()[1].getAction());
+	ASSERT_EQ(0, tile.getTriggers()[1].getActionProperties().size());
+}
+
+TEST_F(MapTileWith2Triggers, updateTrigger_WithDifferentActionProperties_ReturnSuccess)
+{
+	auto updatedTrigger { MapTileTrigger(MapTileTriggerEvent::MoveLeftPressed,
+										 MapTileTriggerCondition::MustBeFacing,
+										 MapTileTriggerAction::ChangeMap,
+										 map<string, string>({ {"Test", "Test2"} }) ) };
+	ASSERT_TRUE(tile.updateTrigger(secondTrigger, updatedTrigger));
+	ASSERT_EQ(MapTileTriggerEvent::MoveLeftPressed, tile.getTriggers()[1].getEvent());
+	ASSERT_EQ(MapTileTriggerCondition::MustBeFacing, tile.getTriggers()[1].getCondition());
+	ASSERT_EQ(MapTileTriggerAction::ChangeMap, tile.getTriggers()[1].getAction());
+	ASSERT_EQ(1, tile.getTriggers()[1].getActionProperties().size());
+	ASSERT_EQ("Test2", tile.getTriggers()[1].getActionProperties().at("Test"));
+}
+
+TEST_F(MapTileWith2Triggers, deleteTrigger_WithFirstTrigger_ReturnTrue)
+{
+	ASSERT_EQ(2, tile.getTriggers().size());
+	ASSERT_TRUE(tile.deleteTrigger(firstTrigger));
+	ASSERT_EQ(1, tile.getTriggers().size());
+	ASSERT_EQ(secondTrigger.getEvent(), tile.getTriggers()[0].getEvent());
+	ASSERT_EQ(secondTrigger.getCondition(), tile.getTriggers()[0].getCondition());
+	ASSERT_EQ(secondTrigger.getAction(), tile.getTriggers()[0].getAction());
+	ASSERT_EQ(0, tile.getTriggers()[0].getActionProperties().size());
+	
+}
+
+TEST_F(MapTileWith2Triggers, deleteTrigger_WithSecondTrigger_ReturnTrue)
+{
+	ASSERT_EQ(2, tile.getTriggers().size());
+	ASSERT_TRUE(tile.deleteTrigger(secondTrigger));
+	ASSERT_EQ(1, tile.getTriggers().size());
+	ASSERT_EQ(firstTrigger.getEvent(), tile.getTriggers()[0].getEvent());
+	ASSERT_EQ(firstTrigger.getCondition(), tile.getTriggers()[0].getCondition());
+	ASSERT_EQ(firstTrigger.getAction(), tile.getTriggers()[0].getAction());
+	ASSERT_EQ(0, tile.getTriggers()[0].getActionProperties().size());
+	
 }

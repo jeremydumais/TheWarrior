@@ -20,6 +20,7 @@ struct MainForm_TileTabComponent_Objects
 	QSpinBox *spinBoxObjTexIndex = nullptr;
 	QCheckBox *checkBoxTileCanSteppedOn = nullptr;
 	QCheckBox *checkBoxObjectAbovePlayer = nullptr;
+	QCheckBox *checkBoxIsWallToClimb = nullptr;
 	QListWidget *listWidgetMapTileTriggers = nullptr;
 	QPushButton *pushButtonAddTileEvent = nullptr;
 	QPushButton *pushButtonEditTileEvent = nullptr;
@@ -42,6 +43,7 @@ private:
 	QSpinBox *spinBoxObjTexIndex;
 	QCheckBox *checkBoxTileCanSteppedOn;
 	QCheckBox *checkBoxObjectAbovePlayer;
+	QCheckBox *checkBoxIsWallToClimb;
 	QListWidget *listWidgetMapTileTriggers;
 	QPushButton *pushButtonAddTileEvent;
 	QPushButton *pushButtonEditTileEvent;
@@ -54,7 +56,9 @@ private:
 	void onSpinBoxObjTexIndexValueChanged(int value);
 	void onCheckBoxObjectAbovePlayerChanged(int state);
 	void onCheckBoxTileCanSteppedOnChanged(int state);
+	void onCheckBoxIsWallToClimbChanged(int state);
 	boost::optional<MapTileTrigger &> getSelectedTrigger();
 	void onPushButtonAddTileEventClick();
 	void onPushButtonEditTileEventClick();
+	void onPushButtonDeleteTileEventClick();
 };

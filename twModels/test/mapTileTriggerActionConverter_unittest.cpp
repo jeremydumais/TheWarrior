@@ -5,7 +5,7 @@ using namespace std;
 
 TEST(MapTileTriggerActionConverter_allActionsToString, Return3Actions)
 {
-    ASSERT_EQ(3, MapTileTriggerActionConverter::allActionsToString().size());
+    ASSERT_EQ(4, MapTileTriggerActionConverter::allActionsToString().size());
 }
 
 TEST(MapTileTriggerActionConverter_actionToString, withNone_ReturnNoneStr)
@@ -32,6 +32,15 @@ TEST(MapTileTriggerActionConverter_actionToString, withChangeMap_ReturnChangeMap
     ASSERT_EQ("ChangeMap"s, MapTileTriggerActionConverter::actionToString(trigger.getAction()));
 }
 
+TEST(MapTileTriggerActionConverter_actionToString, withDenyMove_ReturnDenyMoveStr)
+{
+    MapTileTrigger trigger(MapTileTriggerEvent::None,
+                           MapTileTriggerCondition::None,
+                           MapTileTriggerAction::DenyMove,
+                           map<string, string>());
+    ASSERT_EQ("DenyMove"s, MapTileTriggerActionConverter::actionToString(trigger.getAction()));
+}
+
 TEST(MapTileTriggerActionConverter_actionFromString, withNone_ReturnNoneAction)
 {
     ASSERT_EQ(MapTileTriggerAction::None, MapTileTriggerActionConverter::actionFromString("None"s));
@@ -50,6 +59,11 @@ TEST(MapTileTriggerActionConverter_actionFromString, withOpenChest_ReturnOpenChe
 TEST(MapTileTriggerActionConverter_actionFromString, withChangeMap_ReturnChangeMapAction)
 {
     ASSERT_EQ(MapTileTriggerAction::ChangeMap, MapTileTriggerActionConverter::actionFromString("ChangeMap"s));
+}
+
+TEST(MapTileTriggerActionConverter_actionFromString, withDenyMove_ReturnDenyMoveAction)
+{
+    ASSERT_EQ(MapTileTriggerAction::DenyMove, MapTileTriggerActionConverter::actionFromString("DenyMove"s));
 }
 
 TEST(MapTileTriggerActionConverter_actionFromString, withNonExistantAction_ReturnEmpty)

@@ -53,6 +53,7 @@ MainForm::MainForm(QWidget *parent)
 	tileUIObjects.spinBoxObjTexIndex = ui.spinBoxObjTexIndex;
 	tileUIObjects.checkBoxObjectAbovePlayer = ui.checkBoxObjectAbovePlayer;
 	tileUIObjects.checkBoxTileCanSteppedOn = ui.checkBoxTileCanSteppedOn;
+	tileUIObjects.checkBoxIsWallToClimb = ui.checkBoxIsWallToClimb;
 	tileUIObjects.listWidgetMapTileTriggers = ui.listWidgetMapTileTriggers;
 	tileUIObjects.pushButtonAddTileEvent = ui.pushButtonAddTileEvent;
 	tileUIObjects.pushButtonEditTileEvent = ui.pushButtonEditTileEvent;
