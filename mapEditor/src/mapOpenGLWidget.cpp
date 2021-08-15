@@ -330,9 +330,9 @@ void MapOpenGLWidget::draw()
             glBindTexture(GL_TEXTURE_2D, 0);
             index++;
         }
-        x += row.size() * -(TILESIZE + TILESPACING);
+        x += static_cast<float>(row.size()) * -(TILESIZE + TILESPACING);
         y += -(TILESIZE + TILESPACING);
-        glTranslatef(row.size() * -(TILESIZE + TILESPACING), -(TILESIZE + TILESPACING), 0);
+        glTranslatef(static_cast<float>(row.size()) * -(TILESIZE + TILESPACING), -(TILESIZE + TILESPACING), 0.0f);
     }
     glPopMatrix();
     glPushMatrix();
@@ -354,14 +354,18 @@ void MapOpenGLWidget::drawTileWithTexture(const std::string &textureName, int te
     float lineIndex = static_cast<int>(indexTile / NBTEXTUREPERLINE);
     const float TEXTURETILEWIDTH { currentTexture.getTileWidthGL() };
     const float TEXTURETILEHEIGHT { currentTexture.getTileHeightGL() };
+    const float TEXTUREWIDTHADJUSTMENT { TEXTURETILEWIDTH / 40.0f };
+    const float TEXTUREHEIGHTADJUSTMENT { TEXTURETILEHEIGHT / 40.0f };
+
+    const float TEXTUREX { static_cast<float>((static_cast<int>(indexTile) % NBTEXTUREPERLINE)) };
     glBegin(GL_QUADS);
-        glTexCoord2f((TEXTURETILEWIDTH * indexTile) + TEXTURETILEWIDTH, 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTURETILEHEIGHT);
+        glTexCoord2f((TEXTURETILEWIDTH * TEXTUREX) + TEXTURETILEWIDTH - TEXTUREWIDTHADJUSTMENT, 1.0f-(TEXTURETILEHEIGHT * (lineIndex + 1.0f)) + TEXTUREHEIGHTADJUSTMENT);
         glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
-        glTexCoord2f((TEXTURETILEWIDTH * indexTile) + TEXTURETILEWIDTH, 1.0f-(TEXTURETILEHEIGHT * lineIndex));
+        glTexCoord2f((TEXTURETILEWIDTH * TEXTUREX) + TEXTURETILEWIDTH - TEXTUREWIDTHADJUSTMENT, 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTUREHEIGHTADJUSTMENT);
         glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
-        glTexCoord2f(TEXTURETILEWIDTH * indexTile, 1.0f-(TEXTURETILEHEIGHT * lineIndex));
+        glTexCoord2f((TEXTURETILEWIDTH * TEXTUREX)  + TEXTUREWIDTHADJUSTMENT, 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTUREHEIGHTADJUSTMENT);
         glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
-        glTexCoord2f(TEXTURETILEWIDTH * indexTile, 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTURETILEHEIGHT);
+        glTexCoord2f((TEXTURETILEWIDTH * TEXTUREX)  + TEXTUREWIDTHADJUSTMENT, 1.0f-(TEXTURETILEHEIGHT * (lineIndex + 1.0f)) + TEXTUREHEIGHTADJUSTMENT);
         glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
     glEnd();
 }

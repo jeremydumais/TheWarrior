@@ -687,16 +687,18 @@ void GameWindow::setTextureUVFromIndex(const Texture *texture, GLfloat uvMap[4][
     float lineIndex = static_cast<int>(indexTile / NBTEXTUREPERLINE);
     const float TEXTURETILEWIDTH { texture->getTileWidthGL() };
     const float TEXTURETILEHEIGHT { texture->getTileHeightGL() };
+    const float TEXTUREWIDTHADJUSTMENT { TEXTURETILEWIDTH / 40.0f };
+    const float TEXTUREHEIGHTADJUSTMENT { TEXTURETILEHEIGHT / 40.0f };
     GLfloat lowerLeftCorner { indexTile / static_cast<float>(NBTEXTUREPERLINE) - floor(indexTile / static_cast<float>(NBTEXTUREPERLINE))  };
 
-    uvMap[0][0] = (lowerLeftCorner);
-    uvMap[0][1] = 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTURETILEHEIGHT;
-    uvMap[1][0] = lowerLeftCorner + TEXTURETILEWIDTH;
-    uvMap[1][1] = 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTURETILEHEIGHT;
-    uvMap[2][0] = lowerLeftCorner + TEXTURETILEWIDTH;;
-    uvMap[2][1] = 1.0f-(TEXTURETILEHEIGHT * lineIndex);
-    uvMap[3][0] = lowerLeftCorner;
-    uvMap[3][1] = 1.0f-(TEXTURETILEHEIGHT * lineIndex);
+    uvMap[0][0] = (lowerLeftCorner) + TEXTUREWIDTHADJUSTMENT;
+    uvMap[0][1] = 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTURETILEHEIGHT + TEXTUREHEIGHTADJUSTMENT;
+    uvMap[1][0] = lowerLeftCorner + TEXTURETILEWIDTH - TEXTUREWIDTHADJUSTMENT;
+    uvMap[1][1] = 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTURETILEHEIGHT + TEXTUREHEIGHTADJUSTMENT;
+    uvMap[2][0] = lowerLeftCorner + TEXTURETILEWIDTH - TEXTUREWIDTHADJUSTMENT;
+    uvMap[2][1] = 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTUREHEIGHTADJUSTMENT;
+    uvMap[3][0] = lowerLeftCorner + TEXTUREWIDTHADJUSTMENT;
+    uvMap[3][1] = 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTUREHEIGHTADJUSTMENT;
 }
 
 void GameWindow::setTileCoordToOrigin() 

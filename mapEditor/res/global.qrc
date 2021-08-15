@@ -1,5 +1,16 @@
 <RCC>
   <qresource>
+    <file>viewBorderMode.png</file>
+    <file>blockBottomBorder.png</file>
+    <file>blockRightBorder.png</file>
+    <file>blockTopBorder.png</file>
+    <file>blockLeftBorder.png</file>
+    <file>cannotStepOn.png</file>
+    <file>canStepOn.png</file>
+    <file>object.png</file>
+    <file>texture.png</file>
+    <file>move.png</file>
+    <file>selection.png</file>
     <file>MapEditor Icon.png</file>
     <file>dialog-close.svg</file>
     <file>dialog-ok.svg</file>

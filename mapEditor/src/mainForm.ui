@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1483</width>
-    <height>902</height>
+    <height>911</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -39,8 +39,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>96</width>
-           <height>26</height>
+           <width>410</width>
+           <height>680</height>
           </rect>
          </property>
          <attribute name="label">
@@ -183,7 +183,7 @@
            <x>0</x>
            <y>0</y>
            <width>410</width>
-           <height>687</height>
+           <height>680</height>
           </rect>
          </property>
          <attribute name="label">
@@ -375,8 +375,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>278</width>
-           <height>139</height>
+           <width>410</width>
+           <height>680</height>
           </rect>
          </property>
          <attribute name="label">
@@ -430,8 +430,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>278</width>
-           <height>139</height>
+           <width>410</width>
+           <height>680</height>
           </rect>
          </property>
          <attribute name="label">
@@ -681,7 +681,7 @@
            <x>0</x>
            <y>0</y>
            <width>232</width>
-           <height>639</height>
+           <height>632</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
@@ -781,6 +781,9 @@
    <property name="windowTitle">
     <string>toolBar</string>
    </property>
+   <property name="toolTip">
+    <string>Select tile</string>
+   </property>
    <property name="iconSize">
     <size>
      <width>32</width>
@@ -800,6 +803,12 @@
    <addaction name="separator"/>
    <addaction name="action_EnableCanStep"/>
    <addaction name="action_DisableCanStep"/>
+   <addaction name="separator"/>
+   <addaction name="action_ViewBorderMode"/>
+   <addaction name="action_BlockLeftBorder"/>
+   <addaction name="action_BlockTopBorder"/>
+   <addaction name="action_BlockRightBorder"/>
+   <addaction name="action_BlockBottomBorder"/>
    <addaction name="separator"/>
   </widget>
   <action name="action_Quit">
@@ -857,21 +866,40 @@
    </property>
   </action>
   <action name="action_Select">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/selection.png</normaloff>:/selection.png</iconset>
+   </property>
    <property name="text">
-    <string>Select</string>
+    <string>Select tile</string>
+   </property>
+   <property name="iconText">
+    <string>Select tile</string>
    </property>
   </action>
   <action name="action_MoveMap">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/move.png</normaloff>:/move.png</iconset>
+   </property>
    <property name="text">
     <string>Move Map</string>
    </property>
   </action>
   <action name="action_ApplyTexture">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/texture.png</normaloff>:/texture.png</iconset>
+   </property>
    <property name="text">
     <string>Apply texture</string>
    </property>
   </action>
   <action name="action_ApplyObject">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/object.png</normaloff>:/object.png</iconset>
+   </property>
    <property name="text">
     <string>Apply Object</string>
    </property>
@@ -952,6 +980,10 @@
    </property>
   </action>
   <action name="action_EnableCanStep">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/canStepOn.png</normaloff>:/canStepOn.png</iconset>
+   </property>
    <property name="text">
     <string>Enable can step</string>
    </property>
@@ -960,11 +992,75 @@
    </property>
   </action>
   <action name="action_DisableCanStep">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/cannotStepOn.png</normaloff>:/cannotStepOn.png</iconset>
+   </property>
    <property name="text">
     <string>Disable can step</string>
    </property>
    <property name="toolTip">
     <string>Disable can step</string>
+   </property>
+  </action>
+  <action name="action_BlockLeftBorder">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/blockLeftBorder.png</normaloff>:/blockLeftBorder.png</iconset>
+   </property>
+   <property name="text">
+    <string>Block Left Border</string>
+   </property>
+   <property name="toolTip">
+    <string>Block Left Border</string>
+   </property>
+  </action>
+  <action name="action_BlockTopBorder">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/blockTopBorder.png</normaloff>:/blockTopBorder.png</iconset>
+   </property>
+   <property name="text">
+    <string>Block Top Border</string>
+   </property>
+   <property name="toolTip">
+    <string>Block Top Border</string>
+   </property>
+  </action>
+  <action name="action_BlockRightBorder">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/blockRightBorder.png</normaloff>:/blockRightBorder.png</iconset>
+   </property>
+   <property name="text">
+    <string>Block Right Border</string>
+   </property>
+   <property name="toolTip">
+    <string>Block Right Border</string>
+   </property>
+  </action>
+  <action name="action_BlockBottomBorder">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/blockBottomBorder.png</normaloff>:/blockBottomBorder.png</iconset>
+   </property>
+   <property name="text">
+    <string>Block Bottom Border</string>
+   </property>
+   <property name="toolTip">
+    <string>Block Bottom Border</string>
+   </property>
+  </action>
+  <action name="action_ViewBorderMode">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/viewBorderMode.png</normaloff>:/viewBorderMode.png</iconset>
+   </property>
+   <property name="text">
+    <string>View Border Mode</string>
+   </property>
+   <property name="toolTip">
+    <string>View Border Mode</string>
    </property>
   </action>
  </widget>
