@@ -69,6 +69,10 @@ private:
     void drawTileWithTexture(const std::string &textureName, int textureIndex);
     void drawSelectionZone() const;
     void drawGrid() const;
+    void drawBlockBorderLeft();
+    void drawBlockBorderTop();
+    void drawBlockBorderRight();
+    void drawBlockBorderBottom();
     int getTileIndex(int onScreenX, int onScreenY);
     glm::vec2 convertScreenCoordToGlCoord(QPoint coord) const;
     void updateSelectedTileColor();

@@ -158,7 +158,9 @@ void MapOpenGLWidget::stopAutoUpdate()
 
 void MapOpenGLWidget::mousePressEvent(QMouseEvent *event)
 {
-    if (!mousePressed && selectionMode == SelectionMode::MoveMap) {
+    if (!mousePressed && 
+       (selectionMode == SelectionMode::MoveMap || 
+        selectionMode == SelectionMode::ViewBorderMode)) {
         translationDragAndDropX = 0.0f;
         translationDragAndDropY = 0.0f;
     }
@@ -226,7 +228,9 @@ void MapOpenGLWidget::leaveEvent(QEvent *)
 
 void MapOpenGLWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    if (mousePressed && selectionMode == SelectionMode::MoveMap) {
+    if (mousePressed && 
+       (selectionMode == SelectionMode::MoveMap  || 
+        selectionMode == SelectionMode::ViewBorderMode)) {
         translationDragAndDropX = (float)(event->pos().x() - lastCursorPosition.x()) / ((float)ONSCREENTILESIZE * TRANSLATIONTOPIXEL);
         translationDragAndDropY = (float)(lastCursorPosition.y() - event->pos().y()) / ((float)ONSCREENTILESIZE * TRANSLATIONTOPIXEL);
     }
@@ -237,7 +241,8 @@ void MapOpenGLWidget::mouseMoveEvent(QMouseEvent *event)
 
 void MapOpenGLWidget::updateCursor() 
 {
-    if (selectionMode == SelectionMode::MoveMap) {
+    if (selectionMode == SelectionMode::MoveMap || 
+        selectionMode == SelectionMode::ViewBorderMode) {
 		setCursor(mousePressed ? Qt::ClosedHandCursor : Qt::OpenHandCursor);
 	}
     else if (selectionMode == SelectionMode::Select) {
@@ -297,7 +302,10 @@ void MapOpenGLWidget::draw()
                     if (tile.getTextureName() != tile.getObjectTextureName()) {
                         if (texturesGLMap.find(tile.getObjectTextureName()) != texturesGLMap.end()) {
                             glBindTexture(GL_TEXTURE_2D, texturesGLMap[tile.getObjectTextureName()]);
+                            glPushMatrix();
                             drawTileWithTexture(tile.getObjectTextureName(), tile.getObjectTextureIndex());
+                            glPopMatrix();
+                            glBindTexture(GL_TEXTURE_2D, 0);
                         }
                     }
                     else {
@@ -307,6 +315,7 @@ void MapOpenGLWidget::draw()
             }
             else {
                 //not defined tile (no texture)
+                glPushMatrix();
                 qglColor(QColor(128, 128, 128));
                 glBegin(GL_QUADS);
                     glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
@@ -314,6 +323,31 @@ void MapOpenGLWidget::draw()
                     glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
                     glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
                 glEnd();
+                glPopMatrix();
+            }
+            //If we are in block border mode
+            if (selectionMode == SelectionMode::ViewBorderMode) {
+                auto triggers { tile.getTriggers() };
+                for(const auto &trigger : triggers) {
+                    if (trigger.getAction() == MapTileTriggerAction::DenyMove) {
+                        switch(trigger.getEvent()) {
+                            case MapTileTriggerEvent::MoveLeftPressed:
+                                drawBlockBorderLeft();
+                                break;
+                            case MapTileTriggerEvent::MoveUpPressed:
+                                drawBlockBorderTop();
+                                break;
+                            case MapTileTriggerEvent::MoveRightPressed:
+                                drawBlockBorderRight();
+                                break;
+                            case MapTileTriggerEvent::MoveDownPressed:
+                                drawBlockBorderBottom();
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
             }
             if (isGridEnabled) {
                 drawGrid();
@@ -358,6 +392,7 @@ void MapOpenGLWidget::drawTileWithTexture(const std::string &textureName, int te
     const float TEXTUREHEIGHTADJUSTMENT { TEXTURETILEHEIGHT / 40.0f };
 
     const float TEXTUREX { static_cast<float>((static_cast<int>(indexTile) % NBTEXTUREPERLINE)) };
+    glPushMatrix();
     glBegin(GL_QUADS);
         glTexCoord2f((TEXTURETILEWIDTH * TEXTUREX) + TEXTURETILEWIDTH - TEXTUREWIDTHADJUSTMENT, 1.0f-(TEXTURETILEHEIGHT * (lineIndex + 1.0f)) + TEXTUREHEIGHTADJUSTMENT);
         glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
@@ -368,6 +403,7 @@ void MapOpenGLWidget::drawTileWithTexture(const std::string &textureName, int te
         glTexCoord2f((TEXTURETILEWIDTH * TEXTUREX)  + TEXTUREWIDTHADJUSTMENT, 1.0f-(TEXTURETILEHEIGHT * (lineIndex + 1.0f)) + TEXTUREHEIGHTADJUSTMENT);
         glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
     glEnd();
+    glPopMatrix();
 }
 
 void MapOpenGLWidget::drawSelectionZone() const
@@ -405,6 +441,93 @@ void MapOpenGLWidget::drawGrid() const
     glEnd();
 }
 
+void MapOpenGLWidget::drawBlockBorderLeft() 
+{
+    qglColor(QColor(255, 0, 0));
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glPushMatrix();
+    glBegin(GL_QUADS);
+        glVertex3f(-TILEHALFSIZE + (TILEHALFSIZE/6.0f), -TILEHALFSIZE, 0);
+        glVertex3f(-TILEHALFSIZE + (TILEHALFSIZE/6.0f), TILEHALFSIZE, 0);
+        glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
+        glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
+    glEnd();
+    glPopMatrix();
+    glPushMatrix();
+    glBegin(GL_QUADS);
+        glVertex3f(-TILEHALFSIZE + (TILEHALFSIZE/3.0f), -TILEHALFSIZE/8.0f, 0);
+        glVertex3f(-TILEHALFSIZE + (TILEHALFSIZE/3.0f), TILEHALFSIZE/8.0f, 0);
+        glVertex3f(-TILEHALFSIZE, TILEHALFSIZE/8.0f, 0);
+        glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE/8.0f, 0);
+    glEnd();
+    glPopMatrix();    
+}
+
+void MapOpenGLWidget::drawBlockBorderTop() 
+{
+    qglColor(QColor(255, 0, 0));
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glPushMatrix();
+    glBegin(GL_QUADS);
+        glVertex3f(TILEHALFSIZE, TILEHALFSIZE - (TILEHALFSIZE /6.0f), 0);
+        glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
+        glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
+        glVertex3f(-TILEHALFSIZE, TILEHALFSIZE - (TILEHALFSIZE/6.0f), 0);
+    glEnd();
+    glPopMatrix();
+    glPushMatrix();
+    glBegin(GL_QUADS);
+        glVertex3f(TILEHALFSIZE/8.0f, TILEHALFSIZE - (TILEHALFSIZE /3.0f), 0);
+        glVertex3f(TILEHALFSIZE/8.0f, TILEHALFSIZE, 0);
+        glVertex3f(-(TILEHALFSIZE/8.0f), TILEHALFSIZE, 0);
+        glVertex3f(-(TILEHALFSIZE/8.0f), TILEHALFSIZE - (TILEHALFSIZE/3.0f), 0);
+    glEnd();
+    glPopMatrix();
+}
+
+void MapOpenGLWidget::drawBlockBorderRight() 
+{
+    qglColor(QColor(255, 0, 0));
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glPushMatrix();
+    glBegin(GL_QUADS);
+        glVertex3f(TILEHALFSIZE - (TILEHALFSIZE/6.0f), -TILEHALFSIZE, 0);
+        glVertex3f(TILEHALFSIZE - (TILEHALFSIZE/6.0f), TILEHALFSIZE, 0);
+        glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
+        glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
+    glEnd();
+    glPopMatrix();
+    glPushMatrix();
+    glBegin(GL_QUADS);
+        glVertex3f(TILEHALFSIZE - (TILEHALFSIZE/3.0f), -TILEHALFSIZE/8.0f, 0);
+        glVertex3f(TILEHALFSIZE - (TILEHALFSIZE/3.0f), TILEHALFSIZE/8.0f, 0);
+        glVertex3f(TILEHALFSIZE, TILEHALFSIZE/8.0f, 0);
+        glVertex3f(TILEHALFSIZE, -TILEHALFSIZE/8.0f, 0);
+    glEnd();
+    glPopMatrix();
+}
+
+void MapOpenGLWidget::drawBlockBorderBottom() 
+{
+    qglColor(QColor(255, 0, 0));
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glPushMatrix();
+    glBegin(GL_QUADS);
+        glVertex3f(TILEHALFSIZE, -TILEHALFSIZE + (TILEHALFSIZE /6.0f), 0);
+        glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
+        glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
+        glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE + (TILEHALFSIZE/6.0f), 0);
+    glEnd();
+    glPopMatrix();
+    glPushMatrix();
+    glBegin(GL_QUADS);
+        glVertex3f(TILEHALFSIZE/8.0f, -TILEHALFSIZE + (TILEHALFSIZE /3.0f), 0);
+        glVertex3f(TILEHALFSIZE/8.0f, -TILEHALFSIZE, 0);
+        glVertex3f(-(TILEHALFSIZE/8.0f), -TILEHALFSIZE, 0);
+        glVertex3f(-(TILEHALFSIZE/8.0f), -TILEHALFSIZE + (TILEHALFSIZE/3.0f), 0);
+    glEnd();
+    glPopMatrix();
+}
 int MapOpenGLWidget::getTileIndex(int onScreenX, int onScreenY) 
 {
     if (onScreenX / static_cast<int>(ONSCREENTILESIZE) > static_cast<int>(currentMap->getWidth()) - 1) {

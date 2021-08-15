@@ -126,6 +126,7 @@ void MainForm::connectUIActions()
 	connect(ui.action_ApplyObject, &QAction::triggered, this, &MainForm::action_ApplyObjectClick);
 	connect(ui.action_EnableCanStep, &QAction::triggered, this, &MainForm::action_EnableCanStepClick);
 	connect(ui.action_DisableCanStep, &QAction::triggered, this, &MainForm::action_DisableCanStepClick);
+	connect(ui.action_ViewBorderMode, &QAction::triggered, this, &MainForm::action_ViewBorderModeClick);
 	glComponent.connectUIActions();
 	mapTabComponent.connectUIActions();
 	tileTabComponent.connectUIActions();
@@ -290,6 +291,11 @@ void MainForm::action_EnableCanStepClick()
 void MainForm::action_DisableCanStepClick() 
 {
 	glComponent.setSelectionMode(SelectionMode::DisableCanStep);
+}
+
+void MainForm::action_ViewBorderModeClick() 
+{
+	glComponent.setSelectionMode(SelectionMode::ViewBorderMode);
 }
 
 void MainForm::openMap(const std::string &filePath) 

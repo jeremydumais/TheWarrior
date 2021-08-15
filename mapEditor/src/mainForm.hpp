@@ -54,6 +54,7 @@ private:
 	void action_ApplyObjectClick();
 	void action_EnableCanStepClick();
 	void action_DisableCanStepClick();
+	void action_ViewBorderModeClick();
 	void openMap(const std::string &filePath);
 	void saveMap(const std::string &filePath);
 	void refreshWindowTitle();
