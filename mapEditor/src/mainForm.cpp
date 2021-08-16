@@ -127,6 +127,11 @@ void MainForm::connectUIActions()
 	connect(ui.action_EnableCanStep, &QAction::triggered, this, &MainForm::action_EnableCanStepClick);
 	connect(ui.action_DisableCanStep, &QAction::triggered, this, &MainForm::action_DisableCanStepClick);
 	connect(ui.action_ViewBorderMode, &QAction::triggered, this, &MainForm::action_ViewBorderModeClick);
+	connect(ui.action_BlockLeftBorder, &QAction::triggered, this, &MainForm::action_BlockLeftBorderClick);
+	connect(ui.action_BlockTopBorder, &QAction::triggered, this, &MainForm::action_BlockTopBorderClick);
+	connect(ui.action_BlockRightBorder, &QAction::triggered, this, &MainForm::action_BlockRightBorderClick);
+	connect(ui.action_BlockBottomBorder, &QAction::triggered, this, &MainForm::action_BlockBottomBorderClick);
+	connect(ui.action_ClearBlockedBorders, &QAction::triggered, this, &MainForm::action_ClearBlockedBordersClick);
 	glComponent.connectUIActions();
 	mapTabComponent.connectUIActions();
 	tileTabComponent.connectUIActions();
@@ -296,6 +301,30 @@ void MainForm::action_DisableCanStepClick()
 void MainForm::action_ViewBorderModeClick() 
 {
 	glComponent.setSelectionMode(SelectionMode::ViewBorderMode);
+}
+
+void MainForm::action_BlockLeftBorderClick() 
+{
+	glComponent.setSelectionMode(SelectionMode::BlockBorderLeft);
+}
+
+void MainForm::action_BlockTopBorderClick() 
+{
+	glComponent.setSelectionMode(SelectionMode::BlockBorderTop);
+}
+
+void MainForm::action_BlockRightBorderClick() 
+{
+	glComponent.setSelectionMode(SelectionMode::BlockBorderRight);	
+}
+void MainForm::action_BlockBottomBorderClick() 
+{
+	glComponent.setSelectionMode(SelectionMode::BlockBorderBottom);
+}
+
+void MainForm::action_ClearBlockedBordersClick() 
+{
+	glComponent.setSelectionMode(SelectionMode::ClearBlockedBorders);
 }
 
 void MainForm::openMap(const std::string &filePath) 

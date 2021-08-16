@@ -1,5 +1,6 @@
 <RCC>
   <qresource>
+    <file>clearBlockBorder.png</file>
     <file>viewBorderMode.png</file>
     <file>blockBottomBorder.png</file>
     <file>blockRightBorder.png</file>

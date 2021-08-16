@@ -55,6 +55,11 @@ private:
 	void action_EnableCanStepClick();
 	void action_DisableCanStepClick();
 	void action_ViewBorderModeClick();
+	void action_BlockLeftBorderClick();
+	void action_BlockTopBorderClick();
+	void action_BlockRightBorderClick();
+	void action_BlockBottomBorderClick();
+	void action_ClearBlockedBordersClick();
 	void openMap(const std::string &filePath);
 	void saveMap(const std::string &filePath);
 	void refreshWindowTitle();

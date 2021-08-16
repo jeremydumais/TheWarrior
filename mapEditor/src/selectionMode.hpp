@@ -12,5 +12,6 @@ enum class SelectionMode
     BlockBorderLeft,
     BlockBorderTop,
     BlockBorderRight,
-    BlockBorderBottom
+    BlockBorderBottom,
+    ClearBlockedBorders
 };

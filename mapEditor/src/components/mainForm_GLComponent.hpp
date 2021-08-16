@@ -56,4 +56,5 @@ private:
 	int lastSelectedObjectIndex;
     void onTileClicked(int tileIndex);
     void onTileMouseReleaseEvent(std::vector<int> selectedTileIndexes);
+    void addMoveDenyTrigger(const std::vector<int> &selectedTileIndexes, MapTileTriggerEvent event);
 };

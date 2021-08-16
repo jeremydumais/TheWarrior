@@ -186,7 +186,12 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event)
     else if (selectionMode == SelectionMode::ApplyTexture || 
              selectionMode == SelectionMode::ApplyObject || 
              selectionMode == SelectionMode::EnableCanStep ||
-             selectionMode == SelectionMode::DisableCanStep) {
+             selectionMode == SelectionMode::DisableCanStep ||
+             selectionMode == SelectionMode::BlockBorderLeft ||
+             selectionMode == SelectionMode::BlockBorderTop ||
+             selectionMode == SelectionMode::BlockBorderRight ||
+             selectionMode == SelectionMode::BlockBorderBottom ||
+             selectionMode == SelectionMode::ClearBlockedBorders) {
         //Calculate the list of index selected
         vector<int> selectedTileIndexes;
         QPoint startCoord;
@@ -251,7 +256,12 @@ void MapOpenGLWidget::updateCursor()
     else if (selectionMode == SelectionMode::ApplyTexture || 
              selectionMode == SelectionMode::ApplyObject ||
              selectionMode == SelectionMode::EnableCanStep ||
-             selectionMode == SelectionMode::DisableCanStep) {
+             selectionMode == SelectionMode::DisableCanStep ||
+             selectionMode == SelectionMode::BlockBorderLeft ||
+             selectionMode == SelectionMode::BlockBorderTop ||
+             selectionMode == SelectionMode::BlockBorderRight ||
+             selectionMode == SelectionMode::BlockBorderBottom ||
+             selectionMode == SelectionMode::ClearBlockedBorders) {
 		setCursor(Qt::CrossCursor);
 	}
 	else {
@@ -326,7 +336,12 @@ void MapOpenGLWidget::draw()
                 glPopMatrix();
             }
             //If we are in block border mode
-            if (selectionMode == SelectionMode::ViewBorderMode) {
+            if (selectionMode == SelectionMode::ViewBorderMode ||
+                selectionMode == SelectionMode::BlockBorderLeft ||
+                selectionMode == SelectionMode::BlockBorderTop ||
+                selectionMode == SelectionMode::BlockBorderRight ||
+                selectionMode == SelectionMode::BlockBorderBottom ||
+                selectionMode == SelectionMode::ClearBlockedBorders) {
                 auto triggers { tile.getTriggers() };
                 for(const auto &trigger : triggers) {
                     if (trigger.getAction() == MapTileTriggerAction::DenyMove) {
@@ -373,7 +388,12 @@ void MapOpenGLWidget::draw()
     if (mousePressed && (selectionMode == SelectionMode::ApplyTexture || 
                          selectionMode == SelectionMode::ApplyObject ||
                          selectionMode == SelectionMode::EnableCanStep ||
-                         selectionMode == SelectionMode::DisableCanStep)) {
+                         selectionMode == SelectionMode::DisableCanStep ||
+                         selectionMode == SelectionMode::BlockBorderLeft ||
+                         selectionMode == SelectionMode::BlockBorderTop ||
+                         selectionMode == SelectionMode::BlockBorderRight ||
+                         selectionMode == SelectionMode::BlockBorderBottom ||
+                         selectionMode == SelectionMode::ClearBlockedBorders)) {
         drawSelectionZone();
     }
     glPopMatrix();

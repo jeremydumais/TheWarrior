@@ -184,5 +184,44 @@ void MainForm_GLComponent::onTileMouseReleaseEvent(vector<int> selectedTileIndex
 			currentMapTile->setCanPlayerSteppedOn(false);
 		}
 	}
+	else if (glWidget->getSelectionMode() == SelectionMode::BlockBorderLeft) {
+		addMoveDenyTrigger(selectedTileIndexes, MapTileTriggerEvent::MoveLeftPressed);
+	}	
+	else if (glWidget->getSelectionMode() == SelectionMode::BlockBorderTop) {
+		addMoveDenyTrigger(selectedTileIndexes, MapTileTriggerEvent::MoveUpPressed);
+	}	
+	else if (glWidget->getSelectionMode() == SelectionMode::BlockBorderRight) {
+		addMoveDenyTrigger(selectedTileIndexes, MapTileTriggerEvent::MoveRightPressed);
+	}	
+	else if (glWidget->getSelectionMode() == SelectionMode::BlockBorderBottom) {
+		addMoveDenyTrigger(selectedTileIndexes, MapTileTriggerEvent::MoveDownPressed);
+	}
+	else if (glWidget->getSelectionMode() == SelectionMode::ClearBlockedBorders) {
+		for(const int index : selectedTileIndexes) {
+			currentMapTile = &controller.getMap()->getTileForEditing(index);
+			for(const auto &trigger : currentMapTile->getTriggers()) {
+				if (trigger.getAction() == MapTileTriggerAction::DenyMove && 
+					(trigger.getEvent() == MapTileTriggerEvent::MoveLeftPressed || 
+					 trigger.getEvent() == MapTileTriggerEvent::MoveUpPressed || 
+					 trigger.getEvent() == MapTileTriggerEvent::MoveRightPressed || 
+					 trigger.getEvent() == MapTileTriggerEvent::MoveDownPressed)) {
+					currentMapTile->deleteTrigger(trigger);
+				}
+			}
+		}
+	}
+
+}
+
+void MainForm_GLComponent::addMoveDenyTrigger(const std::vector<int> &selectedTileIndexes, MapTileTriggerEvent event) 
+{
+	for(const int index : selectedTileIndexes) {
+		currentMapTile = &controller.getMap()->getTileForEditing(index);
+		if (!currentMapTile->findTrigger(event).has_value())
+			currentMapTile->addTrigger(MapTileTrigger(event,
+													  MapTileTriggerCondition::None,
+													  MapTileTriggerAction::DenyMove,
+													  map<string, string>()));
+	}
 }
 

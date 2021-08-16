@@ -809,6 +809,7 @@
    <addaction name="action_BlockTopBorder"/>
    <addaction name="action_BlockRightBorder"/>
    <addaction name="action_BlockBottomBorder"/>
+   <addaction name="action_ClearBlockedBorders"/>
    <addaction name="separator"/>
   </widget>
   <action name="action_Quit">
@@ -1061,6 +1062,18 @@
    </property>
    <property name="toolTip">
     <string>View Border Mode</string>
+   </property>
+  </action>
+  <action name="action_ClearBlockedBorders">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/clearBlockBorder.png</normaloff>:/clearBlockBorder.png</iconset>
+   </property>
+   <property name="text">
+    <string>Clear Blocked Borders</string>
+   </property>
+   <property name="toolTip">
+    <string>Clear Blocked Borders</string>
    </property>
   </action>
  </widget>
