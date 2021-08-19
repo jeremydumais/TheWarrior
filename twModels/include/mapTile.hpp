@@ -10,15 +10,6 @@
 #include <string>
 #include <vector>
 
-
-enum class PlayerFacing
-{
-    Up,
-    Down,
-    Left,
-    Right
-};
-
 class MapTile
 {
 public:

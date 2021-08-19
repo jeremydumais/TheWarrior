@@ -25,6 +25,7 @@ public:
     MainForm_MapTabComponent();
     void initializeUIObjects(const MainForm_MapTabComponent_Objects &objects);
     void connectUIActions();
+    void reset();
 signals:
 private:
     MainForm_GLComponent *glComponent;

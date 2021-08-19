@@ -54,13 +54,28 @@ void MainForm_TileTabComponent::connectUIActions()
 	connect(pushButtonDeleteTileEvent, &QPushButton::clicked, this, &MainForm_TileTabComponent::onPushButtonDeleteTileEventClick);
 }
 
+void MainForm_TileTabComponent::reset() 
+{
+	labelTileCoordXY->clear();
+	lineEditTexName->clear();
+	spinBoxTexIndex->clear();
+	lineEditObjTexName->clear();
+	spinBoxObjTexIndex->clear();
+	checkBoxTileCanSteppedOn->setChecked(false);
+	checkBoxObjectAbovePlayer->setChecked(false);
+	checkBoxIsWallToClimb->setChecked(false);
+	refreshEventList(nullptr);
+}
+
 void MainForm_TileTabComponent::refreshEventList(MapTile *tile) 
 {
 	listWidgetMapTileTriggers->model()->removeRows(0, listWidgetMapTileTriggers->count());
-	int indexTrigger {0};
-	for(const auto &trigger : tile->getTriggers()) {
-		listWidgetMapTileTriggers->insertItem(indexTrigger, MapTileTriggerEventConverter::eventToString(trigger.getEvent()).c_str());
-		indexTrigger++;
+	if (tile != nullptr) {
+		int indexTrigger {0};
+		for(const auto &trigger : tile->getTriggers()) {
+			listWidgetMapTileTriggers->insertItem(indexTrigger, MapTileTriggerEventConverter::eventToString(trigger.getEvent()).c_str());
+			indexTrigger++;
+		}
 	}
 }
 

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "gameMap.hpp"
-#include "glComponentController.hpp"
 #include "../mapOpenGLWidget.hpp"
+#include "glComponentController.hpp"
 #include "mapTile.hpp"
 #include "point.hpp"
 #include "selectionMode.hpp"
@@ -18,9 +18,11 @@ public:
     MainForm_GLComponent();
     void initializeUIObjects(MapOpenGLWidget *glWidget);
     void connectUIActions();
-    void setCurrentMap(std::shared_ptr<GameMap> map);
     const std::string &getResourcesPath() const;
     SelectionMode getSelectionMode() const;
+    unsigned int getMapWidth() const;
+    unsigned int getMapHeight() const;
+    void setCurrentMap(std::shared_ptr<GameMap> map);
     void setResourcesPath(const std::string &path);
     void setSelectionMode(SelectionMode mode);
     MapTile *getCurrentMapTile(); 
@@ -30,6 +32,7 @@ public:
     void clearLastSelectedObject();
     void stopAutoUpdate();
     void startAutoUpdate();
+    void resetMapMovePosition();
     void updateGL();
     const std::vector<Texture>& getTextures() const;
     boost::optional<const Texture &> getTextureByName(const std::string &name) const;

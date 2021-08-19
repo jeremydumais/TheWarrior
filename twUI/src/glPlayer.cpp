@@ -30,6 +30,11 @@ bool GLPlayer::isRunning() const
     return isInRunningMode;
 }
 
+bool GLPlayer::isFacing(PlayerFacing direction) 
+{
+    return playerFacing == direction;
+}
+
 void GLPlayer::initialize() 
 {
     textureName = "NPC1";
@@ -39,6 +44,7 @@ void GLPlayer::initialize()
     baseTextureIndex = 9;
     currentMovementTextureIndex = baseTextureIndex + 1;
     playerMovement = PlayerMovement::None;
+    playerFacing = PlayerFacing::Up;
 }
 
 void GLPlayer::moveUp() 
@@ -82,21 +88,25 @@ void GLPlayer::moveRight()
 void GLPlayer::faceUp() 
 {
     currentMovementTextureIndex = baseTextureIndex + 1;
+    playerFacing = PlayerFacing::Up;
 }
 
 void GLPlayer::faceDown() 
 {
     currentMovementTextureIndex = baseTextureIndex + 37;
+    playerFacing = PlayerFacing::Down;
 }
 
 void GLPlayer::faceLeft() 
 {
     currentMovementTextureIndex = baseTextureIndex + 25;
+    playerFacing = PlayerFacing::Left;
 }
 
 void GLPlayer::faceRight() 
 {
     currentMovementTextureIndex = baseTextureIndex + 13;
+    playerFacing = PlayerFacing::Right;
 }
 
 void GLPlayer::enableRunMode() 

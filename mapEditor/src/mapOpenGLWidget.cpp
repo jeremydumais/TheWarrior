@@ -12,12 +12,21 @@ MapOpenGLWidget::MapOpenGLWidget(QWidget *parent)
     : QGLWidget(QGLFormat(QGL::SampleBuffers), parent),
       isGridEnabled(true),
       selectionMode(SelectionMode::Select),
+      resourcesPath(""),
       mousePressed(false),
-      translationX(0.0f),
-      translationDragAndDropX(0.0f),
-      translationY(0.0f),
-      translationDragAndDropY(0.0f),
-      selectedTileIndex(-1)
+      translationX(0.0F),
+      translationDragAndDropX(0.0F),
+      translationY(0.0F),
+      translationDragAndDropY(0.0F),
+      selectedTileIndex(-1),
+      selectedTileColor(0),
+      selectedTileColorGrowing(false),
+      texturesGLMap(map<string, unsigned int>()),
+      texturesObjMap(map<string, const Texture &>()),
+      currentMap(nullptr),
+      lastCursorPosition(QPoint(0, 0)),
+      currentCursorPosition(QPoint(0, 0))
+
 {
     connect(&repaintTimer, SIGNAL(timeout()), this, SLOT(update()));
     setMouseTracking(true);
@@ -26,6 +35,7 @@ MapOpenGLWidget::MapOpenGLWidget(QWidget *parent)
 void MapOpenGLWidget::setCurrentMap(std::shared_ptr<GameMap> map) 
 {
     currentMap = map;
+    selectedTileIndex = -1;
 }
 
 void MapOpenGLWidget::setGridEnabled(bool enabled) 
@@ -110,6 +120,16 @@ void MapOpenGLWidget::setSelectionMode(SelectionMode mode)
     selectionMode = mode;
 }
 
+unsigned int MapOpenGLWidget::getMapWidth() const
+{
+    return this->currentMap->getWidth();
+}
+
+unsigned int MapOpenGLWidget::getMapHeight() const
+{
+    return this->currentMap->getHeight();
+}
+
 void MapOpenGLWidget::reloadTextures() 
 {
     //Clear existing textures in graphics memory
@@ -154,6 +174,14 @@ void MapOpenGLWidget::startAutoUpdate()
 void MapOpenGLWidget::stopAutoUpdate() 
 {
     repaintTimer.stop();
+}
+
+void MapOpenGLWidget::resetMapMovePosition() 
+{
+    translationX = 0.0F;
+    translationY = 0.0F;
+    translationDragAndDropX = 0.0F;
+    translationDragAndDropY = 0.0F;
 }
 
 void MapOpenGLWidget::mousePressEvent(QMouseEvent *event)

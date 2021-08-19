@@ -1,4 +1,5 @@
 #include "editTileActionChangeMapPropertiesForm.hpp"
+#include "utils/errorMessage.hpp"
 #include <algorithm>
 #include <fmt/format.h>
 #include <QFileDialog>
@@ -49,7 +50,7 @@ const std::map<std::string, std::string> &EditTileActionChangeMapPropertiesForm:
 void EditTileActionChangeMapPropertiesForm::onPushButtonOK() 
 {
 	if (ui.lineEditMapFileName->text().isEmpty()) {
-		showErrorMessage("The map file cannot be empty.");
+		ErrorMessage::show("The map file cannot be empty.");
 		return;
 	}
 
@@ -59,16 +60,6 @@ void EditTileActionChangeMapPropertiesForm::onPushButtonOK()
 	properties["playerY"] = to_string(ui.spinBoxPlayerY->value());
 	properties["playerFacing"] = to_string(ui.comboBoxPlayerFacing->currentIndex());
 	accept();
-}
-
-void EditTileActionChangeMapPropertiesForm::showErrorMessage(const std::string &message) const
-{
-	QMessageBox msgBox;
-	msgBox.setText(message.c_str());
-	msgBox.setIcon(QMessageBox::Critical);
-	msgBox.setWindowTitle("Error");
-	msgBox.setStandardButtons(QMessageBox::Ok);
-	msgBox.exec();
 }
 
 void EditTileActionChangeMapPropertiesForm::onPushButtonOpenMapFileClick() 

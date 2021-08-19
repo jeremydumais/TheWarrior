@@ -34,6 +34,7 @@ public:
     MainForm_TileTabComponent();
     void initializeUIObjects(const MainForm_TileTabComponent_Objects &objects);
     void connectUIActions();
+	void reset();
 private:
     MainForm_GLComponent *glComponent;
     QLabel *labelTileCoordXY;

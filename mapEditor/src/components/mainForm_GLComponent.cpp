@@ -25,12 +25,6 @@ void MainForm_GLComponent::connectUIActions()
 	connect(this->glWidget, &MapOpenGLWidget::onTileMouseReleaseEvent, this, &MainForm_GLComponent::onTileMouseReleaseEvent);
 }
 
-void MainForm_GLComponent::setCurrentMap(std::shared_ptr<GameMap> map) 
-{
-    this->controller.setCurrentMap(map);
-	this->glWidget->setCurrentMap(map); 
-}
-
 const std::string &MainForm_GLComponent::getResourcesPath() const
 {
 	return this->glWidget->getResourcesPath();
@@ -39,6 +33,25 @@ const std::string &MainForm_GLComponent::getResourcesPath() const
 SelectionMode MainForm_GLComponent::getSelectionMode() const
 {
 	return this->glWidget->getSelectionMode();
+}
+
+unsigned int MainForm_GLComponent::getMapWidth() const
+{
+	return this->glWidget->getMapWidth();
+}
+
+unsigned int MainForm_GLComponent::getMapHeight() const
+{
+	return this->glWidget->getMapHeight();
+}
+
+void MainForm_GLComponent::setCurrentMap(std::shared_ptr<GameMap> map) 
+{
+    this->controller.setCurrentMap(map);
+	this->glWidget->setCurrentMap(map); 
+	currentMapTile = nullptr;
+	clearLastSelectedTexture();
+	clearLastSelectedObject();
 }
 
 void MainForm_GLComponent::setResourcesPath(const std::string &path) 
@@ -88,6 +101,11 @@ void MainForm_GLComponent::stopAutoUpdate()
 void MainForm_GLComponent::startAutoUpdate() 
 {
 	glWidget->startAutoUpdate();
+}
+
+void MainForm_GLComponent::resetMapMovePosition() 
+{
+	glWidget->resetMapMovePosition();
 }
 
 void MainForm_GLComponent::updateGL() 

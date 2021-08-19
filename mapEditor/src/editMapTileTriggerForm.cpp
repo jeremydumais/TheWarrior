@@ -1,5 +1,6 @@
 #include "editMapTileTriggerForm.hpp"
 #include "editTileActionChangeMapPropertiesForm.hpp"
+#include "editTileActionOpenChestPropertiesForm.hpp"
 #include "utils/errorMessage.hpp"
 #include "mapTileTrigger.hpp"
 #include "mapTileTriggerActionConverter.hpp"
@@ -89,6 +90,13 @@ void EditMapTileTriggerForm::onPushButtonTileActionPropertiesClick()
 	if (ui.comboBoxAction->currentIndex() == static_cast<int>(MapTileTriggerAction::ChangeMap)) {
 		EditTileActionChangeMapPropertiesForm formEditActionProperties(this, 
 																	   resourcesPath, 
+																	   updatedTrigger.getActionProperties());
+		if (formEditActionProperties.exec() == QDialog::Accepted) {
+			updatedTrigger.setActionProperties(formEditActionProperties.getUpdatedProperties());
+		}
+	}
+	else if (ui.comboBoxAction->currentIndex() == static_cast<int>(MapTileTriggerAction::OpenChest)) {
+		EditTileActionOpenChestPropertiesForm formEditActionProperties(this,
 																	   updatedTrigger.getActionProperties());
 		if (formEditActionProperties.exec() == QDialog::Accepted) {
 			updatedTrigger.setActionProperties(formEditActionProperties.getUpdatedProperties());

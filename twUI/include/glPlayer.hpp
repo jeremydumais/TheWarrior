@@ -5,6 +5,7 @@
 #include <string>
 
 enum class PlayerMovement { None, MoveLeft, MoveRight, MoveUp, MoveDown };
+enum class PlayerFacing { Left, Up, Right, Down };
 
 struct MovingResult {
     bool needToRefreshTexture;
@@ -24,6 +25,7 @@ public:
     int getTextureIndex() const;
     bool isInMovement() const;
     bool isRunning() const;
+    bool isFacing(PlayerFacing direction);
     void initialize();
     void moveUp();
     void moveDown(bool isInClimbingMode);
@@ -38,9 +40,12 @@ public:
     MovingResult processMoving(double delta_time);
 private:
     PlayerMovement playerMovement;
+    PlayerFacing playerFacing;
     bool isInClimbingMode;
     bool isInRunningMode;
     std::string textureName;
     int baseTextureIndex;
     int currentMovementTextureIndex;
 };
+
+

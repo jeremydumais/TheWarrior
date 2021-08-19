@@ -1,4 +1,4 @@
-#include "mapTileTrigger.hpp"
+#include "../include/mapTileTrigger.hpp"
 #include "mapTileTriggerEventConverter.hpp"
 
 using namespace std;

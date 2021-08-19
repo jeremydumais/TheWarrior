@@ -3,12 +3,12 @@
 
 #include "gameMap.hpp"
 #include "selectionMode.hpp"
+#include <QTimer>
+#include <QtOpenGL/QGLWidget>
+#include <QtOpenGL/QtOpenGL>
 #include <glm/glm.hpp>
 #include <map>
 #include <memory>
-#include <QtOpenGL/QGLWidget>
-#include <QtOpenGL/QtOpenGL>
-#include <QTimer>
 #include <string>
 #include <vector>
 
@@ -17,7 +17,6 @@ class MapOpenGLWidget : public QGLWidget
     Q_OBJECT
 public:
     explicit MapOpenGLWidget(QWidget *parent = 0);
-    ~MapOpenGLWidget() = default;
     void setCurrentMap(std::shared_ptr<GameMap> map);
     void setGridEnabled(bool enabled);
     void resizeGL(int width, int height);
@@ -25,9 +24,12 @@ public:
     void setResourcesPath(const std::string &path);
     SelectionMode getSelectionMode() const;
     void setSelectionMode(SelectionMode mode);
+    unsigned int getMapWidth() const;
+    unsigned int getMapHeight() const;
     void reloadTextures();
     void startAutoUpdate();
     void stopAutoUpdate();
+    void resetMapMovePosition();
 protected:
     void initializeGL();
     void paintGL();
@@ -37,12 +39,8 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void leaveEvent(QEvent *event) override;
-signals:
-    void onTileClicked(int tileIndex);
-    void onTileMouseReleaseEvent(std::vector<int> tileIndex);
-    void onTileMouseMoveEvent(bool mousePressed, int tileIndex);
 private:
-    QTimer repaintTimer;
+    QTimer repaintTimer; 
     bool isGridEnabled;
 	SelectionMode selectionMode;
     std::string resourcesPath;
@@ -59,11 +57,11 @@ private:
     std::shared_ptr<GameMap> currentMap;
     QPoint lastCursorPosition;
     QPoint currentCursorPosition;
-    const float TILESIZE { 0.2f };
-    const float TILEHALFSIZE { TILESIZE / 2.0f };
+    const float TILESIZE { 0.2F };
+    const float TILEHALFSIZE { TILESIZE / 2.0F };
     const unsigned int ONSCREENTILESIZE { 40 };
-    const float TRANSLATIONTOPIXEL { 5.0f };
-    const float TILESPACING { 0.0f };
+    const float TRANSLATIONTOPIXEL { 5.0F };
+    const float TILESPACING { 0.0F };
     void updateCursor();
     void draw();
     void drawTileWithTexture(const std::string &textureName, int textureIndex);
@@ -76,6 +74,10 @@ private:
     int getTileIndex(int onScreenX, int onScreenY);
     glm::vec2 convertScreenCoordToGlCoord(QPoint coord) const;
     void updateSelectedTileColor();
+signals:
+    void onTileClicked(int tileIndex);
+    void onTileMouseReleaseEvent(std::vector<int> tileIndex);
+    void onTileMouseMoveEvent(bool mousePressed, int tileIndex);
 };
 
 #endif // MAPOPENGLWIDGET_H

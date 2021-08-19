@@ -19,7 +19,6 @@ private:
 	Ui::editTileActionChangeMapPropertiesFormClass ui;
 	std::string resourcesPath;
 	std::map<std::string, std::string> properties;
-	void showErrorMessage(const std::string &message) const;
 	void onPushButtonOK();
 	void onPushButtonOpenMapFileClick();
 };

@@ -3,7 +3,7 @@
 
 using namespace std;
 
-MainForm_MapTabComponent::MainForm_MapTabComponent() 
+MainForm_MapTabComponent::MainForm_MapTabComponent()
     : glComponent(nullptr),
       lineEditMapWidth(nullptr),
       lineEditMapHeight(nullptr),
@@ -32,6 +32,16 @@ void MainForm_MapTabComponent::connectUIActions()
 	connect(pushButtonApplySizeChange, &QPushButton::clicked, this, &MainForm_MapTabComponent::onPushButtonApplySizeChangeClick);
 }
 
+void MainForm_MapTabComponent::reset() 
+{	
+	this->lineEditMapWidth->setText(to_string(glComponent->getMapWidth()).c_str());
+	this->lineEditMapHeight->setText(to_string(glComponent->getMapHeight()).c_str());
+	this->spinBoxMapSizeLeft->setValue(0);
+	this->spinBoxMapSizeTop->setValue(0);
+	this->spinBoxMapSizeRight->setValue(0);
+	this->spinBoxMapSizeBottom->setValue(0);
+}
+
 void MainForm_MapTabComponent::onPushButtonApplySizeChangeClick() 
 {
 	int offsetLeft { spinBoxMapSizeLeft->value() };
@@ -58,6 +68,8 @@ void MainForm_MapTabComponent::onPushButtonApplySizeChangeClick()
 							   offsetTop,
 							   offsetRight,
 							   offsetBottom);
+		reset();
+		
 	}
 	catch(invalid_argument &err) {
 		ErrorMessage::show(err.what());

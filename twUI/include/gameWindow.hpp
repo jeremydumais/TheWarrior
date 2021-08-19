@@ -74,12 +74,13 @@ private:
     void generateGLMapObjects();
     void unloadGLMapObjects();
     void generateGLObject(GenerateGLObjectInfo &info, const GLfloat tileCoord[4][2], const GLfloat colors[4][3]);
+    void calculateGLTileCoord(const Point &tilePosition, GLfloat tileCoord[4][2]);
     void generateGLPlayerObject();
     void unloadGLPlayerObject();
     std::string loadShaderFile(const std::string &file);
     void loadMap(const std::string &filePath);
     void changeMap(const std::string &filePath);
-    void processAction(MapTileTriggerAction action, const std::map<std::string, std::string> &properties);
+    void processAction(MapTileTriggerAction action, const std::map<std::string, std::string> &properties, MapTile *tile = nullptr, Point tilePosition = Point(0, 0));
     void loadTextures();
     void setTextureUVFromIndex(const Texture *texture, GLfloat uvMap[4][2], int index);
     void setTileCoordToOrigin();
@@ -88,3 +89,4 @@ private:
     void drawPlayer();
     void drawObjectTile(GLTile &tile);
 };
+

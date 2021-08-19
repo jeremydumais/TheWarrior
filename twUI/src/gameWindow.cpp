@@ -1,6 +1,7 @@
 #include "gameWindow.hpp"
 #include <GL/glu.h>
 #include <GL/glut.h>
+#include <algorithm>
 #include <iostream>
 #include <fmt/format.h>
 #include <fstream>
@@ -180,6 +181,18 @@ void GameWindow::processEvents()
             if (e.jbutton.button == 0) {
                 glPlayer.disableRunMode();
             }
+            if (e.jbutton.button == 1) {
+                
+                //Check if you are facing a tile with a ActionButton trigger configured.
+                if (glPlayer.isFacing(PlayerFacing::Up)) {
+                    Point tilePositionToProcess { glPlayer.coord.x(), glPlayer.coord.y() - 1 };
+                    auto &tile = map->getTileForEditing(tilePositionToProcess);
+                    auto actionButtonTrigger = tile.findConstTrigger(MapTileTriggerEvent::ActionButtonPressed);
+                    if (actionButtonTrigger.has_value()) {
+                        processAction(actionButtonTrigger->getAction(), actionButtonTrigger->getActionProperties(), &tile, tilePositionToProcess);
+                    }
+                }
+            }
         }
         else if (e.type == SDL_WINDOWEVENT) {
             if (e.window.event == SDL_WINDOWEVENT_RESIZED) {
@@ -341,15 +354,6 @@ string GameWindow::loadShaderFile(const string &file)
 
 void GameWindow::generateGLMapObjects() 
 {
-    float startPosX { -1.0f + TILEHALFWIDTH };
-    float startPosY { 1.0f - TILEHALFHEIGHT };
-
-    GLfloat tileCoord[4][2] = {
-    { -TILEHALFWIDTH + startPosX,  TILEHALFHEIGHT + startPosY },     /* Top Left point */
-    {  TILEHALFWIDTH + startPosX,  TILEHALFHEIGHT + startPosY },     /* Top Right point */
-    {  TILEHALFWIDTH + startPosX, -TILEHALFHEIGHT + startPosY },     /* Bottom Right point */
-    { -TILEHALFWIDTH + startPosX, -TILEHALFHEIGHT + startPosY } };   /* Bottom Left point */
-    
     int indexRow {0};
     const Texture *lastUsedTexture { nullptr };
     for(const auto &row : map->getTiles()) {
@@ -359,22 +363,8 @@ void GameWindow::generateGLMapObjects()
             glTile.x = indexCol;
             glTile.y = indexRow;
             glTile.tile = tile;
-            /*glTile.hasTexture = !tile.getTextureName().empty() && tile.getTextureIndex() != -1;
-            if (glTile.hasTexture) {
-                glTile.textureName = tile.getTextureName();
-                glTile.textureIndex = tile.getTextureIndex();
-            }
-            glTile.hasObjectTexture = !tile.getObjectTextureName().empty() && tile.getObjectTextureIndex() != -1;
-            if (glTile.hasObjectTexture) {
-                glTile.objectTextureName = tile.getObjectTextureName();
-                glTile.objectTextureIndex = tile.getObjectTextureIndex();
-            }
-            glTile.objectAbovePlayer = tile.getObjectAbovePlayer();*/
-            if (indexCol > 0) {
-                for (int indexVertex=0; indexVertex<4; indexVertex++) {
-                    tileCoord[indexVertex][0] += TILEWIDTH;
-                }
-            }
+            GLfloat tileCoord[4][2];
+            calculateGLTileCoord(Point(indexCol, indexRow), tileCoord);
             glGenBuffers(1, &glTile.vboPosition);
             glGenBuffers(1, &glTile.vboColor);
             GenerateGLObjectInfo infoGenTexture {
@@ -401,15 +391,6 @@ void GameWindow::generateGLMapObjects()
             glTiles.push_back(glTile);
         }
         indexRow++;
-        float topOffset { static_cast<float>(indexRow) * (TILEHALFHEIGHT * 2.0f) };
-        tileCoord[0][0] = -TILEHALFWIDTH + startPosX;
-        tileCoord[0][1] =  TILEHALFHEIGHT + startPosY - topOffset;
-        tileCoord[1][0] =  TILEHALFWIDTH + startPosX;
-        tileCoord[1][1] =  TILEHALFHEIGHT + startPosY - topOffset;
-        tileCoord[2][0] =  TILEHALFWIDTH + startPosX;
-        tileCoord[2][1] = -TILEHALFHEIGHT + startPosY - topOffset;
-        tileCoord[3][0] = -TILEHALFWIDTH + startPosX;
-        tileCoord[3][1] = -TILEHALFHEIGHT + startPosY - topOffset;
     }
 }
 
@@ -469,6 +450,21 @@ void GameWindow::unloadGLMapObjects()
         }
     }
     glTiles.clear();
+}
+
+void GameWindow::calculateGLTileCoord(const Point &tilePosition, GLfloat tileCoord[4][2]) 
+{
+    float startPosX { -1.0f + TILEHALFWIDTH };
+    float startPosY { 1.0f - TILEHALFHEIGHT };
+
+    tileCoord[0][0] = { -TILEHALFWIDTH + startPosX + (TILEWIDTH * tilePosition.x()) };                /* Top Left point */
+    tileCoord[0][1] = { TILEHALFHEIGHT + startPosY - ((TILEHALFHEIGHT * 2) * tilePosition.y()) };     /* Top Left point */
+    tileCoord[1][0] = { TILEHALFWIDTH + startPosX + (TILEWIDTH * tilePosition.x()) };                 /* Top Right point */
+    tileCoord[1][1] = { TILEHALFHEIGHT + startPosY - ((TILEHALFHEIGHT * 2) * tilePosition.y()) };     /* Top Right point */
+    tileCoord[2][0] = { TILEHALFWIDTH + startPosX + (TILEWIDTH * tilePosition.x()) };                 /* Bottom Right point */
+    tileCoord[2][1] = { -TILEHALFHEIGHT + startPosY - ((TILEHALFHEIGHT * 2) * tilePosition.y()) };    /* Bottom Right point */
+    tileCoord[3][0] = { -TILEHALFWIDTH + startPosX + (TILEWIDTH * tilePosition.x()) };                /* Bottom Left point */
+    tileCoord[3][1] = { -TILEHALFHEIGHT + startPosY - ((TILEHALFHEIGHT * 2) * tilePosition.y()) };  /* Bottom Left point */
 }
 
 void GameWindow::generateGLPlayerObject() 
@@ -605,7 +601,6 @@ void GameWindow::drawObjectTile(GLTile &tile)
     glDisableVertexAttribArray(2);
 }
 
-
 void GameWindow::loadMap(const std::string &filePath) 
 {
     map.reset();
@@ -626,7 +621,7 @@ void GameWindow::changeMap(const std::string &filePath)
     setPlayerPosition();
 }
 
-void GameWindow::processAction(MapTileTriggerAction action, const std::map<std::string, std::string> &properties) 
+void GameWindow::processAction(MapTileTriggerAction action, const std::map<std::string, std::string> &properties, MapTile *tile, Point tilePosition) 
 {
     switch (action) 
     {
@@ -638,11 +633,34 @@ void GameWindow::processAction(MapTileTriggerAction action, const std::map<std::
             glPlayer.coord.setY(stoi(properties.at("playerY")));
             changeMap(fmt::format("{0}/maps/{1}", getResourcesPath(), properties.at("mapFileName")));
             break;
+        case MapTileTriggerAction::OpenChest:
+            if (tile != nullptr) {
+                tile->setObjectTextureIndex(stoi(properties.at("objectTextureIndexOpenedChest")));
+                //Update the GLTile
+                auto iter = find_if(glTiles.begin(), glTiles.end(), [&tilePosition](GLTile &glTile) {
+                    return glTile.x == tilePosition.x() && glTile.y == tilePosition.y();
+                });
+                if (iter != glTiles.end()) {
+                    GLTile &glTileToUpdate = *iter;
+                    glTileToUpdate.tile = *tile;
+                    GLfloat tileCoord[4][2];
+                    calculateGLTileCoord(Point(glTileToUpdate.x, glTileToUpdate.y), tileCoord);
+                    GenerateGLObjectInfo infoGenObject {
+                    nullptr,
+                    &glTileToUpdate.vaoObject,
+                    tile->getObjectTextureName(),
+                    tile->getObjectTextureIndex(),
+                    &glTileToUpdate.vboPosition,
+                    &glTileToUpdate.vboColor,
+                    &glTileToUpdate.vboTextureObject };
+                    generateGLObject(infoGenObject, tileCoord, texColorBuf);
+                }
+            }
+            break;
         default:   
             break;
     }
 }
-
 
 void GameWindow::loadTextures() 
 {
@@ -678,7 +696,6 @@ void GameWindow::loadTextures()
         stbi_image_free(imageBytes);
     }
 }
-
 
 void GameWindow::setTextureUVFromIndex(const Texture *texture, GLfloat uvMap[4][2], int index) 
 {

@@ -40,6 +40,11 @@ MapTile& GameMap::getTileForEditing(int index)
     return tiles.at(index / getWidth()).at(index % getWidth());
 }
 
+MapTile& GameMap::getTileForEditing(Point coord) 
+{
+    return tiles.at(coord.y()).at(coord.x());
+}
+
 const MapTile& GameMap::getTileFromCoord(Point coord) const
 {
     return tiles.at(coord.y()).at(coord.x());

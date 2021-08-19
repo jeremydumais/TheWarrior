@@ -18,6 +18,7 @@ public:
     const std::string getLastError() const;
     const std::vector<std::vector<MapTile>> &getTiles() const;
     MapTile &getTileForEditing(int index);
+    MapTile &getTileForEditing(Point coord);
     const MapTile &getTileFromCoord(Point coord) const;
     unsigned int getWidth() const;
     unsigned int getHeight() const;

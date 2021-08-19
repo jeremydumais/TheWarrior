@@ -15,11 +15,4 @@ struct GLTile
     int x;
     int y;
     MapTile tile;
-    /*bool hasTexture;
-    std::string textureName;
-    int textureIndex;
-    bool hasObjectTexture;
-    std::string objectTextureName;
-    int objectTextureIndex;
-    bool objectAbovePlayer;*/
 };

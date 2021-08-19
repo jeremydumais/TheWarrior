@@ -1,9 +1,6 @@
 #include "mainForm.hpp"
 #include "aboutBoxForm.hpp"
 #include "utils/configurationManager.hpp"
-#include "editMapTileTriggerForm.hpp"
-#include "editTextureForm.hpp"
-#include "editTileActionChangeMapPropertiesForm.hpp"
 #include "utils/errorMessage.hpp"
 #include "utils/specialFolders.hpp"
 #include <QtCore/qfile.h>
@@ -99,10 +96,9 @@ MainForm::MainForm(QWidget *parent)
 	}
 	auto map { controller.getMap() };
 	glComponent.setCurrentMap(map);
-	ui.lineEditMapWidth->setText(to_string(map->getWidth()).c_str());
-	ui.lineEditMapHeight->setText(to_string(map->getHeight()).c_str());
 	refreshRecentMapsMenu();
 	refreshTextureList();
+	mapTabComponent.reset();
 }
 
 void MainForm::connectUIActions() 
@@ -141,7 +137,6 @@ void MainForm::connectUIActions()
 	connect(&textureListTabComponent, &MainForm_TextureListTabComponent::textureAdded, this, &MainForm::onTextureAdded);
 	connect(&textureListTabComponent, &MainForm_TextureListTabComponent::textureUpdated, this, &MainForm::onTextureUpdated);
 	connect(&textureListTabComponent, &MainForm_TextureListTabComponent::textureDeleted, this, &MainForm::onTextureDeleted);
-	
 }
 
 void MainForm::action_Open_Click() 
@@ -335,7 +330,11 @@ void MainForm::openMap(const std::string &filePath)
 		oa >> *controller.getMap();
 		currentFilePath = filePath;
 		addNewRecentMap(currentFilePath);
+		glComponent.setCurrentMap(controller.getMap());
+		glComponent.resetMapMovePosition();
 		refreshTextureList();
+		tileTabComponent.reset();
+		mapTabComponent.reset();
 	}
 	catch(...) {
 		ErrorMessage::show(fmt::format("Unable to open the map {0}", filePath));
