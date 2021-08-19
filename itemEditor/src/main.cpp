@@ -1,5 +1,5 @@
 #include "mainForm.hpp"
-#include "../../mapEditor/src/utils/uiUtils.hpp"
+#include "uiUtils.hpp"
 
 int main(int argc, char *argv[])
 {

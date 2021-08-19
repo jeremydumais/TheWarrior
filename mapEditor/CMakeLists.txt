@@ -1,8 +1,9 @@
 # Set project name
 set(PROJECT_NAME    "MapEditor")
 
-include_directories(${QT_INCLUDE_PATH},
+include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/src
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../twModels/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../mapEditor.Controllers/include)
 
@@ -34,9 +35,7 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/imageAttributionsForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/configurationManager.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/specialFolders.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/uiUtils.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/errorMessage.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/res/darkstyle/darkstyle.qrc
+                         ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/res/darkstyle/darkstyle.qrc
                          ${CMAKE_CURRENT_SOURCE_DIR}/res/global.qrc)
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_FILES})
@@ -44,7 +43,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STRE
   target_compile_definitions(${PROJECT_NAME} PRIVATE SUPPORT_MAYBE_UNUSED)
 endif()
 
-target_link_libraries(${PROJECT_NAME} MapEditor.Controllers twModels Qt5::Widgets Qt5::OpenGL glut GLU GL ${CONAN_LIBS})
+target_link_libraries(${PROJECT_NAME} MapEditor.Controllers twModels commonUI Qt5::Widgets Qt5::OpenGL glut GLU GL ${CONAN_LIBS})
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html

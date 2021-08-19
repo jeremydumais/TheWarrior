@@ -67,7 +67,7 @@
        </property>
        <property name="icon">
         <iconset resource="../res/global.qrc">
-         <normaloff>:/dialog-ok.svg</normaloff>:/dialog-ok.svg</iconset>
+         <normaloff>:/commonUI/res/dialog-ok.svg</normaloff>:/commonUI/res/dialog-ok.svg</iconset>
        </property>
       </widget>
      </item>
@@ -78,7 +78,7 @@
        </property>
        <property name="icon">
         <iconset resource="../res/global.qrc">
-         <normaloff>:/gtk-delete.svg</normaloff>:/gtk-delete.svg</iconset>
+         <normaloff>:/commonUI/res/dialog-close.svg</normaloff>:/commonUI/res/dialog-close.svg</iconset>
        </property>
       </widget>
      </item>

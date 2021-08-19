@@ -1,5 +1,5 @@
 #include "mainForm.hpp"
-#include "utils/uiUtils.hpp"
+#include "uiUtils.hpp"
 #include <GL/glut.h>
 
 int main(int argc, char *argv[])

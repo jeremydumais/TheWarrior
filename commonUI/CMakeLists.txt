@@ -1,12 +1,10 @@
 # Set project name
-set(PROJECT_NAME    "ItemEditor")
+set(PROJECT_NAME    "commonUI")
 
 include_directories(${QT_INCLUDE_PATH}
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/include
-                    ${CMAKE_CURRENT_SOURCE_DIR}/src
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../twModels/include)
+                    ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Widgets OpenGL REQUIRED)
 
 #Generate QT Form headers
 set(CMAKE_AUTOUIC ON)
@@ -15,19 +13,15 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOUIC_SEARCH_PATHS AUTOGEN_BUILD_DIR/include)
 
-set (RESOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/res/darkstyle/darkstyle.qss)
+set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/errorMessage.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/uiUtils.cpp)
 
-set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/mainForm.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/res/darkstyle/darkstyle.qrc
-                         ${CMAKE_CURRENT_SOURCE_DIR}/res/global.qrc)
-
-add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_FILES})
+add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   target_compile_definitions(${PROJECT_NAME} PRIVATE SUPPORT_MAYBE_UNUSED)
 endif()
 
-target_link_libraries(${PROJECT_NAME} twModels commonUI Qt5::Widgets ${CONAN_LIBS})
+target_link_libraries(${PROJECT_NAME} Qt5::Widgets)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
@@ -60,8 +54,4 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
       INTERFACE _SCL_SECURE_NO_WARNINGS) # disable security-paranoia warning
 endif()
 
-install(TARGETS ${PROJECT_NAME} DESTINATION bin)
-install(FILES ${RESOURCE_FILES} DESTINATION share/${PROJECT_NAME}/res)
-
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/../resources DESTINATION ${CMAKE_BINARY_DIR}/bin)
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res  DESTINATION ${CMAKE_BINARY_DIR}/bin)
+install(TARGETS ${PROJECT_NAME} DESTINATION lib)

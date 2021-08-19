@@ -32,7 +32,7 @@
          </size>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>3</number>
         </property>
         <widget class="QWidget" name="pageMapProperties">
          <property name="geometry">
@@ -337,7 +337,7 @@
                  </property>
                  <property name="icon">
                   <iconset resource="../res/global.qrc">
-                   <normaloff>:/gtk-add.svg</normaloff>:/gtk-add.svg</iconset>
+                   <normaloff>:/commonUI/res/gtk-add.svg</normaloff>:/commonUI/res/gtk-add.svg</iconset>
                  </property>
                 </widget>
                </item>
@@ -348,7 +348,7 @@
                  </property>
                  <property name="icon">
                   <iconset resource="../res/global.qrc">
-                   <normaloff>:/gtk-edit.svg</normaloff>:/gtk-edit.svg</iconset>
+                   <normaloff>:/commonUI/res/gtk-edit.svg</normaloff>:/commonUI/res/gtk-edit.svg</iconset>
                  </property>
                 </widget>
                </item>
@@ -359,7 +359,7 @@
                  </property>
                  <property name="icon">
                   <iconset resource="../res/global.qrc">
-                   <normaloff>:/dialog-close.svg</normaloff>:/dialog-close.svg</iconset>
+                   <normaloff>:/commonUI/res/gtk-delete.svg</normaloff>:/commonUI/res/gtk-delete.svg</iconset>
                  </property>
                 </widget>
                </item>
@@ -395,7 +395,7 @@
               </property>
               <property name="icon">
                <iconset resource="../res/global.qrc">
-                <normaloff>:/gtk-add.svg</normaloff>:/gtk-add.svg</iconset>
+                <normaloff>:/commonUI/res/gtk-add.svg</normaloff>:/commonUI/res/gtk-add.svg</iconset>
               </property>
              </widget>
             </item>
@@ -406,7 +406,7 @@
               </property>
               <property name="icon">
                <iconset resource="../res/global.qrc">
-                <normaloff>:/gtk-edit.svg</normaloff>:/gtk-edit.svg</iconset>
+                <normaloff>:/commonUI/res/gtk-edit.svg</normaloff>:/commonUI/res/gtk-edit.svg</iconset>
               </property>
              </widget>
             </item>
@@ -417,7 +417,7 @@
               </property>
               <property name="icon">
                <iconset resource="../res/global.qrc">
-                <normaloff>:/dialog-close.svg</normaloff>:/dialog-close.svg</iconset>
+                <normaloff>:/commonUI/res/gtk-delete.svg</normaloff>:/commonUI/res/gtk-delete.svg</iconset>
               </property>
              </widget>
             </item>
@@ -450,7 +450,7 @@
               </property>
               <property name="icon">
                <iconset resource="../res/global.qrc">
-                <normaloff>:/gtk-add.svg</normaloff>:/gtk-add.svg</iconset>
+                <normaloff>:/commonUI/res/gtk-add.svg</normaloff>:/commonUI/res/gtk-add.svg</iconset>
               </property>
              </widget>
             </item>
@@ -461,7 +461,7 @@
               </property>
               <property name="icon">
                <iconset resource="../res/global.qrc">
-                <normaloff>:/gtk-edit.svg</normaloff>:/gtk-edit.svg</iconset>
+                <normaloff>:/commonUI/res/gtk-edit.svg</normaloff>:/commonUI/res/gtk-edit.svg</iconset>
               </property>
              </widget>
             </item>
@@ -472,7 +472,7 @@
               </property>
               <property name="icon">
                <iconset resource="../res/global.qrc">
-                <normaloff>:/dialog-close.svg</normaloff>:/dialog-close.svg</iconset>
+                <normaloff>:/commonUI/res/gtk-delete.svg</normaloff>:/commonUI/res/gtk-delete.svg</iconset>
               </property>
              </widget>
             </item>
@@ -815,7 +815,7 @@
   <action name="action_Quit">
    <property name="icon">
     <iconset resource="../res/global.qrc">
-     <normaloff>:/exit.svg</normaloff>:/exit.svg</iconset>
+     <normaloff>:/commonUI/res/exit.svg</normaloff>:/commonUI/res/exit.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;Quit</string>
@@ -845,7 +845,7 @@
   <action name="action_Open">
    <property name="icon">
     <iconset resource="../res/global.qrc">
-     <normaloff>:/document-open.svg</normaloff>:/document-open.svg</iconset>
+     <normaloff>:/commonUI/res/document-open.svg</normaloff>:/commonUI/res/document-open.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;Open...</string>
@@ -857,7 +857,7 @@
   <action name="action_Save">
    <property name="icon">
     <iconset resource="../res/global.qrc">
-     <normaloff>:/document-save.svg</normaloff>:/document-save.svg</iconset>
+     <normaloff>:/commonUI/res/document-save.svg</normaloff>:/commonUI/res/document-save.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;Save</string>
@@ -922,7 +922,7 @@
   <action name="action_SaveAs">
    <property name="icon">
     <iconset resource="../res/global.qrc">
-     <normaloff>:/document-save-as.svg</normaloff>:/document-save-as.svg</iconset>
+     <normaloff>:/commonUI/res/document-save-as.svg</normaloff>:/commonUI/res/document-save-as.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;Save As...</string>
@@ -934,7 +934,7 @@
   <action name="action_New">
    <property name="icon">
     <iconset resource="../res/global.qrc">
-     <normaloff>:/document-new.svg</normaloff>:/document-new.svg</iconset>
+     <normaloff>:/commonUI/res/document-new.svg</normaloff>:/commonUI/res/document-new.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;New</string>

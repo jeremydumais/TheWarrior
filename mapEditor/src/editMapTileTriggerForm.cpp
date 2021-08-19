@@ -1,7 +1,7 @@
 #include "editMapTileTriggerForm.hpp"
 #include "editTileActionChangeMapPropertiesForm.hpp"
 #include "editTileActionOpenChestPropertiesForm.hpp"
-#include "utils/errorMessage.hpp"
+#include "errorMessage.hpp"
 #include "mapTileTrigger.hpp"
 #include "mapTileTriggerActionConverter.hpp"
 #include "mapTileTriggerConditionConverter.hpp"

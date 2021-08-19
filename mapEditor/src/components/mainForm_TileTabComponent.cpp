@@ -1,8 +1,8 @@
 #include "mainForm_TileTabComponent.hpp"
 #include "editMapTileTriggerForm.hpp"
-#include "utils/errorMessage.hpp"
+#include "errorMessage.hpp"
 #include "mapTileTriggerEventConverter.hpp"
-#include "../utils/uiUtils.hpp"
+#include "uiUtils.hpp"
 #include <fmt/format.h>
 
 MainForm_TileTabComponent::MainForm_TileTabComponent() 

@@ -1,5 +1,5 @@
 #include "editTileActionChangeMapPropertiesForm.hpp"
-#include "utils/errorMessage.hpp"
+#include "errorMessage.hpp"
 #include <algorithm>
 #include <fmt/format.h>
 #include <QFileDialog>

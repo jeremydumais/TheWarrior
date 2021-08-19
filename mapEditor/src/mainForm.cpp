@@ -1,7 +1,7 @@
 #include "mainForm.hpp"
 #include "aboutBoxForm.hpp"
 #include "utils/configurationManager.hpp"
-#include "utils/errorMessage.hpp"
+#include "errorMessage.hpp"
 #include "utils/specialFolders.hpp"
 #include <QtCore/qfile.h>
 #include <algorithm>

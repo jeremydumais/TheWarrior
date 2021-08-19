@@ -151,8 +151,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>596</width>
-        <height>496</height>
+        <width>600</width>
+        <height>475</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout">
@@ -189,7 +189,7 @@
        </property>
        <property name="icon">
         <iconset resource="../res/global.qrc">
-         <normaloff>:/dialog-ok.svg</normaloff>:/dialog-ok.svg</iconset>
+         <normaloff>:/commonUI/res/dialog-ok.svg</normaloff>:/commonUI/res/dialog-ok.svg</iconset>
        </property>
       </widget>
      </item>
@@ -200,7 +200,7 @@
        </property>
        <property name="icon">
         <iconset resource="../res/global.qrc">
-         <normaloff>:/gtk-delete.svg</normaloff>:/gtk-delete.svg</iconset>
+         <normaloff>:/commonUI/res/dialog-close.svg</normaloff>:/commonUI/res/dialog-close.svg</iconset>
        </property>
       </widget>
      </item>
