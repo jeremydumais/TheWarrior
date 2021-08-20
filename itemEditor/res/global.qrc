@@ -1,5 +1,6 @@
 <RCC>
   <qresource>
+    <file>ItemEditor Icon.png</file>
     <file>../../commonUI/res/gtk-edit.svg</file>
     <file>../../commonUI/res/gtk-delete.svg</file>
     <file>../../commonUI/res/gtk-add.svg</file>

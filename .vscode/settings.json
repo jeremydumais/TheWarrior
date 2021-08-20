@@ -103,10 +103,12 @@
         ]
     },
     "C_Cpp.default.includePath": ["${default}", 
+                                  "${workspaceFolder}/commonUI/include/",
                                   "${workspaceFolder}/twUI/include/",
                                   "${workspaceFolder}/twModels/include/",
+                                  "${workspaceFolder}/twStorage/include/",
                                   "${workspaceFolder}/mapEditor.Controllers/include/",
-                                "/usr/include/x86_64-linux-gnu/qt5/"
+                                  "/usr/include/x86_64-linux-gnu/qt5/"
                             ],
-                            "output.smartScroll.enabled": false
+    "output.smartScroll.enabled": false
 }

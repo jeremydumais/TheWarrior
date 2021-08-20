@@ -2,6 +2,7 @@
 #define MAINFORM_H
 
 #include "ui_mainForm.h"
+#include <string>
 
 class MainForm : public QMainWindow
 {
@@ -16,6 +17,15 @@ public:
 private:
 	Ui::MainForm ui;
 	bool functionAfterShownCalled;
+	std::string userConfigFolder;
+	std::string executablePath;
+	std::string resourcesPath;
+	void action_About_Click();
+	void action_LightTheme_Click();
+	void action_DarkTheme_Click();
+    const std::string &getExecutablePath();
+    const std::string &getResourcesPath();
+	void setAppStylesheet(const std::string &style);
 };
 
 #endif // MAINFORM_H

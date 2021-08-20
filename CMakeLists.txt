@@ -33,6 +33,7 @@ enable_testing()
 include(GoogleTest)
 
 add_subdirectory("twModels")
+add_subdirectory("twStorage")
 add_subdirectory("twUI")
 add_subdirectory("theWarrior")
 add_subdirectory("commonUI")

@@ -1,8 +1,8 @@
 #include "mainForm.hpp"
 #include "aboutBoxForm.hpp"
-#include "utils/configurationManager.hpp"
+#include "configurationManager.hpp"
 #include "errorMessage.hpp"
-#include "utils/specialFolders.hpp"
+#include "specialFolders.hpp"
 #include <QtCore/qfile.h>
 #include <algorithm>
 #include <boost/algorithm/string.hpp>

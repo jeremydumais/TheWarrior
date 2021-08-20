@@ -3,15 +3,17 @@
         {
             "name": "Linux",
             "defines": [],
-            "compilerPath": "/usr/bin/clang",
+            "compilerPath": "",
             "cStandard": "c11",
             "cppStandard": "c++17",
             "intelliSenseMode": "clang-x64",
             "compileCommands": "",
             "includePath": [
                 "${workspaceFolder}/**",
+                "${workspaceFolder}/commonUI/include",
                 "${workspaceFolder}/twUI/include",
                 "${workspaceFolder}/twModels/include",
+                "${workspaceFolder}/twStorage/include",
                 "${workspaceFolder}/mapEditor.Controllers/include"
             ],
             "configurationProvider": "vector-of-bool.cmake-tools"
