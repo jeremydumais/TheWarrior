@@ -5,5 +5,5 @@
 class SpecialFolders
 {
 public:
-    static const std::string getUserConfigDirectory();
+    static const std::string getAppConfigDirectory(const std::string &appName);
 };

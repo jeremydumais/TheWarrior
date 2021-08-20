@@ -103,6 +103,7 @@ GameWindow::GameWindow(const string &title,
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     calculateTileSize();
+    map = make_shared<GameMap>(1, 1);
     loadMap(fmt::format("{0}/maps/homeHouseV1.map", getResourcesPath()));
     loadTextures();
     generateGLMapObjects();
@@ -603,10 +604,10 @@ void GameWindow::drawObjectTile(GLTile &tile)
 
 void GameWindow::loadMap(const std::string &filePath) 
 {
-    map.reset();
+    //map.reset();
     ifstream ofs(filePath, ifstream::binary);
 	boost::archive::binary_iarchive oa(ofs);
-    map = make_shared<GameMap>(1, 1);
+    //map = make_shared<GameMap>(1, 1);
 	oa >> *map;
 }
 

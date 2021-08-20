@@ -5,15 +5,17 @@
 
 using namespace std;
 
-const string SpecialFolders::getUserConfigDirectory()
+const string SpecialFolders::getAppConfigDirectory(const string &appConfigFolder)
 {
     #ifdef _WIN32
-        return fmt::format("{0}\\TheWarrior_ItemEditor\\", 
-                           getenv("LOCALAPPDATA"));
+        return fmt::format("{0}\\{1}\\", 
+                           getenv("LOCALAPPDATA"),
+                           appConfigFolder);
     #else
         //Linux system
-        return fmt::format("{0}/.config/TheWarrior_ItemEditor/",
-                           getenv("HOME"));
+        return fmt::format("{0}/.config/{1}/",
+                           getenv("HOME"), 
+                           appConfigFolder);
     #endif
 
 }

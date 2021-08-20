@@ -12,6 +12,9 @@
 
 using namespace std;
 
+const std::string MainForm::THEME_PATH { "Display.Theme" };
+const std::string MainForm::RECENT_MAPS { "ItemsDB.Recents" };
+
 MainForm::MainForm(QWidget *parent)
 	: QMainWindow(parent),
 	  ui(Ui::MainForm()),
@@ -20,7 +23,7 @@ MainForm::MainForm(QWidget *parent)
 	ui.setupUi(this);
 
     //Check if the user configuration folder exist
-	userConfigFolder = SpecialFolders::getUserConfigDirectory();
+	userConfigFolder = SpecialFolders::getAppConfigDirectory("TheWarrior_ItemEditor");
 	if (!boost::filesystem::exists(userConfigFolder)) {
 		if (!boost::filesystem::create_directory(userConfigFolder)) {
 			ErrorMessage::show(fmt::format("Unable to create the folder {0}", userConfigFolder), "");
@@ -30,7 +33,7 @@ MainForm::MainForm(QWidget *parent)
 
 	//Check if the configuration file exist
 	ConfigurationManager configManager(userConfigFolder + "config.json");
-	setAppStylesheet(configManager.getStringValue(ConfigurationManager::THEME_PATH));
+	setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
 
     ui.listWidgetItemCategories->setFixedWidth(300);
 
@@ -70,8 +73,8 @@ void MainForm::action_About_Click()
 void MainForm::action_LightTheme_Click()
 {
 	ConfigurationManager configManager(userConfigFolder + "config.json");
-	configManager.setStringValue(ConfigurationManager::THEME_PATH, "");
-	setAppStylesheet(configManager.getStringValue(ConfigurationManager::THEME_PATH));
+	configManager.setStringValue(MainForm::THEME_PATH, "");
+	setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
 	if (!configManager.save()) {
 		ErrorMessage::show("An error occurred while saving the configuration file.", 
 						 configManager.getLastError());
@@ -81,8 +84,8 @@ void MainForm::action_LightTheme_Click()
 void MainForm::action_DarkTheme_Click()
 {
 	ConfigurationManager configManager(userConfigFolder + "config.json");
-	configManager.setStringValue(ConfigurationManager::THEME_PATH, "Dark");
-	setAppStylesheet(configManager.getStringValue(ConfigurationManager::THEME_PATH));
+	configManager.setStringValue(MainForm::THEME_PATH, "Dark");
+	setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
 	if (!configManager.save()) {
 		ErrorMessage::show("An error occurred while saving the configuration file.", 
 						 configManager.getLastError());

@@ -6,9 +6,6 @@ using namespace std;
 using namespace boost::filesystem;
 using namespace boost::property_tree;
 
-const std::string ConfigurationManager::THEME_PATH { "Display.Theme" };
-const std::string ConfigurationManager::RECENT_MAPS { "ItemsDB.Recents" };
-
 ConfigurationManager::ConfigurationManager(const string &file)
     : configFile(file)
 {

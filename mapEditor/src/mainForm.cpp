@@ -17,6 +17,9 @@
 #include <unistd.h>         // readlink
 using namespace std;
 
+const std::string MainForm::THEME_PATH { "Display.Theme" };
+const std::string MainForm::RECENT_MAPS { "Map.Recents" };
+
 MainForm::MainForm(QWidget *parent)
 	: QMainWindow(parent),
 	  ui(Ui::MainForm()),
@@ -77,7 +80,7 @@ MainForm::MainForm(QWidget *parent)
 	connectUIActions();
 
 	//Check if the user configuration folder exist
-	userConfigFolder = SpecialFolders::getUserConfigDirectory();
+	userConfigFolder = SpecialFolders::getAppConfigDirectory("TheWarrior_MapEditor");
 	if (!boost::filesystem::exists(userConfigFolder)) {
 		if (!boost::filesystem::create_directory(userConfigFolder)) {
 			ErrorMessage::show(fmt::format("Unable to create the folder {0}", userConfigFolder), "");
@@ -87,7 +90,7 @@ MainForm::MainForm(QWidget *parent)
 
 	//Check if the configuration file exist
 	ConfigurationManager configManager(userConfigFolder + "config.json");
-	setAppStylesheet(configManager.getStringValue(ConfigurationManager::THEME_PATH));
+	setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
 
 	//Generate a test map
 	if (!controller.createMap(20, 20)) {
@@ -239,8 +242,8 @@ void MainForm::action_About_Click()
 void MainForm::action_LightTheme_Click()
 {
 	ConfigurationManager configManager(userConfigFolder + "config.json");
-	configManager.setStringValue(ConfigurationManager::THEME_PATH, "");
-	setAppStylesheet(configManager.getStringValue(ConfigurationManager::THEME_PATH));
+	configManager.setStringValue(MainForm::THEME_PATH, "");
+	setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
 	if (!configManager.save()) {
 		ErrorMessage::show("An error occurred while saving the configuration file.", 
 						 configManager.getLastError());
@@ -250,8 +253,8 @@ void MainForm::action_LightTheme_Click()
 void MainForm::action_DarkTheme_Click()
 {
 	ConfigurationManager configManager(userConfigFolder + "config.json");
-	configManager.setStringValue(ConfigurationManager::THEME_PATH, "Dark");
-	setAppStylesheet(configManager.getStringValue(ConfigurationManager::THEME_PATH));
+	configManager.setStringValue(MainForm::THEME_PATH, "Dark");
+	setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
 	if (!configManager.save()) {
 		ErrorMessage::show("An error occurred while saving the configuration file.", 
 						 configManager.getLastError());
@@ -361,7 +364,7 @@ void MainForm::refreshWindowTitle()
 void MainForm::refreshRecentMapsMenu() 
 {
 	ConfigurationManager configManager(userConfigFolder + "config.json");
-	auto recents = configManager.getVectorOfStringValue(ConfigurationManager::RECENT_MAPS);
+	auto recents = configManager.getVectorOfStringValue(MainForm::RECENT_MAPS);
 	if (recents.size() > 5) {
 		recents.resize(5);
 	}
@@ -383,7 +386,7 @@ void MainForm::addNewRecentMap(const std::string &filePath)
 {
 	//Load existing recent maps
 	ConfigurationManager configManager(userConfigFolder + "config.json");
-	auto recents = configManager.getVectorOfStringValue(ConfigurationManager::RECENT_MAPS);
+	auto recents = configManager.getVectorOfStringValue(MainForm::RECENT_MAPS);
 	//Scan to find the currentMap, if found remove it from the list
 	auto iter = std::find(recents.begin(), recents.end(), filePath);
 	if (iter != recents.end()) {
@@ -394,7 +397,7 @@ void MainForm::addNewRecentMap(const std::string &filePath)
 	if (recents.size() > 5) {
 		recents.resize(5);
 	}
-	configManager.setVectorOfStringValue(ConfigurationManager::RECENT_MAPS, recents);
+	configManager.setVectorOfStringValue(MainForm::RECENT_MAPS, recents);
 	configManager.save();
 	refreshRecentMapsMenu();
 }

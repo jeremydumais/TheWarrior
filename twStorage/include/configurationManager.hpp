@@ -13,8 +13,6 @@ public:
     void setStringValue(const std::string &path, const std::string &value);
     void setVectorOfStringValue(const std::string &path, const std::vector<std::string> &values);
     bool save();
-	static const std::string THEME_PATH;
-	static const std::string RECENT_MAPS;
 private:
     std::string configFile;
     boost::property_tree::ptree config;

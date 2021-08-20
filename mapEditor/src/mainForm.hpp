@@ -36,6 +36,8 @@ private:
 	bool functionAfterShownCalled;
 	std::string executablePath;
 	std::string resourcesPath;
+	static const std::string THEME_PATH;
+	static const std::string RECENT_MAPS;
     const std::string &getExecutablePath();
     const std::string &getResourcesPath();
 	void setAppStylesheet(const std::string &style);
