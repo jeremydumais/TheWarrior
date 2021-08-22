@@ -2,6 +2,7 @@
 #include "aboutBoxForm.hpp"
 #include "configurationManager.hpp"
 #include "errorMessage.hpp"
+#include "gameMapStorage.hpp"
 #include "specialFolders.hpp"
 #include <QtCore/qfile.h>
 #include <algorithm>
@@ -327,21 +328,26 @@ void MainForm::action_ClearBlockedBordersClick()
 
 void MainForm::openMap(const std::string &filePath) 
 {
+	GameMapStorage mapStorage;
 	try {
-		ifstream ofs(filePath, ifstream::binary);
-		boost::archive::binary_iarchive oa(ofs);
-		oa >> *controller.getMap();
-		currentFilePath = filePath;
-		addNewRecentMap(currentFilePath);
-		glComponent.setCurrentMap(controller.getMap());
-		glComponent.resetMapMovePosition();
-		refreshTextureList();
-		tileTabComponent.reset();
-		mapTabComponent.reset();
+		mapStorage.loadMap(filePath, controller.getMap());
 	}
-	catch(...) {
-		ErrorMessage::show(fmt::format("Unable to open the map {0}", filePath));
+	catch(invalid_argument &err) {
+        ErrorMessage::show(err.what());
+		return;
 	}
+	catch(runtime_error &err) {
+        ErrorMessage::show(err.what());
+		return;
+	}
+
+	currentFilePath = filePath;
+	addNewRecentMap(currentFilePath);
+	glComponent.setCurrentMap(controller.getMap());
+	glComponent.resetMapMovePosition();
+	refreshTextureList();
+	tileTabComponent.reset();
+	mapTabComponent.reset();
 }
 
 void MainForm::saveMap(const std::string &filePath) 

@@ -2,8 +2,8 @@
 set(PROJECT_NAME    "TheWarrior")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include,
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../twModels/include
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../twUI/include)
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.UI/include)
 
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 
@@ -12,7 +12,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STRE
   target_compile_definitions(${PROJECT_NAME} PRIVATE SUPPORT_MAYBE_UNUSED)
 endif()
 
-target_link_libraries(${PROJECT_NAME} twUI SDL2 ${CONAN_LIBS})
+target_link_libraries(${PROJECT_NAME} theWarrior.UI SDL2 ${CONAN_LIBS})
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html

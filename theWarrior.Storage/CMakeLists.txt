@@ -1,17 +1,20 @@
 # Set project name
-set(PROJECT_NAME    "twStorage")
+set(PROJECT_NAME    "theWarrior.Storage")
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include)
 
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/configurationManager.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/specialFolders.cpp)
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/specialFolders.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/gameMapStorage.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/jsonFileStream.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   target_compile_definitions(${PROJECT_NAME} PRIVATE SUPPORT_MAYBE_UNUSED)
 endif()
 
-target_link_libraries(${PROJECT_NAME} twModels ${CONAN_LIBS})
+target_link_libraries(${PROJECT_NAME} theWarrior.Models ${CONAN_LIBS})
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
@@ -44,9 +47,9 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
       INTERFACE _SCL_SECURE_NO_WARNINGS) # disable security-paranoia warning
 endif()
 
-#if (NOT DEFINED BUILD_TESTING OR BUILD_TESTING)
-#  add_subdirectory("test")
-#endif()
+if (NOT DEFINED BUILD_TESTING OR BUILD_TESTING)
+  add_subdirectory("test")
+endif()
 
 
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)

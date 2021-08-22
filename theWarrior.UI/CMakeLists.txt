@@ -1,23 +1,23 @@
 # Set project name
-set(PROJECT_NAME    "twModels")
+set(PROJECT_NAME    "theWarrior.UI")
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Storage/include)
 
-set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/point.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/gameMap.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/mapTile.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/mapTileTrigger.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/mapTileTriggerEventConverter.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/mapTileTriggerConditionConverter.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/mapTileTriggerActionConverter.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/texture.cpp)
+set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindow.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/glPlayer.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/fpsCalculator.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/glTileService.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/glTextService.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/glShaderProgram.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   target_compile_definitions(${PROJECT_NAME} PRIVATE SUPPORT_MAYBE_UNUSED)
 endif()
 
-#target_link_libraries(${PROJECT_NAME} Models DataServices Controllers Qt5::Widgets sqlite3)
+target_link_libraries(${PROJECT_NAME} theWarrior.Models theWarrior.Storage GLU GL GLEW)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
@@ -49,10 +49,5 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
       INTERFACE NOMINMAX # avoid Win macro definition of min/max, use std one
       INTERFACE _SCL_SECURE_NO_WARNINGS) # disable security-paranoia warning
 endif()
-
-if (NOT DEFINED BUILD_TESTING OR BUILD_TESTING)
-  add_subdirectory("test")
-endif()
-
 
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)

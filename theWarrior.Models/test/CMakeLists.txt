@@ -1,4 +1,4 @@
-set(PROJECT_UNITTEST_NAME   "twModels_unittests")
+set(PROJECT_UNITTEST_NAME   "theWarrior.Models_unittests")
 
 project(${PROJECT_UNITTEST_NAME} LANGUAGES CXX)
 
@@ -15,5 +15,5 @@ add_executable(${PROJECT_UNITTEST_NAME} ${INCLUDE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}/mapTileTriggerConditionConverter_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/mapTileTriggerActionConverter_unittest.cpp)
 
-target_link_libraries(${PROJECT_UNITTEST_NAME} PRIVATE twModels ${CONAN_LIBS})
+target_link_libraries(${PROJECT_UNITTEST_NAME} PRIVATE theWarrior.Models ${CONAN_LIBS})
 gtest_discover_tests(${PROJECT_UNITTEST_NAME})

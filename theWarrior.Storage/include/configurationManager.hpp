@@ -1,6 +1,8 @@
 #pragma once
 
+#include "iJSONFileStream.hpp"
 #include <boost/property_tree/ptree.hpp>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -17,4 +19,5 @@ private:
     std::string configFile;
     boost::property_tree::ptree config;
     std::string lastError;
+    std::unique_ptr<IJSONFileStream> jfs;
 };

@@ -1,4 +1,5 @@
 #include "gameWindow.hpp"
+#include "gameMapStorage.hpp"
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include <algorithm>
@@ -604,11 +605,16 @@ void GameWindow::drawObjectTile(GLTile &tile)
 
 void GameWindow::loadMap(const std::string &filePath) 
 {
-    //map.reset();
-    ifstream ofs(filePath, ifstream::binary);
-	boost::archive::binary_iarchive oa(ofs);
-    //map = make_shared<GameMap>(1, 1);
-	oa >> *map;
+	GameMapStorage mapStorage;
+	try {
+		mapStorage.loadMap(filePath, map);
+	}
+	catch(invalid_argument &err) {
+        cerr << err.what() << '\n';
+	}
+	catch(runtime_error &err) {
+        cerr << err.what() << '\n';
+	}
 }
 
 void GameWindow::changeMap(const std::string &filePath) 
