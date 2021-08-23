@@ -33,7 +33,13 @@ MainForm::MainForm(QWidget *parent)
 
 	//Check if the configuration file exist
 	ConfigurationManager configManager(userConfigFolder + "config.json");
-	setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
+	if (configManager.load()) {
+		setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
+	}
+	else {
+		ErrorMessage::show("An error occurred while loading the configuration file.",
+						   configManager.getLastError());
+	}
 
     ui.listWidgetItemCategories->setFixedWidth(300);
 
@@ -73,22 +79,34 @@ void MainForm::action_About_Click()
 void MainForm::action_LightTheme_Click()
 {
 	ConfigurationManager configManager(userConfigFolder + "config.json");
-	configManager.setStringValue(MainForm::THEME_PATH, "");
-	setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
-	if (!configManager.save()) {
-		ErrorMessage::show("An error occurred while saving the configuration file.", 
-						 configManager.getLastError());
+	if (configManager.load()) {
+		configManager.setStringValue(MainForm::THEME_PATH, "");
+		setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
+		if (!configManager.save()) {
+			ErrorMessage::show("An error occurred while saving the configuration file.", 
+							configManager.getLastError());
+		}
+	}
+	else {
+		ErrorMessage::show("An error occurred while loading the configuration file.",
+						   configManager.getLastError());
 	}
 }
 
 void MainForm::action_DarkTheme_Click()
 {
 	ConfigurationManager configManager(userConfigFolder + "config.json");
-	configManager.setStringValue(MainForm::THEME_PATH, "Dark");
-	setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
-	if (!configManager.save()) {
-		ErrorMessage::show("An error occurred while saving the configuration file.", 
-						 configManager.getLastError());
+	if (configManager.load()) {
+		configManager.setStringValue(MainForm::THEME_PATH, "Dark");
+		setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
+		if (!configManager.save()) {
+			ErrorMessage::show("An error occurred while saving the configuration file.", 
+							configManager.getLastError());
+		}
+	}
+	else {
+		ErrorMessage::show("An error occurred while loading the configuration file.",
+						   configManager.getLastError());
 	}
 }
 

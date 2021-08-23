@@ -11,9 +11,9 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/commonUI/include",
-                "${workspaceFolder}/twUI/include",
-                "${workspaceFolder}/twModels/include",
-                "${workspaceFolder}/twStorage/include",
+                "${workspaceFolder}/theWarrior.UI/include",
+                "${workspaceFolder}/theWarrior.Models/include",
+                "${workspaceFolder}/theWarrior.Storage/include",
                 "${workspaceFolder}/mapEditor.Controllers/include"
             ],
             "configurationProvider": "vector-of-bool.cmake-tools"

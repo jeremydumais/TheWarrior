@@ -91,7 +91,13 @@ MainForm::MainForm(QWidget *parent)
 
 	//Check if the configuration file exist
 	ConfigurationManager configManager(userConfigFolder + "config.json");
-	setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
+	if (configManager.load()) {
+		setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
+	}
+	else {
+		ErrorMessage::show("An error occurred while loading the configuration file.",
+						   configManager.getLastError());
+	}
 
 	//Generate a test map
 	if (!controller.createMap(20, 20)) {
@@ -243,22 +249,35 @@ void MainForm::action_About_Click()
 void MainForm::action_LightTheme_Click()
 {
 	ConfigurationManager configManager(userConfigFolder + "config.json");
-	configManager.setStringValue(MainForm::THEME_PATH, "");
-	setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
-	if (!configManager.save()) {
-		ErrorMessage::show("An error occurred while saving the configuration file.", 
-						 configManager.getLastError());
+	if (configManager.load()) {
+		configManager.setStringValue(MainForm::THEME_PATH, "");
+		setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
+		if (!configManager.save()) {
+			ErrorMessage::show("An error occurred while saving the configuration file.", 
+							   configManager.getLastError());
+		}
 	}
+	else {
+		ErrorMessage::show("An error occurred while loading the configuration file.",
+						   configManager.getLastError());
+	}
+	
 }
 
 void MainForm::action_DarkTheme_Click()
 {
 	ConfigurationManager configManager(userConfigFolder + "config.json");
-	configManager.setStringValue(MainForm::THEME_PATH, "Dark");
-	setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
-	if (!configManager.save()) {
-		ErrorMessage::show("An error occurred while saving the configuration file.", 
-						 configManager.getLastError());
+	if (configManager.load()) {
+		configManager.setStringValue(MainForm::THEME_PATH, "Dark");
+		setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
+		if (!configManager.save()) {
+			ErrorMessage::show("An error occurred while saving the configuration file.", 
+							configManager.getLastError());
+		}
+	}
+	else {
+		ErrorMessage::show("An error occurred while loading the configuration file.",
+						   configManager.getLastError());
 	}
 }
 
@@ -369,8 +388,17 @@ void MainForm::refreshWindowTitle()
 
 void MainForm::refreshRecentMapsMenu() 
 {
+	auto recents = vector<string> {};
 	ConfigurationManager configManager(userConfigFolder + "config.json");
-	auto recents = configManager.getVectorOfStringValue(MainForm::RECENT_MAPS);
+	if (configManager.load()) {
+		recents = configManager.getVectorOfStringValue(MainForm::RECENT_MAPS);
+	}
+	else {
+		ErrorMessage::show("An error occurred while loading the configuration file.",
+						   configManager.getLastError());
+		return;
+	}
+	
 	if (recents.size() > 5) {
 		recents.resize(5);
 	}
@@ -390,9 +418,17 @@ void MainForm::refreshRecentMapsMenu()
 
 void MainForm::addNewRecentMap(const std::string &filePath) 
 {
+	auto recents = vector<string> {};
 	//Load existing recent maps
 	ConfigurationManager configManager(userConfigFolder + "config.json");
-	auto recents = configManager.getVectorOfStringValue(MainForm::RECENT_MAPS);
+	if (configManager.load()) {
+		recents = configManager.getVectorOfStringValue(MainForm::RECENT_MAPS);
+	}
+	else {
+		ErrorMessage::show("An error occurred while loading the configuration file.",
+						   configManager.getLastError());
+		return;
+	}
 	//Scan to find the currentMap, if found remove it from the list
 	auto iter = std::find(recents.begin(), recents.end(), filePath);
 	if (iter != recents.end()) {
@@ -404,7 +440,11 @@ void MainForm::addNewRecentMap(const std::string &filePath)
 		recents.resize(5);
 	}
 	configManager.setVectorOfStringValue(MainForm::RECENT_MAPS, recents);
-	configManager.save();
+	if (!configManager.save()) {
+		ErrorMessage::show("An error occurred while saving the configuration file.", 
+						configManager.getLastError());
+		return;
+	}
 	refreshRecentMapsMenu();
 }
 

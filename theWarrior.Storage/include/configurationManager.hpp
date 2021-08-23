@@ -6,18 +6,20 @@
 #include <string>
 #include <vector>
 
-class ConfigurationManager {
+class ConfigurationManager
+{
 public:
-    explicit ConfigurationManager(const std::string &file);
+    explicit ConfigurationManager(const std::string &fileName,
+                                  std::unique_ptr<IJSONFileStream> jfs = nullptr);
+    const std::string &getLastError() const;
     const std::vector<std::string> getVectorOfStringValue(const std::string &path) const;
     const std::string getStringValue(const std::string &path) const;
-    const std::string &getLastError() const;
     void setStringValue(const std::string &path, const std::string &value);
     void setVectorOfStringValue(const std::string &path, const std::vector<std::string> &values);
+    bool load();
     bool save();
 private:
-    std::string configFile;
-    boost::property_tree::ptree config;
     std::string lastError;
+    boost::property_tree::ptree config;
     std::unique_ptr<IJSONFileStream> jfs;
 };

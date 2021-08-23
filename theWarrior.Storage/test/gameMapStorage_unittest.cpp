@@ -1,7 +1,7 @@
 #include "gameMapStorage.hpp"
 #include "iBinaryFileStream.hpp"
-#include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 using namespace std;
 using ::testing::Return;

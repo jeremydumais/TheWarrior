@@ -104,9 +104,9 @@
     },
     "C_Cpp.default.includePath": ["${default}", 
                                   "${workspaceFolder}/commonUI/include/",
-                                  "${workspaceFolder}/twUI/include/",
-                                  "${workspaceFolder}/twModels/include/",
-                                  "${workspaceFolder}/twStorage/include/",
+                                  "${workspaceFolder}/theWarrior.UI/include/",
+                                  "${workspaceFolder}/theWarrior.Models/include/",
+                                  "${workspaceFolder}/theWarrior.Storage/include/",
                                   "${workspaceFolder}/mapEditor.Controllers/include/",
                                   "/usr/include/x86_64-linux-gnu/qt5/"
                             ],

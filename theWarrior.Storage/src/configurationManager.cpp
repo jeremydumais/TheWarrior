@@ -1,17 +1,30 @@
 #include "configurationManager.hpp"
+#include "jsonFileStream.hpp"
+#include <boost/algorithm/string.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/filesystem.hpp>
+#include <fmt/format.h>
 
 using namespace std;
 using namespace boost::filesystem;
 using namespace boost::property_tree;
+using namespace boost::algorithm;
 
-ConfigurationManager::ConfigurationManager(const string &file)
-    : configFile(file)
+ConfigurationManager::ConfigurationManager(const string &fileName,
+                                           unique_ptr<IJSONFileStream> jfs)
 {
-    if (exists(file)) {
-        read_json(file, config);
+    if (trim_copy(fileName).empty()) {
+        throw invalid_argument("The filename cannot be empty!");
     }    
+
+    if (jfs == nullptr) {
+        this->jfs = make_unique<JSONFileStream>(fileName);
+    }  
+}
+
+const std::string& ConfigurationManager::getLastError() const
+{
+    return lastError;
 }
 
 const std::vector<std::string> ConfigurationManager::getVectorOfStringValue(const std::string &path) const
@@ -28,11 +41,6 @@ const std::vector<std::string> ConfigurationManager::getVectorOfStringValue(cons
 const std::string ConfigurationManager::getStringValue(const string &path) const
 {
     return config.get<string>(path, "");
-}
-
-const std::string& ConfigurationManager::getLastError() const
-{
-    return lastError;
 }
 
 void ConfigurationManager::setStringValue(const string &path, const string &value) 
@@ -52,16 +60,32 @@ void ConfigurationManager::setVectorOfStringValue(const string &path, const vect
     config.put_child(path,recents_node);
 }
 
+bool ConfigurationManager::load() 
+{
+    if (jfs->fileExists()) {
+        if (!jfs->readFile(config)) {
+            lastError = jfs->getLastError();
+            return false;
+        }
+    }
+    else {
+        lastError = fmt::format("The file {0} doesn't exist.", jfs->getFileName());
+        return false;
+    }
+    return true;
+}
+
 bool ConfigurationManager::save() 
 {
-    try {
+    /*try {
         write_json(configFile, config);
         return true;
     }
     catch(json_parser_error &err) {
-        lastError = err.what();
+        this->setLastError(err.what());
         return false;
-    }
+    }*/
+    return false;
 }
 
 
