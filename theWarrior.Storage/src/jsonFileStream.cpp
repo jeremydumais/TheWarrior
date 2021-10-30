@@ -27,3 +27,16 @@ bool JSONFileStream::readFile(boost::property_tree::ptree &obj)
     }
     return true;
 }
+
+bool JSONFileStream::writeFile(const boost::property_tree::ptree &obj) 
+{
+    try {
+        write_json(getFileName(), obj);
+        return true;
+    }
+    catch(const json_parser_error &err) {
+        setLastError(err.what());
+        return false;
+    }
+    return true;
+}

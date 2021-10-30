@@ -10,7 +10,9 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/point.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mapTileTriggerEventConverter.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mapTileTriggerConditionConverter.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mapTileTriggerActionConverter.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/texture.cpp)
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/texture.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/itemStore.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/item.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")

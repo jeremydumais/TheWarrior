@@ -220,16 +220,16 @@ void GameMap::resizeMap(int offsetLeft,
                    int offsetRight, 
                    int offsetBottom) 
 {
-    if (offsetLeft < 0 && abs(offsetLeft) >= getWidth()) {
+    if (offsetLeft < 0 && abs(offsetLeft) >= static_cast<long long>(getWidth())) {
         throw invalid_argument("This left offset would remove all the remaining tiles.");
     }
-    if (offsetTop < 0 && abs(offsetTop) >= getHeight()) {
+    if (offsetTop < 0 && abs(offsetTop) >= static_cast<long long>(getHeight())) {
         throw invalid_argument("This top offset would remove all the remaining tiles.");
     }
-    if (offsetRight < 0 && abs(offsetRight) >= getWidth()) {
+    if (offsetRight < 0 && abs(offsetRight) >= static_cast<long long>(getWidth())) {
         throw invalid_argument("This right offset would remove all the remaining tiles.");
     }
-    if (offsetBottom < 0 && abs(offsetBottom) >= getHeight()) {
+    if (offsetBottom < 0 && abs(offsetBottom) >= static_cast<long long>(getHeight())) {
         throw invalid_argument("This bottom offset would remove all the remaining tiles.");
     }
     _resizeMapFromLeft(offsetLeft);

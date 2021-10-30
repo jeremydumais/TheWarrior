@@ -13,7 +13,9 @@ add_executable(${PROJECT_UNITTEST_NAME} ${INCLUDE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}/mapTileTrigger_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/mapTileTriggerEventConverter_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/mapTileTriggerConditionConverter_unittest.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/mapTileTriggerActionConverter_unittest.cpp)
+  ${CMAKE_CURRENT_SOURCE_DIR}/mapTileTriggerActionConverter_unittest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/itemStore_unittest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/item_unittest.cpp)
 
 target_link_libraries(${PROJECT_UNITTEST_NAME} PRIVATE theWarrior.Models ${CONAN_LIBS})
 gtest_discover_tests(${PROJECT_UNITTEST_NAME})
