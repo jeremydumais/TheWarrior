@@ -1,0 +1,32 @@
+#pragma once
+
+#include <string>
+
+struct ItemCreationInfo 
+{
+    std::string id;
+    std::string name;
+    std::string textureName;
+    int textureIndex;
+};
+
+class Item
+{
+public:
+    explicit Item(const ItemCreationInfo &itemInfo);
+    virtual ~Item() = default;
+    Item(const Item &) = default;
+    Item(Item &&) = default;
+    Item &operator=(const Item &) = default;
+    Item &operator=(Item &&) = default;
+    const std::string &getId() const;
+    const std::string &getName() const;
+    const std::string &getTextureName() const;
+    int getTextureIndex() const;
+    //void setId(const std::string id);
+private:
+    std::string id;
+    std::string name; 
+    std::string textureName;
+    int textureIndex; 
+};
