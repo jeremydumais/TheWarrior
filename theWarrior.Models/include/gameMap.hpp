@@ -3,19 +3,20 @@
 #include "mapTile.hpp"
 #include "point.hpp"
 #include "texture.hpp"
-#include <string>
-#include <vector>
+#include "textureContainer.hpp"
 #include <boost/optional.hpp>
 #include <boost/serialization/access.hpp>
-#include <boost/serialization/vector.hpp>
 #include <boost/serialization/string.hpp>
+#include <boost/serialization/vector.hpp>
 #include <boost/serialization/version.hpp>
+#include <string>
+#include <vector>
 
 class GameMap
 {
 public:
     GameMap(unsigned int width, unsigned int height);
-    const std::string getLastError() const;
+    const std::string &getLastError() const;
     const std::vector<std::vector<MapTile>> &getTiles() const;
     MapTile &getTileForEditing(int index);
     MapTile &getTileForEditing(Point coord);
@@ -41,8 +42,7 @@ private:
     friend class boost::serialization::access;
     std::string lastError;
     std::vector<std::vector<MapTile>> tiles;
-    std::vector<Texture> textures;
-    std::vector<Texture>::iterator _getTextureIterator(const std::string &name);
+    TextureContainer textureContainer;
     bool _isShrinkMapFromLeftImpactAssignedTiles(int offset) const;
     bool _isShrinkMapFromTopImpactAssignedTiles(int offset) const;
     bool _isShrinkMapFromRightImpactAssignedTiles(int offset) const;
@@ -55,11 +55,9 @@ private:
     template<class Archive>
     void serialize(Archive & ar, const unsigned int)
     {
-        /*if(version > 0)
-            ar & lastError;*/
         ar & tiles;
-        ar & textures;
+        ar & textureContainer;
     }
 };
 
-BOOST_CLASS_VERSION(GameMap, 0)
+BOOST_CLASS_VERSION(GameMap, 1)

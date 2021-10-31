@@ -6,8 +6,7 @@
 using namespace std;
 
 GameMap::GameMap(unsigned int width, unsigned int height)
-    : lastError(""),
-      textures(vector<Texture>())
+    : lastError("")
 {
     if (width == 0) {
         throw invalid_argument("width must be greater than zero.");
@@ -25,7 +24,7 @@ GameMap::GameMap(unsigned int width, unsigned int height)
     }
 }
 
-const std::string GameMap::getLastError() const
+const std::string &GameMap::getLastError() const
 {
     return lastError;
 }
@@ -67,73 +66,41 @@ Point GameMap::getCoordFromTileIndex(int index)
     return Point(x, y);
 }
 
-const vector<Texture>& GameMap::getTextures() const
+const vector<Texture> &GameMap::getTextures() const
 {
-    return textures;
+    return textureContainer.getTextures();
+}
+    
+boost::optional<const Texture &> GameMap::getTextureByName(const string &name) const
+{
+    return textureContainer.getTextureByName(name);
 }
 
-boost::optional<const Texture &> GameMap::getTextureByName(const std::string &name) const
+bool GameMap::addTexture(const TextureInfo &textureInfo)
 {
-    for(const auto &texture : textures) {
-        if (texture.getName() == name) {
-            return texture;
-        }
+    bool retVal = textureContainer.addTexture(textureInfo);
+    if (!retVal) {
+        lastError = textureContainer.getLastError();
     }
-    return {};
+    return retVal;
 }
 
-bool GameMap::addTexture(const TextureInfo &textureInfo) 
+bool GameMap::replaceTexture(const std::string &name, const TextureInfo &textureInfo)
 {
-    //Check that name doesn't already exist in the list
-    if (getTextureByName(textureInfo.name).has_value()) {
-        lastError = fmt::format("The texture name {0} already exist in the list", textureInfo.name);
-        return false;
+    bool retVal = textureContainer.replaceTexture(name, textureInfo);
+    if (!retVal) {
+        lastError = textureContainer.getLastError();
     }
-    try {
-        textures.emplace_back(textureInfo);
-    }
-    catch(invalid_argument &err) {
-        lastError = err.what();
-        return false;
-    }
-    return true;
+    return retVal;
 }
 
-bool GameMap::replaceTexture(const std::string &name, const TextureInfo &textureInfo) 
+bool GameMap::removeTexture(const std::string &name)
 {
-    //Find the texture to replace
-    auto iter { _getTextureIterator(name) };
-    if (iter == textures.end()) {
-        lastError = fmt::format("Unable to find the texture {0} in the texture list.", name);
-        return false;
+    bool retVal = textureContainer.removeTexture(name);
+    if (!retVal) {
+        lastError = textureContainer.getLastError();
     }
-    //Ensure the new name doesn't exist
-    if (name != textureInfo.name && _getTextureIterator(textureInfo.name) != textures.end()) {
-        lastError = fmt::format("The texture {0} already exist in the texture list.", textureInfo.name);
-        return false;
-    }
-    //Try to construct the new texture
-    try {
-        Texture newTexture(textureInfo);
-        swap(*iter, newTexture);
-    }
-    catch(invalid_argument &err) {
-        lastError = err.what();
-        return false;
-    }
-    return true;
-}
-
-bool GameMap::removeTexture(const std::string &name) 
-{
-    //Find the texture to delete
-    auto iter { _getTextureIterator(name) };
-    if (iter == textures.end()) {
-        lastError = fmt::format("Unable to find the texture {0} in the texture list.", name);
-        return false;
-    }
-    textures.erase(iter);
-    return true;
+    return retVal;
 }
 
 bool GameMap::isShrinkMapImpactAssignedTiles(int offsetLeft, 
@@ -304,12 +271,12 @@ void GameMap::_resizeMapFromBottom(int offset)
     }
 }
 
-std::vector<Texture>::iterator GameMap::_getTextureIterator(const std::string &name) 
+/*std::vector<Texture>::iterator GameMap::_getTextureIterator(const std::string &name) 
 {
     return find_if(textures.begin(), textures.end(), [&name](const Texture &x) {
         return x.getName() == name;
     });
-}
+}*/
 
 bool GameMap::canSteppedOnTile(Point playerCoord) 
 {

@@ -9,9 +9,9 @@ MainController::MainController()
 {
 }
 
-const string& MainController::getLastError() const
+const string &MainController::getLastError() const
 {
-	return lastError;
+	return this->lastError;
 }
 
 shared_ptr<GameMap> MainController::getMap() 
@@ -50,7 +50,7 @@ const std::vector<Texture>& MainController::getTextures() const
 bool MainController::addTexture(const TextureInfo &textureInfo) 
 {
 	if (!map->addTexture(textureInfo)) {
-		lastError = map->getLastError();
+		this->lastError = map->getLastError();
 		return false;
 	}
 	return true;
