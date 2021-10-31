@@ -8,6 +8,7 @@ add_executable(${PROJECT_UNITTEST_NAME} ${INCLUDE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/gameMap_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/texture_unittest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/textureContainer_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/mapTile_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/point_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/mapTileTrigger_unittest.cpp

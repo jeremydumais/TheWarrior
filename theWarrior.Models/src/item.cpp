@@ -42,10 +42,29 @@ int Item::getTextureIndex() const
     return textureIndex;
 }
 
-/*void Item::setId(const std::string id) 
+void Item::setId(const std::string &id) 
 {
+    validateId(id);
+    this->id = id;
+}
 
-}*/
+void Item::setName(const std::string &name) 
+{
+    validateName(name);
+    this->name = name;
+}
+
+void Item::setTextureName(const std::string &name) 
+{
+    validateTextureName(name);
+    this->textureName = name;
+}
+
+void Item::setTextureIndex(const int index) 
+{
+    validateTextureIndex(index);
+    this->textureIndex = index;
+}
 
 void validateId(const std::string &id) 
 {

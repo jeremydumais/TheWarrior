@@ -23,7 +23,10 @@ public:
     const std::string &getName() const;
     const std::string &getTextureName() const;
     int getTextureIndex() const;
-    //void setId(const std::string id);
+    void setId(const std::string &id);
+    void setName(const std::string &name);
+    void setTextureName(const std::string &name);
+    void setTextureIndex(int index);
 private:
     std::string id;
     std::string name; 

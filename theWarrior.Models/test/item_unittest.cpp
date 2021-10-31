@@ -44,6 +44,58 @@ void itemCreationWithInvalidArgument(const ItemCreationInfo &itemCreationInfo,
     }
 }
 
+void itemSetIdWithInvalidArgument(Item &item,
+                                  const string &id,
+                                  const string &errorMessage)
+{
+    try {
+        item.setId(id);
+        FAIL();
+    }
+    catch(const invalid_argument &err) {
+        ASSERT_STREQ(errorMessage.c_str(), err.what());
+    }
+}
+
+void itemSetNameWithInvalidArgument(Item &item,
+                                    const string &name,
+                                    const string &errorMessage)
+{
+    try {
+        item.setName(name);
+        FAIL();
+    }
+    catch(const invalid_argument &err) {
+        ASSERT_STREQ(errorMessage.c_str(), err.what());
+    }
+}
+
+void itemSetTextureNameWithInvalidArgument(Item &item,
+                                           const string &name,
+                                           const string &errorMessage)
+{
+    try {
+        item.setTextureName(name);
+        FAIL();
+    }
+    catch(const invalid_argument &err) {
+        ASSERT_STREQ(errorMessage.c_str(), err.what());
+    }
+}
+
+void itemSetTextureIndexWithInvalidArgument(Item &item,
+                                            const int index,
+                                            const string &errorMessage)
+{
+    try {
+        item.setTextureIndex(index);
+        FAIL();
+    }
+    catch(const invalid_argument &err) {
+        ASSERT_STREQ(errorMessage.c_str(), err.what());
+    }
+}
+
 TEST_F(ItemNotCreated_ValidCreationInfo, Constructor_WithEmptyId_ThrowInvalidArgument)
 {
     itemCreationInfo.id = "";
@@ -129,7 +181,75 @@ TEST_F(ValidItemSample1, getTextureIndex_Return1)
     ASSERT_EQ(1, item.getTextureIndex());
 }
 
-/*TEST_F(ValidItemSample1, setIdWithEmpty_ThrowInvalidArgument) 
+TEST_F(ValidItemSample1, setId_WithEmpty_ThrowInvalidArgument) 
 {
-    ASSERT_EQ(1, item.getTextureIndex());
-}*/
+    itemSetIdWithInvalidArgument(item, "", "id cannot be empty.");
+}
+
+TEST_F(ValidItemSample1, setId_WithWhiteSpaces_ThrowInvalidArgument) 
+{
+    itemSetIdWithInvalidArgument(item, "  ", "id cannot be empty.");
+}
+
+TEST_F(ValidItemSample1, setId_WithLengthOfThree_ThrowInvalidArgument) 
+{
+    itemSetIdWithInvalidArgument(item, "abc", "id must be 6 characters long.");
+}
+
+TEST_F(ValidItemSample1, setId_WithLengthOfSeven_ThrowInvalidArgument) 
+{
+    itemSetIdWithInvalidArgument(item, "abc1234", "id must be 6 characters long.");
+}
+
+TEST_F(ValidItemSample1, setId_WithLengthOfSix_ReturnSuccess) 
+{
+    string expected { "abc123" };
+    item.setId(expected);
+    ASSERT_EQ(expected, item.getId());
+}
+
+TEST_F(ValidItemSample1, setName_WithEmpty_ThrowInvalidArgument) 
+{
+    itemSetNameWithInvalidArgument(item, "", "name cannot be empty.");
+}
+
+TEST_F(ValidItemSample1, setName_WithWhiteSpaces_ThrowInvalidArgument) 
+{
+    itemSetNameWithInvalidArgument(item, "  ", "name cannot be empty.");
+}
+
+TEST_F(ValidItemSample1, setName_WithValid_ReturnSuccess) 
+{
+    string expected { "Iron Shield" };
+    item.setName(expected);
+    ASSERT_EQ(expected, item.getName());
+}
+
+TEST_F(ValidItemSample1, setTextureName_WithEmpty_ThrowInvalidArgument) 
+{
+    itemSetTextureNameWithInvalidArgument(item, "", "textureName cannot be empty.");
+}
+
+TEST_F(ValidItemSample1, setTextureName_WithWhiteSpaces_ThrowInvalidArgument) 
+{
+    itemSetTextureNameWithInvalidArgument(item, "  ", "textureName cannot be empty.");
+}
+
+TEST_F(ValidItemSample1, setTextureName_WithValid_ReturnSuccess) 
+{
+    string expected { "tex456" };
+    item.setTextureName(expected);
+    ASSERT_EQ(expected, item.getTextureName());
+}
+
+TEST_F(ValidItemSample1, setTextureIndex_WithTextureIndexMinus1_ThrowInvalidArgument)
+{
+    itemSetTextureIndexWithInvalidArgument(item, -1, "textureIndex must be a positive number.");
+}
+
+TEST_F(ValidItemSample1, setTextureIndex_WithZero_ReturnSuccess) 
+{
+    int expected { 0 };
+    item.setTextureIndex(expected);
+    ASSERT_EQ(expected, item.getTextureIndex());
+}
