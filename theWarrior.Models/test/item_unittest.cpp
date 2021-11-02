@@ -253,3 +253,103 @@ TEST_F(ValidItemSample1, setTextureIndex_WithZero_ReturnSuccess)
     item.setTextureIndex(expected);
     ASSERT_EQ(expected, item.getTextureIndex());
 }
+
+TEST_F(ValidItemSample1, equalityOperator_WithIdenticalItem_ReturnTrue)
+{
+    ASSERT_EQ(item, Item({
+			"shd001",
+            "Wooden Shield",
+			"tex1",
+            1
+	}));
+}
+
+TEST_F(ValidItemSample1, equalityOperator_WithDifferenId_ReturnFalse)
+{
+    ASSERT_FALSE(item == Item({
+			"shd002",
+            "Wooden Shield",
+			"tex1",
+            1
+	}));
+}
+
+TEST_F(ValidItemSample1, equalityOperator_WithDifferenName_ReturnFalse)
+{
+    ASSERT_FALSE(item == Item({
+			"shd001",
+            "Wooden ShieldS",
+			"tex1",
+            1
+	}));
+}
+
+TEST_F(ValidItemSample1, equalityOperator_WithDifferenTextureName_ReturnFalse)
+{
+    ASSERT_FALSE(item == Item({
+			"shd001",
+            "Wooden Shield",
+			"tex2",
+            1
+	}));
+}
+
+TEST_F(ValidItemSample1, equalityOperator_WithDifferenTextureIndex_ReturnFalse)
+{
+    ASSERT_FALSE(item == Item({
+			"shd001",
+            "Wooden Shield",
+			"tex1",
+            2
+	}));
+}
+
+TEST_F(ValidItemSample1, inequalityOperator_WithIdenticalItem_ReturnFalse)
+{
+    ASSERT_FALSE(item != Item({
+			"shd001",
+            "Wooden Shield",
+			"tex1",
+            1
+	}));
+}
+
+TEST_F(ValidItemSample1, inequalityOperator_WithDifferenId_ReturnTrue)
+{
+    ASSERT_NE(item, Item({
+			"shd002",
+            "Wooden Shield",
+			"tex1",
+            1
+	}));
+}
+
+TEST_F(ValidItemSample1, inequalityOperator_WithDifferenName_ReturnTrue)
+{
+    ASSERT_NE(item, Item({
+			"shd001",
+            "Wooden ShieldS",
+			"tex1",
+            1
+	}));
+}
+
+TEST_F(ValidItemSample1, inequalityOperator_WithDifferenTextureName_ReturnTrue)
+{
+    ASSERT_NE(item, Item({
+			"shd001",
+            "Wooden Shield",
+			"tex2",
+            1
+	}));
+}
+
+TEST_F(ValidItemSample1, inequalityOperator_WithDifferenTextureIndex_ReturnTrue)
+{
+    ASSERT_NE(item, Item({
+			"shd001",
+            "Wooden Shield",
+			"tex1",
+            2
+	}));
+}

@@ -22,6 +22,27 @@ Item::Item(const ItemCreationInfo &itemInfo)
     validateTextureIndex(textureIndex);
 }
 
+bool Item::equals(const Item &other) const 
+{
+    if (typeid(*this).hash_code() != typeid(other).hash_code()) {
+        return false;    
+    }
+    return this->id == other.id &&
+           this->name == other.name &&
+           this->textureName == other.textureName &&
+           this->textureIndex == other.textureIndex;
+}
+
+bool Item::operator==(const Item &other) const
+{
+    return equals(other);
+}
+
+bool Item::operator!=(const Item &other) const
+{
+    return !(*this == other);
+}
+
 const std::string &Item::getId() const
 {
     return id;

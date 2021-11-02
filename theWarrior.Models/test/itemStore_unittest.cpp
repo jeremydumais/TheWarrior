@@ -3,6 +3,9 @@
 
 using namespace std;
 
+const Item itemSample1({ "shd001", "Wooden Shield", "tex1", 1});
+const Item itemSample2({ "shd002", "Iron Shield", "tex1", 2});
+
 struct DefaultConstructedItemStore : public ::testing::Test
 {
     ItemStore itemStore;
@@ -12,8 +15,8 @@ struct ItemStoreWithTwoItems : public ::testing::Test
 {
     ItemStoreWithTwoItems()
     {
-        itemStore.addItem(Item({ "shd001", "Wooden Shield", "tex1", 1}));
-        itemStore.addItem(Item({ "shd002", "Iron Shield", "tex1", 2}));
+        itemStore.addItem(itemSample1);
+        itemStore.addItem(itemSample2);
     }
     ItemStore itemStore;
 };
@@ -41,15 +44,19 @@ TEST_F(ItemStoreWithTwoItems, findItem_NonExistingItem_ReturnEmpty)
     ASSERT_FALSE(result.has_value());
 }
 
-TEST_F(ItemStoreWithTwoItems, findItem_ExistingItem_ReturnItem)
+TEST_F(ItemStoreWithTwoItems, findItem_ExistingItem1_ReturnItem)
 {
     auto result = itemStore.findItem("shd001");
     ASSERT_TRUE(result.has_value());
-
-    //Operator ==
+    ASSERT_EQ(itemSample1, *result);
 }
 
-
+TEST_F(ItemStoreWithTwoItems, findItem_ExistingItem2_ReturnItem)
+{
+    auto result = itemStore.findItem("shd002");
+    ASSERT_TRUE(result.has_value());
+    ASSERT_EQ(itemSample2, *result);
+}
 
 TEST_F(DefaultConstructedItemStore, addItem_NonExistingItem_ReturnTrue)
 {
