@@ -35,9 +35,9 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <item>
-             <widget class="QPushButton" name="pushButton">
+             <widget class="QPushButton" name="pushButtonAddItem">
               <property name="text">
-               <string>PushButton</string>
+               <string>Add Item</string>
               </property>
              </widget>
             </item>
@@ -76,10 +76,10 @@
    <widget class="QMenu" name="menu_File">
     <property name="geometry">
      <rect>
-      <x>2236</x>
-      <y>171</y>
+      <x>266</x>
+      <y>138</y>
       <width>260</width>
-      <height>170</height>
+      <height>196</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -106,6 +106,7 @@
     <addaction name="menu_RecentItemDB"/>
     <addaction name="separator"/>
     <addaction name="action_Save"/>
+    <addaction name="actionSave_as"/>
     <addaction name="separator"/>
     <addaction name="action_Quit"/>
    </widget>
@@ -128,8 +129,22 @@
     </widget>
     <addaction name="menu_Color_theme"/>
    </widget>
+   <widget class="QMenu" name="menu_Items">
+    <property name="title">
+     <string>&amp;Items</string>
+    </property>
+    <addaction name="action_AddAnItem"/>
+   </widget>
+   <widget class="QMenu" name="menu_Textures">
+    <property name="title">
+     <string>&amp;Textures</string>
+    </property>
+    <addaction name="action_ManageTextures"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
+   <addaction name="menu_Items"/>
+   <addaction name="menu_Textures"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -196,6 +211,25 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionSave_as">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/commonUI/res/document-save-as.svg</normaloff>:/commonUI/res/document-save-as.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Save as...</string>
+   </property>
+  </action>
+  <action name="action_AddAnItem">
+   <property name="text">
+    <string>Add an item...</string>
+   </property>
+  </action>
+  <action name="action_ManageTextures">
+   <property name="text">
+    <string>&amp;Manage textures...</string>
    </property>
   </action>
  </widget>

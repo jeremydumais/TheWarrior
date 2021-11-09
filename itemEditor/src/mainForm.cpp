@@ -2,8 +2,12 @@
 #include "aboutBoxForm.hpp"
 #include "configurationManager.hpp"
 #include "errorMessage.hpp"
+#include "manageTexturesForm.hpp"
 #include "specialFolders.hpp"
 #include <QtCore/qfile.h>
+#include <QtWidgets/QFileDialog>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
 #include <boost/filesystem.hpp>
 #include <fmt/format.h>
 #include <libgen.h>         // dirname
@@ -18,7 +22,12 @@ const std::string MainForm::RECENT_MAPS { "ItemsDB.Recents" };
 MainForm::MainForm(QWidget *parent)
 	: QMainWindow(parent),
 	  ui(Ui::MainForm()),
-	  functionAfterShownCalled(false)
+	  functionAfterShownCalled(false),
+	  userConfigFolder(""),
+	  executablePath(""),
+	  resourcesPath(""),
+	  currentFilePath(""),
+	  controller(MainController())
 {
 	ui.setupUi(this);
 
@@ -52,6 +61,9 @@ void MainForm::connectUIActions()
     connect(ui.action_LightTheme, &QAction::triggered, this, &MainForm::action_LightTheme_Click);
 	connect(ui.action_DarkTheme, &QAction::triggered, this, &MainForm::action_DarkTheme_Click);
 	connect(ui.action_About, &QAction::triggered, this, &MainForm::action_About_Click);
+	connect(ui.action_Open, &QAction::triggered, this, &MainForm::action_OpenItemStore_Click);
+	connect(ui.action_Save, &QAction::triggered, this, &MainForm::action_OpenItemStore_Click);
+	connect(ui.action_ManageTextures, &QAction::triggered, this, &MainForm::action_ManageTextures_Click);
 }
 
 void MainForm::functionAfterShown()
@@ -110,6 +122,36 @@ void MainForm::action_DarkTheme_Click()
 	}
 }
 
+void MainForm::action_OpenItemStore_Click() 
+{
+	QString fullFilePath { QFileDialog::getOpenFileName(this, 
+							tr("Open the item store"),
+							"",
+							tr("Item store file (*.itm)")) };
+	if (fullFilePath != "") {
+		openItemStore(fullFilePath.toStdString());
+	}
+	refreshWindowTitle();
+}
+
+void MainForm::action_SaveItemStore_Click() 
+{
+	
+}
+
+void MainForm::action_SaveAsItemStore_Click() 
+{
+	
+}
+
+void MainForm::action_ManageTextures_Click() 
+{
+	ManageTexturesForm manageTexturesForm(this, 
+										  getResourcesPath(),
+										  controller.getTextureContainerForEdition());
+	manageTexturesForm.exec();
+}
+
 const string &MainForm::getExecutablePath()
 {
 	if (executablePath.empty()) {
@@ -150,4 +192,22 @@ void MainForm::setAppStylesheet(const string &style)
 		this->setStyleSheet("");
 		ui.action_LightTheme->setChecked(true);
 	}
+}
+
+void MainForm::openItemStore(const std::string &filePath) 
+{
+}
+
+void MainForm::saveItemStore(const std::string &filePath) 
+{
+	ofstream ofs(filePath, ofstream::binary);
+	boost::archive::binary_oarchive oa(ofs);
+	//oa << *controller.getMap();
+}
+
+void MainForm::refreshWindowTitle() 
+{
+	setWindowTitle(currentFilePath.empty() ? 
+				   "ItemEditor" : 
+				   fmt::format("ItemEditor - {0}", currentFilePath).c_str());
 }

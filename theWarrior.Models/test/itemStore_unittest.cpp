@@ -78,9 +78,29 @@ TEST_F(ItemStoreWithTwoItems, replaceItem_NonExistingItem_ReturnFalse)
     ASSERT_FALSE(itemStore.replaceItem("abc123", Item({ "fgh001", "Test", "tex1", 1})));
 }
 
-/*TEST_F(ItemStoreWithTwoItems, replaceItem_ExistingItem_ReturnTrue)
+TEST_F(ItemStoreWithTwoItems, replaceItem_ExistingItem_ReturnTrue)
 {
     Item expected({ "fgh001", "Test", "tex1", 1});
     ASSERT_TRUE(itemStore.replaceItem("shd001", expected));
-    //ASSERT_EQ(expected, itemStore.);
-}*/
+    ASSERT_EQ(2, itemStore.getItemCount());
+    ASSERT_EQ(expected, itemStore.findItem("fgh001").value());
+    ASSERT_FALSE(itemStore.findItem("shd001").has_value());
+}
+
+TEST_F(ItemStoreWithTwoItems, replaceItem_ExistingItemSameId_ReturnTrue)
+{
+    Item expected({ "shd001", "Test1", "tex10", 10});
+    ASSERT_TRUE(itemStore.replaceItem("shd001", expected));
+    ASSERT_EQ(2, itemStore.getItemCount());
+    ASSERT_EQ(expected, itemStore.findItem("shd001").value());
+}
+
+TEST_F(ItemStoreWithTwoItems, removeItem_ExistingItem_ReturnTrue)
+{
+    ASSERT_TRUE(itemStore.removeItem("shd001"));
+}
+
+TEST_F(ItemStoreWithTwoItems, removeItem_NonExistingItem_ReturnFalse)
+{
+    ASSERT_FALSE(itemStore.removeItem("abc123"));
+}

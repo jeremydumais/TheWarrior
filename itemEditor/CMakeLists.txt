@@ -5,7 +5,8 @@ include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/src
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Storage/include)
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Storage/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../itemEditor.Controllers/include)
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
@@ -22,6 +23,8 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mainForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/aboutBoxForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/imageAttributionsForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/manageTexturesForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/editTextureForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/res/darkstyle/darkstyle.qrc
                          ${CMAKE_CURRENT_SOURCE_DIR}/res/global.qrc)
 
@@ -30,7 +33,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STRE
   target_compile_definitions(${PROJECT_NAME} PRIVATE SUPPORT_MAYBE_UNUSED)
 endif()
 
-target_link_libraries(${PROJECT_NAME} theWarrior.Models theWarrior.Storage commonUI Qt5::Widgets ${CONAN_LIBS})
+target_link_libraries(${PROJECT_NAME} ItemEditor.Controllers theWarrior.Models theWarrior.Storage commonUI Qt5::Widgets ${CONAN_LIBS})
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html

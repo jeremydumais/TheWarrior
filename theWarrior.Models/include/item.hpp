@@ -17,7 +17,7 @@ public:
     virtual ~Item() = default;
     Item(const Item &) = default;
     Item(Item &&) = default;
-    Item &operator=(Item &) = default;
+    Item &operator=(const Item &) = default;
     Item &operator=(Item &&) = default;
     virtual bool equals(const Item &other) const;
     bool operator==(const Item &other) const;

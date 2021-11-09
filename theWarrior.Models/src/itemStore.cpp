@@ -81,8 +81,20 @@ bool ItemStore::addItem(const Item &item)
 bool ItemStore::replaceItem(const string oldId, const Item &item) 
 {
     //Check if the old item name specified exist
-    auto iter = items.find(oldId);
+    const auto iter = items.find(oldId);
     if (iter == items.end()) {
+        return false;
+    }
+    if (items.erase(oldId) == 0) {
+        return false;
+    }
+    bool wasInserted = items.insert({ item.getId(), item }).second;
+    return wasInserted;
+}
+
+bool ItemStore::removeItem(const std::string &id) 
+{
+    if (items.erase(id) == 0) {
         return false;
     }
     return true;

@@ -78,7 +78,8 @@
         "csignal": "cpp",
         "valarray": "cpp",
         "qpushbutton": "cpp",
-        "qlabel": "cpp"
+        "qlabel": "cpp",
+        "qfiledialog": "cpp"
     },
     "editor.tokenColorCustomizations": {
         "textMateRules": [

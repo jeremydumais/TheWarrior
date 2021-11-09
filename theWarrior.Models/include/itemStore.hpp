@@ -22,6 +22,7 @@ public:
     boost::optional<const Item &> findItem(const std::string &id) const;
     bool addItem(const Item &item);
     bool replaceItem(const std::string oldId, const Item &item);
+    bool removeItem(const std::string &id);
 private:
     std::string lastError;
     TextureContainer textureContainer;
