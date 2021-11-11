@@ -24,8 +24,8 @@ public:
     bool replaceItem(const std::string oldId, const Item &item);
     bool removeItem(const std::string &id);
 private:
-    std::string lastError;
-    TextureContainer textureContainer;
-    std::unordered_map<std::string, Item> items;
+    std::string m_lastError;
+    TextureContainer m_textureContainer;
+    std::unordered_map<std::string, Item> m_items;
 };
 

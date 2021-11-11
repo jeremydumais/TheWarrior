@@ -1,4 +1,5 @@
 #include "glComponentController.hpp"
+#include <algorithm>
 
 using namespace std;
 

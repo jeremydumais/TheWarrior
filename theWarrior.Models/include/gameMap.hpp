@@ -40,9 +40,9 @@ public:
     bool canSteppedOnTile(Point playerCoord);
 private:
     friend class boost::serialization::access;
-    std::string lastError;
-    std::vector<std::vector<MapTile>> tiles;
-    TextureContainer textureContainer;
+    std::string m_lastError;
+    std::vector<std::vector<MapTile>> m_tiles;
+    TextureContainer m_textureContainer;
     bool _isShrinkMapFromLeftImpactAssignedTiles(int offset) const;
     bool _isShrinkMapFromTopImpactAssignedTiles(int offset) const;
     bool _isShrinkMapFromRightImpactAssignedTiles(int offset) const;
@@ -55,8 +55,8 @@ private:
     template<class Archive>
     void serialize(Archive & ar, const unsigned int)
     {
-        ar & tiles;
-        ar & textureContainer;
+        ar & m_tiles;
+        ar & m_textureContainer;
     }
 };
 

@@ -31,8 +31,8 @@ public:
     void setTextureName(const std::string &name);
     void setTextureIndex(int index);
 private:
-    std::string id;
-    std::string name; 
-    std::string textureName;
-    int textureIndex; 
+    std::string m_id;
+    std::string m_name; 
+    std::string m_textureName;
+    int m_textureIndex; 
 };

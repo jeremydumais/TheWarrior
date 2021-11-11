@@ -3,68 +3,68 @@
 using namespace std;
 
 ItemStore::ItemStore() 
-    : lastError(""),
-      textureContainer(TextureContainer()),
-      items(unordered_map<string, Item>())
+    : m_lastError(""),
+      m_textureContainer(TextureContainer()),
+      m_items(unordered_map<string, Item>())
 {
 }
 
 const std::string &ItemStore::getLastError() const
 {
-    return lastError;
+    return m_lastError;
 }
 
 size_t ItemStore::getTextureCount() const
 {
-    return textureContainer.getCount();
+    return m_textureContainer.getCount();
 }
 
 size_t ItemStore::getItemCount() const
 {
-    return items.size();
+    return m_items.size();
 }
 
 const vector<Texture> &ItemStore::getTextures() const
 {
-    return textureContainer.getTextures();
+    return m_textureContainer.getTextures();
 }
   
 boost::optional<const Texture &> ItemStore::getTextureByName(const string &name) const
 {
-    return textureContainer.getTextureByName(name);
+    return m_textureContainer.getTextureByName(name);
 }
 
 bool ItemStore::addTexture(const TextureInfo &textureInfo)
 {
-    bool retVal = textureContainer.addTexture(textureInfo);
+    bool retVal = m_textureContainer.addTexture(textureInfo);
     if (!retVal) {
-        lastError = textureContainer.getLastError();
+        m_lastError = m_textureContainer.getLastError();
     }
     return retVal;
 }
 
 bool ItemStore::replaceTexture(const std::string &name, const TextureInfo &textureInfo)
 {
-    bool retVal = textureContainer.replaceTexture(name, textureInfo);
+    bool retVal = m_textureContainer.replaceTexture(name, textureInfo);
     if (!retVal) {
-        lastError = textureContainer.getLastError();
+        m_lastError = m_textureContainer.getLastError();
     }
     return retVal;
 }
 
 bool ItemStore::removeTexture(const std::string &name)
 {
-    bool retVal = textureContainer.removeTexture(name);
+    bool retVal = m_textureContainer.removeTexture(name);
     if (!retVal) {
-        lastError = textureContainer.getLastError();
+        m_lastError = m_textureContainer.getLastError();
     }
     return retVal;
 }
 
 boost::optional<const Item &> ItemStore::findItem(const std::string &id) const
 {
-    const auto iter = items.find(id);
-    if (iter != items.end()) {
+    const auto iter = m_items.find(id);
+    if (iter != m_items.end()) {
         return iter->second;
     }
     else {
@@ -74,27 +74,27 @@ boost::optional<const Item &> ItemStore::findItem(const std::string &id) const
 
 bool ItemStore::addItem(const Item &item) 
 {
-    bool wasInserted = items.insert({ item.getId(), item }).second;
+    bool wasInserted = m_items.insert({ item.getId(), item }).second;
     return wasInserted;
 }
 
 bool ItemStore::replaceItem(const string oldId, const Item &item) 
 {
     //Check if the old item name specified exist
-    const auto iter = items.find(oldId);
-    if (iter == items.end()) {
+    const auto iter = m_items.find(oldId);
+    if (iter == m_items.end()) {
         return false;
     }
-    if (items.erase(oldId) == 0) {
+    if (m_items.erase(oldId) == 0) {
         return false;
     }
-    bool wasInserted = items.insert({ item.getId(), item }).second;
+    bool wasInserted = m_items.insert({ item.getId(), item }).second;
     return wasInserted;
 }
 
 bool ItemStore::removeItem(const std::string &id) 
 {
-    if (items.erase(id) == 0) {
+    if (m_items.erase(id) == 0) {
         return false;
     }
     return true;

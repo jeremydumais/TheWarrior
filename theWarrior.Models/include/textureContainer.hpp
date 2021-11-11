@@ -21,14 +21,14 @@ public:
     bool removeTexture(const std::string &name);
 private:
     friend class boost::serialization::access;
-    std::string lastError;
-    std::vector<Texture> textures;
+    std::string m_lastError;
+    std::vector<Texture> m_textures;
     std::vector<Texture>::iterator getTextureIterator(const std::string &name);
     //Serialization method
     template<class Archive>
     void serialize(Archive & ar, const unsigned int)
     {
-        ar & textures;
+        ar & m_textures;
     }
 };
 

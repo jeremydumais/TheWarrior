@@ -1,4 +1,5 @@
 #include "manageTexturesController.hpp"
+#include <algorithm>
 
 using namespace std;
 

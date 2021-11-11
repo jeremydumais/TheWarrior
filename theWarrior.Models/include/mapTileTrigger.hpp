@@ -53,18 +53,18 @@ public:
 
 private:
     friend class boost::serialization::access;
-    MapTileTriggerEvent event;
-    MapTileTriggerCondition condition;
-    MapTileTriggerAction action;
-    std::map<std::string, std::string> actionProperties;
+    MapTileTriggerEvent m_event;
+    MapTileTriggerCondition m_condition;
+    MapTileTriggerAction m_action;
+    std::map<std::string, std::string> m_actionProperties;
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
     {
         if(version > 0) {
-            ar & event;
-            ar & condition;
-            ar & action;
-            ar & actionProperties;
+            ar & m_event;
+            ar & m_condition;
+            ar & m_action;
+            ar & m_actionProperties;
         }
     }
 };

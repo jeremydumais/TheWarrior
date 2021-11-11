@@ -4,10 +4,10 @@
 using namespace std;
 
 MapTileTrigger::MapTileTrigger() 
-    : event(MapTileTriggerEvent::None),
-      condition(MapTileTriggerCondition::None),
-      action(MapTileTriggerAction::None),
-      actionProperties(map<string, string>())
+    : m_event(MapTileTriggerEvent::None),
+      m_condition(MapTileTriggerCondition::None),
+      m_action(MapTileTriggerAction::None),
+      m_actionProperties(map<string, string>())
 {
 }
 
@@ -15,49 +15,49 @@ MapTileTrigger::MapTileTrigger(MapTileTriggerEvent event,
                                MapTileTriggerCondition condition, 
                                MapTileTriggerAction action,
                                const std::map<std::string, std::string> &actionProperties) 
-    : event(event),
-      condition(condition),
-      action(action),
-      actionProperties(actionProperties)
+    : m_event(event),
+      m_condition(condition),
+      m_action(action),
+      m_actionProperties(actionProperties)
 {
 }
 
 MapTileTriggerEvent MapTileTrigger::getEvent() const
 {
-    return event;
+    return m_event;
 }
 
 MapTileTriggerCondition MapTileTrigger::getCondition() const
 {
-    return condition;
+    return m_condition;
 }
 
 MapTileTriggerAction MapTileTrigger::getAction() const
 {
-    return action;
+    return m_action;
 }
 
 const std::map<std::string, std::string>& MapTileTrigger::getActionProperties() const
 {
-    return actionProperties;
+    return m_actionProperties;
 }
 
 void MapTileTrigger::setEvent(MapTileTriggerEvent event) 
 {
-    this->event = event;
+    m_event = event;
 }
 
 void MapTileTrigger::setCondition(MapTileTriggerCondition condition) 
 {
-    this->condition = condition;
+    m_condition = condition;
 }
 
 void MapTileTrigger::setAction(MapTileTriggerAction action) 
 {
-    this->action = action;
+    m_action = action;
 }
 
 void MapTileTrigger::setActionProperties(const std::map<std::string, std::string> &properties)
 {
-    this->actionProperties = properties;
+    m_actionProperties = properties;
 }

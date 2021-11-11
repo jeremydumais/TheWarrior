@@ -6,7 +6,7 @@
 using namespace std;
 
 GameMap::GameMap(unsigned int width, unsigned int height)
-    : lastError("")
+    : m_lastError("")
 {
     if (width == 0) {
         throw invalid_argument("width must be greater than zero.");
@@ -20,85 +20,89 @@ GameMap::GameMap(unsigned int width, unsigned int height)
             MapTile newTile;
             row.emplace_back(newTile);
         }
-        tiles.emplace_back(row);
+        m_tiles.emplace_back(row);
     }
 }
 
 const std::string &GameMap::getLastError() const
 {
-    return lastError;
+    return m_lastError;
 }
 
 const std::vector<std::vector<MapTile>>& GameMap::getTiles() const
 {
-    return tiles;
+    return m_tiles;
 }
 
 MapTile& GameMap::getTileForEditing(int index)
 {
-    return tiles.at(index / getWidth()).at(index % getWidth());
+    auto indexConverted { static_cast<size_t>(index) };
+    return m_tiles.at(indexConverted / getWidth()).at(indexConverted % getWidth());
 }
 
 MapTile& GameMap::getTileForEditing(Point coord) 
 {
-    return tiles.at(coord.y()).at(coord.x());
+    return m_tiles.at(static_cast<size_t>(coord.y()))
+                .at(static_cast<size_t>(coord.x()));
 }
 
 const MapTile& GameMap::getTileFromCoord(Point coord) const
 {
-    return tiles.at(coord.y()).at(coord.x());
+    return m_tiles.at(static_cast<size_t>(coord.y()))
+                .at(static_cast<size_t>(coord.x()));
 }
 
 unsigned int GameMap::getWidth() const
 {
-    return tiles[0].size();    
+    return static_cast<unsigned int>(m_tiles[0].size());    
 }
 
 unsigned int GameMap::getHeight() const
 {
-    return tiles.size();
+    return static_cast<unsigned int>(m_tiles.size());
 }
 
 Point GameMap::getCoordFromTileIndex(int index) 
 {
-    int x = index % getWidth();
-    int y = index / getWidth();
+    auto indexConverted { static_cast<unsigned int>(index) };
+    int x = static_cast<int>(indexConverted % getWidth());
+    int y = static_cast<int>(indexConverted / getWidth());
     return Point(x, y);
 }
 
 const vector<Texture> &GameMap::getTextures() const
 {
-    return textureContainer.getTextures();
+    return m_textureContainer.getTextures();
 }
     
 boost::optional<const Texture &> GameMap::getTextureByName(const string &name) const
 {
-    return textureContainer.getTextureByName(name);
+    return m_textureContainer.getTextureByName(name);
 }
 
 bool GameMap::addTexture(const TextureInfo &textureInfo)
 {
-    bool retVal = textureContainer.addTexture(textureInfo);
+    bool retVal = m_textureContainer.addTexture(textureInfo);
     if (!retVal) {
-        lastError = textureContainer.getLastError();
+        m_lastError = m_textureContainer.getLastError();
     }
     return retVal;
 }
 
 bool GameMap::replaceTexture(const std::string &name, const TextureInfo &textureInfo)
 {
-    bool retVal = textureContainer.replaceTexture(name, textureInfo);
+    bool retVal = m_textureContainer.replaceTexture(name, textureInfo);
     if (!retVal) {
-        lastError = textureContainer.getLastError();
+        m_lastError = m_textureContainer.getLastError();
     }
     return retVal;
 }
 
 bool GameMap::removeTexture(const std::string &name)
 {
-    bool retVal = textureContainer.removeTexture(name);
+    bool retVal = m_textureContainer.removeTexture(name);
     if (!retVal) {
-        lastError = textureContainer.getLastError();
+        m_lastError = m_textureContainer.getLastError();
     }
     return retVal;
 }
@@ -120,7 +124,7 @@ bool GameMap::_isShrinkMapFromLeftImpactAssignedTiles(int offset) const
 		size_t col { 0 };
 		for(int index = offset; index < 0; index++) {
 			//Check all tiles of the column
-			for(const auto &row : tiles) {
+			for(const auto &row : m_tiles) {
 				if (row[col].isAssigned()) {
 					return true;
 				}
@@ -137,7 +141,7 @@ bool GameMap::_isShrinkMapFromTopImpactAssignedTiles(int offset) const
 		size_t rowIndex { 0 };
 		for(int index = offset; index < 0; index++) {
 			//Check all tiles of the column
-			for(const auto &row : tiles[rowIndex]) {
+			for(const auto &row : m_tiles[rowIndex]) {
 				if (row.isAssigned()) {
 					return true;
 				}
@@ -151,10 +155,10 @@ bool GameMap::_isShrinkMapFromTopImpactAssignedTiles(int offset) const
 bool GameMap::_isShrinkMapFromRightImpactAssignedTiles(int offset) const
 {
     if (offset < 0) {
-		size_t col { tiles[0].size() - 1 };
+		size_t col { m_tiles[0].size() - 1 };
 		for(int index = offset; index < 0; index++) {
 			//Check all tiles of the column
-			for(const auto &row : tiles) {
+			for(const auto &row : m_tiles) {
 				if (row[col].isAssigned()) {
 					return true;
 				}
@@ -168,10 +172,10 @@ bool GameMap::_isShrinkMapFromRightImpactAssignedTiles(int offset) const
 bool GameMap::_isShrinkMapFromBottomImpactAssignedTiles(int offset) const
 {
     if (offset < 0 ) {
-		size_t rowIndex { tiles.size() - 1 };
+		size_t rowIndex { m_tiles.size() - 1 };
 		for(int index = offset; index < 0; index++) {
 			//Check all tiles of the column
-			for(const auto &row : tiles[rowIndex]) {
+			for(const auto &row : m_tiles[rowIndex]) {
 				if (row.isAssigned()) {
 					return true;
 				}
@@ -208,14 +212,14 @@ void GameMap::resizeMap(int offsetLeft,
 void GameMap::_resizeMapFromLeft(int offset) 
 {
     if (offset < 0) {
-        for(auto &row : tiles) {
+        for(auto &row : m_tiles) {
             for(int index=offset; index<0; index++) {
                 row.erase(row.begin());
             }
         }
     }
     else if (offset > 0) {
-        for(auto &row : tiles) {
+        for(auto &row : m_tiles) {
             for(int index=0; index<offset; index++) {
                 row.insert(row.begin(), MapTile());
             }
@@ -227,13 +231,13 @@ void GameMap::_resizeMapFromTop(int offset)
 {
     if (offset < 0) {
         for(int index=offset; index<0; index++) {
-            tiles.erase(tiles.begin());
+            m_tiles.erase(m_tiles.begin());
         }
     }
     else if (offset > 0) {
         for(int index=0; index<offset; index++) {
             vector<MapTile> newRow(getWidth());
-            tiles.insert(tiles.begin(), newRow);
+            m_tiles.insert(m_tiles.begin(), newRow);
         }
     }
 }
@@ -241,14 +245,14 @@ void GameMap::_resizeMapFromTop(int offset)
 void GameMap::_resizeMapFromRight(int offset) 
 {
     if (offset < 0) {
-        for(auto &row : tiles) {
+        for(auto &row : m_tiles) {
             for(int index=offset; index<0; index++) {
                 row.erase(row.end() - 1);
             }
         }
     }
     else if (offset > 0) {
-        for(auto &row : tiles) {
+        for(auto &row : m_tiles) {
             for(int index=0; index<offset; index++) {
                 row.insert(row.end(), MapTile());
             }
@@ -260,13 +264,13 @@ void GameMap::_resizeMapFromBottom(int offset)
 {
     if (offset < 0) {
         for(int index=offset; index<0; index++) {
-            tiles.erase(tiles.end() - 1);
+            m_tiles.erase(m_tiles.end() - 1);
         }
     }
     else if (offset > 0) {
         for(int index=0; index<offset; index++) {
             vector<MapTile> newRow(getWidth());
-            tiles.insert(tiles.end(), newRow);
+            m_tiles.insert(m_tiles.end(), newRow);
         }
     }
 }

@@ -6,12 +6,12 @@ using namespace std;
 using namespace boost::algorithm;
 
 Texture::Texture(const TextureInfo &textureInfo)
-    : name(textureInfo.name),
-      filename(textureInfo.filename),
-      width(textureInfo.width),
-      height(textureInfo.height),
-      tileWidth(textureInfo.tileWidth),
-      tileHeight(textureInfo.tileHeight)
+    : m_name(textureInfo.name),
+      m_filename(textureInfo.filename),
+      m_width(textureInfo.width),
+      m_height(textureInfo.height),
+      m_tileWidth(textureInfo.tileWidth),
+      m_tileHeight(textureInfo.tileHeight)
 
 {
     if (trim_copy(textureInfo.name).empty()) {
@@ -46,12 +46,12 @@ Texture::Texture(const TextureInfo &textureInfo)
 
 const std::string &Texture::getName() const
 {
-    return name;
+    return m_name;
 }
 
 const std::string &Texture::getFilename() const
 {
-    return filename;
+    return m_filename;
 }
 
 void Texture::setName(const std::string &name) 
@@ -59,7 +59,7 @@ void Texture::setName(const std::string &name)
     if (trim_copy(name).empty()) {
         throw invalid_argument("name cannot be null or empty.");
     }    
-    this->name = name;
+    m_name = name;
 }
 
 void Texture::setFilename(const std::string &filename) 
@@ -67,48 +67,48 @@ void Texture::setFilename(const std::string &filename)
     if (trim_copy(filename).empty()) {
         throw invalid_argument("filename cannot be null or empty.");
     } 
-    this->filename = filename;  
+    m_filename = filename;  
 }
 
 int Texture::getWidth() const
 {
-    return width;
+    return m_width;
 }
 
 int Texture::getHeight() const
 {
-    return height;
+    return m_height;
 }
 
 int Texture::getTileWidth() const
 {
-    return tileWidth;
+    return m_tileWidth;
 }
 
 int Texture::getTileHeight() const
 {
-    return tileHeight;
+    return m_tileHeight;
 }
 
 float Texture::getTileWidthGL() const
 {
-    return tileWidthGL;
+    return m_tileWidthGL;
 }
 
 float Texture::getTileHeightGL() const
 {
-    return tileHeightGL;
+    return m_tileHeightGL;
 }
 
 TextureInfo Texture::getTextureInfo() const
 {
     return TextureInfo {
-        name,
-        filename,
-        width,
-        height,
-        tileWidth,
-        tileHeight
+        m_name,
+        m_filename,
+        m_width,
+        m_height,
+        m_tileWidth,
+        m_tileHeight
     };
 }
 
@@ -117,10 +117,10 @@ void Texture::setWidth(int value)
     if (value <= 0) {
         throw invalid_argument("width must be greater than zero.");
     }
-    if (value < this->tileWidth) {
+    if (value < m_tileWidth) {
         throw invalid_argument("tile width must be less than the width.");
     }
-    this->width = value;
+    m_width = value;
     updateTileWidthGL();
 }
 
@@ -129,10 +129,10 @@ void Texture::setHeight(int value)
     if (value <= 0) {
         throw invalid_argument("height must be greater than zero.");
     }
-    if (value < this->tileHeight) {
+    if (value < m_tileHeight) {
         throw invalid_argument("tile height must be less than the height.");
     }
-    this->height = value;
+    m_height = value;
     updateTileHeightGL();
 
 }
@@ -142,10 +142,10 @@ void Texture::setTileWidth(int value)
     if (value <= 0) {
         throw invalid_argument("tile width must be greater than zero.");
     }
-    if (value > this->width) {
+    if (value > m_width) {
         throw invalid_argument("tile width must be less than the width.");
     }
-    this->tileWidth = value;
+    m_tileWidth = value;
     updateTileWidthGL();
 }
 
@@ -154,19 +154,19 @@ void Texture::setTileHeight(int value)
     if (value <= 0) {
         throw invalid_argument("tile height must be greater than zero.");
     }
-    if (value > this->height) {
+    if (value > m_height) {
         throw invalid_argument("tile height must be less than the height.");
     }
-    this->tileHeight = value;
+    m_tileHeight = value;
     updateTileHeightGL();
 }
 
 void Texture::updateTileWidthGL() 
 {
-    this->tileWidthGL = static_cast<float>(this->tileWidth) / static_cast<float>(this->width);
+    m_tileWidthGL = static_cast<float>(m_tileWidth) / static_cast<float>(m_width);
 }
 
 void Texture::updateTileHeightGL() 
 {
-    this->tileHeightGL = static_cast<float>(this->tileHeight) / static_cast<float>(this->height);
+    m_tileHeightGL = static_cast<float>(m_tileHeight) / static_cast<float>(m_height);
 }

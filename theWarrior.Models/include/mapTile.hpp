@@ -39,34 +39,34 @@ public:
     bool deleteTrigger(const MapTileTrigger &triggerToDelete);
 private:
     friend class boost::serialization::access;
-    std::string textureName;
-    int textureIndex;
+    std::string m_textureName;
+    int m_textureIndex;
     //Optional object on the tile
-    std::string objectTextureName;
-    int objectTextureIndex;
-    bool canSteppedOn;
-    bool objectAbovePlayer;
-    bool isWallToClimb;
-    std::vector<MapTileTrigger> triggers;
+    std::string m_objectTextureName;
+    int m_objectTextureIndex;
+    bool m_canSteppedOn;
+    bool m_objectAbovePlayer;
+    bool m_isWallToClimb;
+    std::vector<MapTileTrigger> m_triggers;
     //Serialization method
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
     {
-        ar & textureName;
-        ar & textureIndex;
-        ar & objectTextureName;
-        ar & objectTextureIndex;
+        ar & m_textureName;
+        ar & m_textureIndex;
+        ar & m_objectTextureName;
+        ar & m_objectTextureIndex;
         if(version > 0) {
-            ar & canSteppedOn;
+            ar & m_canSteppedOn;
         }
         if(version > 1) {
-            ar & objectAbovePlayer;
+            ar & m_objectAbovePlayer;
         }
         if(version >= 5) {
-            ar & triggers;
+            ar & m_triggers;
         }
         if (version >= 6) {
-            ar & isWallToClimb;
+            ar & m_isWallToClimb;
         } 
     }
 };

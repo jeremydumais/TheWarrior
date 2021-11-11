@@ -27,29 +27,29 @@ public:
     void setTileHeight(int value);  
 private:
     friend class boost::serialization::access;
-    std::string name;
-    std::string filename;
-    int width;
-    int height;
-    int tileWidth;
-    int tileHeight;
-    float tileWidthGL;    
-    float tileHeightGL;    
+    std::string m_name;
+    std::string m_filename;
+    int m_width;
+    int m_height;
+    int m_tileWidth;
+    int m_tileHeight;
+    float m_tileWidthGL;    
+    float m_tileHeightGL;    
     void updateTileWidthGL();
     void updateTileHeightGL();
-    Texture() {}; //Needed for deserialization
+    Texture() = default; //Needed for deserialization
     //Serialization method
     template<class Archive>
     void serialize(Archive & ar, const unsigned int)
     {
-        ar & name;
-        ar & filename;
-        ar & width;
-        ar & height;
-        ar & tileWidth;
-        ar & tileHeight;
-        ar & tileWidthGL;
-        ar & tileHeightGL;
+        ar & m_name;
+        ar & m_filename;
+        ar & m_width;
+        ar & m_height;
+        ar & m_tileWidth;
+        ar & m_tileHeight;
+        ar & m_tileWidthGL;
+        ar & m_tileHeightGL;
     }
 };
 BOOST_CLASS_VERSION(Texture, 0)

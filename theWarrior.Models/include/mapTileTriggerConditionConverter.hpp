@@ -8,9 +8,8 @@
 class MapTileTriggerConditionConverter
 {
 public:
+    MapTileTriggerConditionConverter() = delete;
     static std::string conditionToString(MapTileTriggerCondition condition);
     static boost::optional<MapTileTriggerCondition> conditionFromString(const std::string &conditionStr);
     static std::vector<std::string> allConditionsToString();
-private:
-    MapTileTriggerConditionConverter() = delete;
 };
