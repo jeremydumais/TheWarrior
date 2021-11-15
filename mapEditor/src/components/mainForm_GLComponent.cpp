@@ -3,139 +3,139 @@
 using namespace std;
 
 MainForm_GLComponent::MainForm_GLComponent() 
-	: glWidget(nullptr),
-      currentMapTile(nullptr),
-      lastSelectedTextureName(""),
-	  lastSelectedObjectName(""),
-	  lastSelectedTextureIndex(-1),
-	  lastSelectedObjectIndex(-1)
+	: m_glWidget(nullptr),
+      m_currentMapTile(nullptr),
+      m_lastSelectedTextureName(""),
+	  m_lastSelectedObjectName(""),
+	  m_lastSelectedTextureIndex(-1),
+	  m_lastSelectedObjectIndex(-1)
 {  
 }
 
 void MainForm_GLComponent::initializeUIObjects(MapOpenGLWidget *glWidget) 
 {
     assert(glWidget);
-    this->glWidget = glWidget;
-    this->glWidget->setSelectionMode(SelectionMode::Select);
+    this->m_glWidget = glWidget;
+    this->m_glWidget->setSelectionMode(SelectionMode::Select);
 }
 
 void MainForm_GLComponent::connectUIActions() 
 {
-    connect(this->glWidget, &MapOpenGLWidget::onTileClicked, this, &MainForm_GLComponent::onTileClicked);
-	connect(this->glWidget, &MapOpenGLWidget::onTileMouseReleaseEvent, this, &MainForm_GLComponent::onTileMouseReleaseEvent);
+    connect(this->m_glWidget, &MapOpenGLWidget::onTileClicked, this, &MainForm_GLComponent::onTileClicked);
+	connect(this->m_glWidget, &MapOpenGLWidget::onTileMouseReleaseEvent, this, &MainForm_GLComponent::onTileMouseReleaseEvent);
 }
 
 const std::string &MainForm_GLComponent::getResourcesPath() const
 {
-	return this->glWidget->getResourcesPath();
+	return this->m_glWidget->getResourcesPath();
 }
 
 SelectionMode MainForm_GLComponent::getSelectionMode() const
 {
-	return this->glWidget->getSelectionMode();
+	return this->m_glWidget->getSelectionMode();
 }
 
 unsigned int MainForm_GLComponent::getMapWidth() const
 {
-	return this->glWidget->getMapWidth();
+	return this->m_glWidget->getMapWidth();
 }
 
 unsigned int MainForm_GLComponent::getMapHeight() const
 {
-	return this->glWidget->getMapHeight();
+	return this->m_glWidget->getMapHeight();
 }
 
 void MainForm_GLComponent::setCurrentMap(std::shared_ptr<GameMap> map) 
 {
-    this->controller.setCurrentMap(map);
-	this->glWidget->setCurrentMap(map); 
-	currentMapTile = nullptr;
+    this->m_controller.setCurrentMap(map);
+	this->m_glWidget->setCurrentMap(map); 
+	m_currentMapTile = nullptr;
 	clearLastSelectedTexture();
 	clearLastSelectedObject();
 }
 
 void MainForm_GLComponent::setResourcesPath(const std::string &path) 
 {
-	this->glWidget->setResourcesPath(path);
+	this->m_glWidget->setResourcesPath(path);
 }
 
 void MainForm_GLComponent::setSelectionMode(SelectionMode mode) 
 {
-    this->glWidget->setSelectionMode(mode);
+    this->m_glWidget->setSelectionMode(mode);
 }
 
 MapTile* MainForm_GLComponent::getCurrentMapTile() 
 {
-    return currentMapTile;
+    return m_currentMapTile;
 }
 
 void MainForm_GLComponent::setLastSelectedTexture(const std::string &name, int index) 
 {
-    this->lastSelectedTextureName = name;
-    this->lastSelectedTextureIndex = index;
+    this->m_lastSelectedTextureName = name;
+    this->m_lastSelectedTextureIndex = index;
 }
 
 void MainForm_GLComponent::setLastSelectedObject(const std::string &name, int index) 
 {
-    this->lastSelectedObjectName = name;
-    this->lastSelectedObjectIndex = index;
+    this->m_lastSelectedObjectName = name;
+    this->m_lastSelectedObjectIndex = index;
 }
 
 void MainForm_GLComponent::clearLastSelectedTexture() 
 {
-    lastSelectedTextureName = "";
-	lastSelectedTextureIndex = -1;
+    m_lastSelectedTextureName = "";
+	m_lastSelectedTextureIndex = -1;
 }
 
 void MainForm_GLComponent::clearLastSelectedObject() 
 {
-    lastSelectedObjectName = "";
-	lastSelectedObjectIndex = -1;
+    m_lastSelectedObjectName = "";
+	m_lastSelectedObjectIndex = -1;
 }
 
 void MainForm_GLComponent::stopAutoUpdate() 
 {
-	glWidget->stopAutoUpdate();
+	m_glWidget->stopAutoUpdate();
 }
 
 void MainForm_GLComponent::startAutoUpdate() 
 {
-	glWidget->startAutoUpdate();
+	m_glWidget->startAutoUpdate();
 }
 
 void MainForm_GLComponent::resetMapMovePosition() 
 {
-	glWidget->resetMapMovePosition();
+	m_glWidget->resetMapMovePosition();
 }
 
 void MainForm_GLComponent::updateGL() 
 {
-	glWidget->updateGL();
+	m_glWidget->updateGL();
 }
 
 const vector<Texture> &MainForm_GLComponent::getTextures() const
 {
-	return controller.getMap()->getTextures();
+	return m_controller.getMap()->getTextures();
 }
 
 boost::optional<const Texture &> MainForm_GLComponent::getTextureByName(const std::string &name) const
 {
-	return controller.getMap()->getTextureByName(name);
+	return m_controller.getMap()->getTextureByName(name);
 }
 
 std::vector<std::string> MainForm_GLComponent::getAlreadyUsedTextureNames() const
 {
-	return controller.getAlreadyUsedTextureNames();
+	return m_controller.getAlreadyUsedTextureNames();
 }
 
 bool MainForm_GLComponent::isTextureUsedInMap(const std::string &name) 
 {
-	return controller.isTextureUsedInMap(name);
+	return m_controller.isTextureUsedInMap(name);
 }
 
 void MainForm_GLComponent::reloadTextures() 
 {
-    glWidget->reloadTextures();
+    m_glWidget->reloadTextures();
 }
 
 bool MainForm_GLComponent::isShrinkMapImpactAssignedTiles(int offsetLeft, 
@@ -143,7 +143,7 @@ bool MainForm_GLComponent::isShrinkMapImpactAssignedTiles(int offsetLeft,
 														  int offsetRight, 
 														  int offsetBottom) const
 {
-	return controller.isShrinkMapImpactAssignedTiles(offsetLeft,
+	return m_controller.isShrinkMapImpactAssignedTiles(offsetLeft,
 											   		 offsetTop,
 											   		 offsetRight,
 											   		 offsetBottom);
@@ -154,7 +154,7 @@ void MainForm_GLComponent::resizeMap(int offsetLeft,
                    int offsetRight, 
                    int offsetBottom) 
 {
-	controller.resizeMap(offsetLeft,
+	m_controller.resizeMap(offsetLeft,
 				   		 offsetTop,
 				   		 offsetRight,
 				   		 offsetBottom);
@@ -162,68 +162,68 @@ void MainForm_GLComponent::resizeMap(int offsetLeft,
 
 void MainForm_GLComponent::onTileClicked(int tileIndex) 
 {
-	if (glWidget->getSelectionMode() == SelectionMode::Select && tileIndex != -1) {
-		currentMapTile = nullptr;
-		auto tempTile { &controller.getMap()->getTileForEditing(tileIndex) };
-		auto coord { controller.getMap()->getCoordFromTileIndex(tileIndex) };
+	if (m_glWidget->getSelectionMode() == SelectionMode::Select && tileIndex != -1) {
+		m_currentMapTile = nullptr;
+		auto tempTile { &m_controller.getMap()->getTileForEditing(tileIndex) };
+		auto coord { m_controller.getMap()->getCoordFromTileIndex(tileIndex) };
         emit tileSelected(tempTile, coord);
-		currentMapTile = tempTile;
+		m_currentMapTile = tempTile;
 	}
 	else {
-		currentMapTile = nullptr;
+		m_currentMapTile = nullptr;
 	}
 }
 
 void MainForm_GLComponent::onTileMouseReleaseEvent(vector<int> selectedTileIndexes) 
 {
-	if (glWidget->getSelectionMode() == SelectionMode::ApplyTexture) {
+	if (m_glWidget->getSelectionMode() == SelectionMode::ApplyTexture) {
 		for(const int index : selectedTileIndexes) {
-			currentMapTile = &controller.getMap()->getTileForEditing(index);
-			currentMapTile->setTextureName(lastSelectedTextureName);
-			currentMapTile->setTextureIndex(lastSelectedTextureIndex);
+			m_currentMapTile = &m_controller.getMap()->getTileForEditing(index);
+			m_currentMapTile->setTextureName(m_lastSelectedTextureName);
+			m_currentMapTile->setTextureIndex(m_lastSelectedTextureIndex);
 		}
 	}
-	else if (glWidget->getSelectionMode() == SelectionMode::ApplyObject) {
+	else if (m_glWidget->getSelectionMode() == SelectionMode::ApplyObject) {
 		for(const int index : selectedTileIndexes) {
-			currentMapTile = &controller.getMap()->getTileForEditing(index);
-			currentMapTile->setObjectTextureName(lastSelectedObjectName);
-			currentMapTile->setObjectTextureIndex(lastSelectedObjectIndex);
+			m_currentMapTile = &m_controller.getMap()->getTileForEditing(index);
+			m_currentMapTile->setObjectTextureName(m_lastSelectedObjectName);
+			m_currentMapTile->setObjectTextureIndex(m_lastSelectedObjectIndex);
 		}
 	}
-	else if (glWidget->getSelectionMode() == SelectionMode::EnableCanStep) {
+	else if (m_glWidget->getSelectionMode() == SelectionMode::EnableCanStep) {
 		for(const int index : selectedTileIndexes) {
-			currentMapTile = &controller.getMap()->getTileForEditing(index);
-			currentMapTile->setCanPlayerSteppedOn(true);
+			m_currentMapTile = &m_controller.getMap()->getTileForEditing(index);
+			m_currentMapTile->setCanPlayerSteppedOn(true);
 		}
 	}
-	else if (glWidget->getSelectionMode() == SelectionMode::DisableCanStep) {
+	else if (m_glWidget->getSelectionMode() == SelectionMode::DisableCanStep) {
 		for(const int index : selectedTileIndexes) {
-			currentMapTile = &controller.getMap()->getTileForEditing(index);
-			currentMapTile->setCanPlayerSteppedOn(false);
+			m_currentMapTile = &m_controller.getMap()->getTileForEditing(index);
+			m_currentMapTile->setCanPlayerSteppedOn(false);
 		}
 	}
-	else if (glWidget->getSelectionMode() == SelectionMode::BlockBorderLeft) {
+	else if (m_glWidget->getSelectionMode() == SelectionMode::BlockBorderLeft) {
 		addMoveDenyTrigger(selectedTileIndexes, MapTileTriggerEvent::MoveLeftPressed);
 	}	
-	else if (glWidget->getSelectionMode() == SelectionMode::BlockBorderTop) {
+	else if (m_glWidget->getSelectionMode() == SelectionMode::BlockBorderTop) {
 		addMoveDenyTrigger(selectedTileIndexes, MapTileTriggerEvent::MoveUpPressed);
 	}	
-	else if (glWidget->getSelectionMode() == SelectionMode::BlockBorderRight) {
+	else if (m_glWidget->getSelectionMode() == SelectionMode::BlockBorderRight) {
 		addMoveDenyTrigger(selectedTileIndexes, MapTileTriggerEvent::MoveRightPressed);
 	}	
-	else if (glWidget->getSelectionMode() == SelectionMode::BlockBorderBottom) {
+	else if (m_glWidget->getSelectionMode() == SelectionMode::BlockBorderBottom) {
 		addMoveDenyTrigger(selectedTileIndexes, MapTileTriggerEvent::MoveDownPressed);
 	}
-	else if (glWidget->getSelectionMode() == SelectionMode::ClearBlockedBorders) {
+	else if (m_glWidget->getSelectionMode() == SelectionMode::ClearBlockedBorders) {
 		for(const int index : selectedTileIndexes) {
-			currentMapTile = &controller.getMap()->getTileForEditing(index);
-			for(const auto &trigger : currentMapTile->getTriggers()) {
+			m_currentMapTile = &m_controller.getMap()->getTileForEditing(index);
+			for(const auto &trigger : m_currentMapTile->getTriggers()) {
 				if (trigger.getAction() == MapTileTriggerAction::DenyMove && 
 					(trigger.getEvent() == MapTileTriggerEvent::MoveLeftPressed || 
 					 trigger.getEvent() == MapTileTriggerEvent::MoveUpPressed || 
 					 trigger.getEvent() == MapTileTriggerEvent::MoveRightPressed || 
 					 trigger.getEvent() == MapTileTriggerEvent::MoveDownPressed)) {
-					currentMapTile->deleteTrigger(trigger);
+					m_currentMapTile->deleteTrigger(trigger);
 				}
 			}
 		}
@@ -234,9 +234,9 @@ void MainForm_GLComponent::onTileMouseReleaseEvent(vector<int> selectedTileIndex
 void MainForm_GLComponent::addMoveDenyTrigger(const std::vector<int> &selectedTileIndexes, MapTileTriggerEvent event) 
 {
 	for(const int index : selectedTileIndexes) {
-		currentMapTile = &controller.getMap()->getTileForEditing(index);
-		if (!currentMapTile->findTrigger(event).has_value())
-			currentMapTile->addTrigger(MapTileTrigger(event,
+		m_currentMapTile = &m_controller.getMap()->getTileForEditing(index);
+		if (!m_currentMapTile->findTrigger(event).has_value())
+			m_currentMapTile->addTrigger(MapTileTrigger(event,
 													  MapTileTriggerCondition::None,
 													  MapTileTriggerAction::DenyMove,
 													  map<string, string>()));

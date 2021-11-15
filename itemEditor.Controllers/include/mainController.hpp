@@ -9,6 +9,6 @@ public:
     MainController();
     TextureContainer &getTextureContainerForEdition();
 private:
-    ItemStore itemStore;
-    TextureContainer textureContainer;
+    ItemStore m_itemStore;
+    TextureContainer m_textureContainer;
 };

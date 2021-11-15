@@ -23,6 +23,6 @@ public:
     void replaceTilesTextureName(const std::string &oldName, const std::string &newName);
 private:
     friend class boost::serialization::access;
-    std::string lastError;
-	std::shared_ptr<GameMap> map;
+    std::string m_lastError;
+	std::shared_ptr<GameMap> m_map;
 };

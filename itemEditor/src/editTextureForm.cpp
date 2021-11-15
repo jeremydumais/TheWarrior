@@ -13,10 +13,10 @@ EditTextureForm::EditTextureForm(QWidget *parent,
 								 const std::vector<std::string> &alreadyUsedNames)
 	: QDialog(parent),
 	  ui(Ui::editTextureFormClass()),
-	  resourcesPath(resourcesPath),
-	  textureInfo(TextureInfo()),
-	  alreadyUsedNames(alreadyUsedNames),
-	  isEditMode(texture != nullptr)
+	  m_resourcesPath(resourcesPath),
+	  m_textureInfo(TextureInfo()),
+	  m_alreadyUsedNames(alreadyUsedNames),
+	  m_isEditMode(texture != nullptr)
 {
 	ui.setupUi(this);
 	setWindowIcon(QIcon(":/MapEditor Icon.png"));
@@ -24,7 +24,7 @@ EditTextureForm::EditTextureForm(QWidget *parent,
 	connect(ui.pushButtonCancel, &QPushButton::clicked, this, &EditTextureForm::reject);
 	connect(ui.pushButtonOpenFilename, &QPushButton::clicked, this, &EditTextureForm::onPushButtonOpenFilenameClick);
 
-	if (!isEditMode) {
+	if (!m_isEditMode) {
 		this->setWindowTitle("Add texture");
 	}
 	else {
@@ -50,28 +50,28 @@ EditTextureForm::EditTextureForm(QWidget *parent,
 
 const TextureInfo& EditTextureForm::getTextureInfo() const
 {
-	return textureInfo;
+	return m_textureInfo;
 }
 
 void EditTextureForm::onPushButtonOK() 
 {
-	textureInfo.name = ui.lineEditName->text().toStdString();
-	textureInfo.filename = ui.lineEditFilename->text().toStdString();
-	textureInfo.width = ui.spinBoxWidth->value();
-	textureInfo.height = ui.spinBoxHeight->value();
-	textureInfo.tileWidth = ui.spinBoxTileWidth->value();
-	textureInfo.tileHeight = ui.spinBoxTileHeight->value();
+	m_textureInfo.name = ui.lineEditName->text().toStdString();
+	m_textureInfo.filename = ui.lineEditFilename->text().toStdString();
+	m_textureInfo.width = ui.spinBoxWidth->value();
+	m_textureInfo.height = ui.spinBoxHeight->value();
+	m_textureInfo.tileWidth = ui.spinBoxTileWidth->value();
+	m_textureInfo.tileHeight = ui.spinBoxTileHeight->value();
 
 	try {
-		auto texture = make_shared<Texture>(textureInfo);
+		auto texture = make_shared<Texture>(m_textureInfo);
 	}
 	catch(invalid_argument &err) {
 		showErrorMessage(err.what());
 		return;
 	}
 	//Check if the texture name is available
-	if (std::find(alreadyUsedNames.begin(), alreadyUsedNames.end(), textureInfo.name) != alreadyUsedNames.end()) {
-		showErrorMessage(fmt::format("The name {0} is already used.", textureInfo.name));
+	if (std::find(m_alreadyUsedNames.begin(), m_alreadyUsedNames.end(), m_textureInfo.name) != m_alreadyUsedNames.end()) {
+		showErrorMessage(fmt::format("The name {0} is already used.", m_textureInfo.name));
 		return;
 	}
 	accept();
@@ -91,14 +91,14 @@ void EditTextureForm::onPushButtonOpenFilenameClick()
 {
 	QString fullFilePath { QFileDialog::getOpenFileName(this, 
 														tr("Open Texture"), 
-														resourcesPath.c_str(), 
+														m_resourcesPath.c_str(), 
 														tr("Images (*.png)")) };
 	QFileInfo fileInfo(fullFilePath);
 	string filename { fileInfo.fileName().toStdString() };
 	ui.lineEditFilename->setText(filename.c_str());
 	//Detect width and height of the image
 	QImage image;
-	string imageFullPath { fmt::format("{0}{1}", resourcesPath, filename) };
+	string imageFullPath { fmt::format("{0}{1}", m_resourcesPath, filename) };
 	if (!image.load(imageFullPath.c_str())) {
 		showErrorMessage(fmt::format("Unable to load the image {0}", imageFullPath));
 		ui.lineEditFilename->clear();

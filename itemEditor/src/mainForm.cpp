@@ -22,26 +22,26 @@ const std::string MainForm::RECENT_MAPS { "ItemsDB.Recents" };
 MainForm::MainForm(QWidget *parent)
 	: QMainWindow(parent),
 	  ui(Ui::MainForm()),
-	  functionAfterShownCalled(false),
-	  userConfigFolder(""),
-	  executablePath(""),
-	  resourcesPath(""),
-	  currentFilePath(""),
-	  controller(MainController())
+	  m_functionAfterShownCalled(false),
+	  m_userConfigFolder(""),
+	  m_executablePath(""),
+	  m_resourcesPath(""),
+	  m_currentFilePath(""),
+	  m_controller(MainController())
 {
 	ui.setupUi(this);
 
     //Check if the user configuration folder exist
-	userConfigFolder = SpecialFolders::getAppConfigDirectory("TheWarrior_ItemEditor");
-	if (!boost::filesystem::exists(userConfigFolder)) {
-		if (!boost::filesystem::create_directory(userConfigFolder)) {
-			ErrorMessage::show(fmt::format("Unable to create the folder {0}", userConfigFolder), "");
+	m_userConfigFolder = SpecialFolders::getAppConfigDirectory("TheWarrior_ItemEditor");
+	if (!boost::filesystem::exists(m_userConfigFolder)) {
+		if (!boost::filesystem::create_directory(m_userConfigFolder)) {
+			ErrorMessage::show(fmt::format("Unable to create the folder {0}", m_userConfigFolder), "");
 			exit(1);
 		}
 	}
 
 	//Check if the configuration file exist
-	ConfigurationManager configManager(userConfigFolder + "config.json");
+	ConfigurationManager configManager(m_userConfigFolder + "config.json");
 	if (configManager.load()) {
 		setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
 	}
@@ -74,9 +74,9 @@ void MainForm::functionAfterShown()
 bool MainForm::event(QEvent *event)
 {
     const bool ret_val = QMainWindow::event(event);
-    if(!functionAfterShownCalled && event->type() == QEvent::Paint)
+    if(!m_functionAfterShownCalled && event->type() == QEvent::Paint)
     {
-        functionAfterShownCalled = true;
+        m_functionAfterShownCalled = true;
         functionAfterShown();
     }
     return ret_val;
@@ -90,7 +90,7 @@ void MainForm::action_About_Click()
 
 void MainForm::action_LightTheme_Click()
 {
-	ConfigurationManager configManager(userConfigFolder + "config.json");
+	ConfigurationManager configManager(m_userConfigFolder + "config.json");
 	if (configManager.load()) {
 		configManager.setStringValue(MainForm::THEME_PATH, "");
 		setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
@@ -107,7 +107,7 @@ void MainForm::action_LightTheme_Click()
 
 void MainForm::action_DarkTheme_Click()
 {
-	ConfigurationManager configManager(userConfigFolder + "config.json");
+	ConfigurationManager configManager(m_userConfigFolder + "config.json");
 	if (configManager.load()) {
 		configManager.setStringValue(MainForm::THEME_PATH, "Dark");
 		setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
@@ -148,28 +148,28 @@ void MainForm::action_ManageTextures_Click()
 {
 	ManageTexturesForm manageTexturesForm(this, 
 										  getResourcesPath(),
-										  controller.getTextureContainerForEdition());
+										  m_controller.getTextureContainerForEdition());
 	manageTexturesForm.exec();
 }
 
 const string &MainForm::getExecutablePath()
 {
-	if (executablePath.empty()) {
+	if (m_executablePath.empty()) {
 		char result[PATH_MAX];
 		ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
 		if (count != -1) {
-			executablePath = dirname(result);
+			m_executablePath = dirname(result);
 		}
 	}
-	return executablePath;
+	return m_executablePath;
 }
 
 const string &MainForm::getResourcesPath()
 {
-	if (resourcesPath.empty()) {
-		resourcesPath = fmt::format("{0}/resources/", getExecutablePath());
+	if (m_resourcesPath.empty()) {
+		m_resourcesPath = fmt::format("{0}/resources/", getExecutablePath());
 	}
-	return resourcesPath;
+	return m_resourcesPath;
 }
 
 void MainForm::setAppStylesheet(const string &style)
@@ -207,7 +207,7 @@ void MainForm::saveItemStore(const std::string &filePath)
 
 void MainForm::refreshWindowTitle() 
 {
-	setWindowTitle(currentFilePath.empty() ? 
+	setWindowTitle(m_currentFilePath.empty() ? 
 				   "ItemEditor" : 
-				   fmt::format("ItemEditor - {0}", currentFilePath).c_str());
+				   fmt::format("ItemEditor - {0}", m_currentFilePath).c_str());
 }

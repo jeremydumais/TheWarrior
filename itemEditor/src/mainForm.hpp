@@ -17,12 +17,12 @@ public:
     void functionAfterShown();
 private:
 	Ui::MainForm ui;
-	bool functionAfterShownCalled;
-	std::string userConfigFolder;
-	std::string executablePath;
-	std::string resourcesPath;
-	std::string currentFilePath;
-	MainController controller;
+	bool m_functionAfterShownCalled;
+	std::string m_userConfigFolder;
+	std::string m_executablePath;
+	std::string m_resourcesPath;
+	std::string m_currentFilePath;
+	MainController m_controller;
 	static const std::string THEME_PATH;
 	static const std::string RECENT_MAPS;
 	void action_About_Click();

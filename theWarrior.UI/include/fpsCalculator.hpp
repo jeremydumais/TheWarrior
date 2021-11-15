@@ -11,10 +11,10 @@ public:
     float getFPS() const;
     const std::string &getFPSDisplayText() const;
 private:
-    int frameNo;
-    int updateTicks;
-    int fpsTicks;
-    float lastFPS;
-    std::string lastFPSDisplayText;
+    uint32_t m_frameNo;
+    uint32_t m_updateTicks;
+    uint32_t m_fpsTicks;
+    float m_lastFPS;
+    std::string m_lastFPSDisplayText;
     void reset();
 };

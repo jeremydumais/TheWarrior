@@ -4,56 +4,56 @@
 using namespace std;
 
 MainForm_MapTabComponent::MainForm_MapTabComponent()
-    : glComponent(nullptr),
-      lineEditMapWidth(nullptr),
-      lineEditMapHeight(nullptr),
-      spinBoxMapSizeTop(nullptr),
-      spinBoxMapSizeLeft(nullptr),
-      spinBoxMapSizeRight(nullptr),
-      spinBoxMapSizeBottom(nullptr),
-      pushButtonApplySizeChange(nullptr)
+    : m_glComponent(nullptr),
+      m_lineEditMapWidth(nullptr),
+      m_lineEditMapHeight(nullptr),
+      m_spinBoxMapSizeTop(nullptr),
+      m_spinBoxMapSizeLeft(nullptr),
+      m_spinBoxMapSizeRight(nullptr),
+      m_spinBoxMapSizeBottom(nullptr),
+      m_pushButtonApplySizeChange(nullptr)
 {
 }
 
 void MainForm_MapTabComponent::initializeUIObjects(const MainForm_MapTabComponent_Objects &objects) 
 {
-    this->glComponent = objects.glComponent;
-    this->lineEditMapWidth = objects.lineEditMapWidth;
-    this->lineEditMapHeight = objects.lineEditMapHeight;
-    this->spinBoxMapSizeTop = objects.spinBoxMapSizeTop;
-    this->spinBoxMapSizeLeft = objects.spinBoxMapSizeLeft;
-    this->spinBoxMapSizeRight = objects.spinBoxMapSizeRight;
-    this->spinBoxMapSizeBottom = objects.spinBoxMapSizeBottom;
-    this->pushButtonApplySizeChange = objects.pushButtonApplySizeChange;
+    this->m_glComponent = objects.glComponent;
+    this->m_lineEditMapWidth = objects.lineEditMapWidth;
+    this->m_lineEditMapHeight = objects.lineEditMapHeight;
+    this->m_spinBoxMapSizeTop = objects.spinBoxMapSizeTop;
+    this->m_spinBoxMapSizeLeft = objects.spinBoxMapSizeLeft;
+    this->m_spinBoxMapSizeRight = objects.spinBoxMapSizeRight;
+    this->m_spinBoxMapSizeBottom = objects.spinBoxMapSizeBottom;
+    this->m_pushButtonApplySizeChange = objects.pushButtonApplySizeChange;
 }
 
 void MainForm_MapTabComponent::connectUIActions() 
 {
-	connect(pushButtonApplySizeChange, &QPushButton::clicked, this, &MainForm_MapTabComponent::onPushButtonApplySizeChangeClick);
+	connect(m_pushButtonApplySizeChange, &QPushButton::clicked, this, &MainForm_MapTabComponent::onPushButtonApplySizeChangeClick);
 }
 
 void MainForm_MapTabComponent::reset() 
 {	
-	this->lineEditMapWidth->setText(to_string(glComponent->getMapWidth()).c_str());
-	this->lineEditMapHeight->setText(to_string(glComponent->getMapHeight()).c_str());
-	this->spinBoxMapSizeLeft->setValue(0);
-	this->spinBoxMapSizeTop->setValue(0);
-	this->spinBoxMapSizeRight->setValue(0);
-	this->spinBoxMapSizeBottom->setValue(0);
+	this->m_lineEditMapWidth->setText(to_string(m_glComponent->getMapWidth()).c_str());
+	this->m_lineEditMapHeight->setText(to_string(m_glComponent->getMapHeight()).c_str());
+	this->m_spinBoxMapSizeLeft->setValue(0);
+	this->m_spinBoxMapSizeTop->setValue(0);
+	this->m_spinBoxMapSizeRight->setValue(0);
+	this->m_spinBoxMapSizeBottom->setValue(0);
 }
 
 void MainForm_MapTabComponent::onPushButtonApplySizeChangeClick() 
 {
-	int offsetLeft { spinBoxMapSizeLeft->value() };
-	int offsetTop { spinBoxMapSizeTop->value() };
-	int offsetRight { spinBoxMapSizeRight->value() };
-	int offsetBottom { spinBoxMapSizeBottom->value() };
+	int offsetLeft { m_spinBoxMapSizeLeft->value() };
+	int offsetTop { m_spinBoxMapSizeTop->value() };
+	int offsetRight { m_spinBoxMapSizeRight->value() };
+	int offsetBottom { m_spinBoxMapSizeBottom->value() };
 	if (offsetLeft < 0 || 
 		offsetTop < 0 ||
 		offsetRight < 0 ||
 		offsetBottom < 0) {	
 		//Check if there's tiles that are already assigned in the ones we will remove
-		if (glComponent->isShrinkMapImpactAssignedTiles(offsetLeft,
+		if (m_glComponent->isShrinkMapImpactAssignedTiles(offsetLeft,
 													    offsetTop,
 													    offsetRight,
 													    offsetBottom)) {
@@ -64,7 +64,7 @@ void MainForm_MapTabComponent::onPushButtonApplySizeChangeClick()
 	}
 	//Apply new size
 	try {
-		glComponent->resizeMap(offsetLeft,
+		m_glComponent->resizeMap(offsetLeft,
 							   offsetTop,
 							   offsetRight,
 							   offsetBottom);

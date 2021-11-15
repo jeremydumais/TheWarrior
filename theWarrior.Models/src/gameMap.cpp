@@ -1,6 +1,7 @@
 #include "gameMap.hpp"
 #include <algorithm>
 #include <fmt/format.h>
+#include <limits>
 #include <stdexcept>
 
 using namespace std;
@@ -36,34 +37,60 @@ const std::vector<std::vector<MapTile>>& GameMap::getTiles() const
 
 MapTile& GameMap::getTileForEditing(int index)
 {
+    if (index < 0) {
+        throw invalid_argument("index must be a positive number");
+    }
     auto indexConverted { static_cast<size_t>(index) };
     return m_tiles.at(indexConverted / getWidth()).at(indexConverted % getWidth());
 }
 
 MapTile& GameMap::getTileForEditing(Point coord) 
 {
+    if (coord.x() < 0) {
+        throw invalid_argument("x must be a positive number");
+    }
+    if (coord.y() < 0) {
+        throw invalid_argument("y must be a positive number");
+    }
     return m_tiles.at(static_cast<size_t>(coord.y()))
                 .at(static_cast<size_t>(coord.x()));
 }
 
 const MapTile& GameMap::getTileFromCoord(Point coord) const
 {
+    if (coord.x() < 0) {
+        throw invalid_argument("x must be a positive number");
+    }
+    if (coord.y() < 0) {
+        throw invalid_argument("y must be a positive number");
+    }
     return m_tiles.at(static_cast<size_t>(coord.y()))
                 .at(static_cast<size_t>(coord.x()));
 }
 
 unsigned int GameMap::getWidth() const
 {
-    return static_cast<unsigned int>(m_tiles[0].size());    
+    auto widthSize = m_tiles[0].size();
+    if (widthSize > UINT_MAX) {
+        return UINT_MAX;
+    }
+    return static_cast<unsigned int>(widthSize);    
 }
 
 unsigned int GameMap::getHeight() const
 {
-    return static_cast<unsigned int>(m_tiles.size());
+    auto heightSize = m_tiles.size();
+    if (heightSize > UINT_MAX) {
+        return UINT_MAX;
+    }
+    return static_cast<unsigned int>(heightSize);
 }
 
 Point GameMap::getCoordFromTileIndex(int index) 
 {
+    if (index < 0) {
+        throw invalid_argument("index must be a positive number");
+    }
     auto indexConverted { static_cast<unsigned int>(index) };
     int x = static_cast<int>(indexConverted % getWidth());
     int y = static_cast<int>(indexConverted / getWidth());
@@ -275,18 +302,11 @@ void GameMap::_resizeMapFromBottom(int offset)
     }
 }
 
-/*std::vector<Texture>::iterator GameMap::_getTextureIterator(const std::string &name) 
-{
-    return find_if(textures.begin(), textures.end(), [&name](const Texture &x) {
-        return x.getName() == name;
-    });
-}*/
-
 bool GameMap::canSteppedOnTile(Point playerCoord) 
 {
-    return (playerCoord.x() < static_cast<int>(getWidth()) &&
-            playerCoord.x() >= 0 &&
-            playerCoord.y() < static_cast<int>(getHeight()) &&
+    return (playerCoord.x() >= 0 && 
+            static_cast<unsigned int>(playerCoord.x()) < getWidth() &&
             playerCoord.y() >= 0 &&
+            static_cast<unsigned int>(playerCoord.y()) < getHeight() &&
             getTileFromCoord(playerCoord).canPlayerSteppedOn());
 }

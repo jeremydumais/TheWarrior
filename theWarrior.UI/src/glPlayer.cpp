@@ -5,216 +5,216 @@ using namespace std;
 
 GLPlayer::GLPlayer()
     : coord(0, 0),
-      isInClimbingMode(false),
-      isInRunningMode(false)
+      m_isInClimbingMode(false),
+      m_isInRunningMode(false)
 {
 }
 
 const string& GLPlayer::getTextureName() const
 {
-    return textureName;
+    return m_textureName;
 }
 
 int GLPlayer::getTextureIndex() const
 {
-    return currentMovementTextureIndex;
+    return m_currentMovementTextureIndex;
 }
 
 bool GLPlayer::isInMovement() const
 {
-    return playerMovement != PlayerMovement::None;
+    return m_playerMovement != PlayerMovement::None;
 }
 
 bool GLPlayer::isRunning() const
 {
-    return isInRunningMode;
+    return m_isInRunningMode;
 }
 
 bool GLPlayer::isFacing(PlayerFacing direction) 
 {
-    return playerFacing == direction;
+    return m_playerFacing == direction;
 }
 
 void GLPlayer::initialize() 
 {
-    textureName = "NPC1";
+    m_textureName = "NPC1";
     coord = Point(7, 14);
     xMove = 0.0f;
     yMove = 0.0f;
-    baseTextureIndex = 9;
-    currentMovementTextureIndex = baseTextureIndex + 1;
-    playerMovement = PlayerMovement::None;
-    playerFacing = PlayerFacing::Up;
+    m_baseTextureIndex = 9;
+    m_currentMovementTextureIndex = m_baseTextureIndex + 1;
+    m_playerMovement = PlayerMovement::None;
+    m_playerFacing = PlayerFacing::Up;
 }
 
 void GLPlayer::moveUp() 
 {
-    playerMovement = PlayerMovement::MoveUp;
+    m_playerMovement = PlayerMovement::MoveUp;
     coord.setY(coord.y() - 1);
     yMove = 1.0f;
-    currentMovementTextureIndex = baseTextureIndex;
+    m_currentMovementTextureIndex = m_baseTextureIndex;
 }
 
 void GLPlayer::moveDown(bool isInClimbingMode) 
 {
-    playerMovement = PlayerMovement::MoveDown;
-    this->isInClimbingMode = isInClimbingMode;
+    m_playerMovement = PlayerMovement::MoveDown;
+    this->m_isInClimbingMode = isInClimbingMode;
     coord.setY(coord.y() + 1);
     yMove = -1.0f;
     if (isInClimbingMode) {
         //Face up
-        currentMovementTextureIndex = baseTextureIndex;
+        m_currentMovementTextureIndex = m_baseTextureIndex;
     }
     else {
-        currentMovementTextureIndex = baseTextureIndex + 36;
+        m_currentMovementTextureIndex = m_baseTextureIndex + 36;
     }
 }
 
 void GLPlayer::moveLeft() 
 {
-    playerMovement = PlayerMovement::MoveLeft;
+    m_playerMovement = PlayerMovement::MoveLeft;
     coord.setX(coord.x() - 1);
     xMove = 1.0f;
-    currentMovementTextureIndex = baseTextureIndex + 24;
+    m_currentMovementTextureIndex = m_baseTextureIndex + 24;
 }
 
 void GLPlayer::moveRight() 
 {
-    playerMovement = PlayerMovement::MoveRight;
+    m_playerMovement = PlayerMovement::MoveRight;
     coord.setX(coord.x() + 1);
     xMove = -1.0f;
-    currentMovementTextureIndex = baseTextureIndex + 12;
+    m_currentMovementTextureIndex = m_baseTextureIndex + 12;
 }
 void GLPlayer::faceUp() 
 {
-    currentMovementTextureIndex = baseTextureIndex + 1;
-    playerFacing = PlayerFacing::Up;
+    m_currentMovementTextureIndex = m_baseTextureIndex + 1;
+    m_playerFacing = PlayerFacing::Up;
 }
 
 void GLPlayer::faceDown() 
 {
-    currentMovementTextureIndex = baseTextureIndex + 37;
-    playerFacing = PlayerFacing::Down;
+    m_currentMovementTextureIndex = m_baseTextureIndex + 37;
+    m_playerFacing = PlayerFacing::Down;
 }
 
 void GLPlayer::faceLeft() 
 {
-    currentMovementTextureIndex = baseTextureIndex + 25;
-    playerFacing = PlayerFacing::Left;
+    m_currentMovementTextureIndex = m_baseTextureIndex + 25;
+    m_playerFacing = PlayerFacing::Left;
 }
 
 void GLPlayer::faceRight() 
 {
-    currentMovementTextureIndex = baseTextureIndex + 13;
-    playerFacing = PlayerFacing::Right;
+    m_currentMovementTextureIndex = m_baseTextureIndex + 13;
+    m_playerFacing = PlayerFacing::Right;
 }
 
 void GLPlayer::enableRunMode() 
 {
-    isInRunningMode = true;
+    m_isInRunningMode = true;
 }
 
 void GLPlayer::disableRunMode() 
 {
-    isInRunningMode = false;
+    m_isInRunningMode = false;
 }
 
-MovingResult GLPlayer::processMoving(double delta_time) 
+MovingResult GLPlayer::processMoving(float delta_time) 
 {
     MovingResult result;
-    const float SPEED = isInRunningMode ? 11.0f : 7.0f;
-    if (playerMovement == PlayerMovement::MoveUp) {
+    const float SPEED = m_isInRunningMode ? 11.0f : 7.0f;
+    if (m_playerMovement == PlayerMovement::MoveUp) {
         yMove -= SPEED * delta_time;
         if (yMove < 0.0f) {
             yMove = 0.0f;
-            playerMovement = PlayerMovement::None;
-            isInClimbingMode = false;
+            m_playerMovement = PlayerMovement::None;
+            m_isInClimbingMode = false;
         }
         else if(yMove < 0.3f) {
-            if (currentMovementTextureIndex != 1) {
-                currentMovementTextureIndex = baseTextureIndex + 1;
+            if (m_currentMovementTextureIndex != 1) {
+                m_currentMovementTextureIndex = m_baseTextureIndex + 1;
                 result.needToRefreshTexture = true;
             }
         }
         else if(yMove < 0.6f) {
-            if (currentMovementTextureIndex != 2) {
-                currentMovementTextureIndex = baseTextureIndex + 2;
+            if (m_currentMovementTextureIndex != 2) {
+                m_currentMovementTextureIndex = m_baseTextureIndex + 2;
                 result.needToRefreshTexture = true;
             }
         }
     }
-    else if (playerMovement == PlayerMovement::MoveDown) {
+    else if (m_playerMovement == PlayerMovement::MoveDown) {
         yMove += SPEED * delta_time;
         if (yMove > 0.0f) {
             yMove = 0.0f;
-            playerMovement = PlayerMovement::None;
-            isInClimbingMode = false;
+            m_playerMovement = PlayerMovement::None;
+            m_isInClimbingMode = false;
         }
         else if(yMove > -0.3f) {
-            if (isInClimbingMode) {
-                if (currentMovementTextureIndex != 1) {
-                    currentMovementTextureIndex = baseTextureIndex + 1;
+            if (m_isInClimbingMode) {
+                if (m_currentMovementTextureIndex != 1) {
+                    m_currentMovementTextureIndex = m_baseTextureIndex + 1;
                     result.needToRefreshTexture = true;
                 }
             }
             else {
-                if (currentMovementTextureIndex != baseTextureIndex + 37) {
-                    currentMovementTextureIndex = baseTextureIndex + 37;
+                if (m_currentMovementTextureIndex != m_baseTextureIndex + 37) {
+                    m_currentMovementTextureIndex = m_baseTextureIndex + 37;
                     result.needToRefreshTexture = true;
                 }
             }
         }
         else if(yMove > -0.6f) {
-            if (isInClimbingMode) {
-                if (currentMovementTextureIndex != 2) {
-                    currentMovementTextureIndex = baseTextureIndex + 2;
+            if (m_isInClimbingMode) {
+                if (m_currentMovementTextureIndex != 2) {
+                    m_currentMovementTextureIndex = m_baseTextureIndex + 2;
                     result.needToRefreshTexture = true;
                 }
             }
             else {
-                if (currentMovementTextureIndex != baseTextureIndex + 38) {
-                    currentMovementTextureIndex = baseTextureIndex + 38;
+                if (m_currentMovementTextureIndex != m_baseTextureIndex + 38) {
+                    m_currentMovementTextureIndex = m_baseTextureIndex + 38;
                     result.needToRefreshTexture = true;
                 }
             }
         }
     }
-    else if (playerMovement == PlayerMovement::MoveLeft) {
+    else if (m_playerMovement == PlayerMovement::MoveLeft) {
         xMove -= SPEED * delta_time;
         if (xMove < 0.0f) {
             xMove = 0.0f;
-            playerMovement = PlayerMovement::None;
-            isInClimbingMode = false;
+            m_playerMovement = PlayerMovement::None;
+            m_isInClimbingMode = false;
         }
         else if(xMove < 0.3f) {
-            if (currentMovementTextureIndex != baseTextureIndex + 25) {
-                currentMovementTextureIndex = baseTextureIndex + 25;
+            if (m_currentMovementTextureIndex != m_baseTextureIndex + 25) {
+                m_currentMovementTextureIndex = m_baseTextureIndex + 25;
                 result.needToRefreshTexture = true;
             }
         }
         else if(xMove < 0.6f) {
-            if (currentMovementTextureIndex != baseTextureIndex + 26) {
-                currentMovementTextureIndex = baseTextureIndex + 26;
+            if (m_currentMovementTextureIndex != m_baseTextureIndex + 26) {
+                m_currentMovementTextureIndex = m_baseTextureIndex + 26;
                 result.needToRefreshTexture = true;
             }
         }
     }    
-    else if (playerMovement == PlayerMovement::MoveRight) {
+    else if (m_playerMovement == PlayerMovement::MoveRight) {
         xMove += SPEED * delta_time;
         if (xMove > 0.0f) {
             xMove = 0.0f;
-            playerMovement = PlayerMovement::None;
-            isInClimbingMode = false;
+            m_playerMovement = PlayerMovement::None;
+            m_isInClimbingMode = false;
         }
         else if(xMove > -0.3f) {
-            if (currentMovementTextureIndex != baseTextureIndex + 13) {
-                currentMovementTextureIndex = baseTextureIndex + 13;
+            if (m_currentMovementTextureIndex != m_baseTextureIndex + 13) {
+                m_currentMovementTextureIndex = m_baseTextureIndex + 13;
                 result.needToRefreshTexture = true;
             }
         }
         else if(xMove > -0.6f) {
-            if (currentMovementTextureIndex != baseTextureIndex + 14) {
-                currentMovementTextureIndex = baseTextureIndex + 14;
+            if (m_currentMovementTextureIndex != m_baseTextureIndex + 14) {
+                m_currentMovementTextureIndex = m_baseTextureIndex + 14;
                 result.needToRefreshTexture = true;
             }
         }

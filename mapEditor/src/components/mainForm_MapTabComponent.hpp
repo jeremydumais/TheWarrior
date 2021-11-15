@@ -28,13 +28,13 @@ public:
     void reset();
 signals:
 private:
-    MainForm_GLComponent *glComponent;
-    QLineEdit *lineEditMapWidth;
-    QLineEdit *lineEditMapHeight;
-    QSpinBox *spinBoxMapSizeTop;
-    QSpinBox *spinBoxMapSizeLeft;
-    QSpinBox *spinBoxMapSizeRight;
-    QSpinBox *spinBoxMapSizeBottom;
-    QPushButton *pushButtonApplySizeChange;
+    MainForm_GLComponent *m_glComponent;
+    QLineEdit *m_lineEditMapWidth;
+    QLineEdit *m_lineEditMapHeight;
+    QSpinBox *m_spinBoxMapSizeTop;
+    QSpinBox *m_spinBoxMapSizeLeft;
+    QSpinBox *m_spinBoxMapSizeRight;
+    QSpinBox *m_spinBoxMapSizeBottom;
+    QPushButton *m_pushButtonApplySizeChange;
 	void onPushButtonApplySizeChangeClick();
 };

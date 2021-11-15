@@ -13,8 +13,8 @@ public:
 
     bool open() override {
         try {
-            ifs.exceptions(std::ifstream::failbit);
-            ifs.open(this->getFileName(), std::ifstream::binary);
+            m_ifs.exceptions(std::ifstream::failbit);
+            m_ifs.open(this->getFileName(), std::ifstream::binary);
         }
         catch(const std::ios_base::failure &fail) {
             this->setLastError(fail.what());
@@ -25,7 +25,7 @@ public:
 
     bool close() override {
         try {
-            ifs.close();
+            m_ifs.close();
         }
         catch(const std::ios_base::failure &fail) {
             this->setLastError(fail.what());
@@ -36,7 +36,7 @@ public:
 
     bool readAllInto(T &obj) override {
         try {
-            boost::archive::binary_iarchive oa(ifs);
+            boost::archive::binary_iarchive oa(m_ifs);
             oa >> obj;
         }
         catch(const std::ios_base::failure &fail) {
@@ -46,5 +46,5 @@ public:
         return true;
     }
 private:
-    std::ifstream ifs;
+    std::ifstream m_ifs;
 };

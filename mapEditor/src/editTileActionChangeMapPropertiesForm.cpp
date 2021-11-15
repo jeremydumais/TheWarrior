@@ -13,14 +13,17 @@ EditTileActionChangeMapPropertiesForm::EditTileActionChangeMapPropertiesForm(QWi
 								 const std::map<std::string, std::string> &properties)
 	: QDialog(parent),
 	  ui(Ui::editTileActionChangeMapPropertiesFormClass()),
-	  resourcesPath(resourcesPath),
-	  properties(properties)
+	  m_resourcesPath(resourcesPath),
+	  m_properties(properties)
 {
 	ui.setupUi(this);
 	setWindowIcon(QIcon(":/MapEditor Icon.png"));
 	connect(ui.pushButtonOK, &QPushButton::clicked, this, &EditTileActionChangeMapPropertiesForm::onPushButtonOK);
 	connect(ui.pushButtonCancel, &QPushButton::clicked, this, &EditTileActionChangeMapPropertiesForm::reject);
-	connect(ui.pushButtonOpenMapFile, &QPushButton::clicked, this, &EditTileActionChangeMapPropertiesForm::onPushButtonOpenMapFileClick);
+	connect(ui.pushButtonOpenMapFile, 
+			&QPushButton::clicked, 
+			this, 
+			&EditTileActionChangeMapPropertiesForm::onPushButtonOpenMapFileClick);
 
 	ui.comboBoxPlayerFacing->model()->removeRows(0, ui.comboBoxPlayerFacing->count());
 	ui.comboBoxPlayerFacing->insertItem(0, "Up");
@@ -28,23 +31,23 @@ EditTileActionChangeMapPropertiesForm::EditTileActionChangeMapPropertiesForm(QWi
 	ui.comboBoxPlayerFacing->insertItem(2, "Left");
 	ui.comboBoxPlayerFacing->insertItem(3, "Right");
 
-	if (this->properties.find("mapFileName") != this->properties.end()) {
-		ui.lineEditMapFileName->setText(this->properties.at("mapFileName").c_str());
+	if (this->m_properties.find("mapFileName") != this->m_properties.end()) {
+		ui.lineEditMapFileName->setText(this->m_properties.at("mapFileName").c_str());
 	}
-	if (this->properties.find("playerX") != this->properties.end()) {
-		ui.spinBoxPlayerX->setValue(stoi(this->properties.at("playerX")));
+	if (this->m_properties.find("playerX") != this->m_properties.end()) {
+		ui.spinBoxPlayerX->setValue(stoi(this->m_properties.at("playerX")));
 	}
-	if (this->properties.find("playerY") != this->properties.end()) {
-		ui.spinBoxPlayerY->setValue(stoi(this->properties.at("playerY")));
+	if (this->m_properties.find("playerY") != this->m_properties.end()) {
+		ui.spinBoxPlayerY->setValue(stoi(this->m_properties.at("playerY")));
 	}
-	if (this->properties.find("playerFacing") != this->properties.end()) {
-		ui.comboBoxPlayerFacing->setCurrentIndex(stoi(this->properties.at("playerFacing")));
+	if (this->m_properties.find("playerFacing") != this->m_properties.end()) {
+		ui.comboBoxPlayerFacing->setCurrentIndex(stoi(this->m_properties.at("playerFacing")));
 	}
 }
 
 const std::map<std::string, std::string> &EditTileActionChangeMapPropertiesForm::getUpdatedProperties() const
 {
-	return properties;
+	return m_properties;
 }
 
 void EditTileActionChangeMapPropertiesForm::onPushButtonOK() 
@@ -54,11 +57,11 @@ void EditTileActionChangeMapPropertiesForm::onPushButtonOK()
 		return;
 	}
 
-	properties.clear();
-	properties["mapFileName"] = ui.lineEditMapFileName->text().toStdString();
-	properties["playerX"] = to_string(ui.spinBoxPlayerX->value());
-	properties["playerY"] = to_string(ui.spinBoxPlayerY->value());
-	properties["playerFacing"] = to_string(ui.comboBoxPlayerFacing->currentIndex());
+	m_properties.clear();
+	m_properties["mapFileName"] = ui.lineEditMapFileName->text().toStdString();
+	m_properties["playerX"] = to_string(ui.spinBoxPlayerX->value());
+	m_properties["playerY"] = to_string(ui.spinBoxPlayerY->value());
+	m_properties["playerFacing"] = to_string(ui.comboBoxPlayerFacing->currentIndex());
 	accept();
 }
 
@@ -66,7 +69,7 @@ void EditTileActionChangeMapPropertiesForm::onPushButtonOpenMapFileClick()
 {
 	QString fullFilePath { QFileDialog::getOpenFileName(this, 
 														tr("Open Map"), 
-														resourcesPath.c_str(), 
+														m_resourcesPath.c_str(), 
 														tr("Map file (*.map)")) };
 	QFileInfo fileInfo(fullFilePath);
 	string filename { fileInfo.fileName().toStdString() };

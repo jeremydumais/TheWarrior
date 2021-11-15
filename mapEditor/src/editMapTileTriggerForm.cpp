@@ -19,20 +19,31 @@ EditMapTileTriggerForm::EditMapTileTriggerForm(QWidget *parent,
 											   const std::vector<MapTileTrigger> &allTriggers)
 	: QDialog(parent),
 	  ui(Ui::editMapTileTriggerFormClass()),
-	  resourcesPath(resourcesPath),
-	  currentTrigger(currentTrigger),
-	  allTriggers(allTriggers),
-	  updatedTrigger(currentTrigger != nullptr ? *currentTrigger : MapTileTrigger()),
-	  isEditMode(currentTrigger != nullptr)
+	  m_resourcesPath(resourcesPath),
+	  m_currentTrigger(currentTrigger),
+	  m_allTriggers(allTriggers),
+	  m_updatedTrigger(currentTrigger != nullptr ? 
+	  				   *currentTrigger : 
+					   MapTileTrigger()),
+	  m_isEditMode(currentTrigger != nullptr)
 {
 	ui.setupUi(this);
 	setWindowIcon(QIcon(":/MapEditor Icon.png"));
-	connect(ui.pushButtonMapTileActionProperties, &QPushButton::clicked, this, &EditMapTileTriggerForm::onPushButtonTileActionPropertiesClick);
-	connect(ui.pushButtonOK, &QPushButton::clicked, this, &EditMapTileTriggerForm::onPushButtonOK);
-	connect(ui.pushButtonCancel, &QPushButton::clicked, this, &EditMapTileTriggerForm::reject);
+	connect(ui.pushButtonMapTileActionProperties,
+			&QPushButton::clicked,
+			this,
+			&EditMapTileTriggerForm::onPushButtonTileActionPropertiesClick);
+	connect(ui.pushButtonOK,
+			&QPushButton::clicked,
+			this,
+			&EditMapTileTriggerForm::onPushButtonOK);
+	connect(ui.pushButtonCancel, 
+			&QPushButton::clicked, 
+			this, 
+			&EditMapTileTriggerForm::reject);
 	generateComboxItems();
 	
-	if (!isEditMode) {
+	if (!m_isEditMode) {
 		this->setWindowTitle("Add map tile trigger");
 	}
 	else {
@@ -45,7 +56,7 @@ EditMapTileTriggerForm::EditMapTileTriggerForm(QWidget *parent,
 
 const MapTileTrigger &EditMapTileTriggerForm::getUpdatedTrigger() const
 {
-	return updatedTrigger;
+	return m_updatedTrigger;
 }
 
 void EditMapTileTriggerForm::generateComboxItems() 
@@ -88,41 +99,42 @@ void EditMapTileTriggerForm::refreshComboBoxAction()
 void EditMapTileTriggerForm::onPushButtonTileActionPropertiesClick() 
 {
 	if (ui.comboBoxAction->currentIndex() == static_cast<int>(MapTileTriggerAction::ChangeMap)) {
-		EditTileActionChangeMapPropertiesForm formEditActionProperties(this, 
-																	   resourcesPath, 
-																	   updatedTrigger.getActionProperties());
-		if (formEditActionProperties.exec() == QDialog::Accepted) {
-			updatedTrigger.setActionProperties(formEditActionProperties.getUpdatedProperties());
+		EditTileActionChangeMapPropertiesForm formEdit(this, 
+													   m_resourcesPath, 
+													   m_updatedTrigger.getActionProperties());
+		if (formEdit.exec() == QDialog::Accepted) {
+			m_updatedTrigger.setActionProperties(formEdit.getUpdatedProperties());
 		}
 	}
 	else if (ui.comboBoxAction->currentIndex() == static_cast<int>(MapTileTriggerAction::OpenChest)) {
-		EditTileActionOpenChestPropertiesForm formEditActionProperties(this,
-																	   updatedTrigger.getActionProperties());
-		if (formEditActionProperties.exec() == QDialog::Accepted) {
-			updatedTrigger.setActionProperties(formEditActionProperties.getUpdatedProperties());
+		EditTileActionOpenChestPropertiesForm formEdit(this,
+													   m_updatedTrigger.getActionProperties());
+		if (formEdit.exec() == QDialog::Accepted) {
+			m_updatedTrigger.setActionProperties(formEdit.getUpdatedProperties());
 		}
 	}
 }
 
 void EditMapTileTriggerForm::onPushButtonOK() 
 {
-	updatedTrigger.setEvent(static_cast<MapTileTriggerEvent>(ui.comboBoxEvent->currentIndex()));
-	updatedTrigger.setCondition(static_cast<MapTileTriggerCondition>(ui.comboBoxCondition->currentIndex()));
-	updatedTrigger.setAction(static_cast<MapTileTriggerAction>(ui.comboBoxAction->currentIndex()));
-	if (updatedTrigger.getEvent() == MapTileTriggerEvent::None) {
+	m_updatedTrigger.setEvent(static_cast<MapTileTriggerEvent>(ui.comboBoxEvent->currentIndex()));
+	m_updatedTrigger.setCondition(static_cast<MapTileTriggerCondition>(ui.comboBoxCondition->currentIndex()));
+	m_updatedTrigger.setAction(static_cast<MapTileTriggerAction>(ui.comboBoxAction->currentIndex()));
+	if (m_updatedTrigger.getEvent() == MapTileTriggerEvent::None) {
 		ErrorMessage::show("You must select an event!");
 		return;
 	}
-	if (updatedTrigger.getAction() == MapTileTriggerAction::None) {
+	if (m_updatedTrigger.getAction() == MapTileTriggerAction::None) {
 		ErrorMessage::show("You must select an action!");
 		return;
 	}
-	auto selectedEvent = updatedTrigger.getEvent();
+	auto selectedEvent = m_updatedTrigger.getEvent();
 	//Check if the event is available (not already used by another trigger)
-	if (std::find_if(allTriggers.begin(), allTriggers.end(), [&selectedEvent](const MapTileTrigger &trigger) {
-			return trigger.getEvent() == selectedEvent; }) != allTriggers.end() && 
-		(!isEditMode || (currentTrigger->getEvent() != updatedTrigger.getEvent()))) {
-		ErrorMessage::show(fmt::format("The event {0} is already used.", MapTileTriggerEventConverter::eventToString(updatedTrigger.getEvent())));
+	if (std::find_if(m_allTriggers.begin(), m_allTriggers.end(), [&selectedEvent](const MapTileTrigger &trigger) {
+			return trigger.getEvent() == selectedEvent; }) != m_allTriggers.end() && 
+		(!m_isEditMode || (m_currentTrigger->getEvent() != m_updatedTrigger.getEvent()))) {
+		ErrorMessage::show(fmt::format("The event {0} is already used.", 
+									   MapTileTriggerEventConverter::eventToString(m_updatedTrigger.getEvent())));
 		return;
 	}
 	accept();

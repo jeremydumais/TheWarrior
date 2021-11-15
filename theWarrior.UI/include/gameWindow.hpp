@@ -1,15 +1,15 @@
 #pragma once
 
 #include "fpsCalculator.hpp"
+#include "gameMap.hpp"
 #include "glPlayer.hpp"
+#include "glTextService.hpp"
 #include "glTile.hpp"
 #include "glTileService.hpp"
-#include "glTextService.hpp"
-#include "gameMap.hpp"
-#include <SDL2/SDL.h>
-#include <glm/glm.hpp>
 #include <GL/glew.h>
+#include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
+#include <glm/glm.hpp>
 #include <map>
 #include <memory>
 #include <string>
@@ -32,38 +32,38 @@ public:
                int x, int y,
                int width, int height);
     ~GameWindow();
-    void update(double delta_time);
+    void update(float delta_time);
     void render();
     void show();
     void hide();
     bool isAlive() const;
     void processEvents();
 private:
-    SDL_Window *window;
-    SDL_Renderer *renderer;
-    SDL_GLContext gContext;
-    int width;
-    int height;
-    bool mustExit;
-    std::string executablePath;
-    std::string resourcesPath;
-    GLTileService tileService;
-    GLTextService textService;
-    std::vector<GLTile> glTiles;
-    GLPlayer glPlayer;
-    std::shared_ptr<GameMap> map; 
-    std::map<std::string, unsigned int> texturesGLMap;
-    GLfloat tileCoordBuf[4][2];
-    GLfloat texCoordBuf[4][2];
-    GLfloat texColorBuf[4][3];
-    float TILEWIDTH { 0.1f };
-    float TILEHALFWIDTH { TILEWIDTH / 2.0f };
+    SDL_Window *m_window;
+    SDL_Renderer *m_renderer;
+    SDL_GLContext m_gContext;
+    int m_width;
+    int m_height;
+    bool m_mustExit;
+    std::string m_executablePath;
+    std::string m_resourcesPath;
+    GLTileService m_tileService;
+    GLTextService m_textService;
+    std::vector<GLTile> m_glTiles;
+    GLPlayer m_glPlayer;
+    std::shared_ptr<GameMap> m_map; 
+    std::map<std::string, unsigned int> m_texturesGLMap;
+    GLfloat m_tileCoordBuf[4][2];
+    GLfloat m_texCoordBuf[4][2];
+    GLfloat m_texColorBuf[4][3];
+    float TILEWIDTH { 0.1F };
+    float TILEHALFWIDTH { TILEWIDTH / 2.0F };
     float TILEHALFHEIGHT;
     //FPS variables
-    FPSCalculator fpsCalculator;
-    bool toggleFPS;
-    bool blockToggleFPS;
-    SDL_Joystick *joystick;
+    FPSCalculator m_fpsCalculator;
+    bool m_toggleFPS;
+    bool m_blockToggleFPS;
+    SDL_Joystick *m_joystick;
     const std::string &getExecutablePath();
     const std::string &getResourcesPath();
     void moveUpPressed();

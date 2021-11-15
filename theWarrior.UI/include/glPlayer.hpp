@@ -37,15 +37,15 @@ public:
     void faceRight();
     void enableRunMode();
     void disableRunMode();
-    MovingResult processMoving(double delta_time);
+    MovingResult processMoving(float delta_time);
 private:
-    PlayerMovement playerMovement;
-    PlayerFacing playerFacing;
-    bool isInClimbingMode;
-    bool isInRunningMode;
-    std::string textureName;
-    int baseTextureIndex;
-    int currentMovementTextureIndex;
+    PlayerMovement m_playerMovement;
+    PlayerFacing m_playerFacing;
+    bool m_isInClimbingMode;
+    bool m_isInRunningMode;
+    std::string m_textureName;
+    int m_baseTextureIndex;
+    int m_currentMovementTextureIndex;
 };
 
 

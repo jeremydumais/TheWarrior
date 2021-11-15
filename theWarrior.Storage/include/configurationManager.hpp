@@ -19,7 +19,7 @@ public:
     bool load();
     bool save();
 private:
-    std::string lastError;
-    boost::property_tree::ptree config;
-    std::unique_ptr<IJSONFileStream> jfs;
+    std::string m_lastError;
+    boost::property_tree::ptree m_config;
+    std::unique_ptr<IJSONFileStream> m_jfs;
 };

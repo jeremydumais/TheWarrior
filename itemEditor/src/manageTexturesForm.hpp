@@ -16,8 +16,8 @@ public:
 	void connectUIActions();
 private:
 	Ui::manageTexturesFormClass ui;
-	const std::string resourcesPath;
-	ManageTextureController controller;
+	const std::string m_resourcesPath;
+	ManageTextureController m_controller;
 	void refreshTextureList();
 	void onPushButtonCloseClick();
 	void onPushButtonAddClick();

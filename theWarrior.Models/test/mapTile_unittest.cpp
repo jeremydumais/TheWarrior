@@ -291,5 +291,16 @@ TEST_F(MapTileWith2Triggers, deleteTrigger_WithSecondTrigger_ReturnTrue)
 	ASSERT_EQ(firstTrigger.getCondition(), tile.getTriggers()[0].getCondition());
 	ASSERT_EQ(firstTrigger.getAction(), tile.getTriggers()[0].getAction());
 	ASSERT_EQ(0, tile.getTriggers()[0].getActionProperties().size());
-	
+}
+
+TEST_F(MapTileWith2Triggers, deleteTrigger_WithInexistantTrigger_ReturnFalse)
+{
+	auto inexistantTrigger { MapTileTrigger(MapTileTriggerEvent::MoveLeftPressed,
+								   			MapTileTriggerCondition::None,
+								     		MapTileTriggerAction::ChangeMap,
+								     		map<string, string>()) };
+								
+	ASSERT_EQ(2, tile.getTriggers().size());
+	ASSERT_FALSE(tile.deleteTrigger(inexistantTrigger));
+	ASSERT_EQ(2, tile.getTriggers().size());
 }

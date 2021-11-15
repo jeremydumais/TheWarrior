@@ -11,26 +11,26 @@ EditTileActionOpenChestPropertiesForm::EditTileActionOpenChestPropertiesForm(QWi
 								 const std::map<std::string, std::string> &properties)
 	: QDialog(parent),
 	  ui(Ui::editTileActionOpenChestPropertiesFormClass()),
-	  properties(properties)
+	  m_properties(properties)
 {
 	ui.setupUi(this);
 	setWindowIcon(QIcon(":/MapEditor Icon.png"));
 	connect(ui.pushButtonOK, &QPushButton::clicked, this, &EditTileActionOpenChestPropertiesForm::onPushButtonOK);
 	connect(ui.pushButtonCancel, &QPushButton::clicked, this, &EditTileActionOpenChestPropertiesForm::reject);
 
-	if (this->properties.find("objectTextureIndexOpenedChest") != this->properties.end()) {
-		ui.spinBoxObjectTextureIndexOpenedChest->setValue(stoi(this->properties.at("objectTextureIndexOpenedChest")));
+	if (this->m_properties.find("objectTextureIndexOpenedChest") != this->m_properties.end()) {
+		ui.spinBoxObjectTextureIndexOpenedChest->setValue(stoi(this->m_properties.at("objectTextureIndexOpenedChest")));
 	}
 }
 
 const std::map<std::string, std::string> &EditTileActionOpenChestPropertiesForm::getUpdatedProperties() const
 {
-	return properties;
+	return m_properties;
 }
 
 void EditTileActionOpenChestPropertiesForm::onPushButtonOK() 
 {
-	properties.clear();
-	properties["objectTextureIndexOpenedChest"] = to_string(ui.spinBoxObjectTextureIndexOpenedChest->value());
+	m_properties.clear();
+	m_properties["objectTextureIndexOpenedChest"] = to_string(ui.spinBoxObjectTextureIndexOpenedChest->value());
 	accept();
 }

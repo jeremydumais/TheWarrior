@@ -28,11 +28,11 @@ signals:
     void textureUpdated(const std::string &name, TextureInfo textureInfo);
     void textureDeleted(const std::string &name);
 private:
-    MainForm_GLComponent *glComponent;
-    QListWidget *listWidgetTextures;
-    QPushButton *pushButtonAddTexture;
-    QPushButton *pushButtonEditTexture;
-    QPushButton *pushButtonDeleteTexture;
+    MainForm_GLComponent *m_glComponent;
+    QListWidget *m_listWidgetTextures;
+    QPushButton *m_pushButtonAddTexture;
+    QPushButton *m_pushButtonEditTexture;
+    QPushButton *m_pushButtonDeleteTexture;
     void onPushButtonAddTextureClick();
 	void onPushButtonEditTextureClick();
 	void onPushButtonDeleteTextureClick();

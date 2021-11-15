@@ -18,11 +18,11 @@ public:
 	const MapTileTrigger &getUpdatedTrigger() const;
 private:
 	Ui::editMapTileTriggerFormClass ui;
-	std::string resourcesPath;
-	const MapTileTrigger * const currentTrigger;
-	const std::vector<MapTileTrigger> &allTriggers;
-	MapTileTrigger updatedTrigger;
-	bool isEditMode;
+	std::string m_resourcesPath;
+	const MapTileTrigger * const m_currentTrigger;
+	const std::vector<MapTileTrigger> &m_allTriggers;
+	MapTileTrigger m_updatedTrigger;
+	bool m_isEditMode;
 	void generateComboxItems();
 	void refreshComboBoxEvent();
     void refreshComboBoxCondition();

@@ -16,7 +16,7 @@ public:
 	const std::map<std::string, std::string> &getUpdatedProperties() const;
 private:
 	Ui::editTileActionOpenChestPropertiesFormClass ui;
-	std::map<std::string, std::string> properties;
+	std::map<std::string, std::string> m_properties;
 	void showErrorMessage(const std::string &message) const;
 	void onPushButtonOK();
 };

@@ -7,69 +7,75 @@ using namespace std;
 
 GLShaderProgram::GLShaderProgram(const std::string &vertexShaderFileName,
                                  const std::string &fragmentShaderFileName) 
-    : vertexShaderFileName(vertexShaderFileName),
-      fragmentShaderFileName(fragmentShaderFileName)
+    : m_vertexShaderFileName(vertexShaderFileName),
+      m_fragmentShaderFileName(fragmentShaderFileName)
 {
 }
 
 GLShaderProgram::~GLShaderProgram() 
 {
-    glDetachShader(shaderprogram, vertexshader);
-    glDetachShader(shaderprogram, fragmentshader);
-    glDeleteProgram(shaderprogram);
-    glDeleteShader(vertexshader);
-    glDeleteShader(fragmentshader);
+    glDetachShader(m_shaderprogram, m_vertexshader);
+    glDetachShader(m_shaderprogram, m_fragmentshader);
+    glDeleteProgram(m_shaderprogram);
+    glDeleteShader(m_vertexshader);
+    glDeleteShader(m_fragmentshader);
 }
 
 const std::string &GLShaderProgram::getLastError() const
 {
-    return lastError;
+    return m_lastError;
 }
 
 GLuint GLShaderProgram::getShaderProgramID() const
 {
-    return shaderprogram;
+    return m_shaderprogram;
 }
 
 bool GLShaderProgram::compileShaders() 
 {
     int IsCompiled_VS;
     int IsCompiled_FS;
-    char *vertexInfoLog;
-    char *fragmentInfoLog;
     /* Read our shaders into the appropriate buffers */
-    string vertexShaderContent = loadShaderFile(vertexShaderFileName);
-    string fragmentShaderContent = loadShaderFile(fragmentShaderFileName);
+    string vertexShaderContent = loadShaderFile(m_vertexShaderFileName);
+    string fragmentShaderContent = loadShaderFile(m_fragmentShaderFileName);
 
-    vertexshader = glCreateShader(GL_VERTEX_SHADER);
+    m_vertexshader = glCreateShader(GL_VERTEX_SHADER);
     const char *vertexShaderSource = vertexShaderContent.c_str();
-    glShaderSource(vertexshader, 1, (const GLchar**)&vertexShaderSource, 0);
-    glCompileShader(vertexshader);
-    glGetShaderiv(vertexshader, GL_COMPILE_STATUS, &IsCompiled_VS);
+    glShaderSource(m_vertexshader, 1, &vertexShaderSource, 0);
+    glCompileShader(m_vertexshader);
+    glGetShaderiv(m_vertexshader, GL_COMPILE_STATUS, &IsCompiled_VS);
     if(IsCompiled_VS == false)
     {
        int maxLength;
-       glGetShaderiv(vertexshader, GL_INFO_LOG_LENGTH, &maxLength);
-       vertexInfoLog = (char *)malloc(maxLength);
-       glGetShaderInfoLog(vertexshader, maxLength, &maxLength, vertexInfoLog);
-       lastError = fmt::format("Unable to compile vertex shader: {0}", vertexInfoLog);
-       free(vertexInfoLog);
+       glGetShaderiv(m_vertexshader, GL_INFO_LOG_LENGTH, &maxLength);
+       if (maxLength > 0) {
+        unique_ptr<char[]> vertexInfoLog = make_unique<char[]>(static_cast<size_t>(maxLength));
+        glGetShaderInfoLog(m_vertexshader, maxLength, &maxLength, vertexInfoLog.get());
+        m_lastError = fmt::format("Unable to compile vertex shader: {0}", vertexInfoLog.get());
+       }
+       else {
+           m_lastError = "Unknown error in vertex shader compilation";
+       }
        return false;
     }
 
-    fragmentshader = glCreateShader(GL_FRAGMENT_SHADER);
+    m_fragmentshader = glCreateShader(GL_FRAGMENT_SHADER);
     const char *fragmentShaderSource = fragmentShaderContent.c_str();
-    glShaderSource(fragmentshader, 1, (const GLchar**)&fragmentShaderSource, 0);
-    glCompileShader(fragmentshader);
-    glGetShaderiv(fragmentshader, GL_COMPILE_STATUS, &IsCompiled_FS);
+    glShaderSource(m_fragmentshader, 1, &fragmentShaderSource, 0);
+    glCompileShader(m_fragmentshader);
+    glGetShaderiv(m_fragmentshader, GL_COMPILE_STATUS, &IsCompiled_FS);
     if(IsCompiled_FS == false)
     {
        int maxLength;
-       glGetShaderiv(fragmentshader, GL_INFO_LOG_LENGTH, &maxLength);
-       fragmentInfoLog = (char *)malloc(maxLength);
-       glGetShaderInfoLog(fragmentshader, maxLength, &maxLength, fragmentInfoLog);
-       lastError = fmt::format("Unable to compile fragment shader: {0}", fragmentInfoLog);
-       free(fragmentInfoLog);
+       glGetShaderiv(m_fragmentshader, GL_INFO_LOG_LENGTH, &maxLength);
+       if (maxLength > 0) {
+        unique_ptr<char[]> fragmentInfoLog = make_unique<char[]>(static_cast<size_t>(maxLength));
+        glGetShaderInfoLog(m_fragmentshader, maxLength, &maxLength, fragmentInfoLog.get());
+        m_lastError = fmt::format("Unable to compile fragment shader: {0}", fragmentInfoLog.get());
+       }
+       else {
+           m_lastError = "Unknown error in fragment shader compilation";
+       }
        return false;
     }
     return true;
@@ -91,34 +97,38 @@ string GLShaderProgram::loadShaderFile(const string &file)
 
 bool GLShaderProgram::linkShaders(const vector<string> &attributes) 
 {
-    shaderprogram = glCreateProgram();
-    glAttachShader(shaderprogram, vertexshader);
-    glAttachShader(shaderprogram, fragmentshader);
+    m_shaderprogram = glCreateProgram();
+    glAttachShader(m_shaderprogram, m_vertexshader);
+    glAttachShader(m_shaderprogram, m_fragmentshader);
 
     for(size_t index=0; index < attributes.size(); index++) {
-        glBindAttribLocation(shaderprogram, index, attributes[index].c_str());
+        glBindAttribLocation(m_shaderprogram, static_cast<GLuint>(index), attributes[index].c_str());
     }
     //glBindAttribLocation(shaderprogram, 0, "in_Position");
     //glBindAttribLocation(shaderprogram, 1, "in_Color");
     //glBindAttribLocation(shaderprogram, 2, "in_VertexUV");
 
-    glLinkProgram(shaderprogram);
+    glLinkProgram(m_shaderprogram);
     int IsLinked;
-    glGetProgramiv(shaderprogram, GL_LINK_STATUS, (int *)&IsLinked);
+    glGetProgramiv(m_shaderprogram, GL_LINK_STATUS, &IsLinked);
     if(IsLinked == false)
     {
-       int maxLength;
-       glGetProgramiv(shaderprogram, GL_INFO_LOG_LENGTH, &maxLength);
-       char *shaderProgramInfoLog = (char *)malloc(maxLength);
-       glGetProgramInfoLog(shaderprogram, maxLength, &maxLength, shaderProgramInfoLog);
-       lastError = shaderProgramInfoLog;
-       free(shaderProgramInfoLog);
-       return false;
+        int maxLength;
+        glGetProgramiv(m_shaderprogram, GL_INFO_LOG_LENGTH, &maxLength);
+        if (maxLength > 0) {
+            unique_ptr<char[]> shaderProgramInfoLog = make_unique<char[]>(static_cast<size_t>(maxLength));
+            glGetProgramInfoLog(m_shaderprogram, maxLength, &maxLength, shaderProgramInfoLog.get());
+            m_lastError = fmt::format("Unable to link shaders: {0}", shaderProgramInfoLog.get());
+        }
+        else {
+           m_lastError = "Unknown error in linking shaders";
+        }
+        return false;
     }
     return true;
 }
 
 void GLShaderProgram::use() 
 {
-    glUseProgram(shaderprogram);
+    glUseProgram(m_shaderprogram);
 }

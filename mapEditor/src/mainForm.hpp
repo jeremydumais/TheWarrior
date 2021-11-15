@@ -25,17 +25,17 @@ public:
     void functionAfterShown();
 private:
 	Ui::MainForm ui;
-	MainForm_GLComponent glComponent;
-	MainForm_MapTabComponent mapTabComponent;
-	MainForm_TileTabComponent tileTabComponent;
-	MainForm_TextureListTabComponent textureListTabComponent;
-	MainForm_TextureSelectionComponent textureSelectionComponent;
-	MainController controller;
-	std::string userConfigFolder;
-	std::string currentFilePath;
-	bool functionAfterShownCalled;
-	std::string executablePath;
-	std::string resourcesPath;
+	MainForm_GLComponent m_glComponent;
+	MainForm_MapTabComponent m_mapTabComponent;
+	MainForm_TileTabComponent m_tileTabComponent;
+	MainForm_TextureListTabComponent m_textureListTabComponent;
+	MainForm_TextureSelectionComponent m_textureSelectionComponent;
+	MainController m_controller;
+	std::string m_userConfigFolder;
+	std::string m_currentFilePath;
+	bool m_functionAfterShownCalled;
+	std::string m_executablePath;
+	std::string m_resourcesPath;
 	static const std::string THEME_PATH;
 	static const std::string RECENT_MAPS;
     const std::string &getExecutablePath();

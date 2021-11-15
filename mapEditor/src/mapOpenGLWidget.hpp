@@ -40,23 +40,23 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
     void leaveEvent(QEvent *event) override;
 private:
-    QTimer repaintTimer; 
-    bool isGridEnabled;
-	SelectionMode selectionMode;
-    std::string resourcesPath;
-    bool mousePressed;
-    float translationX;
-    float translationDragAndDropX; 
-    float translationY;     
-    float translationDragAndDropY;
-    int selectedTileIndex;
-	int selectedTileColor;
-    bool selectedTileColorGrowing;
-    std::map<std::string, unsigned int> texturesGLMap; //Mapping between texture name and OpenGL texture id
-    std::map<std::string, const Texture &> texturesObjMap; //Mapping between texture name and texture object
-    std::shared_ptr<GameMap> currentMap;
-    QPoint lastCursorPosition;
-    QPoint currentCursorPosition;
+    QTimer m_repaintTimer; 
+    bool m_isGridEnabled;
+	SelectionMode m_selectionMode;
+    std::string m_resourcesPath;
+    bool m_mousePressed;
+    float m_translationX;
+    float m_translationDragAndDropX; 
+    float m_translationY;     
+    float m_translationDragAndDropY;
+    int m_selectedTileIndex;
+	int m_selectedTileColor;
+    bool m_selectedTileColorGrowing;
+    std::map<std::string, unsigned int> m_texturesGLMap; //Mapping between texture name and OpenGL texture id
+    std::map<std::string, const Texture &> m_texturesObjMap; //Mapping between texture name and texture object
+    std::shared_ptr<GameMap> m_currentMap;
+    QPoint m_lastCursorPosition;
+    QPoint m_currentCursorPosition;
     const float TILESIZE { 0.2F };
     const float TILEHALFSIZE { TILESIZE / 2.0F };
     const unsigned int ONSCREENTILESIZE { 40 };

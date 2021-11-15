@@ -6,74 +6,74 @@
 #include <fmt/format.h>
 
 MainForm_TileTabComponent::MainForm_TileTabComponent() 
-	: glComponent(nullptr),
-      labelTileCoordXY(nullptr),
-      lineEditTexName(nullptr),
-      spinBoxTexIndex(nullptr),
-      lineEditObjTexName(nullptr),
-      spinBoxObjTexIndex(nullptr),
-      checkBoxTileCanSteppedOn(nullptr),
-      checkBoxObjectAbovePlayer(nullptr),
-	  checkBoxIsWallToClimb(nullptr),
-	  listWidgetMapTileTriggers(nullptr),
-	  pushButtonAddTileEvent(nullptr),
-	  pushButtonEditTileEvent(nullptr),
-	  pushButtonDeleteTileEvent(nullptr)
+	: m_glComponent(nullptr),
+      m_labelTileCoordXY(nullptr),
+      m_lineEditTexName(nullptr),
+      m_spinBoxTexIndex(nullptr),
+      m_lineEditObjTexName(nullptr),
+      m_spinBoxObjTexIndex(nullptr),
+      m_checkBoxTileCanSteppedOn(nullptr),
+      m_checkBoxObjectAbovePlayer(nullptr),
+	  m_checkBoxIsWallToClimb(nullptr),
+	  m_listWidgetMapTileTriggers(nullptr),
+	  m_pushButtonAddTileEvent(nullptr),
+	  m_pushButtonEditTileEvent(nullptr),
+	  m_pushButtonDeleteTileEvent(nullptr)
 {  
 }
 
 void MainForm_TileTabComponent::initializeUIObjects(const MainForm_TileTabComponent_Objects &objects) 
 { 
-    this->glComponent = objects.glComponent;
-    this->labelTileCoordXY = objects.labelTileCoordXY;
-	this->lineEditTexName = objects.lineEditTexName;
-    this->spinBoxTexIndex = objects.spinBoxTexIndex;
-	this->lineEditObjTexName = objects.lineEditObjTexName;
-	this->spinBoxObjTexIndex = objects.spinBoxObjTexIndex;
-	this->checkBoxTileCanSteppedOn = objects.checkBoxTileCanSteppedOn;
-	this->checkBoxObjectAbovePlayer = objects.checkBoxObjectAbovePlayer;
-	this->checkBoxIsWallToClimb = objects.checkBoxIsWallToClimb;
-	this->listWidgetMapTileTriggers = objects.listWidgetMapTileTriggers;
-	this->pushButtonAddTileEvent = objects.pushButtonAddTileEvent;
-	this->pushButtonEditTileEvent = objects.pushButtonEditTileEvent;
-	this->pushButtonDeleteTileEvent = objects.pushButtonDeleteTileEvent;
+    this->m_glComponent = objects.glComponent;
+    this->m_labelTileCoordXY = objects.labelTileCoordXY;
+	this->m_lineEditTexName = objects.lineEditTexName;
+    this->m_spinBoxTexIndex = objects.spinBoxTexIndex;
+	this->m_lineEditObjTexName = objects.lineEditObjTexName;
+	this->m_spinBoxObjTexIndex = objects.spinBoxObjTexIndex;
+	this->m_checkBoxTileCanSteppedOn = objects.checkBoxTileCanSteppedOn;
+	this->m_checkBoxObjectAbovePlayer = objects.checkBoxObjectAbovePlayer;
+	this->m_checkBoxIsWallToClimb = objects.checkBoxIsWallToClimb;
+	this->m_listWidgetMapTileTriggers = objects.listWidgetMapTileTriggers;
+	this->m_pushButtonAddTileEvent = objects.pushButtonAddTileEvent;
+	this->m_pushButtonEditTileEvent = objects.pushButtonEditTileEvent;
+	this->m_pushButtonDeleteTileEvent = objects.pushButtonDeleteTileEvent;
 }
 
 void MainForm_TileTabComponent::connectUIActions() 
 {
-	connect(glComponent, &MainForm_GLComponent::tileSelected, this, &MainForm_TileTabComponent::onTileSelected);
-	connect(lineEditTexName, &QLineEdit::textChanged, this, &MainForm_TileTabComponent::onLineEditTexNameTextChanged);
-	connect(spinBoxTexIndex, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainForm_TileTabComponent::onSpinBoxTexIndexValueChanged);
-	connect(lineEditObjTexName, &QLineEdit::textChanged, this, &MainForm_TileTabComponent::onLineEditObjTexNameTextChanged);
-	connect(spinBoxObjTexIndex, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainForm_TileTabComponent::onSpinBoxObjTexIndexValueChanged);
-	connect(checkBoxTileCanSteppedOn, &QCheckBox::stateChanged, this, &MainForm_TileTabComponent::onCheckBoxTileCanSteppedOnChanged);
-	connect(checkBoxObjectAbovePlayer, &QCheckBox::stateChanged, this, &MainForm_TileTabComponent::onCheckBoxObjectAbovePlayerChanged);
-	connect(checkBoxIsWallToClimb, &QCheckBox::stateChanged, this, &MainForm_TileTabComponent::onCheckBoxIsWallToClimbChanged);
-	connect(pushButtonAddTileEvent, &QPushButton::clicked, this, &MainForm_TileTabComponent::onPushButtonAddTileEventClick);
-	connect(pushButtonEditTileEvent, &QPushButton::clicked, this, &MainForm_TileTabComponent::onPushButtonEditTileEventClick);
-	connect(pushButtonDeleteTileEvent, &QPushButton::clicked, this, &MainForm_TileTabComponent::onPushButtonDeleteTileEventClick);
+	connect(m_glComponent, &MainForm_GLComponent::tileSelected, this, &MainForm_TileTabComponent::onTileSelected);
+	connect(m_lineEditTexName, &QLineEdit::textChanged, this, &MainForm_TileTabComponent::onLineEditTexNameTextChanged);
+	connect(m_spinBoxTexIndex, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainForm_TileTabComponent::onSpinBoxTexIndexValueChanged);
+	connect(m_lineEditObjTexName, &QLineEdit::textChanged, this, &MainForm_TileTabComponent::onLineEditObjTexNameTextChanged);
+	connect(m_spinBoxObjTexIndex, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainForm_TileTabComponent::onSpinBoxObjTexIndexValueChanged);
+	connect(m_checkBoxTileCanSteppedOn, &QCheckBox::stateChanged, this, &MainForm_TileTabComponent::onCheckBoxTileCanSteppedOnChanged);
+	connect(m_checkBoxObjectAbovePlayer, &QCheckBox::stateChanged, this, &MainForm_TileTabComponent::onCheckBoxObjectAbovePlayerChanged);
+	connect(m_checkBoxIsWallToClimb, &QCheckBox::stateChanged, this, &MainForm_TileTabComponent::onCheckBoxIsWallToClimbChanged);
+	connect(m_pushButtonAddTileEvent, &QPushButton::clicked, this, &MainForm_TileTabComponent::onPushButtonAddTileEventClick);
+	connect(m_pushButtonEditTileEvent, &QPushButton::clicked, this, &MainForm_TileTabComponent::onPushButtonEditTileEventClick);
+	connect(m_pushButtonDeleteTileEvent, &QPushButton::clicked, this, &MainForm_TileTabComponent::onPushButtonDeleteTileEventClick);
 }
 
 void MainForm_TileTabComponent::reset() 
 {
-	labelTileCoordXY->clear();
-	lineEditTexName->clear();
-	spinBoxTexIndex->clear();
-	lineEditObjTexName->clear();
-	spinBoxObjTexIndex->clear();
-	checkBoxTileCanSteppedOn->setChecked(false);
-	checkBoxObjectAbovePlayer->setChecked(false);
-	checkBoxIsWallToClimb->setChecked(false);
+	m_labelTileCoordXY->clear();
+	m_lineEditTexName->clear();
+	m_spinBoxTexIndex->clear();
+	m_lineEditObjTexName->clear();
+	m_spinBoxObjTexIndex->clear();
+	m_checkBoxTileCanSteppedOn->setChecked(false);
+	m_checkBoxObjectAbovePlayer->setChecked(false);
+	m_checkBoxIsWallToClimb->setChecked(false);
 	refreshEventList(nullptr);
 }
 
 void MainForm_TileTabComponent::refreshEventList(MapTile *tile) 
 {
-	listWidgetMapTileTriggers->model()->removeRows(0, listWidgetMapTileTriggers->count());
+	m_listWidgetMapTileTriggers->model()->removeRows(0, m_listWidgetMapTileTriggers->count());
 	if (tile != nullptr) {
 		int indexTrigger {0};
 		for(const auto &trigger : tile->getTriggers()) {
-			listWidgetMapTileTriggers->insertItem(indexTrigger, MapTileTriggerEventConverter::eventToString(trigger.getEvent()).c_str());
+			m_listWidgetMapTileTriggers->insertItem(indexTrigger, MapTileTriggerEventConverter::eventToString(trigger.getEvent()).c_str());
 			indexTrigger++;
 		}
 	}
@@ -81,87 +81,87 @@ void MainForm_TileTabComponent::refreshEventList(MapTile *tile)
 
 void MainForm_TileTabComponent::onTileSelected(MapTile *tile, Point coord) 
 {
-    labelTileCoordXY->setText(fmt::format("X: {0}, Y: {1}", coord.x(), coord.y()).c_str());
-	lineEditTexName->setText(tile->getTextureName().c_str());
-	spinBoxTexIndex->setValue(tile->getTextureIndex());
-	lineEditObjTexName->setText(tile->getObjectTextureName().c_str());
-	spinBoxObjTexIndex->setValue(tile->getObjectTextureIndex());
-	checkBoxTileCanSteppedOn->setChecked(tile->canPlayerSteppedOn());
-	checkBoxObjectAbovePlayer->setChecked(tile->getObjectAbovePlayer());
-	checkBoxIsWallToClimb->setChecked(tile->getIsWallToClimb());
+    m_labelTileCoordXY->setText(fmt::format("X: {0}, Y: {1}", coord.x(), coord.y()).c_str());
+	m_lineEditTexName->setText(tile->getTextureName().c_str());
+	m_spinBoxTexIndex->setValue(tile->getTextureIndex());
+	m_lineEditObjTexName->setText(tile->getObjectTextureName().c_str());
+	m_spinBoxObjTexIndex->setValue(tile->getObjectTextureIndex());
+	m_checkBoxTileCanSteppedOn->setChecked(tile->canPlayerSteppedOn());
+	m_checkBoxObjectAbovePlayer->setChecked(tile->getObjectAbovePlayer());
+	m_checkBoxIsWallToClimb->setChecked(tile->getIsWallToClimb());
 	refreshEventList(tile);
 }
 
 
 void MainForm_TileTabComponent::onLineEditTexNameTextChanged(const QString &text) 
 {
-	auto currentMapTile = glComponent->getCurrentMapTile();
+	auto currentMapTile = m_glComponent->getCurrentMapTile();
 	if (currentMapTile != nullptr) {
 		currentMapTile->setTextureName(text.toStdString());
-		glComponent->updateGL();
+		m_glComponent->updateGL();
 	}
 }
 
 void MainForm_TileTabComponent::onSpinBoxTexIndexValueChanged(int value) 
 {
-	auto currentMapTile = glComponent->getCurrentMapTile();
+	auto currentMapTile = m_glComponent->getCurrentMapTile();
 	if (currentMapTile != nullptr) {
 		currentMapTile->setTextureIndex(value);
-		glComponent->updateGL();
+		m_glComponent->updateGL();
 	}
 }
 
 void MainForm_TileTabComponent::onLineEditObjTexNameTextChanged(const QString &text) 
 {
-	auto currentMapTile = glComponent->getCurrentMapTile();
+	auto currentMapTile = m_glComponent->getCurrentMapTile();
 	if (currentMapTile != nullptr) {
 		currentMapTile->setObjectTextureName(text.toStdString());
-		glComponent->updateGL();
+		m_glComponent->updateGL();
 	}
 }
 
 void MainForm_TileTabComponent::onSpinBoxObjTexIndexValueChanged(int value) 
 {
-	auto currentMapTile = glComponent->getCurrentMapTile();
+	auto currentMapTile = m_glComponent->getCurrentMapTile();
 	if (currentMapTile != nullptr) {
 		currentMapTile->setObjectTextureIndex(value);
-		glComponent->updateGL();
+		m_glComponent->updateGL();
 	}
 }
 
 void MainForm_TileTabComponent::onCheckBoxObjectAbovePlayerChanged(int state) 
 {
-	auto currentMapTile = glComponent->getCurrentMapTile();
+	auto currentMapTile = m_glComponent->getCurrentMapTile();
 	if (currentMapTile != nullptr) {
 		currentMapTile->setObjectAbovePlayer(state == Qt::Checked);
-		glComponent->updateGL();
+		m_glComponent->updateGL();
 	}
 }
 
 void MainForm_TileTabComponent::onCheckBoxTileCanSteppedOnChanged(int state) 
 {
-	auto currentMapTile = glComponent->getCurrentMapTile();
+	auto currentMapTile = m_glComponent->getCurrentMapTile();
 	if (currentMapTile != nullptr) {
 		currentMapTile->setCanPlayerSteppedOn(state == Qt::Checked);
-		glComponent->updateGL();
+		m_glComponent->updateGL();
 	}
 }
 
 void MainForm_TileTabComponent::onCheckBoxIsWallToClimbChanged(int state) 
 {
-	auto currentMapTile = glComponent->getCurrentMapTile();
+	auto currentMapTile = m_glComponent->getCurrentMapTile();
 	if (currentMapTile != nullptr) {
 		currentMapTile->setIsWallToClimb(state == Qt::Checked);
-		glComponent->updateGL();
+		m_glComponent->updateGL();
 	}
 }
 
 boost::optional<MapTileTrigger &> MainForm_TileTabComponent::getSelectedTrigger() 
 {
-	auto currentMapTile = glComponent->getCurrentMapTile();
-	if (listWidgetMapTileTriggers->selectionModel()->hasSelection()) {
+	auto currentMapTile = m_glComponent->getCurrentMapTile();
+	if (m_listWidgetMapTileTriggers->selectionModel()->hasSelection()) {
 		//Find the selected trigger
-		auto selectedItemName { listWidgetMapTileTriggers->selectionModel()->selectedRows()[0].data().toString().toStdString() };
+		auto selectedItemName { m_listWidgetMapTileTriggers->selectionModel()->selectedRows()[0].data().toString().toStdString() };
 		auto parsedEvent { MapTileTriggerEventConverter::eventFromString(selectedItemName) };
 		if (parsedEvent.has_value()) {
 			return currentMapTile->findTrigger(parsedEvent.get());
@@ -177,32 +177,32 @@ boost::optional<MapTileTrigger &> MainForm_TileTabComponent::getSelectedTrigger(
 
 void MainForm_TileTabComponent::onPushButtonAddTileEventClick()
 {
-	glComponent->stopAutoUpdate();
-	auto currentMapTile = glComponent->getCurrentMapTile();
+	m_glComponent->stopAutoUpdate();
+	auto currentMapTile = m_glComponent->getCurrentMapTile();
 	if (currentMapTile != nullptr) {
 		EditMapTileTriggerForm formEditMapTileTrigger(this, 
-													glComponent->getResourcesPath(), 
+													m_glComponent->getResourcesPath(), 
 													nullptr,
 													currentMapTile->getTriggers());
 		UIUtils::CenterToScreen(&formEditMapTileTrigger);
 		if (formEditMapTileTrigger.exec() == QDialog::Accepted) {
 			currentMapTile->addTrigger(formEditMapTileTrigger.getUpdatedTrigger());
-			refreshEventList(glComponent->getCurrentMapTile());
+			refreshEventList(m_glComponent->getCurrentMapTile());
 		}
 	}
-	glComponent->startAutoUpdate();
+	m_glComponent->startAutoUpdate();
 }
 
 void MainForm_TileTabComponent::onPushButtonEditTileEventClick() 
 {
-	glComponent->stopAutoUpdate();
-	auto currentMapTile = glComponent->getCurrentMapTile();
+	m_glComponent->stopAutoUpdate();
+	auto currentMapTile = m_glComponent->getCurrentMapTile();
 	if (currentMapTile != nullptr) {
 		//Find the selected event
 		auto selectedMapTileTrigger { getSelectedTrigger() };
 		if (selectedMapTileTrigger.has_value()) {
 			EditMapTileTriggerForm formEditMapTileTrigger(this, 
-														glComponent->getResourcesPath(), 
+														m_glComponent->getResourcesPath(), 
 														&selectedMapTileTrigger.get(),
 														currentMapTile->getTriggers());
 			UIUtils::CenterToScreen(&formEditMapTileTrigger);
@@ -210,17 +210,17 @@ void MainForm_TileTabComponent::onPushButtonEditTileEventClick()
 				if (!currentMapTile->updateTrigger(selectedMapTileTrigger.get(), formEditMapTileTrigger.getUpdatedTrigger())) {
 					ErrorMessage::show("An error occurred while trying to update the selected trigger.");
 				}
-				refreshEventList(glComponent->getCurrentMapTile());
+				refreshEventList(m_glComponent->getCurrentMapTile());
 			}
 		}
 	}
-	glComponent->startAutoUpdate();
+	m_glComponent->startAutoUpdate();
 }
 
 void MainForm_TileTabComponent::onPushButtonDeleteTileEventClick() 
 {
-	glComponent->stopAutoUpdate();
-	auto currentMapTile = glComponent->getCurrentMapTile();
+	m_glComponent->stopAutoUpdate();
+	auto currentMapTile = m_glComponent->getCurrentMapTile();
 	if (currentMapTile != nullptr) {
 		//Find the selected event
 		auto selectedMapTileTrigger { getSelectedTrigger() };
@@ -233,9 +233,9 @@ void MainForm_TileTabComponent::onPushButtonDeleteTileEventClick()
 			msgBox.setDefaultButton(QMessageBox::Cancel);
 			if (msgBox.exec() == QMessageBox::Yes) {
 				currentMapTile->deleteTrigger(selectedMapTileTrigger.get());
-				refreshEventList(glComponent->getCurrentMapTile());
+				refreshEventList(m_glComponent->getCurrentMapTile());
 			}
 		}
 	}
-	glComponent->startAutoUpdate();
+	m_glComponent->startAutoUpdate();
 }

@@ -50,13 +50,13 @@ public:
 signals:
     void tileSelected(MapTile *tile, Point coord);
 private:
-    MapOpenGLWidget *glWidget;
-    GLComponentController controller;
-    MapTile *currentMapTile;
-    std::string lastSelectedTextureName;
-	std::string lastSelectedObjectName;
-	int lastSelectedTextureIndex;
-	int lastSelectedObjectIndex;
+    MapOpenGLWidget *m_glWidget;
+    GLComponentController m_controller;
+    MapTile *m_currentMapTile;
+    std::string m_lastSelectedTextureName;
+	std::string m_lastSelectedObjectName;
+	int m_lastSelectedTextureIndex;
+	int m_lastSelectedObjectIndex;
     void onTileClicked(int tileIndex);
     void onTileMouseReleaseEvent(std::vector<int> selectedTileIndexes);
     void addMoveDenyTrigger(const std::vector<int> &selectedTileIndexes, MapTileTriggerEvent event);

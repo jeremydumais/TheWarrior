@@ -8,20 +8,20 @@ class IJSONFileStream
 {
 public:
     explicit IJSONFileStream(const std::string &fileName) 
-        : fileName(fileName),
-          lastError("") {}
+        : m_fileName(fileName),
+          m_lastError("") {}
     virtual ~IJSONFileStream() = default;
     IJSONFileStream(const IJSONFileStream &) = default;
     IJSONFileStream(IJSONFileStream &&) = default;
     IJSONFileStream &operator=(const IJSONFileStream &) = default;
     IJSONFileStream &operator=(IJSONFileStream &&) = default;
-    const std::string &getFileName() const { return this->fileName; }
-    virtual const std::string &getLastError() const { return this->lastError; }
-    void setLastError(const std::string &lastError) { this->lastError = lastError; }
+    const std::string &getFileName() const { return m_fileName; }
+    virtual const std::string &getLastError() const { return m_lastError; }
+    void setLastError(const std::string &lastError) { m_lastError = lastError; }
     virtual bool fileExists() const = 0;
     virtual bool readFile(boost::property_tree::ptree &obj) = 0;
     virtual bool writeFile(const boost::property_tree::ptree &obj) = 0;
 private:
-    std::string fileName;
-    std::string lastError;
+    std::string m_fileName;
+    std::string m_lastError;
 };

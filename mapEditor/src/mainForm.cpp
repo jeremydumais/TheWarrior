@@ -24,18 +24,18 @@ const std::string MainForm::RECENT_MAPS { "Map.Recents" };
 MainForm::MainForm(QWidget *parent)
 	: QMainWindow(parent),
 	  ui(Ui::MainForm()),
-	  currentFilePath(""),
-	  functionAfterShownCalled(false), 
-	  executablePath(""),
-	  resourcesPath("")
+	  m_currentFilePath(""),
+	  m_functionAfterShownCalled(false), 
+	  m_executablePath(""),
+	  m_resourcesPath("")
 {
 	ui.setupUi(this);
-	glComponent.initializeUIObjects(ui.mapOpenGLWidget);
-	glComponent.setResourcesPath(getResourcesPath());
-	glComponent.setSelectionMode(SelectionMode::Select);
+	m_glComponent.initializeUIObjects(ui.mapOpenGLWidget);
+	m_glComponent.setResourcesPath(getResourcesPath());
+	m_glComponent.setSelectionMode(SelectionMode::Select);
 	//MapTab Component initialization
 	MainForm_MapTabComponent_Objects mapUIObjects;
-	mapUIObjects.glComponent = &glComponent;
+	mapUIObjects.glComponent = &m_glComponent;
 	mapUIObjects.lineEditMapWidth = ui.lineEditMapWidth;
 	mapUIObjects.lineEditMapHeight = ui.lineEditMapHeight;
 	mapUIObjects.spinBoxMapSizeTop = ui.spinBoxMapSizeTop;
@@ -43,10 +43,10 @@ MainForm::MainForm(QWidget *parent)
 	mapUIObjects.spinBoxMapSizeRight = ui.spinBoxMapSizeRight;
 	mapUIObjects.spinBoxMapSizeBottom = ui.spinBoxMapSizeBottom;
 	mapUIObjects.pushButtonApplySizeChange = ui.pushButtonApplySizeChange;
-	mapTabComponent.initializeUIObjects(mapUIObjects);
+	m_mapTabComponent.initializeUIObjects(mapUIObjects);
 	//TileTab Component initialization
 	MainForm_TileTabComponent_Objects tileUIObjects;
-	tileUIObjects.glComponent = &glComponent;
+	tileUIObjects.glComponent = &m_glComponent;
 	tileUIObjects.labelTileCoordXY = ui.labelTileCoordXY;
 	tileUIObjects.lineEditTexName = ui.lineEditTexName;
 	tileUIObjects.spinBoxTexIndex = ui.spinBoxTexIndex;
@@ -59,38 +59,38 @@ MainForm::MainForm(QWidget *parent)
 	tileUIObjects.pushButtonAddTileEvent = ui.pushButtonAddTileEvent;
 	tileUIObjects.pushButtonEditTileEvent = ui.pushButtonEditTileEvent;
 	tileUIObjects.pushButtonDeleteTileEvent = ui.pushButtonDeleteTileEvent;
-	tileTabComponent.initializeUIObjects(tileUIObjects);
+	m_tileTabComponent.initializeUIObjects(tileUIObjects);
 	//TextureListTab Component initialization
 	MainForm_TextureListTabComponent_Objects textureListUIObjects;
-	textureListUIObjects.glComponent = &glComponent;
+	textureListUIObjects.glComponent = &m_glComponent;
 	textureListUIObjects.listWidgetTextures = ui.listWidgetTextures;
 	textureListUIObjects.pushButtonAddTexture = ui.pushButtonAddTexture;
 	textureListUIObjects.pushButtonEditTexture = ui.pushButtonEditTexture;
 	textureListUIObjects.pushButtonDeleteTexture = ui.pushButtonDeleteTexture;
-	textureListTabComponent.initializeUIObjects(textureListUIObjects);
+	m_textureListTabComponent.initializeUIObjects(textureListUIObjects);
 	//TextureSelection Component initialization
 	MainForm_TextureSelectionComponent_Objects textureSelectionUIObjects;
-	textureSelectionUIObjects.glComponent = &glComponent;
+	textureSelectionUIObjects.glComponent = &m_glComponent;
 	textureSelectionUIObjects.comboBoxTexture = ui.comboBoxTexture;
 	textureSelectionUIObjects.labelSelectedTexture = ui.labelSelectedTexture;
 	textureSelectionUIObjects.pushButtonSelectedTextureClear = ui.pushButtonSelectedTextureClear;
 	textureSelectionUIObjects.labelSelectedObject = ui.labelSelectedObject;
 	textureSelectionUIObjects.pushButtonSelectedObjectClear = ui.pushButtonSelectedObjectClear;
 	textureSelectionUIObjects.labelImageTexture = ui.labelImageTexture;
-	textureSelectionComponent.initializeUIObjects(textureSelectionUIObjects);
+	m_textureSelectionComponent.initializeUIObjects(textureSelectionUIObjects);
 	connectUIActions();
 
 	//Check if the user configuration folder exist
-	userConfigFolder = SpecialFolders::getAppConfigDirectory("TheWarrior_MapEditor");
-	if (!boost::filesystem::exists(userConfigFolder)) {
-		if (!boost::filesystem::create_directory(userConfigFolder)) {
-			ErrorMessage::show(fmt::format("Unable to create the folder {0}", userConfigFolder), "");
+	m_userConfigFolder = SpecialFolders::getAppConfigDirectory("TheWarrior_MapEditor");
+	if (!boost::filesystem::exists(m_userConfigFolder)) {
+		if (!boost::filesystem::create_directory(m_userConfigFolder)) {
+			ErrorMessage::show(fmt::format("Unable to create the folder {0}", m_userConfigFolder), "");
 			exit(1);
 		}
 	}
 
 	//Check if the configuration file exist
-	ConfigurationManager configManager(userConfigFolder + "config.json");
+	ConfigurationManager configManager(m_userConfigFolder + "config.json");
 	if (configManager.load()) {
 		setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
 	}
@@ -100,15 +100,15 @@ MainForm::MainForm(QWidget *parent)
 	}
 
 	//Generate a test map
-	if (!controller.createMap(20, 20)) {
-		ErrorMessage::show(controller.getLastError());
+	if (!m_controller.createMap(20, 20)) {
+		ErrorMessage::show(m_controller.getLastError());
 		exit(1);
 	}
-	auto map { controller.getMap() };
-	glComponent.setCurrentMap(map);
+	auto map { m_controller.getMap() };
+	m_glComponent.setCurrentMap(map);
 	refreshRecentMapsMenu();
 	refreshTextureList();
-	mapTabComponent.reset();
+	m_mapTabComponent.reset();
 }
 
 void MainForm::connectUIActions() 
@@ -138,15 +138,15 @@ void MainForm::connectUIActions()
 	connect(ui.action_BlockRightBorder, &QAction::triggered, this, &MainForm::action_BlockRightBorderClick);
 	connect(ui.action_BlockBottomBorder, &QAction::triggered, this, &MainForm::action_BlockBottomBorderClick);
 	connect(ui.action_ClearBlockedBorders, &QAction::triggered, this, &MainForm::action_ClearBlockedBordersClick);
-	glComponent.connectUIActions();
-	mapTabComponent.connectUIActions();
-	tileTabComponent.connectUIActions();
-	textureListTabComponent.connectUIActions();
-	textureSelectionComponent.connectUIActions();
-	connect(&glComponent, &MainForm_GLComponent::tileSelected, this, &MainForm::onTileSelected);
-	connect(&textureListTabComponent, &MainForm_TextureListTabComponent::textureAdded, this, &MainForm::onTextureAdded);
-	connect(&textureListTabComponent, &MainForm_TextureListTabComponent::textureUpdated, this, &MainForm::onTextureUpdated);
-	connect(&textureListTabComponent, &MainForm_TextureListTabComponent::textureDeleted, this, &MainForm::onTextureDeleted);
+	m_glComponent.connectUIActions();
+	m_mapTabComponent.connectUIActions();
+	m_tileTabComponent.connectUIActions();
+	m_textureListTabComponent.connectUIActions();
+	m_textureSelectionComponent.connectUIActions();
+	connect(&m_glComponent, &MainForm_GLComponent::tileSelected, this, &MainForm::onTileSelected);
+	connect(&m_textureListTabComponent, &MainForm_TextureListTabComponent::textureAdded, this, &MainForm::onTextureAdded);
+	connect(&m_textureListTabComponent, &MainForm_TextureListTabComponent::textureUpdated, this, &MainForm::onTextureUpdated);
+	connect(&m_textureListTabComponent, &MainForm_TextureListTabComponent::textureDeleted, this, &MainForm::onTextureDeleted);
 }
 
 void MainForm::action_Open_Click() 
@@ -175,11 +175,11 @@ void MainForm::action_OpenRecentMap_Click()
 
 void MainForm::action_Save_Click() 
 {
-	if (currentFilePath == "") {
+	if (m_currentFilePath == "") {
 		action_SaveAs_Click();
 	}
 	else {
-		saveMap(currentFilePath);
+		saveMap(m_currentFilePath);
 	}
 }
 
@@ -192,9 +192,9 @@ void MainForm::action_SaveAs_Click()
 							"",
 							filter, &filter) };
 	if (fullFilePath != "") {
-		currentFilePath = fullFilePath.toStdString();
-		saveMap(currentFilePath);
-		addNewRecentMap(currentFilePath);
+		m_currentFilePath = fullFilePath.toStdString();
+		saveMap(m_currentFilePath);
+		addNewRecentMap(m_currentFilePath);
 	}
 	refreshWindowTitle();
 	ui.mapOpenGLWidget->startAutoUpdate();
@@ -211,30 +211,30 @@ void MainForm::functionAfterShown()
 
 const std::string &MainForm::getExecutablePath() 
 {
-	if (executablePath.empty()) {
+	if (m_executablePath.empty()) {
 		char result[PATH_MAX];
 		ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
 		if (count != -1) {
-			executablePath = dirname(result);
+			m_executablePath = dirname(result);
 		}
 	}
-	return executablePath;
+	return m_executablePath;
 }
 
 const std::string& MainForm::getResourcesPath() 
 {
-	if (resourcesPath.empty()) {
-		resourcesPath = fmt::format("{0}/resources/", getExecutablePath());
+	if (m_resourcesPath.empty()) {
+		m_resourcesPath = fmt::format("{0}/resources/", getExecutablePath());
 	}
-	return resourcesPath;
+	return m_resourcesPath;
 }
 
 bool MainForm::event(QEvent *event)
 {
     const bool ret_val = QMainWindow::event(event);
-    if(!functionAfterShownCalled && event->type() == QEvent::Paint)
+    if(!m_functionAfterShownCalled && event->type() == QEvent::Paint)
     {
-        functionAfterShownCalled = true;
+        m_functionAfterShownCalled = true;
         functionAfterShown();
     }
     return ret_val;
@@ -248,7 +248,7 @@ void MainForm::action_About_Click()
 
 void MainForm::action_LightTheme_Click()
 {
-	ConfigurationManager configManager(userConfigFolder + "config.json");
+	ConfigurationManager configManager(m_userConfigFolder + "config.json");
 	if (configManager.load()) {
 		configManager.setStringValue(MainForm::THEME_PATH, "");
 		setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
@@ -266,7 +266,7 @@ void MainForm::action_LightTheme_Click()
 
 void MainForm::action_DarkTheme_Click()
 {
-	ConfigurationManager configManager(userConfigFolder + "config.json");
+	ConfigurationManager configManager(m_userConfigFolder + "config.json");
 	if (configManager.load()) {
 		configManager.setStringValue(MainForm::THEME_PATH, "Dark");
 		setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
@@ -288,68 +288,68 @@ void MainForm::action_DisplayGrid_Click()
 
 void MainForm::action_SelectClick() 
 {
-	glComponent.setSelectionMode(SelectionMode::Select);
+	m_glComponent.setSelectionMode(SelectionMode::Select);
 }
 
 void MainForm::action_MoveMapClick() 
 {
-	glComponent.setSelectionMode(SelectionMode::MoveMap);
+	m_glComponent.setSelectionMode(SelectionMode::MoveMap);
 }
 
 void MainForm::action_ApplyTextureClick() 
 {
-	glComponent.setSelectionMode(SelectionMode::ApplyTexture);
+	m_glComponent.setSelectionMode(SelectionMode::ApplyTexture);
 }
 
 void MainForm::action_ApplyObjectClick() 
 {
-	glComponent.setSelectionMode(SelectionMode::ApplyObject);
+	m_glComponent.setSelectionMode(SelectionMode::ApplyObject);
 }
 
 void MainForm::action_EnableCanStepClick() 
 {
-	glComponent.setSelectionMode(SelectionMode::EnableCanStep);
+	m_glComponent.setSelectionMode(SelectionMode::EnableCanStep);
 }
 
 void MainForm::action_DisableCanStepClick() 
 {
-	glComponent.setSelectionMode(SelectionMode::DisableCanStep);
+	m_glComponent.setSelectionMode(SelectionMode::DisableCanStep);
 }
 
 void MainForm::action_ViewBorderModeClick() 
 {
-	glComponent.setSelectionMode(SelectionMode::ViewBorderMode);
+	m_glComponent.setSelectionMode(SelectionMode::ViewBorderMode);
 }
 
 void MainForm::action_BlockLeftBorderClick() 
 {
-	glComponent.setSelectionMode(SelectionMode::BlockBorderLeft);
+	m_glComponent.setSelectionMode(SelectionMode::BlockBorderLeft);
 }
 
 void MainForm::action_BlockTopBorderClick() 
 {
-	glComponent.setSelectionMode(SelectionMode::BlockBorderTop);
+	m_glComponent.setSelectionMode(SelectionMode::BlockBorderTop);
 }
 
 void MainForm::action_BlockRightBorderClick() 
 {
-	glComponent.setSelectionMode(SelectionMode::BlockBorderRight);	
+	m_glComponent.setSelectionMode(SelectionMode::BlockBorderRight);	
 }
 void MainForm::action_BlockBottomBorderClick() 
 {
-	glComponent.setSelectionMode(SelectionMode::BlockBorderBottom);
+	m_glComponent.setSelectionMode(SelectionMode::BlockBorderBottom);
 }
 
 void MainForm::action_ClearBlockedBordersClick() 
 {
-	glComponent.setSelectionMode(SelectionMode::ClearBlockedBorders);
+	m_glComponent.setSelectionMode(SelectionMode::ClearBlockedBorders);
 }
 
 void MainForm::openMap(const std::string &filePath) 
 {
 	GameMapStorage mapStorage;
 	try {
-		mapStorage.loadMap(filePath, controller.getMap());
+		mapStorage.loadMap(filePath, m_controller.getMap());
 	}
 	catch(invalid_argument &err) {
         ErrorMessage::show(err.what());
@@ -360,36 +360,36 @@ void MainForm::openMap(const std::string &filePath)
 		return;
 	}
 
-	currentFilePath = filePath;
-	addNewRecentMap(currentFilePath);
-	glComponent.setCurrentMap(controller.getMap());
-	glComponent.resetMapMovePosition();
+	m_currentFilePath = filePath;
+	addNewRecentMap(m_currentFilePath);
+	m_glComponent.setCurrentMap(m_controller.getMap());
+	m_glComponent.resetMapMovePosition();
 	refreshTextureList();
-	tileTabComponent.reset();
-	mapTabComponent.reset();
+	m_tileTabComponent.reset();
+	m_mapTabComponent.reset();
 }
 
 void MainForm::saveMap(const std::string &filePath) 
 {
 	ofstream ofs(filePath, ofstream::binary);
 	boost::archive::binary_oarchive oa(ofs);
-	oa << *controller.getMap();
+	oa << *m_controller.getMap();
 }
 
 void MainForm::refreshWindowTitle() 
 {
-	if (currentFilePath == "") {
+	if (m_currentFilePath == "") {
 		setWindowTitle("MapEditor");
 	}
 	else {
-		setWindowTitle(fmt::format("MapEditor - {0}", currentFilePath).c_str());
+		setWindowTitle(fmt::format("MapEditor - {0}", m_currentFilePath).c_str());
 	}
 }
 
 void MainForm::refreshRecentMapsMenu() 
 {
 	auto recents = vector<string> {};
-	ConfigurationManager configManager(userConfigFolder + "config.json");
+	ConfigurationManager configManager(m_userConfigFolder + "config.json");
 	if (configManager.load()) {
 		recents = configManager.getVectorOfStringValue(MainForm::RECENT_MAPS);
 	}
@@ -420,7 +420,7 @@ void MainForm::addNewRecentMap(const std::string &filePath)
 {
 	auto recents = vector<string> {};
 	//Load existing recent maps
-	ConfigurationManager configManager(userConfigFolder + "config.json");
+	ConfigurationManager configManager(m_userConfigFolder + "config.json");
 	if (configManager.load()) {
 		recents = configManager.getVectorOfStringValue(MainForm::RECENT_MAPS);
 	}
@@ -482,31 +482,31 @@ void MainForm::onTileSelected(MapTile *, Point)
 
 void MainForm::onTextureAdded(TextureInfo textureInfo) 
 {
-	if (!controller.addTexture(textureInfo)) {
-		ErrorMessage::show(controller.getLastError());
+	if (!m_controller.addTexture(textureInfo)) {
+		ErrorMessage::show(m_controller.getLastError());
 	}
 	refreshTextureList();
 }
 
 void MainForm::onTextureUpdated(const std::string &name, TextureInfo textureInfo) 
 {
-	if (!controller.replaceTexture(name, textureInfo)) {
-		ErrorMessage::show(controller.getLastError());
+	if (!m_controller.replaceTexture(name, textureInfo)) {
+		ErrorMessage::show(m_controller.getLastError());
 	}
 	refreshTextureList();
 }
 
 void MainForm::onTextureDeleted(const std::string &name) 
 {
-	if (!controller.removeTexture(name)) {
-		ErrorMessage::show(controller.getLastError());
+	if (!m_controller.removeTexture(name)) {
+		ErrorMessage::show(m_controller.getLastError());
 	}
 	refreshTextureList();
 }
 
 void MainForm::refreshTextureList() 
 {
-	textureListTabComponent.refreshTextureList();
-	textureSelectionComponent.refreshTextureList();
-	glComponent.reloadTextures();
+	m_textureListTabComponent.refreshTextureList();
+	m_textureSelectionComponent.refreshTextureList();
+	m_glComponent.reloadTextures();
 }

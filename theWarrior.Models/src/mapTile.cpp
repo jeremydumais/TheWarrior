@@ -151,7 +151,6 @@ bool MapTile::deleteTrigger(const MapTileTrigger &triggerToDelete)
     auto newTriggersEnd { remove_if(m_triggers.begin(), m_triggers.end(), [&triggerToDelete](const MapTileTrigger &trigger) {
         return triggerToDelete.getEvent() == trigger.getEvent();
     })};
-    auto newSize { distance(m_triggers.begin(), newTriggersEnd) };
     m_triggers.erase(newTriggersEnd, m_triggers.end());
-    return oldSize - static_cast<size_t>(newSize) > 0;
+    return oldSize - m_triggers.size() > 0;
 }

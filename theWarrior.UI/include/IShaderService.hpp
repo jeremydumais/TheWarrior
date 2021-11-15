@@ -7,5 +7,5 @@ class IShaderService
 public:
     virtual bool initShader(const std::string &vertexShaderFileName,
                             const std::string &fragmentShaderFileName) = 0;
-private:
+    virtual ~IShaderService() = default;
 };

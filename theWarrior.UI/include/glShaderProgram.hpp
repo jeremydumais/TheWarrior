@@ -16,11 +16,11 @@ public:
     bool linkShaders(const std::vector<std::string> &attributes);
     void use();
 private:
-    std::string lastError;
-    std::string vertexShaderFileName;
-    std::string fragmentShaderFileName;
-    GLuint vertexshader;
-    GLuint fragmentshader;
-    GLuint shaderprogram;
+    std::string m_lastError;
+    std::string m_vertexShaderFileName;
+    std::string m_fragmentShaderFileName;
+    GLuint m_vertexshader;
+    GLuint m_fragmentshader;
+    GLuint m_shaderprogram;
     std::string loadShaderFile(const std::string &file);
 };

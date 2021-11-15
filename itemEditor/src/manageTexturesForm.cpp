@@ -12,8 +12,8 @@ ManageTexturesForm::ManageTexturesForm(QWidget *parent,
 								       TextureContainer &textureContainer)
 	: QDialog(parent),
 	  ui(Ui::manageTexturesFormClass()),
-	  resourcesPath(resourcesPath),
-	  controller(ManageTextureController(textureContainer))
+	  m_resourcesPath(resourcesPath),
+	  m_controller(ManageTextureController(textureContainer))
 {
 	ui.setupUi(this);
 	setWindowIcon(QIcon(":/MapEditor Icon.png"));
@@ -31,7 +31,7 @@ void ManageTexturesForm::refreshTextureList()
 {
 	ui.listWidgetTextures->model()->removeRows(0, ui.listWidgetTextures->count());
 	int index {0};
-	for(const auto &texture : controller.getTextures()) {
+	for(const auto &texture : m_controller.getTextures()) {
         ui.listWidgetTextures->insertItem(index, texture.getName().c_str());
         index++;
 	}
@@ -45,7 +45,7 @@ void ManageTexturesForm::onPushButtonCloseClick()
 void ManageTexturesForm::onPushButtonAddClick() 
 {
 	EditTextureForm editTextureForm(this,
-									resourcesPath,
+									m_resourcesPath,
 									nullptr,
-									controller.getAlreadyUsedNames());
+									m_controller.getAlreadyUsedNames());
 }

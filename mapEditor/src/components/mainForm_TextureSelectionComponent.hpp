@@ -31,14 +31,14 @@ public:
 	void displaySelectedTextureImage();
 signals:
 private:
-    TextureSelectionComponentController controller;
-    MainForm_GLComponent *glComponent;
-    QComboBox *comboBoxTexture;
-    QLabel *labelSelectedTexture;
-    QPushButton *pushButtonSelectedTextureClear;
-    QLabel *labelSelectedObject;
-    QPushButton *pushButtonSelectedObjectClear;
-    QClickableLabel *labelImageTexture;
+    TextureSelectionComponentController m_controller;
+    MainForm_GLComponent *m_glComponent;
+    QComboBox *m_comboBoxTexture;
+    QLabel *m_labelSelectedTexture;
+    QPushButton *m_pushButtonSelectedTextureClear;
+    QLabel *m_labelSelectedObject;
+    QPushButton *m_pushButtonSelectedObjectClear;
+    QClickableLabel *m_labelImageTexture;
 	QPixmap getTextureTileImageFromTexture(int tileIndex, const Texture &texture) const;
     void onPushButtonSelectedTextureClearClick();
 	void onPushButtonSelectedObjectClearClick();

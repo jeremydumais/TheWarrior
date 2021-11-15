@@ -4,19 +4,19 @@
 using namespace std;
 
 ManageTextureController::ManageTextureController(TextureContainer &textureContainer) 
-    : textureContainer(textureContainer)
+    : m_textureContainer(textureContainer)
 {
 }
 
 const vector<Texture>& ManageTextureController::getTextures() const
 {
-    return textureContainer.getTextures();
+    return m_textureContainer.getTextures();
 }
 
 vector<string> ManageTextureController::getAlreadyUsedNames() const
 {
     vector<string> textureNames;
-    const auto &textures { textureContainer.getTextures() };
+    const auto &textures { m_textureContainer.getTextures() };
     transform(textures.begin(), 
               textures.end(), 
               back_inserter(textureNames),

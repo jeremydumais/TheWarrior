@@ -1,6 +1,6 @@
-#include <iostream>
 #include "gameWindow.hpp"
 #include <SDL2/SDL.h>
+#include <iostream>
 
 int main(int, char **)
 {

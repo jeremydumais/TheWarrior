@@ -53,7 +53,8 @@ public:
         });
         auto &tile8 { map.getTileForEditing(8) };
         tile8.setTextureName("tex1");
-        tile8.setTextureIndex(0); 
+        tile8.setTextureIndex(0);
+		tile8.setCanPlayerSteppedOn(false);
         auto &tile13 { map.getTileForEditing(13) };
         tile13.setTextureIndex(0); 
         auto &tile14 { map.getTileForEditing(14) };
@@ -107,6 +108,79 @@ TEST(GameMap_getHeight, HeightFive_ReturnFive)
 	ASSERT_EQ(5, map.getHeight());
 }
 
+TEST_F(SampleGameMap5x6WithTwoTextures, getTileForEditing_WithIndexMinus1_ThrowInvalidArgument)
+{
+	try {
+		map.getTileForEditing(-1);
+		FAIL();
+	}
+	catch(const invalid_argument &err) {
+		ASSERT_STREQ("index must be a positive number", err.what());
+	}
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getTileForEditing_WithIndexMinus0_ReturnFirstTile)
+{
+	const auto &tile { map.getTileForEditing(0) };
+	ASSERT_EQ("a", tile.getTextureName());
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getTileForEditing_WithPointMinus1And0_ThrowInvalidArgument)
+{
+	try {
+		map.getTileForEditing({-1, 0});
+		FAIL();
+	}
+	catch(const invalid_argument &err) {
+		ASSERT_STREQ("x must be a positive number", err.what());
+	}
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getTileForEditing_WithPoint0AndMinus1_ThrowInvalidArgument)
+{
+	try {
+		map.getTileForEditing({0, -1});
+		FAIL();
+	}
+	catch(const invalid_argument &err) {
+		ASSERT_STREQ("y must be a positive number", err.what());
+	}
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getTileForEditing_WithPoint0And0_ReturnFirstTile)
+{
+	const auto &tile { map.getTileForEditing({0 , 0}) };
+	ASSERT_EQ("a", tile.getTextureName());
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getTileFromCoord_WithPointMinus1And0_ThrowInvalidArgument)
+{
+	try {
+		map.getTileFromCoord({-1, 0});
+		FAIL();
+	}
+	catch(const invalid_argument &err) {
+		ASSERT_STREQ("x must be a positive number", err.what());
+	}
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getTileFromCoord_WithPoint0AndMinus1_ThrowInvalidArgument)
+{
+	try {
+		map.getTileFromCoord({0, -1});
+		FAIL();
+	}
+	catch(const invalid_argument &err) {
+		ASSERT_STREQ("y must be a positive number", err.what());
+	}
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getTileFromCoord_WithPoint0And0_ReturnFirstTile)
+{
+	const auto &tile { map.getTileFromCoord({0 , 0}) };
+	ASSERT_EQ("a", tile.getTextureName());
+}
+
 TEST_F(SampleGameMap5x6WithTwoTextures, getCoordFromTileIndex_WithIndex0_Return0_0)
 {
 	ASSERT_EQ(Point(0,0), map.getCoordFromTileIndex(0));
@@ -125,6 +199,17 @@ TEST_F(SampleGameMap5x6WithTwoTextures, getCoordFromTileIndex_WithIndex4_Return5
 TEST_F(SampleGameMap5x6WithTwoTextures, getCoordFromTileIndex_WithIndex5_Return0_1)
 {
 	ASSERT_EQ(Point(0,1), map.getCoordFromTileIndex(5));
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getCoordFromTileIndex_WithIndexMinus1_ThrowInvalidArgument)
+{
+	try {
+		map.getCoordFromTileIndex(-1);
+		FAIL();
+	}
+	catch(const invalid_argument &err) {
+		ASSERT_STREQ("index must be a positive number", err.what());
+	}
 }
 
 TEST_F(SampleGameMapWithTilesAssigned, isShrinkMapImpactAssignedTiles_WithMinusOneOnLeft_ReturnFalse)
@@ -451,4 +536,34 @@ TEST_F(SampleGameMapWithTilesAssigned, resizeMap_WithOffsetBottomNegativeAndGrea
 	{
         ASSERT_STREQ("This bottom offset would remove all the remaining tiles.", err.what());
 	}	
+}
+
+TEST_F(SampleGameMapWithTilesAssigned, canSteppedOnTile_WithPoint2And2_ReturnTrue)
+{
+	ASSERT_TRUE(map.canSteppedOnTile({2, 2}));
+}
+
+TEST_F(SampleGameMapWithTilesAssigned, canSteppedOnTile_WithPoint2And2_ReturnFalse)
+{
+	ASSERT_FALSE(map.canSteppedOnTile({2, 1}));
+}
+
+TEST_F(SampleGameMapWithTilesAssigned, canSteppedOnTile_WithPointMinus1And2_ReturnFalse)
+{
+	ASSERT_FALSE(map.canSteppedOnTile({-1, 2}));
+}
+
+TEST_F(SampleGameMapWithTilesAssigned, canSteppedOnTile_WithPoint2AndMinus1_ReturnFalse)
+{
+	ASSERT_FALSE(map.canSteppedOnTile({2, -1}));
+}
+
+TEST_F(SampleGameMapWithTilesAssigned, canSteppedOnTile_WithPoint6And1_ReturnFalse)
+{
+	ASSERT_FALSE(map.canSteppedOnTile({6, 1}));
+}
+
+TEST_F(SampleGameMapWithTilesAssigned, canSteppedOnTile_WithPoint1And6_ReturnFalse)
+{
+	ASSERT_FALSE(map.canSteppedOnTile({1, 6}));
 }

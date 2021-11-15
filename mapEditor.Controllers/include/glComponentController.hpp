@@ -22,6 +22,6 @@ public:
                    int offsetRight, 
                    int offsetBottom);
 private:
-    std::shared_ptr<GameMap> map;
+    std::shared_ptr<GameMap> m_map;
 };
 
