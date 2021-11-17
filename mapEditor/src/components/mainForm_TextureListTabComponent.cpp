@@ -41,7 +41,7 @@ void MainForm_TextureListTabComponent::refreshTextureList()
 	}
 }
 
-boost::optional<const Texture &> MainForm_TextureListTabComponent::getSelectedTextureInTextureList() 
+optional<reference_wrapper<const Texture>> MainForm_TextureListTabComponent::getSelectedTextureInTextureList() const
 {
 	if (m_listWidgetTextures->selectionModel()->hasSelection()) {
 		//Find the selected texture
@@ -49,7 +49,7 @@ boost::optional<const Texture &> MainForm_TextureListTabComponent::getSelectedTe
 		return m_glComponent->getTextureByName(selectedItemName);
 	}
 	else {
-		return {};
+		return nullopt;
 	}
 }
 
@@ -72,13 +72,13 @@ void MainForm_TextureListTabComponent::onPushButtonEditTextureClick()
 	if (selectedTexture.has_value()) {
 		auto alreadyUsedTextureNames = m_glComponent->getAlreadyUsedTextureNames();
 		//Remove the actual selected texture name
-		auto iter = std::find(alreadyUsedTextureNames.begin(), alreadyUsedTextureNames.end(), selectedTexture->getName());
+		auto iter = std::find(alreadyUsedTextureNames.begin(), alreadyUsedTextureNames.end(), selectedTexture->get().getName());
 		if (iter != alreadyUsedTextureNames.end()) {
 			alreadyUsedTextureNames.erase(iter);
 		}
-		EditTextureForm formEditTexture(this, m_glComponent->getResourcesPath(), selectedTexture.get_ptr(), alreadyUsedTextureNames);
+		EditTextureForm formEditTexture(this, m_glComponent->getResourcesPath(), &selectedTexture->get(), alreadyUsedTextureNames);
 		if (formEditTexture.exec() == QDialog::Accepted) {
-            emit textureUpdated(selectedTexture->getName(), formEditTexture.getTextureInfo());
+            emit textureUpdated(selectedTexture->get().getName(), formEditTexture.getTextureInfo());
 		}
 	}
 	m_glComponent->startAutoUpdate();
@@ -89,16 +89,16 @@ void MainForm_TextureListTabComponent::onPushButtonDeleteTextureClick()
 	auto selectedTexture = getSelectedTextureInTextureList();
 	if (selectedTexture.has_value()) {
 		QMessageBox msgBox;
-		msgBox.setText(fmt::format("Are you sure you want to delete the texture {0}?", selectedTexture->getName()).c_str());
+		msgBox.setText(fmt::format("Are you sure you want to delete the texture {0}?", selectedTexture->get().getName()).c_str());
 		msgBox.setWindowTitle("Confirmation");
 		msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
 		msgBox.setDefaultButton(QMessageBox::Cancel);
 		if (msgBox.exec() == QMessageBox::Yes) {
 			//Check if the texture is used in the map
-			msgBox.setText(fmt::format("The texture {0} is used by some map tiles.\nAre you sure you want to proceed?", selectedTexture->getName()).c_str());
-			bool isUsed = m_glComponent->isTextureUsedInMap(selectedTexture->getName());
+			msgBox.setText(fmt::format("The texture {0} is used by some map tiles.\nAre you sure you want to proceed?", selectedTexture->get().getName()).c_str());
+			bool isUsed = m_glComponent->isTextureUsedInMap(selectedTexture->get().getName());
 			if (!isUsed || (isUsed && msgBox.exec() == QMessageBox::Yes)) {
-				emit textureDeleted(selectedTexture->getName());
+				emit textureDeleted(selectedTexture->get().getName());
 			}
 		}
 	}

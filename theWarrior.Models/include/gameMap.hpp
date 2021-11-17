@@ -9,6 +9,7 @@
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/version.hpp>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -25,7 +26,7 @@ public:
     unsigned int getHeight() const;
     Point getCoordFromTileIndex(int index);
     const std::vector<Texture> &getTextures() const;
-    boost::optional<const Texture &> getTextureByName(const std::string &name) const;
+    std::optional<std::reference_wrapper<const Texture>> getTextureByName(const std::string &name) const;
     bool addTexture(const TextureInfo &textureInfo);
     bool replaceTexture(const std::string &name, const TextureInfo &textureInfo);
     bool removeTexture(const std::string &name);

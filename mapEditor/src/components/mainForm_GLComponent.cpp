@@ -118,7 +118,7 @@ const vector<Texture> &MainForm_GLComponent::getTextures() const
 	return m_controller.getMap()->getTextures();
 }
 
-boost::optional<const Texture &> MainForm_GLComponent::getTextureByName(const std::string &name) const
+optional<std::reference_wrapper<const Texture>> MainForm_GLComponent::getTextureByName(const std::string &name) const
 {
 	return m_controller.getMap()->getTextureByName(name);
 }

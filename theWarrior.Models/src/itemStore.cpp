@@ -29,7 +29,7 @@ const vector<Texture> &ItemStore::getTextures() const
     return m_textureContainer.getTextures();
 }
   
-boost::optional<const Texture &> ItemStore::getTextureByName(const string &name) const
+optional<reference_wrapper<const Texture>> ItemStore::getTextureByName(const string &name) const
 {
     return m_textureContainer.getTextureByName(name);
 }

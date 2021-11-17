@@ -49,7 +49,7 @@ void MainForm_TextureSelectionComponent::displaySelectedTextureImage()
 	//Find the selected texture
 	auto texture { m_glComponent->getTextureByName(m_comboBoxTexture->itemText(m_comboBoxTexture->currentIndex()).toStdString()) };
 	if (texture.has_value()) {
-		QImageReader reader(fmt::format("{0}/{1}", m_glComponent->getResourcesPath(), texture->getFilename()).c_str());
+		QImageReader reader(fmt::format("{0}/{1}", m_glComponent->getResourcesPath(), texture->get().getFilename()).c_str());
 		const QImage image { reader.read() };
 		m_labelImageTexture->setFixedSize(image.width(), image.height());
 		m_labelImageTexture->setPixmap(QPixmap::fromImage(image));
@@ -92,9 +92,9 @@ void MainForm_TextureSelectionComponent::onLabelImageTextureMouseReleaseEvent(QM
 	auto texture { m_glComponent->getTextureByName(textureName) };
 	if (texture.has_value()) {
 		string name { textureName };
-		int index = m_controller.getTextureIndexFromPosition(Point(event->pos().x(), event->pos().y()), texture.get());
+		int index = m_controller.getTextureIndexFromPosition(Point(event->pos().x(), event->pos().y()), texture->get());
 		//Display the selected texture or object on the selected image
-		auto imagePart { getTextureTileImageFromTexture(index, texture.get()) };
+		auto imagePart { getTextureTileImageFromTexture(index, texture->get()) };
         auto selectionMode { m_glComponent->getSelectionMode() };
 		if (selectionMode == SelectionMode::ApplyTexture) {
 			m_glComponent->setLastSelectedTexture(name, index);

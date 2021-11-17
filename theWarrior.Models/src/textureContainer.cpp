@@ -23,14 +23,14 @@ size_t TextureContainer::getCount() const
     return m_textures.size();
 }
 
-boost::optional<const Texture &> TextureContainer::getTextureByName(const std::string &name) const
+optional<reference_wrapper<const Texture>> TextureContainer::getTextureByName(const std::string &name) const
 {
     for(const auto &texture : m_textures) {
         if (texture.getName() == name) {
-            return texture;
+            return optional<reference_wrapper<const Texture>>{texture};
         }
     }
-    return {};
+    return nullopt;
 }
 
 bool TextureContainer::addTexture(const TextureInfo &textureInfo) 

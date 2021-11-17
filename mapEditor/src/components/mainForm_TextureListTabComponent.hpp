@@ -4,6 +4,7 @@
 #include <QtWidgets/QListWidget>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QWidget>
+#include <optional>
 
 struct MainForm_TextureListTabComponent_Objects
 {
@@ -22,7 +23,7 @@ public:
     void initializeUIObjects(const MainForm_TextureListTabComponent_Objects &objects);
     void connectUIActions();
     void refreshTextureList();
-    boost::optional<const Texture &> getSelectedTextureInTextureList();
+    std::optional<std::reference_wrapper<const Texture>> getSelectedTextureInTextureList() const;
 signals:
     void textureAdded(TextureInfo textureInfo);
     void textureUpdated(const std::string &name, TextureInfo textureInfo);

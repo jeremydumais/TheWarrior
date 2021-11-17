@@ -8,6 +8,7 @@
 #include "selectionMode.hpp"
 #include <QtWidgets/QWidget>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -35,7 +36,7 @@ public:
     void resetMapMovePosition();
     void updateGL();
     const std::vector<Texture>& getTextures() const;
-    boost::optional<const Texture &> getTextureByName(const std::string &name) const;
+    std::optional<std::reference_wrapper<const Texture>> getTextureByName(const std::string &name) const;
     std::vector<std::string> getAlreadyUsedTextureNames() const;
     bool isTextureUsedInMap(const std::string &name);
     void reloadTextures();

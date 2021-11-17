@@ -102,7 +102,7 @@ const vector<Texture> &GameMap::getTextures() const
     return m_textureContainer.getTextures();
 }
     
-boost::optional<const Texture &> GameMap::getTextureByName(const string &name) const
+optional<reference_wrapper<const Texture>> GameMap::getTextureByName(const string &name) const
 {
     return m_textureContainer.getTextureByName(name);
 }

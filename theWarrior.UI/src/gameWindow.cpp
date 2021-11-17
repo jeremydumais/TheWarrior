@@ -402,7 +402,7 @@ void GameWindow::generateGLObject(GenerateGLObjectInfo &info, const GLfloat tile
     if (info.lastUsedTexture == nullptr || info.textureName != info.lastUsedTexture->getName()) {
         auto texture { m_map->getTextureByName(info.textureName) };
         if (texture.has_value()) {
-            info.lastUsedTexture = &texture.get();
+            info.lastUsedTexture = &texture->get();
         }
         else {
             info.lastUsedTexture = nullptr;
@@ -762,7 +762,7 @@ void GameWindow::setPlayerTexture()
 {
     auto texture { m_map->getTextureByName(m_glPlayer.getTextureName()) };
     if (texture.has_value() && !m_glPlayer.getTextureName().empty() && m_glPlayer.getTextureIndex() != -1) {
-        setTextureUVFromIndex(texture.get_ptr(), m_texCoordBuf, m_glPlayer.getTextureIndex());
+        setTextureUVFromIndex(&texture->get(), m_texCoordBuf, m_glPlayer.getTextureIndex());
     }
     glBindVertexArray(m_glPlayer.vao);
 

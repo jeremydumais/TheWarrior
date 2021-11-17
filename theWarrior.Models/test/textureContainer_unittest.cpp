@@ -80,8 +80,8 @@ TEST_F(TextureContainerWith2Textures, getTextureByName_ExistingNameWithListOfTwo
 {
 	auto actual { container.getTextureByName("b") };
 	ASSERT_TRUE(actual.has_value());
-	ASSERT_EQ("b", actual->getName());
-	ASSERT_EQ("b.png", actual->getFilename());
+	ASSERT_EQ("b", actual->get().getName());
+	ASSERT_EQ("b.png", actual->get().getFilename());
 }
 
 TEST_F(DefaultConstructedTextureContainer, addTexture_FirstTextureUniqueName_ReturnTrue)
