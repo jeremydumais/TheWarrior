@@ -1,4 +1,4 @@
-#include "configurationManager.hpp"
+#include "../include/configurationManager.hpp"
 #include "iJSONFileStream.hpp"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

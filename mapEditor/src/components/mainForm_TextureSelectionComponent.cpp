@@ -1,4 +1,5 @@
 #include "mainForm_TextureSelectionComponent.hpp"
+#include <QtGlobal>
 #include <fmt/format.h>
 #include <qnamespace.h>
 
@@ -70,10 +71,17 @@ QPixmap MainForm_TextureSelectionComponent::getTextureTileImageFromTexture(int t
 	int textureHeightInPixel { texture.getHeight() };
 	int x { (tileIndex * texture.getTileWidth()) % textureWidthInPixel };
 	int y { textureHeightInPixel - (((tileIndex * texture.getTileWidth()) / textureWidthInPixel) * texture.getTileHeight()) };
-	QPixmap imagePart = m_labelImageTexture->pixmap(Qt::ReturnByValue).copy(x, 
-																			y - texture.getTileHeight(), 
-																			texture.getTileWidth(), 
-																			texture.getTileHeight());
+	#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+		QPixmap imagePart = m_labelImageTexture->pixmap(Qt::ReturnByValue).copy(x, 
+																				y - texture.getTileHeight(), 
+																				texture.getTileWidth(), 
+																				texture.getTileHeight());
+	#else
+		QPixmap imagePart = m_labelImageTexture->pixmap()->copy(x, 
+																y - texture.getTileHeight(), 
+																texture.getTileWidth(), 
+																texture.getTileHeight());
+	#endif																				
 	return imagePart;
 }
 
