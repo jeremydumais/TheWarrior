@@ -7,7 +7,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/configurationManager.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/specialFolders.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/gameMapStorage.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/jsonFileStream.cpp)
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/jsonFileStream.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/itemStoreStorage.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")

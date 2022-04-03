@@ -13,6 +13,7 @@ public:
     std::vector<std::string> getAlreadyUsedNames() const;
     bool addTexture(const TextureInfo &info);
     bool replaceTexture(const std::string &name, const TextureInfo &updatedTexture);
+    bool removeTexture(const std::string &name);
 private:
     TextureContainer &m_textureContainer;
 };

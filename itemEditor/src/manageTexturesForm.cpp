@@ -27,6 +27,7 @@ void ManageTexturesForm::connectUIActions()
 	connect(ui.pushButtonClose, &QPushButton::clicked, this, &ManageTexturesForm::onPushButtonCloseClick);
 	connect(ui.pushButtonAddTexture, &QPushButton::clicked, this, &ManageTexturesForm::onPushButtonAddClick);
 	connect(ui.pushButtonEditTexture, &QPushButton::clicked, this, &ManageTexturesForm::onPushButtonEditClick);
+	connect(ui.pushButtonDeleteTexture, &QPushButton::clicked, this, &ManageTexturesForm::onPushButtonDeleteClick);
 }
 
 void ManageTexturesForm::refreshTextureList() 
@@ -87,19 +88,24 @@ void ManageTexturesForm::onPushButtonEditClick()
 				ErrorMessage::show("Unable to replace the texture.");
 			}
 			refreshTextureList();
-			//emit textureUpdated(selectedTexture->get().getName(), formEditTexture.getTextureInfo());
 		}
 	}
+}
 
-
-
-	/*EditTextureForm editTextureForm(this,
-									m_resourcesPath,
-									nullptr,
-									m_controller.getAlreadyUsedNames());
-	if (editTextureForm.exec() == QDialog::Accepted) {
-		//Add the new texture
-		m_controller.addTexture(editTextureForm.getTextureInfo());
-		refreshTextureList();
-	}*/
+void ManageTexturesForm::onPushButtonDeleteClick() 
+{
+	auto selectedTexture = getSelectedTextureInTextureList();
+	if (selectedTexture.has_value()) {
+		QMessageBox msgBox;
+		msgBox.setText(fmt::format("Are you sure you want to delete the texture {0}?", selectedTexture->get().getName()).c_str());
+		msgBox.setWindowTitle("Confirmation");
+		msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+		msgBox.setDefaultButton(QMessageBox::Cancel);
+		if (msgBox.exec() == QMessageBox::Yes) {
+			if (!m_controller.removeTexture(selectedTexture->get().getName())) {
+				ErrorMessage::show("Unable to remove the texture.");
+			}
+			refreshTextureList();
+		}
+    }
 }

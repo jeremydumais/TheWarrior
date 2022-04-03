@@ -24,6 +24,7 @@ private:
 	std::optional<std::reference_wrapper<const Texture>> getSelectedTextureInTextureList();
 	void onPushButtonAddClick();
 	void onPushButtonEditClick();
+	void onPushButtonDeleteClick();
 };
 
 #endif // MANAGETEXTURESFORM_H

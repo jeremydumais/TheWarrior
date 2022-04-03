@@ -13,9 +13,10 @@ class StubBinaryFileStream : public IBinaryFileStream<T>
 {
 public:
     StubBinaryFileStream() : IBinaryFileStream<T>("") {}
-    MOCK_METHOD(bool, open, (), (override));
+    MOCK_METHOD(bool, open, (FileOpenMode), (override));
     MOCK_METHOD(bool, close, (), (override));
     MOCK_METHOD(bool, readAllInto, (T&), (override));
+    MOCK_METHOD(bool, write, (const T&), (override));
 };
 
 class GameMapStorageSampleMapStubFS : public ::testing::Test
@@ -24,8 +25,9 @@ public:
     GameMapStorageSampleMapStubFS() {
         stubBFS = make_unique<NiceMock<StubBinaryFileStream<GameMap>>>();
         map = make_shared<GameMap>(1, 1);
-        ON_CALL(*stubBFS, open()).WillByDefault(Return(true));
+        ON_CALL(*stubBFS, open(_)).WillByDefault(Return(true));
         ON_CALL(*stubBFS, readAllInto(_)).WillByDefault(Return(true));
+        ON_CALL(*stubBFS, write(_)).WillByDefault(Return(true));
         ON_CALL(*stubBFS, close()).WillByDefault(Return(true));
 
     }
@@ -75,7 +77,7 @@ TEST(GameMapStorage_loadMap, mapNullPtr_ThrowInvalidArgument)
 
 TEST_F(GameMapStorageSampleMapStubFS, loadMap_FileStreamFailToOpen_ThrowRuntimeError)
 {
-    ON_CALL(*stubBFS, open()).WillByDefault(Return(false));
+    ON_CALL(*stubBFS, open(_)).WillByDefault(Return(false));
 
     mapStorage.setFileStream(move(stubBFS));
     try {

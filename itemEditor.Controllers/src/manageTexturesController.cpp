@@ -37,5 +37,9 @@ bool ManageTextureController::addTexture(const TextureInfo &info)
 bool ManageTextureController::replaceTexture(const std::string &name, const TextureInfo &updatedTexture) 
 {
     return m_textureContainer.replaceTexture(name, updatedTexture);
+}
 
+bool ManageTextureController::removeTexture(const std::string &name) 
+{
+    return m_textureContainer.removeTexture(name);
 }

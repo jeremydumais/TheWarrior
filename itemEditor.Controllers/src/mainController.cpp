@@ -12,3 +12,8 @@ TextureContainer& MainController::getTextureContainerForEdition()
 {
     return m_textureContainer;
 }
+
+bool MainController::saveItemStore(const std::string &fileName) 
+{
+    
+}

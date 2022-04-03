@@ -457,17 +457,19 @@ void MainForm::setAppStylesheet(const std::string &style)
 	*/
 	ui.action_LightTheme->setChecked(false);
 	ui.action_DarkTheme->setChecked(false);
+	QString styleSheet = "";
 	if (style == "Dark") {
-		QFile file(fmt::format("{0}/res/darkstyle/darkstyle.qss", getExecutablePath()).c_str());
+		QFile file(fmt::format("{0}/darkstyle/darkstyle.qss", getResourcesPath()).c_str());
 		file.open(QFile::ReadOnly);
-		const QString styleSheet = QLatin1String(file.readAll());
-		this->setStyleSheet(styleSheet);
+		styleSheet = QLatin1String(file.readAll());
 		ui.action_DarkTheme->setChecked(true);
 	}
 	else {
-		this->setStyleSheet("");
 		ui.action_LightTheme->setChecked(true);
 	}
+	this->setStyleSheet(styleSheet);
+	m_textureListTabComponent.setStyleSheet(styleSheet);
+	m_tileTabComponent.setStyleSheet(styleSheet);
 }
 
 void MainForm::resizeEvent(QResizeEvent *)

@@ -18,7 +18,7 @@ void GameMapStorage::loadMap(const string &fileName, shared_ptr<GameMap> map)
     if (m_bfs == nullptr) {
         m_bfs = make_unique<BinaryFileStream<GameMap>>(fileName);
     }
-	if (!m_bfs->open()) {
+	if (!m_bfs->open(FileOpenMode::Read)) {
 		throw runtime_error(fmt::format("Unable to open the map {0}", fileName));
 	}
 	if (!m_bfs->readAllInto(*map)) {
@@ -31,5 +31,5 @@ void GameMapStorage::loadMap(const string &fileName, shared_ptr<GameMap> map)
 
 void GameMapStorage::setFileStream(std::unique_ptr<IBinaryFileStream<GameMap>> bfs) 
 {
-    this->m_bfs = move(bfs);
+    m_bfs = move(bfs);
 }

@@ -23,6 +23,7 @@ public:
 	~MainForm();
 	bool event(QEvent *event) override;
     void functionAfterShown();
+	void setAppStylesheet(const std::string &style);
 private:
 	Ui::MainForm ui;
 	MainForm_GLComponent m_glComponent;
@@ -40,7 +41,6 @@ private:
 	static const std::string RECENT_MAPS;
     const std::string &getExecutablePath();
     const std::string &getResourcesPath();
-	void setAppStylesheet(const std::string &style);
 	void connectUIActions();
 	void action_Open_Click();
 	void action_OpenRecentMap_Click();

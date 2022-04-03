@@ -182,7 +182,7 @@ void MainForm::setAppStylesheet(const string &style)
 	ui.action_LightTheme->setChecked(false);
 	ui.action_DarkTheme->setChecked(false);
 	if (style == "Dark") {
-		QFile file(fmt::format("{0}/res/darkstyle/darkstyle.qss", getExecutablePath()).c_str());
+		QFile file(fmt::format("{0}/darkstyle/darkstyle.qss", getResourcesPath()).c_str());
 		file.open(QFile::ReadOnly);
 		const QString styleSheet = QLatin1String(file.readAll());
 		this->setStyleSheet(styleSheet);

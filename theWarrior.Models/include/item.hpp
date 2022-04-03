@@ -1,5 +1,8 @@
 #pragma once
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/version.hpp>
 #include <string>
 
 struct ItemCreationInfo 
@@ -13,6 +16,7 @@ struct ItemCreationInfo
 class Item
 {
 public:
+    Item(); //Used only for Boost Serialization
     explicit Item(const ItemCreationInfo &itemInfo);
     virtual ~Item() = default;
     Item(const Item &) = default;
@@ -31,8 +35,20 @@ public:
     void setTextureName(const std::string &name);
     void setTextureIndex(int index);
 private:
+    friend class boost::serialization::access;
     std::string m_id;
     std::string m_name; 
     std::string m_textureName;
     int m_textureIndex; 
+    //Serialization method
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int)
+    {
+        ar & m_id;
+        ar & m_name;
+        ar & m_textureName;
+        ar & m_textureIndex;
+    }
 };
+
+BOOST_CLASS_VERSION(Item, 0)

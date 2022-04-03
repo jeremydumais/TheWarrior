@@ -22,6 +22,15 @@ Item::Item(const ItemCreationInfo &itemInfo)
     validateTextureIndex(m_textureIndex);
 }
 
+//Used only for Boost Serialization
+Item::Item()
+    : m_id("tmp999"),
+      m_name("<temp item>"),
+      m_textureName("tmp"),
+      m_textureIndex(0)
+{
+}
+
 bool Item::equals(const Item &other) const 
 {
     if (typeid(*this).hash_code() != typeid(other).hash_code()) {
