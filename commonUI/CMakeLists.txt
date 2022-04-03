@@ -4,7 +4,7 @@ set(PROJECT_NAME    "commonUI")
 include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-find_package(Qt5 COMPONENTS Widgets OpenGL REQUIRED)
+find_package(Qt5 COMPONENTS Gui OpenGL REQUIRED)
 
 #Generate QT Form headers
 set(CMAKE_AUTOUIC ON)

@@ -110,7 +110,7 @@ void MainForm_GLComponent::resetMapMovePosition()
 
 void MainForm_GLComponent::updateGL() 
 {
-	m_glWidget->updateGL();
+	m_glWidget->update();
 }
 
 const vector<Texture> &MainForm_GLComponent::getTextures() const

@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-class MapOpenGLWidget : public QGLWidget
+class MapOpenGLWidget : public QOpenGLWidget
 {
     Q_OBJECT
 public:
@@ -50,7 +50,7 @@ private:
     float m_translationY;     
     float m_translationDragAndDropY;
     int m_selectedTileIndex;
-	int m_selectedTileColor;
+	GLubyte m_selectedTileColor;
     bool m_selectedTileColorGrowing;
     std::map<std::string, unsigned int> m_texturesGLMap; //Mapping between texture name and OpenGL texture id
     std::map<std::string, const Texture &> m_texturesObjMap; //Mapping between texture name and texture object
