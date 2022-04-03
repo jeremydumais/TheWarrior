@@ -1,5 +1,6 @@
 #include "mainForm_TextureSelectionComponent.hpp"
 #include <fmt/format.h>
+#include <qnamespace.h>
 
 using namespace std;
 
