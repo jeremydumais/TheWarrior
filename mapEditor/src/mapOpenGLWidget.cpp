@@ -9,7 +9,7 @@
 using namespace std;
 
 MapOpenGLWidget::MapOpenGLWidget(QWidget *parent)
-    : QGLWidget(QGLFormat(QGL::SampleBuffers), parent),
+    : QOpenGLWidget(parent),
       m_isGridEnabled(true),
       m_selectionMode(SelectionMode::Select),
       m_resourcesPath(""),
@@ -57,7 +57,7 @@ void MapOpenGLWidget::initializeGL()
 {
     reloadTextures();
 
-    qglClearColor(Qt::black);
+    glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
     glClearDepth(1.0F);
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_DEPTH_TEST);
@@ -207,7 +207,7 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event)
     if (m_selectionMode == SelectionMode::Select) {
         //Found which tile was clicked
         m_selectedTileIndex = getTileIndex(m_lastCursorPosition.x(), m_lastCursorPosition.y());
-        m_selectedTileColor = 200;
+        m_selectedTileColor = 150;
         m_selectedTileColorGrowing = true;
         emit onTileClicked(m_selectedTileIndex);
     }
@@ -316,19 +316,20 @@ void MapOpenGLWidget::draw()
                 glBindTexture(GL_TEXTURE_2D, m_texturesGLMap[tile.getTextureName()]);
             }
             if (index == m_selectedTileIndex) {
-                qglColor(QColor(m_selectedTileColor, m_selectedTileColor, m_selectedTileColor));
+                glColor3ub(m_selectedTileColor, m_selectedTileColor, m_selectedTileColor);
+                //qglColor(QColor(m_selectedTileColor, m_selectedTileColor, m_selectedTileColor));
                 updateSelectedTileColor();
             }
             else {
-                qglColor(Qt::white);
+                glColor3f(1.0F, 1.0F, 1.0F);
             }
             //Filter to enable/disable can step on tile
             if (m_selectionMode == SelectionMode::EnableCanStep || m_selectionMode == SelectionMode::DisableCanStep) {
                 if (tile.canPlayerSteppedOn()) {
-                    qglColor(QColor(64, 255, 64));
+                    glColor3f(0.25F, 1.0F, 0.25F);
                 }
                 else {
-                    qglColor(QColor(255, 64, 64));
+                    glColor3f(1.0F, 0.25F, 0.25F);
                 }
             }
 
@@ -354,7 +355,7 @@ void MapOpenGLWidget::draw()
             else {
                 //not defined tile (no texture)
                 glPushMatrix();
-                qglColor(QColor(128, 128, 128));
+                glColor3f(0.5F, 0.5F, 0.5F);
                 glBegin(GL_QUADS);
                     glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
                     glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
@@ -470,7 +471,7 @@ void MapOpenGLWidget::drawSelectionZone() const
 
 void MapOpenGLWidget::drawGrid() const
 {
-    qglColor(Qt::black);
+    glColor3f(0.0F, 0.0F, 0.0F);
     glBegin(GL_LINES);
         glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
         glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
@@ -491,7 +492,7 @@ void MapOpenGLWidget::drawGrid() const
 
 void MapOpenGLWidget::drawBlockBorderLeft() 
 {
-    qglColor(QColor(255, 0, 0));
+    glColor3f(1.0F, 0.0F, 0.0F);
     glBindTexture(GL_TEXTURE_2D, 0);
     glPushMatrix();
     glBegin(GL_QUADS);
@@ -513,7 +514,7 @@ void MapOpenGLWidget::drawBlockBorderLeft()
 
 void MapOpenGLWidget::drawBlockBorderTop() 
 {
-    qglColor(QColor(255, 0, 0));
+    glColor3f(1.0F, 0.0F, 0.0F);
     glBindTexture(GL_TEXTURE_2D, 0);
     glPushMatrix();
     glBegin(GL_QUADS);
@@ -535,7 +536,7 @@ void MapOpenGLWidget::drawBlockBorderTop()
 
 void MapOpenGLWidget::drawBlockBorderRight() 
 {
-    qglColor(QColor(255, 0, 0));
+    glColor3f(1.0F, 0.0F, 0.0F);
     glBindTexture(GL_TEXTURE_2D, 0);
     glPushMatrix();
     glBegin(GL_QUADS);
@@ -557,7 +558,7 @@ void MapOpenGLWidget::drawBlockBorderRight()
 
 void MapOpenGLWidget::drawBlockBorderBottom() 
 {
-    qglColor(QColor(255, 0, 0));
+    glColor3f(1.0F, 0.0F, 0.0F);
     glBindTexture(GL_TEXTURE_2D, 0);
     glPushMatrix();
     glBegin(GL_QUADS);
@@ -614,12 +615,12 @@ void MapOpenGLWidget::updateSelectedTileColor()
         m_selectedTileColor--;
     }
     
-    if (m_selectedTileColor == 256) {
+    if (m_selectedTileColor == 255) {
         m_selectedTileColorGrowing = false;
         m_selectedTileColor--;
         
     }
-    else if (m_selectedTileColor == 200) {
+    else if (m_selectedTileColor == 150) {
         m_selectedTileColorGrowing = true;
     }
 }

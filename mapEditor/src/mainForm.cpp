@@ -95,8 +95,11 @@ MainForm::MainForm(QWidget *parent)
 		setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
 	}
 	else {
-		ErrorMessage::show("An error occurred while loading the configuration file.",
-						   configManager.getLastError());
+		//Try to create a default configuration
+		if (!configManager.save()) {
+			ErrorMessage::show("An error occurred while loading the configuration file.",
+							   configManager.getLastError());
+		}
 	}
 
 	//Generate a test map

@@ -70,7 +70,9 @@ void EditTextureForm::onPushButtonOK()
 		return;
 	}
 	//Check if the texture name is available
-	if (std::find(m_alreadyUsedNames.begin(), m_alreadyUsedNames.end(), m_textureInfo.name) != m_alreadyUsedNames.end()) {
+	if (std::find(m_alreadyUsedNames.begin(), 
+				  m_alreadyUsedNames.end(), 
+				  m_textureInfo.name) != m_alreadyUsedNames.end()) {
 		showErrorMessage(fmt::format("The name {0} is already used.", m_textureInfo.name));
 		return;
 	}
