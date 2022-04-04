@@ -194,14 +194,19 @@ void MainForm::setAppStylesheet(const string &style)
 	}
 }
 
-void MainForm::openItemStore(const std::string &filePath) 
+void MainForm::openItemStore(const std::string &) 
 {
 }
 
 void MainForm::saveItemStore(const std::string &filePath) 
 {
-	ofstream ofs(filePath, ofstream::binary);
-	boost::archive::binary_oarchive oa(ofs);
+	if (!m_controller.saveItemStore(filePath)) {
+		ErrorMessage::show("An error occurred while saving the item store.",
+						   m_controller.getLastError());
+	}
+	//ofstream ofs(filePath, ofstream::binary);
+	//boost::archive::binary_oarchive oa(ofs);
+	
 	//oa << *controller.getMap();
 }
 

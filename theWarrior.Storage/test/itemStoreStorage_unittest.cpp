@@ -197,3 +197,8 @@ TEST_F(ItemStoreStorageEmptyISStubFS, saveItemStore_FileStreamFailToClose_ThrowR
         ASSERT_STREQ("Unable to close the itemStore file test", err.what());
 	}
 }
+
+TEST_F(ItemStoreStorageEmptyISStubFS, saveItemStore_FileStreamSucceedToSave_ReturnSuccess)
+{
+    itemStoreStorage.saveItemStore("test", itemStore);
+}

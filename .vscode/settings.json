@@ -82,7 +82,14 @@
         "qfiledialog": "cpp",
         "version": "cpp",
         "cfloat": "cpp",
-        "climits": "cpp"
+        "climits": "cpp",
+        "codecvt": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "source_location": "cpp",
+        "numbers": "cpp",
+        "semaphore": "cpp",
+        "stop_token": "cpp"
     },
     "editor.tokenColorCustomizations": {
         "textMateRules": [
