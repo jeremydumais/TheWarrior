@@ -1,20 +1,18 @@
 #include "mainForm.hpp"
 #include "aboutBoxForm.hpp"
+#include "addItemForm.hpp"
+#include "addItemChooserForm.hpp"
 #include "configurationManager.hpp"
 #include "errorMessage.hpp"
 #include "manageTexturesForm.hpp"
 #include "specialFolders.hpp"
 #include <QtCore/qfile.h>
 #include <QtWidgets/QFileDialog>
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
 #include <boost/filesystem.hpp>
 #include <fmt/format.h>
 #include <libgen.h>         // dirname
 #include <linux/limits.h>   // PATH_MAX
 #include <unistd.h>         // readlink
-
-using namespace std;
 
 const std::string MainForm::THEME_PATH { "Display.Theme" };
 const std::string MainForm::RECENT_MAPS { "ItemsDB.Recents" };
@@ -26,7 +24,7 @@ MainForm::MainForm(QWidget *parent)
 	  m_userConfigFolder(""),
 	  m_executablePath(""),
 	  m_resourcesPath(""),
-	  m_currentFilePath(""),
+	  m_currentFilePath("/home/jed/Programming/TheWarrior/resources/items/itemstore.itm"),
 	  m_controller(MainController())
 {
 	ui.setupUi(this);
@@ -53,6 +51,7 @@ MainForm::MainForm(QWidget *parent)
     ui.listWidgetItemCategories->setFixedWidth(300);
 
     connectUIActions();
+	openItemStore(m_currentFilePath);
 }
 
 void MainForm::connectUIActions() 
@@ -62,8 +61,10 @@ void MainForm::connectUIActions()
 	connect(ui.action_DarkTheme, &QAction::triggered, this, &MainForm::action_DarkTheme_Click);
 	connect(ui.action_About, &QAction::triggered, this, &MainForm::action_About_Click);
 	connect(ui.action_Open, &QAction::triggered, this, &MainForm::action_OpenItemStore_Click);
-	connect(ui.action_Save, &QAction::triggered, this, &MainForm::action_OpenItemStore_Click);
+	connect(ui.action_Save, &QAction::triggered, this, &MainForm::action_SaveItemStore_Click);
+	connect(ui.action_SaveAs, &QAction::triggered, this, &MainForm::action_SaveAsItemStore_Click);
 	connect(ui.action_ManageTextures, &QAction::triggered, this, &MainForm::action_ManageTextures_Click);
+	connect(ui.pushButtonAddItem, &QPushButton::clicked, this, &MainForm::onPushButtonAddAnItemClick);
 }
 
 void MainForm::functionAfterShown()
@@ -130,18 +131,33 @@ void MainForm::action_OpenItemStore_Click()
 							tr("Item store file (*.itm)")) };
 	if (fullFilePath != "") {
 		openItemStore(fullFilePath.toStdString());
+		m_currentFilePath = fullFilePath.toStdString();
 	}
 	refreshWindowTitle();
 }
 
 void MainForm::action_SaveItemStore_Click() 
 {
-	
+	if (m_currentFilePath == "") {
+		action_SaveAsItemStore_Click();
+	}
+	else {
+		saveItemStore(m_currentFilePath);
+	}
 }
 
 void MainForm::action_SaveAsItemStore_Click() 
 {
-	
+	QString filter = "Item store file (*.itm)";
+	QString fullFilePath { QFileDialog::getSaveFileName(this, 
+							tr("Save the item store"),
+							"",
+							filter, &filter) };
+	if (fullFilePath != "") {
+		m_currentFilePath = fullFilePath.toStdString();
+		saveItemStore(m_currentFilePath);
+	}
+	refreshWindowTitle();
 }
 
 void MainForm::action_ManageTextures_Click() 
@@ -152,7 +168,7 @@ void MainForm::action_ManageTextures_Click()
 	manageTexturesForm.exec();
 }
 
-const string &MainForm::getExecutablePath()
+const std::string &MainForm::getExecutablePath()
 {
 	if (m_executablePath.empty()) {
 		char result[PATH_MAX];
@@ -164,7 +180,7 @@ const string &MainForm::getExecutablePath()
 	return m_executablePath;
 }
 
-const string &MainForm::getResourcesPath()
+const std::string &MainForm::getResourcesPath()
 {
 	if (m_resourcesPath.empty()) {
 		m_resourcesPath = fmt::format("{0}/resources/", getExecutablePath());
@@ -172,7 +188,7 @@ const string &MainForm::getResourcesPath()
 	return m_resourcesPath;
 }
 
-void MainForm::setAppStylesheet(const string &style)
+void MainForm::setAppStylesheet(const std::string &style)
 {
 	/*
 	The Dark theme comes has been built by Colin Duquesnoy 
@@ -194,8 +210,12 @@ void MainForm::setAppStylesheet(const string &style)
 	}
 }
 
-void MainForm::openItemStore(const std::string &) 
+void MainForm::openItemStore(const std::string &filePath) 
 {
+	if (!m_controller.openItemStore(filePath)) {
+		ErrorMessage::show("An error occurred while loading the item store.",
+						   m_controller.getLastError());
+	}
 }
 
 void MainForm::saveItemStore(const std::string &filePath) 
@@ -204,10 +224,6 @@ void MainForm::saveItemStore(const std::string &filePath)
 		ErrorMessage::show("An error occurred while saving the item store.",
 						   m_controller.getLastError());
 	}
-	//ofstream ofs(filePath, ofstream::binary);
-	//boost::archive::binary_oarchive oa(ofs);
-	
-	//oa << *controller.getMap();
 }
 
 void MainForm::refreshWindowTitle() 
@@ -215,4 +231,15 @@ void MainForm::refreshWindowTitle()
 	setWindowTitle(m_currentFilePath.empty() ? 
 				   "ItemEditor" : 
 				   fmt::format("ItemEditor - {0}", m_currentFilePath).c_str());
+}
+
+void MainForm::onPushButtonAddAnItemClick() 
+{
+	AddItemChooserForm addItemChooserForm(this);
+	if (addItemChooserForm.exec() == QDialog::Accepted) {
+		AddItemForm addItemForm(this,
+								m_resourcesPath,
+								m_controller.getItemStore());
+		addItemForm.exec();
+	}
 }

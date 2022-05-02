@@ -38,6 +38,8 @@ private:
 	void openItemStore(const std::string &filePath);
 	void saveItemStore(const std::string &filePath);
 	void refreshWindowTitle();
+	void onPushButtonAddAnItemClick();
+
 };
 
 #endif // MAINFORM_H

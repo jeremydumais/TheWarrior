@@ -39,11 +39,11 @@
      <x>20</x>
      <y>10</y>
      <width>401</width>
-     <height>21</height>
+     <height>51</height>
     </rect>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Icon made by &lt;a href=&quot;https://www.flaticon.com/fr/auteurs/freepik&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Freepik&lt;/span&gt;&lt;/a&gt; from &lt;a href=&quot;https://www.flaticon.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;www.flaticon.com&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Icon made by &lt;a href=&quot;https://www.flaticon.com/fr/auteurs/freepik&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Freepik&lt;/span&gt;&lt;/a&gt; from &lt;a href=&quot;https://www.flaticon.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;www.flaticon.com&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;Icon made by &lt;a href=&quot;https://www.flaticon.com/fr/auteurs/mj&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;mj&lt;/span&gt;&lt;/a&gt; from &lt;a href=&quot;https://www.flaticon.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;www.flaticon.com&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="textFormat">
     <enum>Qt::RichText</enum>

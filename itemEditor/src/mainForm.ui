@@ -76,10 +76,10 @@
    <widget class="QMenu" name="menu_File">
     <property name="geometry">
      <rect>
-      <x>266</x>
-      <y>138</y>
+      <x>2234</x>
+      <y>176</y>
       <width>260</width>
-      <height>196</height>
+      <height>170</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -97,16 +97,10 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
-    <widget class="QMenu" name="menu_RecentItemDB">
-     <property name="title">
-      <string>&amp;Recent Items Database</string>
-     </property>
-    </widget>
     <addaction name="action_Open"/>
-    <addaction name="menu_RecentItemDB"/>
     <addaction name="separator"/>
     <addaction name="action_Save"/>
-    <addaction name="actionSave_as"/>
+    <addaction name="action_SaveAs"/>
     <addaction name="separator"/>
     <addaction name="action_Quit"/>
    </widget>
@@ -213,7 +207,7 @@
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="actionSave_as">
+  <action name="action_SaveAs">
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/commonUI/res/document-save-as.svg</normaloff>:/commonUI/res/document-save-as.svg</iconset>

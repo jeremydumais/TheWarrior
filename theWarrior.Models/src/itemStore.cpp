@@ -14,51 +14,9 @@ const std::string &ItemStore::getLastError() const
     return m_lastError;
 }
 
-size_t ItemStore::getTextureCount() const
-{
-    return m_textureContainer.getCount();
-}
-
 size_t ItemStore::getItemCount() const
 {
     return m_items.size();
-}
-
-const vector<Texture> &ItemStore::getTextures() const
-{
-    return m_textureContainer.getTextures();
-}
-  
-optional<reference_wrapper<const Texture>> ItemStore::getTextureByName(const string &name) const
-{
-    return m_textureContainer.getTextureByName(name);
-}
-
-bool ItemStore::addTexture(const TextureInfo &textureInfo)
-{
-    bool retVal = m_textureContainer.addTexture(textureInfo);
-    if (!retVal) {
-        m_lastError = m_textureContainer.getLastError();
-    }
-    return retVal;
-}
-
-bool ItemStore::replaceTexture(const std::string &name, const TextureInfo &textureInfo)
-{
-    bool retVal = m_textureContainer.replaceTexture(name, textureInfo);
-    if (!retVal) {
-        m_lastError = m_textureContainer.getLastError();
-    }
-    return retVal;
-}
-
-bool ItemStore::removeTexture(const std::string &name)
-{
-    bool retVal = m_textureContainer.removeTexture(name);
-    if (!retVal) {
-        m_lastError = m_textureContainer.getLastError();
-    }
-    return retVal;
 }
 
 boost::optional<const Item &> ItemStore::findItem(const std::string &id) const
@@ -100,3 +58,12 @@ bool ItemStore::removeItem(const std::string &id)
     return true;
 }
 
+const TextureContainer &ItemStore::getTextureContainer() const
+{
+    return m_textureContainer;
+}
+
+TextureContainer &ItemStore::getTextureContainerForEdition()
+{
+    return m_textureContainer;
+}

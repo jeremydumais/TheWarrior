@@ -4,21 +4,35 @@
 
 MainController::MainController() 
     : m_itemStore(std::make_shared<ItemStore>()),
-      m_lastError(""),
-      m_textureContainer(TextureContainer())
+      m_lastError("")
 {
-    m_textureContainer.addTexture({"Tex1bhjbkjhbhjb", "Tex1.png", 256, 256, 16, 16});
-    m_textureContainer.addTexture({"Tex2bjhbjhb", "Tex2.png", 512, 512, 32, 32});
 }
 
 TextureContainer &MainController::getTextureContainerForEdition() 
 {
-    return m_textureContainer;
+    return m_itemStore->getTextureContainerForEdition();
+}
+
+std::shared_ptr<ItemStore> MainController::getItemStore()
+{
+    return m_itemStore;
 }
 
 const std::string &MainController::getLastError() const 
 {
     return m_lastError;
+}
+
+bool MainController::openItemStore(const std::string &fileName) {
+    ItemStoreStorage storage;
+    try {
+        storage.loadItemStore(fileName, m_itemStore);      
+        return true;
+    }
+    catch(const std::exception &err) {
+        m_lastError = err.what();
+    }
+    return false;
 }
 
 bool MainController::saveItemStore(const std::string &fileName) 

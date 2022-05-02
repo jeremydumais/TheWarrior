@@ -6,8 +6,6 @@
 #include <algorithm>
 #include <fmt/format.h>
 
-using namespace std;
-
 ManageTexturesForm::ManageTexturesForm(QWidget *parent,
 								       const std::string &resourcesPath,
 								       TextureContainer &textureContainer)
@@ -17,7 +15,7 @@ ManageTexturesForm::ManageTexturesForm(QWidget *parent,
 	  m_controller(ManageTextureController(textureContainer))
 {
 	ui.setupUi(this);
-	setWindowIcon(QIcon(":/MapEditor Icon.png"));
+	setWindowIcon(QIcon(":/ItemEditor Icon.png"));
 	connectUIActions();
 	refreshTextureList();
 }
@@ -45,7 +43,7 @@ void ManageTexturesForm::onPushButtonCloseClick()
 	close();
 }
 
-optional<reference_wrapper<const Texture>> ManageTexturesForm::getSelectedTextureInTextureList() 
+std::optional<std::reference_wrapper<const Texture>> ManageTexturesForm::getSelectedTextureInTextureList() 
 {
 	if (ui.listWidgetTextures->selectionModel()->hasSelection()) {
 		//Find the selected texture
@@ -53,16 +51,17 @@ optional<reference_wrapper<const Texture>> ManageTexturesForm::getSelectedTextur
 		return m_controller.getTextureByName(selectedItemName);
 	}
 	else {
-		return nullopt;
+		return std::nullopt;
 	}
 }
 
 void ManageTexturesForm::onPushButtonAddClick() 
 {
+	auto alreadyUsedTextureNames = m_controller.getAlreadyUsedNames();
 	EditTextureForm editTextureForm(this,
 									m_resourcesPath,
 									nullptr,
-									m_controller.getAlreadyUsedNames());
+									alreadyUsedTextureNames);
 	if (editTextureForm.exec() == QDialog::Accepted) {
 		//Add the new texture
 		if (!m_controller.addTexture(editTextureForm.getTextureInfo())) {

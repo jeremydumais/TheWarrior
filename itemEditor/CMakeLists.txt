@@ -3,6 +3,7 @@ set(PROJECT_NAME    "ItemEditor")
 
 include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/src
                     ${CMAKE_CURRENT_SOURCE_DIR}/src
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Storage/include
@@ -25,6 +26,9 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/imageAttributionsForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/manageTexturesForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editTextureForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/addItemChooserForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/addItemForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/texturePickerForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/res/darkstyle/darkstyle.qrc
                          ${CMAKE_CURRENT_SOURCE_DIR}/res/global.qrc)
 

@@ -1,5 +1,9 @@
 <RCC>
   <qresource>
+    <file>sword.png</file>
+    <file>shield.png</file>
+    <file>item.png</file>
+    <file>statsitem.png</file>
     <file>ItemEditor Icon.png</file>
     <file>../../commonUI/res/gtk-edit.svg</file>
     <file>../../commonUI/res/gtk-delete.svg</file>
