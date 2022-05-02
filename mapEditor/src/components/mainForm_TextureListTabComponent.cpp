@@ -58,7 +58,7 @@ void MainForm_TextureListTabComponent::onPushButtonAddTextureClick()
 	m_glComponent->stopAutoUpdate();
 	auto alreadyUsedTextureNames { m_glComponent->getAlreadyUsedTextureNames() };
 	EditTextureForm formEditTexture(this, m_glComponent->getResourcesPath(), nullptr, m_glComponent->getAlreadyUsedTextureNames());
-    UIUtils::CenterToScreen(&formEditTexture);
+    UIUtils::centerToScreen(&formEditTexture);
 	if (formEditTexture.exec() == QDialog::Accepted) {
         emit textureAdded(formEditTexture.getTextureInfo());
 	}

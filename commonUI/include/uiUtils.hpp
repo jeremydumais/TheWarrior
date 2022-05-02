@@ -5,5 +5,5 @@
 class UIUtils
 {
 public:
-    static void CenterToScreen(QWidget* widget);
+    static void centerToScreen(QWidget* widget);
 };

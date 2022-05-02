@@ -5,7 +5,7 @@
 #include <QScreen>
 
 
-void UIUtils::CenterToScreen(QWidget* widget) 
+void UIUtils::centerToScreen(QWidget* widget) 
 {
   if (!widget)
     return;

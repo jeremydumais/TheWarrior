@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("The Warrior");
     QCoreApplication::setApplicationVersion(QT_VERSION_STR);
     MainForm mainWin;
-    UIUtils::CenterToScreen(&mainWin);
+    UIUtils::centerToScreen(&mainWin);
     mainWin.showMaximized();
     return QApplication::exec();
 }

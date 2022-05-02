@@ -184,7 +184,7 @@ void MainForm_TileTabComponent::onPushButtonAddTileEventClick()
 													m_glComponent->getResourcesPath(), 
 													nullptr,
 													currentMapTile->getTriggers());
-		UIUtils::CenterToScreen(&formEditMapTileTrigger);
+		UIUtils::centerToScreen(&formEditMapTileTrigger);
 		if (formEditMapTileTrigger.exec() == QDialog::Accepted) {
 			currentMapTile->addTrigger(formEditMapTileTrigger.getUpdatedTrigger());
 			refreshEventList(m_glComponent->getCurrentMapTile());
@@ -205,7 +205,7 @@ void MainForm_TileTabComponent::onPushButtonEditTileEventClick()
 														m_glComponent->getResourcesPath(), 
 														&selectedMapTileTrigger.get(),
 														currentMapTile->getTriggers());
-			UIUtils::CenterToScreen(&formEditMapTileTrigger);
+			UIUtils::centerToScreen(&formEditMapTileTrigger);
 			if (formEditMapTileTrigger.exec() == QDialog::Accepted) {
 				if (!currentMapTile->updateTrigger(selectedMapTileTrigger.get(), formEditMapTileTrigger.getUpdatedTrigger())) {
 					ErrorMessage::show("An error occurred while trying to update the selected trigger.");
