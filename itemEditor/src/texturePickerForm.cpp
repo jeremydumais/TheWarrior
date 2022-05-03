@@ -24,8 +24,8 @@ void TexturePickerForm::refreshTextureComboBox()
 {
 	ui.comboBoxTexture->model()->removeRows(0, ui.comboBoxTexture->count());
 	int i = 0;
-	for (const auto &texture : m_controller.getTextures()) {
-		ui.comboBoxTexture->insertItem(i, texture.getName().c_str());
+	for (const auto &texture : m_controller.getTextureNames()) {
+		ui.comboBoxTexture->insertItem(i, texture.c_str());
 		i++;
 	}
 }
@@ -41,55 +41,47 @@ void TexturePickerForm::connectUIActions()
 
 void TexturePickerForm::onPushButtonCancelClick()
 {
-	close();
+	reject();
 }
 
 void TexturePickerForm::onPushButtonOKClick()
 {
+	if (!ui.lineEditTextureName->text().trimmed().isEmpty()) {
+
+		accept();
+	}
 }
 
 void TexturePickerForm::onLabelImageTextureMouseReleaseEvent(QMouseEvent *event) 
 {
 	int comboBoxTextureCurrentIndex { ui.comboBoxTexture->currentIndex() };
 	std::string textureName { ui.comboBoxTexture->itemText(comboBoxTextureCurrentIndex).toStdString() };
-	auto texture { m_controller.getTextureByName(textureName) };
-	if (texture.has_value()) {
-		std::string name { textureName };
-		//TODO Put the code of getTextureIndexFromPosition in the qClickableLabelClass
-		//int index = m_controller.getTextureIndexFromPosition(Point(event->pos().x(), event->pos().y()), texture->get());
+	//auto texture { m_controller.getTextureByName(textureName) };
+	if (m_controller.isTextureExist(textureName)) {
+		/*int index = TextureUtils::getTextureIndexFromPosition(Point(event->pos().x(), event->pos().y()), texture->get());
+		ui.spinBoxTextureIndex->setValue(index);
 		//Display the selected texture or object on the selected image
-		/*auto imagePart { getTextureTileImageFromTexture(index, texture->get()) };
-        auto selectionMode { m_glComponent->getSelectionMode() };
-		if (selectionMode == SelectionMode::ApplyTexture) {
-			m_glComponent->setLastSelectedTexture(name, index);
-			m_labelSelectedTexture->setPixmap(imagePart);
-		}
-		else if (selectionMode == SelectionMode::ApplyObject) {
-			m_glComponent->setLastSelectedObject(name, index);
-			m_labelSelectedObject->setPixmap(imagePart);
-		}*/
+		auto imagePart { TextureUtils::getTextureTileImageFromTexture(ui.labelImageTexture->pixmap(), index, texture->get()) };
+		ui.labelSelectedTexture->setPixmap(imagePart);*/
 	}	
 }
 
 void TexturePickerForm::onComboBoxTextureCurrentIndexChanged() 
 {
-	displaySelectedTextureImage();
-}
-
-void TexturePickerForm::displaySelectedTextureImage() 
-{
 	//Find the selected texture
-	auto texture { m_controller.getTextureByName(ui.comboBoxTexture->itemText(ui.comboBoxTexture->currentIndex()).toStdString()) };
-	if (texture.has_value()) {
-		QImageReader reader(fmt::format("{0}/{1}", m_resourcesPath, texture->get().getFilename()).c_str());
+	auto textureName = ui.comboBoxTexture->itemText(ui.comboBoxTexture->currentIndex()).toStdString();
+	//auto texture { m_controller.getTextureByName(textureName) };
+	if (m_controller.isTextureExist(textureName)) {
+		QImageReader reader(m_controller.getTextureFileName(m_resourcesPath, textureName).c_str());
 		const QImage image { reader.read() };
 		ui.labelImageTexture->setFixedSize(image.width(), image.height());
 		ui.labelImageTexture->setPixmap(QPixmap::fromImage(image));
-		ui.lineEditTextureName->setText(texture->get().getName().c_str());
+		ui.lineEditTextureName->setText(textureName.c_str());
 	}
 	else {
 		ui.labelImageTexture->clear();
 		ui.lineEditTextureName->clear();
-		ui.spinBoxTextureIndex->setValue(0);
 	}
+	ui.spinBoxTextureIndex->setValue(0);
+	ui.labelSelectedTexture->clear();
 }

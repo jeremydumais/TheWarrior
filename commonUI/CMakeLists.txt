@@ -2,7 +2,8 @@
 set(PROJECT_NAME    "commonUI")
 
 include_directories(${QT_INCLUDE_PATH}
-                    ${CMAKE_CURRENT_SOURCE_DIR}/include)
+                    ${CMAKE_CURRENT_SOURCE_DIR}/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include)
 
 find_package(Qt5 COMPONENTS Gui OpenGL REQUIRED)
 
@@ -15,7 +16,8 @@ set(CMAKE_AUTOUIC_SEARCH_PATHS AUTOGEN_BUILD_DIR/include)
 
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/errorMessage.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/uiUtils.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/qClickableLabel.cpp)
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/qClickableLabel.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/textureUtils.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -23,7 +25,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STRE
 endif()
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${CONAN_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} Qt5::Widgets)
+target_link_libraries(${PROJECT_NAME} theWarrior.Models Qt5::Widgets)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
@@ -66,6 +68,10 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
       PUBLIC /wdC4251
       INTERFACE NOMINMAX # avoid Win macro definition of min/max, use std one
       INTERFACE _SCL_SECURE_NO_WARNINGS) # disable security-paranoia warning
+endif()
+
+if (NOT DEFINED BUILD_TESTING OR BUILD_TESTING)
+    add_subdirectory("test")
 endif()
 
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)

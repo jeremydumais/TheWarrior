@@ -1,4 +1,5 @@
 #include "mainForm_TextureSelectionComponent.hpp"
+#include "textureUtils.hpp"
 #include <QtGlobal>
 #include <fmt/format.h>
 #include <qnamespace.h>
@@ -65,7 +66,7 @@ void MainForm_TextureSelectionComponent::displaySelectedTextureImage()
 	}
 }
 
-QPixmap MainForm_TextureSelectionComponent::getTextureTileImageFromTexture(int tileIndex, const Texture &texture) const 
+/*QPixmap MainForm_TextureSelectionComponent::getTextureTileImageFromTexture(int tileIndex, const Texture &texture) const 
 {
 	int textureWidthInPixel { texture.getWidth() };
 	int textureHeightInPixel { texture.getHeight() };
@@ -83,7 +84,7 @@ QPixmap MainForm_TextureSelectionComponent::getTextureTileImageFromTexture(int t
 																texture.getTileHeight());
 	#endif																				
 	return imagePart;
-}
+}*/
 
 void MainForm_TextureSelectionComponent::onPushButtonSelectedTextureClearClick() 
 {
@@ -104,9 +105,9 @@ void MainForm_TextureSelectionComponent::onLabelImageTextureMouseReleaseEvent(QM
 	auto texture { m_glComponent->getTextureByName(textureName) };
 	if (texture.has_value()) {
 		string name { textureName };
-		int index = m_controller.getTextureIndexFromPosition(Point(event->pos().x(), event->pos().y()), texture->get());
+		int index = TextureUtils::getTextureIndexFromPosition(Point(event->pos().x(), event->pos().y()), texture->get());
 		//Display the selected texture or object on the selected image
-		auto imagePart { getTextureTileImageFromTexture(index, texture->get()) };
+		auto imagePart { TextureUtils::getTextureTileImageFromTexture(m_labelImageTexture->pixmap(), index, texture->get()) };
         auto selectionMode { m_glComponent->getSelectionMode() };
 		if (selectionMode == SelectionMode::ApplyTexture) {
 			m_glComponent->setLastSelectedTexture(name, index);

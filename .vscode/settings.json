@@ -89,7 +89,9 @@
         "source_location": "cpp",
         "numbers": "cpp",
         "semaphore": "cpp",
-        "stop_token": "cpp"
+        "stop_token": "cpp",
+        "qcombobox": "cpp",
+        "qtglobal": "cpp"
     },
     "editor.tokenColorCustomizations": {
         "textMateRules": [

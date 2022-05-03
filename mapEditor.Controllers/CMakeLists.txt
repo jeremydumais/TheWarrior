@@ -6,8 +6,7 @@ include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include)
 
                     set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/mainController.cpp
-                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/glComponentController.cpp
-                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/textureSelectionComponentController.cpp)
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/glComponentController.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
