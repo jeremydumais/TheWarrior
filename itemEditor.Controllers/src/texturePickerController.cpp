@@ -1,4 +1,5 @@
 #include "texturePickerController.hpp"
+#include "textureUtils.hpp"
 #include <boost/algorithm/string.hpp>
 #include <fmt/format.h>
 #include <algorithm>
@@ -21,34 +22,54 @@ std::vector<std::string> TexturePickerController::getTextureNames() const
 
 std::string TexturePickerController::getTextureFileName(const std::string &resourcesPath, const std::string &textureName) const
 {
-    auto textures = m_textureContainer.getTextures();
-    auto iter =  std::find_if(textures.begin(), 
-                              textures.end(), 
-                              [resourcesPath, textureName](const Texture &texture) { 
-                                  return texture.getName() == textureName; 
-                                  });
-    if (iter != textures.end()) {
-        if (!boost::algorithm::trim_copy(resourcesPath).empty()) {
-            return fmt::format("{0}/{1}", resourcesPath, iter->getFilename());
-        }
-        else {
-            return iter->getFilename();
-        }
+    auto texture = getTextureByName(textureName);
+    if (!texture.has_value()) {
+        return "";
     }
-    return "";
-}
 
+    if (!boost::algorithm::trim_copy(resourcesPath).empty()) {
+        return fmt::format("{0}/{1}", resourcesPath, texture->get().getFilename());
+    }
+    else {
+        return texture->get().getFilename();
+    }
+}
 
 bool TexturePickerController::isTextureExist(const std::string &name) const
 {
-    auto textures = m_textureContainer.getTextures();
-    return std::find_if(textures.begin(), 
-                        textures.end(), 
-                        [name](const Texture &texture) { return texture.getName() == name; }) != textures.end();
+    return getTextureByName(name).has_value();    
+}
     
+int TexturePickerController::getTextureIndexFromPosition(const Point &pos, const std::string &textureName) const
+{
+    auto texture = getTextureByName(textureName);
+    if (!texture.has_value()) {
+        return -1;
+    }
+    return TextureUtils::getTextureIndexFromPosition(pos, texture->get());
 }
 
-/*std::optional<std::reference_wrapper<const Texture>> TexturePickerController::getTextureByName(const std::string &name) const
+QPixmap TexturePickerController::getTextureTileImageFromTexture(const QPixmap *sourcePixmap, int tileIndex, const std::string &textureName) const
 {
-    return m_textureContainer.getTextureByName(name);
-}*/
+    auto texture = getTextureByName(textureName);
+    if (!texture.has_value()) {
+        return QPixmap();
+    }
+    else {
+        return TextureUtils::getTextureTileImageFromTexture(sourcePixmap, tileIndex, texture->get());
+    }
+}
+
+std::optional<std::reference_wrapper<const Texture>> TexturePickerController::getTextureByName(const std::string &name) const
+{
+    auto textures = m_textureContainer.getTextures();
+    auto iter =  std::find_if(textures.begin(), 
+                              textures.end(), 
+                              [name](const Texture &texture) { 
+                                  return texture.getName() == name; 
+                                  });
+    if (iter == textures.end()) {
+        return std::nullopt;
+    }
+    return {*iter};
+}

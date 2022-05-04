@@ -65,3 +65,13 @@ TEST_F(TextureContainerSample1, getTextureFileName_WithTmpAndFile2_ReturnValidPa
 {
     ASSERT_EQ("/tmp/file2.png", controller.getTextureFileName("/tmp", "file2"));
 }
+
+TEST_F(TextureContainerSample1, getTextureTileImageFromTexture_With1_255AndFile_Return0) 
+{
+    ASSERT_EQ(0, controller.getTextureIndexFromPosition(Point(1, 255), "file"));
+}
+
+TEST_F(TextureContainerSample1, getTextureTileImageFromTexture_With1_255AndFile8_ReturnMinus1) 
+{
+    ASSERT_EQ(-1, controller.getTextureIndexFromPosition(Point(1, 255), "file8"));
+}

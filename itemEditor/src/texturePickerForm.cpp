@@ -36,7 +36,14 @@ void TexturePickerForm::connectUIActions()
 	connect(ui.pushButtonOK, &QPushButton::clicked, this, &TexturePickerForm::onPushButtonOKClick);
 	connect(ui.labelImageTexture, &QClickableLabel::onMouseReleaseEvent, this, &TexturePickerForm::onLabelImageTextureMouseReleaseEvent);
 	connect(ui.comboBoxTexture, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &TexturePickerForm::onComboBoxTextureCurrentIndexChanged);
+}
 
+PickerResult TexturePickerForm::getResult() const
+{
+	return PickerResult {
+		ui.lineEditTextureName->text().toStdString(),
+		ui.spinBoxTextureIndex->value()
+	};
 }
 
 void TexturePickerForm::onPushButtonCancelClick()
@@ -56,13 +63,12 @@ void TexturePickerForm::onLabelImageTextureMouseReleaseEvent(QMouseEvent *event)
 {
 	int comboBoxTextureCurrentIndex { ui.comboBoxTexture->currentIndex() };
 	std::string textureName { ui.comboBoxTexture->itemText(comboBoxTextureCurrentIndex).toStdString() };
-	//auto texture { m_controller.getTextureByName(textureName) };
 	if (m_controller.isTextureExist(textureName)) {
-		/*int index = TextureUtils::getTextureIndexFromPosition(Point(event->pos().x(), event->pos().y()), texture->get());
+		int index = m_controller.getTextureIndexFromPosition(Point(event->pos().x(), event->pos().y()), textureName);
 		ui.spinBoxTextureIndex->setValue(index);
 		//Display the selected texture or object on the selected image
-		auto imagePart { TextureUtils::getTextureTileImageFromTexture(ui.labelImageTexture->pixmap(), index, texture->get()) };
-		ui.labelSelectedTexture->setPixmap(imagePart);*/
+		auto imagePart { m_controller.getTextureTileImageFromTexture(ui.labelImageTexture->pixmap(), index, textureName) };
+		ui.labelSelectedTexture->setPixmap(imagePart);
 	}	
 }
 
@@ -70,7 +76,6 @@ void TexturePickerForm::onComboBoxTextureCurrentIndexChanged()
 {
 	//Find the selected texture
 	auto textureName = ui.comboBoxTexture->itemText(ui.comboBoxTexture->currentIndex()).toStdString();
-	//auto texture { m_controller.getTextureByName(textureName) };
 	if (m_controller.isTextureExist(textureName)) {
 		QImageReader reader(m_controller.getTextureFileName(m_resourcesPath, textureName).c_str());
 		const QImage image { reader.read() };

@@ -2,7 +2,6 @@
 
 #include "point.hpp"
 #include "texture.hpp"
-#include <qlabel.h>
 #include <qpixmap.h>
 
 class TextureUtils

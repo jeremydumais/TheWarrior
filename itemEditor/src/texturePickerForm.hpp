@@ -6,11 +6,12 @@
 #include "texturePickerController.hpp"
 #include <string>
 
-/*struct PickerResult 
+struct PickerResult 
 {
-	const std::string textureName
-}
-*/
+	std::string textureName;
+	int textureIndex;
+};
+
 class TexturePickerForm : public QDialog
 {
 Q_OBJECT
@@ -20,7 +21,7 @@ public:
 				      const std::string &resourcesPath,
 					  const TextureContainer &textureContainer);
 	void connectUIActions();
-
+	PickerResult getResult() const;
 private:
 	Ui::texturePickerFormClass ui;
 	const std::string &m_resourcesPath;
