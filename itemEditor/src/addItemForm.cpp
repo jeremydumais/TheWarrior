@@ -38,7 +38,11 @@ void AddItemForm::onPushButtonTexturePickerClick()
 	TexturePickerForm texturePickerForm(this, 
 										m_resourcesPath,
 										m_controller.getTextureContainer());
-	//TODO If a texturename is already set, send it to the picker form to load the correct texture
+	auto selectedTexture = ui.lineEditTextureName->text();
+	if (!selectedTexture.trimmed().isEmpty()) {
+		texturePickerForm.setCurrentSelection(selectedTexture.toStdString(),
+											  ui.spinBoxTextureIndex->value());
+	}
 	if (texturePickerForm.exec() == QDialog::Accepted) {
 		const auto &result = texturePickerForm.getResult();
 		ui.lineEditTextureName->setText(result.textureName.c_str());

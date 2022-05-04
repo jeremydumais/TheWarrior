@@ -38,6 +38,19 @@ void TexturePickerForm::connectUIActions()
 	connect(ui.comboBoxTexture, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &TexturePickerForm::onComboBoxTextureCurrentIndexChanged);
 }
 
+
+void TexturePickerForm::setCurrentSelection(const std::string &textureName,
+							 				int textureIndex)
+{
+	for (int i = 0; i < ui.comboBoxTexture->count(); i++) {
+		if (ui.comboBoxTexture->itemText(i).toStdString() == textureName) {
+			ui.comboBoxTexture->setCurrentIndex(i);
+		}
+	}
+	ui.spinBoxTextureIndex->setValue(textureIndex);
+	displaySelectedTile(textureName, textureIndex);
+}
+
 PickerResult TexturePickerForm::getResult() const
 {
 	return PickerResult {
@@ -64,12 +77,20 @@ void TexturePickerForm::onLabelImageTextureMouseReleaseEvent(QMouseEvent *event)
 	int comboBoxTextureCurrentIndex { ui.comboBoxTexture->currentIndex() };
 	std::string textureName { ui.comboBoxTexture->itemText(comboBoxTextureCurrentIndex).toStdString() };
 	if (m_controller.isTextureExist(textureName)) {
-		int index = m_controller.getTextureIndexFromPosition(Point(event->pos().x(), event->pos().y()), textureName);
+		int index = m_controller.getTextureIndexFromPosition(Point(event->pos().x(), event->pos().y()), 
+															 textureName);
 		ui.spinBoxTextureIndex->setValue(index);
-		//Display the selected texture or object on the selected image
-		auto imagePart { m_controller.getTextureTileImageFromTexture(ui.labelImageTexture->pixmap(), index, textureName) };
-		ui.labelSelectedTexture->setPixmap(imagePart);
+		displaySelectedTile(textureName, index);
 	}	
+}
+
+void TexturePickerForm::displaySelectedTile(const std::string &textureName,
+							 int textureIndex)
+{
+	auto imagePart { m_controller.getTextureTileImageFromTexture(ui.labelImageTexture->pixmap(), 
+																 textureIndex,
+																 textureName) };
+	ui.labelSelectedTexture->setPixmap(imagePart);
 }
 
 void TexturePickerForm::onComboBoxTextureCurrentIndexChanged() 

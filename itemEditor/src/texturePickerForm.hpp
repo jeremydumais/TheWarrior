@@ -21,6 +21,8 @@ public:
 				      const std::string &resourcesPath,
 					  const TextureContainer &textureContainer);
 	void connectUIActions();
+	void setCurrentSelection(const std::string &textureName,
+							 int textureIndex);
 	PickerResult getResult() const;
 private:
 	Ui::texturePickerFormClass ui;
@@ -30,6 +32,8 @@ private:
 	void onPushButtonOKClick();
 	void refreshTextureComboBox();
 	void onLabelImageTextureMouseReleaseEvent(QMouseEvent *event);
+	void displaySelectedTile(const std::string &textureName,
+							 int textureIndex);
 	void onComboBoxTextureCurrentIndexChanged();
 
 };
