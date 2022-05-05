@@ -107,7 +107,8 @@ void MainForm_TextureSelectionComponent::onLabelImageTextureMouseReleaseEvent(QM
 		string name { textureName };
 		int index = TextureUtils::getTextureIndexFromPosition(Point(event->pos().x(), event->pos().y()), texture->get());
 		//Display the selected texture or object on the selected image
-		auto imagePart { TextureUtils::getTextureTileImageFromTexture(m_labelImageTexture->pixmap(), index, texture->get()) };
+		auto qpixmap = TextureUtils::getTexturePixmapFromLabel(m_labelImageTexture);
+		auto imagePart { TextureUtils::getTextureTileImageFromTexture(&qpixmap, index, texture->get()) };
         auto selectionMode { m_glComponent->getSelectionMode() };
 		if (selectionMode == SelectionMode::ApplyTexture) {
 			m_glComponent->setLastSelectedTexture(name, index);

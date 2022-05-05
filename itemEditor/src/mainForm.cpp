@@ -238,7 +238,7 @@ void MainForm::onPushButtonAddAnItemClick()
 	AddItemChooserForm addItemChooserForm(this);
 	if (addItemChooserForm.exec() == QDialog::Accepted) {
 		AddItemForm addItemForm(this,
-								m_resourcesPath,
+								getResourcesPath(),
 								m_controller.getItemStore());
 		addItemForm.exec();
 	}

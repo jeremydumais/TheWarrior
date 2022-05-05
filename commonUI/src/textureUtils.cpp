@@ -21,3 +21,12 @@ QPixmap TextureUtils::getTextureTileImageFromTexture(const QPixmap *sourcePixmap
 										   texture.getTileHeight());																				
 	return imagePart;
 }
+
+QPixmap TextureUtils::getTexturePixmapFromLabel(const QLabel *label)
+{
+	#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+		return label->pixmap(Qt::ReturnByValue);
+	#else
+		return *label->pixmap();
+	#endif
+}

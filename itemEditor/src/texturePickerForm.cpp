@@ -1,4 +1,5 @@
 #include "texturePickerForm.hpp"
+#include "textureUtils.hpp"
 #include "qClickableLabel.hpp"
 #include <fmt/format.h>
 #include <qimage.h>
@@ -87,7 +88,8 @@ void TexturePickerForm::onLabelImageTextureMouseReleaseEvent(QMouseEvent *event)
 void TexturePickerForm::displaySelectedTile(const std::string &textureName,
 							 int textureIndex)
 {
-	auto imagePart { m_controller.getTextureTileImageFromTexture(ui.labelImageTexture->pixmap(), 
+	auto pixmap = TextureUtils::getTexturePixmapFromLabel(ui.labelImageTexture);
+	auto imagePart { m_controller.getTextureTileImageFromTexture(&pixmap, 
 																 textureIndex,
 																 textureName) };
 	ui.labelSelectedTexture->setPixmap(imagePart);
