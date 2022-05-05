@@ -16,8 +16,10 @@ public:
 				const std::string &resourcesPath,
 				std::shared_ptr<ItemStore> itemStore);
 	void connectUIActions();
+	
 private:
 	Ui::addItemFormClass ui;
+	std::string m_lastError;
 	const std::string &m_resourcesPath;
 	AddItemController m_controller;
 	void onPushButtonCancelClick();

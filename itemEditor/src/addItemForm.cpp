@@ -7,6 +7,7 @@ AddItemForm::AddItemForm(QWidget *parent,
 						 std::shared_ptr<ItemStore> itemStore)
 	: QDialog(parent),
 	  ui(Ui::addItemFormClass()),
+	  m_lastError(""),
 	  m_resourcesPath(resourcesPath),
 	  m_controller(itemStore)
 {
