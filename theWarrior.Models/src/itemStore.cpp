@@ -1,4 +1,5 @@
 #include "itemStore.hpp"
+#include <algorithm>
 
 using namespace std;
 
@@ -19,6 +20,22 @@ size_t ItemStore::getItemCount() const
     return m_items.size();
 }
 
+std::vector<std::reference_wrapper<const Item>> ItemStore::getItems() const
+{
+    std::vector<std::reference_wrapper<const Item>> retval {};
+    std::transform(m_items.begin(), 
+                   m_items.end(), 
+                   std::back_inserter(retval),
+                   [] (std::pair<const std::string &, const Item &>item) {
+                       return std::reference_wrapper(item.second);
+                   });
+    std::sort(retval.begin(), retval.end(), [](std::reference_wrapper<const Item> a,
+                                               std::reference_wrapper<const Item> b) {
+        return a.get().getId() < b.get().getId();
+    });
+    return retval;
+}
+
 boost::optional<const Item &> ItemStore::findItem(const std::string &id) const
 {
     const auto iter = m_items.find(id);
@@ -29,6 +46,12 @@ boost::optional<const Item &> ItemStore::findItem(const std::string &id) const
         return {};
     }
 }
+
+bool ItemStore::isItemExists(const std::string &id) const
+{
+    return this->findItem(id).has_value();
+}
+
 
 bool ItemStore::addItem(const Item &item) 
 {

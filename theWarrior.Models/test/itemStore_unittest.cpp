@@ -32,6 +32,19 @@ TEST_F(DefaultConstructedItemStore, getItemCount_ReturnZero)
     ASSERT_EQ(0, itemStore.getItemCount());
 }
 
+TEST_F(DefaultConstructedItemStore, getItems_ReturnEmpty)
+{
+    ASSERT_EQ(0, itemStore.getItems().size());
+}
+
+TEST_F(ItemStoreWithTwoItems, getItems_Return2Items)
+{
+    auto items = itemStore.getItems();
+    ASSERT_EQ(2, items.size());
+    ASSERT_EQ("shd001", items[0].get().getId());
+    ASSERT_EQ("shd002", items[1].get().getId());
+}
+
 TEST_F(ItemStoreWithTwoItems, findItem_NonExistingItem_ReturnEmpty)
 {
     auto result = itemStore.findItem("non123");
@@ -50,6 +63,21 @@ TEST_F(ItemStoreWithTwoItems, findItem_ExistingItem2_ReturnItem)
     auto result = itemStore.findItem("shd002");
     ASSERT_TRUE(result.has_value());
     ASSERT_EQ(itemSample2, *result);
+}
+
+TEST_F(ItemStoreWithTwoItems, isItemExists_NonExistingItem_ReturnFalse)
+{
+    ASSERT_FALSE(itemStore.isItemExists("non123"));
+}
+
+TEST_F(ItemStoreWithTwoItems, isItemExists_ExistingItem1_ReturnTrue)
+{
+    ASSERT_TRUE(itemStore.isItemExists("shd001"));
+}
+
+TEST_F(ItemStoreWithTwoItems, isItemExists_ExistingItem2_ReturnTrue)
+{
+    ASSERT_TRUE(itemStore.isItemExists("shd002"));
 }
 
 TEST_F(DefaultConstructedItemStore, addItem_NonExistingItem_ReturnTrue)

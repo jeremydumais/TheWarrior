@@ -52,6 +52,11 @@ bool Item::operator!=(const Item &other) const
     return !(*this == other);
 }
 
+std::string Item::getType() const
+{
+    return "Item";
+}
+
 const std::string &Item::getId() const
 {
     return m_id;

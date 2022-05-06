@@ -7,9 +7,11 @@
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/unordered_map.hpp>
 #include <boost/serialization/version.hpp>
+#include <functional>
 #include <optional>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 class ItemStore
 {
@@ -17,7 +19,9 @@ public:
     ItemStore();
     const std::string &getLastError() const;
     size_t getItemCount() const;
+    std::vector<std::reference_wrapper<const Item>> getItems() const;
     boost::optional<const Item &> findItem(const std::string &id) const;
+    bool isItemExists(const std::string &id) const;
     bool addItem(const Item &item);
     bool replaceItem(const std::string oldId, const Item &item);
     bool removeItem(const std::string &id);

@@ -25,17 +25,26 @@ void AddItemForm::connectUIActions()
 
 void AddItemForm::onPushButtonCancelClick()
 {
-	close();
+	reject();
 }
 
 void AddItemForm::onPushButtonOKClick()
 {
-	ErrorMessage::show("Ok!");
+	ItemCreationInfo itemInfo {
+		ui.lineEditId->text().toStdString(),
+		ui.lineEditName->text().toStdString(),
+		ui.lineEditTextureName->text().toStdString(),
+		ui.spinBoxTextureIndex->value()
+	};
+	if (!m_controller.addItem(itemInfo)) {
+		ErrorMessage::show(m_controller.getLastError());
+		return;
+	}
+	accept();
 }
 
 void AddItemForm::onPushButtonTexturePickerClick()
 {
-
 	TexturePickerForm texturePickerForm(this, 
 										m_resourcesPath,
 										m_controller.getTextureContainer());

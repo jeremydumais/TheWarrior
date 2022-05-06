@@ -18,10 +18,10 @@ Q_OBJECT
 public:
 	AddItemChooserForm(QWidget *parent);
 	void connectUIActions();
-
+	ItemType getResult() const;
 private:
 	Ui::addItemChooserFormClass ui;
-	ItemType result;
+	ItemType m_result;
 	void onPushButtonCloseClick();
 	void onPushButtonAddItemClick();
 	void onPushButtonAddWeaponItemClick();

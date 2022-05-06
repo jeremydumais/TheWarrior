@@ -25,12 +25,16 @@ private:
 	MainController m_controller;
 	static const std::string THEME_PATH;
 	static const std::string RECENT_MAPS;
+	void initializeCategoriesTableControl();
+	void initializeItemsTableControl();
 	void action_About_Click();
 	void action_LightTheme_Click();
 	void action_DarkTheme_Click();
 	void action_OpenItemStore_Click();
 	void action_SaveItemStore_Click();
 	void action_SaveAsItemStore_Click();
+	void refreshCategoriesTable();
+	void refreshItemsTable();
 	void action_ManageTextures_Click();
     const std::string &getExecutablePath();
     const std::string &getResourcesPath();
@@ -38,8 +42,8 @@ private:
 	void openItemStore(const std::string &filePath);
 	void saveItemStore(const std::string &filePath);
 	void refreshWindowTitle();
+	void onTableWidgetItemCategoriesCurrentItemChanged(QTableWidgetItem *, QTableWidgetItem *);
 	void onPushButtonAddAnItemClick();
-
 };
 
 #endif // MAINFORM_H

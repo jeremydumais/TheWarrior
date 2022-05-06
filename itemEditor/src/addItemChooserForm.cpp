@@ -4,7 +4,7 @@
 AddItemChooserForm::AddItemChooserForm(QWidget *parent)
 	: QDialog(parent),
 	  ui(Ui::addItemChooserFormClass()),
-	  result(ItemType::Item)
+	  m_result(ItemType::Item)
 {
 	ui.setupUi(this);
 	setWindowIcon(QIcon(":/ItemEditor Icon.png"));
@@ -20,6 +20,11 @@ void AddItemChooserForm::connectUIActions()
 	connect(ui.pushButtonAddStatsItem, &QPushButton::clicked, this, &AddItemChooserForm::onPushButtonAddStatsItemClick);
 }
 
+ItemType AddItemChooserForm::getResult() const
+{
+	return m_result;
+}
+
 void AddItemChooserForm::onPushButtonCloseClick()
 {
 	reject();
@@ -27,24 +32,24 @@ void AddItemChooserForm::onPushButtonCloseClick()
 	
 void AddItemChooserForm::onPushButtonAddItemClick()
 {
-	result = ItemType::Item;
+	m_result = ItemType::Item;
 	accept();
 }
 
 void AddItemChooserForm::onPushButtonAddWeaponItemClick()
 {
-	result = ItemType::Weapon;
+	m_result = ItemType::Weapon;
 	accept();
 }
 
 void AddItemChooserForm::onPushButtonAddArmorItemClick()
 {
-	result = ItemType::Armor;
+	m_result = ItemType::Armor;
 	accept();
 }
 
 void AddItemChooserForm::onPushButtonAddStatsItemClick()
 {
-	result = ItemType::StatsItem;
+	m_result = ItemType::StatsItem;
 	accept();
 }

@@ -24,7 +24,7 @@ MainForm::MainForm(QWidget *parent)
 	  m_userConfigFolder(""),
 	  m_executablePath(""),
 	  m_resourcesPath(""),
-	  m_currentFilePath("/home/jed/Programming/TheWarrior/resources/items/itemstore.itm"),
+	  m_currentFilePath(""),
 	  m_controller(MainController())
 {
 	ui.setupUi(this);
@@ -48,10 +48,29 @@ MainForm::MainForm(QWidget *parent)
 						   configManager.getLastError());
 	}
 
-    ui.listWidgetItemCategories->setFixedWidth(300);
 
+	initializeCategoriesTableControl();
+	initializeItemsTableControl();
     connectUIActions();
+
+	//TODO To remove (test only)
+	m_currentFilePath = "/home/jed/Programming/TheWarrior/resources/items/itemstore.itm";
 	openItemStore(m_currentFilePath);
+	m_controller.getItemStore()->addItem(Item({ "ite001", "Item1", "Tex1", 0}));
+	refreshCategoriesTable();
+	refreshItemsTable();
+}
+
+void MainForm::initializeCategoriesTableControl()
+{
+    ui.tableWidgetItemCategories->setFixedWidth(300);
+	ui.tableWidgetItemCategories->setHorizontalHeaderItem(0, new QTableWidgetItem("Categories"));
+}
+
+void MainForm::initializeItemsTableControl()
+{
+	ui.tableWidgetItems->setHorizontalHeaderItem(0, new QTableWidgetItem("Id"));
+	ui.tableWidgetItems->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
 }
 
 void MainForm::connectUIActions() 
@@ -65,6 +84,7 @@ void MainForm::connectUIActions()
 	connect(ui.action_SaveAs, &QAction::triggered, this, &MainForm::action_SaveAsItemStore_Click);
 	connect(ui.action_ManageTextures, &QAction::triggered, this, &MainForm::action_ManageTextures_Click);
 	connect(ui.pushButtonAddItem, &QPushButton::clicked, this, &MainForm::onPushButtonAddAnItemClick);
+	connect(ui.tableWidgetItemCategories, &QTableWidget::currentItemChanged, this, &MainForm::onTableWidgetItemCategoriesCurrentItemChanged);
 }
 
 void MainForm::functionAfterShown()
@@ -132,6 +152,8 @@ void MainForm::action_OpenItemStore_Click()
 	if (fullFilePath != "") {
 		openItemStore(fullFilePath.toStdString());
 		m_currentFilePath = fullFilePath.toStdString();
+		refreshCategoriesTable();
+		refreshItemsTable();
 	}
 	refreshWindowTitle();
 }
@@ -158,6 +180,34 @@ void MainForm::action_SaveAsItemStore_Click()
 		saveItemStore(m_currentFilePath);
 	}
 	refreshWindowTitle();
+}
+
+void MainForm::refreshCategoriesTable()
+{
+	ui.tableWidgetItemCategories->model()->removeRows(0, ui.tableWidgetItemCategories->rowCount());
+	int index = 0;
+	for(const std::string &category : m_controller.getItemCategories()) {
+		ui.tableWidgetItemCategories->insertRow(index);
+		ui.tableWidgetItemCategories->setItem(index, 0, new QTableWidgetItem(category.c_str()));
+		index++;
+	}
+}
+
+void MainForm::refreshItemsTable()
+{
+	ui.tableWidgetItems->model()->removeRows(0, ui.tableWidgetItems->rowCount());
+	auto currentItemCategorySelection = ui.tableWidgetItemCategories->currentItem();
+	if (ui.tableWidgetItemCategories->currentItem() != nullptr) {
+		auto selectedItemCategory = currentItemCategorySelection->text().toStdString();
+		auto itemsToDisplay = m_controller.getItemsFromCategory(selectedItemCategory);
+		int index = 0;
+		for(const auto &item : itemsToDisplay) {
+			ui.tableWidgetItems->insertRow(index);
+			ui.tableWidgetItems->setItem(index, 0, new QTableWidgetItem(item.id.c_str()));
+			ui.tableWidgetItems->setItem(index, 1, new QTableWidgetItem(item.name.c_str()));
+			index++;
+		}
+	}
 }
 
 void MainForm::action_ManageTextures_Click() 
@@ -233,13 +283,23 @@ void MainForm::refreshWindowTitle()
 				   fmt::format("ItemEditor - {0}", m_currentFilePath).c_str());
 }
 
+void MainForm::onTableWidgetItemCategoriesCurrentItemChanged(QTableWidgetItem *, QTableWidgetItem *)
+{
+	refreshItemsTable();
+}
+
 void MainForm::onPushButtonAddAnItemClick() 
 {
 	AddItemChooserForm addItemChooserForm(this);
 	if (addItemChooserForm.exec() == QDialog::Accepted) {
-		AddItemForm addItemForm(this,
-								getResourcesPath(),
-								m_controller.getItemStore());
-		addItemForm.exec();
+		if (addItemChooserForm.getResult() == ItemType::Item) {
+			AddItemForm addItemForm(this,
+									getResourcesPath(),
+									m_controller.getItemStore());
+			if (addItemForm.exec() == QDialog::Accepted) {
+				refreshCategoriesTable();
+				refreshItemsTable();
+			}
+		}
 	}
 }

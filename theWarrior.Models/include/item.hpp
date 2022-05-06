@@ -26,6 +26,7 @@ public:
     virtual bool equals(const Item &other) const;
     bool operator==(const Item &other) const;
     bool operator!=(const Item &other) const;
+    virtual std::string getType() const;
     const std::string &getId() const;
     const std::string &getName() const;
     const std::string &getTextureName() const;
@@ -34,7 +35,7 @@ public:
     void setName(const std::string &name);
     void setTextureName(const std::string &name);
     void setTextureIndex(int index);
-private:
+protected:
     friend class boost::serialization::access;
     std::string m_id;
     std::string m_name; 

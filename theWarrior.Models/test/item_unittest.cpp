@@ -161,6 +161,11 @@ TEST_F(ItemNotCreated_ValidCreationInfo, Constructor_ValidInfos_ReturnSuccess)
     Item item(itemCreationInfo);
 }
 
+TEST_F(ValidItemSample1, getType_ReturnItem) 
+{
+    ASSERT_EQ("Item", item.getType());
+}
+
 TEST_F(ValidItemSample1, getId_ReturnShd001) 
 {
     ASSERT_EQ("shd001", item.getId());
