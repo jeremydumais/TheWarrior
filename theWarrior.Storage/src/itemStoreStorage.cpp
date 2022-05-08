@@ -1,4 +1,5 @@
 #include "itemStoreStorage.hpp"
+#include "armorItem.hpp"
 #include "weaponItem.hpp"
 #include "binaryFileStream.hpp"
 #include <boost/algorithm/string.hpp>
@@ -6,6 +7,7 @@
 #include <fmt/format.h>
 
 BOOST_CLASS_EXPORT_GUID(WeaponItem, "WItem")
+BOOST_CLASS_EXPORT_GUID(ArmorItem, "AItem")
 
 using namespace std;
 using namespace boost::algorithm;

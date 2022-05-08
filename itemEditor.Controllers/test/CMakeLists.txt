@@ -10,6 +10,7 @@ add_executable(${PROJECT_UNITTEST_NAME} ${INCLUDE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}/manageTexturesController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/texturePickerController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/addItemController_unittest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/addArmorItemController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/addWeaponItemController_unittest.cpp)
 
 target_link_libraries(${PROJECT_UNITTEST_NAME} PRIVATE ItemEditor.Controllers theWarrior.Models ${CONAN_LIBS})

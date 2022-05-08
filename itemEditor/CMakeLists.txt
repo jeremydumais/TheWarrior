@@ -28,6 +28,7 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editTextureForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/addItemChooserForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/addItemForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/addArmorItemForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/addWeaponItemForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/texturePickerForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/res/darkstyle/darkstyle.qrc

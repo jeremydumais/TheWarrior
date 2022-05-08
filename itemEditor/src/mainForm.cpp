@@ -1,5 +1,6 @@
 #include "mainForm.hpp"
 #include "aboutBoxForm.hpp"
+#include "addArmorItemForm.hpp"
 #include "addItemForm.hpp"
 #include "addItemChooserForm.hpp"
 #include "addWeaponItemForm.hpp"
@@ -328,6 +329,11 @@ void MainForm::onPushButtonAddAnItemClick()
 				dialog = std::make_unique<AddWeaponItemForm>(this,
 															 getResourcesPath(),
 															 m_controller.getItemStore());
+			break;
+			case ItemType::Armor:
+				dialog = std::make_unique<AddArmorItemForm>(this,
+															getResourcesPath(),
+															m_controller.getItemStore());
 			break;
 			default:
 			break;
