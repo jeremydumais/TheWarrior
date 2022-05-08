@@ -2,16 +2,19 @@
 #include "aboutBoxForm.hpp"
 #include "addItemForm.hpp"
 #include "addItemChooserForm.hpp"
+#include "addWeaponItemForm.hpp"
 #include "configurationManager.hpp"
 #include "errorMessage.hpp"
 #include "manageTexturesForm.hpp"
 #include "specialFolders.hpp"
+#include "weaponItem.hpp"
 #include <QtCore/qfile.h>
 #include <QtWidgets/QFileDialog>
 #include <boost/filesystem.hpp>
 #include <fmt/format.h>
 #include <libgen.h>         // dirname
 #include <linux/limits.h>   // PATH_MAX
+#include <memory>
 #include <unistd.h>         // readlink
 
 const std::string MainForm::THEME_PATH { "Display.Theme" };
@@ -56,7 +59,8 @@ MainForm::MainForm(QWidget *parent)
 	//TODO To remove (test only)
 	m_currentFilePath = "/home/jed/Programming/TheWarrior/resources/items/itemstore.itm";
 	openItemStore(m_currentFilePath);
-	m_controller.getItemStore()->addItem(Item({ "ite001", "Item1", "Tex1", 0}));
+	//m_controller.getItemStore()->addItem(std::make_shared<Item>(ItemCreationInfo{ "ite001", "Item1", "Tex1", 0}));
+	//m_controller.getItemStore()->addItem(std::make_shared<WeaponItem>(WeaponItemCreationInfo{ "swd001", "Sword1", "Tex2", 01, 1.5F, WeaponBodyPart::SecondaryHand}));
 	refreshCategoriesTable();
 	refreshItemsTable();
 }
@@ -188,7 +192,12 @@ void MainForm::refreshCategoriesTable()
 	int index = 0;
 	for(const std::string &category : m_controller.getItemCategories()) {
 		ui.tableWidgetItemCategories->insertRow(index);
-		ui.tableWidgetItemCategories->setItem(index, 0, new QTableWidgetItem(category.c_str()));
+		auto categoryRow = new QTableWidgetItem(category.c_str());
+		categoryRow->setIcon(getCategoryIcon(category));
+		auto font = categoryRow->font();
+		font.setPointSize(16);
+		categoryRow->setFont(font);
+		ui.tableWidgetItemCategories->setItem(index, 0, categoryRow);
 		index++;
 	}
 }
@@ -209,6 +218,22 @@ void MainForm::refreshItemsTable()
 		}
 	}
 }
+	
+QIcon MainForm::getCategoryIcon(const std::string &categoryName) const
+{
+	if (categoryName == "Weapon") {
+		return QIcon(":/sword.png");
+	}
+	else if (categoryName == "Armor") {
+		return QIcon(":/shield.png");
+	}
+	else if (categoryName == "StatsItem") {
+		return QIcon(":/statsitem.png");
+	}
+	else {
+		return QIcon(":/item.png");
+	}
+}
 
 void MainForm::action_ManageTextures_Click() 
 {
@@ -221,7 +246,7 @@ void MainForm::action_ManageTextures_Click()
 const std::string &MainForm::getExecutablePath()
 {
 	if (m_executablePath.empty()) {
-		char result[PATH_MAX];
+		char result[PATH_MAX] = {};
 		ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
 		if (count != -1) {
 			m_executablePath = dirname(result);
@@ -292,14 +317,25 @@ void MainForm::onPushButtonAddAnItemClick()
 {
 	AddItemChooserForm addItemChooserForm(this);
 	if (addItemChooserForm.exec() == QDialog::Accepted) {
-		if (addItemChooserForm.getResult() == ItemType::Item) {
-			AddItemForm addItemForm(this,
-									getResourcesPath(),
-									m_controller.getItemStore());
-			if (addItemForm.exec() == QDialog::Accepted) {
-				refreshCategoriesTable();
-				refreshItemsTable();
-			}
+		std::unique_ptr<QDialog> dialog = nullptr;
+		switch(addItemChooserForm.getResult()) {
+			case ItemType::Item:
+				dialog = std::make_unique<AddItemForm>(this,
+													   getResourcesPath(),
+													   m_controller.getItemStore());
+			break;
+			case ItemType::Weapon:
+				dialog = std::make_unique<AddWeaponItemForm>(this,
+															 getResourcesPath(),
+															 m_controller.getItemStore());
+			break;
+			default:
+			break;
 		}
+		if(dialog != nullptr && dialog->exec() == QDialog::Accepted) {
+			refreshCategoriesTable();
+			refreshItemsTable();
+		}
+
 	}
 }

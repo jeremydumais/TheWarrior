@@ -2,7 +2,6 @@
 
 #include "item.hpp"
 #include <boost/serialization/access.hpp>
-#include <boost/serialization/base_object.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/version.hpp>
 
@@ -42,7 +41,7 @@ protected:
     template<class Archive>
     void serialize(Archive & ar, const unsigned int)
     {
-        ar & boost::serialization::base_object<Item>(*this);
+        ar & boost::serialization::base_object<Item>(*this);    
         ar & m_attackGain;
         ar & m_slotInBodyPart;
     }

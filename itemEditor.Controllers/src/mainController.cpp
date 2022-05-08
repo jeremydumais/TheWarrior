@@ -57,8 +57,8 @@ std::set<std::string> MainController::getItemCategories() const
     std::transform(items.begin(),
                    items.end(),
                    std::inserter(categoriesFound, categoriesFound.begin()),
-                   [] (std::reference_wrapper<const Item> item) {
-                       return item.get().getType();
+                   [] (std::shared_ptr<Item> item) {
+                       return item->getType();
                    });
     return categoriesFound;
 }
@@ -68,8 +68,8 @@ std::vector<ItemListDisplay> MainController::getItemsFromCategory(const std::str
     std::vector<ItemListDisplay> retval {};
     auto items = m_itemStore->getItems();
     for(auto item : items) {
-        if (item.get().getType() == categoryName) {
-            retval.push_back({ item.get().getId(), item.get().getName()});
+        if (item->getType() == categoryName) {
+            retval.push_back({ item->getId(), item->getName()});
         }
     }
     return retval;

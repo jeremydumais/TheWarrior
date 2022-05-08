@@ -91,4 +91,37 @@ TEST(WeaponItem_Equals, WithDifferentWeaponItemInstanceDifferentBodyPart_ReturnF
     ASSERT_FALSE(weaponItem1.equals(weaponItem2));
 }
 
-//TODO Unit test for setAttackGain and setSlotInBodyPart
+TEST(WeaponItem_OperatorEqual, WithDifferentWeaponItemInstanceSameValues_ReturnTrue)
+{
+    auto weaponItem1 = WeaponItem(WeaponItemCreationInfoSamples::getSample1());
+    auto weaponItem2 = WeaponItem(WeaponItemCreationInfoSamples::getSample1());
+    ASSERT_TRUE(weaponItem1 == weaponItem2);
+}
+
+TEST(WeaponItem_OperatorEqual, WithDifferentWeaponItemInstanceDifferentAttack_ReturnFalse)
+{
+    auto weaponItem1 = WeaponItem(WeaponItemCreationInfoSamples::getSample1());
+    auto weaponItem2 = WeaponItem(WeaponItemCreationInfoSamples::getSample1());
+    weaponItem2.setAttackGain(1.1F);
+    ASSERT_FALSE(weaponItem1 == weaponItem2);
+}
+
+TEST(WeaponItem_OperatorEqual, WithDifferentWeaponItemInstanceDifferentBodyPart_ReturnFalse)
+{
+    auto weaponItem1 = WeaponItem(WeaponItemCreationInfoSamples::getSample1());
+    auto weaponItem2 = WeaponItem(WeaponItemCreationInfoSamples::getSample1());
+    weaponItem2.setSlotInBodyPart(WeaponBodyPart::MainHand);
+    ASSERT_FALSE(weaponItem1 == weaponItem2);
+}
+
+TEST_F(WeaponItemSample1, setAttackGain_With1_4F_ReturnSuccess)
+{
+    item.setAttackGain(1.4F);
+    ASSERT_FLOAT_EQ(1.4F, item.getAttackGain());
+}
+
+TEST_F(WeaponItemSample1, setSlotInBodyPart_WithMainHand_ReturnSuccess)
+{
+    item.setSlotInBodyPart(WeaponBodyPart::MainHand);
+    ASSERT_EQ(WeaponBodyPart::MainHand, item.getSlotInBodyPart());
+}

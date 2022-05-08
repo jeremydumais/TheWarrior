@@ -35,6 +35,7 @@ private:
 	void action_SaveAsItemStore_Click();
 	void refreshCategoriesTable();
 	void refreshItemsTable();
+	QIcon getCategoryIcon(const std::string &categoryName) const;
 	void action_ManageTextures_Click();
     const std::string &getExecutablePath();
     const std::string &getResourcesPath();

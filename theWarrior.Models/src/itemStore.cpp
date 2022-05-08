@@ -6,7 +6,7 @@ using namespace std;
 ItemStore::ItemStore() 
     : m_lastError(""),
       m_textureContainer(TextureContainer()),
-      m_items(unordered_map<string, Item>())
+      m_items(unordered_map<string, std::shared_ptr<Item>>())
 {
 }
 
@@ -20,46 +20,46 @@ size_t ItemStore::getItemCount() const
     return m_items.size();
 }
 
-std::vector<std::reference_wrapper<const Item>> ItemStore::getItems() const
+std::vector<std::shared_ptr<Item>> ItemStore::getItems() const
 {
-    std::vector<std::reference_wrapper<const Item>> retval {};
+    std::vector<std::shared_ptr<Item>> retval {};
     std::transform(m_items.begin(), 
                    m_items.end(), 
                    std::back_inserter(retval),
-                   [] (std::pair<const std::string &, const Item &>item) {
+                   [] (std::pair<const std::string &, std::shared_ptr<Item>>item) {
                        return std::reference_wrapper(item.second);
                    });
-    std::sort(retval.begin(), retval.end(), [](std::reference_wrapper<const Item> a,
-                                               std::reference_wrapper<const Item> b) {
-        return a.get().getId() < b.get().getId();
+    std::sort(retval.begin(), retval.end(), [](std::shared_ptr<Item> a,
+                                               std::shared_ptr<Item> b) {
+        return a->getId() < b->getId();
     });
     return retval;
 }
 
-boost::optional<const Item &> ItemStore::findItem(const std::string &id) const
+const std::shared_ptr<const Item> ItemStore::findItem(const std::string &id) const
 {
     const auto iter = m_items.find(id);
     if (iter != m_items.end()) {
         return iter->second;
     }
     else {
-        return {};
+        return nullptr;
     }
 }
 
 bool ItemStore::isItemExists(const std::string &id) const
 {
-    return this->findItem(id).has_value();
+    return this->findItem(id) != nullptr;
 }
 
 
-bool ItemStore::addItem(const Item &item) 
+bool ItemStore::addItem(std::shared_ptr<Item> item) 
 {
-    bool wasInserted = m_items.insert({ item.getId(), item }).second;
+    bool wasInserted = m_items.insert({ item->getId(), item }).second;
     return wasInserted;
 }
 
-bool ItemStore::replaceItem(const string oldId, const Item &item) 
+bool ItemStore::replaceItem(const string oldId, std::shared_ptr<Item> item) 
 {
     //Check if the old item name specified exist
     const auto iter = m_items.find(oldId);
@@ -69,7 +69,7 @@ bool ItemStore::replaceItem(const string oldId, const Item &item)
     if (m_items.erase(oldId) == 0) {
         return false;
     }
-    bool wasInserted = m_items.insert({ item.getId(), item }).second;
+    bool wasInserted = m_items.insert({ item->getId(), item }).second;
     return wasInserted;
 }
 

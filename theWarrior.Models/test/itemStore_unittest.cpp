@@ -1,5 +1,6 @@
 #include "itemStore.hpp"
 #include <gtest/gtest.h>
+#include <memory>
 
 using namespace std;
 
@@ -15,8 +16,8 @@ struct ItemStoreWithTwoItems : public ::testing::Test
 {
     ItemStoreWithTwoItems()
     {
-        itemStore.addItem(itemSample1);
-        itemStore.addItem(itemSample2);
+        itemStore.addItem(std::make_shared<Item>(itemSample1));
+        itemStore.addItem(std::make_shared<Item>(itemSample2));
     }
     ItemStore itemStore;
 };
@@ -41,27 +42,27 @@ TEST_F(ItemStoreWithTwoItems, getItems_Return2Items)
 {
     auto items = itemStore.getItems();
     ASSERT_EQ(2, items.size());
-    ASSERT_EQ("shd001", items[0].get().getId());
-    ASSERT_EQ("shd002", items[1].get().getId());
+    ASSERT_EQ("shd001", items[0]->getId());
+    ASSERT_EQ("shd002", items[1]->getId());
 }
 
 TEST_F(ItemStoreWithTwoItems, findItem_NonExistingItem_ReturnEmpty)
 {
     auto result = itemStore.findItem("non123");
-    ASSERT_FALSE(result.has_value());
+    ASSERT_TRUE(result == nullptr);
 }
 
 TEST_F(ItemStoreWithTwoItems, findItem_ExistingItem1_ReturnItem)
 {
     auto result = itemStore.findItem("shd001");
-    ASSERT_TRUE(result.has_value());
+    ASSERT_TRUE(result != nullptr);
     ASSERT_EQ(itemSample1, *result);
 }
 
 TEST_F(ItemStoreWithTwoItems, findItem_ExistingItem2_ReturnItem)
 {
     auto result = itemStore.findItem("shd002");
-    ASSERT_TRUE(result.has_value());
+    ASSERT_TRUE(result != nullptr);
     ASSERT_EQ(itemSample2, *result);
 }
 
@@ -82,39 +83,39 @@ TEST_F(ItemStoreWithTwoItems, isItemExists_ExistingItem2_ReturnTrue)
 
 TEST_F(DefaultConstructedItemStore, addItem_NonExistingItem_ReturnTrue)
 {
-    ASSERT_TRUE(itemStore.addItem(Item({ "shd001", "Wooden Shield", "tex1", 1})));
+    ASSERT_TRUE(itemStore.addItem(std::make_shared<Item>(ItemCreationInfo { "shd001", "Wooden Shield", "tex1", 1})));
 }
 
 TEST_F(ItemStoreWithTwoItems, addItem_ExistingItem_ReturnFalse)
 {
-    ASSERT_FALSE(itemStore.addItem(Item({ "shd001", "Wooden Shield", "tex1", 1})));
+    ASSERT_FALSE(itemStore.addItem(std::make_shared<Item>(ItemCreationInfo { "shd001", "Wooden Shield", "tex1", 1})));
 }
 
 TEST_F(ItemStoreWithTwoItems, addItem_NonExistingItem_ReturnTrue)
 {
-    ASSERT_TRUE(itemStore.addItem(Item({ "shd003", "Diamond Shield", "tex2", 3})));
+    ASSERT_TRUE(itemStore.addItem(std::make_shared<Item>(ItemCreationInfo { "shd003", "Diamond Shield", "tex2", 3})));
 }
 
 TEST_F(ItemStoreWithTwoItems, replaceItem_NonExistingItem_ReturnFalse)
 {
-    ASSERT_FALSE(itemStore.replaceItem("abc123", Item({ "fgh001", "Test", "tex1", 1})));
+    ASSERT_FALSE(itemStore.replaceItem("abc123", std::make_shared<Item>(ItemCreationInfo { "fgh001", "Test", "tex1", 1})));
 }
 
 TEST_F(ItemStoreWithTwoItems, replaceItem_ExistingItem_ReturnTrue)
 {
-    Item expected({ "fgh001", "Test", "tex1", 1});
+    auto expected = std::make_shared<Item>(ItemCreationInfo { "fgh001", "Test", "tex1", 1});
     ASSERT_TRUE(itemStore.replaceItem("shd001", expected));
     ASSERT_EQ(2, itemStore.getItemCount());
-    ASSERT_EQ(expected, itemStore.findItem("fgh001").value());
-    ASSERT_FALSE(itemStore.findItem("shd001").has_value());
+    ASSERT_EQ(*expected, *itemStore.findItem("fgh001"));
+    ASSERT_TRUE(itemStore.findItem("shd001") == nullptr);
 }
 
 TEST_F(ItemStoreWithTwoItems, replaceItem_ExistingItemSameId_ReturnTrue)
 {
-    Item expected({ "shd001", "Test1", "tex10", 10});
+    auto expected = std::make_shared<Item>(ItemCreationInfo { "shd001", "Test1", "tex10", 10});
     ASSERT_TRUE(itemStore.replaceItem("shd001", expected));
     ASSERT_EQ(2, itemStore.getItemCount());
-    ASSERT_EQ(expected, itemStore.findItem("shd001").value());
+    ASSERT_EQ(*expected, *itemStore.findItem("shd001"));
 }
 
 TEST_F(ItemStoreWithTwoItems, removeItem_ExistingItem_ReturnTrue)
