@@ -6,7 +6,7 @@ AddWeaponItemController::AddWeaponItemController(std::shared_ptr<ItemStore> item
 {
 }
 
-bool AddWeaponItemController::validateAttackGain(const std::string attackGainStr)
+bool AddWeaponItemController::validateAttackGain(const std::string &attackGainStr)
 {
 	if (boost::trim_copy(attackGainStr).empty()) {
         m_lastError = "The attack gain value cannot be empty.";

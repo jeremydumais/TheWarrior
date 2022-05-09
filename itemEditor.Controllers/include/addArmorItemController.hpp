@@ -11,7 +11,7 @@ class AddArmorItemController : public AddItemController
 public:
     AddArmorItemController(std::shared_ptr<ItemStore> itemStore);
     virtual ~AddArmorItemController() = default;
-    bool validateDefenseGain(const std::string defenseGainStr); 
+    bool validateDefenseGain(const std::string &defenseGainStr); 
     bool addItem(const ArmorItemCreationInfo &itemInfo);
 private:
     using AddItemController::addItem; //Hide the base class addItem method

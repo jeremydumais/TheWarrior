@@ -52,16 +52,6 @@ TEST(ArmorItem_Constructor, WithValidValues_ReturnSuccess)
     ASSERT_EQ(ArmorBodyPart::Head, armorItem.getSlotInBodyPart());
 }
 
-TEST_F(ArmorItemSample1, getAttackGain_Return1_0F)
-{
-    ASSERT_FLOAT_EQ(1.0F, item.getDefenseGain());
-}
-
-TEST_F(ArmorItemSample1, getSlotInBodyPart_ReturnHead)
-{
-    ASSERT_EQ(ArmorBodyPart::Head, item.getSlotInBodyPart());
-}
-
 TEST(ArmorItem_Equals, WithSameArmorItemInstance_ReturnTrue)
 {
     auto armorItem1 = ArmorItem(ArmorItemCreationInfoSamples::getSample1());
@@ -112,6 +102,21 @@ TEST(ArmorItem_OperatorEqual, WithDifferentArmorItemInstanceDifferentBodyPart_Re
     auto armorItem2 = ArmorItem(ArmorItemCreationInfoSamples::getSample1());
     armorItem2.setSlotInBodyPart(ArmorBodyPart::UpperBody);
     ASSERT_FALSE(armorItem1 == armorItem2);
+}
+
+TEST_F(ArmorItemSample1, getType_ReturnItem) 
+{
+    ASSERT_EQ("Armor", item.getType());
+}
+
+TEST_F(ArmorItemSample1, getAttackGain_Return1_0F)
+{
+    ASSERT_FLOAT_EQ(1.0F, item.getDefenseGain());
+}
+
+TEST_F(ArmorItemSample1, getSlotInBodyPart_ReturnHead)
+{
+    ASSERT_EQ(ArmorBodyPart::Head, item.getSlotInBodyPart());
 }
 
 TEST_F(ArmorItemSample1, setAttackGain_With1_4F_ReturnSuccess)

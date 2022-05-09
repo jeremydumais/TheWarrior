@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>addArmorItemFormClass</class>
- <widget class="QDialog" name="addArmorItemFormClass">
+ <class>addStatsItemFormClass</class>
+ <widget class="QDialog" name="addStatsItemFormClass">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>570</width>
-    <height>257</height>
+    <height>302</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Add Armor item</string>
+   <string>Add Stats item</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="0">
@@ -120,22 +120,15 @@
        </item>
       </layout>
      </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="labelAttackGain">
-       <property name="text">
-        <string>Defense gain :</string>
-       </property>
-      </widget>
-     </item>
      <item row="5" column="0">
-      <widget class="QLabel" name="label_6">
+      <widget class="QLabel" name="label_7">
        <property name="text">
-        <string>Slot in body part :</string>
+        <string>Gain :</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
-      <widget class="QLineEdit" name="lineEditDefenseGain">
+     <item row="5" column="1">
+      <widget class="QLineEdit" name="lineEditGain">
        <property name="maximumSize">
         <size>
          <width>80</width>
@@ -144,8 +137,49 @@
        </property>
       </widget>
      </item>
-     <item row="5" column="1">
-      <widget class="QComboBox" name="comboBoxSlotInBodyPart"/>
+     <item row="4" column="1">
+      <widget class="QComboBox" name="comboBoxStatChanging"/>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>Stat changing :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Limit of one applied :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="QCheckBox" name="checkBoxLimitOfOneApplied">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="label_8">
+       <property name="text">
+        <string>Duration in seconds :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <widget class="QLineEdit" name="lineEditDurationInSecs">
+       <property name="maximumSize">
+        <size>
+         <width>80</width>
+         <height>16777215</height>
+        </size>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -157,8 +191,10 @@
   <tabstop>lineEditTextureName</tabstop>
   <tabstop>spinBoxTextureIndex</tabstop>
   <tabstop>pushButtonTexturePicker</tabstop>
-  <tabstop>lineEditDefenseGain</tabstop>
-  <tabstop>comboBoxSlotInBodyPart</tabstop>
+  <tabstop>comboBoxStatChanging</tabstop>
+  <tabstop>lineEditGain</tabstop>
+  <tabstop>checkBoxLimitOfOneApplied</tabstop>
+  <tabstop>lineEditDurationInSecs</tabstop>
   <tabstop>pushButtonOK</tabstop>
   <tabstop>pushButtonCancel</tabstop>
  </tabstops>

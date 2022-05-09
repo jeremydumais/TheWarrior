@@ -6,7 +6,7 @@ AddArmorItemController::AddArmorItemController(std::shared_ptr<ItemStore> itemSt
 {
 }
 
-bool AddArmorItemController::validateDefenseGain(const std::string defenseGainStr)
+bool AddArmorItemController::validateDefenseGain(const std::string &defenseGainStr)
 {
 	if (boost::trim_copy(defenseGainStr).empty()) {
         m_lastError = "The defense gain value cannot be empty.";

@@ -52,16 +52,6 @@ TEST(WeaponItem_Constructor, WithValidValues_ReturnSuccess)
     ASSERT_EQ(WeaponBodyPart::SecondaryHand, weaponItem.getSlotInBodyPart());
 }
 
-TEST_F(WeaponItemSample1, getAttackGain_Return1_0F)
-{
-    ASSERT_FLOAT_EQ(1.0F, item.getAttackGain());
-}
-
-TEST_F(WeaponItemSample1, getSlotInBodyPart_ReturnSecondaryHand)
-{
-    ASSERT_EQ(WeaponBodyPart::SecondaryHand, item.getSlotInBodyPart());
-}
-
 TEST(WeaponItem_Equals, WithSameWeaponItemInstance_ReturnTrue)
 {
     auto weaponItem1 = WeaponItem(WeaponItemCreationInfoSamples::getSample1());
@@ -112,6 +102,21 @@ TEST(WeaponItem_OperatorEqual, WithDifferentWeaponItemInstanceDifferentBodyPart_
     auto weaponItem2 = WeaponItem(WeaponItemCreationInfoSamples::getSample1());
     weaponItem2.setSlotInBodyPart(WeaponBodyPart::MainHand);
     ASSERT_FALSE(weaponItem1 == weaponItem2);
+}
+
+TEST_F(WeaponItemSample1, getType_ReturnItem) 
+{
+    ASSERT_EQ("Weapon", item.getType());
+}
+
+TEST_F(WeaponItemSample1, getAttackGain_Return1_0F)
+{
+    ASSERT_FLOAT_EQ(1.0F, item.getAttackGain());
+}
+
+TEST_F(WeaponItemSample1, getSlotInBodyPart_ReturnSecondaryHand)
+{
+    ASSERT_EQ(WeaponBodyPart::SecondaryHand, item.getSlotInBodyPart());
 }
 
 TEST_F(WeaponItemSample1, setAttackGain_With1_4F_ReturnSuccess)

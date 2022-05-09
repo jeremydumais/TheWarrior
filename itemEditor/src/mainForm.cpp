@@ -3,6 +3,7 @@
 #include "addArmorItemForm.hpp"
 #include "addItemForm.hpp"
 #include "addItemChooserForm.hpp"
+#include "addStatsItemForm.hpp"
 #include "addWeaponItemForm.hpp"
 #include "configurationManager.hpp"
 #include "errorMessage.hpp"
@@ -332,6 +333,11 @@ void MainForm::onPushButtonAddAnItemClick()
 			break;
 			case ItemType::Armor:
 				dialog = std::make_unique<AddArmorItemForm>(this,
+															getResourcesPath(),
+															m_controller.getItemStore());
+			break;
+			case ItemType::StatsItem:
+				dialog = std::make_unique<AddStatsItemForm>(this,
 															getResourcesPath(),
 															m_controller.getItemStore());
 			break;

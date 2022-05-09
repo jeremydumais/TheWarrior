@@ -11,6 +11,7 @@ include_directories(${QT_INCLUDE_PATH}
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/manageTexturesController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/addItemController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/addArmorItemController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/addStatsItemController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/addWeaponItemController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/texturePickerController.cpp)
                                              

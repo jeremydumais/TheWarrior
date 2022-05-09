@@ -13,8 +13,8 @@ Q_OBJECT
 
 public:
 	AddWeaponItemForm(QWidget *parent, 
-				const std::string &resourcesPath,
-				std::shared_ptr<ItemStore> itemStore);
+					  const std::string &resourcesPath,
+					  std::shared_ptr<ItemStore> itemStore);
 	void connectUIActions();
 private:
 	Ui::addWeaponItemFormClass ui;
