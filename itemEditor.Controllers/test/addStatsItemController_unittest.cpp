@@ -63,3 +63,4 @@ TEST_F(AddStatsItemControllerEmptyStoreSample, validateDurationInSecs_WithWhites
     ASSERT_FALSE(controller.validateDurationInSecs("   "));
     ASSERT_EQ("The duration value cannot be empty.", controller.getLastError());
 }
+
