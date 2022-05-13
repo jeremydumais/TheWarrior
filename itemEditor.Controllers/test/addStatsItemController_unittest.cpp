@@ -1,5 +1,7 @@
 #include "addStatsItemController.hpp"
 #include <gtest/gtest.h>
+#include <limits>
+#include <string>
 
 class AddStatsItemControllerEmptyStoreSample : public ::testing::Test
 {
@@ -62,5 +64,41 @@ TEST_F(AddStatsItemControllerEmptyStoreSample, validateDurationInSecs_WithWhites
 {
     ASSERT_FALSE(controller.validateDurationInSecs("   "));
     ASSERT_EQ("The duration value cannot be empty.", controller.getLastError());
+}
+
+TEST_F(AddStatsItemControllerEmptyStoreSample, validateduration_WithAAA_ReturnFalse)
+{
+    ASSERT_FALSE(controller.validateDurationInSecs("AAA"));
+    ASSERT_EQ("Unable to perform the unsigned int conversion of the duration.", controller.getLastError());
+}
+
+TEST_F(AddStatsItemControllerEmptyStoreSample, validateDuration_WithNumber3_ReturnTrue)
+{
+    ASSERT_TRUE(controller.validateDurationInSecs("3"));
+}
+
+TEST_F(AddStatsItemControllerEmptyStoreSample, validateDuration_WithNumber3Comma14_ReturnTrue)
+{
+    ASSERT_TRUE(controller.validateDurationInSecs("3,14"));
+}
+
+TEST_F(AddStatsItemControllerEmptyStoreSample, validateDuration_WithNumber3Dot14_ReturnTrue)
+{
+    ASSERT_TRUE(controller.validateDurationInSecs("3.14"));
+}
+
+TEST_F(AddStatsItemControllerEmptyStoreSample, validateDuration_WithNumberOutOfRangeNumberUnsignedLong_ReturnFalse)
+{
+    ASSERT_FALSE(controller.validateDurationInSecs("-1"));
+    ASSERT_EQ("The duration value is out of range.", controller.getLastError());
+}
+
+TEST_F(AddStatsItemControllerEmptyStoreSample, validateDuration_WithNumberOutOfRangeNumberForUnsignedInt_ReturnFalse)
+{
+    unsigned long outOfRangeValue = std::numeric_limits<unsigned int>::max();
+    outOfRangeValue++;
+
+    ASSERT_FALSE(controller.validateDurationInSecs(std::to_string(outOfRangeValue)));
+    ASSERT_EQ("The duration value is out of range.", controller.getLastError());
 }
 

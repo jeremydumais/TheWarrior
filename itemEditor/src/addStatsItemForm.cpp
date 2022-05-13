@@ -37,22 +37,25 @@ void AddStatsItemForm::onPushButtonCancelClick()
 
 void AddStatsItemForm::onPushButtonOKClick()
 {
-	/*if (!m_controller.validateAttackGain(ui.lineEditAttackGain->text().toStdString())) {
+	if (!m_controller.validateGain(ui.lineEditGain->text().toStdString()) ||
+		!m_controller.validateDurationInSecs(ui.lineEditDurationInSecs->text().toStdString())) {
 		ErrorMessage::show(m_controller.getLastError());
 		return;
 	}
-	WeaponItemCreationInfo itemInfo {
+	StatsItemCreationInfo itemInfo {
 		ui.lineEditId->text().toStdString(),
 		ui.lineEditName->text().toStdString(),
 		ui.lineEditTextureName->text().toStdString(),
 		ui.spinBoxTextureIndex->value(),
-		stof(ui.lineEditAttackGain->text().toStdString()),
-		static_cast<WeaponBodyPart>(ui.comboBoxSlotInBodyPart->currentIndex())
+		static_cast<Stats>(ui.comboBoxStatChanging->currentIndex()),
+		stof(ui.lineEditGain->text().toStdString()),
+		ui.checkBoxLimitOfOneApplied->isChecked(),
+		static_cast<unsigned int>(stoul(ui.lineEditDurationInSecs->text().toStdString())),
 	};
 	if (!m_controller.addItem(itemInfo)) {
 		ErrorMessage::show(m_controller.getLastError());
 		return;
-	}*/
+	}
 	accept();
 }
 

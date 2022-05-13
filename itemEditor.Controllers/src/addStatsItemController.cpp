@@ -1,5 +1,6 @@
 #include "addStatsItemController.hpp"
 #include "boost/algorithm/string.hpp"
+#include <limits>
 
 AddStatsItemController::AddStatsItemController(std::shared_ptr<ItemStore> itemStore)
     : AddItemController(itemStore)
@@ -33,10 +34,27 @@ bool AddStatsItemController::validateDurationInSecs(const std::string &duration)
         m_lastError = "The duration value cannot be empty.";
 		return false;
 	}
-	//TODO to continue...
+	//Perform the str to int conversion
+	unsigned long durationUL = 0;
+	try {
+		durationUL = std::stoul(duration);
+	}
+	catch(const std::invalid_argument &err) {
+		m_lastError = "Unable to perform the unsigned int conversion of the duration.";
+		return false;
+	}
+	catch(const std::out_of_range &err) {
+		m_lastError = "The duration value is out of range.";
+		return false;
+	}
+	if (durationUL < std::numeric_limits<unsigned int>::min() ||
+	    durationUL > std::numeric_limits<unsigned int>::max()) {
+		m_lastError = "The duration value is out of range.";
+		return false;
+	}
 	return true;
 }
-
+ 
 bool AddStatsItemController::addItem(const StatsItemCreationInfo &itemInfo)
 {
     std::shared_ptr<StatsItem> newItem = nullptr;
