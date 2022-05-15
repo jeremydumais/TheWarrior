@@ -1,11 +1,11 @@
 #include "mainForm.hpp"
 #include "aboutBoxForm.hpp"
-#include "addArmorItemForm.hpp"
-#include "addItemForm.hpp"
 #include "addItemChooserForm.hpp"
-#include "addStatsItemForm.hpp"
-#include "addWeaponItemForm.hpp"
 #include "configurationManager.hpp"
+#include "editArmorItemForm.hpp"
+#include "editItemForm.hpp"
+#include "editStatsItemForm.hpp"
+#include "editWeaponItemForm.hpp"
 #include "errorMessage.hpp"
 #include "manageTexturesForm.hpp"
 #include "specialFolders.hpp"
@@ -89,7 +89,8 @@ void MainForm::connectUIActions()
 	connect(ui.action_Save, &QAction::triggered, this, &MainForm::action_SaveItemStore_Click);
 	connect(ui.action_SaveAs, &QAction::triggered, this, &MainForm::action_SaveAsItemStore_Click);
 	connect(ui.action_ManageTextures, &QAction::triggered, this, &MainForm::action_ManageTextures_Click);
-	connect(ui.pushButtonAddItem, &QPushButton::clicked, this, &MainForm::onPushButtonAddAnItemClick);
+	connect(ui.pushButtonAddItem, &QPushButton::clicked, this, &MainForm::onPushButtonAddItemClick);
+	connect(ui.pushButtonEditItem, &QPushButton::clicked, this, &MainForm::onPushButtonEditItemClick);
 	connect(ui.tableWidgetItemCategories, &QTableWidget::currentItemChanged, this, &MainForm::onTableWidgetItemCategoriesCurrentItemChanged);
 }
 
@@ -315,29 +316,29 @@ void MainForm::onTableWidgetItemCategoriesCurrentItemChanged(QTableWidgetItem *,
 	refreshItemsTable();
 }
 
-void MainForm::onPushButtonAddAnItemClick() 
+void MainForm::onPushButtonAddItemClick() 
 {
 	AddItemChooserForm addItemChooserForm(this);
 	if (addItemChooserForm.exec() == QDialog::Accepted) {
 		std::unique_ptr<QDialog> dialog = nullptr;
 		switch(addItemChooserForm.getResult()) {
 			case ItemType::Item:
-				dialog = std::make_unique<AddItemForm>(this,
+				dialog = std::make_unique<EditItemForm>(this,
 													   getResourcesPath(),
 													   m_controller.getItemStore());
 			break;
 			case ItemType::Weapon:
-				dialog = std::make_unique<AddWeaponItemForm>(this,
+				dialog = std::make_unique<EditWeaponItemForm>(this,
 															 getResourcesPath(),
 															 m_controller.getItemStore());
 			break;
 			case ItemType::Armor:
-				dialog = std::make_unique<AddArmorItemForm>(this,
+				dialog = std::make_unique<EditArmorItemForm>(this,
 															getResourcesPath(),
 															m_controller.getItemStore());
 			break;
 			case ItemType::StatsItem:
-				dialog = std::make_unique<AddStatsItemForm>(this,
+				dialog = std::make_unique<EditStatsItemForm>(this,
 															getResourcesPath(),
 															m_controller.getItemStore());
 			break;
@@ -349,5 +350,15 @@ void MainForm::onPushButtonAddAnItemClick()
 			refreshItemsTable();
 		}
 
+	}
+}
+
+void MainForm::onPushButtonEditItemClick()
+{
+	auto selectedRows = ui.tableWidgetItems->selectionModel()->selectedRows();
+	if (selectedRows.count() == 1) {
+		auto itemId = selectedRows[0].data();
+		
+		//ErrorMessage::show(itemId.toString().toStdString());
 	}
 }

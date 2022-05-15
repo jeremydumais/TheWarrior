@@ -106,7 +106,22 @@
             <item>
              <widget class="QPushButton" name="pushButtonAddItem">
               <property name="text">
-               <string>Add Item</string>
+               <string>&amp;Add Item</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../res/global.qrc">
+                <normaloff>:/commonUI/res/gtk-add.svg</normaloff>:/commonUI/res/gtk-add.svg</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButtonEditItem">
+              <property name="text">
+               <string>&amp;Edit item</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../res/global.qrc">
+                <normaloff>:/commonUI/res/gtk-edit.svg</normaloff>:/commonUI/res/gtk-edit.svg</iconset>
               </property>
              </widget>
             </item>
@@ -139,7 +154,7 @@
      <x>0</x>
      <y>0</y>
      <width>884</width>
-     <height>28</height>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

@@ -44,7 +44,8 @@ private:
 	void saveItemStore(const std::string &filePath);
 	void refreshWindowTitle();
 	void onTableWidgetItemCategoriesCurrentItemChanged(QTableWidgetItem *, QTableWidgetItem *);
-	void onPushButtonAddAnItemClick();
+	void onPushButtonAddItemClick();
+	void onPushButtonEditItemClick();
 };
 
 #endif // MAINFORM_H

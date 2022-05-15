@@ -27,10 +27,10 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/manageTexturesForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editTextureForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/addItemChooserForm.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/addItemForm.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/addArmorItemForm.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/addStatsItemForm.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/addWeaponItemForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/editItemForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/editArmorItemForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/editStatsItemForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/editWeaponItemForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/texturePickerForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/res/darkstyle/darkstyle.qrc
                          ${CMAKE_CURRENT_SOURCE_DIR}/res/global.qrc)

@@ -1,5 +1,4 @@
 #include "addItemChooserForm.hpp"
-#include "addItemForm.hpp"
 
 AddItemChooserForm::AddItemChooserForm(QWidget *parent)
 	: QDialog(parent),
