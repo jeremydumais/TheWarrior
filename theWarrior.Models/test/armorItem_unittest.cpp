@@ -104,9 +104,9 @@ TEST(ArmorItem_OperatorEqual, WithDifferentArmorItemInstanceDifferentBodyPart_Re
     ASSERT_FALSE(armorItem1 == armorItem2);
 }
 
-TEST_F(ArmorItemSample1, getType_ReturnItem) 
+TEST_F(ArmorItemSample1, getType_ReturnArmor) 
 {
-    ASSERT_EQ("Armor", item.getType());
+    ASSERT_EQ(ItemType::Armor, item.getType());
 }
 
 TEST_F(ArmorItemSample1, getAttackGain_Return1_0F)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "item.hpp"
+#include "itemType.hpp"
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/version.hpp>
@@ -31,7 +32,7 @@ public:
     ArmorItem &operator=(const ArmorItem &) = default;
     ArmorItem &operator=(ArmorItem &&) = default;
     virtual bool equals(const Item &other) const override;
-    virtual std::string getType() const override;
+    virtual ItemType getType() const override;
     float getDefenseGain() const;
     ArmorBodyPart getSlotInBodyPart() const;
     void setDefenseGain(float value);

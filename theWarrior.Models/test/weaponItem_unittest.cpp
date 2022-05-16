@@ -104,9 +104,9 @@ TEST(WeaponItem_OperatorEqual, WithDifferentWeaponItemInstanceDifferentBodyPart_
     ASSERT_FALSE(weaponItem1 == weaponItem2);
 }
 
-TEST_F(WeaponItemSample1, getType_ReturnItem) 
+TEST_F(WeaponItemSample1, getType_ReturnWeapon) 
 {
-    ASSERT_EQ("Weapon", item.getType());
+    ASSERT_EQ(ItemType::Weapon, item.getType());
 }
 
 TEST_F(WeaponItemSample1, getAttackGain_Return1_0F)

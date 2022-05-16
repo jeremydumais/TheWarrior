@@ -35,9 +35,9 @@ bool StatsItem::equals(const Item &other) const
            Item::equals(other);
 }
 
-std::string StatsItem::getType() const
+ItemType StatsItem::getType() const
 {
-    return "StatsItem";
+    return ItemType::StatsItem;
 }
 
 Stats StatsItem::getStatChanging() const

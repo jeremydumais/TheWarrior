@@ -1,4 +1,5 @@
 #include "item.hpp"
+#include "itemType.hpp"
 #include <gtest/gtest.h>
 
 using namespace std;
@@ -163,7 +164,7 @@ TEST_F(ItemNotCreated_ValidCreationInfo, Constructor_ValidInfos_ReturnSuccess)
 
 TEST_F(ValidItemSample1, getType_ReturnItem) 
 {
-    ASSERT_EQ("Item", item.getType());
+    ASSERT_EQ(ItemType::Item, item.getType());
 }
 
 TEST_F(ValidItemSample1, getId_ReturnShd001) 

@@ -29,9 +29,9 @@ bool WeaponItem::equals(const Item &other) const
            Item::equals(other);
 }
 
-std::string WeaponItem::getType() const
+ItemType WeaponItem::getType() const
 {
-    return "Weapon";
+    return ItemType::Weapon;
 }
 
 float WeaponItem::getAttackGain() const

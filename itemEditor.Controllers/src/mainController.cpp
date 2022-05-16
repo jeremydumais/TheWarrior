@@ -1,6 +1,7 @@
 #include "mainController.hpp"
 #include "itemStoreStorage.hpp"
 #include <algorithm>
+#include <optional>
 #include <stdexcept>
 #include <set>
 
@@ -58,7 +59,7 @@ std::set<std::string> MainController::getItemCategories() const
                    items.end(),
                    std::inserter(categoriesFound, categoriesFound.begin()),
                    [] (std::shared_ptr<Item> item) {
-                       return item->getType();
+                       return itemTypeToString(item->getType());
                    });
     return categoriesFound;
 }
@@ -66,11 +67,20 @@ std::set<std::string> MainController::getItemCategories() const
 std::vector<ItemListDisplay> MainController::getItemsFromCategory(const std::string &categoryName) const
 {
     std::vector<ItemListDisplay> retval {};
-    auto items = m_itemStore->getItems();
-    for(auto item : items) {
-        if (item->getType() == categoryName) {
-            retval.push_back({ item->getId(), item->getName()});
+    auto itemType = itemTypeFromString(categoryName);
+    if (itemType.has_value()) {
+        auto items = m_itemStore->getItems();
+        for(auto item : items) {
+            if (item->getType() == itemType.value()) {
+                retval.push_back({ item->getId(), item->getName()});
+            }
         }
     }
     return retval;
+}
+
+std::optional<ItemType> getItemTypeFromItemId(std::string id) const
+{
+    //TODO to complete and test
+    return std::nullopt;
 }

@@ -17,6 +17,7 @@
 #include <libgen.h>         // dirname
 #include <linux/limits.h>   // PATH_MAX
 #include <memory>
+#include <optional>
 #include <unistd.h>         // readlink
 
 const std::string MainForm::THEME_PATH { "Display.Theme" };
@@ -325,7 +326,8 @@ void MainForm::onPushButtonAddItemClick()
 			case ItemType::Item:
 				dialog = std::make_unique<EditItemForm>(this,
 													   getResourcesPath(),
-													   m_controller.getItemStore());
+													   m_controller.getItemStore(),
+													   std::nullopt);
 			break;
 			case ItemType::Weapon:
 				dialog = std::make_unique<EditWeaponItemForm>(this,
@@ -349,7 +351,6 @@ void MainForm::onPushButtonAddItemClick()
 			refreshCategoriesTable();
 			refreshItemsTable();
 		}
-
 	}
 }
 

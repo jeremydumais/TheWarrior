@@ -2,14 +2,7 @@
 #define ADDITEMCHOOSERFORM_H
 
 #include "ui_addItemChooserForm.h"
-
-enum class ItemType 
-{
-	Item,
-	Weapon,
-	Armor,
-	StatsItem
-};
+#include "itemType.hpp"
 
 class AddItemChooserForm : public QDialog
 {

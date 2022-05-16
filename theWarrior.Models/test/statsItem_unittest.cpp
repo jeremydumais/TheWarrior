@@ -130,7 +130,7 @@ TEST_F(StatsItemSample1, getDurationInSecs_Return0)
 
 TEST_F(StatsItemSample1, getType_ReturnItem) 
 {
-    ASSERT_EQ("StatsItem", item.getType());
+    ASSERT_EQ(ItemType::StatsItem, item.getType());
 }
 
 TEST_F(StatsItemSample1, setStatsChanging_WithStrength_ReturnSuccess)

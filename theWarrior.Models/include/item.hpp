@@ -1,5 +1,6 @@
 #pragma once
 
+#include "itemType.hpp"
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/string.hpp>
@@ -27,7 +28,7 @@ public:
     virtual bool equals(const Item &other) const;
     bool operator==(const Item &other) const;
     bool operator!=(const Item &other) const;
-    virtual std::string getType() const;
+    virtual ItemType getType() const;
     const std::string &getId() const;
     const std::string &getName() const;
     const std::string &getTextureName() const;

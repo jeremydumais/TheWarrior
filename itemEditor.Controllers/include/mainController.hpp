@@ -3,6 +3,7 @@
 #include "itemStore.hpp"
 #include "textureContainer.hpp"
 #include <memory>
+#include <optional>
 #include <set>
 #include <string>
 #include <vector>
@@ -24,6 +25,7 @@ public:
     bool saveItemStore(const std::string &fileName);
     std::set<std::string> getItemCategories() const;
     std::vector<ItemListDisplay> getItemsFromCategory(const std::string &categoryName) const;
+    std::optional<ItemType> getItemTypeFromItemId(std::string id) const;
 private:
     std::shared_ptr<ItemStore> m_itemStore;
     std::string m_lastError;

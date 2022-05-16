@@ -1,6 +1,7 @@
 #pragma once
 
 #include "item.hpp"
+#include "itemType.hpp"
 #include "stats.hpp"
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/string.hpp>
@@ -26,7 +27,7 @@ public:
     StatsItem &operator=(const StatsItem &) = default;
     StatsItem &operator=(StatsItem &&) = default;
     virtual bool equals(const Item &other) const override;
-    virtual std::string getType() const override;
+    virtual ItemType getType() const override;
     Stats getStatChanging() const;
     float getGain() const;
     bool getLimitOfOneApplied() const;

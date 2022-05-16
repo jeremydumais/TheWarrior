@@ -29,9 +29,9 @@ bool ArmorItem::equals(const Item &other) const
            Item::equals(other);
 }
 
-std::string ArmorItem::getType() const
+ItemType ArmorItem::getType() const
 {
-    return "Armor";
+    return ItemType::Armor;
 }
 
 float ArmorItem::getDefenseGain() const

@@ -4,16 +4,20 @@
 
 EditItemForm::EditItemForm(QWidget *parent, 
 						 const std::string &resourcesPath,
-						 std::shared_ptr<ItemStore> itemStore)
-	: QDialog(parent),
+						 std::shared_ptr<ItemStore> itemStore,
+						 std::optional<std::string> itemIdToEdit)
+	: EditItemFormBase(parent, resourcesPath, itemIdToEdit),
 	  ui(Ui::editItemFormClass()),
-	  m_lastError(""),
-	  m_resourcesPath(resourcesPath),
 	  m_controller(itemStore)
 {
 	ui.setupUi(this);
 	setWindowIcon(QIcon(":/ItemEditor Icon.png"));
+	
 	connectUIActions();
+	if (m_itemIdToEdit.has_value()) {
+		this->setWindowTitle("Edit item");
+		//TODO if edit mode fetch item and set ui fields
+	}
 }
 
 void EditItemForm::connectUIActions() 
@@ -36,6 +40,7 @@ void EditItemForm::onPushButtonOKClick()
 		ui.lineEditTextureName->text().toStdString(),
 		ui.spinBoxTextureIndex->value()
 	};
+	//TODO if add or edit mode
 	if (!m_controller.addItem(itemInfo)) {
 		ErrorMessage::show(m_controller.getLastError());
 		return;
@@ -45,17 +50,11 @@ void EditItemForm::onPushButtonOKClick()
 
 void EditItemForm::onPushButtonTexturePickerClick()
 {
-	TexturePickerForm texturePickerForm(this, 
-										m_resourcesPath,
-										m_controller.getTextureContainer());
-	auto selectedTexture = ui.lineEditTextureName->text();
-	if (!selectedTexture.trimmed().isEmpty()) {
-		texturePickerForm.setCurrentSelection(selectedTexture.toStdString(),
-											  ui.spinBoxTextureIndex->value());
-	}
-	if (texturePickerForm.exec() == QDialog::Accepted) {
-		const auto &result = texturePickerForm.getResult();
-		ui.lineEditTextureName->setText(result.textureName.c_str());
-		ui.spinBoxTextureIndex->setValue(result.textureIndex);
+	auto result = showTexturePicker({ ui.lineEditTextureName->text().toStdString(),
+									  ui.spinBoxTextureIndex->value() }, 
+								    m_controller.getTextureContainer());
+	if (result.has_value()) {
+		ui.lineEditTextureName->setText(result->textureName.c_str());
+		ui.spinBoxTextureIndex->setValue(result->textureIndex);
 	}
 }

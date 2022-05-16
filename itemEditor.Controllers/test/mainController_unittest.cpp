@@ -50,7 +50,7 @@ TEST_F(MainControllerSampleWithOneItemPerCategory, getItemCategories_ReturnTwoCa
     ASSERT_TRUE(itemCategories.find("Item") != itemCategories.end());
     ASSERT_TRUE(itemCategories.find("Weapon") != itemCategories.end());
     ASSERT_TRUE(itemCategories.find("Armor") != itemCategories.end());
-    ASSERT_TRUE(itemCategories.find("StatsItem") != itemCategories.end());
+    ASSERT_TRUE(itemCategories.find("Stats Item") != itemCategories.end());
 }
 
 TEST_F(MainControllerSampleWithOneItem, getItemsFromCategory_WithEmptyCategory_ReturnEmpty)
@@ -69,7 +69,7 @@ TEST_F(MainControllerSampleWithOneItem, getItemsFromCategory_WithItem_Return1Ite
 
 TEST_F(MainControllerSampleWithOneItemPerCategory, getItemsFromCategory_WithStatsItem_Return1Item)
 {
-    auto items = controller.getItemsFromCategory("StatsItem");
+    auto items = controller.getItemsFromCategory("Stats Item");
     ASSERT_EQ(1, items.size());
     ASSERT_EQ("pot001", items[0].id);
     ASSERT_EQ("Potion1", items[0].name);

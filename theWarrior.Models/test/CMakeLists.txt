@@ -16,6 +16,7 @@ add_executable(${PROJECT_UNITTEST_NAME} ${INCLUDE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}/mapTileTriggerConditionConverter_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/mapTileTriggerActionConverter_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/itemStore_unittest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/itemType_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/item_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/armorItem_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/statsItem_unittest.cpp
