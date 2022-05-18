@@ -79,8 +79,11 @@ std::vector<ItemListDisplay> MainController::getItemsFromCategory(const std::str
     return retval;
 }
 
-std::optional<ItemType> MainController::getItemTypeFromItemId(std::string id) const
+std::optional<ItemType> MainController::getItemTypeFromItemId(const std::string &id) const
 {
-    //TODO to complete and test
+    auto item = m_itemStore->findItem(id);
+    if (item != nullptr) {
+        return item->getType();
+    }
     return std::nullopt;
 }

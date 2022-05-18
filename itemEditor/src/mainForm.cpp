@@ -321,32 +321,8 @@ void MainForm::onPushButtonAddItemClick()
 {
 	AddItemChooserForm addItemChooserForm(this);
 	if (addItemChooserForm.exec() == QDialog::Accepted) {
-		std::unique_ptr<QDialog> dialog = nullptr;
-		switch(addItemChooserForm.getResult()) {
-			case ItemType::Item:
-				dialog = std::make_unique<EditItemForm>(this,
-													   getResourcesPath(),
-													   m_controller.getItemStore(),
-													   std::nullopt);
-			break;
-			case ItemType::Weapon:
-				dialog = std::make_unique<EditWeaponItemForm>(this,
-															 getResourcesPath(),
-															 m_controller.getItemStore());
-			break;
-			case ItemType::Armor:
-				dialog = std::make_unique<EditArmorItemForm>(this,
-															getResourcesPath(),
-															m_controller.getItemStore());
-			break;
-			case ItemType::StatsItem:
-				dialog = std::make_unique<EditStatsItemForm>(this,
-															getResourcesPath(),
-															m_controller.getItemStore());
-			break;
-			default:
-			break;
-		}
+		std::unique_ptr<QDialog> dialog = getItemTypeForm(addItemChooserForm.getResult(),
+														  std::nullopt);
 		if(dialog != nullptr && dialog->exec() == QDialog::Accepted) {
 			refreshCategoriesTable();
 			refreshItemsTable();
@@ -358,8 +334,50 @@ void MainForm::onPushButtonEditItemClick()
 {
 	auto selectedRows = ui.tableWidgetItems->selectionModel()->selectedRows();
 	if (selectedRows.count() == 1) {
-		auto itemId = selectedRows[0].data();
-		
-		//ErrorMessage::show(itemId.toString().toStdString());
+		auto itemId = selectedRows[0].data().toString().toStdString();
+		auto itemType = m_controller.getItemTypeFromItemId(itemId);
+		if (itemType.has_value()) {
+			std::unique_ptr<QDialog> dialog = getItemTypeForm(itemType.value(),
+														  	  itemId);
+			if(dialog != nullptr && dialog->exec() == QDialog::Accepted) {
+				refreshCategoriesTable();
+				refreshItemsTable();
+			}
+		}
+		else {
+			ErrorMessage::show("Unable to get the type of the selected item.");
+		}
 	}
+}
+
+std::unique_ptr<QDialog> MainForm::getItemTypeForm(ItemType itemType, std::optional<std::string> itemIdToEdit)
+{
+	std::unique_ptr<QDialog> dialog = nullptr;
+	switch(itemType) {
+		case ItemType::Item:
+			dialog = std::make_unique<EditItemForm>(this,
+													getResourcesPath(),
+													m_controller.getItemStore(),
+													itemIdToEdit);
+		break;
+		/*case ItemType::Weapon:
+			dialog = std::make_unique<EditWeaponItemForm>(this,
+															getResourcesPath(),
+															m_controller.getItemStore());
+		break;*/
+		case ItemType::Armor:
+			dialog = std::make_unique<EditArmorItemForm>(this,
+														getResourcesPath(),
+														m_controller.getItemStore(),
+														itemIdToEdit);
+		break;
+		/*case ItemType::StatsItem:
+			dialog = std::make_unique<EditStatsItemForm>(this,
+														getResourcesPath(),
+														m_controller.getItemStore());
+		break;*/
+		default:
+		break;
+	}
+	return dialog;
 }

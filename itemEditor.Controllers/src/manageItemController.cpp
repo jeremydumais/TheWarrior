@@ -24,22 +24,26 @@ const TextureContainer &ManageItemController::getTextureContainer() const
     return m_itemStore->getTextureContainer();
 }
 
-bool ManageItemController::addItem(const ItemCreationInfo &itemInfo)
+std::unique_ptr<ItemDTO> ManageItemController::getItem(const std::string &id) const
 {
-    std::shared_ptr<Item> newItem = nullptr;
-    try {
-        newItem = std::make_shared<Item>(itemInfo);
+    auto item = m_itemStore->findItem(id);
+    if (item != nullptr) {
+        auto retval = std::make_unique<ItemDTO>();
+        retval->id = item->getId();
+        retval->name = item->getName();
+        retval->textureName = item->getTextureName();
+        retval->textureIndex = item->getTextureIndex();
+        return retval;
     }
-    catch(const std::invalid_argument &err) {
-        m_lastError = err.what();
-        return false;
-    }
-
-    return addItemToStore(newItem);
+    return nullptr;
 }
 
-bool ManageItemController::addItemToStore(std::shared_ptr<Item> newItem)
+bool ManageItemController::addItem(std::unique_ptr<ItemDTO> itemInfo)
 {
+    std::shared_ptr<Item> newItem = itemDTOToItem(std::move(itemInfo));
+    if (newItem == nullptr) {
+        return false;
+    }
     if (m_itemStore->isItemExists(newItem->getId())) {
         m_lastError = fmt::format("Item {0} already exist in the store.", newItem->getId());
         return false;
@@ -49,4 +53,44 @@ bool ManageItemController::addItemToStore(std::shared_ptr<Item> newItem)
         return false;
     }
     return true;
+}
+
+bool ManageItemController::updateItem(std::unique_ptr<ItemDTO> itemInfo,
+                                      const std::string &oldItemId)
+{
+    if (itemInfo == nullptr) {
+        m_lastError = "No itemInfo structure has been provided.";
+        return false;
+    }
+    std::shared_ptr<Item> updateItem = itemDTOToItem(std::move(itemInfo));
+    if (updateItem == nullptr) {
+        return false;
+    }
+    if (updateItem->getId() != oldItemId && m_itemStore->isItemExists(updateItem->getId())) {
+        m_lastError = fmt::format("Item {0} already exist in the store.", updateItem->getId());
+        return false;
+    }
+    if (!m_itemStore->replaceItem(oldItemId, updateItem)) {
+        m_lastError = m_itemStore->getLastError();
+        return false;
+    }
+    return true;
+}
+
+std::shared_ptr<Item> ManageItemController::itemDTOToItem(std::unique_ptr<ItemDTO> dto)
+{
+    ItemCreationInfo creationInfo = {
+        dto->id,
+        dto->name,
+        dto->textureName,
+        dto->textureIndex
+    };
+    std::shared_ptr<Item> updateItem = nullptr;
+    try {
+        updateItem = std::make_shared<Item>(creationInfo);
+    }
+    catch(const std::invalid_argument &err) {
+        m_lastError = err.what();
+    }
+    return updateItem;
 }

@@ -3,6 +3,8 @@
 
 #include "mainController.hpp"
 #include "ui_mainForm.h"
+#include <memory>
+#include <optional>
 #include <string>
 
 class MainForm : public QMainWindow
@@ -46,6 +48,7 @@ private:
 	void onTableWidgetItemCategoriesCurrentItemChanged(QTableWidgetItem *, QTableWidgetItem *);
 	void onPushButtonAddItemClick();
 	void onPushButtonEditItemClick();
+	std::unique_ptr<QDialog> getItemTypeForm(ItemType itemType, std::optional<std::string> itemIdToEdit);
 };
 
 #endif // MAINFORM_H

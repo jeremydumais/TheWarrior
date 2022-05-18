@@ -27,16 +27,42 @@ bool ManageArmorItemController::validateDefenseGain(const std::string &defenseGa
 	return true;
 }
 
-bool ManageArmorItemController::addItem(const ArmorItemCreationInfo &itemInfo)
+std::unique_ptr<ItemDTO> ManageArmorItemController::getItem(const std::string &id) const 
 {
-    std::shared_ptr<ArmorItem> newItem = nullptr;
+	auto item = m_itemStore->findItem(id);
+    if (item != nullptr) {
+		auto armorItem = dynamic_cast<const ArmorItem *>(item.get());
+		if (armorItem != nullptr) {
+			auto retval = std::make_unique<ArmorItemDTO>();
+			retval->id = armorItem->getId();
+			retval->name = armorItem->getName();
+			retval->textureName = armorItem->getTextureName();
+			retval->textureIndex = armorItem->getTextureIndex();
+			retval->defenseGain = armorItem->getDefenseGain();
+			retval->slotInBodyPart = armorItem->getSlotInBodyPart();
+			return retval;
+		}
+    }
+    return nullptr;
+}
+
+std::shared_ptr<Item> ManageArmorItemController::itemDTOToItem(std::unique_ptr<ItemDTO> dto)
+{
+	ArmorItemDTO *armorDTO = dynamic_cast<ArmorItemDTO *>(dto.get());
+	ArmorItemCreationInfo creationInfo = {
+        armorDTO->id,
+        armorDTO->name,
+        armorDTO->textureName,
+        armorDTO->textureIndex,
+		armorDTO->defenseGain,
+		armorDTO->slotInBodyPart
+    };
+    std::shared_ptr<Item> updateItem = nullptr;
     try {
-        newItem = std::make_shared<ArmorItem>(itemInfo);
+        updateItem = std::make_shared<ArmorItem>(creationInfo);
     }
     catch(const std::invalid_argument &err) {
         m_lastError = err.what();
-        return false;
     }
-
-    return addItemToStore(newItem);
+    return updateItem;
 }

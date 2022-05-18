@@ -74,3 +74,36 @@ TEST_F(MainControllerSampleWithOneItemPerCategory, getItemsFromCategory_WithStat
     ASSERT_EQ("pot001", items[0].id);
     ASSERT_EQ("Potion1", items[0].name);
 }
+
+TEST_F(MainControllerSampleWithOneItemPerCategory, getItemTypeFromItemId_WithNotExistantId_ReturnNullOpt)
+{
+    ASSERT_FALSE(controller.getItemTypeFromItemId("ite000").has_value());
+}
+
+TEST_F(MainControllerSampleWithOneItemPerCategory, getItemTypeFromItemId_WithIte001_ReturnItem)
+{
+    auto actual = controller.getItemTypeFromItemId("ite001");
+    ASSERT_TRUE(actual.has_value());
+    ASSERT_EQ(ItemType::Item, actual.value());
+}
+
+TEST_F(MainControllerSampleWithOneItemPerCategory, getItemTypeFromItemId_WithSwd001_ReturnWeapon)
+{
+    auto actual = controller.getItemTypeFromItemId("swd001");
+    ASSERT_TRUE(actual.has_value());
+    ASSERT_EQ(ItemType::Weapon, actual.value());
+}
+
+TEST_F(MainControllerSampleWithOneItemPerCategory, getItemTypeFromItemId_WithArm001_ReturnArmor)
+{
+    auto actual = controller.getItemTypeFromItemId("arm001");
+    ASSERT_TRUE(actual.has_value());
+    ASSERT_EQ(ItemType::Armor, actual.value());
+}
+
+TEST_F(MainControllerSampleWithOneItemPerCategory, getItemTypeFromItemId_WithPot001_ReturnPotion)
+{
+    auto actual = controller.getItemTypeFromItemId("pot001");
+    ASSERT_TRUE(actual.has_value());
+    ASSERT_EQ(ItemType::StatsItem, actual.value());
+}

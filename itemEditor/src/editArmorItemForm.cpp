@@ -1,19 +1,44 @@
 #include "editArmorItemForm.hpp"
 #include "errorMessage.hpp"
 #include "texturePickerForm.hpp"
+#include <memory>
+#include <string>
 
 EditArmorItemForm::EditArmorItemForm(QWidget *parent, 
 						 		   const std::string &resourcesPath,
-						 		   std::shared_ptr<ItemStore> itemStore)
-	: QDialog(parent),
+						 		   std::shared_ptr<ItemStore> itemStore,
+								   std::optional<std::string> itemIdToEdit)
+	: EditItemFormBase(parent, resourcesPath, itemIdToEdit),
 	  ui(Ui::editArmorItemFormClass()),
-	  m_resourcesPath(resourcesPath),
 	  m_controller(itemStore)
 {
 	ui.setupUi(this);
 	setWindowIcon(QIcon(":/ItemEditor Icon.png"));
 	connectUIActions();
 	initializeComboBoxSlotInBodyPart();
+	if (m_itemIdToEdit.has_value()) {
+		this->setWindowTitle("Edit item");
+		auto existingItem = m_controller.getItem(*m_itemIdToEdit);
+		if (existingItem != nullptr) {
+			auto *armorDTO = dynamic_cast<ArmorItemDTO *>(existingItem.get());
+			if (armorDTO != nullptr) {
+				ui.lineEditId->setText(armorDTO->id.c_str());
+				ui.lineEditName->setText(armorDTO->name.c_str());
+				ui.lineEditTextureName->setText(armorDTO->textureName.c_str());
+				ui.spinBoxTextureIndex->setValue(armorDTO->textureIndex);
+				ui.lineEditDefenseGain->setText(std::to_string(armorDTO->defenseGain).c_str());
+				ui.comboBoxSlotInBodyPart->setCurrentIndex(static_cast<int>(armorDTO->slotInBodyPart));
+			}
+			else {
+				ErrorMessage::show("Unable to cast the selected item to armor type");
+				QTimer::singleShot(0, this, SLOT(close()));
+			}
+		}
+		else {
+			ErrorMessage::show("Unable to load the selected item");
+			QTimer::singleShot(0, this, SLOT(close()));
+		}
+	}
 }
 
 void EditArmorItemForm::connectUIActions() 
@@ -43,34 +68,35 @@ void EditArmorItemForm::onPushButtonOKClick()
 		ErrorMessage::show(m_controller.getLastError());
 		return;
 	}
-	ArmorItemCreationInfo itemInfo {
-		ui.lineEditId->text().toStdString(),
-		ui.lineEditName->text().toStdString(),
-		ui.lineEditTextureName->text().toStdString(),
-		ui.spinBoxTextureIndex->value(),
-		stof(ui.lineEditDefenseGain->text().toStdString()),
-		static_cast<ArmorBodyPart>(ui.comboBoxSlotInBodyPart->currentIndex())
-	};
-	if (!m_controller.addItem(itemInfo)) {
-		ErrorMessage::show(m_controller.getLastError());
-		return;
+	auto itemInfo = std::make_unique<ArmorItemDTO>();
+	itemInfo->id = ui.lineEditId->text().toStdString();
+	itemInfo->name = ui.lineEditName->text().toStdString();
+	itemInfo->textureName = ui.lineEditTextureName->text().toStdString();
+	itemInfo->textureIndex = ui.spinBoxTextureIndex->value();
+	itemInfo->defenseGain = stof(ui.lineEditDefenseGain->text().toStdString());
+	itemInfo->slotInBodyPart = static_cast<ArmorBodyPart>(ui.comboBoxSlotInBodyPart->currentIndex());
+	if (!m_itemIdToEdit.has_value()) {
+		if (!m_controller.addItem(std::move(itemInfo))) {
+			ErrorMessage::show(m_controller.getLastError());
+			return;
+		}
+	}
+	else {
+		if (!m_controller.updateItem(std::move(itemInfo), *m_itemIdToEdit)) {
+			ErrorMessage::show(m_controller.getLastError());
+			return;
+		}
 	}
 	accept();
 }
 
 void EditArmorItemForm::onPushButtonTexturePickerClick()
 {
-	TexturePickerForm texturePickerForm(this, 
-										m_resourcesPath,
-										m_controller.getTextureContainer());
-	auto selectedTexture = ui.lineEditTextureName->text();
-	if (!selectedTexture.trimmed().isEmpty()) {
-		texturePickerForm.setCurrentSelection(selectedTexture.toStdString(),
-											  ui.spinBoxTextureIndex->value());
-	}
-	if (texturePickerForm.exec() == QDialog::Accepted) {
-		const auto &result = texturePickerForm.getResult();
-		ui.lineEditTextureName->setText(result.textureName.c_str());
-		ui.spinBoxTextureIndex->setValue(result.textureIndex);
+	auto result = showTexturePicker({ ui.lineEditTextureName->text().toStdString(),
+									  ui.spinBoxTextureIndex->value() }, 
+								    m_controller.getTextureContainer());
+	if (result.has_value()) {
+		ui.lineEditTextureName->setText(result->textureName.c_str());
+		ui.spinBoxTextureIndex->setValue(result->textureIndex);
 	}
 }

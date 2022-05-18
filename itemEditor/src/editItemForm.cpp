@@ -1,6 +1,7 @@
 #include "editItemForm.hpp"
 #include "errorMessage.hpp"
 #include "texturePickerForm.hpp"
+#include <qtimer.h>
 
 EditItemForm::EditItemForm(QWidget *parent, 
 						 const std::string &resourcesPath,
@@ -16,7 +17,17 @@ EditItemForm::EditItemForm(QWidget *parent,
 	connectUIActions();
 	if (m_itemIdToEdit.has_value()) {
 		this->setWindowTitle("Edit item");
-		//TODO if edit mode fetch item and set ui fields
+		auto existingItem = m_controller.getItem(*m_itemIdToEdit);
+		if (existingItem != nullptr) {
+			ui.lineEditId->setText(existingItem->id.c_str());
+			ui.lineEditName->setText(existingItem->name.c_str());
+			ui.lineEditTextureName->setText(existingItem->textureName.c_str());
+			ui.spinBoxTextureIndex->setValue(existingItem->textureIndex);
+		}
+		else {
+			ErrorMessage::show("Unable to load the selected item");
+			QTimer::singleShot(0, this, SLOT(close()));
+		}
 	}
 }
 
@@ -34,16 +45,22 @@ void EditItemForm::onPushButtonCancelClick()
 
 void EditItemForm::onPushButtonOKClick()
 {
-	ItemCreationInfo itemInfo {
-		ui.lineEditId->text().toStdString(),
-		ui.lineEditName->text().toStdString(),
-		ui.lineEditTextureName->text().toStdString(),
-		ui.spinBoxTextureIndex->value()
-	};
-	//TODO if add or edit mode
-	if (!m_controller.addItem(itemInfo)) {
-		ErrorMessage::show(m_controller.getLastError());
-		return;
+	auto itemInfo = std::make_unique<ItemDTO>();
+	itemInfo->id = ui.lineEditId->text().toStdString();
+	itemInfo->name = ui.lineEditName->text().toStdString();
+	itemInfo->textureName = ui.lineEditTextureName->text().toStdString();
+	itemInfo->textureIndex = ui.spinBoxTextureIndex->value();
+	if (!m_itemIdToEdit.has_value()) {
+		if (!m_controller.addItem(std::move(itemInfo))) {
+			ErrorMessage::show(m_controller.getLastError());
+			return;
+		}
+	}
+	else {
+		if (!m_controller.updateItem(std::move(itemInfo), *m_itemIdToEdit)) {
+			ErrorMessage::show(m_controller.getLastError());
+			return;
+		}
 	}
 	accept();
 }

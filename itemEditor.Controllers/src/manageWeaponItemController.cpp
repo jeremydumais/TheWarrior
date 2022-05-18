@@ -37,6 +37,7 @@ bool ManageWeaponItemController::addItem(const WeaponItemCreationInfo &itemInfo)
         m_lastError = err.what();
         return false;
     }
-
-    return addItemToStore(newItem);
+	//TODO Solve this
+	return false;
+    //return addItemToStore(newItem);
 }
