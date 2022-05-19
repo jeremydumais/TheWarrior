@@ -23,6 +23,7 @@ public:
 private:
 	Ui::editItemFormClass ui;
 	ManageItemController m_controller;
+	bool loadExistingItemToForm();
 	void onPushButtonCancelClick();
 	void onPushButtonOKClick();
 	void onPushButtonTexturePickerClick();

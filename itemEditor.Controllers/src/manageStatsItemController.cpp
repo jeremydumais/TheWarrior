@@ -55,17 +55,47 @@ bool ManageStatsItemController::validateDurationInSecs(const std::string &durati
 	return true;
 }
  
-bool ManageStatsItemController::addItem(const StatsItemCreationInfo &itemInfo)
+
+std::unique_ptr<ItemDTO> ManageStatsItemController::getItem(const std::string &id) const 
 {
-    std::shared_ptr<StatsItem> newItem = nullptr;
+	auto item = m_itemStore->findItem(id);
+    if (item != nullptr) {
+		auto statsItem = dynamic_cast<const StatsItem *>(item.get());
+		if (statsItem != nullptr) {
+			auto retval = std::make_unique<StatsItemDTO>();
+			retval->id = statsItem->getId();
+			retval->name = statsItem->getName();
+			retval->textureName = statsItem->getTextureName();
+			retval->textureIndex = statsItem->getTextureIndex();
+			retval->statChangingIndex = static_cast<int>(statsItem->getStatChanging());
+			retval->gain = statsItem->getGain();
+			retval->limitOfOneApplied = statsItem->getLimitOfOneApplied();
+			retval->durationInSecs = statsItem->getDurationInSecs();
+			return retval;
+		}
+    }
+    return nullptr;
+}
+
+std::shared_ptr<Item> ManageStatsItemController::itemDTOToItem(std::unique_ptr<ItemDTO> dto)
+{
+	StatsItemDTO *statsDTO = dynamic_cast<StatsItemDTO *>(dto.get());
+	StatsItemCreationInfo creationInfo = {
+        statsDTO->id,
+        statsDTO->name,
+        statsDTO->textureName,
+        statsDTO->textureIndex,
+		static_cast<Stats>(statsDTO->statChangingIndex),
+		statsDTO->gain,
+		statsDTO->limitOfOneApplied,
+		statsDTO->durationInSecs
+    };
+    std::shared_ptr<Item> updateItem = nullptr;
     try {
-        newItem = std::make_shared<StatsItem>(itemInfo);
+        updateItem = std::make_shared<StatsItem>(creationInfo);
     }
     catch(const std::invalid_argument &err) {
         m_lastError = err.what();
-        return false;
     }
-	//TODO Solve this
-	return false;
-    //return addItemToStore(newItem);
+    return updateItem;
 }

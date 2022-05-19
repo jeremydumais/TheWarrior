@@ -23,6 +23,7 @@ private:
 	Ui::editArmorItemFormClass ui;
 	ManageArmorItemController m_controller;
 	void initializeComboBoxSlotInBodyPart();
+	bool loadExistingItemToForm();
 	void onPushButtonCancelClick();
 	void onPushButtonOKClick();
 	void onPushButtonTexturePickerClick();

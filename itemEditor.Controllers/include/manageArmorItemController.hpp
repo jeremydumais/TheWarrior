@@ -9,7 +9,7 @@
 struct ArmorItemDTO : public ItemDTO
 {
     float defenseGain;
-    ArmorBodyPart slotInBodyPart;
+    int slotInBodyPartIndex;
 };
 
 class ManageArmorItemController : public ManageItemController

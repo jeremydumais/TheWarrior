@@ -2,25 +2,28 @@
 #define EDITSTATSITEMFORM_H
 
 #include "ui_editStatsItemForm.h"
+#include "editItemFormBase.hpp"
 #include "manageStatsItemController.hpp"
 #include "itemStore.hpp"
 #include <memory>
+#include <optional>
 #include <string>
 
-class EditStatsItemForm : public QDialog
+class EditStatsItemForm : public EditItemFormBase
 {
 Q_OBJECT
 
 public:
 	EditStatsItemForm(QWidget *parent, 
 					 const std::string &resourcesPath,
-					 std::shared_ptr<ItemStore> itemStore);
+					 std::shared_ptr<ItemStore> itemStore,
+					 std::optional<std::string> itemIdToEdit);
 	void connectUIActions();
 private:
 	Ui::editStatsItemFormClass ui;
-	const std::string &m_resourcesPath;
 	ManageStatsItemController m_controller;
 	void initializeComboBoxStatChanging();
+	bool loadExistingItemToForm();
 	void onPushButtonCancelClick();
 	void onPushButtonOKClick();
 	void onPushButtonTexturePickerClick();

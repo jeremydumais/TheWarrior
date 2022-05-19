@@ -6,13 +6,19 @@
 #include <memory>
 #include <string>
 
+struct WeaponItemDTO : public ItemDTO
+{
+    float attackGain;
+    int slotInBodyPartIndex;
+};
+
 class ManageWeaponItemController : public ManageItemController
 {
 public:
     ManageWeaponItemController(std::shared_ptr<ItemStore> itemStore);
     virtual ~ManageWeaponItemController() = default;
     bool validateAttackGain(const std::string &attackGainStr); 
-    bool addItem(const WeaponItemCreationInfo &itemInfo);
+    virtual std::unique_ptr<ItemDTO> getItem(const std::string &id) const override;
 private:
-    using ManageItemController::addItem; //Hide the base class addItem method
+    virtual std::shared_ptr<Item> itemDTOToItem(std::unique_ptr<ItemDTO> dto) override;
 };

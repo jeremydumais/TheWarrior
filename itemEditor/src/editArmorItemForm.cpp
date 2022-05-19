@@ -17,25 +17,8 @@ EditArmorItemForm::EditArmorItemForm(QWidget *parent,
 	connectUIActions();
 	initializeComboBoxSlotInBodyPart();
 	if (m_itemIdToEdit.has_value()) {
-		this->setWindowTitle("Edit item");
-		auto existingItem = m_controller.getItem(*m_itemIdToEdit);
-		if (existingItem != nullptr) {
-			auto *armorDTO = dynamic_cast<ArmorItemDTO *>(existingItem.get());
-			if (armorDTO != nullptr) {
-				ui.lineEditId->setText(armorDTO->id.c_str());
-				ui.lineEditName->setText(armorDTO->name.c_str());
-				ui.lineEditTextureName->setText(armorDTO->textureName.c_str());
-				ui.spinBoxTextureIndex->setValue(armorDTO->textureIndex);
-				ui.lineEditDefenseGain->setText(std::to_string(armorDTO->defenseGain).c_str());
-				ui.comboBoxSlotInBodyPart->setCurrentIndex(static_cast<int>(armorDTO->slotInBodyPart));
-			}
-			else {
-				ErrorMessage::show("Unable to cast the selected item to armor type");
-				QTimer::singleShot(0, this, SLOT(close()));
-			}
-		}
-		else {
-			ErrorMessage::show("Unable to load the selected item");
+		this->setWindowTitle("Edit armor item");
+		if (!loadExistingItemToForm()) {
 			QTimer::singleShot(0, this, SLOT(close()));
 		}
 	}
@@ -57,6 +40,31 @@ void EditArmorItemForm::initializeComboBoxSlotInBodyPart()
 	ui.comboBoxSlotInBodyPart->insertItem(4, "Feets");
 }
 
+bool EditArmorItemForm::loadExistingItemToForm()
+{
+	auto existingItem = m_controller.getItem(*m_itemIdToEdit);
+	if (existingItem != nullptr) {
+		auto *armorDTO = dynamic_cast<ArmorItemDTO *>(existingItem.get());
+		if (armorDTO != nullptr) {
+			ui.lineEditId->setText(armorDTO->id.c_str());
+			ui.lineEditName->setText(armorDTO->name.c_str());
+			ui.lineEditTextureName->setText(armorDTO->textureName.c_str());
+			ui.spinBoxTextureIndex->setValue(armorDTO->textureIndex);
+			ui.lineEditDefenseGain->setText(std::to_string(armorDTO->defenseGain).c_str());
+			ui.comboBoxSlotInBodyPart->setCurrentIndex(armorDTO->slotInBodyPartIndex);
+		}
+		else {
+			ErrorMessage::show("Unable to cast the selected item to armor type");
+			return false;
+		}
+	}
+	else {
+		ErrorMessage::show("Unable to load the selected item");
+		return false;
+	}
+	return true;
+}
+
 void EditArmorItemForm::onPushButtonCancelClick()
 {
 	reject();
@@ -74,7 +82,7 @@ void EditArmorItemForm::onPushButtonOKClick()
 	itemInfo->textureName = ui.lineEditTextureName->text().toStdString();
 	itemInfo->textureIndex = ui.spinBoxTextureIndex->value();
 	itemInfo->defenseGain = stof(ui.lineEditDefenseGain->text().toStdString());
-	itemInfo->slotInBodyPart = static_cast<ArmorBodyPart>(ui.comboBoxSlotInBodyPart->currentIndex());
+	itemInfo->slotInBodyPartIndex = ui.comboBoxSlotInBodyPart->currentIndex();
 	if (!m_itemIdToEdit.has_value()) {
 		if (!m_controller.addItem(std::move(itemInfo))) {
 			ErrorMessage::show(m_controller.getLastError());

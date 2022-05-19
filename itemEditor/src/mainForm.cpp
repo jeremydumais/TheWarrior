@@ -92,7 +92,7 @@ void MainForm::connectUIActions()
 	connect(ui.action_ManageTextures, &QAction::triggered, this, &MainForm::action_ManageTextures_Click);
 	connect(ui.pushButtonAddItem, &QPushButton::clicked, this, &MainForm::onPushButtonAddItemClick);
 	connect(ui.pushButtonEditItem, &QPushButton::clicked, this, &MainForm::onPushButtonEditItemClick);
-	connect(ui.tableWidgetItemCategories, &QTableWidget::currentItemChanged, this, &MainForm::onTableWidgetItemCategoriesCurrentItemChanged);
+	connect(ui.tableWidgetItemCategories->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainForm::onTableWidgetItemCategoriesSelectionChanged);
 }
 
 void MainForm::functionAfterShown()
@@ -192,6 +192,13 @@ void MainForm::action_SaveAsItemStore_Click()
 
 void MainForm::refreshCategoriesTable()
 {
+	//Get the selected category
+	std::string selectedCategory = "";
+	auto currentCategoryItems = ui.tableWidgetItemCategories->selectedItems();
+	if(currentCategoryItems.length() == 1) {
+		selectedCategory = currentCategoryItems[0]->text().toStdString();
+	}
+	//Clear and regenerate the category list
 	ui.tableWidgetItemCategories->model()->removeRows(0, ui.tableWidgetItemCategories->rowCount());
 	int index = 0;
 	for(const std::string &category : m_controller.getItemCategories()) {
@@ -202,6 +209,9 @@ void MainForm::refreshCategoriesTable()
 		font.setPointSize(16);
 		categoryRow->setFont(font);
 		ui.tableWidgetItemCategories->setItem(index, 0, categoryRow);
+		if (category == selectedCategory) {
+			categoryRow->setSelected(true);
+		}
 		index++;
 	}
 }
@@ -209,9 +219,9 @@ void MainForm::refreshCategoriesTable()
 void MainForm::refreshItemsTable()
 {
 	ui.tableWidgetItems->model()->removeRows(0, ui.tableWidgetItems->rowCount());
-	auto currentItemCategorySelection = ui.tableWidgetItemCategories->currentItem();
-	if (ui.tableWidgetItemCategories->currentItem() != nullptr) {
-		auto selectedItemCategory = currentItemCategorySelection->text().toStdString();
+	auto currentItemCategorySelections = ui.tableWidgetItemCategories->selectionModel()->selectedRows();
+	if (currentItemCategorySelections.length() == 1) {
+		auto selectedItemCategory = currentItemCategorySelections[0].data().toString().toStdString();
 		auto itemsToDisplay = m_controller.getItemsFromCategory(selectedItemCategory);
 		int index = 0;
 		for(const auto &item : itemsToDisplay) {
@@ -312,7 +322,7 @@ void MainForm::refreshWindowTitle()
 				   fmt::format("ItemEditor - {0}", m_currentFilePath).c_str());
 }
 
-void MainForm::onTableWidgetItemCategoriesCurrentItemChanged(QTableWidgetItem *, QTableWidgetItem *)
+void MainForm::onTableWidgetItemCategoriesSelectionChanged()
 {
 	refreshItemsTable();
 }
@@ -360,22 +370,24 @@ std::unique_ptr<QDialog> MainForm::getItemTypeForm(ItemType itemType, std::optio
 													m_controller.getItemStore(),
 													itemIdToEdit);
 		break;
-		/*case ItemType::Weapon:
+		case ItemType::Weapon:
 			dialog = std::make_unique<EditWeaponItemForm>(this,
-															getResourcesPath(),
-															m_controller.getItemStore());
-		break;*/
+														  getResourcesPath(),
+														  m_controller.getItemStore(),
+														  itemIdToEdit);
+		break;
 		case ItemType::Armor:
 			dialog = std::make_unique<EditArmorItemForm>(this,
-														getResourcesPath(),
-														m_controller.getItemStore(),
-														itemIdToEdit);
+														 getResourcesPath(),
+														 m_controller.getItemStore(),
+														 itemIdToEdit);
 		break;
-		/*case ItemType::StatsItem:
+		case ItemType::StatsItem:
 			dialog = std::make_unique<EditStatsItemForm>(this,
-														getResourcesPath(),
-														m_controller.getItemStore());
-		break;*/
+														 getResourcesPath(),
+														 m_controller.getItemStore(),
+														 itemIdToEdit);
+		break;
 		default:
 		break;
 	}

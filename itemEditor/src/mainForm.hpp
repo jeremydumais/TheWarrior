@@ -45,7 +45,7 @@ private:
 	void openItemStore(const std::string &filePath);
 	void saveItemStore(const std::string &filePath);
 	void refreshWindowTitle();
-	void onTableWidgetItemCategoriesCurrentItemChanged(QTableWidgetItem *, QTableWidgetItem *);
+	void onTableWidgetItemCategoriesSelectionChanged();
 	void onPushButtonAddItemClick();
 	void onPushButtonEditItemClick();
 	std::unique_ptr<QDialog> getItemTypeForm(ItemType itemType, std::optional<std::string> itemIdToEdit);

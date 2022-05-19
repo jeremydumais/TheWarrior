@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Add Armor item</string>
+   <string>Add armor item</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="0">

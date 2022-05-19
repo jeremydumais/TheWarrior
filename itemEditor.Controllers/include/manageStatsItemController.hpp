@@ -6,6 +6,14 @@
 #include <memory>
 #include <string>
 
+struct StatsItemDTO : public ItemDTO
+{
+    int statChangingIndex;
+    float gain;
+    bool limitOfOneApplied;
+    unsigned int durationInSecs;
+};
+
 class ManageStatsItemController : public ManageItemController
 {
 public:
@@ -13,7 +21,7 @@ public:
     virtual ~ManageStatsItemController() = default;
     bool validateGain(const std::string &gainStr); 
     bool validateDurationInSecs(const std::string &duration);
-    bool addItem(const StatsItemCreationInfo &itemInfo);
+    virtual std::unique_ptr<ItemDTO> getItem(const std::string &id) const override;
 private:
-    using ManageItemController::addItem; //Hide the base class addItem method
+    virtual std::shared_ptr<Item> itemDTOToItem(std::unique_ptr<ItemDTO> dto) override;
 };

@@ -17,15 +17,7 @@ EditItemForm::EditItemForm(QWidget *parent,
 	connectUIActions();
 	if (m_itemIdToEdit.has_value()) {
 		this->setWindowTitle("Edit item");
-		auto existingItem = m_controller.getItem(*m_itemIdToEdit);
-		if (existingItem != nullptr) {
-			ui.lineEditId->setText(existingItem->id.c_str());
-			ui.lineEditName->setText(existingItem->name.c_str());
-			ui.lineEditTextureName->setText(existingItem->textureName.c_str());
-			ui.spinBoxTextureIndex->setValue(existingItem->textureIndex);
-		}
-		else {
-			ErrorMessage::show("Unable to load the selected item");
+		if (!loadExistingItemToForm()) {
 			QTimer::singleShot(0, this, SLOT(close()));
 		}
 	}
@@ -36,6 +28,22 @@ void EditItemForm::connectUIActions()
 	connect(ui.pushButtonCancel, &QPushButton::clicked, this, &EditItemForm::onPushButtonCancelClick);
 	connect(ui.pushButtonOK, &QPushButton::clicked, this, &EditItemForm::onPushButtonOKClick);
 	connect(ui.pushButtonTexturePicker, &QPushButton::clicked, this, &EditItemForm::onPushButtonTexturePickerClick);
+}
+
+bool EditItemForm::loadExistingItemToForm()
+{
+	auto existingItem = m_controller.getItem(*m_itemIdToEdit);
+	if (existingItem != nullptr) {
+		ui.lineEditId->setText(existingItem->id.c_str());
+		ui.lineEditName->setText(existingItem->name.c_str());
+		ui.lineEditTextureName->setText(existingItem->textureName.c_str());
+		ui.spinBoxTextureIndex->setValue(existingItem->textureIndex);
+	}
+	else {
+		ErrorMessage::show("Unable to load the selected item");
+		return false;
+	}
+	return true;
 }
 
 void EditItemForm::onPushButtonCancelClick()

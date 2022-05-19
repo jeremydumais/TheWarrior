@@ -1,19 +1,26 @@
 #include "editWeaponItemForm.hpp"
 #include "errorMessage.hpp"
 #include "texturePickerForm.hpp"
+#include <boost/lexical_cast.hpp>
 
 EditWeaponItemForm::EditWeaponItemForm(QWidget *parent, 
 						 const std::string &resourcesPath,
-						 std::shared_ptr<ItemStore> itemStore)
-	: QDialog(parent),
+						 std::shared_ptr<ItemStore> itemStore,
+						 std::optional<std::string> itemIdToEdit)
+	: EditItemFormBase(parent, resourcesPath, itemIdToEdit),
 	  ui(Ui::editWeaponItemFormClass()),
-	  m_resourcesPath(resourcesPath),
 	  m_controller(itemStore)
 {
 	ui.setupUi(this);
 	setWindowIcon(QIcon(":/ItemEditor Icon.png"));
 	connectUIActions();
 	initializeComboBoxSlotInBodyPart();
+	if (m_itemIdToEdit.has_value()) {
+		this->setWindowTitle("Edit weapon item");
+		if (!loadExistingItemToForm()) {
+			QTimer::singleShot(0, this, SLOT(close()));
+		}
+	}
 }
 
 void EditWeaponItemForm::connectUIActions() 
@@ -29,6 +36,32 @@ void EditWeaponItemForm::initializeComboBoxSlotInBodyPart()
 	ui.comboBoxSlotInBodyPart->insertItem(1, "Secondary hand");
 }
 
+bool EditWeaponItemForm::loadExistingItemToForm()
+{
+	auto existingItem = m_controller.getItem(*m_itemIdToEdit);
+	if (existingItem != nullptr) {
+		auto *weaponDTO = dynamic_cast<WeaponItemDTO *>(existingItem.get());
+		if (weaponDTO != nullptr) {
+			ui.lineEditId->setText(weaponDTO->id.c_str());
+			ui.lineEditName->setText(weaponDTO->name.c_str());
+			ui.lineEditTextureName->setText(weaponDTO->textureName.c_str());
+			ui.spinBoxTextureIndex->setValue(weaponDTO->textureIndex);
+			//TODO float value is rounded to int???
+			ui.lineEditAttackGain->setText(std::to_string(weaponDTO->attackGain).c_str());
+			ui.comboBoxSlotInBodyPart->setCurrentIndex(weaponDTO->slotInBodyPartIndex);
+		}
+		else {
+			ErrorMessage::show("Unable to cast the selected item to weapon type");
+			return false;
+		}
+	}
+	else {
+		ErrorMessage::show("Unable to load the selected item");
+		return false;
+	}
+	return true;
+}
+
 void EditWeaponItemForm::onPushButtonCancelClick()
 {
 	reject();
@@ -40,34 +73,35 @@ void EditWeaponItemForm::onPushButtonOKClick()
 		ErrorMessage::show(m_controller.getLastError());
 		return;
 	}
-	WeaponItemCreationInfo itemInfo {
-		ui.lineEditId->text().toStdString(),
-		ui.lineEditName->text().toStdString(),
-		ui.lineEditTextureName->text().toStdString(),
-		ui.spinBoxTextureIndex->value(),
-		stof(ui.lineEditAttackGain->text().toStdString()),
-		static_cast<WeaponBodyPart>(ui.comboBoxSlotInBodyPart->currentIndex())
-	};
-	if (!m_controller.addItem(itemInfo)) {
-		ErrorMessage::show(m_controller.getLastError());
-		return;
+	auto itemInfo = std::make_unique<WeaponItemDTO>();
+	itemInfo->id = ui.lineEditId->text().toStdString();
+	itemInfo->name = ui.lineEditName->text().toStdString();
+	itemInfo->textureName = ui.lineEditTextureName->text().toStdString();
+	itemInfo->textureIndex = ui.spinBoxTextureIndex->value();
+	itemInfo->attackGain = stof(ui.lineEditAttackGain->text().toStdString());
+	itemInfo->slotInBodyPartIndex = ui.comboBoxSlotInBodyPart->currentIndex();
+	if (!m_itemIdToEdit.has_value()) {
+		if (!m_controller.addItem(std::move(itemInfo))) {
+			ErrorMessage::show(m_controller.getLastError());
+			return;
+		}
+	}
+	else {
+		if (!m_controller.updateItem(std::move(itemInfo), *m_itemIdToEdit)) {
+			ErrorMessage::show(m_controller.getLastError());
+			return;
+		}
 	}
 	accept();
 }
 
 void EditWeaponItemForm::onPushButtonTexturePickerClick()
 {
-	TexturePickerForm texturePickerForm(this, 
-										m_resourcesPath,
-										m_controller.getTextureContainer());
-	auto selectedTexture = ui.lineEditTextureName->text();
-	if (!selectedTexture.trimmed().isEmpty()) {
-		texturePickerForm.setCurrentSelection(selectedTexture.toStdString(),
-											  ui.spinBoxTextureIndex->value());
-	}
-	if (texturePickerForm.exec() == QDialog::Accepted) {
-		const auto &result = texturePickerForm.getResult();
-		ui.lineEditTextureName->setText(result.textureName.c_str());
-		ui.spinBoxTextureIndex->setValue(result.textureIndex);
+	auto result = showTexturePicker({ ui.lineEditTextureName->text().toStdString(),
+									  ui.spinBoxTextureIndex->value() }, 
+								    m_controller.getTextureContainer());
+	if (result.has_value()) {
+		ui.lineEditTextureName->setText(result->textureName.c_str());
+		ui.spinBoxTextureIndex->setValue(result->textureIndex);
 	}
 }
