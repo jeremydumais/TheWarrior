@@ -35,8 +35,11 @@ private:
 	void action_LightTheme_Click();
 	void action_DarkTheme_Click();
 	void action_OpenItemStore_Click();
+	void action_OpenRecentItemsDB_Click();
 	void action_SaveItemStore_Click();
 	void action_SaveAsItemStore_Click();
+	void refreshRecentMapsMenu();
+	void addNewRecentItemsDB(const std::string &filePath);
 	void refreshCategoriesTable();
 	void refreshItemsTable();
 	QIcon getCategoryIcon(const std::string &categoryName) const;

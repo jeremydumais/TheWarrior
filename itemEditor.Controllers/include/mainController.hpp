@@ -2,6 +2,8 @@
 
 #include "itemStore.hpp"
 #include "textureContainer.hpp"
+#include <qicon.h>
+#include <map>
 #include <memory>
 #include <optional>
 #include <set>
@@ -26,6 +28,8 @@ public:
     std::set<std::string> getItemCategories() const;
     std::vector<ItemListDisplay> getItemsFromCategory(const std::string &categoryName) const;
     std::optional<ItemType> getItemTypeFromItemId(const std::string &id) const;
+    std::map<std::string, QIcon> getIconsFromItemIds(std::vector<std::string> itemIds,
+                                                     const std::string &resourcesPath) const;
     bool deleteItem(const std::string &id);
 private:
     std::shared_ptr<ItemStore> m_itemStore;

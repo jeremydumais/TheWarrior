@@ -12,7 +12,8 @@ enum class ArmorBodyPart
     UpperBody,
     LowerBody,
     Hands,
-    Feets
+    Feets,
+    SecondaryHand
 };
 
 struct ArmorItemCreationInfo : public ItemCreationInfo

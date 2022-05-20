@@ -1,7 +1,12 @@
 #include "mainController.hpp"
 #include "itemStoreStorage.hpp"
 #include "manageItemController.hpp"
+#include "textureUtils.hpp"
+#include <fmt/format.h>
+#include <qpixmap.h>
 #include <algorithm>
+#include <map>
+#include <memory>
 #include <optional>
 #include <stdexcept>
 #include <set>
@@ -87,6 +92,49 @@ std::optional<ItemType> MainController::getItemTypeFromItemId(const std::string 
         return item->getType();
     }
     return std::nullopt;
+}
+
+std::map<std::string, QIcon> MainController::getIconsFromItemIds(std::vector<std::string> itemIds,
+                                                                 const std::string &resourcesPath) const
+{
+    std::map<std::string, QIcon> retval;
+    std::map<std::string, std::shared_ptr<QPixmap>> textures;
+
+    for(const auto &itemId : itemIds) {
+        //Find the item in the item store
+        const auto &item = m_itemStore->findItem(itemId);
+        if (item) {
+            //Find the texture in the loaded pixmap collection
+            const auto &textureName = item->getTextureName();
+            auto textureIter = std::find_if(textures.begin(), 
+                                            textures.end(), 
+                                            [textureName] (const std::pair<std::string, std::shared_ptr<QPixmap>> texturePixmap) {
+                return texturePixmap.first == textureName;
+            });
+            std::shared_ptr<QPixmap> pixmap = nullptr;
+             //Find the texture 
+            auto texture = m_itemStore->getTextureContainer().getTextureByName(item->getTextureName());
+            if (texture.has_value()) {
+                //If not found, load it
+                if (textureIter == textures.end()) {
+                    auto completeTexturePath = fmt::format("{0}{1}", resourcesPath, texture->get().getFilename());
+                    pixmap = std::make_shared<QPixmap>(QString(completeTexturePath.c_str()));
+                    textures.insert({textureName, pixmap});
+                }
+                else {
+                    pixmap = textureIter->second;
+                }
+
+                if (pixmap) {
+                    auto iconPixmap = TextureUtils::getTextureTileImageFromTexture(pixmap.get(), 
+                                                                                item->getTextureIndex(),
+                                                                                texture.value());
+                    retval.insert({itemId, QIcon(iconPixmap)});
+                }
+            }
+        }
+    }
+    return retval;
 }
 
 bool MainController::deleteItem(const std::string &id)

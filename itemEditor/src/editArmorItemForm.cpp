@@ -38,6 +38,7 @@ void EditArmorItemForm::initializeComboBoxSlotInBodyPart()
 	ui.comboBoxSlotInBodyPart->insertItem(2, "Lower body");
 	ui.comboBoxSlotInBodyPart->insertItem(3, "Hands");
 	ui.comboBoxSlotInBodyPart->insertItem(4, "Feets");
+	ui.comboBoxSlotInBodyPart->insertItem(5, "Secondary hand");
 }
 
 bool EditArmorItemForm::loadExistingItemToForm()
