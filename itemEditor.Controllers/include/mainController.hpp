@@ -26,6 +26,7 @@ public:
     std::set<std::string> getItemCategories() const;
     std::vector<ItemListDisplay> getItemsFromCategory(const std::string &categoryName) const;
     std::optional<ItemType> getItemTypeFromItemId(const std::string &id) const;
+    bool deleteItem(const std::string &id);
 private:
     std::shared_ptr<ItemStore> m_itemStore;
     std::string m_lastError;

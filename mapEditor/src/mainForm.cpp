@@ -91,15 +91,19 @@ MainForm::MainForm(QWidget *parent)
 
 	//Check if the configuration file exist
 	ConfigurationManager configManager(m_userConfigFolder + "config.json");
+	if (!configManager.fileExists()) {
+		//Try to create a default configuration
+		if (!configManager.save()) {
+			ErrorMessage::show("An error occurred while creation a default the configuration file.",
+							   configManager.getLastError());
+		}
+	}
 	if (configManager.load()) {
 		setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
 	}
 	else {
-		//Try to create a default configuration
-		if (!configManager.save()) {
-			ErrorMessage::show("An error occurred while loading the configuration file.",
-							   configManager.getLastError());
-		}
+		ErrorMessage::show("An error occurred while loading the configuration file.",
+						   configManager.getLastError());
 	}
 
 	//Generate a test map

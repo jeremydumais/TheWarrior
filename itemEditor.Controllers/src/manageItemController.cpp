@@ -77,6 +77,15 @@ bool ManageItemController::updateItem(std::unique_ptr<ItemDTO> itemInfo,
     return true;
 }
 
+bool ManageItemController::deleteItem(const std::string &itemId)
+{
+    if (!m_itemStore->removeItem(itemId)) {
+        m_lastError = m_itemStore->getLastError();
+        return false;
+    }
+    return true;
+}
+
 std::shared_ptr<Item> ManageItemController::itemDTOToItem(std::unique_ptr<ItemDTO> dto)
 {
     ItemCreationInfo creationInfo = {

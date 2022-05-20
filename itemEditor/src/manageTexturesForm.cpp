@@ -26,14 +26,18 @@ void ManageTexturesForm::connectUIActions()
 	connect(ui.pushButtonAddTexture, &QPushButton::clicked, this, &ManageTexturesForm::onPushButtonAddClick);
 	connect(ui.pushButtonEditTexture, &QPushButton::clicked, this, &ManageTexturesForm::onPushButtonEditClick);
 	connect(ui.pushButtonDeleteTexture, &QPushButton::clicked, this, &ManageTexturesForm::onPushButtonDeleteClick);
+	connect(ui.tableWidgetTextures, &QTableWidget::itemDoubleClicked, this, &ManageTexturesForm::onTableWidgetTexturesDoubleClicked);
+	tableWidgetTexturesKeyWatcher.installOn(ui.tableWidgetTextures);
+	connect(&tableWidgetTexturesKeyWatcher, &QTableWidgetKeyPressWatcher::keyPressed, this, &ManageTexturesForm::onTableWidgetTexturesKeyPressEvent);
 }
 
 void ManageTexturesForm::refreshTextureList() 
 {
-	ui.listWidgetTextures->model()->removeRows(0, ui.listWidgetTextures->count());
+	ui.tableWidgetTextures->model()->removeRows(0, ui.tableWidgetTextures->rowCount());
 	int index {0};
 	for(const auto &textureName : m_controller.getTexturesNames()) {
-        ui.listWidgetTextures->insertItem(index, textureName.c_str());
+        ui.tableWidgetTextures->insertRow(index);
+		ui.tableWidgetTextures->setItem(index, 0, new QTableWidgetItem(textureName.c_str()));
         index++;
 	}
 }
@@ -45,9 +49,10 @@ void ManageTexturesForm::onPushButtonCloseClick()
 
 std::unique_ptr<TextureDTO> ManageTexturesForm::getSelectedTextureInTextureList() 
 {
-	if (ui.listWidgetTextures->selectionModel()->hasSelection()) {
+	auto selectedRows = ui.tableWidgetTextures->selectionModel()->selectedRows();
+	if (selectedRows.count() == 1) {
 		//Find the selected texture
-		auto selectedItemName { ui.listWidgetTextures->selectionModel()->selectedRows()[0].data().toString().toStdString() };
+		auto selectedItemName { selectedRows[0].data().toString().toStdString() };
 		return m_controller.getTextureByName(selectedItemName);
 	}
 	else {
@@ -102,4 +107,18 @@ void ManageTexturesForm::onPushButtonDeleteClick()
 			refreshTextureList();
 		}
     }
+}
+
+void ManageTexturesForm::onTableWidgetTexturesDoubleClicked(QTableWidgetItem *item)
+{
+	if (item) {
+		onPushButtonEditClick();
+	}
+}
+
+void ManageTexturesForm::onTableWidgetTexturesKeyPressEvent(int key, int, int) 
+{
+        if (key == Qt::Key_Delete) {
+                onPushButtonDeleteClick();
+        }
 }

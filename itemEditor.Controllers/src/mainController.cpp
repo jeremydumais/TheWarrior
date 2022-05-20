@@ -1,5 +1,6 @@
 #include "mainController.hpp"
 #include "itemStoreStorage.hpp"
+#include "manageItemController.hpp"
 #include <algorithm>
 #include <optional>
 #include <stdexcept>
@@ -86,4 +87,14 @@ std::optional<ItemType> MainController::getItemTypeFromItemId(const std::string 
         return item->getType();
     }
     return std::nullopt;
+}
+
+bool MainController::deleteItem(const std::string &id)
+{
+    ManageItemController itemController(m_itemStore);
+    if (!itemController.deleteItem(id)) {
+        m_lastError = itemController.getLastError();
+        return false;
+    }
+    return true;
 }

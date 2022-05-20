@@ -72,6 +72,11 @@ void ConfigurationManager::setVectorOfStringValue(const string &path, const vect
     m_config.put_child(path, recents_node);
 }
 
+bool ConfigurationManager::fileExists() const
+{
+    return m_jfs->fileExists();
+}
+
 bool ConfigurationManager::load()
 {
     if (m_jfs->fileExists())

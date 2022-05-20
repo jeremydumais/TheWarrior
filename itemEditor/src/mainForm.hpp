@@ -3,6 +3,7 @@
 
 #include "mainController.hpp"
 #include "ui_mainForm.h"
+#include "qTableWidgetKeyPressWatcher.h"
 #include <memory>
 #include <optional>
 #include <string>
@@ -25,6 +26,7 @@ private:
 	std::string m_resourcesPath;
 	std::string m_currentFilePath;
 	MainController m_controller;
+	QTableWidgetKeyPressWatcher tableWidgetItemsKeyWatcher;
 	static const std::string THEME_PATH;
 	static const std::string RECENT_MAPS;
 	void initializeCategoriesTableControl();
@@ -46,8 +48,12 @@ private:
 	void saveItemStore(const std::string &filePath);
 	void refreshWindowTitle();
 	void onTableWidgetItemCategoriesSelectionChanged();
+	void onTableWidgetItemsDoubleClicked(QTableWidgetItem *item);
+	void onTableWidgetItemsKeyPressEvent(int key, int, int);
 	void onPushButtonAddItemClick();
 	void onPushButtonEditItemClick();
+	void onPushButtonDeleteItemClick();
+	std::optional<std::string> getSelectedItemId() const;	
 	std::unique_ptr<QDialog> getItemTypeForm(ItemType itemType, std::optional<std::string> itemIdToEdit);
 };
 

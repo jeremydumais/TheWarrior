@@ -126,6 +126,17 @@
              </widget>
             </item>
             <item>
+             <widget class="QPushButton" name="pushButtonDeleteItem">
+              <property name="text">
+               <string>&amp;Delete item</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../res/global.qrc">
+                <normaloff>:/commonUI/res/gtk-delete.svg</normaloff>:/commonUI/res/gtk-delete.svg</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
              <spacer name="horizontalSpacer">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
@@ -211,7 +222,9 @@
     <property name="title">
      <string>&amp;Items</string>
     </property>
-    <addaction name="action_AddAnItem"/>
+    <addaction name="action_AddItem"/>
+    <addaction name="action_EditItem"/>
+    <addaction name="action_DeleteItem"/>
    </widget>
    <widget class="QMenu" name="menu_Textures">
     <property name="title">
@@ -300,14 +313,24 @@
     <string>Save as...</string>
    </property>
   </action>
-  <action name="action_AddAnItem">
+  <action name="action_AddItem">
    <property name="text">
-    <string>Add an item...</string>
+    <string>&amp;Add an item...</string>
    </property>
   </action>
   <action name="action_ManageTextures">
    <property name="text">
     <string>&amp;Manage textures...</string>
+   </property>
+  </action>
+  <action name="action_EditItem">
+   <property name="text">
+    <string>&amp;Edit item...</string>
+   </property>
+  </action>
+  <action name="action_DeleteItem">
+   <property name="text">
+    <string>&amp;Delete item...</string>
    </property>
   </action>
  </widget>

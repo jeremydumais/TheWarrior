@@ -93,3 +93,19 @@ TEST(ConfigurationManager_save, writeFileIsTrue_ReturnTrue)
     ConfigurationManager config("test", move(stubJFS));
     ASSERT_TRUE(config.save());
 }
+
+TEST(ConfigurationManager_fileExists, fileExistsIsTrue_ReturnTrue) 
+{
+    auto stubJFS = make_unique<NiceMock<StubJSONFileStream>>("test");
+    ON_CALL(*stubJFS, fileExists()).WillByDefault(Return(true));
+    ConfigurationManager config("test", move(stubJFS));
+    ASSERT_TRUE(config.fileExists());
+}
+
+TEST(ConfigurationManager_fileExists, fileExistsIsFalse_ReturnFalse) 
+{
+    auto stubJFS = make_unique<NiceMock<StubJSONFileStream>>("test");
+    ON_CALL(*stubJFS, fileExists()).WillByDefault(Return(false));
+    ConfigurationManager config("test", move(stubJFS));
+    ASSERT_FALSE(config.fileExists());
+}

@@ -16,6 +16,7 @@ public:
     std::string getStringValue(const std::string &path) const;
     void setStringValue(const std::string &path, const std::string &value);
     void setVectorOfStringValue(const std::string &path, const std::vector<std::string> &values);
+    bool fileExists() const;
     bool load();
     bool save();
 private:

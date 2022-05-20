@@ -12,12 +12,14 @@
 #include "weaponItem.hpp"
 #include <QtCore/qfile.h>
 #include <QtWidgets/QFileDialog>
+#include <QtWidgets/QMessageBox>
 #include <boost/filesystem.hpp>
 #include <fmt/format.h>
 #include <libgen.h>         // dirname
 #include <linux/limits.h>   // PATH_MAX
 #include <memory>
 #include <optional>
+#include <string>
 #include <unistd.h>         // readlink
 
 const std::string MainForm::THEME_PATH { "Display.Theme" };
@@ -43,9 +45,16 @@ MainForm::MainForm(QWidget *parent)
 			exit(1);
 		}
 	}
-
 	//Check if the configuration file exist
 	ConfigurationManager configManager(m_userConfigFolder + "config.json");
+	if (!configManager.fileExists()) {
+		//Try to create a default configuration
+		if (!configManager.save()) {
+			ErrorMessage::show("An error occurred while creation a default the configuration file.",
+							   configManager.getLastError());
+		}
+	}
+	//Load the config file
 	if (configManager.load()) {
 		setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
 	}
@@ -54,16 +63,9 @@ MainForm::MainForm(QWidget *parent)
 						   configManager.getLastError());
 	}
 
-
 	initializeCategoriesTableControl();
 	initializeItemsTableControl();
     connectUIActions();
-
-	//TODO To remove (test only)
-	m_currentFilePath = "/home/jed/Programming/TheWarrior/resources/items/itemstore.itm";
-	openItemStore(m_currentFilePath);
-	//m_controller.getItemStore()->addItem(std::make_shared<Item>(ItemCreationInfo{ "ite001", "Item1", "Tex1", 0}));
-	//m_controller.getItemStore()->addItem(std::make_shared<WeaponItem>(WeaponItemCreationInfo{ "swd001", "Sword1", "Tex2", 01, 1.5F, WeaponBodyPart::SecondaryHand}));
 	refreshCategoriesTable();
 	refreshItemsTable();
 }
@@ -90,9 +92,17 @@ void MainForm::connectUIActions()
 	connect(ui.action_Save, &QAction::triggered, this, &MainForm::action_SaveItemStore_Click);
 	connect(ui.action_SaveAs, &QAction::triggered, this, &MainForm::action_SaveAsItemStore_Click);
 	connect(ui.action_ManageTextures, &QAction::triggered, this, &MainForm::action_ManageTextures_Click);
+	connect(ui.action_AddItem, &QAction::triggered, this, &MainForm::onPushButtonAddItemClick);
+	connect(ui.action_EditItem, &QAction::triggered, this, &MainForm::onPushButtonEditItemClick);
+	connect(ui.action_DeleteItem, &QAction::triggered, this, &MainForm::onPushButtonDeleteItemClick);
 	connect(ui.pushButtonAddItem, &QPushButton::clicked, this, &MainForm::onPushButtonAddItemClick);
 	connect(ui.pushButtonEditItem, &QPushButton::clicked, this, &MainForm::onPushButtonEditItemClick);
+	connect(ui.pushButtonDeleteItem, &QPushButton::clicked, this, &MainForm::onPushButtonDeleteItemClick);
 	connect(ui.tableWidgetItemCategories->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainForm::onTableWidgetItemCategoriesSelectionChanged);
+	connect(ui.tableWidgetItems, &QTableWidget::itemDoubleClicked, this, &MainForm::onTableWidgetItemsDoubleClicked);
+	tableWidgetItemsKeyWatcher.installOn(ui.tableWidgetItems);
+	connect(&tableWidgetItemsKeyWatcher, &QTableWidgetKeyPressWatcher::keyPressed, this, &MainForm::onTableWidgetItemsKeyPressEvent);
+
 }
 
 void MainForm::functionAfterShown()
@@ -327,6 +337,20 @@ void MainForm::onTableWidgetItemCategoriesSelectionChanged()
 	refreshItemsTable();
 }
 
+void MainForm::onTableWidgetItemsDoubleClicked(QTableWidgetItem *item)
+{
+	if (item) {
+		onPushButtonEditItemClick();
+	}
+}
+
+void MainForm::onTableWidgetItemsKeyPressEvent(int key, int, int) 
+{
+        if (key == Qt::Key_Delete) {
+                onPushButtonDeleteItemClick();
+        }
+}
+
 void MainForm::onPushButtonAddItemClick() 
 {
 	AddItemChooserForm addItemChooserForm(this);
@@ -342,13 +366,11 @@ void MainForm::onPushButtonAddItemClick()
 
 void MainForm::onPushButtonEditItemClick()
 {
-	auto selectedRows = ui.tableWidgetItems->selectionModel()->selectedRows();
-	if (selectedRows.count() == 1) {
-		auto itemId = selectedRows[0].data().toString().toStdString();
-		auto itemType = m_controller.getItemTypeFromItemId(itemId);
+	if (auto itemId = getSelectedItemId(); itemId.has_value()) {
+		auto itemType = m_controller.getItemTypeFromItemId(itemId.value());
 		if (itemType.has_value()) {
 			std::unique_ptr<QDialog> dialog = getItemTypeForm(itemType.value(),
-														  	  itemId);
+														  	  itemId.value());
 			if(dialog != nullptr && dialog->exec() == QDialog::Accepted) {
 				refreshCategoriesTable();
 				refreshItemsTable();
@@ -359,6 +381,33 @@ void MainForm::onPushButtonEditItemClick()
 		}
 	}
 }
+
+void MainForm::onPushButtonDeleteItemClick()
+{
+	if (auto itemId = getSelectedItemId(); itemId.has_value()) {
+		QMessageBox msgBox;
+		msgBox.setText(fmt::format("Are you sure you want to delete the item {0}?", itemId.value()).c_str());
+		msgBox.setWindowTitle("Confirmation");
+		msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+		msgBox.setDefaultButton(QMessageBox::Cancel);
+		if (msgBox.exec() == QMessageBox::Yes) {
+			if (!m_controller.deleteItem(itemId.value())) {
+				ErrorMessage::show("Unable to remove the item.", m_controller.getLastError());
+			}
+			refreshCategoriesTable();
+			refreshItemsTable();
+		}
+	}
+}
+
+std::optional<std::string> MainForm::getSelectedItemId() const
+{
+	auto selectedRows = ui.tableWidgetItems->selectionModel()->selectedRows();
+	if (selectedRows.count() == 1) {
+		return selectedRows[0].data().toString().toStdString();
+	}
+	return std::nullopt;
+}	
 
 std::unique_ptr<QDialog> MainForm::getItemTypeForm(ItemType itemType, std::optional<std::string> itemIdToEdit)
 {

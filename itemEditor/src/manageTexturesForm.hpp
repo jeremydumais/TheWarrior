@@ -2,6 +2,7 @@
 #define MANAGETEXTURESFORM_H
 
 #include "manageTexturesController.hpp"
+#include "qTableWidgetKeyPressWatcher.h"
 #include "ui_manageTexturesForm.h"
 #include <memory>
 #include <string>
@@ -19,12 +20,16 @@ private:
 	Ui::manageTexturesFormClass ui;
 	const std::string m_resourcesPath;
 	ManageTextureController m_controller;
+	QTableWidgetKeyPressWatcher tableWidgetTexturesKeyWatcher;
 	void refreshTextureList();
 	void onPushButtonCloseClick();
 	std::unique_ptr<TextureDTO> getSelectedTextureInTextureList();
 	void onPushButtonAddClick();
 	void onPushButtonEditClick();
 	void onPushButtonDeleteClick();
+	void onTableWidgetTexturesDoubleClicked(QTableWidgetItem *item);
+	void onTableWidgetTexturesKeyPressEvent(int key, int, int);
+
 };
 
 #endif // MANAGETEXTURESFORM_H

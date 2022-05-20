@@ -24,7 +24,8 @@ public:
     virtual std::unique_ptr<ItemDTO> getItem(const std::string &id) const;
     bool addItem(std::unique_ptr<ItemDTO> itemInfo);
     bool updateItem(std::unique_ptr<ItemDTO> itemInfo,
-                            const std::string &oldItemId);
+                    const std::string &oldItemId);
+    bool deleteItem(const std::string &itemId);
 protected:
     std::shared_ptr<ItemStore> m_itemStore;
     std::string m_lastError;
