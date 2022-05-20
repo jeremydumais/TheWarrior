@@ -3,7 +3,7 @@
 
 #include "manageTexturesController.hpp"
 #include "ui_manageTexturesForm.h"
-#include <optional>
+#include <memory>
 #include <string>
 
 class ManageTexturesForm : public QDialog
@@ -21,7 +21,7 @@ private:
 	ManageTextureController m_controller;
 	void refreshTextureList();
 	void onPushButtonCloseClick();
-	std::optional<std::reference_wrapper<const Texture>> getSelectedTextureInTextureList();
+	std::unique_ptr<TextureDTO> getSelectedTextureInTextureList();
 	void onPushButtonAddClick();
 	void onPushButtonEditClick();
 	void onPushButtonDeleteClick();

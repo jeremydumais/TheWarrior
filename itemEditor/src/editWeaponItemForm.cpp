@@ -46,7 +46,6 @@ bool EditWeaponItemForm::loadExistingItemToForm()
 			ui.lineEditName->setText(weaponDTO->name.c_str());
 			ui.lineEditTextureName->setText(weaponDTO->textureName.c_str());
 			ui.spinBoxTextureIndex->setValue(weaponDTO->textureIndex);
-			//TODO float value is rounded to int???
 			ui.lineEditAttackGain->setText(std::to_string(weaponDTO->attackGain).c_str());
 			ui.comboBoxSlotInBodyPart->setCurrentIndex(weaponDTO->slotInBodyPartIndex);
 		}

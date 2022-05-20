@@ -2,8 +2,10 @@
 #ifndef EDITTEXTUREFORM_H
 #define EDITTEXTUREFORM_H
 
-#include "texture.hpp"
+#include "editTextureFormController.hpp"
+#include "textureDTO.hpp"
 #include "ui_editTextureForm.h"
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -14,18 +16,18 @@ Q_OBJECT
 public:
 	explicit EditTextureForm(QWidget *parent, 
 							 const std::string &resourcesPath, 
-							 const Texture * const texture,
-							 const std::vector<std::string> &alreadyUsedNames);
-	const TextureInfo &getTextureInfo() const;
+							 std::unique_ptr<TextureDTO> originalTexture,
+							 const std::vector<std::string> &allTextureNames);
+	std::unique_ptr<TextureDTO> getTextureInfo() const;
 private:
 	Ui::editTextureFormClass ui;
-	std::string m_resourcesPath;
-	TextureInfo m_textureInfo;
-	const std::vector<std::string> &m_alreadyUsedNames;
 	bool m_isEditMode;
-	void showErrorMessage(const std::string &message) const;
+	EditTextureFormController m_controller;
+	std::string m_resourcesPath;
+	void loadExistingItemToForm();
 	void onPushButtonOK();
 	void onPushButtonOpenFilenameClick();
+	std::unique_ptr<TextureDTO> createTextureDTOFromFields() const;
 };
 
 #endif // EDITTEXTUREFORM_H

@@ -1,45 +1,81 @@
 #include "manageTexturesController.hpp"
 #include <algorithm>
 
-using namespace std;
-
 ManageTextureController::ManageTextureController(TextureContainer &textureContainer) 
-    : m_textureContainer(textureContainer)
+    : m_lastError(""),
+      m_textureContainer(textureContainer)
 {
 }
 
-const vector<Texture>& ManageTextureController::getTextures() const
+const std::string &ManageTextureController::getLastError() const
 {
-    return m_textureContainer.getTextures();
+    return m_lastError;
 }
 
-optional<reference_wrapper<const Texture>> ManageTextureController::getTextureByName(const std::string &name) const
-{    
-    return m_textureContainer.getTextureByName(name);
-} 
-
-vector<string> ManageTextureController::getAlreadyUsedNames() const
+std::vector<std::string> ManageTextureController::getTexturesNames() const
 {
-    vector<string> textureNames;
+    std::vector<std::string> textureNames;
     const auto &textures { m_textureContainer.getTextures() };
     transform(textures.begin(), 
               textures.end(), 
-              back_inserter(textureNames),
+              std::back_inserter(textureNames),
               [](const Texture & x) { return x.getName(); });
     return textureNames;
 }
 
-bool ManageTextureController::addTexture(const TextureInfo &info) 
+std::unique_ptr<TextureDTO> ManageTextureController::getTextureByName(const std::string &name) const
+{    
+    auto texture = m_textureContainer.getTextureByName(name);
+    if (texture.has_value()) {
+        return std::unique_ptr<TextureDTO>(new TextureDTO {
+            texture->get().getName(),
+            texture->get().getFilename(),
+            texture->get().getWidth(),
+            texture->get().getHeight(),
+            texture->get().getTileWidth(),
+            texture->get().getTileHeight()
+        } );
+    }
+    else {
+        return nullptr;
+    }
+} 
+
+bool ManageTextureController::addTexture(std::unique_ptr<TextureDTO> info) 
 {
-    return m_textureContainer.addTexture(info);
+    auto textureCreationInfo = createTextureInfoFromDTO(std::move(info));
+    if (!textureCreationInfo.has_value()) {
+        return false;
+    }
+    return m_textureContainer.addTexture(textureCreationInfo.value());
 }
 
-bool ManageTextureController::replaceTexture(const std::string &name, const TextureInfo &updatedTexture) 
+bool ManageTextureController::replaceTexture(const std::string &name, std::unique_ptr<TextureDTO> updatedTexture) 
 {
-    return m_textureContainer.replaceTexture(name, updatedTexture);
+    auto textureUpdatedInfo = createTextureInfoFromDTO(std::move(updatedTexture));
+    if (!textureUpdatedInfo.has_value()) {
+        return false;
+    }
+    return m_textureContainer.replaceTexture(name, textureUpdatedInfo.value());
 }
 
 bool ManageTextureController::removeTexture(const std::string &name) 
 {
     return m_textureContainer.removeTexture(name);
+}
+    
+std::optional<TextureInfo> ManageTextureController::createTextureInfoFromDTO(std::unique_ptr<TextureDTO> textureDTO)
+{
+    if (textureDTO == nullptr) {
+        m_lastError = "textureDTO must be provided.";
+        return std::nullopt;
+    }
+    return TextureInfo {
+        textureDTO->name,
+        textureDTO->filename,
+        textureDTO->width,
+        textureDTO->height,
+        textureDTO->tileWidth,
+        textureDTO->tileHeight
+    };
 }

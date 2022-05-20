@@ -3,8 +3,8 @@
 #include "errorMessage.hpp"
 #include <QMessageBox>
 #include <QIcon>
-#include <algorithm>
 #include <fmt/format.h>
+#include <memory>
 
 ManageTexturesForm::ManageTexturesForm(QWidget *parent,
 								       const std::string &resourcesPath,
@@ -32,8 +32,8 @@ void ManageTexturesForm::refreshTextureList()
 {
 	ui.listWidgetTextures->model()->removeRows(0, ui.listWidgetTextures->count());
 	int index {0};
-	for(const auto &texture : m_controller.getTextures()) {
-        ui.listWidgetTextures->insertItem(index, texture.getName().c_str());
+	for(const auto &textureName : m_controller.getTexturesNames()) {
+        ui.listWidgetTextures->insertItem(index, textureName.c_str());
         index++;
 	}
 }
@@ -43,7 +43,7 @@ void ManageTexturesForm::onPushButtonCloseClick()
 	close();
 }
 
-std::optional<std::reference_wrapper<const Texture>> ManageTexturesForm::getSelectedTextureInTextureList() 
+std::unique_ptr<TextureDTO> ManageTexturesForm::getSelectedTextureInTextureList() 
 {
 	if (ui.listWidgetTextures->selectionModel()->hasSelection()) {
 		//Find the selected texture
@@ -51,20 +51,19 @@ std::optional<std::reference_wrapper<const Texture>> ManageTexturesForm::getSele
 		return m_controller.getTextureByName(selectedItemName);
 	}
 	else {
-		return std::nullopt;
+		return nullptr;
 	}
 }
 
 void ManageTexturesForm::onPushButtonAddClick() 
 {
-	auto alreadyUsedTextureNames = m_controller.getAlreadyUsedNames();
+	auto allTextureNames = m_controller.getTexturesNames();
 	EditTextureForm editTextureForm(this,
 									m_resourcesPath,
 									nullptr,
-									alreadyUsedTextureNames);
+									allTextureNames);
 	if (editTextureForm.exec() == QDialog::Accepted) {
-		//Add the new texture
-		if (!m_controller.addTexture(editTextureForm.getTextureInfo())) {
+		if (!m_controller.addTexture(std::move(editTextureForm.getTextureInfo()))) {
 			ErrorMessage::show("Unable to add the texture.");
 		}
 		refreshTextureList();
@@ -74,16 +73,12 @@ void ManageTexturesForm::onPushButtonAddClick()
 void ManageTexturesForm::onPushButtonEditClick() 
 {
  	auto selectedTexture = getSelectedTextureInTextureList();
-	if (selectedTexture.has_value()) {
-		auto alreadyUsedTextureNames = m_controller.getAlreadyUsedNames();
-		//Remove the actual selected texture name
-		auto iter = std::find(alreadyUsedTextureNames.begin(), alreadyUsedTextureNames.end(), selectedTexture->get().getName());
-		if (iter != alreadyUsedTextureNames.end()) {
-				alreadyUsedTextureNames.erase(iter);
-		}
-		EditTextureForm formEditTexture(this, m_resourcesPath, &selectedTexture->get(), alreadyUsedTextureNames);
+	if (selectedTexture != nullptr) {
+		auto allTextureNames = m_controller.getTexturesNames();
+		auto originalName = selectedTexture->name;
+		EditTextureForm formEditTexture(this, m_resourcesPath, std::move(selectedTexture), allTextureNames);
 		if (formEditTexture.exec() == QDialog::Accepted) {
-			if (!m_controller.replaceTexture(selectedTexture->get().getName(), formEditTexture.getTextureInfo())) {
+			if (!m_controller.replaceTexture(originalName, std::move(formEditTexture.getTextureInfo()))) {
 				ErrorMessage::show("Unable to replace the texture.");
 			}
 			refreshTextureList();
@@ -94,14 +89,14 @@ void ManageTexturesForm::onPushButtonEditClick()
 void ManageTexturesForm::onPushButtonDeleteClick() 
 {
 	auto selectedTexture = getSelectedTextureInTextureList();
-	if (selectedTexture.has_value()) {
+	if (selectedTexture != nullptr) {
 		QMessageBox msgBox;
-		msgBox.setText(fmt::format("Are you sure you want to delete the texture {0}?", selectedTexture->get().getName()).c_str());
+		msgBox.setText(fmt::format("Are you sure you want to delete the texture {0}?", selectedTexture->name).c_str());
 		msgBox.setWindowTitle("Confirmation");
 		msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
 		msgBox.setDefaultButton(QMessageBox::Cancel);
 		if (msgBox.exec() == QMessageBox::Yes) {
-			if (!m_controller.removeTexture(selectedTexture->get().getName())) {
+			if (!m_controller.removeTexture(selectedTexture->name)) {
 				ErrorMessage::show("Unable to remove the texture.");
 			}
 			refreshTextureList();
