@@ -3,13 +3,20 @@
 #include "texture.hpp"
 #include <GL/glew.h>
 
+struct GLObject
+{
+    GLuint vao;
+    GLuint vboPosition;
+    GLuint vboColor;
+    GLuint vboTexture;
+};
+
 struct GenerateGLObjectInfo {
+    GLObject *glObject;
     const Texture *texture;
-    GLuint *vao;
     const int textureIndex;
-    GLuint *vboPosition;
-    GLuint *vboColor;
-    GLuint *vboTexture;
+    GLuint *specialVAO = nullptr;
+    GLuint *specialVBOTexture = nullptr;
 };
 
 class GLObjectService

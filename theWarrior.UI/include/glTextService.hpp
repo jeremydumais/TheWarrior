@@ -28,6 +28,7 @@ public:
     void useShader();
     void setProjectionMatrix(glm::mat4 projection);
     void renderText(std::string text, float x, float y, float scale, glm::vec3 color);
+    float getTextWidth(const std::string &text, float scale) const;
 private:
     std::string lastError;
     std::unique_ptr<GLShaderProgram> shaderProgram;

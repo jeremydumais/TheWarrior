@@ -5,6 +5,7 @@
 #include "gameWindowController.hpp"
 #include "glObjectService.hpp"
 #include "glPlayer.hpp"
+#include "glTextBox.hpp"
 #include "glTextService.hpp"
 #include "glTextureService.hpp"
 #include "glTile.hpp"
@@ -42,6 +43,7 @@ private:
     std::string m_executablePath;
     std::string m_resourcesPath;
     GLTileService m_tileService;
+    GLTextBox m_textBox;
     GLTextService m_textService;
     GLTextureService m_textureService;
     std::vector<GLTile> m_glTiles;

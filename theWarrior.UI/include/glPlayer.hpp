@@ -18,10 +18,7 @@ struct MovingResult {
 class GLPlayer {
 public:
     GLPlayer();
-    GLuint vao;
-    GLuint vboPosition;
-    GLuint vboColor;
-    GLuint vboTexture;
+    GLObject glObject;
     unsigned int glTextureId;
     const std::string &getTextureName() const;
     int getTextureIndex() const;

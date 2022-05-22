@@ -81,24 +81,23 @@ void GLPlayer::generateGLPlayerObject(float tileHalfWidth, float tileHalfHeight)
     {  tileHalfWidth + startPosX, -tileHalfHeight + startPosY },     /* Bottom Right point */
     { -tileHalfWidth + startPosX, -tileHalfHeight + startPosY } };   /* Bottom Left point */
     
-    glGenBuffers(1, &vboPosition);
-    glGenBuffers(1, &vboColor);
     GenerateGLObjectInfo infoGenTexture {
+            &glObject,
             m_texture.get(),
-            &vao,
-            m_currentMovementTextureIndex,
-            &vboPosition,
+            //&vao,
+            m_currentMovementTextureIndex};
+            /*&vboPosition,
             &vboColor,
-            &vboTexture };
+            &vboTexture };*/
     GLObjectService::generateGLObject(infoGenTexture, tileCoord, texColorBuf);
 }
     
 void GLPlayer::unloadGLPlayerObject()
 {
-    glDeleteBuffers(1, &vboPosition); 
-    glDeleteBuffers(1, &vboColor); 
-    glDeleteBuffers(1, &vboTexture); 
-    glDeleteVertexArrays(1, &vao);
+    glDeleteBuffers(1, &glObject.vboPosition); 
+    glDeleteBuffers(1, &glObject.vboColor); 
+    glDeleteBuffers(1, &glObject.vboTexture); 
+    glDeleteVertexArrays(1, &glObject.vao);
 }
 
 void GLPlayer::setTexture(const TextureInfo &textureInfo)
@@ -112,9 +111,9 @@ void GLPlayer::applyCurrentGLTexture(const GLTextureService &textureService)
     if (m_texture && m_currentMovementTextureIndex != -1) {
         textureService.setTextureUVFromIndex(m_texture.get(), texCoordBuf, m_currentMovementTextureIndex);
     }
-    glBindVertexArray(vao);
+    glBindVertexArray(glObject.vao);
 
-    glBindBuffer(GL_ARRAY_BUFFER, vboTexture);
+    glBindBuffer(GL_ARRAY_BUFFER, glObject.vboTexture);
     glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), texCoordBuf, GL_STATIC_DRAW);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(2);
@@ -128,7 +127,7 @@ void GLPlayer::setGridPosition(Point<> position)
 
 void GLPlayer::setGLObjectPosition(float tileHalfWidth, float tileHalfHeight)
 {
-    glBindVertexArray(vao);
+    glBindVertexArray(glObject.vao);
     
     //Set Tile Coord To Origin
     GLfloat m_tileCoordBuf[4][2];
@@ -150,7 +149,7 @@ void GLPlayer::setGLObjectPosition(float tileHalfWidth, float tileHalfHeight)
         m_tileCoordBuf[i][1] -= (((static_cast<float>(m_coord.y()) * (tileHalfHeight * 2.0f)) - tileHalfHeight)) + 
                               (m_yMove * (tileHalfHeight * 2.0f));
     }
-    glBindBuffer(GL_ARRAY_BUFFER, vboPosition);
+    glBindBuffer(GL_ARRAY_BUFFER, glObject.vboPosition);
     glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), m_tileCoordBuf, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
@@ -159,12 +158,12 @@ void GLPlayer::setGLObjectPosition(float tileHalfWidth, float tileHalfHeight)
 void GLPlayer::draw()
 {
     glBindTexture(GL_TEXTURE_2D, glTextureId);
-    glBindVertexArray(vao);
-    glBindBuffer(GL_ARRAY_BUFFER, vboPosition);
+    glBindVertexArray(glObject.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, glObject.vboPosition);
     glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, vboColor);
+    glBindBuffer(GL_ARRAY_BUFFER, glObject.vboColor);
     glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, vboTexture);
+    glBindBuffer(GL_ARRAY_BUFFER, glObject.vboTexture);
     glEnableVertexAttribArray(2);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 

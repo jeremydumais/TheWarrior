@@ -86,6 +86,11 @@ GameWindow::GameWindow(const string &title,
         cerr << m_tileService.getLastError() << "\n";
         return;
     }
+    if (!m_textBox.initShader(fmt::format("{0}/shaders/textbox_330_vs.glsl", m_controller.getResourcesPath()),
+                          fmt::format("{0}/shaders/textbox_330_fs.glsl", m_controller.getResourcesPath()))) {
+        cerr << m_textService.getLastError() << "\n";
+        return;
+    }
     if (!m_textService.initShader(fmt::format("{0}/shaders/text_330_vs.glsl", m_controller.getResourcesPath()),
                           fmt::format("{0}/shaders/text_330_fs.glsl", m_controller.getResourcesPath()))) {
         cerr << m_textService.getLastError() << "\n";
@@ -97,7 +102,6 @@ GameWindow::GameWindow(const string &title,
     }
     glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height));
     m_textService.setProjectionMatrix(projection);
-
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -121,6 +125,11 @@ GameWindow::GameWindow(const string &title,
 
     SDL_JoystickEventState(SDL_ENABLE);
     m_joystick = SDL_JoystickOpen(0);
+    //TODO To remove test only
+    /*auto dto = make_unique<MessageDTO>();
+    dto->message = "You found a Wooden Sword!";
+    dto->maxDurationInMilliseconds = -1;
+    m_controller.addMessageToPipeline(std::move(dto));*/
 }
 
 GameWindow::~GameWindow() 
@@ -361,26 +370,20 @@ void GameWindow::generateGLMapObjects()
             glTile.tile = tile;
             GLfloat tileCoord[4][2];
             calculateGLTileCoord(Point(indexCol, indexRow), tileCoord);
-            glGenBuffers(1, &glTile.vboPosition);
-            glGenBuffers(1, &glTile.vboColor);
             auto tileTexture = m_map->getTextureByName(tile.getTextureName());
             GenerateGLObjectInfo infoGenTexture {
+                    &glTile.glObject,
                     tileTexture.has_value() ? &tileTexture.value().get() : nullptr,
-                    &glTile.vao,
-                    tile.getTextureIndex(),
-                    &glTile.vboPosition,
-                    &glTile.vboColor,
-                    &glTile.vboTexture };
+                    tile.getTextureIndex()};
             GLObjectService::generateGLObject(infoGenTexture, tileCoord, m_texColorBuf);
             
             if (glTile.tile.hasObjectTexture()) {
                 auto objectTexture = m_map->getTextureByName(tile.getObjectTextureName());
                 GenerateGLObjectInfo infoGenObject {
+                    &glTile.glObject,
                     objectTexture.has_value() ? &objectTexture.value().get() : nullptr,
-                    &glTile.vaoObject,
                     tile.getObjectTextureIndex(),
-                    &glTile.vboPosition,
-                    &glTile.vboColor,
+                    &glTile.vaoObject,
                     &glTile.vboTextureObject };
                 GLObjectService::generateGLObject(infoGenObject, tileCoord, m_texColorBuf);
             }
@@ -394,11 +397,11 @@ void GameWindow::generateGLMapObjects()
 void GameWindow::unloadGLMapObjects() 
 {
     for(auto &item : m_glTiles) {
-        glDeleteBuffers(1, &item.vboPosition); 
-        glDeleteBuffers(1, &item.vboColor); 
-        glDeleteBuffers(1, &item.vboTexture); 
+        glDeleteBuffers(1, &item.glObject.vboPosition); 
+        glDeleteBuffers(1, &item.glObject.vboColor); 
+        glDeleteBuffers(1, &item.glObject.vboTexture); 
         glDeleteBuffers(1, &item.vboTextureObject); 
-        glDeleteVertexArrays(1, &item.vao);
+        glDeleteVertexArrays(1, &item.glObject.vao);
         if (item.tile.hasObjectTexture()) {
             glDeleteVertexArrays(1, &item.vaoObject);
         }
@@ -435,15 +438,15 @@ void GameWindow::render()
 
     vector<GLTile *> tilesToBeDrawedAfterPlayer;
     for(auto &item : m_glTiles) {
-        glBindVertexArray(item.vao);
-        glBindBuffer(GL_ARRAY_BUFFER, item.vboPosition);
+        glBindVertexArray(item.glObject.vao);
+        glBindBuffer(GL_ARRAY_BUFFER, item.glObject.vboPosition);
         glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, item.vboColor);
+        glBindBuffer(GL_ARRAY_BUFFER, item.glObject.vboColor);
         glEnableVertexAttribArray(1);
         if (item.tile.hasTexture()) {
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, m_texturesGLMap[item.tile.getTextureName()]);
-            glBindBuffer(GL_ARRAY_BUFFER, item.vboTexture);
+            glBindBuffer(GL_ARRAY_BUFFER, item.glObject.vboTexture);
             glEnableVertexAttribArray(2);
         }
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
@@ -466,22 +469,22 @@ void GameWindow::render()
         drawObjectTile(*item);
     }
     //Display messages
-    //drawTextBox();
     auto currentMessage = m_controller.getCurrentMessage();
     if (currentMessage) {
         if (!currentMessage->isDisplayed) {
+            m_textBox.generateMessage(currentMessage);
             m_controller.displayCurrentMessage();
         }
         //Display the message
-        
-        m_textService.useShader();
+        m_textBox.draw(m_textService, m_width, m_height);
+        /*m_textService.useShader();
         m_textService.renderText(currentMessage->message, 
                                100.0f,                               // X
                                static_cast<float>(m_height) - 24.0f, // Y
                                0.5f,                               // Scale
                                glm::vec3(1.0f, 1.0f, 1.0f));       // Color
 
-
+*/
         if (currentMessage->isExpired) {
             m_controller.deleteCurrentMessage();
         }
@@ -512,9 +515,9 @@ void GameWindow::drawObjectTile(GLTile &tile)
 {
     glBindTexture(GL_TEXTURE_2D, m_texturesGLMap[tile.tile.getObjectTextureName()]);
     glBindVertexArray(tile.vaoObject);
-    glBindBuffer(GL_ARRAY_BUFFER, tile.vboPosition);
+    glBindBuffer(GL_ARRAY_BUFFER, tile.glObject.vboPosition);
     glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, tile.vboColor);
+    glBindBuffer(GL_ARRAY_BUFFER, tile.glObject.vboColor);
     glEnableVertexAttribArray(1);
     glBindBuffer(GL_ARRAY_BUFFER, tile.vboTextureObject);
     glEnableVertexAttribArray(2);
@@ -584,11 +587,10 @@ void GameWindow::processAction(MapTileTriggerAction action, const std::map<std::
                     calculateGLTileCoord(Point(glTileToUpdate.x, glTileToUpdate.y), tileCoord);
                     auto newChestTexture = m_map->getTextureByName(tile->getObjectTextureName());
                     GenerateGLObjectInfo infoGenObject {
+                        &glTileToUpdate.glObject,
                         newChestTexture.has_value() ? &newChestTexture.value().get() : nullptr,
-                        &glTileToUpdate.vaoObject,
                         tile->getObjectTextureIndex(),
-                        &glTileToUpdate.vboPosition,
-                        &glTileToUpdate.vboColor,
+                        &glTileToUpdate.vaoObject,
                         &glTileToUpdate.vboTextureObject 
                     };
                     GLObjectService::generateGLObject(infoGenObject, tileCoord, m_texColorBuf);

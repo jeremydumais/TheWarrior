@@ -1,16 +1,14 @@
 #pragma once
 
+#include "glObjectService.hpp"
 #include "mapTile.hpp"
 #include <GL/glew.h>
 #include <string>
 
 struct GLTile
 {
-    GLuint vao;
+    GLObject glObject;
     GLuint vaoObject;
-    GLuint vboPosition;
-    GLuint vboColor;
-    GLuint vboTexture;
     GLuint vboTextureObject;
     int x;
     int y;

@@ -164,3 +164,15 @@ void GLTextService::renderText(std::string text, float x, float y, float scale, 
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
+
+float GLTextService::getTextWidth(const std::string &text, float scale) const
+{
+    const float CORRECTIVEFACTOR = 1.32F;
+    std::string::const_iterator c;
+    float totalWidth = 0.0F;
+    for (c = text.begin(); c != text.end(); c++) {
+        Character ch = characters.at(*c);
+        totalWidth += static_cast<float>(ch.Size.x) * scale;
+    }
+    return totalWidth * CORRECTIVEFACTOR;
+}
