@@ -117,7 +117,7 @@ std::map<std::string, QIcon> MainController::getIconsFromItemIds(std::vector<std
             if (texture.has_value()) {
                 //If not found, load it
                 if (textureIter == textures.end()) {
-                    auto completeTexturePath = fmt::format("{0}{1}", resourcesPath, texture->get().getFilename());
+                    auto completeTexturePath = fmt::format("{0}/textures/{1}", resourcesPath, texture->get().getFilename());
                     pixmap = std::make_shared<QPixmap>(QString(completeTexturePath.c_str()));
                     textures.insert({textureName, pixmap});
                 }

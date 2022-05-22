@@ -36,7 +36,7 @@ EditTextureForm::EditTextureForm(QWidget *parent,
 		ui.spinBoxTileWidth->setValue(texture->getTileWidth());
 		ui.spinBoxTileHeight->setValue(texture->getTileHeight());
 		QImage image;
-		string imageFullPath { fmt::format("{0}{1}", resourcesPath, texture->getFilename()) };
+		string imageFullPath { fmt::format("{0}/textures/{1}", resourcesPath, texture->getFilename()) };
 		if (!image.load(imageFullPath.c_str())) {
 			showErrorMessage(fmt::format("Unable to load the image {0}", imageFullPath));
 			ui.lineEditFilename->clear();
@@ -98,7 +98,7 @@ void EditTextureForm::onPushButtonOpenFilenameClick()
 	ui.lineEditFilename->setText(filename.c_str());
 	//Detect width and height of the image
 	QImage image;
-	string imageFullPath { fmt::format("{0}{1}", m_resourcesPath, filename) };
+	string imageFullPath { fmt::format("{0}/textures/{1}", m_resourcesPath, filename) };
 	if (!image.load(imageFullPath.c_str())) {
 		showErrorMessage(fmt::format("Unable to load the image {0}", imageFullPath));
 		ui.lineEditFilename->clear();

@@ -3,13 +3,16 @@ set(PROJECT_NAME    "theWarrior.UI")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Storage/include)
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Storage/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.UI.Models/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.UI.Controllers/include)
 
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glPlayer.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/fpsCalculator.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glTileService.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glTextService.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/glTextBox.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glShaderProgram.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
@@ -17,7 +20,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STRE
   target_compile_definitions(${PROJECT_NAME} PRIVATE SUPPORT_MAYBE_UNUSED)
 endif()
 
-target_link_libraries(${PROJECT_NAME} theWarrior.Models theWarrior.Storage GLU GL GLEW)
+target_link_libraries(${PROJECT_NAME} theWarrior.Models theWarrior.Storage theWarrior.UI.Controllers GLU GL GLEW)
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${CONAN_INCLUDE_DIRS})
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc

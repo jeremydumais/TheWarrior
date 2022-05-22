@@ -153,7 +153,7 @@ void MapOpenGLWidget::reloadTextures()
 
         int width, height, nrChannels;
         string texFileName { texture.getFilename() };
-        string fullResourcePath = fmt::format("{0}/{1}", m_resourcesPath, texFileName);
+        string fullResourcePath = fmt::format("{0}/textures/{1}", m_resourcesPath, texFileName);
         unsigned char *imageBytes = stbi_load(fullResourcePath.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
         if (imageBytes) {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageBytes);

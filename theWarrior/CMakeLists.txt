@@ -3,6 +3,8 @@ set(PROJECT_NAME    "TheWarrior")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include,
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.UI.Models/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.UI.Controllers/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.UI/include)
 
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)

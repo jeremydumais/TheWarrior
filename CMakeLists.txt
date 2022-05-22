@@ -35,6 +35,8 @@ include(GoogleTest)
 
 add_subdirectory("theWarrior.Models")
 add_subdirectory("theWarrior.Storage")
+add_subdirectory("theWarrior.UI.Models")
+add_subdirectory("theWarrior.UI.Controllers")
 add_subdirectory("theWarrior.UI")
 add_subdirectory("theWarrior")
 add_subdirectory("commonUI")

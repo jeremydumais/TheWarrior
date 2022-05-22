@@ -53,7 +53,7 @@ TEST_F(TextureContainerSample1, IsTextureExist_WithFileInCaps_ReturnFalse)
 
 TEST_F(TextureContainerSample1, getTextureFileName_WithTmpAndFile_ReturnValidPath) 
 {
-    ASSERT_EQ("/tmp/file.png", controller.getTextureFileName("/tmp", "file"));
+    ASSERT_EQ("/tmp/textures/file.png", controller.getTextureFileName("/tmp", "file"));
 }
 
 TEST_F(TextureContainerSample1, getTextureFileName_WithEmptyResPathAndFile_ReturnValidPath) 
@@ -63,7 +63,7 @@ TEST_F(TextureContainerSample1, getTextureFileName_WithEmptyResPathAndFile_Retur
 
 TEST_F(TextureContainerSample1, getTextureFileName_WithTmpAndFile2_ReturnValidPath) 
 {
-    ASSERT_EQ("/tmp/file2.png", controller.getTextureFileName("/tmp", "file2"));
+    ASSERT_EQ("/tmp/textures/file2.png", controller.getTextureFileName("/tmp", "file2"));
 }
 
 TEST_F(TextureContainerSample1, getTextureTileImageFromTexture_With1_255AndFile_Return0) 

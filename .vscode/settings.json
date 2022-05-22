@@ -92,7 +92,8 @@
         "stop_token": "cpp",
         "qcombobox": "cpp",
         "qtglobal": "cpp",
-        "shared_mutex": "cpp"
+        "shared_mutex": "cpp",
+        "queue": "cpp"
     },
     "editor.tokenColorCustomizations": {
         "textMateRules": [
@@ -119,9 +120,12 @@
     "C_Cpp.default.includePath": ["${default}", 
                                   "${workspaceFolder}/commonUI/include/",
                                   "${workspaceFolder}/theWarrior.UI/include/",
+                                  "${workspaceFolder}/theWarrior.UI.Models/include/",
+                                  "${workspaceFolder}/theWarrior.UI.Controllers/include/",
                                   "${workspaceFolder}/theWarrior.Models/include/",
                                   "${workspaceFolder}/theWarrior.Storage/include/",
                                   "${workspaceFolder}/mapEditor.Controllers/include/",
+                                  "${workspaceFolder}/itemEditor.Controllers/include/",
                                   "/usr/include/x86_64-linux-gnu/qt5/"
                             ],
     "output.smartScroll.enabled": false

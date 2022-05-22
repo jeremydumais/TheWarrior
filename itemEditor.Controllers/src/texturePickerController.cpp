@@ -28,7 +28,7 @@ std::string TexturePickerController::getTextureFileName(const std::string &resou
     }
 
     if (!boost::algorithm::trim_copy(resourcesPath).empty()) {
-        return fmt::format("{0}/{1}", resourcesPath, texture->get().getFilename());
+        return fmt::format("{0}/textures/{1}", resourcesPath, texture->get().getFilename());
     }
     else {
         return texture->get().getFilename();

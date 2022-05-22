@@ -21,6 +21,9 @@ EditTileActionOpenChestPropertiesForm::EditTileActionOpenChestPropertiesForm(QWi
 	if (this->m_properties.find("objectTextureIndexOpenedChest") != this->m_properties.end()) {
 		ui.spinBoxObjectTextureIndexOpenedChest->setValue(stoi(this->m_properties.at("objectTextureIndexOpenedChest")));
 	}
+	if (this->m_properties.find("itemIdInside") != this->m_properties.end()) {
+		ui.lineEditItemIdInside->setText(this->m_properties.at("itemIdInside").c_str());
+	}
 }
 
 const std::map<std::string, std::string> &EditTileActionOpenChestPropertiesForm::getUpdatedProperties() const
@@ -32,5 +35,6 @@ void EditTileActionOpenChestPropertiesForm::onPushButtonOK()
 {
 	m_properties.clear();
 	m_properties["objectTextureIndexOpenedChest"] = to_string(ui.spinBoxObjectTextureIndexOpenedChest->value());
+	m_properties["itemIdInside"] = ui.lineEditItemIdInside->text().toStdString();
 	accept();
 }

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>123</height>
+    <width>401</width>
+    <height>140</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,6 +29,16 @@
         <number>32768</number>
        </property>
       </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Item id inside :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="lineEditItemIdInside"/>
      </item>
     </layout>
    </item>
@@ -86,6 +96,12 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>spinBoxObjectTextureIndexOpenedChest</tabstop>
+  <tabstop>lineEditItemIdInside</tabstop>
+  <tabstop>pushButtonOK</tabstop>
+  <tabstop>pushButtonCancel</tabstop>
+ </tabstops>
  <resources>
   <include location="../res/global.qrc"/>
  </resources>

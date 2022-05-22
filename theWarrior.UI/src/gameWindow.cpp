@@ -4,17 +4,16 @@
 #include <GL/glut.h>
 #include <algorithm>
 #include <boost/archive/binary_iarchive.hpp>
+#include <chrono>
 #include <cmath>
 #include <fmt/format.h>
 #include <fstream>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
-#include <libgen.h>         // dirname
-#include <linux/limits.h>   // PATH_MAX
+#include <memory>
 #include <sstream>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-#include <unistd.h>         // readlink
 
 using namespace std;
 
@@ -84,17 +83,17 @@ GameWindow::GameWindow(const string &title,
         return;
     }
 
-    if (!m_tileService.initShader(fmt::format("{0}/shaders/tile_330_vs.glsl", getResourcesPath()),
-                          fmt::format("{0}/shaders/tile_330_fs.glsl", getResourcesPath()))) {
+    if (!m_tileService.initShader(fmt::format("{0}/shaders/tile_330_vs.glsl", m_controller.getResourcesPath()),
+                          fmt::format("{0}/shaders/tile_330_fs.glsl", m_controller.getResourcesPath()))) {
         cerr << m_tileService.getLastError() << "\n";
         return;
     }
-    if (!m_textService.initShader(fmt::format("{0}/shaders/text_330_vs.glsl", getResourcesPath()),
-                          fmt::format("{0}/shaders/text_330_fs.glsl", getResourcesPath()))) {
+    if (!m_textService.initShader(fmt::format("{0}/shaders/text_330_vs.glsl", m_controller.getResourcesPath()),
+                          fmt::format("{0}/shaders/text_330_fs.glsl", m_controller.getResourcesPath()))) {
         cerr << m_textService.getLastError() << "\n";
         return;
     }
-    if (!m_textService.initFont(fmt::format("{0}/verdana.ttf", getResourcesPath()))) {
+    if (!m_textService.initFont(fmt::format("{0}/fonts/verdana.ttf", m_controller.getResourcesPath()))) {
         cerr << m_textService.getLastError() << "\n";
         return;
     }
@@ -106,8 +105,12 @@ GameWindow::GameWindow(const string &title,
 
     calculateTileSize();
     m_map = make_shared<GameMap>(1, 1);
-    loadMap(fmt::format("{0}/maps/homeHouseV1.map", getResourcesPath()));
+    loadMap(fmt::format("{0}/maps/homeHouseV1.map", m_controller.getResourcesPath()));
     loadTextures();
+    if (!m_controller.loadItemStore(fmt::format("{0}/items/itemstore.itm", m_controller.getResourcesPath()))) {
+        cerr << "Unable to load the item store : " << m_controller.getLastError() << "\n";
+        return;
+    }
     generateGLMapObjects();
     m_glPlayer.initialize();
     generateGLPlayerObject();
@@ -340,21 +343,6 @@ void GameWindow::update(float delta_time)
     }
 }
 
-string GameWindow::loadShaderFile(const string &file)
-{
-    stringstream retVal;
-    ifstream shaderFileStream(file, ios::in);
-    if (shaderFileStream.is_open()) {
-        string line;
-        while (getline(shaderFileStream, line)) {
-            retVal << line << '\n';
-        }
-        shaderFileStream.close();
-    }
-    return retVal.str();
-}
-
-
 void GameWindow::generateGLMapObjects() 
 {
     int indexRow {0};
@@ -546,6 +534,27 @@ void GameWindow::render()
     for (auto item : tilesToBeDrawedAfterPlayer) {
         drawObjectTile(*item);
     }
+    //Display messages
+    drawTextBox();
+    auto currentMessage = m_controller.getCurrentMessage();
+    if (currentMessage) {
+        if (!currentMessage->isDisplayed) {
+            m_controller.displayCurrentMessage();
+        }
+        //Display the message
+        
+        m_textService.useShader();
+        m_textService.renderText(currentMessage->message, 
+                               100.0f,                               // X
+                               static_cast<float>(m_height) - 24.0f, // Y
+                               0.5f,                               // Scale
+                               glm::vec3(1.0f, 1.0f, 1.0f));       // Color
+
+
+        if (currentMessage->isExpired) {
+            m_controller.deleteCurrentMessage();
+        }
+    }
     //Display the FPS
     if (m_toggleFPS) {
         m_textService.useShader();
@@ -606,6 +615,11 @@ void GameWindow::drawObjectTile(GLTile &tile)
     glDisableVertexAttribArray(2);
 }
 
+void GameWindow::drawTextBox()
+{
+    
+}
+
 void GameWindow::loadMap(const std::string &filePath) 
 {
 	GameMapStorage mapStorage;
@@ -641,9 +655,16 @@ void GameWindow::processAction(MapTileTriggerAction action, const std::map<std::
             }
             m_glPlayer.coord.setX(stoi(properties.at("playerX")));
             m_glPlayer.coord.setY(stoi(properties.at("playerY")));
-            changeMap(fmt::format("{0}/maps/{1}", getResourcesPath(), properties.at("mapFileName")));
+            changeMap(fmt::format("{0}/maps/{1}", m_controller.getResourcesPath(), properties.at("mapFileName")));
             break;
         case MapTileTriggerAction::OpenChest:
+            if (properties.find("itemIdInside") != properties.end()) {
+                //Display the item on the screen
+                auto msg = std::make_unique<MessageDTO>();
+                msg->message = "You found a sword!";
+                msg->maxDurationInMilliseconds = 2000;
+                m_controller.addMessageToPipeline(std::move(msg));
+            }
             if (tile != nullptr) {
                 tile->setObjectTextureIndex(stoi(properties.at("objectTextureIndexOpenedChest")));
                 //Update the GLTile
@@ -694,7 +715,7 @@ void GameWindow::loadTextures()
 
         int width, height, nrChannels;
         string texFileName { texture.getFilename() };
-        string fullResourcePath = fmt::format("{0}/{1}", getResourcesPath(), texFileName);
+        string fullResourcePath = fmt::format("{0}/textures/{1}", m_controller.getResourcesPath(), texFileName);
         unsigned char *imageBytes = stbi_load(fullResourcePath.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
         if (imageBytes) {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageBytes);
@@ -771,25 +792,4 @@ void GameWindow::setPlayerTexture()
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(2);
     glDisableVertexAttribArray(2);
-}
-
-
-const std::string &GameWindow::getExecutablePath() 
-{
-	if (m_executablePath.empty()) {
-		char result[PATH_MAX];
-		ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
-		if (count != -1) {
-			m_executablePath = dirname(result);
-		}
-	}
-	return m_executablePath;
-}
-
-const std::string &GameWindow::getResourcesPath() 
-{
-	if (m_resourcesPath.empty()) {
-		m_resourcesPath = fmt::format("{0}/resources/", getExecutablePath());
-	}
-	return m_resourcesPath;
 }

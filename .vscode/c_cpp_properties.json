@@ -12,9 +12,14 @@
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/commonUI/include",
                 "${workspaceFolder}/theWarrior.UI/include",
+                "${workspaceFolder}/theWarrior.UI.Models/include",
+                "${workspaceFolder}/theWarrior.UI.Controllers/include",
                 "${workspaceFolder}/theWarrior.Models/include",
                 "${workspaceFolder}/theWarrior.Storage/include",
-                "${workspaceFolder}/mapEditor.Controllers/include"
+                "${workspaceFolder}/mapEditor/src",
+                "${workspaceFolder}/mapEditor.Controllers/include",
+                "${workspaceFolder}/itemEditor/src",
+                "${workspaceFolder}/itemEditor.Controllers/include"
             ],
             "configurationProvider": "vector-of-bool.cmake-tools"
         }

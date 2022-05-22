@@ -2,6 +2,7 @@
 
 #include "fpsCalculator.hpp"
 #include "gameMap.hpp"
+#include "gameWindowController.hpp"
 #include "glPlayer.hpp"
 #include "glTextService.hpp"
 #include "glTile.hpp"
@@ -39,6 +40,7 @@ public:
     bool isAlive() const;
     void processEvents();
 private:
+    GameWindowController m_controller;
     SDL_Window *m_window;
     SDL_Renderer *m_renderer;
     SDL_GLContext m_gContext;
@@ -64,8 +66,6 @@ private:
     bool m_toggleFPS;
     bool m_blockToggleFPS;
     SDL_Joystick *m_joystick;
-    const std::string &getExecutablePath();
-    const std::string &getResourcesPath();
     void moveUpPressed();
     void moveDownPressed();
     void moveLeftPressed();
@@ -77,7 +77,6 @@ private:
     void calculateGLTileCoord(const Point &tilePosition, GLfloat tileCoord[4][2]);
     void generateGLPlayerObject();
     void unloadGLPlayerObject();
-    std::string loadShaderFile(const std::string &file);
     void loadMap(const std::string &filePath);
     void changeMap(const std::string &filePath);
     void processAction(MapTileTriggerAction action, const std::map<std::string, std::string> &properties, MapTile *tile = nullptr, Point tilePosition = Point(0, 0));
@@ -88,5 +87,6 @@ private:
     void setPlayerTexture();
     void drawPlayer();
     void drawObjectTile(GLTile &tile);
+    void drawTextBox();
 };
 

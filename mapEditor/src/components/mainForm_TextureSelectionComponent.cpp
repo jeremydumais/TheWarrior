@@ -52,7 +52,7 @@ void MainForm_TextureSelectionComponent::displaySelectedTextureImage()
 	//Find the selected texture
 	auto texture { m_glComponent->getTextureByName(m_comboBoxTexture->itemText(m_comboBoxTexture->currentIndex()).toStdString()) };
 	if (texture.has_value()) {
-		QImageReader reader(fmt::format("{0}/{1}", m_glComponent->getResourcesPath(), texture->get().getFilename()).c_str());
+		QImageReader reader(fmt::format("{0}/textures/{1}", m_glComponent->getResourcesPath(), texture->get().getFilename()).c_str());
 		const QImage image { reader.read() };
 		m_labelImageTexture->setFixedSize(image.width(), image.height());
 		m_labelImageTexture->setPixmap(QPixmap::fromImage(image));
