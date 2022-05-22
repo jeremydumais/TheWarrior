@@ -49,7 +49,7 @@ public:
                    int offsetRight, 
                    int offsetBottom);
 signals:
-    void tileSelected(MapTile *tile, Point coord);
+    void tileSelected(MapTile *tile, Point<> coord);
 private:
     MapOpenGLWidget *m_glWidget;
     GLComponentController m_controller;

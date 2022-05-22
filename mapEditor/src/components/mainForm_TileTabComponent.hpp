@@ -50,7 +50,7 @@ private:
 	QPushButton *m_pushButtonEditTileEvent;
 	QPushButton *m_pushButtonDeleteTileEvent;
 	void refreshEventList(MapTile *tile);
-    void onTileSelected(MapTile *tile, Point coord);
+    void onTileSelected(MapTile *tile, Point<> coord);
     void onLineEditTexNameTextChanged(const QString &text);
 	void onSpinBoxTexIndexValueChanged(int value);
 	void onLineEditObjTexNameTextChanged(const QString &text);

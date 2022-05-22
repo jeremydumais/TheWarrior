@@ -3,8 +3,10 @@
 #include "fpsCalculator.hpp"
 #include "gameMap.hpp"
 #include "gameWindowController.hpp"
+#include "glObjectService.hpp"
 #include "glPlayer.hpp"
 #include "glTextService.hpp"
+#include "glTextureService.hpp"
 #include "glTile.hpp"
 #include "glTileService.hpp"
 #include <GL/glew.h>
@@ -15,16 +17,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-
-struct GenerateGLObjectInfo {
-    const Texture *lastUsedTexture;
-    GLuint *vao;
-    const std::string &textureName;
-    const int textureIndex;
-    GLuint *vboPosition;
-    GLuint *vboColor;
-    GLuint *vboTexture;
-};
 
 class GameWindow
 {
@@ -51,6 +43,7 @@ private:
     std::string m_resourcesPath;
     GLTileService m_tileService;
     GLTextService m_textService;
+    GLTextureService m_textureService;
     std::vector<GLTile> m_glTiles;
     GLPlayer m_glPlayer;
     std::shared_ptr<GameMap> m_map; 
@@ -73,20 +66,11 @@ private:
     void calculateTileSize();
     void generateGLMapObjects();
     void unloadGLMapObjects();
-    void generateGLObject(GenerateGLObjectInfo &info, const GLfloat tileCoord[4][2], const GLfloat colors[4][3]);
-    void calculateGLTileCoord(const Point &tilePosition, GLfloat tileCoord[4][2]);
-    void generateGLPlayerObject();
-    void unloadGLPlayerObject();
+    void calculateGLTileCoord(const Point<> &tilePosition, GLfloat tileCoord[4][2]);
     void loadMap(const std::string &filePath);
     void changeMap(const std::string &filePath);
-    void processAction(MapTileTriggerAction action, const std::map<std::string, std::string> &properties, MapTile *tile = nullptr, Point tilePosition = Point(0, 0));
-    void loadTextures();
-    void setTextureUVFromIndex(const Texture *texture, GLfloat uvMap[4][2], int index);
-    void setTileCoordToOrigin();
-    void setPlayerPosition();
-    void setPlayerTexture();
-    void drawPlayer();
+    void processAction(MapTileTriggerAction action, const std::map<std::string, std::string> &properties, MapTile *tile = nullptr, Point<> tilePosition = Point(0, 0));
+    void loadMapTextures();
     void drawObjectTile(GLTile &tile);
-    void drawTextBox();
 };
 

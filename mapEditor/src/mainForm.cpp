@@ -484,7 +484,7 @@ void MainForm::resizeEvent(QResizeEvent *)
     ui.mapOpenGLWidget->resizeGL(ui.mapOpenGLWidget->width(), ui.mapOpenGLWidget->height());
 }
 
-void MainForm::onTileSelected(MapTile *, Point) 
+void MainForm::onTileSelected(MapTile *, Point<>) 
 {
 	ui.toolBox->setCurrentWidget(ui.page_TileProperties);
 }

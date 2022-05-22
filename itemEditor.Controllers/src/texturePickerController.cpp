@@ -40,7 +40,7 @@ bool TexturePickerController::isTextureExist(const std::string &name) const
     return getTextureByName(name).has_value();    
 }
     
-int TexturePickerController::getTextureIndexFromPosition(const Point &pos, const std::string &textureName) const
+int TexturePickerController::getTextureIndexFromPosition(const Point<> &pos, const std::string &textureName) const
 {
     auto texture = getTextureByName(textureName);
     if (!texture.has_value()) {

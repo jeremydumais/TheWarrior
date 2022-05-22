@@ -69,7 +69,7 @@ private:
 	void addNewRecentMap(const std::string &filePath);
 	void mapPaint(QPaintEvent *e);
 	void resizeEvent(QResizeEvent *);
-    void onTileSelected(MapTile *tile, Point coord);
+    void onTileSelected(MapTile *tile, Point<> coord);
     //void onTileMouseMoveEvent(bool mousePressed, int tileIndex);
 	void onTextureAdded(TextureInfo textureInfo);
 	void onTextureUpdated(const std::string &name, TextureInfo textureInfo);

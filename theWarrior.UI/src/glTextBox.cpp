@@ -15,6 +15,8 @@ void GLTextBox::showMessage(std::shared_ptr<MessageDTO> messageDTO)
     
     glGenBuffers(1, &vboPosition);
     glGenBuffers(1, &vboColor);
+
+    //TODO To continue here (Code below must be relocated)
     /*GenerateGLObjectInfo infoGenTexture {
             nullptr,
             &vao,

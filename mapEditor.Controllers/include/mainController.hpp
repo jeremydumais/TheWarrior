@@ -15,7 +15,7 @@ public:
     std::shared_ptr<GameMap> getMap();
     MapTile &getTileForEditing(int index);
     bool createMap(unsigned int width, unsigned int height);
-    Point getCoordFromTileIndex(int index);
+    Point<> getCoordFromTileIndex(int index);
     const std::vector<Texture> &getTextures() const;
     bool addTexture(const TextureInfo &textureInfo);
     bool replaceTexture(const std::string &name, const TextureInfo &textureInfo);

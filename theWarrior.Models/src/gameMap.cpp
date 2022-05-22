@@ -44,7 +44,7 @@ MapTile& GameMap::getTileForEditing(int index)
     return m_tiles.at(indexConverted / getWidth()).at(indexConverted % getWidth());
 }
 
-MapTile& GameMap::getTileForEditing(Point coord) 
+MapTile& GameMap::getTileForEditing(Point<> coord) 
 {
     if (coord.x() < 0) {
         throw invalid_argument("x must be a positive number");
@@ -56,7 +56,7 @@ MapTile& GameMap::getTileForEditing(Point coord)
                 .at(static_cast<size_t>(coord.x()));
 }
 
-const MapTile& GameMap::getTileFromCoord(Point coord) const
+const MapTile& GameMap::getTileFromCoord(Point<> coord) const
 {
     if (coord.x() < 0) {
         throw invalid_argument("x must be a positive number");
@@ -86,7 +86,7 @@ unsigned int GameMap::getHeight() const
     return static_cast<unsigned int>(heightSize);
 }
 
-Point GameMap::getCoordFromTileIndex(int index) 
+Point<> GameMap::getCoordFromTileIndex(int index) 
 {
     if (index < 0) {
         throw invalid_argument("index must be a positive number");
@@ -302,7 +302,7 @@ void GameMap::_resizeMapFromBottom(int offset)
     }
 }
 
-bool GameMap::canSteppedOnTile(Point playerCoord) 
+bool GameMap::canSteppedOnTile(Point<> playerCoord) 
 {
     return (playerCoord.x() >= 0 && 
             static_cast<unsigned int>(playerCoord.x()) < getWidth() &&

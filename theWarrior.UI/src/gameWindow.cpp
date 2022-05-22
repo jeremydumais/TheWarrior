@@ -12,8 +12,6 @@
 #include <iostream>
 #include <memory>
 #include <sstream>
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
 
 using namespace std;
 
@@ -103,18 +101,21 @@ GameWindow::GameWindow(const string &title,
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    m_textureService.setResourcesPath(m_controller.getResourcesPath());
     calculateTileSize();
     m_map = make_shared<GameMap>(1, 1);
     loadMap(fmt::format("{0}/maps/homeHouseV1.map", m_controller.getResourcesPath()));
-    loadTextures();
+    loadMapTextures();
     if (!m_controller.loadItemStore(fmt::format("{0}/items/itemstore.itm", m_controller.getResourcesPath()))) {
         cerr << "Unable to load the item store : " << m_controller.getLastError() << "\n";
         return;
     }
     generateGLMapObjects();
     m_glPlayer.initialize();
-    generateGLPlayerObject();
-    setPlayerPosition();
+    m_glPlayer.setTexture({ "playerTexture", "tileNPC1.png", 384, 256, 32, 32 });
+    m_textureService.loadTexture(m_glPlayer.getTexture(), m_glPlayer.glTextureId);
+    m_glPlayer.generateGLPlayerObject(TILEHALFWIDTH, TILEHALFHEIGHT);
+    m_glPlayer.setGLObjectPosition(TILEHALFWIDTH, TILEHALFHEIGHT);
 
     m_fpsCalculator.initialize();
 
@@ -125,7 +126,7 @@ GameWindow::GameWindow(const string &title,
 GameWindow::~GameWindow() 
 {
     unloadGLMapObjects();
-    unloadGLPlayerObject();
+    m_glPlayer.unloadGLPlayerObject();
     SDL_JoystickClose(m_joystick);
     SDL_DestroyRenderer(m_renderer);
     SDL_DestroyWindow(m_window);
@@ -191,7 +192,8 @@ void GameWindow::processEvents()
                 
                 //Check if you are facing a tile with a ActionButton trigger configured.
                 if (m_glPlayer.isFacing(PlayerFacing::Up)) {
-                    Point tilePositionToProcess { m_glPlayer.coord.x(), m_glPlayer.coord.y() - 1 };
+                    Point<> tilePositionToProcess = m_glPlayer.getGridPosition();
+                    tilePositionToProcess.setY(tilePositionToProcess.y() - 1);
                     auto &tile = m_map->getTileForEditing(tilePositionToProcess);
                     auto actionButtonTrigger = tile.findConstTrigger(MapTileTriggerEvent::ActionButtonPressed);
                     if (actionButtonTrigger.has_value()) {
@@ -206,10 +208,10 @@ void GameWindow::processEvents()
                 glViewport(0,0,m_width,m_height);
                 calculateTileSize();
                 unloadGLMapObjects();
-                unloadGLPlayerObject();
+                m_glPlayer.unloadGLPlayerObject();
                 generateGLMapObjects();
-                generateGLPlayerObject();
-                setPlayerPosition();
+                m_glPlayer.generateGLPlayerObject(TILEHALFWIDTH, TILEHALFHEIGHT);
+                m_glPlayer.setGLObjectPosition(TILEHALFWIDTH, TILEHALFHEIGHT);
 
                 glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(m_width), 0.0f, static_cast<float>(m_height));
                 m_textService.setProjectionMatrix(projection);
@@ -253,27 +255,29 @@ void GameWindow::processEvents()
 void GameWindow::moveUpPressed() 
 {
     //Check if there is an action
-    const auto tile = m_map->getTileFromCoord(m_glPlayer.coord);
+    const auto playerCoord = m_glPlayer.getGridPosition();
+    const auto tile = m_map->getTileFromCoord(playerCoord);
     auto moveUpTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveUpPressed);
     if (moveUpTrigger.has_value()) {
         processAction(moveUpTrigger->getAction(), moveUpTrigger->getActionProperties());
     }
-    else if (m_map->canSteppedOnTile(Point(m_glPlayer.coord.x(), m_glPlayer.coord.y() - 1))) {
+    else if (m_map->canSteppedOnTile(Point(playerCoord.x(), playerCoord.y() - 1))) {
         m_glPlayer.moveUp();
     } 
     m_glPlayer.faceUp();
-    setPlayerTexture();
+    m_glPlayer.applyCurrentGLTexture(m_textureService);
 }
 
 void GameWindow::moveDownPressed() 
 {
     //Check if there is an action
-    const auto tile = m_map->getTileFromCoord(m_glPlayer.coord);
+    const auto playerCoord = m_glPlayer.getGridPosition();
+    const auto tile = m_map->getTileFromCoord(playerCoord);
     auto moveDownTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveDownPressed);
     if (moveDownTrigger.has_value()) {
         processAction(moveDownTrigger->getAction(), moveDownTrigger->getActionProperties());
     }
-    else if (m_map->canSteppedOnTile(Point(m_glPlayer.coord.x(), m_glPlayer.coord.y() + 1))) {
+    else if (m_map->canSteppedOnTile(Point(playerCoord.x(), playerCoord.y() + 1))) {
         m_glPlayer.moveDown(tile.getIsWallToClimb());
     } 
     if (tile.getIsWallToClimb()) {
@@ -282,18 +286,19 @@ void GameWindow::moveDownPressed()
     else {
         m_glPlayer.faceDown();
     }
-    setPlayerTexture();
+    m_glPlayer.applyCurrentGLTexture(m_textureService);
 }
 
 void GameWindow::moveLeftPressed() 
 {
     //Check if there is an action
-    const auto tile = m_map->getTileFromCoord(m_glPlayer.coord);
+    const auto playerCoord = m_glPlayer.getGridPosition();
+    const auto tile = m_map->getTileFromCoord(playerCoord);
     auto moveLeftTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveLeftPressed);
     if (moveLeftTrigger.has_value()) {
         processAction(moveLeftTrigger->getAction(), moveLeftTrigger->getActionProperties());
     }
-    else if (m_map->canSteppedOnTile(Point(m_glPlayer.coord.x() - 1, m_glPlayer.coord.y()))) {
+    else if (m_map->canSteppedOnTile(Point(playerCoord.x() - 1, playerCoord.y()))) {
         m_glPlayer.moveLeft();
     } 
     if (tile.getIsWallToClimb()) {
@@ -302,18 +307,19 @@ void GameWindow::moveLeftPressed()
     else {
         m_glPlayer.faceLeft();
     }
-    setPlayerTexture();
+    m_glPlayer.applyCurrentGLTexture(m_textureService);
 }
 
 void GameWindow::moveRightPressed() 
 {
     //Check if there is an action
-    const auto tile = m_map->getTileFromCoord(m_glPlayer.coord);
+    const auto playerCoord = m_glPlayer.getGridPosition();
+    const auto tile = m_map->getTileFromCoord(playerCoord);
     auto moveRightTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveRightPressed);
     if (moveRightTrigger.has_value()) {
         processAction(moveRightTrigger->getAction(), moveRightTrigger->getActionProperties());
     }
-    else if (m_map->canSteppedOnTile(Point(m_glPlayer.coord.x() + 1, m_glPlayer.coord.y()))) {
+    else if (m_map->canSteppedOnTile(Point(playerCoord.x() + 1, playerCoord.y()))) {
         m_glPlayer.moveRight();
     } 
     if (tile.getIsWallToClimb()) {
@@ -322,7 +328,7 @@ void GameWindow::moveRightPressed()
     else {
         m_glPlayer.faceRight();
     }
-    setPlayerTexture();
+    m_glPlayer.applyCurrentGLTexture(m_textureService);
 }
 
 void GameWindow::calculateTileSize() 
@@ -337,16 +343,15 @@ void GameWindow::update(float delta_time)
     if (m_glPlayer.isInMovement()) {
         MovingResult result { m_glPlayer.processMoving(delta_time) };
         if (result.needToRefreshTexture) {
-            setPlayerTexture();
+            m_glPlayer.applyCurrentGLTexture(m_textureService);
         }
-        setPlayerPosition();
+        m_glPlayer.setGLObjectPosition(TILEHALFWIDTH, TILEHALFHEIGHT);
     }
 }
 
 void GameWindow::generateGLMapObjects() 
 {
     int indexRow {0};
-    const Texture *lastUsedTexture { nullptr };
     for(const auto &row : m_map->getTiles()) {
         int indexCol {0};
         for(const auto &tile : row) { 
@@ -358,74 +363,32 @@ void GameWindow::generateGLMapObjects()
             calculateGLTileCoord(Point(indexCol, indexRow), tileCoord);
             glGenBuffers(1, &glTile.vboPosition);
             glGenBuffers(1, &glTile.vboColor);
+            auto tileTexture = m_map->getTextureByName(tile.getTextureName());
             GenerateGLObjectInfo infoGenTexture {
-                    lastUsedTexture,
+                    tileTexture.has_value() ? &tileTexture.value().get() : nullptr,
                     &glTile.vao,
-                    tile.getTextureName(),
                     tile.getTextureIndex(),
                     &glTile.vboPosition,
                     &glTile.vboColor,
                     &glTile.vboTexture };
-            generateGLObject(infoGenTexture, tileCoord, m_texColorBuf);
+            GLObjectService::generateGLObject(infoGenTexture, tileCoord, m_texColorBuf);
+            
             if (glTile.tile.hasObjectTexture()) {
+                auto objectTexture = m_map->getTextureByName(tile.getObjectTextureName());
                 GenerateGLObjectInfo infoGenObject {
-                    lastUsedTexture,
+                    objectTexture.has_value() ? &objectTexture.value().get() : nullptr,
                     &glTile.vaoObject,
-                    tile.getObjectTextureName(),
                     tile.getObjectTextureIndex(),
                     &glTile.vboPosition,
                     &glTile.vboColor,
                     &glTile.vboTextureObject };
-                generateGLObject(infoGenObject, tileCoord, m_texColorBuf);
+                GLObjectService::generateGLObject(infoGenObject, tileCoord, m_texColorBuf);
             }
             indexCol++;
             m_glTiles.push_back(glTile);
         }
         indexRow++;
     }
-}
-
-void GameWindow::generateGLObject(GenerateGLObjectInfo &info, const GLfloat tileCoord[4][2], const GLfloat colors[4][3]) 
-{
-    if (info.lastUsedTexture == nullptr || info.textureName != info.lastUsedTexture->getName()) {
-        auto texture { m_map->getTextureByName(info.textureName) };
-        if (texture.has_value()) {
-            info.lastUsedTexture = &texture->get();
-        }
-        else {
-            info.lastUsedTexture = nullptr;
-        }
-    }
-    if (info.lastUsedTexture != nullptr && !info.textureName.empty() && info.textureIndex != -1) {
-        setTextureUVFromIndex(info.lastUsedTexture, m_texCoordBuf, info.textureIndex);
-    }
-    glBindVertexArray(0);
-    glGenVertexArrays(1, info.vao);
-    glBindVertexArray(*info.vao);
-
-    /* Bind our first VBO as being the active buffer and storing vertex attributes (coordinates) */
-    glBindBuffer(GL_ARRAY_BUFFER, *info.vboPosition);
-    glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), tileCoord, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(0);
-
-    /* Bind our second VBO as being the active buffer and storing vertex attributes (colors) */
-    glBindBuffer(GL_ARRAY_BUFFER, *info.vboColor);
-    glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(GLfloat), colors, GL_STATIC_DRAW);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(1);
-
-    /* Bind our third VBO as being the active buffer and storing vertex attributes (textures) */
-    glGenBuffers(1, info.vboTexture);
-    glBindBuffer(GL_ARRAY_BUFFER, *info.vboTexture);
-    glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), m_texCoordBuf, GL_STATIC_DRAW);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(2);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(2);
 }
 
 void GameWindow::unloadGLMapObjects() 
@@ -443,7 +406,7 @@ void GameWindow::unloadGLMapObjects()
     m_glTiles.clear();
 }
 
-void GameWindow::calculateGLTileCoord(const Point &tilePosition, GLfloat tileCoord[4][2]) 
+void GameWindow::calculateGLTileCoord(const Point<> &tilePosition, GLfloat tileCoord[4][2]) 
 {
     float startPosX { -1.0F + TILEHALFWIDTH };
     float startPosY { 1.0F - TILEHALFHEIGHT };
@@ -460,44 +423,12 @@ void GameWindow::calculateGLTileCoord(const Point &tilePosition, GLfloat tileCoo
     tileCoord[3][1] = { -TILEHALFHEIGHT + startPosY - ((TILEHALFHEIGHT * 2) * yConverted) };    /* Bottom Left point */
 }
 
-void GameWindow::generateGLPlayerObject() 
-{
-    float startPosX { -1.0f + TILEHALFWIDTH };
-    float startPosY { 1.0f - TILEHALFHEIGHT };
-
-    GLfloat tileCoord[4][2] = {
-    { -TILEHALFWIDTH + startPosX,  TILEHALFHEIGHT + startPosY },     /* Top Left point */
-    {  TILEHALFWIDTH + startPosX,  TILEHALFHEIGHT + startPosY },     /* Top Right point */
-    {  TILEHALFWIDTH + startPosX, -TILEHALFHEIGHT + startPosY },     /* Bottom Right point */
-    { -TILEHALFWIDTH + startPosX, -TILEHALFHEIGHT + startPosY } };   /* Bottom Left point */
-    
-    glGenBuffers(1, &m_glPlayer.vboPosition);
-    glGenBuffers(1, &m_glPlayer.vboColor);
-    GenerateGLObjectInfo infoGenTexture {
-            nullptr,
-            &m_glPlayer.vao,
-            m_glPlayer.getTextureName(),
-            m_glPlayer.getTextureIndex(),
-            &m_glPlayer.vboPosition,
-            &m_glPlayer.vboColor,
-            &m_glPlayer.vboTexture };
-    generateGLObject(infoGenTexture, tileCoord, m_texColorBuf);
-}
-
-void GameWindow::unloadGLPlayerObject() 
-{
-    glDeleteBuffers(1, &m_glPlayer.vboPosition); 
-    glDeleteBuffers(1, &m_glPlayer.vboColor); 
-    glDeleteBuffers(1, &m_glPlayer.vboTexture); 
-    glDeleteVertexArrays(1, &m_glPlayer.vao);
-}
-
 void GameWindow::render()
 {
     m_tileService.useShader();
     m_tileService.setShaderTranslation(m_map->getWidth(), m_map->getHeight(),
                                      m_width, m_height,
-                                     m_glPlayer);
+                                     m_glPlayer.getGLObjectPositionWithMovement());
     glClearColor(0.3F, 0.3F, 0.3F, 1.0F);
     glClear(GL_COLOR_BUFFER_BIT);
     glEnable(GL_TEXTURE_2D);
@@ -529,13 +460,13 @@ void GameWindow::render()
         }
     }
     //Render the player
-    drawPlayer();
+    m_glPlayer.draw();
     //Draw all the object that appears above the player
     for (auto item : tilesToBeDrawedAfterPlayer) {
         drawObjectTile(*item);
     }
     //Display messages
-    drawTextBox();
+    //drawTextBox();
     auto currentMessage = m_controller.getCurrentMessage();
     if (currentMessage) {
         if (!currentMessage->isDisplayed) {
@@ -577,25 +508,6 @@ void GameWindow::render()
     glDisableVertexAttribArray(2);
 }
 
-void GameWindow::drawPlayer() 
-{
-    glBindTexture(GL_TEXTURE_2D, m_texturesGLMap[m_glPlayer.getTextureName()]);
-    glBindVertexArray(m_glPlayer.vao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_glPlayer.vboPosition);
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, m_glPlayer.vboColor);
-    glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, m_glPlayer.vboTexture);
-    glEnableVertexAttribArray(2);
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-
-    glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(2);
-}
-
 void GameWindow::drawObjectTile(GLTile &tile) 
 {
     glBindTexture(GL_TEXTURE_2D, m_texturesGLMap[tile.tile.getObjectTextureName()]);
@@ -615,11 +527,6 @@ void GameWindow::drawObjectTile(GLTile &tile)
     glDisableVertexAttribArray(2);
 }
 
-void GameWindow::drawTextBox()
-{
-    
-}
-
 void GameWindow::loadMap(const std::string &filePath) 
 {
 	GameMapStorage mapStorage;
@@ -636,16 +543,16 @@ void GameWindow::loadMap(const std::string &filePath)
 
 void GameWindow::changeMap(const std::string &filePath) 
 {
-    unloadGLPlayerObject();
+    m_glPlayer.unloadGLPlayerObject();
     unloadGLMapObjects();
     loadMap(filePath);
-    loadTextures();
+    loadMapTextures();
     generateGLMapObjects();
-    generateGLPlayerObject();
-    setPlayerPosition();
+    m_glPlayer.generateGLPlayerObject(TILEHALFWIDTH, TILEHALFHEIGHT);
+    m_glPlayer.setGLObjectPosition(TILEHALFWIDTH, TILEHALFHEIGHT);
 }
 
-void GameWindow::processAction(MapTileTriggerAction action, const std::map<std::string, std::string> &properties, MapTile *tile, Point tilePosition) 
+void GameWindow::processAction(MapTileTriggerAction action, const std::map<std::string, std::string> &properties, MapTile *tile, Point<> tilePosition) 
 {
     switch (action) 
     {
@@ -653,8 +560,7 @@ void GameWindow::processAction(MapTileTriggerAction action, const std::map<std::
             if (properties.at("playerFacing") == "1") {
                 m_glPlayer.faceDown();
             }
-            m_glPlayer.coord.setX(stoi(properties.at("playerX")));
-            m_glPlayer.coord.setY(stoi(properties.at("playerY")));
+            m_glPlayer.setGridPosition(Point<>(stoi(properties.at("playerX")), stoi(properties.at("playerY"))));
             changeMap(fmt::format("{0}/maps/{1}", m_controller.getResourcesPath(), properties.at("mapFileName")));
             break;
         case MapTileTriggerAction::OpenChest:
@@ -676,15 +582,16 @@ void GameWindow::processAction(MapTileTriggerAction action, const std::map<std::
                     glTileToUpdate.tile = *tile;
                     GLfloat tileCoord[4][2];
                     calculateGLTileCoord(Point(glTileToUpdate.x, glTileToUpdate.y), tileCoord);
+                    auto newChestTexture = m_map->getTextureByName(tile->getObjectTextureName());
                     GenerateGLObjectInfo infoGenObject {
-                    nullptr,
-                    &glTileToUpdate.vaoObject,
-                    tile->getObjectTextureName(),
-                    tile->getObjectTextureIndex(),
-                    &glTileToUpdate.vboPosition,
-                    &glTileToUpdate.vboColor,
-                    &glTileToUpdate.vboTextureObject };
-                    generateGLObject(infoGenObject, tileCoord, m_texColorBuf);
+                        newChestTexture.has_value() ? &newChestTexture.value().get() : nullptr,
+                        &glTileToUpdate.vaoObject,
+                        tile->getObjectTextureIndex(),
+                        &glTileToUpdate.vboPosition,
+                        &glTileToUpdate.vboColor,
+                        &glTileToUpdate.vboTextureObject 
+                    };
+                    GLObjectService::generateGLObject(infoGenObject, tileCoord, m_texColorBuf);
                 }
             }
             break;
@@ -693,103 +600,16 @@ void GameWindow::processAction(MapTileTriggerAction action, const std::map<std::
     }
 }
 
-void GameWindow::loadTextures() 
+void GameWindow::loadMapTextures() 
 {
     //Clear existing textures in graphics memory
     for(auto &glTexture : m_texturesGLMap) {
-        glDeleteTextures(1, &glTexture.second);
+        m_textureService.unloadTexture(glTexture.second);
     }
     m_texturesGLMap.clear();
     //Load texture in graphics memory
     for(const auto &texture : m_map->getTextures()) {  
         const auto &textureName { texture.getName() }; 
-        glGenTextures(1, &m_texturesGLMap[textureName]);
-        glBindTexture(GL_TEXTURE_2D, m_texturesGLMap[textureName]); 
-        //texturesObjMap.emplace(textureName, texture);
-        // set the texture wrapping parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        // set texture filtering parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        int width, height, nrChannels;
-        string texFileName { texture.getFilename() };
-        string fullResourcePath = fmt::format("{0}/textures/{1}", m_controller.getResourcesPath(), texFileName);
-        unsigned char *imageBytes = stbi_load(fullResourcePath.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
-        if (imageBytes) {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageBytes);
-        }
-        else {
-            throw runtime_error(fmt::format("Failed to load texture {0}", fullResourcePath));
-        }
-        glBindTexture(GL_TEXTURE_2D, 0);
-        stbi_image_free(imageBytes);
+        m_textureService.loadTexture(texture, m_texturesGLMap[textureName]);
     }
-}
-
-void GameWindow::setTextureUVFromIndex(const Texture *texture, GLfloat uvMap[4][2], int index) 
-{
-    float indexTile { static_cast<float>(index) };
-    const int NBTEXTUREPERLINE { texture->getWidth() / texture->getTileWidth() };
-    float lineIndex = floor(indexTile / static_cast<float>(NBTEXTUREPERLINE));
-    const float TEXTURETILEWIDTH { texture->getTileWidthGL() };
-    const float TEXTURETILEHEIGHT { texture->getTileHeightGL() };
-    const float TEXTUREWIDTHADJUSTMENT { TEXTURETILEWIDTH / 40.0f };
-    const float TEXTUREHEIGHTADJUSTMENT { TEXTURETILEHEIGHT / 40.0f };
-    GLfloat lowerLeftCorner { indexTile / static_cast<float>(NBTEXTUREPERLINE) - floor(indexTile / static_cast<float>(NBTEXTUREPERLINE))  };
-
-    uvMap[0][0] = (lowerLeftCorner) + TEXTUREWIDTHADJUSTMENT;
-    uvMap[0][1] = 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTURETILEHEIGHT + TEXTUREHEIGHTADJUSTMENT;
-    uvMap[1][0] = lowerLeftCorner + TEXTURETILEWIDTH - TEXTUREWIDTHADJUSTMENT;
-    uvMap[1][1] = 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTURETILEHEIGHT + TEXTUREHEIGHTADJUSTMENT;
-    uvMap[2][0] = lowerLeftCorner + TEXTURETILEWIDTH - TEXTUREWIDTHADJUSTMENT;
-    uvMap[2][1] = 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTUREHEIGHTADJUSTMENT;
-    uvMap[3][0] = lowerLeftCorner + TEXTUREWIDTHADJUSTMENT;
-    uvMap[3][1] = 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTUREHEIGHTADJUSTMENT;
-}
-
-void GameWindow::setTileCoordToOrigin() 
-{
-    float startPosX { -1.0f + TILEHALFWIDTH };
-    float startPosY {  1.0f - TILEHALFHEIGHT };
-    m_tileCoordBuf[0][0] = -TILEHALFWIDTH + startPosX + TILEWIDTH;
-    m_tileCoordBuf[0][1] =  TILEHALFHEIGHT + startPosY - TILEHALFHEIGHT;
-    m_tileCoordBuf[1][0] =  TILEHALFWIDTH + startPosX + TILEWIDTH;
-    m_tileCoordBuf[1][1] =  TILEHALFHEIGHT + startPosY - TILEHALFHEIGHT;
-    m_tileCoordBuf[2][0] =  TILEHALFWIDTH + startPosX + TILEWIDTH;
-    m_tileCoordBuf[2][1] = -TILEHALFHEIGHT + startPosY - TILEHALFHEIGHT;
-    m_tileCoordBuf[3][0] = -TILEHALFWIDTH + startPosX + TILEWIDTH;
-    m_tileCoordBuf[3][1] = -TILEHALFHEIGHT + startPosY - TILEHALFHEIGHT;
-}
-
-void GameWindow::setPlayerPosition() 
-{
-    glBindVertexArray(m_glPlayer.vao);
-    setTileCoordToOrigin();
-    for(int i = 0; i < 4; i++) {
-        m_tileCoordBuf[i][0] += ((static_cast<float>(m_glPlayer.coord.x()) - 1.0f) * TILEWIDTH) + 
-                              (m_glPlayer.xMove * TILEWIDTH);
-        m_tileCoordBuf[i][1] -= (((static_cast<float>(m_glPlayer.coord.y()) * (TILEHALFHEIGHT * 2.0f)) - TILEHALFHEIGHT)) + 
-                              (m_glPlayer.yMove * (TILEHALFHEIGHT * 2.0f));
-    }
-    glBindBuffer(GL_ARRAY_BUFFER, m_glPlayer.vboPosition);
-    glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), m_tileCoordBuf, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(0);
-}
-
-void GameWindow::setPlayerTexture() 
-{
-    auto texture { m_map->getTextureByName(m_glPlayer.getTextureName()) };
-    if (texture.has_value() && !m_glPlayer.getTextureName().empty() && m_glPlayer.getTextureIndex() != -1) {
-        setTextureUVFromIndex(&texture->get(), m_texCoordBuf, m_glPlayer.getTextureIndex());
-    }
-    glBindVertexArray(m_glPlayer.vao);
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_glPlayer.vboTexture);
-    glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), m_texCoordBuf, GL_STATIC_DRAW);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(2);
-    glDisableVertexAttribArray(2);
 }

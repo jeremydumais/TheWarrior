@@ -14,7 +14,7 @@ public:
     std::vector<std::string> getTextureNames() const;
     std::string getTextureFileName(const std::string &resourcesPath, const std::string &textureName) const;
     bool isTextureExist(const std::string &name) const;
-    int getTextureIndexFromPosition(const Point &pos, const std::string &textureName) const;
+    int getTextureIndexFromPosition(const Point<> &pos, const std::string &textureName) const;
     QPixmap getTextureTileImageFromTexture(const QPixmap *sourcePixmap, int tileIndex, const std::string &textureName) const;
 private:
     const TextureContainer &m_textureContainer;

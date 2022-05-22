@@ -79,7 +79,7 @@ void MainForm_TileTabComponent::refreshEventList(MapTile *tile)
 	}
 }
 
-void MainForm_TileTabComponent::onTileSelected(MapTile *tile, Point coord) 
+void MainForm_TileTabComponent::onTileSelected(MapTile *tile, Point<> coord) 
 {
     m_labelTileCoordXY->setText(fmt::format("X: {0}, Y: {1}", coord.x(), coord.y()).c_str());
 	m_lineEditTexName->setText(tile->getTextureName().c_str());

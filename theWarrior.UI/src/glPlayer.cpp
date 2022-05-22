@@ -2,11 +2,13 @@
 
 using namespace std;
 
-
 GLPlayer::GLPlayer()
-    : coord(0, 0),
+    : m_coord(0, 0),
+      m_xMove(0.0F),
+      m_yMove(0.0F),
       m_isInClimbingMode(false),
-      m_isInRunningMode(false)
+      m_isInRunningMode(false),
+      m_texture(nullptr)
 {
 }
 
@@ -18,6 +20,22 @@ const string& GLPlayer::getTextureName() const
 int GLPlayer::getTextureIndex() const
 {
     return m_currentMovementTextureIndex;
+}
+
+const Texture &GLPlayer::getTexture() const
+{
+    return *m_texture;
+}
+    
+Point<> GLPlayer::getGridPosition() const
+{
+    return m_coord;
+}
+
+Point<float> GLPlayer::getGLObjectPositionWithMovement() const
+{
+    return Point<float>(static_cast<float>(m_coord.x()) + m_xMove,
+                        static_cast<float>(m_coord.y()) + m_yMove);
 }
 
 bool GLPlayer::isInMovement() const
@@ -38,20 +56,130 @@ bool GLPlayer::isFacing(PlayerFacing direction)
 void GLPlayer::initialize() 
 {
     m_textureName = "NPC1";
-    coord = Point(7, 14);
-    xMove = 0.0f;
-    yMove = 0.0f;
+    m_coord = Point(7, 14);
+    m_xMove = 0.0f;
+    m_yMove = 0.0f;
     m_baseTextureIndex = 9;
     m_currentMovementTextureIndex = m_baseTextureIndex + 1;
     m_playerMovement = PlayerMovement::None;
     m_playerFacing = PlayerFacing::Up;
 }
 
+void GLPlayer::generateGLPlayerObject(float tileHalfWidth, float tileHalfHeight)
+{
+    GLfloat texColorBuf[4][3] { { 1.0F, 1.0F, 1.0F },   /* Red */
+                                  { 1.0F, 1.0F, 1.0F },   /* Green */
+                                  { 1.0F, 1.0F, 1.0F },   /* Blue */
+                                  { 1.0F, 1.0F, 1.0F } };
+                    
+    float startPosX { -1.0f + tileHalfWidth };
+    float startPosY { 1.0f - tileHalfHeight };
+
+    GLfloat tileCoord[4][2] = {
+    { -tileHalfWidth + startPosX,  tileHalfHeight + startPosY },     /* Top Left point */
+    {  tileHalfWidth + startPosX,  tileHalfHeight + startPosY },     /* Top Right point */
+    {  tileHalfWidth + startPosX, -tileHalfHeight + startPosY },     /* Bottom Right point */
+    { -tileHalfWidth + startPosX, -tileHalfHeight + startPosY } };   /* Bottom Left point */
+    
+    glGenBuffers(1, &vboPosition);
+    glGenBuffers(1, &vboColor);
+    GenerateGLObjectInfo infoGenTexture {
+            m_texture.get(),
+            &vao,
+            m_currentMovementTextureIndex,
+            &vboPosition,
+            &vboColor,
+            &vboTexture };
+    GLObjectService::generateGLObject(infoGenTexture, tileCoord, texColorBuf);
+}
+    
+void GLPlayer::unloadGLPlayerObject()
+{
+    glDeleteBuffers(1, &vboPosition); 
+    glDeleteBuffers(1, &vboColor); 
+    glDeleteBuffers(1, &vboTexture); 
+    glDeleteVertexArrays(1, &vao);
+}
+
+void GLPlayer::setTexture(const TextureInfo &textureInfo)
+{
+    m_texture = make_shared<Texture>(textureInfo);
+}
+
+void GLPlayer::applyCurrentGLTexture(const GLTextureService &textureService)
+{
+    GLfloat texCoordBuf[4][2];
+    if (m_texture && m_currentMovementTextureIndex != -1) {
+        textureService.setTextureUVFromIndex(m_texture.get(), texCoordBuf, m_currentMovementTextureIndex);
+    }
+    glBindVertexArray(vao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vboTexture);
+    glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), texCoordBuf, GL_STATIC_DRAW);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(2);
+    glDisableVertexAttribArray(2);
+}
+
+void GLPlayer::setGridPosition(Point<> position)
+{
+    m_coord = position;
+}
+
+void GLPlayer::setGLObjectPosition(float tileHalfWidth, float tileHalfHeight)
+{
+    glBindVertexArray(vao);
+    
+    //Set Tile Coord To Origin
+    GLfloat m_tileCoordBuf[4][2];
+    float startPosX { -1.0f + tileHalfWidth };
+    float startPosY {  1.0f - tileHalfHeight };
+    float tileWidth { tileHalfWidth * 2.0f };
+    m_tileCoordBuf[0][0] = -tileHalfWidth + startPosX + tileWidth;
+    m_tileCoordBuf[0][1] =  tileHalfHeight + startPosY - tileHalfHeight;
+    m_tileCoordBuf[1][0] =  tileHalfWidth + startPosX + tileWidth;
+    m_tileCoordBuf[1][1] =  tileHalfHeight + startPosY - tileHalfHeight;
+    m_tileCoordBuf[2][0] =  tileHalfWidth + startPosX + tileWidth;
+    m_tileCoordBuf[2][1] = -tileHalfHeight + startPosY - tileHalfHeight;
+    m_tileCoordBuf[3][0] = -tileHalfWidth + startPosX + tileWidth;
+    m_tileCoordBuf[3][1] = -tileHalfHeight + startPosY - tileHalfHeight;
+
+    for(int i = 0; i < 4; i++) {
+        m_tileCoordBuf[i][0] += ((static_cast<float>(m_coord.x()) - 1.0f) * tileWidth) + 
+                              (m_xMove * tileWidth);
+        m_tileCoordBuf[i][1] -= (((static_cast<float>(m_coord.y()) * (tileHalfHeight * 2.0f)) - tileHalfHeight)) + 
+                              (m_yMove * (tileHalfHeight * 2.0f));
+    }
+    glBindBuffer(GL_ARRAY_BUFFER, vboPosition);
+    glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), m_tileCoordBuf, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+}
+
+void GLPlayer::draw()
+{
+    glBindTexture(GL_TEXTURE_2D, glTextureId);
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vboPosition);
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, vboColor);
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, vboTexture);
+    glEnableVertexAttribArray(2);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(2);
+}
+
 void GLPlayer::moveUp() 
 {
     m_playerMovement = PlayerMovement::MoveUp;
-    coord.setY(coord.y() - 1);
-    yMove = 1.0f;
+    m_coord.setY(m_coord.y() - 1);
+    m_yMove = 1.0f;
     m_currentMovementTextureIndex = m_baseTextureIndex;
 }
 
@@ -59,8 +187,8 @@ void GLPlayer::moveDown(bool isInClimbingMode)
 {
     m_playerMovement = PlayerMovement::MoveDown;
     this->m_isInClimbingMode = isInClimbingMode;
-    coord.setY(coord.y() + 1);
-    yMove = -1.0f;
+    m_coord.setY(m_coord.y() + 1);
+    m_yMove = -1.0f;
     if (isInClimbingMode) {
         //Face up
         m_currentMovementTextureIndex = m_baseTextureIndex;
@@ -73,16 +201,16 @@ void GLPlayer::moveDown(bool isInClimbingMode)
 void GLPlayer::moveLeft() 
 {
     m_playerMovement = PlayerMovement::MoveLeft;
-    coord.setX(coord.x() - 1);
-    xMove = 1.0f;
+    m_coord.setX(m_coord.x() - 1);
+    m_xMove = 1.0f;
     m_currentMovementTextureIndex = m_baseTextureIndex + 24;
 }
 
 void GLPlayer::moveRight() 
 {
     m_playerMovement = PlayerMovement::MoveRight;
-    coord.setX(coord.x() + 1);
-    xMove = -1.0f;
+    m_coord.setX(m_coord.x() + 1);
+    m_xMove = -1.0f;
     m_currentMovementTextureIndex = m_baseTextureIndex + 12;
 }
 void GLPlayer::faceUp() 
@@ -124,19 +252,19 @@ MovingResult GLPlayer::processMoving(float delta_time)
     MovingResult result;
     const float SPEED = m_isInRunningMode ? 11.0f : 7.0f;
     if (m_playerMovement == PlayerMovement::MoveUp) {
-        yMove -= SPEED * delta_time;
-        if (yMove < 0.0f) {
-            yMove = 0.0f;
+        m_yMove -= SPEED * delta_time;
+        if (m_yMove < 0.0f) {
+            m_yMove = 0.0f;
             m_playerMovement = PlayerMovement::None;
             m_isInClimbingMode = false;
         }
-        else if(yMove < 0.3f) {
+        else if(m_yMove < 0.3f) {
             if (m_currentMovementTextureIndex != 1) {
                 m_currentMovementTextureIndex = m_baseTextureIndex + 1;
                 result.needToRefreshTexture = true;
             }
         }
-        else if(yMove < 0.6f) {
+        else if(m_yMove < 0.6f) {
             if (m_currentMovementTextureIndex != 2) {
                 m_currentMovementTextureIndex = m_baseTextureIndex + 2;
                 result.needToRefreshTexture = true;
@@ -144,13 +272,13 @@ MovingResult GLPlayer::processMoving(float delta_time)
         }
     }
     else if (m_playerMovement == PlayerMovement::MoveDown) {
-        yMove += SPEED * delta_time;
-        if (yMove > 0.0f) {
-            yMove = 0.0f;
+        m_yMove += SPEED * delta_time;
+        if (m_yMove > 0.0f) {
+            m_yMove = 0.0f;
             m_playerMovement = PlayerMovement::None;
             m_isInClimbingMode = false;
         }
-        else if(yMove > -0.3f) {
+        else if(m_yMove > -0.3f) {
             if (m_isInClimbingMode) {
                 if (m_currentMovementTextureIndex != 1) {
                     m_currentMovementTextureIndex = m_baseTextureIndex + 1;
@@ -164,7 +292,7 @@ MovingResult GLPlayer::processMoving(float delta_time)
                 }
             }
         }
-        else if(yMove > -0.6f) {
+        else if(m_yMove > -0.6f) {
             if (m_isInClimbingMode) {
                 if (m_currentMovementTextureIndex != 2) {
                     m_currentMovementTextureIndex = m_baseTextureIndex + 2;
@@ -180,19 +308,19 @@ MovingResult GLPlayer::processMoving(float delta_time)
         }
     }
     else if (m_playerMovement == PlayerMovement::MoveLeft) {
-        xMove -= SPEED * delta_time;
-        if (xMove < 0.0f) {
-            xMove = 0.0f;
+        m_xMove -= SPEED * delta_time;
+        if (m_xMove < 0.0f) {
+            m_xMove = 0.0f;
             m_playerMovement = PlayerMovement::None;
             m_isInClimbingMode = false;
         }
-        else if(xMove < 0.3f) {
+        else if(m_xMove < 0.3f) {
             if (m_currentMovementTextureIndex != m_baseTextureIndex + 25) {
                 m_currentMovementTextureIndex = m_baseTextureIndex + 25;
                 result.needToRefreshTexture = true;
             }
         }
-        else if(xMove < 0.6f) {
+        else if(m_xMove < 0.6f) {
             if (m_currentMovementTextureIndex != m_baseTextureIndex + 26) {
                 m_currentMovementTextureIndex = m_baseTextureIndex + 26;
                 result.needToRefreshTexture = true;
@@ -200,19 +328,19 @@ MovingResult GLPlayer::processMoving(float delta_time)
         }
     }    
     else if (m_playerMovement == PlayerMovement::MoveRight) {
-        xMove += SPEED * delta_time;
-        if (xMove > 0.0f) {
-            xMove = 0.0f;
+        m_xMove += SPEED * delta_time;
+        if (m_xMove > 0.0f) {
+            m_xMove = 0.0f;
             m_playerMovement = PlayerMovement::None;
             m_isInClimbingMode = false;
         }
-        else if(xMove > -0.3f) {
+        else if(m_xMove > -0.3f) {
             if (m_currentMovementTextureIndex != m_baseTextureIndex + 13) {
                 m_currentMovementTextureIndex = m_baseTextureIndex + 13;
                 result.needToRefreshTexture = true;
             }
         }
-        else if(xMove > -0.6f) {
+        else if(m_xMove > -0.6f) {
             if (m_currentMovementTextureIndex != m_baseTextureIndex + 14) {
                 m_currentMovementTextureIndex = m_baseTextureIndex + 14;
                 result.needToRefreshTexture = true;

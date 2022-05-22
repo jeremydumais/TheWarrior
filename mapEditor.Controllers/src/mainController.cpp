@@ -37,7 +37,7 @@ bool MainController::createMap(unsigned int width, unsigned int height)
 	return true;
 }
 
-Point MainController::getCoordFromTileIndex(int index) 
+Point<> MainController::getCoordFromTileIndex(int index) 
 {
 	return m_map->getCoordFromTileIndex(index);
 }

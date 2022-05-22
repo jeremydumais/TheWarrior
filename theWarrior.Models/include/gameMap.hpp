@@ -20,11 +20,11 @@ public:
     const std::string &getLastError() const;
     const std::vector<std::vector<MapTile>> &getTiles() const;
     MapTile &getTileForEditing(int index);
-    MapTile &getTileForEditing(Point coord);
-    const MapTile &getTileFromCoord(Point coord) const;
+    MapTile &getTileForEditing(Point<> coord);
+    const MapTile &getTileFromCoord(Point<> coord) const;
     unsigned int getWidth() const;
     unsigned int getHeight() const;
-    Point getCoordFromTileIndex(int index);
+    Point<> getCoordFromTileIndex(int index);
     const std::vector<Texture> &getTextures() const;
     std::optional<std::reference_wrapper<const Texture>> getTextureByName(const std::string &name) const;
     bool addTexture(const TextureInfo &textureInfo);
@@ -38,7 +38,7 @@ public:
                    int offsetTop, 
                    int offsetRight, 
                    int offsetBottom);
-    bool canSteppedOnTile(Point playerCoord);
+    bool canSteppedOnTile(Point<> playerCoord);
 private:
     friend class boost::serialization::access;
     std::string m_lastError;
