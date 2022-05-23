@@ -50,6 +50,7 @@ private:
     GLPlayer m_glPlayer;
     std::shared_ptr<GameMap> m_map; 
     std::map<std::string, unsigned int> m_texturesGLMap;
+    std::map<std::string, unsigned int> m_texturesGLItemStore;
     GLfloat m_tileCoordBuf[4][2];
     GLfloat m_texCoordBuf[4][2];
     GLfloat m_texColorBuf[4][3];
@@ -73,6 +74,7 @@ private:
     void changeMap(const std::string &filePath);
     void processAction(MapTileTriggerAction action, const std::map<std::string, std::string> &properties, MapTile *tile = nullptr, Point<> tilePosition = Point(0, 0));
     void loadMapTextures();
+    void loadItemStoreTextures();
     void drawObjectTile(GLTile &tile);
 };
 

@@ -1,5 +1,6 @@
 #include "gameWindow.hpp"
 #include "gameMapStorage.hpp"
+#include "itemFoundMessageDTO.hpp"
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include <algorithm>
@@ -80,6 +81,11 @@ GameWindow::GameWindow(const string &title,
         cerr << fmt::format("Warning: Unable to set VSync! SDL Error: {0}\n", SDL_GetError());
         return;
     }
+    if (!m_controller.loadItemStore(fmt::format("{0}/items/itemstore.itm", m_controller.getResourcesPath()))) {
+        cerr << "Unable to load the item store : " << m_controller.getLastError() << "\n";
+        return;
+    }
+    m_textBox.setItemStore(m_controller.getItemStore());
 
     if (!m_tileService.initShader(fmt::format("{0}/shaders/tile_330_vs.glsl", m_controller.getResourcesPath()),
                           fmt::format("{0}/shaders/tile_330_fs.glsl", m_controller.getResourcesPath()))) {
@@ -110,10 +116,8 @@ GameWindow::GameWindow(const string &title,
     m_map = make_shared<GameMap>(1, 1);
     loadMap(fmt::format("{0}/maps/homeHouseV1.map", m_controller.getResourcesPath()));
     loadMapTextures();
-    if (!m_controller.loadItemStore(fmt::format("{0}/items/itemstore.itm", m_controller.getResourcesPath()))) {
-        cerr << "Unable to load the item store : " << m_controller.getLastError() << "\n";
-        return;
-    }
+    loadItemStoreTextures();
+    m_textBox.setItemStoreTextureMap(&m_texturesGLItemStore);
     generateGLMapObjects();
     m_glPlayer.initialize();
     m_glPlayer.setTexture({ "playerTexture", "tileNPC1.png", 384, 256, 32, 32 });
@@ -125,11 +129,6 @@ GameWindow::GameWindow(const string &title,
 
     SDL_JoystickEventState(SDL_ENABLE);
     m_joystick = SDL_JoystickOpen(0);
-    //TODO To remove test only
-    /*auto dto = make_unique<MessageDTO>();
-    dto->message = "You found a Wooden Sword!";
-    dto->maxDurationInMilliseconds = -1;
-    m_controller.addMessageToPipeline(std::move(dto));*/
 }
 
 GameWindow::~GameWindow() 
@@ -198,15 +197,19 @@ void GameWindow::processEvents()
                 m_glPlayer.disableRunMode();
             }
             if (e.jbutton.button == 1) {
-                
-                //Check if you are facing a tile with a ActionButton trigger configured.
-                if (m_glPlayer.isFacing(PlayerFacing::Up)) {
-                    Point<> tilePositionToProcess = m_glPlayer.getGridPosition();
-                    tilePositionToProcess.setY(tilePositionToProcess.y() - 1);
-                    auto &tile = m_map->getTileForEditing(tilePositionToProcess);
-                    auto actionButtonTrigger = tile.findConstTrigger(MapTileTriggerEvent::ActionButtonPressed);
-                    if (actionButtonTrigger.has_value()) {
-                        processAction(actionButtonTrigger->getAction(), actionButtonTrigger->getActionProperties(), &tile, tilePositionToProcess);
+                if (auto currentMessage = m_controller.getCurrentMessage(); currentMessage != nullptr && currentMessage->isDisplayed) {
+                    m_controller.deleteCurrentMessage();                    
+                }
+                else {
+                    //Check if you are facing a tile with a ActionButton trigger configured.
+                    if (m_glPlayer.isFacing(PlayerFacing::Up)) {
+                        Point<> tilePositionToProcess = m_glPlayer.getGridPosition();
+                        tilePositionToProcess.setY(tilePositionToProcess.y() - 1);
+                        auto &tile = m_map->getTileForEditing(tilePositionToProcess);
+                        auto actionButtonTrigger = tile.findConstTrigger(MapTileTriggerEvent::ActionButtonPressed);
+                        if (actionButtonTrigger.has_value()) {
+                            processAction(actionButtonTrigger->getAction(), actionButtonTrigger->getActionProperties(), &tile, tilePositionToProcess);
+                        }
                     }
                 }
             }
@@ -232,6 +235,23 @@ void GameWindow::processEvents()
         if (!m_blockToggleFPS) {
             m_toggleFPS = !m_toggleFPS;
             m_blockToggleFPS = true;
+        }  
+    }
+    else if ((keystate[SDL_SCANCODE_RCTRL] || keystate[SDL_SCANCODE_LCTRL]) && keystate[SDL_SCANCODE_M]) {
+        //TODO To remove test only
+        if (!m_blockToggleFPS) {
+            m_blockToggleFPS = true;
+            if (m_controller.getCurrentMessage()) {
+                m_controller.deleteCurrentMessage();
+            }
+            else {
+                auto dto = make_unique<ItemFoundMessageDTO>();
+                dto->message = "You found a Wooden Sword!";
+                dto->maxDurationInMilliseconds = -1;
+                dto->itemId = "swd002";
+                dto->textureName = "ItemsTile";
+                m_controller.addMessageToPipeline(std::move(dto));
+            }
         }
     }
 
@@ -472,7 +492,7 @@ void GameWindow::render()
     auto currentMessage = m_controller.getCurrentMessage();
     if (currentMessage) {
         if (!currentMessage->isDisplayed) {
-            m_textBox.generateMessage(currentMessage);
+            m_textBox.generateMessage(currentMessage, m_width, m_height);
             m_controller.displayCurrentMessage();
         }
         //Display the message
@@ -542,6 +562,7 @@ void GameWindow::loadMap(const std::string &filePath)
 	catch(runtime_error &err) {
         cerr << err.what() << '\n';
 	}
+    
 }
 
 void GameWindow::changeMap(const std::string &filePath) 
@@ -568,10 +589,14 @@ void GameWindow::processAction(MapTileTriggerAction action, const std::map<std::
             break;
         case MapTileTriggerAction::OpenChest:
             if (properties.find("itemIdInside") != properties.end()) {
+                //Find the item in the item store
+                const auto item = m_controller.findItem(properties.find("itemIdInside")->second);
                 //Display the item on the screen
-                auto msg = std::make_unique<MessageDTO>();
-                msg->message = "You found a sword!";
+                auto msg = std::make_unique<ItemFoundMessageDTO>();
+                msg->message = fmt::format("You found a {0}!", item.name);
                 msg->maxDurationInMilliseconds = 2000;
+                msg->itemId = item.id;
+                msg->textureName = item.textureName;
                 m_controller.addMessageToPipeline(std::move(msg));
             }
             if (tile != nullptr) {
@@ -613,5 +638,17 @@ void GameWindow::loadMapTextures()
     for(const auto &texture : m_map->getTextures()) {  
         const auto &textureName { texture.getName() }; 
         m_textureService.loadTexture(texture, m_texturesGLMap[textureName]);
+    }
+}
+void GameWindow::loadItemStoreTextures()
+{
+    //Clear existing textures in graphics memory
+    for(auto &glTexture : m_texturesGLItemStore) {
+        glDeleteTextures(1, &glTexture.second);
+    }
+    m_texturesGLItemStore.clear();
+    for(const auto &texture : m_controller.getItemStore()->getTextureContainer().getTextures()) {
+        const auto &textureName { texture.getName() }; 
+        m_textureService.loadTexture(texture, m_texturesGLItemStore[textureName]);
     }
 }

@@ -1,6 +1,7 @@
 #include "gameWindowController.hpp"
 #include "itemStoreStorage.hpp"
 #include <fmt/format.h>
+#include <GL/glew.h>
 #include <libgen.h>         // dirname
 #include <linux/limits.h>   // PATH_MAX
 #include <unistd.h>         // readlink
@@ -24,6 +25,11 @@ const std::string &GameWindowController::getLastError() const
     return m_lastError;
 }
 
+const std::shared_ptr<ItemStore> GameWindowController::getItemStore() const
+{
+    return m_itemStore;
+}
+
 bool GameWindowController::loadItemStore(const std::string &filePath)
 {
     ItemStoreStorage storage;
@@ -35,6 +41,19 @@ bool GameWindowController::loadItemStore(const std::string &filePath)
         m_lastError = err.what();
     }
     return false;
+}
+
+ItemDTO GameWindowController::findItem(const std::string &id) const
+{
+    ItemDTO dto;
+    const auto item = m_itemStore->findItem(id);
+    if (item) {
+        dto.id = item->getId();
+        dto.name = item->getName();
+        dto.textureName = item->getTextureName();
+        dto.textureIndex = item->getTextureIndex();
+    }
+    return dto;
 }
 
 size_t GameWindowController::getMessageCount() const
@@ -90,6 +109,15 @@ std::shared_ptr<Message> GameWindowController::createMessageFromMessageDTO(std::
     case MessageDTOType::Message:
         return std::make_shared<Message>(dto->message, dto->maxDurationInMilliseconds);
         break;
+    case MessageDTOType::ItemFoundMessage:
+        {
+            ItemFoundMessageDTO *itemFoundMsgDTO = dynamic_cast<ItemFoundMessageDTO *>(dto.get());
+            return std::make_shared<ItemFoundMessage>(itemFoundMsgDTO->message, 
+                                                      itemFoundMsgDTO->maxDurationInMilliseconds, 
+                                                      itemFoundMsgDTO->itemId,
+                                                      itemFoundMsgDTO->textureName);
+        }
+        break;
     default:
         return nullptr;
         break;
@@ -106,14 +134,23 @@ std::unique_ptr<MessageDTO> GameWindowController::createMessageDTOFromMessage(st
     {
     case MessageType::Message:
         retval = std::make_unique<MessageDTO>();
-        retval->message = message->getMessage();
-        retval->isDisplayed = message->isDisplayed();
-        retval->isExpired = message->hasMessageExpired(std::chrono::_V2::system_clock::now());
-        retval->maxDurationInMilliseconds = message->getMaxDurationInMilliseconds();
         break;
+    case MessageType::ItemFoundMessage:
+        {
+            retval = std::make_unique<ItemFoundMessageDTO>();
+            ItemFoundMessage *itemFoundMessage = dynamic_cast<ItemFoundMessage *>(message.get());
+            ItemFoundMessageDTO *dto = dynamic_cast<ItemFoundMessageDTO *>(retval.get());
+            dto->itemId = itemFoundMessage->getItemId();
+            dto->textureName = itemFoundMessage->getTextureName();
+            break;
+        }
     default:
         break;
     }
+    retval->message = message->getMessage();
+    retval->isDisplayed = message->isDisplayed();
+    retval->isExpired = message->hasMessageExpired(std::chrono::_V2::system_clock::now());
+    retval->maxDurationInMilliseconds = message->getMaxDurationInMilliseconds();
     return retval;
 
 }
