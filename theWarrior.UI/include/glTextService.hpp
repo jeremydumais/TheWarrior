@@ -2,19 +2,27 @@
 
 #include "glShaderProgram.hpp"
 #include "IShaderService.hpp"
+#include <size.hpp>
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 #include <ft2build.h>
 #include FT_FREETYPE_H  
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
 
 struct Character {
     unsigned int TextureID; // ID handle of the glyph texture
     glm::ivec2   Size;      // Size of glyph
     glm::ivec2   Bearing;   // Offset from baseline to left/top of glyph
     unsigned int Advance;   // Horizontal offset to advance to next glyph
+};
+
+struct ComputedTextForDisplay{
+    Size<float> textSize;
+    std::vector<std::string> lines;
 };
 
 class GLTextService : public IShaderService
@@ -28,7 +36,8 @@ public:
     void useShader();
     void setProjectionMatrix(glm::mat4 projection);
     void renderText(std::string text, float x, float y, float scale, glm::vec3 color);
-    float getTextWidth(const std::string &text, float scale) const;
+    Size<float> getTextSize(const std::string &text, float scale) const;
+    ComputedTextForDisplay prepareTextForDisplay(Size<float> screenSize, const std::string &text, float scale) const;
 private:
     std::string lastError;
     std::unique_ptr<GLShaderProgram> shaderProgram;

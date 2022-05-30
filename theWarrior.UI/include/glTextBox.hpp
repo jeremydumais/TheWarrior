@@ -7,6 +7,7 @@
 #include "IShaderService.hpp"
 #include "message.hpp"
 #include "messageDTO.hpp"
+#include "size.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <GL/glew.h>
@@ -21,17 +22,23 @@ public:
     bool initShader(const std::string &vertexShaderFileName,
                     const std::string &fragmentShaderFileName) override;
     const std::string &getLastError() const;
+    void setScreenSize(Size<> size);
+    void setTextService(GLTextService *textService);
     void setItemStore(std::shared_ptr<ItemStore> itemStore);
     void setItemStoreTextureMap(const std::map<std::string, unsigned int> *texturesGLItemStore);
-    void generateMessage(std::shared_ptr<MessageDTO> messageDTO, int screenWidth, int screenHeight);
+    void generateMessage(std::shared_ptr<MessageDTO> messageDTO);
     void useShader();
-    void draw(GLTextService &textService, int screenWidth, int screenHeight);
+    void draw();
 private:
+    Size<> m_screenSize;
+    GLTextService *m_textService;
     std::shared_ptr<ItemStore> m_itemStore;
     const std::map<std::string, unsigned int> *m_texturesGLItemStore;
     std::unique_ptr<GLShaderProgram> shaderProgram;
     std::string m_lastError;
     std::shared_ptr<MessageDTO> m_messageDTO;
+    ComputedTextForDisplay m_computedTextForDisplay;
     GLObject m_glObject;
     GLObject m_glObjectIcon;
+    void drawQuad(const GLObject &glObject, GLuint textureGLIndex);
 };

@@ -11,6 +11,7 @@ add_executable(${PROJECT_UNITTEST_NAME} ${INCLUDE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}/textureContainer_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/mapTile_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/point_unittest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/size_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/mapTileTrigger_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/mapTileTriggerEventConverter_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/mapTileTriggerConditionConverter_unittest.cpp

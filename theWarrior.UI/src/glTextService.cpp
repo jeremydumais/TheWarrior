@@ -1,5 +1,6 @@
 #include "glTextService.hpp"
 #include <cmath>
+#include <boost/algorithm/string.hpp>
 #include <fmt/format.h>
 
 using namespace std;
@@ -107,7 +108,6 @@ bool GLTextService::initFont(const std::string &fontFileName)
     FT_Done_Face(face);
     FT_Done_FreeType(ft);
 
-    
     // configure VAO/VBO for texture quads
     // -----------------------------------
     glGenVertexArrays(1, &VAO);
@@ -165,14 +165,63 @@ void GLTextService::renderText(std::string text, float x, float y, float scale, 
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-float GLTextService::getTextWidth(const std::string &text, float scale) const
+Size<float> GLTextService::getTextSize(const std::string &text, float scale) const
 {
-    const float CORRECTIVEFACTOR = 1.32F;
+    float correctiveFactor = 1.48F; // Default of scale 1.0
+    if (scale == 0.1F) correctiveFactor = 1.10F;
+    else if (scale == 0.4F) correctiveFactor = 1.40F;
+    else if (scale == 0.5F) correctiveFactor = 1.42F;
+    else if (scale == 0.6F) correctiveFactor = 1.43F;
+    else if (scale == 0.7F) correctiveFactor = 1.45F;
+    else if (scale == 0.8F) correctiveFactor = 1.46F;
+    else if (scale == 0.9F) correctiveFactor = 1.47F;
+    
     std::string::const_iterator c;
-    float totalWidth = 0.0F;
+    Size<float> totalSize(0.0F, 0.0F);
+    //float totalWidth = 0.0F;
+
     for (c = text.begin(); c != text.end(); c++) {
         Character ch = characters.at(*c);
-        totalWidth += static_cast<float>(ch.Size.x) * scale;
+        float charHeight = static_cast<float>(ch.Size.y) * scale;
+        totalSize.setWidth(totalSize.width() + ((static_cast<float>(ch.Size.x) * scale) * correctiveFactor));
+        if (totalSize.height() < charHeight) {
+            totalSize.setHeight(charHeight * correctiveFactor);
+        }
     }
-    return totalWidth * CORRECTIVEFACTOR;
+    
+    return totalSize;
+}
+
+ComputedTextForDisplay GLTextService::prepareTextForDisplay(Size<float> screenSize, const std::string &text, float scale) const
+{
+    const float DISPLAYMAXWIDTH = screenSize.width() - 60.0F;
+    const float DISPLAYMINWIDTH = 400.0F;
+    float lineHeight = 0.0F;
+    ComputedTextForDisplay retval { Size<float>(DISPLAYMINWIDTH, 0.0F), {}};
+    //Split the string by carriage return \n
+    boost::split(retval.lines, text, boost::is_any_of("\n"));
+    //Ensure each line is not too large
+    size_t lineCount = retval.lines.size();
+    for(size_t indexLine = lineCount; indexLine>0; indexLine--) {
+
+        //if total line is 
+        auto line = retval.lines[indexLine-1];
+        /*std::vector<std::string> words = {};
+        boost::split(words, line, boost::is_any_of(" "));
+        for(const auto &word : words) {
+            Size<float> wordSize = getTextSize(word, scale);
+
+        }*/
+        auto lineSize = getTextSize(line, scale);
+        if (lineSize.width() > DISPLAYMINWIDTH && lineSize.width() <= DISPLAYMAXWIDTH && lineSize.width() > retval.textSize.width()) {
+            retval.textSize.setWidth(lineSize.width());
+        }
+        if (lineSize.height() > lineHeight) {
+            retval.textSize.setHeight(lineSize.height());
+        }
+    }
+    //TODO const float LinesVerticalSpacing 10.0F
+    retval.textSize.setHeight((retval.textSize.height() + 10.0F) * static_cast<float>(retval.lines.size()));
+
+    return retval;
 }

@@ -19,8 +19,7 @@ using namespace std;
 GameWindow::GameWindow(const string &title,
                        int x, int y,
                        int width, int height) 
-    : m_width(width),
-      m_height(height),
+    : m_WindowSize(width, height),
       m_mustExit(false),
       m_texCoordBuf { { 0.0F, 0.0F },
                     { 0.0F, 0.0F }, 
@@ -76,7 +75,7 @@ GameWindow::GameWindow(const string &title,
     }
 
     //Use Vsync
-    if( SDL_GL_SetSwapInterval(1) < 0 )
+    if( SDL_GL_SetSwapInterval(-1) < 0 )
     {
         cerr << fmt::format("Warning: Unable to set VSync! SDL Error: {0}\n", SDL_GetError());
         return;
@@ -117,6 +116,8 @@ GameWindow::GameWindow(const string &title,
     loadMap(fmt::format("{0}/maps/homeHouseV1.map", m_controller.getResourcesPath()));
     loadMapTextures();
     loadItemStoreTextures();
+    m_textBox.setScreenSize(m_WindowSize);
+    m_textBox.setTextService(&m_textService);
     m_textBox.setItemStoreTextureMap(&m_texturesGLItemStore);
     generateGLMapObjects();
     m_glPlayer.initialize();
@@ -216,8 +217,11 @@ void GameWindow::processEvents()
         }
         else if (e.type == SDL_WINDOWEVENT) {
             if (e.window.event == SDL_WINDOWEVENT_RESIZED) {
-                SDL_GetWindowSize(m_window, &m_width, &m_height);
-                glViewport(0,0,m_width,m_height);
+                int screenWidth = 0;
+                int screenHeight = 0;
+                SDL_GetWindowSize(m_window, &screenWidth, &screenHeight);
+                m_WindowSize.setSize(screenWidth, screenHeight);
+                glViewport(0, 0, m_WindowSize.width(), m_WindowSize.height());
                 calculateTileSize();
                 unloadGLMapObjects();
                 m_glPlayer.unloadGLPlayerObject();
@@ -225,8 +229,9 @@ void GameWindow::processEvents()
                 m_glPlayer.generateGLPlayerObject(TILEHALFWIDTH, TILEHALFHEIGHT);
                 m_glPlayer.setGLObjectPosition(TILEHALFWIDTH, TILEHALFHEIGHT);
 
-                glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(m_width), 0.0f, static_cast<float>(m_height));
+                glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(m_WindowSize.width()), 0.0f, static_cast<float>(m_WindowSize.height()));
                 m_textService.setProjectionMatrix(projection);
+                m_textBox.setScreenSize(m_WindowSize);
             }
         } 
     }
@@ -245,11 +250,13 @@ void GameWindow::processEvents()
                 m_controller.deleteCurrentMessage();
             }
             else {
-                auto dto = make_unique<ItemFoundMessageDTO>();
-                dto->message = "You found a Wooden Sword!";
+                //auto dto = make_unique<ItemFoundMessageDTO>();
+                auto dto = make_unique<MessageDTO>();
+                dto->message = "Hello, my name is \nJed and I am \nthe first warrior \nof the entire \nland so just let me \nknow \nif you need help.ghjkghjghjghjkghjgjhghjghjjh";
+                //dto->message = "You found a Wooden Sword!";
                 dto->maxDurationInMilliseconds = -1;
-                dto->itemId = "swd002";
-                dto->textureName = "ItemsTile";
+                //dto->itemId = "swd002";
+                //dto->textureName = "ItemsTile";
                 m_controller.addMessageToPipeline(std::move(dto));
             }
         }
@@ -362,9 +369,10 @@ void GameWindow::moveRightPressed()
 
 void GameWindow::calculateTileSize() 
 {
-    TILEWIDTH = (1.0F / (static_cast<float>(m_width) / 51.2F)) * 2.0F;
+    Size<float> screenSizeFloat(static_cast<float>(m_WindowSize.width()), static_cast<float>(m_WindowSize.height()));
+    TILEWIDTH = (1.0F / (screenSizeFloat.width() / 51.2F)) * 2.0F;
     TILEHALFWIDTH = TILEWIDTH / 2.0F;
-    TILEHALFHEIGHT = (static_cast<float>(m_width) * TILEHALFWIDTH) / static_cast<float>(m_height);
+    TILEHALFHEIGHT = (screenSizeFloat.width() * TILEHALFWIDTH) / screenSizeFloat.height();
 }
 
 void GameWindow::update(float delta_time) 
@@ -450,8 +458,8 @@ void GameWindow::render()
 {
     m_tileService.useShader();
     m_tileService.setShaderTranslation(m_map->getWidth(), m_map->getHeight(),
-                                     m_width, m_height,
-                                     m_glPlayer.getGLObjectPositionWithMovement());
+                                       m_WindowSize.width(), m_WindowSize.height(),
+                                       m_glPlayer.getGLObjectPositionWithMovement());
     glClearColor(0.3F, 0.3F, 0.3F, 1.0F);
     glClear(GL_COLOR_BUFFER_BIT);
     glEnable(GL_TEXTURE_2D);
@@ -492,19 +500,11 @@ void GameWindow::render()
     auto currentMessage = m_controller.getCurrentMessage();
     if (currentMessage) {
         if (!currentMessage->isDisplayed) {
-            m_textBox.generateMessage(currentMessage, m_width, m_height);
+            m_textBox.generateMessage(currentMessage);
             m_controller.displayCurrentMessage();
         }
         //Display the message
-        m_textBox.draw(m_textService, m_width, m_height);
-        /*m_textService.useShader();
-        m_textService.renderText(currentMessage->message, 
-                               100.0f,                               // X
-                               static_cast<float>(m_height) - 24.0f, // Y
-                               0.5f,                               // Scale
-                               glm::vec3(1.0f, 1.0f, 1.0f));       // Color
-
-*/
+        m_textBox.draw();
         if (currentMessage->isExpired) {
             m_controller.deleteCurrentMessage();
         }
@@ -514,7 +514,7 @@ void GameWindow::render()
         m_textService.useShader();
         m_textService.renderText(m_fpsCalculator.getFPSDisplayText(), 
                                1.0f,                               // X
-                               static_cast<float>(m_height) - 24.0f, // Y
+                               static_cast<float>(m_WindowSize.height()) - 24.0f, // Y
                                0.5f,                               // Scale
                                glm::vec3(1.0f, 1.0f, 1.0f));       // Color
     }

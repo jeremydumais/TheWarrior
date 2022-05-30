@@ -10,6 +10,7 @@
 #include "glTextureService.hpp"
 #include "glTile.hpp"
 #include "glTileService.hpp"
+#include <size.hpp>
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
@@ -37,8 +38,9 @@ private:
     SDL_Window *m_window;
     SDL_Renderer *m_renderer;
     SDL_GLContext m_gContext;
-    int m_width;
-    int m_height;
+    Size<> m_WindowSize;
+    //int m_width;
+    //int m_height;
     bool m_mustExit;
     std::string m_executablePath;
     std::string m_resourcesPath;

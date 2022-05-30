@@ -27,7 +27,7 @@ TEST(ItemFoundMessage_GetType, ReturnMessage)
     ASSERT_EQ(MessageType::Message, msg.getType());
 }
 
-TEST_F(ItemFoundMessageSample, getItemId_ReturnTex2)
+TEST_F(ItemFoundMessageSample, getItemId_ReturnIte001)
 {
     ASSERT_EQ("ite001", msg.getItemId());
 }
@@ -39,4 +39,14 @@ TEST_F(ItemFoundMessageSample, setItemId_ReturnSuccess)
     ASSERT_EQ(newId, msg.getItemId());
 }
 
-//TODO Unit test for Textures methods
+TEST_F(ItemFoundMessageSample, getTextureName_ReturnTex2)
+{
+    ASSERT_EQ("tex2", msg.getTextureName());
+}
+
+TEST_F(ItemFoundMessageSample, setTextureName_ReturnSuccess)
+{
+    auto newTextureName = "tex8";
+    msg.setTextureName(newTextureName);
+    ASSERT_EQ(newTextureName, msg.getTextureName());
+}
