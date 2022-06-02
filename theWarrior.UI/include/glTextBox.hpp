@@ -40,5 +40,6 @@ private:
     ComputedTextForDisplay m_computedTextForDisplay;
     GLObject m_glObject;
     GLObject m_glObjectIcon;
+    const float BOXPADDING = 60.0F;
     void drawQuad(const GLObject &glObject, GLuint textureGLIndex);
 };

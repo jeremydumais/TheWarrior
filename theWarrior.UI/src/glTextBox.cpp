@@ -63,21 +63,20 @@ void GLTextBox::setItemStoreTextureMap(const std::map<std::string, unsigned int>
 void GLTextBox::generateMessage(std::shared_ptr<MessageDTO> messageDTO)
 {
     m_messageDTO = messageDTO;
-    const float SCALE = 0.6F;
     const Size<float> screenSizeFloat(static_cast<float>(m_screenSize.width()), static_cast<float>(m_screenSize.height()));
 
-    m_computedTextForDisplay = m_textService->prepareTextForDisplay(screenSizeFloat, m_messageDTO->message, SCALE);
+    m_computedTextForDisplay = m_textService->prepareTextForDisplay(screenSizeFloat, m_messageDTO->message, messageDTO->scale);
     GLfloat texColorBuf[4][3] { { 1.0F, 1.0F, 1.0F },   /* Red */
                                 { 1.0F, 1.0F, 1.0F },   /* Green */
                                 { 1.0F, 1.0F, 1.0F },   /* Blue */
                                 { 1.0F, 1.0F, 1.0F } };
     const float IMAGEHEIGHT = (m_messageDTO->getType() == MessageDTOType::ItemFoundMessage) ? (60.0F / screenSizeFloat.height()) : 0.0F;
-    const float BOXPADDING = 60.0F / screenSizeFloat.height();
-    const float BOXHALFWIDTH = (m_computedTextForDisplay.textSize.width() / screenSizeFloat.width()) + (BOXPADDING / 2.0F);
-    const float BOXHALFHEIGHT = (m_computedTextForDisplay.textSize.height() / screenSizeFloat.height()) + IMAGEHEIGHT + BOXPADDING;
+    const float COMPUTEDBOXPADDING = BOXPADDING / screenSizeFloat.height();
+    const float BOXHALFWIDTH = (m_computedTextForDisplay.textSize.width() / screenSizeFloat.width()) + (COMPUTEDBOXPADDING / 2.0F);
+    const float BOXHALFHEIGHT = (m_computedTextForDisplay.textSize.height() / screenSizeFloat.height()) + IMAGEHEIGHT + COMPUTEDBOXPADDING;
     
     const float STARTPOSX { 0.0F };
-    const float STARTPOSY { 0.0F + (BOXHALFHEIGHT / 2.0F) - (BOXPADDING / 2.0F) - IMAGEHEIGHT };
+    const float STARTPOSY { 0.0F + (BOXHALFHEIGHT / 2.0F) - (COMPUTEDBOXPADDING / 2.0F) - IMAGEHEIGHT };
 
     GLfloat tileCoord[4][2] = {
     { -BOXHALFWIDTH + STARTPOSX,  BOXHALFHEIGHT + STARTPOSY },     /* Top Left point */
@@ -108,7 +107,7 @@ void GLTextBox::generateMessage(std::shared_ptr<MessageDTO> messageDTO)
         const float BOXWIDTH = 0.05F * (1400.0f / screenSizeFloat.width());
         const float BOXHEIGHT = BOXWIDTH * ratioHeight;
         float lineTotal = static_cast<float>(m_computedTextForDisplay.lines.size());
-        float lineHeight = (static_cast<float>(m_computedTextForDisplay.textSize.height()) / lineTotal) - 10.0F;
+        float lineHeight = (m_computedTextForDisplay.textSize.height() / lineTotal) - 10.0F;
    
         const float IMAGESTARTPOSY = STARTPOSY - ((lineTotal - 1.0F) * (lineHeight + 10.0F)) / screenSizeFloat.height();
         GLfloat tileCoordIcon[4][2] {
@@ -140,23 +139,21 @@ void GLTextBox::draw()
         drawQuad(m_glObjectIcon, (*m_texturesGLItemStore).at(dto->textureName));
     }
     m_textService->useShader();
-    const float SCALE = 0.6F;
     Size<float> screenSizeFloat(static_cast<float>(m_screenSize.width()), static_cast<float>(m_screenSize.height()));
     float lineTotal = static_cast<float>(m_computedTextForDisplay.lines.size());
-    float lineHeight = (static_cast<float>(m_computedTextForDisplay.textSize.height()) / lineTotal) - 10.0F;
+    float lineHeight = (m_computedTextForDisplay.textSize.height() / lineTotal) - 10.0F;
      
     Point<float> messagePosition((screenSizeFloat.width() / 2.0F) - (m_computedTextForDisplay.textSize.width() / 2.0F) + 30.0F,
                                  (screenSizeFloat.height() / 2.0F) + ((lineTotal) * lineHeight) - 30.0F);
     if (m_messageDTO->getType() == MessageDTOType::ItemFoundMessage) {
         messagePosition.setY(messagePosition.y() + 20.0F);
     }
-    for(size_t i = 0; const auto &line : m_computedTextForDisplay.lines) {
+    for(size_t i = 0; i < m_computedTextForDisplay.lines.size(); i++) {
         m_textService->renderText(m_computedTextForDisplay.lines[i], 
                                   messagePosition.x(),
                                   messagePosition.y() - (static_cast<float>(i) * (lineHeight + 10.0F)),
-                                  SCALE,
-                                  glm::vec3(1.0f, 1.0f, 1.0f));       // Color
-        i++;
+                                  m_messageDTO->scale,
+                                  glm::vec3(1.0f, 0.0f, 1.0f));       // Color
     }
 }
 

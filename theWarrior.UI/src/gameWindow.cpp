@@ -30,7 +30,7 @@ GameWindow::GameWindow(const string &title,
                     { 1.0F, 1.0F, 1.0F },   /* Blue */
                     { 1.0F, 1.0F, 1.0F } },
       m_toggleFPS(false),
-      m_blockToggleFPS(false)
+      m_blockKeyDown(false)
 {
     //Initialize SDL
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0)
@@ -163,9 +163,12 @@ void GameWindow::processEvents()
     SDL_JoystickUpdate();
     
     while(SDL_PollEvent(&e) != 0) {
+        if(e.type == SDL_KEYUP) {
+            m_blockKeyDown = false;
+        }
         if(e.type == SDL_QUIT){
             m_mustExit = true;
-        }
+        }   
         else if(e.type == SDL_KEYDOWN && !m_glPlayer.isInMovement()) {
             switch( e.key.keysym.sym )
             {
@@ -183,10 +186,8 @@ void GameWindow::processEvents()
                     break;
             };
         }
-        else if(e.type == SDL_KEYUP) {
-            if (m_blockToggleFPS) {
-                m_blockToggleFPS = false;
-            }
+        else if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_RETURN) {
+            actionButtonPressed();
         }
         else if (e.type == SDL_JOYBUTTONDOWN) {
             if (e.jbutton.button == 0) {
@@ -198,21 +199,7 @@ void GameWindow::processEvents()
                 m_glPlayer.disableRunMode();
             }
             if (e.jbutton.button == 1) {
-                if (auto currentMessage = m_controller.getCurrentMessage(); currentMessage != nullptr && currentMessage->isDisplayed) {
-                    m_controller.deleteCurrentMessage();                    
-                }
-                else {
-                    //Check if you are facing a tile with a ActionButton trigger configured.
-                    if (m_glPlayer.isFacing(PlayerFacing::Up)) {
-                        Point<> tilePositionToProcess = m_glPlayer.getGridPosition();
-                        tilePositionToProcess.setY(tilePositionToProcess.y() - 1);
-                        auto &tile = m_map->getTileForEditing(tilePositionToProcess);
-                        auto actionButtonTrigger = tile.findConstTrigger(MapTileTriggerEvent::ActionButtonPressed);
-                        if (actionButtonTrigger.has_value()) {
-                            processAction(actionButtonTrigger->getAction(), actionButtonTrigger->getActionProperties(), &tile, tilePositionToProcess);
-                        }
-                    }
-                }
+                actionButtonPressed();
             }
         }
         else if (e.type == SDL_WINDOWEVENT) {
@@ -237,28 +224,23 @@ void GameWindow::processEvents()
     }
     const Uint8 *keystate = SDL_GetKeyboardState(NULL);
     if ((keystate[SDL_SCANCODE_RCTRL] || keystate[SDL_SCANCODE_LCTRL]) && keystate[SDL_SCANCODE_F]) {
-        if (!m_blockToggleFPS) {
+        if (!m_blockKeyDown) {
             m_toggleFPS = !m_toggleFPS;
-            m_blockToggleFPS = true;
+            m_blockKeyDown = true;
         }  
     }
     else if ((keystate[SDL_SCANCODE_RCTRL] || keystate[SDL_SCANCODE_LCTRL]) && keystate[SDL_SCANCODE_M]) {
         //TODO To remove test only
-        if (!m_blockToggleFPS) {
-            m_blockToggleFPS = true;
-            if (m_controller.getCurrentMessage()) {
-                m_controller.deleteCurrentMessage();
-            }
-            else {
-                //auto dto = make_unique<ItemFoundMessageDTO>();
-                auto dto = make_unique<MessageDTO>();
-                dto->message = "Hello, my name is \nJed and I am \nthe first warrior \nof the entire \nland so just let me \nknow \nif you need help.ghjkghjghjghjkghjgjhghjghjjh";
-                //dto->message = "You found a Wooden Sword!";
-                dto->maxDurationInMilliseconds = -1;
-                //dto->itemId = "swd002";
-                //dto->textureName = "ItemsTile";
-                m_controller.addMessageToPipeline(std::move(dto));
-            }
+        if (!m_blockKeyDown) {
+            m_blockKeyDown = true;
+            //auto dto = make_unique<ItemFoundMessageDTO>();
+            auto dto = make_unique<MessageDTO>();
+            dto->message = "Hello, my name is \nJed and I am \nthe first warrior \nof the entire \nland so just let me \nknow \nif you need help.ghjkghjghjghjkghjgjhghjghjjh";
+            //dto->message = "You found a Wooden Sword!";
+            dto->maxDurationInMilliseconds = -1;
+            //dto->itemId = "swd002";
+            //dto->textureName = "ItemsTile";
+            m_controller.addMessageToPipeline(std::move(dto));
         }
     }
 
@@ -286,6 +268,25 @@ void GameWindow::processEvents()
         m_fpsCalculator.calculate();
     }
 	//SDL_GL_SwapWindow(window);
+}
+
+void GameWindow::actionButtonPressed()
+{
+    if (auto currentMessage = m_controller.getCurrentMessage(); currentMessage != nullptr && currentMessage->isDisplayed) {
+        m_controller.deleteCurrentMessage();                    
+    }
+    else {
+        //Check if you are facing a tile with a ActionButton trigger configured.
+        if (m_glPlayer.isFacing(PlayerFacing::Up)) {
+            Point<> tilePositionToProcess = m_glPlayer.getGridPosition();
+            tilePositionToProcess.setY(tilePositionToProcess.y() - 1);
+            auto &tile = m_map->getTileForEditing(tilePositionToProcess);
+            auto actionButtonTrigger = tile.findConstTrigger(MapTileTriggerEvent::ActionButtonPressed);
+            if (actionButtonTrigger.has_value()) {
+                processAction(actionButtonTrigger->getAction(), actionButtonTrigger->getActionProperties(), &tile, tilePositionToProcess);
+            }
+        }
+    }
 }
 
 void GameWindow::moveUpPressed() 

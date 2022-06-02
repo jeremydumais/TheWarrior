@@ -62,8 +62,9 @@ private:
     //FPS variables
     FPSCalculator m_fpsCalculator;
     bool m_toggleFPS;
-    bool m_blockToggleFPS;
+    bool m_blockKeyDown;
     SDL_Joystick *m_joystick;
+    void actionButtonPressed();
     void moveUpPressed();
     void moveDownPressed();
     void moveLeftPressed();
