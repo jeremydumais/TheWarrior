@@ -5,7 +5,7 @@
 #include <stdexcept>
 
 GLTextBox::GLTextBox()
-    : m_screenSize(1, 1),
+    : m_screenSize(1.0F, 1.0F),
       m_textService(nullptr),
       m_itemStore(nullptr),
       m_lastError(""),
@@ -35,7 +35,7 @@ const std::string &GLTextBox::getLastError() const
     return m_lastError;
 }
 
-void GLTextBox::setScreenSize(Size<> size)
+void GLTextBox::setScreenSize(Size<float> size)
 {
     m_screenSize = size;
     //Resize currently displayed message
@@ -63,64 +63,11 @@ void GLTextBox::setItemStoreTextureMap(const std::map<std::string, unsigned int>
 void GLTextBox::generateMessage(std::shared_ptr<MessageDTO> messageDTO)
 {
     m_messageDTO = messageDTO;
-    const Size<float> screenSizeFloat(static_cast<float>(m_screenSize.width()), static_cast<float>(m_screenSize.height()));
-
-    m_computedTextForDisplay = m_textService->prepareTextForDisplay(screenSizeFloat, m_messageDTO->message, messageDTO->scale);
-    GLfloat texColorBuf[4][3] { { 1.0F, 1.0F, 1.0F },   /* Red */
-                                { 1.0F, 1.0F, 1.0F },   /* Green */
-                                { 1.0F, 1.0F, 1.0F },   /* Blue */
-                                { 1.0F, 1.0F, 1.0F } };
-    const float IMAGEHEIGHT = (m_messageDTO->getType() == MessageDTOType::ItemFoundMessage) ? (60.0F / screenSizeFloat.height()) : 0.0F;
-    const float COMPUTEDBOXPADDING = BOXPADDING / screenSizeFloat.height();
-    const float BOXHALFWIDTH = (m_computedTextForDisplay.textSize.width() / screenSizeFloat.width()) + (COMPUTEDBOXPADDING / 2.0F);
-    const float BOXHALFHEIGHT = (m_computedTextForDisplay.textSize.height() / screenSizeFloat.height()) + IMAGEHEIGHT + COMPUTEDBOXPADDING;
-    
-    const float STARTPOSX { 0.0F };
-    const float STARTPOSY { 0.0F + (BOXHALFHEIGHT / 2.0F) - (COMPUTEDBOXPADDING / 2.0F) - IMAGEHEIGHT };
-
-    GLfloat tileCoord[4][2] = {
-    { -BOXHALFWIDTH + STARTPOSX,  BOXHALFHEIGHT + STARTPOSY },     /* Top Left point */
-    {  BOXHALFWIDTH + STARTPOSX,  BOXHALFHEIGHT + STARTPOSY },     /* Top Right point */
-    {  BOXHALFWIDTH + STARTPOSX, -BOXHALFHEIGHT + STARTPOSY },     /* Bottom Right point */
-    { -BOXHALFWIDTH + STARTPOSX, -BOXHALFHEIGHT + STARTPOSY } };   /* Bottom Left point */
-    
-    GenerateGLObjectInfo infoGenTexture {
-            &m_glObject,
-            nullptr,
-            -1};
-    GLObjectService::generateGLObject(infoGenTexture, tileCoord, texColorBuf);
+    m_computedTextForDisplay = m_textService->prepareTextForDisplay(m_screenSize, m_messageDTO->message, messageDTO->scale);
+    generateGLTextBox();
     if (m_messageDTO->getType() == MessageDTOType::ItemFoundMessage) {
         //Find the icon
-        ItemFoundMessageDTO *itemFoundMsgDTO = dynamic_cast<ItemFoundMessageDTO *>(messageDTO.get());
-        auto item = m_itemStore->findItem(itemFoundMsgDTO->itemId);
-        if (!item) {
-            throw std::runtime_error(fmt::format("Unable to found the item {0}", itemFoundMsgDTO->itemId));
-        }
-        //Find the texture
-        auto texture = m_itemStore->getTextureContainer().getTextureByName(item->getTextureName());
-        if (!texture.has_value()) {
-            throw std::runtime_error(fmt::format("Unable to found the texture {0}", item->getTextureName()));
-        }
-
-        float ratioHeight = screenSizeFloat.width() / screenSizeFloat.height();
-
-        const float BOXWIDTH = 0.05F * (1400.0f / screenSizeFloat.width());
-        const float BOXHEIGHT = BOXWIDTH * ratioHeight;
-        float lineTotal = static_cast<float>(m_computedTextForDisplay.lines.size());
-        float lineHeight = (m_computedTextForDisplay.textSize.height() / lineTotal) - 10.0F;
-   
-        const float IMAGESTARTPOSY = STARTPOSY - ((lineTotal - 1.0F) * (lineHeight + 10.0F)) / screenSizeFloat.height();
-        GLfloat tileCoordIcon[4][2] {
-        { -BOXWIDTH + STARTPOSX,  BOXHEIGHT + IMAGESTARTPOSY - 0.06F },     /* Top Left point */
-        {  BOXWIDTH + STARTPOSX,  BOXHEIGHT + IMAGESTARTPOSY - 0.06F },     /* Top Right point */
-        {  BOXWIDTH + STARTPOSX, -BOXHEIGHT + IMAGESTARTPOSY - 0.06F },     /* Bottom Right point */
-        { -BOXWIDTH + STARTPOSX, -BOXHEIGHT + IMAGESTARTPOSY - 0.06F } };   /* Bottom Left point */
-
-        GenerateGLObjectInfo infoGenTextureIcon {
-            &m_glObjectIcon,
-            &texture.value().get(),
-            item->getTextureIndex()};
-        GLObjectService::generateGLObject(infoGenTextureIcon, tileCoordIcon, texColorBuf);
+        generateGLIcon();
     }
 }
 
@@ -134,17 +81,16 @@ void GLTextBox::draw()
     useShader();
     drawQuad(m_glObject, 0);
     if (m_messageDTO->getType() == MessageDTOType::ItemFoundMessage) {
-        ItemFoundMessageDTO *dto = dynamic_cast<ItemFoundMessageDTO *>(m_messageDTO.get());
         //Display the icon
+        ItemFoundMessageDTO *dto = dynamic_cast<ItemFoundMessageDTO *>(m_messageDTO.get());
         drawQuad(m_glObjectIcon, (*m_texturesGLItemStore).at(dto->textureName));
     }
     m_textService->useShader();
-    Size<float> screenSizeFloat(static_cast<float>(m_screenSize.width()), static_cast<float>(m_screenSize.height()));
     float lineTotal = static_cast<float>(m_computedTextForDisplay.lines.size());
     float lineHeight = (m_computedTextForDisplay.textSize.height() / lineTotal) - 10.0F;
      
-    Point<float> messagePosition((screenSizeFloat.width() / 2.0F) - (m_computedTextForDisplay.textSize.width() / 2.0F) + 30.0F,
-                                 (screenSizeFloat.height() / 2.0F) + ((lineTotal) * lineHeight) - 30.0F);
+    Point<float> messagePosition((m_screenSize.width() / 2.0F) - (m_computedTextForDisplay.textSize.width() / 2.0F),
+                                 (m_screenSize.height() / 2.0F) + ((lineTotal) * lineHeight) - 30.0F);
     if (m_messageDTO->getType() == MessageDTOType::ItemFoundMessage) {
         messagePosition.setY(messagePosition.y() + 20.0F);
     }
@@ -153,8 +99,88 @@ void GLTextBox::draw()
                                   messagePosition.x(),
                                   messagePosition.y() - (static_cast<float>(i) * (lineHeight + 10.0F)),
                                   m_messageDTO->scale,
-                                  glm::vec3(1.0f, 0.0f, 1.0f));       // Color
+                                  glm::vec3(1.0f, 1.0f, 1.0f));       // Color
     }
+}
+
+void GLTextBox::generateGLTextBox()
+{
+    GLfloat texColorBuf[4][3];
+    const float BOXHALFWIDTH = (m_computedTextForDisplay.textSize.width() / m_screenSize.width()) + (getComputedBoxPadding() / 2.0F);
+    const float BOXHALFHEIGHT = getBoxHalfHeight();
+    const Point<float> boxStartPosition = getBoxStartPosition();
+
+    GLfloat tileCoord[4][2] = {
+    { -BOXHALFWIDTH + boxStartPosition.x(),  BOXHALFHEIGHT + boxStartPosition.y() },     /* Top Left point */
+    {  BOXHALFWIDTH + boxStartPosition.x(),  BOXHALFHEIGHT + boxStartPosition.y() },     /* Top Right point */
+    {  BOXHALFWIDTH + boxStartPosition.x(), -BOXHALFHEIGHT + boxStartPosition.y() },     /* Bottom Right point */
+    { -BOXHALFWIDTH + boxStartPosition.x(), -BOXHALFHEIGHT + boxStartPosition.y() } };   /* Bottom Left point */
+    
+    GenerateGLObjectInfo infoGenTexture {
+            &m_glObject,
+            nullptr,
+            -1};
+    GLObjectService::generateGLObject(infoGenTexture, tileCoord, texColorBuf);
+}
+
+void GLTextBox::generateGLIcon()
+{
+    GLfloat texColorBuf[4][3];
+    const Point<float> boxStartPosition = getBoxStartPosition();
+    ItemFoundMessageDTO *itemFoundMsgDTO = dynamic_cast<ItemFoundMessageDTO *>(m_messageDTO.get());
+    auto item = m_itemStore->findItem(itemFoundMsgDTO->itemId);
+    if (!item) {
+        throw std::runtime_error(fmt::format("Unable to found the item {0}", itemFoundMsgDTO->itemId));
+    }
+    //Find the texture
+    auto texture = m_itemStore->getTextureContainer().getTextureByName(item->getTextureName());
+    if (!texture.has_value()) {
+        throw std::runtime_error(fmt::format("Unable to found the texture {0}", item->getTextureName()));
+    }
+
+    float ratioHeight = m_screenSize.width() / m_screenSize.height();
+
+    const float BOXWIDTH = 0.05F * (1400.0f / m_screenSize.width());
+    const float BOXHEIGHT = BOXWIDTH * ratioHeight;
+    float lineTotal = static_cast<float>(m_computedTextForDisplay.lines.size());
+    float lineHeight = (m_computedTextForDisplay.textSize.height() / lineTotal) - 10.0F;
+
+    const float IMAGESTARTPOSY = boxStartPosition.y() - ((lineTotal - 1.0F) * (lineHeight + 10.0F)) / m_screenSize.height();
+    GLfloat tileCoordIcon[4][2] {
+    { -BOXWIDTH + boxStartPosition.x(),  BOXHEIGHT + IMAGESTARTPOSY - 0.06F },     /* Top Left point */
+    {  BOXWIDTH + boxStartPosition.x(),  BOXHEIGHT + IMAGESTARTPOSY - 0.06F },     /* Top Right point */
+    {  BOXWIDTH + boxStartPosition.x(), -BOXHEIGHT + IMAGESTARTPOSY - 0.06F },     /* Bottom Right point */
+    { -BOXWIDTH + boxStartPosition.x(), -BOXHEIGHT + IMAGESTARTPOSY - 0.06F } };   /* Bottom Left point */
+
+    GenerateGLObjectInfo infoGenTextureIcon {
+        &m_glObjectIcon,
+        &texture.value().get(),
+        item->getTextureIndex()};
+    GLObjectService::generateGLObject(infoGenTextureIcon, tileCoordIcon, texColorBuf);
+}
+
+Point<float> GLTextBox::getBoxStartPosition() const
+{
+    const float IMAGEHEIGHT = getImageHeight();
+    const float COMPUTEDBOXPADDING = getComputedBoxPadding();
+    const float BOXHALFHEIGHT = (m_computedTextForDisplay.textSize.height() / m_screenSize.height()) + IMAGEHEIGHT + COMPUTEDBOXPADDING;
+    const float STARTPOSY { 0.0F + (BOXHALFHEIGHT / 2.0F) - (COMPUTEDBOXPADDING / 2.0F) - IMAGEHEIGHT };
+    return {0.0F, STARTPOSY};
+}
+
+float GLTextBox::getBoxHalfHeight() const
+{
+    return (m_computedTextForDisplay.textSize.height() / m_screenSize.height()) + getImageHeight() + getComputedBoxPadding();
+}
+
+float GLTextBox::getComputedBoxPadding() const
+{
+    return BOXPADDING / m_screenSize.height();
+}
+
+float GLTextBox::getImageHeight() const
+{
+    return (m_messageDTO->getType() == MessageDTOType::ItemFoundMessage) ? (60.0F / m_screenSize.height()) : 0.0F;
 }
 
 void GLTextBox::drawQuad(const GLObject &glObject, GLuint textureGLIndex)

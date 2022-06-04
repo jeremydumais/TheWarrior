@@ -201,21 +201,13 @@ ComputedTextForDisplay GLTextService::prepareTextForDisplay(Size<float> screenSi
     //Split the string by carriage return \n
     boost::split(retval.lines, text, boost::is_any_of("\n"));
     //Ensure each line is not too large
-    size_t lineCount = retval.lines.size();
-    for(size_t indexLine = lineCount; indexLine>0; indexLine--) {
-
-        //if total line is 
-        auto line = retval.lines[indexLine-1];
-        /*std::vector<std::string> words = {};
-        boost::split(words, line, boost::is_any_of(" "));
-        for(const auto &word : words) {
-            Size<float> wordSize = getTextSize(word, scale);
-
-        }*/
-        auto lineSize = getTextSize(line, scale);
+    wrapLinesFromMaxScreenWidth(retval.lines, DISPLAYMAXWIDTH, scale);
+    for(size_t indexLine = 0; indexLine < retval.lines.size(); indexLine++) {   
+        const auto lineSize = getTextSize(retval.lines[indexLine], scale);
         if (lineSize.width() > DISPLAYMINWIDTH && lineSize.width() <= DISPLAYMAXWIDTH && lineSize.width() > retval.textSize.width()) {
             retval.textSize.setWidth(lineSize.width());
         }
+
         if (lineSize.height() > lineHeight) {
             retval.textSize.setHeight(lineSize.height());
         }
@@ -224,4 +216,44 @@ ComputedTextForDisplay GLTextService::prepareTextForDisplay(Size<float> screenSi
     retval.textSize.setHeight((retval.textSize.height() + 10.0F) * static_cast<float>(retval.lines.size()));
 
     return retval;
+}
+
+void GLTextService::wrapLinesFromMaxScreenWidth(std::vector<std::string> &lines, const float maxWidth, const float scale) const
+{
+    const float SPACESIZE = getTextSize(" ", scale).width();
+    for(size_t indexLine = 0; indexLine < lines.size(); indexLine++) {
+        auto &line = lines[indexLine];
+        const auto lineSize = getTextSize(line, scale);
+        if (lineSize.width() > maxWidth)
+        {
+            std::string lineNewContent = "";
+            std::string lineOverflow = "";
+            std::vector<std::string> words = {};
+            boost::split(words, line, boost::is_any_of(" "));
+            bool overflow = false;
+            for(const auto &word : words) {
+                if (overflow) {
+                    lineOverflow += " " + word;
+                    continue;
+                }
+                if (lineNewContent == "") {
+                    lineNewContent += word;
+                    continue;
+                }
+                else {
+                    Size<float> wordSize = getTextSize(word, scale);
+                    Size<float> lineNewContentSize = getTextSize(lineNewContent, scale);
+                    if (lineNewContentSize.width() + SPACESIZE + wordSize.width() <= maxWidth) {
+                        lineNewContent += " " + word;
+                    }
+                    else {
+                        overflow = true;
+                        lineOverflow += word;
+                    }
+                }
+            }
+            line = lineNewContent;
+            lines.insert(lines.begin() + static_cast<long int>(indexLine) + 1, lineOverflow);
+        }
+    }
 }

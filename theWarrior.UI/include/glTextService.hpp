@@ -38,6 +38,7 @@ public:
     void renderText(std::string text, float x, float y, float scale, glm::vec3 color);
     Size<float> getTextSize(const std::string &text, float scale) const;
     ComputedTextForDisplay prepareTextForDisplay(Size<float> screenSize, const std::string &text, float scale) const;
+    void wrapLinesFromMaxScreenWidth(std::vector<std::string> &lines, const float maxWidth, const float scale) const;
 private:
     std::string lastError;
     std::unique_ptr<GLShaderProgram> shaderProgram;

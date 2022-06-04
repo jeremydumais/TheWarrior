@@ -116,7 +116,7 @@ GameWindow::GameWindow(const string &title,
     loadMap(fmt::format("{0}/maps/homeHouseV1.map", m_controller.getResourcesPath()));
     loadMapTextures();
     loadItemStoreTextures();
-    m_textBox.setScreenSize(m_WindowSize);
+    m_textBox.setScreenSize({ static_cast<float>(m_WindowSize.width()), static_cast<float>(m_WindowSize.height()) });
     m_textBox.setTextService(&m_textService);
     m_textBox.setItemStoreTextureMap(&m_texturesGLItemStore);
     generateGLMapObjects();
@@ -218,7 +218,7 @@ void GameWindow::processEvents()
 
                 glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(m_WindowSize.width()), 0.0f, static_cast<float>(m_WindowSize.height()));
                 m_textService.setProjectionMatrix(projection);
-                m_textBox.setScreenSize(m_WindowSize);
+                m_textBox.setScreenSize({ static_cast<float>(m_WindowSize.width()), static_cast<float>(m_WindowSize.height()) });
             }
         } 
     }
@@ -233,13 +233,13 @@ void GameWindow::processEvents()
         //TODO To remove test only
         if (!m_blockKeyDown) {
             m_blockKeyDown = true;
-            //auto dto = make_unique<ItemFoundMessageDTO>();
-            auto dto = make_unique<MessageDTO>();
-            dto->message = "Hello, my name is \nJed and I am \nthe first warrior \nof the entire \nland so just let me \nknow \nif you need help.ghjkghjghjghjkghjgjhghjghjjh";
+            auto dto = make_unique<ItemFoundMessageDTO>();
+            //auto dto = make_unique<MessageDTO>();
+            dto->message = "Hello, my name is Jed and I am the first warrior of the entire land so just let me know if you need help.";
             //dto->message = "You found a Wooden Sword!";
             dto->maxDurationInMilliseconds = -1;
-            //dto->itemId = "swd002";
-            //dto->textureName = "ItemsTile";
+            dto->itemId = "swd002";
+            dto->textureName = "ItemsTile";
             m_controller.addMessageToPipeline(std::move(dto));
         }
     }
