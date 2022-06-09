@@ -1,9 +1,12 @@
 #pragma once
 
+#include "glInventory.hpp"
 #include "glObjectService.hpp"
 #include "glTextureService.hpp"
+#include "player.hpp"
 #include "point.hpp"
 #include "texture.hpp"
+#include "tileSize.hpp"
 #include <GL/glew.h>
 #include "memory"
 #include <string>
@@ -15,9 +18,10 @@ struct MovingResult {
     bool needToRefreshTexture;
 };
 
-class GLPlayer {
+class GLPlayer : public Player 
+{
 public:
-    GLPlayer();
+    explicit GLPlayer(const std::string &name, const TileSize &tileSize);
     GLObject glObject;
     unsigned int glTextureId;
     const std::string &getTextureName() const;
@@ -29,12 +33,13 @@ public:
     bool isRunning() const;
     bool isFacing(PlayerFacing direction);
     void initialize();
-    void generateGLPlayerObject(float tileHalfWidth, float tileHalfHeight);
+    void generateGLPlayerObject();
     void unloadGLPlayerObject();
     void setTexture(const TextureInfo &textureInfo);
     void applyCurrentGLTexture(const GLTextureService &textureService);
     void setGridPosition(Point<> position);
-    void setGLObjectPosition(float tileHalfWidth, float tileHalfHeight);
+    void setGLObjectPosition();
+    void showInventory();
     void draw();
     void moveUp();
     void moveDown(bool isInClimbingMode);
@@ -51,6 +56,7 @@ private:
     Point<> m_coord;
     float m_xMove;
     float m_yMove;
+    const TileSize &m_tileSize;
     PlayerMovement m_playerMovement;
     PlayerFacing m_playerFacing;
     bool m_isInClimbingMode;
@@ -59,6 +65,7 @@ private:
     int m_baseTextureIndex;
     int m_currentMovementTextureIndex;
     std::shared_ptr<Texture> m_texture;
+    GLInventory m_glInventory;
 };
 
 

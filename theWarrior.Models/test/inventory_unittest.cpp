@@ -1,6 +1,8 @@
 #include "inventory.hpp"
+#include "weaponItem.hpp"
 #include <fmt/format.h>
 #include <gtest/gtest.h>
+#include <memory>
 
 ItemCreationInfo getItemCreationInfoSample()
 {
@@ -10,6 +12,19 @@ ItemCreationInfo getItemCreationInfoSample()
         "tex1",
         1
     };
+}
+
+std::shared_ptr<Item> getWeaponItemSample()
+{
+    std::shared_ptr<Item> retval(new WeaponItem({
+        "swd001",
+        "Iron Sword",
+        "tex1",
+        2,
+        1.1F,
+        WeaponBodyPart::MainHand
+    }));
+    return retval;
 }
 
 class InventoryWith3Samples : public ::testing::Test
@@ -83,6 +98,25 @@ TEST(Inventory_GetItemCount, WithEmptyInventory_Return0)
     ASSERT_EQ(0, inventory.getItemCount());
 }
 
+TEST_F(InventoryWith3Samples, GetItemWithSlotIndex1_ReturnKey002) 
+{
+    auto actual = inventory.getItem(1);
+    ASSERT_NE(nullptr, actual);
+    ASSERT_EQ("key002", actual->getId());
+}
+
+TEST_F(InventoryWith3Samples, GetItemWithSlotIndex5_ReturnNull) 
+{
+    auto actual = inventory.getItem(5);
+    ASSERT_EQ(nullptr, actual);
+}
+
+TEST_F(InventoryWith3Samples, GetItemWithOutOfBoundsSlotIndex36_ReturnNull) 
+{
+    auto actual = inventory.getItem(36);
+    ASSERT_EQ(nullptr, actual);
+}
+
 TEST(Inventory_AddItem, WithNullItemOnEmptyInventory_ReturnFalse)
 {
     Inventory inventory;
@@ -150,4 +184,27 @@ TEST_F(InventoryWith3Samples, MoveIndex36To1_ReturnFalse)
 TEST_F(InventoryWith3Samples, MoveIndex1To36_ReturnFalse)
 {
     ASSERT_FALSE(inventory.moveItem(1, 36));
+}
+
+TEST_F(InventoryFull, ReplaceItem_WithOutOfBoundSlotIndex_ReturnFalse)
+{
+    ASSERT_FALSE(inventory.replaceItem(36, getWeaponItemSample()));
+}
+
+TEST_F(InventoryFull, ReplaceItem_WithNullItem_ReturnFalse)
+{
+    ASSERT_FALSE(inventory.replaceItem(2, nullptr));
+}
+
+TEST_F(InventoryWith3Samples, ReplaceItem_WithItemAtAnUnusedSlot_ReturnFalse)
+{
+    ASSERT_FALSE(inventory.replaceItem(5, getWeaponItemSample()));
+}
+
+TEST_F(InventoryFull, ReplaceItem_WithWeaponAtIndex2_ReturnTrue)
+{
+    ASSERT_TRUE(inventory.replaceItem(1, getWeaponItemSample()));
+    auto actual = inventory.getItemsWithIndex();
+    ASSERT_EQ(36, actual.size());
+    ASSERT_EQ("swd001", actual[1]->getId());
 }

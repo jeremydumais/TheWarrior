@@ -2,10 +2,13 @@
 
 using namespace std;
 
-GLPlayer::GLPlayer()
-    : m_coord(0, 0),
+GLPlayer::GLPlayer(const std::string &name,
+                   const TileSize &tileSize)
+    : Player(name),
+      m_coord(0, 0),
       m_xMove(0.0F),
       m_yMove(0.0F),
+      m_tileSize(tileSize),
       m_isInClimbingMode(false),
       m_isInRunningMode(false),
       m_texture(nullptr)
@@ -63,15 +66,18 @@ void GLPlayer::initialize()
     m_currentMovementTextureIndex = m_baseTextureIndex + 1;
     m_playerMovement = PlayerMovement::None;
     m_playerFacing = PlayerFacing::Up;
+    m_glInventory.setInventory(getInventory());
 }
 
-void GLPlayer::generateGLPlayerObject(float tileHalfWidth, float tileHalfHeight)
+void GLPlayer::generateGLPlayerObject()
 {
     GLfloat texColorBuf[4][3] { { 1.0F, 1.0F, 1.0F },   /* Red */
                                   { 1.0F, 1.0F, 1.0F },   /* Green */
                                   { 1.0F, 1.0F, 1.0F },   /* Blue */
                                   { 1.0F, 1.0F, 1.0F } };
-                    
+    auto tileHalfWidth = m_tileSize.tileHalfWidth;
+    auto tileHalfHeight = m_tileSize.tileHalfHeight;  
+
     float startPosX { -1.0f + tileHalfWidth };
     float startPosY { 1.0f - tileHalfHeight };
 
@@ -84,11 +90,7 @@ void GLPlayer::generateGLPlayerObject(float tileHalfWidth, float tileHalfHeight)
     GenerateGLObjectInfo infoGenTexture {
             &glObject,
             m_texture.get(),
-            //&vao,
             m_currentMovementTextureIndex};
-            /*&vboPosition,
-            &vboColor,
-            &vboTexture };*/
     GLObjectService::generateGLObject(infoGenTexture, tileCoord, texColorBuf);
 }
     
@@ -125,15 +127,18 @@ void GLPlayer::setGridPosition(Point<> position)
     m_coord = position;
 }
 
-void GLPlayer::setGLObjectPosition(float tileHalfWidth, float tileHalfHeight)
+void GLPlayer::setGLObjectPosition()
 {
     glBindVertexArray(glObject.vao);
     
+    auto tileWidth = m_tileSize.tileWidth;
+    auto tileHalfWidth = m_tileSize.tileHalfWidth;
+    auto tileHalfHeight = m_tileSize.tileHalfHeight;
     //Set Tile Coord To Origin
     GLfloat m_tileCoordBuf[4][2];
     float startPosX { -1.0f + tileHalfWidth };
     float startPosY {  1.0f - tileHalfHeight };
-    float tileWidth { tileHalfWidth * 2.0f };
+    
     m_tileCoordBuf[0][0] = -tileHalfWidth + startPosX + tileWidth;
     m_tileCoordBuf[0][1] =  tileHalfHeight + startPosY - tileHalfHeight;
     m_tileCoordBuf[1][0] =  tileHalfWidth + startPosX + tileWidth;
@@ -153,6 +158,10 @@ void GLPlayer::setGLObjectPosition(float tileHalfWidth, float tileHalfHeight)
     glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), m_tileCoordBuf, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
+}
+
+void GLPlayer::showInventory()
+{
 }
 
 void GLPlayer::draw()

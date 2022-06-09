@@ -4,7 +4,8 @@
 
 Player::Player(const std::string &name)
     : m_name(name),
-      m_level(1)
+      m_level(1),
+      m_inventory(std::make_shared<Inventory>())
 {
     validateName(name);
 }
@@ -17,6 +18,11 @@ const std::string &Player::getName() const
 unsigned int Player::getLevel() const
 {
     return m_level;
+}
+
+std::shared_ptr<Inventory> Player::getInventory()
+{
+    return m_inventory;
 }
 
 void Player::setName(const std::string &name)

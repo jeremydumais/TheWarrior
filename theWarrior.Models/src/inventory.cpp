@@ -39,6 +39,15 @@ size_t Inventory::getItemCount() const
     return count < 0 ? 0 : static_cast<size_t>(count);
 }
 
+const std::shared_ptr<Item> Inventory::getItem(size_t slotIndex) const
+{
+    if (slotIndex >= INVENTORY_MAX) {
+        return nullptr;
+    }
+    auto slot = m_slots.at(slotIndex);
+    return slot;
+}
+
 bool Inventory::addItem(std::shared_ptr<Item> item)
 {
     if (item == nullptr) {
@@ -81,5 +90,19 @@ bool Inventory::moveItem(size_t slotIndexSrc, size_t slotIndexDst)
     std::shared_ptr<Item> temp = dstSlot;
     dstSlot = srcSlot;
     srcSlot = temp;
+    return true;
+}
+
+bool Inventory::replaceItem(size_t slotIndexDst, std::shared_ptr<Item> item)
+{
+    if (slotIndexDst >= INVENTORY_MAX || item == nullptr) {
+        return false;
+    }
+
+    auto &slotDst = m_slots.at(slotIndexDst);
+    if (slotDst == nullptr) {
+        return false;
+    }
+    slotDst = item;
     return true;
 }

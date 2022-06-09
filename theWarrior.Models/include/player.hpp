@@ -4,14 +4,17 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/version.hpp>
+#include <memory>
 #include <string>
 
 class Player
 {
 public:
     explicit Player(const std::string &name);
+    virtual ~Player() = default;
     const std::string &getName() const;
     unsigned int getLevel() const;
+    std::shared_ptr<Inventory> getInventory();
     void setName(const std::string &name);
     void setLevel(unsigned int level);
     void incrementLevel();
@@ -20,7 +23,7 @@ private:
     Player() = default; //Needed for deserialization
     std::string m_name;
     unsigned int m_level;
-    Inventory m_inventory;
+    std::shared_ptr<Inventory> m_inventory;
     void validateName(const std::string &name) const;
     //Serialization method
     template<class Archive>

@@ -6,7 +6,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.UI.Models/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Storage/include)
 
-set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindowController.cpp)
+set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindowController.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/gameMapModeController.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
