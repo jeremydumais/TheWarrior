@@ -11,6 +11,7 @@
 #include "glTileService.hpp"
 #include <size.hpp>
 #include <tileSize.hpp>
+#include <boost/signals2.hpp>
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
@@ -47,6 +48,8 @@ private:
     SDL_Renderer *m_renderer;
     SDL_GLContext m_gContext;
     Size<> m_WindowSize;
+    TileSize m_tileSize;
+    boost::signals2::signal<void(const Size<> &)> m_WindowSizeChanged;
     bool m_mustExit;
     InteractionMode m_interactionMode;
     GameMapMode m_gameMapMode;
@@ -57,7 +60,6 @@ private:
     GLTextureService m_textureService;
     std::shared_ptr<GLPlayer> m_glPlayer;
     std::map<std::string, unsigned int> m_texturesGLItemStore;
-    TileSize m_tileSize;
     //FPS variables
     FPSCalculator m_fpsCalculator;
     bool m_toggleFPS;

@@ -21,8 +21,7 @@
 class GameMapMode
 {
 public:
-    GameMapMode(const Size<> &screenSize,
-                const TileSize &tileSize);
+    GameMapMode(const TileSize &tileSize);
     void initialize(const std::string &resourcesPath,
                     std::shared_ptr<GLPlayer> glPlayer,
                     std::shared_ptr<ItemStore> itemStore, 
@@ -34,6 +33,7 @@ public:
     void processEvents(SDL_Event &e);
     void generateGLMapObjects();
     void unloadGLMapObjects();
+    void gameWindowSizeChanged(const Size<> &size);
 private:
     GameMapModeController m_controller;
     std::string m_resourcesPath;
@@ -42,7 +42,7 @@ private:
     std::shared_ptr<GLTileService> m_tileService;
     GLTextureService m_textureService;
     std::shared_ptr<GLTextBox> m_textBox;
-    const Size<> &m_screenSize;
+    Size<> m_screenSize;
     std::vector<GLTile> m_glTiles;
     std::map<std::string, unsigned int> m_texturesGLMap;
     const TileSize &m_tileSize;

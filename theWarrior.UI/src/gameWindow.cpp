@@ -8,9 +8,10 @@ GameWindow::GameWindow(const string &title,
                        int x, int y,
                        int width, int height) 
     : m_WindowSize(width, height),
+      m_tileSize({1.0F, 1.0F, 1.0F}),
       m_mustExit(false),
       m_interactionMode(InteractionMode::Game),
-      m_gameMapMode(m_WindowSize, m_tileSize),
+      m_gameMapMode(m_tileSize),
       m_tileService(std::make_shared<GLTileService>()),
       m_textBox(std::make_shared<GLTextBox>()),
       m_glPlayer(std::make_shared<GLPlayer>("Ragnar", m_tileSize)),
@@ -67,6 +68,7 @@ GameWindow::GameWindow(const string &title,
     m_joystick = SDL_JoystickOpen(0);
 
     m_fpsCalculator.initialize();
+    m_WindowSizeChanged.connect(boost::bind(&GameMapMode::gameWindowSizeChanged, &m_gameMapMode, boost::placeholders::_1));
     m_gameMapMode.initialize(m_controller.getResourcesPath(), 
                              m_glPlayer,
                              m_controller.getItemStore(),
@@ -182,9 +184,8 @@ void GameWindow::processEvents()
                 m_WindowSize.setSize(screenWidth, screenHeight);
                 glViewport(0, 0, m_WindowSize.width(), m_WindowSize.height());
                 calculateTileSize();
-                m_gameMapMode.unloadGLMapObjects();
+                m_WindowSizeChanged(m_WindowSize);
                 m_glPlayer->unloadGLPlayerObject();
-                m_gameMapMode.generateGLMapObjects();
                 m_glPlayer->generateGLPlayerObject();
                 m_glPlayer->setGLObjectPosition();
 
