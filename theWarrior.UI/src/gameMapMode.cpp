@@ -8,9 +8,9 @@
 #include <stdexcept>
 #include <vector>
 
-GameMapMode::GameMapMode(const TileSize &tileSize)
+GameMapMode::GameMapMode()
     : m_screenSize(1, 1),
-      m_tileSize(tileSize),
+      m_tileSize({ 1.0F, 1.0F, 1.0F }),
       m_joystick(nullptr),
       m_texColorBuf { { 1.0F, 1.0F, 1.0F },   /* Red */
                       { 1.0F, 1.0F, 1.0F },   /* Green */
@@ -465,4 +465,9 @@ void GameMapMode::gameWindowSizeChanged(const Size<> &size)
     m_screenSize = size;
     unloadGLMapObjects();
     generateGLMapObjects();
+}
+
+void GameMapMode::gameWindowTileSizeChanged(const TileSize &tileSize)
+{
+    m_tileSize = tileSize;
 }

@@ -21,7 +21,7 @@
 class GameMapMode
 {
 public:
-    GameMapMode(const TileSize &tileSize);
+    GameMapMode();
     void initialize(const std::string &resourcesPath,
                     std::shared_ptr<GLPlayer> glPlayer,
                     std::shared_ptr<ItemStore> itemStore, 
@@ -34,6 +34,7 @@ public:
     void generateGLMapObjects();
     void unloadGLMapObjects();
     void gameWindowSizeChanged(const Size<> &size);
+    void gameWindowTileSizeChanged(const TileSize &tileSize);
 private:
     GameMapModeController m_controller;
     std::string m_resourcesPath;
@@ -45,7 +46,7 @@ private:
     Size<> m_screenSize;
     std::vector<GLTile> m_glTiles;
     std::map<std::string, unsigned int> m_texturesGLMap;
-    const TileSize &m_tileSize;
+    TileSize m_tileSize;
     SDL_Joystick *m_joystick;
     GLfloat m_texColorBuf[4][3];
     bool m_blockKeyDown;

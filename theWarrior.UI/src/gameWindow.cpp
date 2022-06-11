@@ -11,7 +11,6 @@ GameWindow::GameWindow(const string &title,
       m_tileSize({1.0F, 1.0F, 1.0F}),
       m_mustExit(false),
       m_interactionMode(InteractionMode::Game),
-      m_gameMapMode(m_tileSize),
       m_tileService(std::make_shared<GLTileService>()),
       m_textBox(std::make_shared<GLTextBox>()),
       m_glPlayer(std::make_shared<GLPlayer>("Ragnar", m_tileSize)),
@@ -68,7 +67,8 @@ GameWindow::GameWindow(const string &title,
     m_joystick = SDL_JoystickOpen(0);
 
     m_fpsCalculator.initialize();
-    m_WindowSizeChanged.connect(boost::bind(&GameMapMode::gameWindowSizeChanged, &m_gameMapMode, boost::placeholders::_1));
+    m_windowSizeChanged.connect(boost::bind(&GameMapMode::gameWindowSizeChanged, &m_gameMapMode, boost::placeholders::_1));
+    m_tileSizeChanged.connect(boost::bind(&GameMapMode::gameWindowTileSizeChanged, &m_gameMapMode, boost::placeholders::_1));
     m_gameMapMode.initialize(m_controller.getResourcesPath(), 
                              m_glPlayer,
                              m_controller.getItemStore(),
@@ -184,7 +184,7 @@ void GameWindow::processEvents()
                 m_WindowSize.setSize(screenWidth, screenHeight);
                 glViewport(0, 0, m_WindowSize.width(), m_WindowSize.height());
                 calculateTileSize();
-                m_WindowSizeChanged(m_WindowSize);
+                m_windowSizeChanged(m_WindowSize);
                 m_glPlayer->unloadGLPlayerObject();
                 m_glPlayer->generateGLPlayerObject();
                 m_glPlayer->setGLObjectPosition();
@@ -232,7 +232,6 @@ void GameWindow::render()
                                0.5f,                               // Scale
                                glm::vec3(1.0f, 1.0f, 1.0f));       // Color
     }
-    // Swap our buffers to make our changes visible 
     SDL_GL_SwapWindow(m_window);
 }
 
@@ -256,4 +255,5 @@ void GameWindow::calculateTileSize()
     m_tileSize.tileWidth = (1.0F / (screenSizeFloat.width() / 51.2F)) * 2.0F;
     m_tileSize.tileHalfWidth = m_tileSize.tileWidth / 2.0F;
     m_tileSize.tileHalfHeight = (screenSizeFloat.width() * m_tileSize.tileHalfWidth) / screenSizeFloat.height();
+    m_tileSizeChanged(m_tileSize);   
 }

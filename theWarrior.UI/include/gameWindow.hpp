@@ -49,7 +49,8 @@ private:
     SDL_GLContext m_gContext;
     Size<> m_WindowSize;
     TileSize m_tileSize;
-    boost::signals2::signal<void(const Size<> &)> m_WindowSizeChanged;
+    boost::signals2::signal<void(const Size<> &)> m_windowSizeChanged;
+    boost::signals2::signal<void(const TileSize &)> m_tileSizeChanged;
     bool m_mustExit;
     InteractionMode m_interactionMode;
     GameMapMode m_gameMapMode;
