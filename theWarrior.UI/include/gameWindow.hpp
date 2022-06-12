@@ -33,11 +33,6 @@ public:
                int x, int y,
                int width, int height);
     ~GameWindow();
-    bool initializeOpenGL(const std::string &title,
-                          int x, int y,
-                          int width, int height);
-    void update(float delta_time);
-    void render();
     void show();
     void hide();
     bool isAlive() const;
@@ -51,6 +46,7 @@ private:
     TileSize m_tileSize;
     boost::signals2::signal<void(const Size<> &)> m_windowSizeChanged;
     boost::signals2::signal<void(const TileSize &)> m_tileSizeChanged;
+    boost::signals2::signal<void(float deltaTime)> m_windowUpdate;
     bool m_mustExit;
     InteractionMode m_interactionMode;
     GameMapMode m_gameMapMode;
@@ -66,6 +62,10 @@ private:
     bool m_toggleFPS;
     bool m_blockKeyDown;
     SDL_Joystick *m_joystick;
+    bool initializeOpenGL(const std::string &title,
+                          int x, int y,
+                          int width, int height);
+    void render();
     void loadItemStoreTextures();
     void calculateTileSize();
 

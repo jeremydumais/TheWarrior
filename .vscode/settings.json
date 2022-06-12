@@ -93,7 +93,8 @@
         "qcombobox": "cpp",
         "qtglobal": "cpp",
         "shared_mutex": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "*.inc": "cpp"
     },
     "editor.tokenColorCustomizations": {
         "textMateRules": [

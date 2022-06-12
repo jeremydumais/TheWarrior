@@ -13,7 +13,7 @@ GameWindow::GameWindow(const string &title,
       m_interactionMode(InteractionMode::Game),
       m_tileService(std::make_shared<GLTileService>()),
       m_textBox(std::make_shared<GLTextBox>()),
-      m_glPlayer(std::make_shared<GLPlayer>("Ragnar", m_tileSize)),
+      m_glPlayer(std::make_shared<GLPlayer>("Ragnar")),
       m_toggleFPS(false),
       m_blockKeyDown(false)
 {
@@ -45,30 +45,27 @@ GameWindow::GameWindow(const string &title,
         cerr << m_textService.getLastError() << "\n";
         return;
     }
-    glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height));
-    m_textService.setProjectionMatrix(projection);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     m_textureService.setResourcesPath(m_controller.getResourcesPath());
-    calculateTileSize();
     loadItemStoreTextures();
-    m_textBox->setItemStore(m_controller.getItemStore());
-    m_textBox->setScreenSize({ static_cast<float>(m_WindowSize.width()), static_cast<float>(m_WindowSize.height()) });
-    m_textBox->setTextService(&m_textService);
-    m_textBox->setItemStoreTextureMap(&m_texturesGLItemStore);
-    m_glPlayer->initialize();
-    m_glPlayer->setTexture({ "playerTexture", "tileNPC1.png", 384, 256, 32, 32 });
-    m_textureService.loadTexture(m_glPlayer->getTexture(), m_glPlayer->glTextureId);
-    m_glPlayer->generateGLPlayerObject();
-    m_glPlayer->setGLObjectPosition();
 
     SDL_JoystickEventState(SDL_ENABLE);
     m_joystick = SDL_JoystickOpen(0);
 
-    m_fpsCalculator.initialize();
     m_windowSizeChanged.connect(boost::bind(&GameMapMode::gameWindowSizeChanged, &m_gameMapMode, boost::placeholders::_1));
+    m_windowSizeChanged.connect(boost::bind(&GLPlayer::onGameWindowSizeChanged, m_glPlayer, boost::placeholders::_1));
+    m_windowSizeChanged.connect(boost::bind(&GLTextService::gameWindowSizeChanged, &m_textService, boost::placeholders::_1));
+    m_windowSizeChanged.connect(boost::bind(&GLTextBox::gameWindowSizeChanged, m_textBox, boost::placeholders::_1));
     m_tileSizeChanged.connect(boost::bind(&GameMapMode::gameWindowTileSizeChanged, &m_gameMapMode, boost::placeholders::_1));
+    m_tileSizeChanged.connect(boost::bind(&GLPlayer::onGameWindowTileSizeChanged, m_glPlayer, boost::placeholders::_1));
+    m_windowUpdate.connect(boost::bind(&GLPlayer::onGameWindowUpdate, m_glPlayer, boost::placeholders::_1));
+
+    calculateTileSize();
+    m_textBox->setItemStore(m_controller.getItemStore());
+    m_textBox->setTextService(&m_textService);
+    m_textBox->setItemStoreTextureMap(&m_texturesGLItemStore);
+
+    m_glPlayer->initialize(m_controller.getResourcesPath());
     m_gameMapMode.initialize(m_controller.getResourcesPath(), 
                              m_glPlayer,
                              m_controller.getItemStore(),
@@ -76,56 +73,7 @@ GameWindow::GameWindow(const string &title,
                              m_tileService,
                              m_textBox,
                              m_joystick);
-}
-
-bool GameWindow::initializeOpenGL(const std::string &title,
-                                  int x, int y,
-                                  int width, int height)
-{
-//Initialize SDL
-	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0) {
-		cerr << fmt::format("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
-        return false;
-	}
-
-    //Use OpenGL 3.1 core
-    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
-    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 3 );
-    SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
-
-    //Create window
-    m_window = SDL_CreateWindow(title.c_str(), 
-        x, 
-        y, 
-        width, 
-        height, 
-        SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL | SDL_WINDOW_MAXIMIZED);
-    if(m_window == NULL) {
-        cerr << fmt::format("Window could not be created! SDL_Error: %s\n", SDL_GetError());
-        return false;
-    }
-
-    //Create context
-    m_gContext = SDL_GL_CreateContext(m_window);
-    if(m_gContext == nullptr) {
-        cerr << fmt::format("OpenGL context could not be created! SDL Error: {0}\n", SDL_GetError());
-        return false;
-    }
-
-    //Initialize GLEW
-    glewExperimental = GL_TRUE; 
-    GLenum glewError = glewInit();
-    if( glewError != GLEW_OK ) {
-        cerr << fmt::format("Error initializing GLEW! {0}\n", glewGetErrorString(glewError));
-        return false;
-    }
-
-    //Use Vsync
-    if(SDL_GL_SetSwapInterval(-1) < 0) {
-        cerr << fmt::format("Warning: Unable to set VSync! SDL Error: {0}\n", SDL_GetError());
-        return false;
-    }
-    return true;
+    m_fpsCalculator.initialize();
 }
 
 GameWindow::~GameWindow() 
@@ -178,20 +126,12 @@ void GameWindow::processEvents()
         
         if (e.type == SDL_WINDOWEVENT) {
             if (e.window.event == SDL_WINDOWEVENT_RESIZED) {
-                int screenWidth = 0;
-                int screenHeight = 0;
+                int screenWidth = 0, screenHeight = 0;
                 SDL_GetWindowSize(m_window, &screenWidth, &screenHeight);
                 m_WindowSize.setSize(screenWidth, screenHeight);
                 glViewport(0, 0, m_WindowSize.width(), m_WindowSize.height());
                 calculateTileSize();
                 m_windowSizeChanged(m_WindowSize);
-                m_glPlayer->unloadGLPlayerObject();
-                m_glPlayer->generateGLPlayerObject();
-                m_glPlayer->setGLObjectPosition();
-
-                glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(m_WindowSize.width()), 0.0f, static_cast<float>(m_WindowSize.height()));
-                m_textService.setProjectionMatrix(projection);
-                m_textBox->setScreenSize({ static_cast<float>(m_WindowSize.width()), static_cast<float>(m_WindowSize.height()) });
             }
         } 
     }
@@ -202,22 +142,64 @@ void GameWindow::processEvents()
             m_blockKeyDown = true;
         }  
     }
-    update(1.0f / 90.0f);
+    m_windowUpdate(1.0F / 90.0F);
 	render();
     if (m_toggleFPS) {
         m_fpsCalculator.calculate();
     }
 }
 
-void GameWindow::update(float delta_time) 
+bool GameWindow::initializeOpenGL(const std::string &title,
+                                  int x, int y,
+                                  int width, int height)
 {
-    if (m_glPlayer->isInMovement()) {
-        MovingResult result { m_glPlayer->processMoving(delta_time) };
-        if (result.needToRefreshTexture) {
-            m_glPlayer->applyCurrentGLTexture(m_textureService);
-        }
-        m_glPlayer->setGLObjectPosition();
+//Initialize SDL
+	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0) {
+		cerr << fmt::format("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+        return false;
+	}
+
+    //Use OpenGL 3.1 core
+    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
+    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 3 );
+    SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
+
+    //Create window
+    m_window = SDL_CreateWindow(title.c_str(), 
+        x, 
+        y, 
+        width, 
+        height, 
+        SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL | SDL_WINDOW_MAXIMIZED);
+    if(m_window == NULL) {
+        cerr << fmt::format("Window could not be created! SDL_Error: %s\n", SDL_GetError());
+        return false;
     }
+
+    //Create context
+    m_gContext = SDL_GL_CreateContext(m_window);
+    if(m_gContext == nullptr) {
+        cerr << fmt::format("OpenGL context could not be created! SDL Error: {0}\n", SDL_GetError());
+        return false;
+    }
+
+    //Initialize GLEW
+    glewExperimental = GL_TRUE; 
+    GLenum glewError = glewInit();
+    if( glewError != GLEW_OK ) {
+        cerr << fmt::format("Error initializing GLEW! {0}\n", glewGetErrorString(glewError));
+        return false;
+    }
+
+    //Use Vsync
+    if(SDL_GL_SetSwapInterval(-1) < 0) {
+        cerr << fmt::format("Warning: Unable to set VSync! SDL Error: {0}\n", SDL_GetError());
+        return false;
+    }
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    return true;
 }
 
 void GameWindow::render()

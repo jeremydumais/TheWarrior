@@ -2,13 +2,12 @@
 
 using namespace std;
 
-GLPlayer::GLPlayer(const std::string &name,
-                   const TileSize &tileSize)
+GLPlayer::GLPlayer(const std::string &name)
     : Player(name),
       m_coord(0, 0),
       m_xMove(0.0F),
       m_yMove(0.0F),
-      m_tileSize(tileSize),
+      m_tileSize({ 1.0F, 1.0F, 1.0F }),
       m_isInClimbingMode(false),
       m_isInRunningMode(false),
       m_texture(nullptr)
@@ -56,7 +55,7 @@ bool GLPlayer::isFacing(PlayerFacing direction)
     return m_playerFacing == direction;
 }
 
-void GLPlayer::initialize() 
+void GLPlayer::initialize(const std::string &resourcePath) 
 {
     m_textureName = "NPC1";
     m_coord = Point(7, 14);
@@ -66,15 +65,21 @@ void GLPlayer::initialize()
     m_currentMovementTextureIndex = m_baseTextureIndex + 1;
     m_playerMovement = PlayerMovement::None;
     m_playerFacing = PlayerFacing::Up;
+    m_textureService.setResourcesPath(resourcePath);
     m_glInventory.setInventory(getInventory());
+
+    setTexture({ "playerTexture", "tileNPC1.png", 384, 256, 32, 32 });
+    m_textureService.loadTexture(getTexture(), glTextureId);
+    generateGLPlayerObject();
+    setGLObjectPosition();
 }
 
 void GLPlayer::generateGLPlayerObject()
 {
     GLfloat texColorBuf[4][3] { { 1.0F, 1.0F, 1.0F },   /* Red */
-                                  { 1.0F, 1.0F, 1.0F },   /* Green */
-                                  { 1.0F, 1.0F, 1.0F },   /* Blue */
-                                  { 1.0F, 1.0F, 1.0F } };
+                                { 1.0F, 1.0F, 1.0F },   /* Green */
+                                { 1.0F, 1.0F, 1.0F },   /* Blue */
+                                { 1.0F, 1.0F, 1.0F } };
     auto tileHalfWidth = m_tileSize.tileHalfWidth;
     auto tileHalfHeight = m_tileSize.tileHalfHeight;  
 
@@ -356,4 +361,27 @@ MovingResult GLPlayer::processMoving(float delta_time)
         }
     }
     return result;
+}
+
+void GLPlayer::onGameWindowSizeChanged(const Size<> &)
+{
+    unloadGLPlayerObject();
+    generateGLPlayerObject();
+    setGLObjectPosition();
+}
+
+void GLPlayer::onGameWindowTileSizeChanged(const TileSize &tileSize)
+{
+    m_tileSize = tileSize;
+}
+
+void GLPlayer::onGameWindowUpdate(float delta_time)
+{
+    if (isInMovement()) {
+        MovingResult result { processMoving(delta_time) };
+        if (result.needToRefreshTexture) {
+            applyCurrentGLTexture(m_textureService);
+        }
+        setGLObjectPosition();
+    }
 }

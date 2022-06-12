@@ -38,13 +38,6 @@ void GLTextService::useShader()
     shaderProgram->use();
 }
 
-void GLTextService::setProjectionMatrix(glm::mat4 projection) 
-{
-    shaderProgram->use();
-    GLint projectionUniformLocation  = glGetUniformLocation(shaderProgram->getShaderProgramID(), "projection");
-    glUniformMatrix4fv(projectionUniformLocation, 1, GL_FALSE, glm::value_ptr(projection));
-}
-
 bool GLTextService::initFont(const std::string &fontFileName) 
 {
     FT_Library ft;
@@ -257,3 +250,12 @@ void GLTextService::wrapLinesFromMaxScreenWidth(std::vector<std::string> &lines,
         }
     }
 }
+
+void GLTextService::gameWindowSizeChanged(const Size<> &size)
+{
+    glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(size.width()), 0.0f, static_cast<float>(size.height()));
+    shaderProgram->use();
+    GLint projectionUniformLocation  = glGetUniformLocation(shaderProgram->getShaderProgramID(), "projection");
+    glUniformMatrix4fv(projectionUniformLocation, 1, GL_FALSE, glm::value_ptr(projection));
+}
+

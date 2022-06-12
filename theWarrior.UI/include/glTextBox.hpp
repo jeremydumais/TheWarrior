@@ -23,13 +23,13 @@ public:
     bool initShader(const std::string &vertexShaderFileName,
                     const std::string &fragmentShaderFileName) override;
     const std::string &getLastError() const;
-    void setScreenSize(Size<float> size);
     void setTextService(GLTextService *textService);
     void setItemStore(std::shared_ptr<ItemStore> itemStore);
     void setItemStoreTextureMap(const std::map<std::string, unsigned int> *texturesGLItemStore);
     void generateMessage(std::shared_ptr<MessageDTO> messageDTO);
     void useShader();
     void draw();
+    void gameWindowSizeChanged(const Size<> &size);
 private:
     Size<float> m_screenSize;
     GLTextService *m_textService;

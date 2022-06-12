@@ -35,15 +35,6 @@ const std::string &GLTextBox::getLastError() const
     return m_lastError;
 }
 
-void GLTextBox::setScreenSize(Size<float> size)
-{
-    m_screenSize = size;
-    //Resize currently displayed message
-    if (m_messageDTO ) {
-        generateMessage(m_messageDTO);
-    }
-}
-
 void GLTextBox::setTextService(GLTextService *textService)
 {
     m_textService = textService;
@@ -199,4 +190,14 @@ void GLTextBox::drawQuad(const GLObject &glObject, GLuint textureGLIndex)
     glDisableVertexAttribArray(0);
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void GLTextBox::gameWindowSizeChanged(const Size<> &size)
+{
+    m_screenSize.setSize(static_cast<float>(size.width()),
+                         static_cast<float>(size.height()));
+    //Resize currently displayed message
+    if (m_messageDTO) {
+        generateMessage(m_messageDTO);
+    }
 }

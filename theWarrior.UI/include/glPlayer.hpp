@@ -5,6 +5,7 @@
 #include "glTextureService.hpp"
 #include "player.hpp"
 #include "point.hpp"
+#include "size.hpp"
 #include "texture.hpp"
 #include "tileSize.hpp"
 #include <GL/glew.h>
@@ -21,9 +22,7 @@ struct MovingResult {
 class GLPlayer : public Player 
 {
 public:
-    explicit GLPlayer(const std::string &name, const TileSize &tileSize);
-    GLObject glObject;
-    unsigned int glTextureId;
+    explicit GLPlayer(const std::string &name);
     const std::string &getTextureName() const;
     int getTextureIndex() const;
     const Texture &getTexture() const;
@@ -32,7 +31,7 @@ public:
     bool isInMovement() const;
     bool isRunning() const;
     bool isFacing(PlayerFacing direction);
-    void initialize();
+    void initialize(const std::string &resourcesPath);
     void generateGLPlayerObject();
     void unloadGLPlayerObject();
     void setTexture(const TextureInfo &textureInfo);
@@ -52,11 +51,16 @@ public:
     void enableRunMode();
     void disableRunMode();
     MovingResult processMoving(float delta_time);
+    void onGameWindowSizeChanged(const Size<> &);
+    void onGameWindowTileSizeChanged(const TileSize &tileSize);
+    void onGameWindowUpdate(float delta_time);
 private:
+    GLObject glObject;
+    unsigned int glTextureId;
     Point<> m_coord;
     float m_xMove;
     float m_yMove;
-    const TileSize &m_tileSize;
+    TileSize m_tileSize;
     PlayerMovement m_playerMovement;
     PlayerFacing m_playerFacing;
     bool m_isInClimbingMode;
@@ -65,6 +69,7 @@ private:
     int m_baseTextureIndex;
     int m_currentMovementTextureIndex;
     std::shared_ptr<Texture> m_texture;
+    GLTextureService m_textureService;    
     GLInventory m_glInventory;
 };
 
