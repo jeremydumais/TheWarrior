@@ -113,7 +113,7 @@ TEST_F(InventoryWith3Samples, GetItemWithSlotIndex5_ReturnNull)
 
 TEST_F(InventoryWith3Samples, GetItemWithOutOfBoundsSlotIndex36_ReturnNull) 
 {
-    auto actual = inventory.getItem(36);
+    auto actual = inventory.getItem(35);
     ASSERT_EQ(nullptr, actual);
 }
 
@@ -146,7 +146,7 @@ TEST(Inventory_DropItem, WithIndex0OnEmptyInventory_ReturnFalse)
 TEST(Inventory_DropItem, WithOutOfBoundsIndex_ReturnFalse)
 {
     Inventory inventory;
-    ASSERT_FALSE(inventory.dropItem(36));
+    ASSERT_FALSE(inventory.dropItem(35));
 }
 
 TEST_F(InventoryWith3Samples, DropItemWithIndex1_ReturnTrue)
@@ -178,17 +178,17 @@ TEST_F(InventoryWith3Samples, MoveIndex1To3_ReturnTrue)
 
 TEST_F(InventoryWith3Samples, MoveIndex36To1_ReturnFalse)
 {
-    ASSERT_FALSE(inventory.moveItem(36, 1));
+    ASSERT_FALSE(inventory.moveItem(35, 1));
 }
 
 TEST_F(InventoryWith3Samples, MoveIndex1To36_ReturnFalse)
 {
-    ASSERT_FALSE(inventory.moveItem(1, 36));
+    ASSERT_FALSE(inventory.moveItem(1, 35));
 }
 
 TEST_F(InventoryFull, ReplaceItem_WithOutOfBoundSlotIndex_ReturnFalse)
 {
-    ASSERT_FALSE(inventory.replaceItem(36, getWeaponItemSample()));
+    ASSERT_FALSE(inventory.replaceItem(35, getWeaponItemSample()));
 }
 
 TEST_F(InventoryFull, ReplaceItem_WithNullItem_ReturnFalse)
@@ -205,6 +205,6 @@ TEST_F(InventoryFull, ReplaceItem_WithWeaponAtIndex2_ReturnTrue)
 {
     ASSERT_TRUE(inventory.replaceItem(1, getWeaponItemSample()));
     auto actual = inventory.getItemsWithIndex();
-    ASSERT_EQ(36, actual.size());
+    ASSERT_EQ(35, actual.size());
     ASSERT_EQ("swd001", actual[1]->getId());
 }
