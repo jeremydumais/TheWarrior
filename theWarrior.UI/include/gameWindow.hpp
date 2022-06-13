@@ -53,7 +53,7 @@ private:
     std::string m_executablePath;
     std::shared_ptr<GLTileService> m_tileService;
     std::shared_ptr<GLTextBox> m_textBox;
-    GLTextService m_textService;
+    std::shared_ptr<GLTextService> m_textService;
     GLTextureService m_textureService;
     std::shared_ptr<GLPlayer> m_glPlayer;
     std::map<std::string, unsigned int> m_texturesGLItemStore;
@@ -65,6 +65,8 @@ private:
     bool initializeOpenGL(const std::string &title,
                           int x, int y,
                           int width, int height);
+    bool loadResourceFiles();
+    void subscribeEvents();
     void render();
     void loadItemStoreTextures();
     void calculateTileSize();

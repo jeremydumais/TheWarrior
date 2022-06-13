@@ -13,6 +13,7 @@ GameWindow::GameWindow(const string &title,
       m_interactionMode(InteractionMode::Game),
       m_tileService(std::make_shared<GLTileService>()),
       m_textBox(std::make_shared<GLTextBox>()),
+      m_textService(std::make_shared<GLTextService>()),
       m_glPlayer(std::make_shared<GLPlayer>("Ragnar")),
       m_toggleFPS(false),
       m_blockKeyDown(false)
@@ -20,51 +21,17 @@ GameWindow::GameWindow(const string &title,
     if (!initializeOpenGL(title, x, y, width, height)) {
         return;
     }
-
-    if (!m_controller.loadItemStore(fmt::format("{0}/items/itemstore.itm", m_controller.getResourcesPath()))) {
-        cerr << "Unable to load the item store : " << m_controller.getLastError() << "\n";
+    if (!loadResourceFiles()) {
         return;
     }
-
-    if (!m_tileService->initShader(fmt::format("{0}/shaders/tile_330_vs.glsl", m_controller.getResourcesPath()),
-                          fmt::format("{0}/shaders/tile_330_fs.glsl", m_controller.getResourcesPath()))) {
-        cerr << m_tileService->getLastError() << "\n";
-        return;
-    }
-    if (!m_textBox->initShader(fmt::format("{0}/shaders/textbox_330_vs.glsl", m_controller.getResourcesPath()),
-                          fmt::format("{0}/shaders/textbox_330_fs.glsl", m_controller.getResourcesPath()))) {
-        cerr << m_textBox->getLastError() << "\n";
-        return;
-    }
-    if (!m_textService.initShader(fmt::format("{0}/shaders/text_330_vs.glsl", m_controller.getResourcesPath()),
-                          fmt::format("{0}/shaders/text_330_fs.glsl", m_controller.getResourcesPath()))) {
-        cerr << m_textService.getLastError() << "\n";
-        return;
-    }
-    if (!m_textService.initFont(fmt::format("{0}/fonts/verdana.ttf", m_controller.getResourcesPath()))) {
-        cerr << m_textService.getLastError() << "\n";
-        return;
-    }
-
-    m_textureService.setResourcesPath(m_controller.getResourcesPath());
-    loadItemStoreTextures();
 
     SDL_JoystickEventState(SDL_ENABLE);
     m_joystick = SDL_JoystickOpen(0);
 
-    m_windowSizeChanged.connect(boost::bind(&GameMapMode::gameWindowSizeChanged, &m_gameMapMode, boost::placeholders::_1));
-    m_windowSizeChanged.connect(boost::bind(&GLPlayer::onGameWindowSizeChanged, m_glPlayer, boost::placeholders::_1));
-    m_windowSizeChanged.connect(boost::bind(&GLTextService::gameWindowSizeChanged, &m_textService, boost::placeholders::_1));
-    m_windowSizeChanged.connect(boost::bind(&GLTextBox::gameWindowSizeChanged, m_textBox, boost::placeholders::_1));
-    m_tileSizeChanged.connect(boost::bind(&GameMapMode::gameWindowTileSizeChanged, &m_gameMapMode, boost::placeholders::_1));
-    m_tileSizeChanged.connect(boost::bind(&GLPlayer::onGameWindowTileSizeChanged, m_glPlayer, boost::placeholders::_1));
-    m_windowUpdate.connect(boost::bind(&GLPlayer::onGameWindowUpdate, m_glPlayer, boost::placeholders::_1));
-
-    calculateTileSize();
-    m_textBox->setItemStore(m_controller.getItemStore());
-    m_textBox->setTextService(&m_textService);
-    m_textBox->setItemStoreTextureMap(&m_texturesGLItemStore);
-
+    subscribeEvents();
+    m_textBox->initialize(m_textService,
+                          m_controller.getItemStore(),
+                          &m_texturesGLItemStore);
     m_glPlayer->initialize(m_controller.getResourcesPath());
     m_gameMapMode.initialize(m_controller.getResourcesPath(), 
                              m_glPlayer,
@@ -72,8 +39,11 @@ GameWindow::GameWindow(const string &title,
                              m_controller.getMessagePipeline(),
                              m_tileService,
                              m_textBox,
+                             m_textService,
+                             &m_texturesGLItemStore,
                              m_joystick);
     m_fpsCalculator.initialize();
+    m_windowSizeChanged(m_WindowSize);
 }
 
 GameWindow::~GameWindow() 
@@ -115,8 +85,7 @@ void GameWindow::processEvents()
             m_mustExit = true;
             continue;
         }   
-        switch (m_interactionMode)
-        {
+        switch (m_interactionMode) {
         case InteractionMode::Game:
             m_gameMapMode.processEvents(e);
             break;
@@ -153,16 +122,16 @@ bool GameWindow::initializeOpenGL(const std::string &title,
                                   int x, int y,
                                   int width, int height)
 {
-//Initialize SDL
+    //Initialize SDL
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0) {
 		cerr << fmt::format("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
         return false;
 	}
 
     //Use OpenGL 3.1 core
-    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
-    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 3 );
-    SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
     //Create window
     m_window = SDL_CreateWindow(title.c_str(), 
@@ -171,7 +140,7 @@ bool GameWindow::initializeOpenGL(const std::string &title,
         width, 
         height, 
         SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL | SDL_WINDOW_MAXIMIZED);
-    if(m_window == NULL) {
+    if(m_window == nullptr) {
         cerr << fmt::format("Window could not be created! SDL_Error: %s\n", SDL_GetError());
         return false;
     }
@@ -202,13 +171,63 @@ bool GameWindow::initializeOpenGL(const std::string &title,
     return true;
 }
 
+bool GameWindow::loadResourceFiles()
+{
+    if (!m_controller.loadItemStore(fmt::format("{0}/items/itemstore.itm", m_controller.getResourcesPath()))) {
+        cerr << "Unable to load the item store : " << m_controller.getLastError() << "\n";
+        return false;
+    }
+    if (!m_tileService->initShader(fmt::format("{0}/shaders/tile_330_vs.glsl", m_controller.getResourcesPath()),
+                                   fmt::format("{0}/shaders/tile_330_fs.glsl", m_controller.getResourcesPath()))) {
+        cerr << m_tileService->getLastError() << "\n";
+        return false;
+    }
+    if (!m_textBox->initShader(fmt::format("{0}/shaders/textbox_330_vs.glsl", m_controller.getResourcesPath()),
+                               fmt::format("{0}/shaders/textbox_330_fs.glsl", m_controller.getResourcesPath()))) {
+        cerr << m_textBox->getLastError() << "\n";
+        return false;
+    }
+    if (!m_textService->initShader(fmt::format("{0}/shaders/text_330_vs.glsl", m_controller.getResourcesPath()),
+                                  fmt::format("{0}/shaders/text_330_fs.glsl", m_controller.getResourcesPath()))) {
+        cerr << m_textService->getLastError() << "\n";
+        return false;
+    }
+    if (!m_textService->initFont(fmt::format("{0}/fonts/verdana.ttf", m_controller.getResourcesPath()))) {
+        cerr << m_textService->getLastError() << "\n";
+        return false;
+    }
+    if (!m_gameMapMode.initShaders(m_controller.getResourcesPath())) {
+        return false;
+    }
+    m_textureService.setResourcesPath(m_controller.getResourcesPath());
+    loadItemStoreTextures();
+    return true;
+}
+
+void GameWindow::subscribeEvents()
+{
+    m_windowSizeChanged.connect(boost::bind(&GameMapMode::gameWindowSizeChanged, &m_gameMapMode, boost::placeholders::_1));
+    m_windowSizeChanged.connect(boost::bind(&GLPlayer::onGameWindowSizeChanged, m_glPlayer, boost::placeholders::_1));
+    m_windowSizeChanged.connect(boost::bind(&GLTextService::gameWindowSizeChanged, m_textService, boost::placeholders::_1));
+    m_windowSizeChanged.connect(boost::bind(&GLTextBox::gameWindowSizeChanged, m_textBox, boost::placeholders::_1));
+    m_tileSizeChanged.connect(boost::bind(&GameMapMode::gameWindowTileSizeChanged, &m_gameMapMode, boost::placeholders::_1));
+    m_tileSizeChanged.connect(boost::bind(&GLPlayer::onGameWindowTileSizeChanged, m_glPlayer, boost::placeholders::_1));
+    m_windowUpdate.connect(boost::bind(&GLPlayer::onGameWindowUpdate, m_glPlayer, boost::placeholders::_1));
+}
+
 void GameWindow::render()
 {
-    m_gameMapMode.render();    
+    switch (m_interactionMode) {
+        case InteractionMode::Game:
+            m_gameMapMode.render();    
+            break;
+        default:
+            break;
+    }
     //Display the FPS
     if (m_toggleFPS) {
-        m_textService.useShader();
-        m_textService.renderText(m_fpsCalculator.getFPSDisplayText(), 
+        m_textService->useShader();
+        m_textService->renderText(m_fpsCalculator.getFPSDisplayText(), 
                                1.0f,                               // X
                                static_cast<float>(m_WindowSize.height()) - 24.0f, // Y
                                0.5f,                               // Scale

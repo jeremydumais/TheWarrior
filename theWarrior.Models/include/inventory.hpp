@@ -8,7 +8,7 @@
 #include <map>
 #include <memory>
 
-#define INVENTORY_MAX 36
+#define INVENTORY_MAX 35
 
 typedef std::array<std::shared_ptr<Item>, INVENTORY_MAX> InventoryArray;
 

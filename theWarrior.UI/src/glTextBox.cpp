@@ -15,10 +15,10 @@ GLTextBox::GLTextBox()
 }
 
 bool GLTextBox::initShader(const std::string &vertexShaderFileName,
-                         const std::string &fragmentShaderFileName) 
+                           const std::string &fragmentShaderFileName) 
 {
     shaderProgram = std::make_unique<GLShaderProgram>(vertexShaderFileName,
-                                                 fragmentShaderFileName);
+                                                      fragmentShaderFileName);
     if (!shaderProgram->compileShaders()) {
         m_lastError = shaderProgram->getLastError();
         return false;
@@ -30,25 +30,18 @@ bool GLTextBox::initShader(const std::string &vertexShaderFileName,
     return true;
 }
 
+void GLTextBox::initialize(std::shared_ptr<GLTextService> textService,
+                           std::shared_ptr<ItemStore> itemStore,
+                           const std::map<std::string, unsigned int> *texturesGLItemStore)
+{
+    m_textService = textService;
+    m_itemStore = itemStore;
+    m_texturesGLItemStore = texturesGLItemStore;
+}
+
 const std::string &GLTextBox::getLastError() const
 {
     return m_lastError;
-}
-
-void GLTextBox::setTextService(GLTextService *textService)
-{
-    m_textService = textService;
-}
-
-void GLTextBox::setItemStore(std::shared_ptr<ItemStore> itemStore)
-{
-    m_itemStore = itemStore;
-}
-
-
-void GLTextBox::setItemStoreTextureMap(const std::map<std::string, unsigned int> *texturesGLItemStore)
-{
-    m_texturesGLItemStore = texturesGLItemStore;
 }
 
 void GLTextBox::generateMessage(std::shared_ptr<MessageDTO> messageDTO)
@@ -62,14 +55,9 @@ void GLTextBox::generateMessage(std::shared_ptr<MessageDTO> messageDTO)
     }
 }
 
-void GLTextBox::useShader()
-{
-    shaderProgram->use();
-}
-
 void GLTextBox::draw()
 {
-    useShader();
+    shaderProgram->use();
     drawQuad(m_glObject, 0);
     if (m_messageDTO->getType() == MessageDTOType::ItemFoundMessage) {
         //Display the icon

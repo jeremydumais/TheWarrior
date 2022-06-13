@@ -66,7 +66,6 @@ void GLPlayer::initialize(const std::string &resourcePath)
     m_playerMovement = PlayerMovement::None;
     m_playerFacing = PlayerFacing::Up;
     m_textureService.setResourcesPath(resourcePath);
-    m_glInventory.setInventory(getInventory());
 
     setTexture({ "playerTexture", "tileNPC1.png", 384, 256, 32, 32 });
     m_textureService.loadTexture(getTexture(), glTextureId);
@@ -163,10 +162,6 @@ void GLPlayer::setGLObjectPosition()
     glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), m_tileCoordBuf, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
-}
-
-void GLPlayer::showInventory()
-{
 }
 
 void GLPlayer::draw()

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "glInventory.hpp"
 #include "glObjectService.hpp"
 #include "glTextureService.hpp"
 #include "player.hpp"
@@ -38,7 +37,6 @@ public:
     void applyCurrentGLTexture(const GLTextureService &textureService);
     void setGridPosition(Point<> position);
     void setGLObjectPosition();
-    void showInventory();
     void draw();
     void moveUp();
     void moveDown(bool isInClimbingMode);
@@ -70,7 +68,6 @@ private:
     int m_currentMovementTextureIndex;
     std::shared_ptr<Texture> m_texture;
     GLTextureService m_textureService;    
-    GLInventory m_glInventory;
 };
 
 

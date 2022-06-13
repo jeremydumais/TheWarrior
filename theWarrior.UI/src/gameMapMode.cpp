@@ -16,7 +16,8 @@ GameMapMode::GameMapMode()
                       { 1.0F, 1.0F, 1.0F },   /* Green */
                       { 1.0F, 1.0F, 1.0F },   /* Blue */
                       { 1.0F, 1.0F, 1.0F } },
-      m_blockKeyDown(false)
+      m_blockKeyDown(false),
+      m_isInventoryDisplayed(false)
 {}
 
 void GameMapMode::initialize(const std::string &resourcesPath,
@@ -25,11 +26,15 @@ void GameMapMode::initialize(const std::string &resourcesPath,
                              std::shared_ptr<MessagePipeline> messagePipeline,
                              std::shared_ptr<GLTileService> tileService,
                              std::shared_ptr<GLTextBox> textBox,
+                             std::shared_ptr<GLTextService> textService,
+                             const std::map<std::string, unsigned int> *texturesGLItemStore,
                              SDL_Joystick *joystick)
 {
     m_resourcesPath = resourcesPath;
     m_map = std::make_shared<GameMap>(1, 1);
     m_glPlayer = glPlayer;
+    m_glInventory.initialize(resourcesPath, textService, itemStore, texturesGLItemStore);
+    m_glInventory.setInventory(m_glPlayer->getInventory());
     m_textureService.setResourcesPath(resourcesPath);
     m_tileService = tileService;
     m_textBox = textBox;
@@ -38,7 +43,16 @@ void GameMapMode::initialize(const std::string &resourcesPath,
     loadMap(fmt::format("{0}/maps/homeHouseV1.map", resourcesPath));
     loadMapTextures();
     generateGLMapObjects();
+}
 
+bool GameMapMode::initShaders(const std::string &resourcesPath)
+{
+    if (!m_glInventory.initShader(fmt::format("{0}/shaders/inventory_330_vs.glsl", resourcesPath),
+                                  fmt::format("{0}/shaders/inventory_330_fs.glsl", resourcesPath))) {
+        std::cerr << m_glInventory.getLastError() << "\n";
+        return false;
+    }
+    return true;
 }
 
 void GameMapMode::processEvents(SDL_Event &e)
@@ -67,7 +81,13 @@ void GameMapMode::processEvents(SDL_Event &e)
         actionButtonPressed();
     }
     else if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_i) {
-        m_glPlayer->showInventory();
+        if (!m_blockKeyDown) {
+            m_blockKeyDown = true;
+            if (!m_isInventoryDisplayed) {
+                m_glInventory.generateGLInventory();
+            }
+            m_isInventoryDisplayed = !m_isInventoryDisplayed;
+        }
     }
     else if (e.type == SDL_JOYBUTTONDOWN) {
         if (e.jbutton.button == 0) {
@@ -115,6 +135,19 @@ void GameMapMode::processEvents(SDL_Event &e)
             break;
         }
     }
+}
+
+void GameMapMode::gameWindowSizeChanged(const Size<> &size)
+{
+    m_screenSize = size;
+    unloadGLMapObjects();
+    generateGLMapObjects();
+    m_glInventory.gameWindowSizeChanged(size);
+}
+
+void GameMapMode::gameWindowTileSizeChanged(const TileSize &tileSize)
+{
+    m_tileSize = tileSize;
 }
 
 void GameMapMode::render()
@@ -171,6 +204,9 @@ void GameMapMode::render()
         if (currentMessage->isExpired) {
             m_controller.deleteCurrentMessage();
         }
+    }
+    if (m_isInventoryDisplayed) {
+        m_glInventory.render();
     }
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
@@ -458,16 +494,4 @@ void GameMapMode::generateGLMapObjects()
         }
         indexRow++;
     }
-}
-
-void GameMapMode::gameWindowSizeChanged(const Size<> &size)
-{
-    m_screenSize = size;
-    unloadGLMapObjects();
-    generateGLMapObjects();
-}
-
-void GameMapMode::gameWindowTileSizeChanged(const TileSize &tileSize)
-{
-    m_tileSize = tileSize;
 }

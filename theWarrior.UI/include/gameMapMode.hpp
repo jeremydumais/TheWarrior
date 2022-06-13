@@ -2,8 +2,10 @@
 
 #include "gameMap.hpp"
 #include "gameMapModeController.hpp"
+#include "glInventory.hpp"
 #include "glPlayer.hpp"
 #include "glTextBox.hpp"
+#include "glTextService.hpp"
 #include "glTextureService.hpp"
 #include "glTile.hpp"
 #include "glTileService.hpp"
@@ -28,10 +30,12 @@ public:
                     std::shared_ptr<MessagePipeline> messagePipeline,
                     std::shared_ptr<GLTileService> tileService,
                     std::shared_ptr<GLTextBox> textBox,
+                    std::shared_ptr<GLTextService> textService,
+                    const std::map<std::string, unsigned int> *texturesGLItemStore,
                     SDL_Joystick *joystick);
+    bool initShaders(const std::string &resourcesPath);
     void render();
     void processEvents(SDL_Event &e);
-    void generateGLMapObjects();
     void unloadGLMapObjects();
     void gameWindowSizeChanged(const Size<> &size);
     void gameWindowTileSizeChanged(const TileSize &tileSize);
@@ -43,6 +47,7 @@ private:
     std::shared_ptr<GLTileService> m_tileService;
     GLTextureService m_textureService;
     std::shared_ptr<GLTextBox> m_textBox;
+    GLInventory m_glInventory;
     Size<> m_screenSize;
     std::vector<GLTile> m_glTiles;
     std::map<std::string, unsigned int> m_texturesGLMap;
@@ -50,6 +55,8 @@ private:
     SDL_Joystick *m_joystick;
     GLfloat m_texColorBuf[4][3];
     bool m_blockKeyDown;
+    bool m_isInventoryDisplayed;
+    void generateGLMapObjects();
     void drawObjectTile(GLTile &tile);
     void actionButtonPressed();
     void moveUpPressed();
@@ -61,5 +68,4 @@ private:
     void changeMap(const std::string &filePath);
     void calculateGLTileCoord(const Point<> &tilePosition, GLfloat tileCoord[4][2]);
     void loadMapTextures();
-
 };

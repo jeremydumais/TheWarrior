@@ -22,17 +22,16 @@ public:
     ~GLTextBox() = default;
     bool initShader(const std::string &vertexShaderFileName,
                     const std::string &fragmentShaderFileName) override;
+    void initialize(std::shared_ptr<GLTextService> textService,
+                    std::shared_ptr<ItemStore> itemStore,
+                    const std::map<std::string, unsigned int> *texturesGLItemStore);
     const std::string &getLastError() const;
-    void setTextService(GLTextService *textService);
-    void setItemStore(std::shared_ptr<ItemStore> itemStore);
-    void setItemStoreTextureMap(const std::map<std::string, unsigned int> *texturesGLItemStore);
     void generateMessage(std::shared_ptr<MessageDTO> messageDTO);
-    void useShader();
     void draw();
     void gameWindowSizeChanged(const Size<> &size);
 private:
     Size<float> m_screenSize;
-    GLTextService *m_textService;
+    std::shared_ptr<GLTextService> m_textService;
     std::shared_ptr<ItemStore> m_itemStore;
     const std::map<std::string, unsigned int> *m_texturesGLItemStore;
     std::unique_ptr<GLShaderProgram> shaderProgram;

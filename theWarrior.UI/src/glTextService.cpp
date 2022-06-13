@@ -171,7 +171,6 @@ Size<float> GLTextService::getTextSize(const std::string &text, float scale) con
     
     std::string::const_iterator c;
     Size<float> totalSize(0.0F, 0.0F);
-    //float totalWidth = 0.0F;
 
     for (c = text.begin(); c != text.end(); c++) {
         Character ch = characters.at(*c);
