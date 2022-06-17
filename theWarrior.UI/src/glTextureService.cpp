@@ -14,6 +14,11 @@ void GLTextureService::setResourcesPath(const std::string &resourcesPath)
     m_resourcePath = resourcesPath;
 }
 
+void GLTextureService::loadTexture(GLTexture &glTexture)
+{
+    loadTexture(glTexture.texture, glTexture.glTextureId);
+}
+
 void GLTextureService::loadTexture(const Texture &texture, unsigned int &textureGLId)
 {
     glGenTextures(1, &textureGLId);

@@ -16,9 +16,9 @@ size_t Inventory::getSlotCount() const
     return INVENTORY_MAX;
 }
 
-std::map<size_t, std::shared_ptr<Item>> Inventory::getItemsWithIndex() const
+std::map<size_t, std::shared_ptr<const Item>> Inventory::getItemsWithIndex() const
 {
-    std::map<size_t, std::shared_ptr<Item>> retval = {};
+    std::map<size_t, std::shared_ptr<const Item>> retval = {};
     size_t i = 0;
     for(auto &slot : m_slots) {
         if (slot != nullptr) {
@@ -39,7 +39,7 @@ size_t Inventory::getItemCount() const
     return count < 0 ? 0 : static_cast<size_t>(count);
 }
 
-const std::shared_ptr<Item> Inventory::getItem(size_t slotIndex) const
+const std::shared_ptr<const Item> Inventory::getItem(size_t slotIndex) const
 {
     if (slotIndex >= INVENTORY_MAX) {
         return nullptr;
@@ -48,7 +48,7 @@ const std::shared_ptr<Item> Inventory::getItem(size_t slotIndex) const
     return slot;
 }
 
-bool Inventory::addItem(std::shared_ptr<Item> item)
+bool Inventory::addItem(std::shared_ptr<const Item> item)
 {
     if (item == nullptr) {
         return false;
@@ -87,7 +87,7 @@ bool Inventory::moveItem(size_t slotIndexSrc, size_t slotIndexDst)
         return false;
     }
     auto &dstSlot = m_slots.at(slotIndexDst);
-    std::shared_ptr<Item> temp = dstSlot;
+    std::shared_ptr<const Item> temp = dstSlot;
     dstSlot = srcSlot;
     srcSlot = temp;
     return true;

@@ -60,9 +60,22 @@ void GameMapMode::processEvents(SDL_Event &e)
     if(e.type == SDL_KEYUP) {
         m_blockKeyDown = false;
     }
+    if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_i) {
+        if (!m_blockKeyDown) {
+            m_blockKeyDown = true;
+            if (!m_isInventoryDisplayed) {
+                m_glInventory.generateGLInventory();
+            }
+            m_isInventoryDisplayed = !m_isInventoryDisplayed;
+        }
+        return;
+    }
+    if (m_isInventoryDisplayed) {
+        m_glInventory.processEvents(e);
+        return;
+    }
     if(e.type == SDL_KEYDOWN && !m_glPlayer->isInMovement()) {
-        switch( e.key.keysym.sym )
-        {
+        switch(e.key.keysym.sym) {
             case SDLK_UP:
                 moveUpPressed();
                 break;
@@ -79,15 +92,6 @@ void GameMapMode::processEvents(SDL_Event &e)
     }
     else if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_RETURN) {
         actionButtonPressed();
-    }
-    else if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_i) {
-        if (!m_blockKeyDown) {
-            m_blockKeyDown = true;
-            if (!m_isInventoryDisplayed) {
-                m_glInventory.generateGLInventory();
-            }
-            m_isInventoryDisplayed = !m_isInventoryDisplayed;
-        }
     }
     else if (e.type == SDL_JOYBUTTONDOWN) {
         if (e.jbutton.button == 0) {

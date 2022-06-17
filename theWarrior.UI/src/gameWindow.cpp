@@ -33,6 +33,11 @@ GameWindow::GameWindow(const string &title,
                           m_controller.getItemStore(),
                           &m_texturesGLItemStore);
     m_glPlayer->initialize(m_controller.getResourcesPath());
+    //TODO to remove (Test only)
+    m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("pot001"));
+    m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("swd001"));
+    m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("swd002"));
+    m_glPlayer->getInventory()->dropItem(1);
     m_gameMapMode.initialize(m_controller.getResourcesPath(), 
                              m_glPlayer,
                              m_controller.getItemStore(),
