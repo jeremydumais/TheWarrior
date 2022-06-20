@@ -63,9 +63,6 @@ void GameMapMode::processEvents(SDL_Event &e)
     if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_i) {
         if (!m_blockKeyDown) {
             m_blockKeyDown = true;
-            if (!m_isInventoryDisplayed) {
-                m_glInventory.generateGLInventory();
-            }
             m_isInventoryDisplayed = !m_isInventoryDisplayed;
         }
         return;

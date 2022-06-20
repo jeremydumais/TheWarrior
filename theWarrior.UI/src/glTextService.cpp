@@ -160,24 +160,22 @@ void GLTextService::renderText(std::string text, float x, float y, float scale, 
 
 Size<float> GLTextService::getTextSize(const std::string &text, float scale) const
 {
-    float correctiveFactor = 1.48F; // Default of scale 1.0
-    if (scale == 0.1F) correctiveFactor = 1.10F;
-    else if (scale == 0.4F) correctiveFactor = 1.40F;
-    else if (scale == 0.5F) correctiveFactor = 1.42F;
-    else if (scale == 0.6F) correctiveFactor = 1.43F;
-    else if (scale == 0.7F) correctiveFactor = 1.45F;
-    else if (scale == 0.8F) correctiveFactor = 1.46F;
-    else if (scale == 0.9F) correctiveFactor = 1.47F;
-    
     std::string::const_iterator c;
     Size<float> totalSize(0.0F, 0.0F);
 
     for (c = text.begin(); c != text.end(); c++) {
         Character ch = characters.at(*c);
+        float charWidth = static_cast<float>(ch.Size.x) * scale;
+        //Fix because the space character has no width
+        if (charWidth == 0 && *c == ' ') {
+            Character chUnderscore = characters.at('_');
+            charWidth = static_cast<float>(chUnderscore.Size.x) * scale;
+        }
         float charHeight = static_cast<float>(ch.Size.y) * scale;
-        totalSize.setWidth(totalSize.width() + ((static_cast<float>(ch.Size.x) * scale) * correctiveFactor));
+        float totalWidth = totalSize.width();
+        totalSize.setWidth(totalWidth + charWidth);
         if (totalSize.height() < charHeight) {
-            totalSize.setHeight(charHeight * correctiveFactor);
+            totalSize.setHeight(charHeight);
         }
     }
     

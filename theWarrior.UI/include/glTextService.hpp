@@ -2,6 +2,7 @@
 
 #include "glShaderProgram.hpp"
 #include "IShaderService.hpp"
+#include "point.hpp"
 #include <size.hpp>
 #include <map>
 #include <memory>
@@ -12,6 +13,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+struct GLTextObject
+{
+    std::string text;
+    Point<float> position;
+    float scale;
+};
 
 struct Character {
     unsigned int TextureID; // ID handle of the glyph texture

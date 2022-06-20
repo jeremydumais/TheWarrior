@@ -10,10 +10,12 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/gameMapMode.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glColor.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/glPlayer.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/glFormService.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/fpsCalculator.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glInventory.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/glChoicePopup.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glObjectService.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/glPlayer.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glTileService.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glTextService.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glTextBox.cpp
