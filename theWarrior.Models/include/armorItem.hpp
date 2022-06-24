@@ -12,7 +12,7 @@ enum class ArmorBodyPart
     UpperBody,
     LowerBody,
     Hands,
-    Feets,
+    Feet,
     SecondaryHand
 };
 
