@@ -13,6 +13,7 @@ struct ItemCreationInfo
     std::string name;
     std::string textureName;
     int textureIndex;
+    std::string optionalDescription = "";
 };
 
 class Item
@@ -33,25 +34,31 @@ public:
     const std::string &getName() const;
     const std::string &getTextureName() const;
     int getTextureIndex() const;
+    const std::string &getOptionalDescription() const;
     void setId(const std::string &id);
     void setName(const std::string &name);
     void setTextureName(const std::string &name);
     void setTextureIndex(int index);
+    void setOptionalDescription(const std::string &description);
 protected:
     friend class boost::serialization::access;
     std::string m_id;
     std::string m_name; 
     std::string m_textureName;
     int m_textureIndex; 
+    std::string m_optionalDescription;
     //Serialization method
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int)
+    void serialize(Archive & ar, const unsigned int version)
     {
         ar & m_id;
         ar & m_name;
         ar & m_textureName;
         ar & m_textureIndex;
+        if (version == 1) {
+            ar & m_optionalDescription;
+        }
     }
 };
 
-BOOST_CLASS_VERSION(Item, 0)
+BOOST_CLASS_VERSION(Item, 1)

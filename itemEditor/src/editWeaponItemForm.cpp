@@ -46,6 +46,7 @@ bool EditWeaponItemForm::loadExistingItemToForm()
 			ui.lineEditName->setText(weaponDTO->name.c_str());
 			ui.lineEditTextureName->setText(weaponDTO->textureName.c_str());
 			ui.spinBoxTextureIndex->setValue(weaponDTO->textureIndex);
+			ui.lineEditOptionalDescription->setText(weaponDTO->optionalDescription.c_str());
 			ui.lineEditAttackGain->setText(std::to_string(weaponDTO->attackGain).c_str());
 			ui.comboBoxSlotInBodyPart->setCurrentIndex(weaponDTO->slotInBodyPartIndex);
 		}
@@ -77,6 +78,7 @@ void EditWeaponItemForm::onPushButtonOKClick()
 	itemInfo->name = ui.lineEditName->text().toStdString();
 	itemInfo->textureName = ui.lineEditTextureName->text().toStdString();
 	itemInfo->textureIndex = ui.spinBoxTextureIndex->value();
+	itemInfo->optionalDescription = ui.lineEditOptionalDescription->text().toStdString();
 	itemInfo->attackGain = stof(ui.lineEditAttackGain->text().toStdString());
 	itemInfo->slotInBodyPartIndex = ui.comboBoxSlotInBodyPart->currentIndex();
 	if (!m_itemIdToEdit.has_value()) {

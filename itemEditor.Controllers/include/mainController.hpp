@@ -14,6 +14,7 @@ struct ItemListDisplay
 {
     std::string id;
     std::string name;
+    std::string description;
 };
 
 class MainController

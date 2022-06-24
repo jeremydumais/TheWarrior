@@ -38,6 +38,7 @@ bool EditItemForm::loadExistingItemToForm()
 		ui.lineEditName->setText(existingItem->name.c_str());
 		ui.lineEditTextureName->setText(existingItem->textureName.c_str());
 		ui.spinBoxTextureIndex->setValue(existingItem->textureIndex);
+		ui.lineEditOptionalDescription->setText(existingItem->optionalDescription.c_str());
 	}
 	else {
 		ErrorMessage::show("Unable to load the selected item");
@@ -58,6 +59,7 @@ void EditItemForm::onPushButtonOKClick()
 	itemInfo->name = ui.lineEditName->text().toStdString();
 	itemInfo->textureName = ui.lineEditTextureName->text().toStdString();
 	itemInfo->textureIndex = ui.spinBoxTextureIndex->value();
+	itemInfo->optionalDescription = ui.lineEditOptionalDescription->text().toStdString();
 	if (!m_itemIdToEdit.has_value()) {
 		if (!m_controller.addItem(std::move(itemInfo))) {
 			ErrorMessage::show(m_controller.getLastError());

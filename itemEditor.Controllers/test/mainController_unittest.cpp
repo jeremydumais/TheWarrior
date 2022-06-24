@@ -23,9 +23,9 @@ public:
     {
         auto itemStore = controller.getItemStore();
         itemStore->addItem(std::make_shared<Item>(ItemCreationInfo { "ite001", "Item1", "Tex1", 0}));
-        itemStore->addItem(std::make_shared<WeaponItem>(WeaponItemCreationInfo { "swd001", "Sword1", "Tex2", 1, 2.1F, WeaponBodyPart::SecondaryHand}));
-        itemStore->addItem(std::make_shared<ArmorItem>(ArmorItemCreationInfo { "arm001", "Armor1", "Tex3", 2, 3.2F, ArmorBodyPart::Hands}));
-        itemStore->addItem(std::make_shared<StatsItem>(StatsItemCreationInfo { "pot001", "Potion1", "Tex4", 3, Stats::Endurance, 4.1F, true, 0}));
+        itemStore->addItem(std::make_shared<WeaponItem>(WeaponItemCreationInfo { "swd001", "Sword1", "Tex2", 1, "", 2.1F, WeaponBodyPart::SecondaryHand}));
+        itemStore->addItem(std::make_shared<ArmorItem>(ArmorItemCreationInfo { "arm001", "Armor1", "Tex3", 2, "", 3.2F, ArmorBodyPart::Hands}));
+        itemStore->addItem(std::make_shared<StatsItem>(StatsItemCreationInfo { "pot001", "Potion1", "Tex4", 3, "", Stats::Endurance, 4.1F, true, 0}));
     }
     MainController controller;
 };

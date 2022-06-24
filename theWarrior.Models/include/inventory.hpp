@@ -30,8 +30,7 @@ private:
     InventoryArray m_slots;
     //Serialization method
     template<class Archive>
-    void serialize(Archive &, const unsigned int)
-    {
+    void serialize(Archive &, const unsigned int) {
         //To define
     }
 };

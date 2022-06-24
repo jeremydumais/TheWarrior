@@ -89,6 +89,8 @@ void MainForm::initializeItemsTableControl()
 {
 	ui.tableWidgetItems->setHorizontalHeaderItem(0, new QTableWidgetItem("Id"));
 	ui.tableWidgetItems->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
+	ui.tableWidgetItems->setHorizontalHeaderItem(2, new QTableWidgetItem("Description"));
+	ui.tableWidgetItems->setColumnWidth(1, 200);
 }
 
 void MainForm::connectUIActions()
@@ -354,6 +356,7 @@ void MainForm::refreshItemsTable()
 			}
 			ui.tableWidgetItems->setItem(index, 0, idItem);
 			ui.tableWidgetItems->setItem(index, 1, new QTableWidgetItem(item.name.c_str()));
+			ui.tableWidgetItems->setItem(index, 2, new QTableWidgetItem(item.description.c_str()));
 			index++;
 		}
 	}

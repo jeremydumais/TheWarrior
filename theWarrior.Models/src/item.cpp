@@ -14,7 +14,8 @@ Item::Item(const ItemCreationInfo &itemInfo)
     : m_id(itemInfo.id),
       m_name(itemInfo.name),
       m_textureName(itemInfo.textureName),
-      m_textureIndex(itemInfo.textureIndex)
+      m_textureIndex(itemInfo.textureIndex),
+      m_optionalDescription(itemInfo.optionalDescription)
 {
     validateId(m_id);
     validateName(m_name);
@@ -27,7 +28,8 @@ Item::Item()
     : m_id("tmp999"),
       m_name("<temp item>"),
       m_textureName("tmp"),
-      m_textureIndex(0)
+      m_textureIndex(0),
+      m_optionalDescription("")
 {
 }
 
@@ -39,7 +41,8 @@ bool Item::equals(const Item &other) const
     return this->m_id == other.m_id &&
            this->m_name == other.m_name &&
            this->m_textureName == other.m_textureName &&
-           this->m_textureIndex == other.m_textureIndex;
+           this->m_textureIndex == other.m_textureIndex && 
+           this->m_optionalDescription == other.m_optionalDescription;
 }
 
 bool Item::operator==(const Item &other) const
@@ -77,6 +80,11 @@ int Item::getTextureIndex() const
     return m_textureIndex;
 }
 
+const std::string &Item::getOptionalDescription() const
+{
+    return m_optionalDescription;
+}
+
 void Item::setId(const std::string &id) 
 {
     validateId(id);
@@ -99,6 +107,11 @@ void Item::setTextureIndex(const int index)
 {
     validateTextureIndex(index);
     m_textureIndex = index;
+}
+
+void Item::setOptionalDescription(const std::string &description)
+{
+    m_optionalDescription = description;
 }
 
 void validateId(const std::string &id) 

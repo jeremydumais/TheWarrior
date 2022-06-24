@@ -39,6 +39,7 @@ std::unique_ptr<ItemDTO> ManageWeaponItemController::getItem(const std::string &
 			retval->name = weaponItem->getName();
 			retval->textureName = weaponItem->getTextureName();
 			retval->textureIndex = weaponItem->getTextureIndex();
+			retval->optionalDescription = weaponItem->getOptionalDescription();
 			retval->attackGain = weaponItem->getAttackGain();
 			retval->slotInBodyPartIndex = static_cast<int>(weaponItem->getSlotInBodyPart());
 			return retval;
@@ -55,6 +56,7 @@ std::shared_ptr<Item> ManageWeaponItemController::itemDTOToItem(std::unique_ptr<
         weaponDTO->name,
         weaponDTO->textureName,
         weaponDTO->textureIndex,
+		weaponDTO->optionalDescription,
 		weaponDTO->attackGain,
 		static_cast<WeaponBodyPart>(weaponDTO->slotInBodyPartIndex)
     };

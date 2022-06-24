@@ -46,6 +46,7 @@ bool EditStatsItemForm::loadExistingItemToForm()
 			ui.lineEditName->setText(statsItemDTO->name.c_str());
 			ui.lineEditTextureName->setText(statsItemDTO->textureName.c_str());
 			ui.spinBoxTextureIndex->setValue(statsItemDTO->textureIndex);
+			ui.lineEditOptionalDescription->setText(statsItemDTO->optionalDescription.c_str());
 			ui.comboBoxStatChanging->setCurrentIndex(statsItemDTO->statChangingIndex);
 			ui.lineEditGain->setText(std::to_string(statsItemDTO->gain).c_str());
 			ui.checkBoxLimitOfOneApplied->setChecked(statsItemDTO->limitOfOneApplied);
@@ -81,6 +82,7 @@ void EditStatsItemForm::onPushButtonOKClick()
 	itemInfo->name = ui.lineEditName->text().toStdString();
 	itemInfo->textureName = ui.lineEditTextureName->text().toStdString();
 	itemInfo->textureIndex = ui.spinBoxTextureIndex->value();
+	itemInfo->optionalDescription = ui.lineEditOptionalDescription->text().toStdString();
 	itemInfo->statChangingIndex = ui.comboBoxStatChanging->currentIndex();
 	itemInfo->gain = stof(ui.lineEditGain->text().toStdString());
 	itemInfo->limitOfOneApplied = ui.checkBoxLimitOfOneApplied->isChecked();

@@ -38,6 +38,7 @@ std::unique_ptr<ItemDTO> ManageArmorItemController::getItem(const std::string &i
 			retval->name = armorItem->getName();
 			retval->textureName = armorItem->getTextureName();
 			retval->textureIndex = armorItem->getTextureIndex();
+			retval->optionalDescription = armorItem->getOptionalDescription();
 			retval->defenseGain = armorItem->getDefenseGain();
 			retval->slotInBodyPartIndex = static_cast<int>(armorItem->getSlotInBodyPart());
 			return retval;
@@ -54,6 +55,7 @@ std::shared_ptr<Item> ManageArmorItemController::itemDTOToItem(std::unique_ptr<I
         armorDTO->name,
         armorDTO->textureName,
         armorDTO->textureIndex,
+		armorDTO->optionalDescription,
 		armorDTO->defenseGain,
 		static_cast<ArmorBodyPart>(armorDTO->slotInBodyPartIndex)
     };

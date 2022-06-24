@@ -51,6 +51,7 @@ bool EditArmorItemForm::loadExistingItemToForm()
 			ui.lineEditName->setText(armorDTO->name.c_str());
 			ui.lineEditTextureName->setText(armorDTO->textureName.c_str());
 			ui.spinBoxTextureIndex->setValue(armorDTO->textureIndex);
+			ui.lineEditOptionalDescription->setText(armorDTO->optionalDescription.c_str());
 			ui.lineEditDefenseGain->setText(std::to_string(armorDTO->defenseGain).c_str());
 			ui.comboBoxSlotInBodyPart->setCurrentIndex(armorDTO->slotInBodyPartIndex);
 		}
@@ -82,6 +83,7 @@ void EditArmorItemForm::onPushButtonOKClick()
 	itemInfo->name = ui.lineEditName->text().toStdString();
 	itemInfo->textureName = ui.lineEditTextureName->text().toStdString();
 	itemInfo->textureIndex = ui.spinBoxTextureIndex->value();
+	itemInfo->optionalDescription = ui.lineEditOptionalDescription->text().toStdString();
 	itemInfo->defenseGain = stof(ui.lineEditDefenseGain->text().toStdString());
 	itemInfo->slotInBodyPartIndex = ui.comboBoxSlotInBodyPart->currentIndex();
 	if (!m_itemIdToEdit.has_value()) {

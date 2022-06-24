@@ -18,6 +18,7 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameMap.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/statsItem.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/weaponItem.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/player.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/playerEquipment.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/inventory.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})

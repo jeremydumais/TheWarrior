@@ -33,6 +33,7 @@ std::unique_ptr<ItemDTO> ManageItemController::getItem(const std::string &id) co
         retval->name = item->getName();
         retval->textureName = item->getTextureName();
         retval->textureIndex = item->getTextureIndex();
+        retval->optionalDescription = item->getOptionalDescription();
         return retval;
     }
     return nullptr;
@@ -92,7 +93,8 @@ std::shared_ptr<Item> ManageItemController::itemDTOToItem(std::unique_ptr<ItemDT
         dto->id,
         dto->name,
         dto->textureName,
-        dto->textureIndex
+        dto->textureIndex,
+        dto->optionalDescription
     };
     std::shared_ptr<Item> updateItem = nullptr;
     try {

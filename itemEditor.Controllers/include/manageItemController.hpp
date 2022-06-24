@@ -11,6 +11,7 @@ struct ItemDTO
     std::string name;
     std::string textureName;
     int textureIndex;
+    std::string optionalDescription;
     virtual ~ItemDTO() = default; //Used to make the struct polymorphic
 };
 

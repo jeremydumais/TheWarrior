@@ -67,6 +67,7 @@ std::unique_ptr<ItemDTO> ManageStatsItemController::getItem(const std::string &i
 			retval->name = statsItem->getName();
 			retval->textureName = statsItem->getTextureName();
 			retval->textureIndex = statsItem->getTextureIndex();
+			retval->optionalDescription = statsItem->getOptionalDescription();
 			retval->statChangingIndex = static_cast<int>(statsItem->getStatChanging());
 			retval->gain = statsItem->getGain();
 			retval->limitOfOneApplied = statsItem->getLimitOfOneApplied();
@@ -85,6 +86,7 @@ std::shared_ptr<Item> ManageStatsItemController::itemDTOToItem(std::unique_ptr<I
         statsDTO->name,
         statsDTO->textureName,
         statsDTO->textureIndex,
+		statsDTO->optionalDescription,
 		static_cast<Stats>(statsDTO->statChangingIndex),
 		statsDTO->gain,
 		statsDTO->limitOfOneApplied,

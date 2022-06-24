@@ -12,7 +12,8 @@ public:
 			"shd001",
             "Wooden Shield",
 			"tex1",
-            1
+            1,
+            ""
 		} 
     {}
 	ItemCreationInfo itemCreationInfo;
@@ -26,7 +27,8 @@ public:
 			"shd001",
             "Wooden Shield",
 			"tex1",
-            1
+            1,
+            "A perfect first shield"
 		})
     {}
 	Item item;
@@ -187,6 +189,11 @@ TEST_F(ValidItemSample1, getTextureIndex_Return1)
     ASSERT_EQ(1, item.getTextureIndex());
 }
 
+TEST_F(ValidItemSample1, getOptionalDescription_ReturnAPerfectFirstShield) 
+{
+    ASSERT_EQ("A perfect first shield", item.getOptionalDescription());
+}
+
 TEST_F(ValidItemSample1, setId_WithEmpty_ThrowInvalidArgument) 
 {
     itemSetIdWithInvalidArgument(item, "", "id cannot be empty.");
@@ -260,17 +267,25 @@ TEST_F(ValidItemSample1, setTextureIndex_WithZero_ReturnSuccess)
     ASSERT_EQ(expected, item.getTextureIndex());
 }
 
+TEST_F(ValidItemSample1, setOptionalDescription_WithTest_ReturnSuccess) 
+{
+    string expected { "test" };
+    item.setOptionalDescription(expected);
+    ASSERT_EQ(expected, item.getOptionalDescription());
+}
+
 TEST_F(ValidItemSample1, equalityOperator_WithIdenticalItem_ReturnTrue)
 {
     ASSERT_EQ(item, Item({
 			"shd001",
             "Wooden Shield",
 			"tex1",
-            1
+            1, 
+            "A perfect first shield"
 	}));
 }
 
-TEST_F(ValidItemSample1, equalityOperator_WithDifferenId_ReturnFalse)
+TEST_F(ValidItemSample1, equalityOperator_WithDifferentId_ReturnFalse)
 {
     ASSERT_FALSE(item == Item({
 			"shd002",
@@ -280,7 +295,7 @@ TEST_F(ValidItemSample1, equalityOperator_WithDifferenId_ReturnFalse)
 	}));
 }
 
-TEST_F(ValidItemSample1, equalityOperator_WithDifferenName_ReturnFalse)
+TEST_F(ValidItemSample1, equalityOperator_WithDifferentName_ReturnFalse)
 {
     ASSERT_FALSE(item == Item({
 			"shd001",
@@ -290,7 +305,7 @@ TEST_F(ValidItemSample1, equalityOperator_WithDifferenName_ReturnFalse)
 	}));
 }
 
-TEST_F(ValidItemSample1, equalityOperator_WithDifferenTextureName_ReturnFalse)
+TEST_F(ValidItemSample1, equalityOperator_WithDifferentTextureName_ReturnFalse)
 {
     ASSERT_FALSE(item == Item({
 			"shd001",
@@ -300,7 +315,7 @@ TEST_F(ValidItemSample1, equalityOperator_WithDifferenTextureName_ReturnFalse)
 	}));
 }
 
-TEST_F(ValidItemSample1, equalityOperator_WithDifferenTextureIndex_ReturnFalse)
+TEST_F(ValidItemSample1, equalityOperator_WithDifferentTextureIndex_ReturnFalse)
 {
     ASSERT_FALSE(item == Item({
 			"shd001",
@@ -310,13 +325,25 @@ TEST_F(ValidItemSample1, equalityOperator_WithDifferenTextureIndex_ReturnFalse)
 	}));
 }
 
+TEST_F(ValidItemSample1, equalityOperator_WithDifferentOptionalDescription_ReturnFalse)
+{
+    ASSERT_FALSE(item == Item({
+			"shd001",
+            "Wooden Shield",
+			"tex1",
+            1,
+            "Another description"
+	}));
+}
+
 TEST_F(ValidItemSample1, inequalityOperator_WithIdenticalItem_ReturnFalse)
 {
     ASSERT_FALSE(item != Item({
 			"shd001",
             "Wooden Shield",
 			"tex1",
-            1
+            1,
+            "A perfect first shield"
 	}));
 }
 
@@ -357,5 +384,16 @@ TEST_F(ValidItemSample1, inequalityOperator_WithDifferenTextureIndex_ReturnTrue)
             "Wooden Shield",
 			"tex1",
             2
+	}));
+}
+
+TEST_F(ValidItemSample1, inequalityOperator_WithDifferenOptionalDescription_ReturnTrue)
+{
+    ASSERT_NE(item, Item({
+			"shd001",
+            "Wooden Shield",
+			"tex1",
+            1,
+            "Another description"
 	}));
 }

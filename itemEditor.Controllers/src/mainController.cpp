@@ -78,7 +78,7 @@ std::vector<ItemListDisplay> MainController::getItemsFromCategory(const std::str
         auto items = m_itemStore->getItems();
         for(auto item : items) {
             if (item->getType() == itemType.value()) {
-                retval.push_back({ item->getId(), item->getName()});
+                retval.push_back({ item->getId(), item->getName(), item->getOptionalDescription() });
             }
         }
     }

@@ -6,7 +6,7 @@ class StatsItemCreationInfoSamples
 {
 public:
     static StatsItemCreationInfo getSample1() {
-        return { "pot001", "Potion1", "tex1", 0, Stats::Vitality, 1.0F, true, 30 };
+        return { "pot001", "Potion1", "tex1", 0, "test", Stats::Vitality, 1.0F, true, 30 };
     }
 };
 
@@ -27,6 +27,7 @@ TEST(StatsItem_DefaultConstructor, CreateWithDefaultValues)
     ASSERT_EQ("<temp item>", item.getName());
     ASSERT_EQ("tmp", item.getTextureName());
     ASSERT_EQ(0, item.getTextureIndex());
+    ASSERT_EQ("", item.getOptionalDescription());
     ASSERT_EQ(Stats::Vitality, item.getStatChanging());
     ASSERT_FLOAT_EQ(1.1F, item.getGain());
     ASSERT_TRUE(item.getLimitOfOneApplied());
@@ -36,7 +37,7 @@ TEST(StatsItem_DefaultConstructor, CreateWithDefaultValues)
 TEST(StatsItem_Constructor, WithNullId_ThrowInvalidArgument)
 {
     try {
-        StatsItem statsItem({ "", "potion1", "tex1", 0, Stats::Vitality, 1.0F, true, 0 });
+        StatsItem statsItem({ "", "potion1", "tex1", 0, "", Stats::Vitality, 1.0F, true, 0 });
     }
     catch(const std::invalid_argument &err) {
         ASSERT_STREQ("id cannot be empty.", err.what());
@@ -50,6 +51,7 @@ TEST(StatsItem_Constructor, WithValidValues_ReturnSuccess)
     ASSERT_EQ("Potion1", statsItem.getName());
     ASSERT_EQ("tex1", statsItem.getTextureName());
     ASSERT_EQ(0, statsItem.getTextureIndex());
+    ASSERT_EQ("test", statsItem.getOptionalDescription());
     ASSERT_EQ(Stats::Vitality, statsItem.getStatChanging());
     ASSERT_FLOAT_EQ(1.0F, statsItem.getGain());
     ASSERT_TRUE(statsItem.getLimitOfOneApplied());

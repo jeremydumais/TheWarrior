@@ -6,7 +6,7 @@ class WeaponItemCreationInfoSamples
 {
 public:
     static WeaponItemCreationInfo getSample1() {
-        return { "swd001", "weapon1", "tex1", 0, 1.0F, WeaponBodyPart::SecondaryHand };
+        return { "swd001", "weapon1", "tex1", 0, "test", 1.0F, WeaponBodyPart::SecondaryHand };
     }
 };
 
@@ -27,6 +27,7 @@ TEST(WeaponItem_DefaultConstructor, CreateWithDefaultValues)
     ASSERT_EQ("<temp item>", item.getName());
     ASSERT_EQ("tmp", item.getTextureName());
     ASSERT_EQ(0, item.getTextureIndex());
+    ASSERT_EQ("", item.getOptionalDescription());
     ASSERT_FLOAT_EQ(0.0F, item.getAttackGain());
     ASSERT_EQ(WeaponBodyPart::MainHand, item.getSlotInBodyPart());
 }
@@ -34,7 +35,7 @@ TEST(WeaponItem_DefaultConstructor, CreateWithDefaultValues)
 TEST(WeaponItem_Constructor, WithNullId_ThrowInvalidArgument)
 {
     try {
-        WeaponItem weaponItem({ "", "weapon1", "tex1", 0, 1.0F, WeaponBodyPart::MainHand });
+        WeaponItem weaponItem({ "", "weapon1", "tex1", 0, "", 1.0F, WeaponBodyPart::MainHand });
     }
     catch(const std::invalid_argument &err) {
         ASSERT_STREQ("id cannot be empty.", err.what());
@@ -48,6 +49,7 @@ TEST(WeaponItem_Constructor, WithValidValues_ReturnSuccess)
     ASSERT_EQ("weapon1", weaponItem.getName());
     ASSERT_EQ("tex1", weaponItem.getTextureName());
     ASSERT_EQ(0, weaponItem.getTextureIndex());
+    ASSERT_EQ("test", weaponItem.getOptionalDescription());
     ASSERT_FLOAT_EQ(1.0F, weaponItem.getAttackGain());
     ASSERT_EQ(WeaponBodyPart::SecondaryHand, weaponItem.getSlotInBodyPart());
 }
