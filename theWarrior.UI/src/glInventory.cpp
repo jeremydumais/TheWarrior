@@ -130,6 +130,8 @@ void GLInventory::generateGLInventory()
     m_glTextDetails.position = { DETAILSBOXPOSITION.x() + 130, 
                                  DETAILSBOXPOSITION.y() + 36 };
     if (m_inputMode == InventoryInputMode::StatsItemPopup ||
+        m_inputMode == InventoryInputMode::ItemPopup ||
+        m_inputMode == InventoryInputMode::WeaponOrArmorPopup ||
         m_inputMode == InventoryInputMode::DropItemPopup) {
         m_choicePopup.generateGLInventory();
     }
@@ -156,6 +158,8 @@ void GLInventory::render()
     m_glFormService->drawText(m_glTitle);
     m_glFormService->drawText(m_glTextDetails);
     if (m_inputMode == InventoryInputMode::StatsItemPopup ||
+        m_inputMode == InventoryInputMode::ItemPopup ||
+        m_inputMode == InventoryInputMode::WeaponOrArmorPopup ||
         m_inputMode == InventoryInputMode::DropItemPopup) {
         m_choicePopup.render();
     }
@@ -232,6 +236,12 @@ void GLInventory::processEvents(SDL_Event &e)
     case InventoryInputMode::StatsItemPopup:
         m_choicePopup.processEvents(e);
         break;
+    case InventoryInputMode::ItemPopup:
+        m_choicePopup.processEvents(e);
+        break;
+    case InventoryInputMode::WeaponOrArmorPopup:
+        m_choicePopup.processEvents(e);
+        break;
     case InventoryInputMode::DropItemPopup:
         m_choicePopup.processEvents(e);
         break;
@@ -285,6 +295,14 @@ void GLInventory::inventoryActionButtonPressed()
                     m_choicePopup.preparePopup({ "Use", "Move", "Drop" });
                     changeMode(InventoryInputMode::StatsItemPopup);
                 }
+                else if (item->getType() == ItemType::Armor || item->getType() == ItemType::Weapon) {
+                    m_choicePopup.preparePopup({ "Equip", "Move", "Drop" });
+                    changeMode(InventoryInputMode::WeaponOrArmorPopup);
+                }
+                else if (item->getType() == ItemType::Item) {
+                    m_choicePopup.preparePopup({ "Move", "Drop" });
+                    changeMode(InventoryInputMode::ItemPopup);
+                }
             }
         }
         break;
@@ -299,12 +317,26 @@ void GLInventory::itemActionPopupClicked(size_t choice)
     {
     case InventoryInputMode::StatsItemPopup:
         if (choice == 1) {
-            m_inventoryMoveSrc = m_inventoryCursorPosition;
-            changeMode(InventoryInputMode::MoveItem);
+            prepareMoveItemMode();
         }
         else if (choice == 2) {
-            m_choicePopup.preparePopup({ "No", "Yes" });
-            changeMode(InventoryInputMode::DropItemPopup);
+            prepareDropItemPopup();
+        }
+        break;
+    case InventoryInputMode::ItemPopup:
+        if (choice == 0) {
+            prepareMoveItemMode();
+        }
+        else if (choice == 1) {
+            prepareDropItemPopup();
+        }
+        break;
+    case InventoryInputMode::WeaponOrArmorPopup:
+        if (choice == 1) {
+            prepareMoveItemMode();
+        }
+        else if (choice == 2) {
+            prepareDropItemPopup();
         }
         break;
     case InventoryInputMode::DropItemPopup :
@@ -330,4 +362,16 @@ void GLInventory::completeMoveActionButtonPressed()
 {
     m_inventory->moveItem(m_inventoryMoveSrc, m_inventoryCursorPosition);
     changeMode(InventoryInputMode::List);
+}
+
+void GLInventory::prepareMoveItemMode()
+{
+    m_inventoryMoveSrc = m_inventoryCursorPosition;
+    changeMode(InventoryInputMode::MoveItem);
+}
+
+void GLInventory::prepareDropItemPopup()
+{
+    m_choicePopup.preparePopup({ "No", "Yes" });
+    changeMode(InventoryInputMode::DropItemPopup);
 }

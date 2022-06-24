@@ -84,4 +84,6 @@ private:
     void itemActionPopupClicked(size_t choice);
     void itemActionPopupCanceled();
     void completeMoveActionButtonPressed();
+    void prepareMoveItemMode();
+    void prepareDropItemPopup();
 };

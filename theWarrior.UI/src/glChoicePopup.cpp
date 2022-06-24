@@ -80,7 +80,7 @@ void GLChoicePopup::generateGLInventory()
                                     8);
     for(size_t i = 0; i < m_glTextChoices.size(); i++) {
         auto textSize = m_textService->getTextSize(m_glTextChoices[i].text, 0.6F);
-        m_glTextChoices[i].position = { POPUP_LOCATION.x() + (POPUP_SIZE.width() / 2.0F) - (textSize.width() / 2.0F), POPUP_LOCATION.y() + 60.0F + (70.0F * static_cast<float>(i)) };
+        m_glTextChoices[i].position = { POPUP_LOCATION.x() + (POPUP_SIZE.width() / 2.0F) - (textSize.width() / 2.0F), POPUP_LOCATION.y() + 70.0F + (70.0F * static_cast<float>(i)) };
     }
 }
 
