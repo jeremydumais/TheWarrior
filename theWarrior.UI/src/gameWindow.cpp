@@ -29,7 +29,8 @@ GameWindow::GameWindow(const string &title,
     m_joystick = SDL_JoystickOpen(0);
 
     subscribeEvents();
-    m_textBox->initialize(m_textService,
+    m_textBox->initialize(m_controller.getResourcesPath(),
+                          m_textService,
                           m_controller.getItemStore(),
                           &m_texturesGLItemStore);
     m_glPlayer->initialize(m_controller.getResourcesPath());

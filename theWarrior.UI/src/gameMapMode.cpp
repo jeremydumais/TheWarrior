@@ -109,7 +109,7 @@ void GameMapMode::processEvents(SDL_Event &e)
         if (!m_blockKeyDown) {
             m_blockKeyDown = true;
             auto dto = std::make_unique<ItemFoundMessageDTO>();
-            //auto dto = make_unique<MessageDTO>();
+            //auto dto = std::make_unique<MessageDTO>();
             dto->message = "Hello, my name is Jed and I am the first warrior of the entire land so just let me know if you need help.";
             //dto->message = "You found a Wooden Sword!";
             dto->maxDurationInMilliseconds = -1;

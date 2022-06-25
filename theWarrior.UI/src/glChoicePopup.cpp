@@ -5,7 +5,7 @@ GLChoicePopup::GLChoicePopup()
       m_inventoryCenter(1.0F, 1.0F),
       m_menuCursorPosition(0),
       m_menuItemCount(0),
-      m_popupGLTexture({ Texture(TextureInfo { "inventoryWindow", "inventory_window.png", 256, 256, 32, 32 }), 0 }),
+      m_popupGLTexture({ Texture(TextureInfo { "inventoryWindow", "window.png", 256, 256, 32, 32 }), 0 }),
       m_menuObjects(std::vector<GLObject>(9)),
       m_glTextChoices(std::vector<GLTextObject>())
 {

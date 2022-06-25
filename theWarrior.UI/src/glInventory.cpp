@@ -22,7 +22,7 @@ GLInventory::GLInventory()
       m_slotsGLTexture({ Texture(TextureInfo{ "emptySlot", "item_slot.png", 768, 256, 256, 256 }), 0 }),
       m_glInventoryItems(std::vector<GLObject>(INVENTORY_MAX)),
       m_inventoryWindowObjects(std::vector<GLObject>(INVENTORY_WINDOW_OBJ_MAX)),
-      m_inventoryWindowGLTexture({ Texture(TextureInfo { "inventoryWindow", "inventory_window.png", 256, 256, 32, 32 }), 0 })
+      m_inventoryWindowGLTexture({ Texture(TextureInfo { "inventoryWindow", "window.png", 256, 256, 32, 32 }), 0 })
 {
     m_choicePopup.m_choiceClicked.connect(boost::bind(&GLInventory::itemActionPopupClicked, this, boost::placeholders::_1));
     m_choicePopup.m_cancelClicked.connect(boost::bind(&GLInventory::itemActionPopupCanceled, this));
@@ -77,11 +77,16 @@ void GLInventory::generateGLInventory()
 
     //Inventory window
     m_glFormService->generateQuad(m_glInventoryWindow, m_inventoryWindowLocation, m_inventorySize);
+    m_glFormService->generateBoxQuad(m_inventoryWindowObjects.begin(),
+                                    m_inventoryWindowLocation,
+                                    m_inventorySize,
+                                    &m_inventoryWindowGLTexture.texture,
+                                    17);
     //Detail box
     const Point<float> DETAILSBOXPOSITION = { m_inventoryWindowLocation.x() + 16.0F, 
                                               m_inventoryWindowLocation.y() + 80.0F };
     const Size<float> DETAILSBOXSIZE = { 324.0F, 448.0F };
-    m_glFormService->generateBoxQuad(m_inventoryWindowObjects.begin(),
+    m_glFormService->generateBoxQuad(m_inventoryWindowObjects.begin()+8,
                                     DETAILSBOXPOSITION,
                                     DETAILSBOXSIZE,
                                     &m_inventoryWindowGLTexture.texture,

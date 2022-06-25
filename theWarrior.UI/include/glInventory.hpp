@@ -21,7 +21,7 @@
 #include <string>
 #include <vector>
 
-#define INVENTORY_WINDOW_OBJ_MAX 8
+#define INVENTORY_WINDOW_OBJ_MAX 16
 
 enum InventoryInputMode 
 {
