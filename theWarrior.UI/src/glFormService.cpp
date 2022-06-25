@@ -128,6 +128,11 @@ void GLFormService::drawQuad(const GLObject &glObject, GLuint textureGLIndex, fl
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void GLFormService::drawText(const GLTextObject &glTextObject)
+{   
+    drawText(glTextObject, glTextObject.color);
+}
+
 void GLFormService::drawText(const GLTextObject &glTextObject, GLColor color)
 {   
     m_textService->useShader();

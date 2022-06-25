@@ -21,7 +21,7 @@
 #include <string>
 #include <vector>
 
-#define INVENTORY_WINDOW_OBJ_MAX 16
+#define INVENTORY_WINDOW_OBJ_MAX 24
 
 enum InventoryInputMode 
 {
@@ -67,13 +67,28 @@ private:
     GLObject m_glInventoryWindow;
     const Size<float> m_inventorySize;
     GLTextObject m_glTitle;
-    GLTextObject m_glTextDetails;
+    GLTextObject m_glDetailsTextTitle;
+    std::vector<GLTextObject> m_glDetailsTextObjects;
+    Point<float> m_detailsBoxPosition;
     std::vector<GLObject> m_glSlots;
     GLTexture m_slotsGLTexture;
     std::vector<GLObject> m_glInventoryItems;
     std::vector<GLObject> m_inventoryWindowObjects;
     GLTexture m_inventoryWindowGLTexture;
     GLChoicePopup m_choicePopup;
+    void generateSlots();
+    void generateDetailsInfo();
+    void generateWeaponDetails(std::shared_ptr<const Item> item, float yPosition);
+    void generateStatsItemDetails(std::shared_ptr<const Item> item, float yPosition);
+    void generateDetailLabel(const std::string &text,
+                             float xOffsetFromCenter,
+                             float yPosition,
+                             float scale,
+                             GLColor color = GLColor::White);
+    void generateDetailLabelXCentered(const std::string &text,
+                                      float yPosition,
+                                      float scale,
+                                      GLColor color = GLColor::White);
     Point<float> getRowAndColFromInventoryIndex(size_t index) const;
     void changeMode(InventoryInputMode mode);
     void inventoryMoveUpPressed();

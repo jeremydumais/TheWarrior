@@ -5,7 +5,9 @@
 enum GLColor
 {
     White,
-    Gray
+    Gray,
+    LightGray,
+    Green
 };
 
 glm::vec3 getVec3FromGLColor(GLColor color);

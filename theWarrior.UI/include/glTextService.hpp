@@ -1,5 +1,6 @@
 #pragma once
 
+#include "glColor.hpp"
 #include "glShaderProgram.hpp"
 #include "IShaderService.hpp"
 #include "point.hpp"
@@ -18,6 +19,7 @@ struct GLTextObject
     std::string text;
     Point<float> position;
     float scale;
+    GLColor color = GLColor::White;
 };
 
 struct Character {

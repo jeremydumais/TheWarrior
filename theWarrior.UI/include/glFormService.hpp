@@ -23,7 +23,8 @@ public:
                          const Texture *texture,
                          int textureBeginId);
     void drawQuad(const GLObject &glObject, GLuint textureGLIndex, float transparency = 0.0F);
-    void drawText(const GLTextObject &glTextObject, GLColor color = GLColor::White);
+    void drawText(const GLTextObject &glTextObject);
+    void drawText(const GLTextObject &glTextObject, GLColor color);
     void gameWindowSizeChanged(const Size<> &size);
 private:
     Size<float> m_gameWindowSize;

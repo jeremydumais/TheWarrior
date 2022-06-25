@@ -1,8 +1,16 @@
 #include "glInventory.hpp"
+#include "armorItem.hpp"
 #include "point.hpp"
+#include "statsItem.hpp"
+#include "weaponItem.hpp"
+#include <fmt/format.h>
 #include <iostream>
 
 const size_t COL_MAX = 7;
+const float SPACING = 10.F;
+const float SLOTSIZE = 80.0F;
+const float ITEMSIZE = 70.0F;
+const Size<float> DETAILSBOXSIZE = { 324.0F, 448.0F };
 
 GLInventory::GLInventory()
     : m_inventory(nullptr),
@@ -17,7 +25,9 @@ GLInventory::GLInventory()
       m_textService(nullptr),
       m_inventorySize({ 1000.0F, 570.0F }),
       m_glTitle({ "Inventory", { 1.0F, 1.0F }, 0.6F }),
-      m_glTextDetails({ "Details", { 1.0F, 1.0F }, 0.5F }),
+      m_glDetailsTextTitle({ "Details", { 1.0F, 1.0F }, 0.5F }),
+      m_glDetailsTextObjects(std::vector<GLTextObject>()),
+      m_detailsBoxPosition({ 1.0F, 1.0F }),
       m_glSlots(std::vector<GLObject>(INVENTORY_MAX)),
       m_slotsGLTexture({ Texture(TextureInfo{ "emptySlot", "item_slot.png", 768, 256, 256, 256 }), 0 }),
       m_glInventoryItems(std::vector<GLObject>(INVENTORY_MAX)),
@@ -71,10 +81,6 @@ void GLInventory::setInventory(std::shared_ptr<Inventory> inventory)
 
 void GLInventory::generateGLInventory()
 {
-    const float SPACING = 10.F;
-    const float SLOTSIZE = 80.0F;
-    const float ITEMSIZE = 70.0F;
-
     //Inventory window
     m_glFormService->generateQuad(m_glInventoryWindow, m_inventoryWindowLocation, m_inventorySize);
     m_glFormService->generateBoxQuad(m_inventoryWindowObjects.begin(),
@@ -82,17 +88,46 @@ void GLInventory::generateGLInventory()
                                     m_inventorySize,
                                     &m_inventoryWindowGLTexture.texture,
                                     17);
-    //Detail box
-    const Point<float> DETAILSBOXPOSITION = { m_inventoryWindowLocation.x() + 16.0F, 
-                                              m_inventoryWindowLocation.y() + 80.0F };
-    const Size<float> DETAILSBOXSIZE = { 324.0F, 448.0F };
+    //TitleBox
+    auto titleSize = m_textService->getTextSize(m_glTitle.text, 0.6F);
+    m_glTitle.position = { m_inventoryWindowLocation.x() + 15.0F + (m_inventorySize.width() / 2.0F) - (titleSize.width() / 2.0F),
+                           m_inventoryWindowLocation.y() + 40.0F };
     m_glFormService->generateBoxQuad(m_inventoryWindowObjects.begin()+8,
-                                    DETAILSBOXPOSITION,
+                                    {m_glTitle.position.x() - 35.0F, m_glTitle.position.y() - 30.0F},
+                                    {200.0F, 40.0F},
+                                    &m_inventoryWindowGLTexture.texture,
+                                    17);
+    //Detail box
+    m_glFormService->generateBoxQuad(m_inventoryWindowObjects.begin()+16,
+                                    m_detailsBoxPosition,
                                     DETAILSBOXSIZE,
                                     &m_inventoryWindowGLTexture.texture,
                                     0);
 
-    //Inventory slots
+    generateSlots();
+
+    //Inventory objects
+    for(const auto &itemMap : m_inventory->getItemsWithIndex()) {
+        const auto rowAndCol = getRowAndColFromInventoryIndex(itemMap.first);
+        m_glFormService->generateQuad(m_glInventoryItems.at(itemMap.first), 
+                                    { m_inventoryWindowLocation.x() + 365.0F + (rowAndCol.x() * SLOTSIZE) + (rowAndCol.x() * SPACING), 
+                                    m_inventoryWindowLocation.y() + 100.0F + (rowAndCol.y() * SLOTSIZE) + (rowAndCol.y() * SPACING) }, 
+                                    { ITEMSIZE, ITEMSIZE }, 
+                                    &m_itemStore->getTextureContainer().getTextureByName(itemMap.second->getTextureName()).value().get(), 
+                                    itemMap.second->getTextureIndex());              
+    }
+
+    generateDetailsInfo();         
+    if (m_inputMode == InventoryInputMode::StatsItemPopup ||
+        m_inputMode == InventoryInputMode::ItemPopup ||
+        m_inputMode == InventoryInputMode::WeaponOrArmorPopup ||
+        m_inputMode == InventoryInputMode::DropItemPopup) {
+        m_choicePopup.generateGLInventory();
+    }
+}
+
+void GLInventory::generateSlots()
+{
     for(size_t index = 0; index < m_glSlots.size(); index++) {
         const auto rowAndCol = getRowAndColFromInventoryIndex(index);
         const int textureIndex([this, index]() -> int {
@@ -117,29 +152,92 @@ void GLInventory::generateGLInventory()
                                     &m_slotsGLTexture.texture, 
                                     textureIndex);
     }
+}
 
-    //Inventory objects
-    for(const auto &itemMap : m_inventory->getItemsWithIndex()) {
-        const auto rowAndCol = getRowAndColFromInventoryIndex(itemMap.first);
-        m_glFormService->generateQuad(m_glInventoryItems.at(itemMap.first), 
-                                    { m_inventoryWindowLocation.x() + 365.0F + (rowAndCol.x() * SLOTSIZE) + (rowAndCol.x() * SPACING), 
-                                    m_inventoryWindowLocation.y() + 100.0F + (rowAndCol.y() * SLOTSIZE) + (rowAndCol.y() * SPACING) }, 
-                                    { ITEMSIZE, ITEMSIZE }, 
-                                    &m_itemStore->getTextureContainer().getTextureByName(itemMap.second->getTextureName()).value().get(), 
-                                    itemMap.second->getTextureIndex());              
+void GLInventory::generateDetailsInfo()
+{
+    auto detailSize = m_textService->getTextSize(m_glDetailsTextTitle.text, 0.5F);
+    m_glDetailsTextTitle.position = { m_detailsBoxPosition.x() + (DETAILSBOXSIZE.width() / 2.0F) - (detailSize.width() / 2.0F), 
+                                      m_detailsBoxPosition.y() + 36 };
+    m_glDetailsTextObjects.clear();
+    auto item = m_inventory->getItem(m_inventoryCursorPosition);
+    if (item != nullptr) {
+        generateDetailLabelXCentered(item->getName(), 80.0F, 0.4F);
+        int index = 0;
+        if (!item->getOptionalDescription().empty()) {
+            auto result = m_textService->prepareTextForDisplay(DETAILSBOXSIZE, item->getOptionalDescription(), 0.4F);
+            for(const auto &str : result.lines) {
+                generateDetailLabelXCentered(str, 120.0F + (static_cast<float>(index) * 25.0F), 0.4F);
+                index++;                                                                   
+            }
+        }
+        float nextItemAfterDescY = index > 0 ? 120.0F + (static_cast<float>(index) * 25.0F) + 25.0F : 120.0F;
+        switch (item->getType())
+        {
+        case ItemType::Weapon:
+            generateWeaponDetails(item, nextItemAfterDescY);
+            break;    
+        case ItemType::StatsItem:
+            generateStatsItemDetails(item, nextItemAfterDescY);
+            break;
+        default:
+            break;
+        } 
     }
+}
 
-    auto titleSize = m_textService->getTextSize(m_glTitle.text, 0.6F);
-    m_glTitle.position = { m_inventoryWindowLocation.x() + 15.0F + (m_inventorySize.width() / 2.0F) - (titleSize.width() / 2.0F),
-                           m_inventoryWindowLocation.y() + 40.0F };
-    m_glTextDetails.position = { DETAILSBOXPOSITION.x() + 130, 
-                                 DETAILSBOXPOSITION.y() + 36 };
-    if (m_inputMode == InventoryInputMode::StatsItemPopup ||
-        m_inputMode == InventoryInputMode::ItemPopup ||
-        m_inputMode == InventoryInputMode::WeaponOrArmorPopup ||
-        m_inputMode == InventoryInputMode::DropItemPopup) {
-        m_choicePopup.generateGLInventory();
+void GLInventory::generateWeaponDetails(std::shared_ptr<const Item> item, float yPosition)
+{
+    const auto *weapon = dynamic_cast<const WeaponItem*>(item.get());
+    if (weapon) {
+        std::string attackLabel = "Attack: ";
+        char attackGainSymbol = weapon->getAttackGain() >=0 ? '+': '-';
+        auto attackStrSize = m_textService->getTextSize(attackLabel, 0.4F);
+        auto attackFullStrSize = m_textService->getTextSize(fmt::format("{0}{1}{2}", 
+                                                                        attackLabel,
+                                                                        attackGainSymbol,
+                                                                        weapon->getAttackGain()), 0.4F); 
+
+        generateDetailLabel(attackLabel, (attackFullStrSize.width() / 2.0F) - attackStrSize.width(), yPosition, 0.4F, GLColor::White);
+        generateDetailLabel(fmt::format("{0}{1}", attackGainSymbol, weapon->getAttackGain()), 
+                            (attackFullStrSize.width() / 2.0F) + ((attackFullStrSize.width() / 2.0F) - attackStrSize.width()), 
+                            yPosition, 0.4F, GLColor::Green);
     }
+}
+
+void GLInventory::generateStatsItemDetails(std::shared_ptr<const Item> item, float yPosition)
+{
+    const auto *statsItem = dynamic_cast<const StatsItem *>(item.get());
+    if (statsItem && statsItem->getLimitOfOneApplied()) {
+        generateDetailLabelXCentered("Limit of one applied.", yPosition, 0.4F, GLColor::LightGray);
+    }
+    if (statsItem && statsItem->getDurationInSecs() > 0) {
+        generateDetailLabelXCentered(fmt::format("Last {0} seconds.", statsItem->getDurationInSecs()), 
+                            yPosition + 25.0F, 
+                            0.4F, GLColor::LightGray);
+    }
+}
+void GLInventory::generateDetailLabel(const std::string &text,
+                                      float xOffsetFromCenter,
+                                      float yPosition,
+                                      float scale,
+                                      GLColor color)
+{
+    float detailBoxXCenter = m_detailsBoxPosition.x() + (DETAILSBOXSIZE.width() / 2.0F);
+    auto labelSize = m_textService->getTextSize(text, scale);
+    m_glDetailsTextObjects.emplace_back(GLTextObject({ text, 
+                                                       { detailBoxXCenter + xOffsetFromCenter - (labelSize.width() / 2.0F), 
+                                                         m_detailsBoxPosition.y() + yPosition }, 
+                                                       scale,
+                                                       color }));
+}
+
+void GLInventory::generateDetailLabelXCentered(const std::string &text,
+                                               float yPosition,
+                                               float scale, 
+                                               GLColor color)
+{
+    generateDetailLabel(text, 0.0F, yPosition, scale, color);
 }
 
 Point<float> GLInventory::getRowAndColFromInventoryIndex(size_t index) const
@@ -161,7 +259,10 @@ void GLInventory::render()
         m_glFormService->drawQuad(m_glInventoryItems.at(itemMap.first), m_texturesGLItemStore->at(itemMap.second->getTextureName()), 0.0F);
     }
     m_glFormService->drawText(m_glTitle);
-    m_glFormService->drawText(m_glTextDetails);
+    m_glFormService->drawText(m_glDetailsTextTitle);
+    for(const auto &text : m_glDetailsTextObjects) {
+        m_glFormService->drawText(text);
+    }
     if (m_inputMode == InventoryInputMode::StatsItemPopup ||
         m_inputMode == InventoryInputMode::ItemPopup ||
         m_inputMode == InventoryInputMode::WeaponOrArmorPopup ||
@@ -176,6 +277,8 @@ void GLInventory::gameWindowSizeChanged(const Size<> &size)
                              static_cast<float>(size.height()));
     m_inventoryWindowLocation = { (m_gameWindowSize.width() / 2.0F) - (m_inventorySize.width() / 2.0F), 
                                   (m_gameWindowSize.height() / 2.0F) - (m_inventorySize.height() / 2.0F) };
+    m_detailsBoxPosition = { m_inventoryWindowLocation.x() + 16.0F, 
+                             m_inventoryWindowLocation.y() + 80.0F };
     m_glFormService->gameWindowSizeChanged(size);
     const Point<float> inventoryWindowCenter(m_inventoryWindowLocation.x() + (m_inventorySize.width() / 2.0F),
                                              m_inventoryWindowLocation.y() + (m_inventorySize.height() / 2.0F));

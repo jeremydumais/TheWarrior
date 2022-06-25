@@ -86,7 +86,7 @@ void GLTextBox::generateMessage(std::shared_ptr<MessageDTO> messageDTO)
 void GLTextBox::draw()
 {
     m_shaderProgram->use();
-    m_glFormService.drawQuad(m_glObject, 0);
+    m_glFormService.drawQuad(m_glObject, 0, 0.8F);
     for(const auto &obj : m_windowObjects) {
         m_glFormService.drawQuad(obj, m_windowGLTexture.glTextureId);
     }
