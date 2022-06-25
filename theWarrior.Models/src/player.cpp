@@ -25,6 +25,11 @@ std::shared_ptr<Inventory> Player::getInventory()
     return m_inventory;
 }
 
+PlayerEquipment& Player::getEquipment()
+{
+    return m_equipment;
+}
+
 void Player::setName(const std::string &name)
 {
     validateName(name);

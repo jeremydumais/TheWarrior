@@ -31,6 +31,7 @@ public:
                     boost::optional<ArmorItem> feet);
     const boost::optional<WeaponItem> &getMainHand() const;
     const VariantEquipment &getSecondaryHand() const;
+    SecondaryHandType getSecondaryHandType() const;
     const boost::optional<ArmorItem> &getHead() const;
     const boost::optional<ArmorItem> &getUpperBody() const;
     const boost::optional<ArmorItem> &getLowerBody() const;
@@ -38,6 +39,11 @@ public:
     const boost::optional<ArmorItem> &getFeet() const;
     void setMainHand(boost::optional<WeaponItem> weapon);
     void setSecondaryHand(VariantEquipment weaponOrArmor);
+    void setHead(boost::optional<ArmorItem> armor);
+    void setUpperBody(boost::optional<ArmorItem> armor);
+    void setLowerBody(boost::optional<ArmorItem> armor);
+    void setHands(boost::optional<ArmorItem> armor);
+    void setFeet(boost::optional<ArmorItem> armor);
 private:
     friend class boost::serialization::access;
     boost::optional<WeaponItem> m_mainHand;

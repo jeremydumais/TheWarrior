@@ -56,6 +56,11 @@ const boost::optional<boost::variant<WeaponItem, ArmorItem>> &PlayerEquipment::g
     return m_secondaryHand;
 }
 
+SecondaryHandType PlayerEquipment::getSecondaryHandType() const
+{
+    return getVariantEquipmentType(m_secondaryHand);
+}
+
 const boost::optional<ArmorItem> &PlayerEquipment::getHead() const
 {
     return m_head;
@@ -91,6 +96,36 @@ void PlayerEquipment::setSecondaryHand(VariantEquipment weaponOrArmor)
 {
     validateSecondaryHand(weaponOrArmor);
     m_secondaryHand = weaponOrArmor;
+}
+
+void PlayerEquipment::setHead(boost::optional<ArmorItem> armor)
+{
+    validateHead(armor);
+    m_head = armor;
+}
+
+void PlayerEquipment::setUpperBody(boost::optional<ArmorItem> armor)
+{
+    validateUpperBody(armor);
+    m_upperBody = armor;
+}
+
+void PlayerEquipment::setLowerBody(boost::optional<ArmorItem> armor)
+{
+    validateLowerBody(armor);
+    m_lowerBody = armor;
+}
+
+void PlayerEquipment::setHands(boost::optional<ArmorItem> armor)
+{
+    validateHands(armor);
+    m_hands = armor;
+}
+
+void PlayerEquipment::setFeet(boost::optional<ArmorItem> armor)
+{
+    validateFeet(armor);
+    m_feet = armor;
 }
 
 SecondaryHandType getVariantEquipmentType(VariantEquipment variantEquipment)
