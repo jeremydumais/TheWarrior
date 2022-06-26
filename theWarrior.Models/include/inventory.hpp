@@ -24,7 +24,7 @@ public:
     bool addItem(std::shared_ptr<const Item> item);
     bool dropItem(size_t slotIndex);
     bool moveItem(size_t slotIndexSrc, size_t slotIndexDst);
-    bool replaceItem(size_t slotIndexDst, std::shared_ptr<Item> item);
+    bool replaceItem(size_t slotIndexDst, std::shared_ptr<const Item> item);
 private:
     friend class boost::serialization::access;
     InventoryArray m_slots;

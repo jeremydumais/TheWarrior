@@ -93,7 +93,7 @@ bool Inventory::moveItem(size_t slotIndexSrc, size_t slotIndexDst)
     return true;
 }
 
-bool Inventory::replaceItem(size_t slotIndexDst, std::shared_ptr<Item> item)
+bool Inventory::replaceItem(size_t slotIndexDst, std::shared_ptr<const Item> item)
 {
     if (slotIndexDst >= INVENTORY_MAX || item == nullptr) {
         return false;

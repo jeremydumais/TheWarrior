@@ -164,18 +164,27 @@ void GLInventory::generateDetailsInfo()
     m_glDetailsTextObjects.clear();
     auto item = m_inventory->getItem(m_inventoryCursorPosition);
     if (item != nullptr) {
-        generateDetailLabelXCentered(item->getName(), 80.0F, 0.4F);
+        //Display icon
+        auto iconTexture = &m_itemStore->getTextureContainer().getTextureByName(item->getTextureName()).value().get(); 
+        m_glDetailsIconTextureId = m_texturesGLItemStore->at(item->getTextureName());
+        Point<float> iconPosition( m_detailsBoxPosition.x() + (DETAILSBOXSIZE.width() / 2.0F) - (SLOTSIZE / 2.0F), 
+                                   m_detailsBoxPosition.y() + 60.0F);
+        m_glFormService->generateQuad(m_glDetailsIconObject, iconPosition, {SLOTSIZE, SLOTSIZE}, iconTexture, item->getTextureIndex());
+        generateDetailLabelXCentered(item->getName(), 160.0F, 0.4F);
         int index = 0;
         if (!item->getOptionalDescription().empty()) {
             auto result = m_textService->prepareTextForDisplay(DETAILSBOXSIZE, item->getOptionalDescription(), 0.4F);
             for(const auto &str : result.lines) {
-                generateDetailLabelXCentered(str, 120.0F + (static_cast<float>(index) * 25.0F), 0.4F);
+                generateDetailLabelXCentered(str, 200.0F + (static_cast<float>(index) * 25.0F), 0.4F);
                 index++;                                                                   
             }
         }
-        float nextItemAfterDescY = index > 0 ? 120.0F + (static_cast<float>(index) * 25.0F) + 25.0F : 120.0F;
+        float nextItemAfterDescY = index > 0 ? 200.0F + (static_cast<float>(index) * 25.0F) + 25.0F : 200.0F;
         switch (item->getType())
         {
+        case ItemType::Armor:
+            generateArmorDetails(item, nextItemAfterDescY);
+            break;  
         case ItemType::Weapon:
             generateWeaponDetails(item, nextItemAfterDescY);
             break;    
@@ -186,14 +195,18 @@ void GLInventory::generateDetailsInfo()
             break;
         } 
     }
+    else {
+        m_glDetailsIconTextureId = 0;
+    }
 }
 
 void GLInventory::generateWeaponDetails(std::shared_ptr<const Item> item, float yPosition)
 {
     const auto *weapon = dynamic_cast<const WeaponItem*>(item.get());
     if (weapon) {
-        std::string attackLabel = "Attack: ";
-        auto equipment = m_glPlayer->getEquipment();
+        const auto &equipment = m_glPlayer->getEquipment();
+        bool showDefenseLossSection = false;
+        float defenseLoss = 0.0F;
         auto currentAttackGain = [weapon, equipment]() {
             if (weapon->getSlotInBodyPart() == WeaponBodyPart::MainHand) {
                 auto currentWeapon = equipment.getMainHand();
@@ -201,8 +214,19 @@ void GLInventory::generateWeaponDetails(std::shared_ptr<const Item> item, float 
                     return currentWeapon->getAttackGain();
                 }
             }
+            else if (weapon->getSlotInBodyPart() == WeaponBodyPart::SecondaryHand &&
+                     equipment.getSecondaryHandType() == SecondaryHandType::Weapon) {
+                auto currentWeapon = equipment.getSecondaryHand();
+                return boost::get<WeaponItem>(currentWeapon.get()).getAttackGain();
+            }
             return 0.0F;
         }();
+        if (weapon->getSlotInBodyPart() == WeaponBodyPart::SecondaryHand && 
+            equipment.getSecondaryHandType() == SecondaryHandType::Armor) {
+            showDefenseLossSection = true;
+            auto currentArmor = equipment.getSecondaryHand();
+            defenseLoss = boost::get<ArmorItem>(currentArmor.get()).getDefenseGain() * -1.0F;
+        }
 
         auto gainDifference = weapon->getAttackGain() - currentAttackGain;
         std::string attackGainSymbol = gainDifference >=0 ? "+": "";
@@ -214,7 +238,67 @@ void GLInventory::generateWeaponDetails(std::shared_ptr<const Item> item, float 
         }();
         generateTwoColumnsLabels("Attack: ", attackValueStr, yPosition, 0.4F, 
                                  GLColor::White, valueColor);
-        generateTwoColumnsLabels("Slot in: ", WeaponItem::getBodyPartAsString(weapon->getSlotInBodyPart()), yPosition + 25.0F, 0.4F);
+        float nextSectionY = 25.0F;
+        if(showDefenseLossSection) {
+            generateTwoColumnsLabels("Defense: ", fmt::format("{0}", defenseLoss), yPosition + nextSectionY, 0.4F, 
+                                     GLColor::White, GLColor::Red);   
+            nextSectionY += 25.0F; 
+        }
+        generateTwoColumnsLabels("Slot in: ", WeaponItem::getBodyPartAsString(weapon->getSlotInBodyPart()), yPosition + nextSectionY, 0.4F);
+    }
+}
+
+void GLInventory::generateArmorDetails(std::shared_ptr<const Item> item, float yPosition)
+{
+    const auto *armor = dynamic_cast<const ArmorItem*>(item.get());
+    if (armor) {
+        const auto &equipment = m_glPlayer->getEquipment();
+        bool showAttackLossSection = false;
+        float attackLoss = 0.0F;
+        auto currentDefenseGain = [armor, equipment]() {
+            switch (armor->getSlotInBodyPart())
+            {
+            case ArmorBodyPart::SecondaryHand:
+                return equipment.getSecondaryHandType() != SecondaryHandType::Armor ? 
+                      0.0F : 
+                      boost::get<ArmorItem>(equipment.getSecondaryHand().get()).getDefenseGain();
+            case ArmorBodyPart::Head:
+                return equipment.getHead().has_value() ? equipment.getHead()->getDefenseGain() : 0.0F;
+            case ArmorBodyPart::UpperBody:
+                return equipment.getUpperBody().has_value() ? equipment.getUpperBody()->getDefenseGain() : 0.0F;
+            case ArmorBodyPart::LowerBody:
+                return equipment.getLowerBody().has_value() ? equipment.getLowerBody()->getDefenseGain() : 0.0F;
+            case ArmorBodyPart::Hands:
+                return equipment.getHands().has_value() ? equipment.getHands()->getDefenseGain() : 0.0F;
+            case ArmorBodyPart::Feet:
+                return equipment.getFeet().has_value() ? equipment.getFeet()->getDefenseGain() : 0.0F;
+            default:
+                return 0.0F;
+            }
+        }();
+        if (armor->getSlotInBodyPart() == ArmorBodyPart::SecondaryHand && 
+            equipment.getSecondaryHandType() == SecondaryHandType::Weapon) {
+            showAttackLossSection = true;
+            auto currentWeapon = equipment.getSecondaryHand();
+            attackLoss = boost::get<WeaponItem>(currentWeapon.get()).getAttackGain() * -1.0F;
+        }
+        auto gainDifference = armor->getDefenseGain() - currentDefenseGain;
+        std::string defenseGainSymbol = gainDifference >=0 ? "+": "";
+        std::string defenseValueStr = fmt::format("{0}{1}", defenseGainSymbol, gainDifference);
+        GLColor valueColor = [gainDifference]() {
+            if (gainDifference > 0) return GLColor::Green;
+            if (gainDifference < 0) return GLColor::Red;
+            return GLColor::White;
+        }();
+        generateTwoColumnsLabels("Defense: ", defenseValueStr, yPosition, 0.4F, 
+                                 GLColor::White, valueColor);
+        float nextSectionY = 25.0F;
+        if(showAttackLossSection) {
+            generateTwoColumnsLabels("Attack: ", fmt::format("{0}", attackLoss), yPosition + nextSectionY, 0.4F, 
+                                     GLColor::White, GLColor::Red);   
+            nextSectionY += 25.0F; 
+        }
+        generateTwoColumnsLabels("Slot in: ", ArmorItem::getBodyPartAsString(armor->getSlotInBodyPart()), yPosition + nextSectionY, 0.4F);
     }
 }
 
@@ -289,6 +373,9 @@ void GLInventory::render()
     }
     m_glFormService->drawText(m_glTitle);
     m_glFormService->drawText(m_glDetailsTextTitle);
+    if (m_glDetailsIconTextureId != 0) {
+        m_glFormService->drawQuad(m_glDetailsIconObject, m_glDetailsIconTextureId);
+    }
     for(const auto &text : m_glDetailsTextObjects) {
         m_glFormService->drawText(text);
     }
@@ -469,7 +556,10 @@ void GLInventory::itemActionPopupClicked(size_t choice)
         }
         break;
     case InventoryInputMode::WeaponOrArmorPopup:
-        if (choice == 1) {
+        if (choice == 0) {
+            equipCurrentElement();
+        }
+        else if (choice == 1) {
             prepareMoveItemMode();
         }
         else if (choice == 2) {
@@ -511,4 +601,85 @@ void GLInventory::prepareDropItemPopup()
 {
     m_choicePopup.preparePopup({ "No", "Yes" });
     changeMode(InventoryInputMode::DropItemPopup);
+}
+
+void GLInventory::equipCurrentElement()
+{
+    auto item = m_inventory->getItem(m_inventoryCursorPosition);
+    auto &equipment = m_glPlayer->getEquipment();
+    if (item != nullptr) {
+        if (item->getType() == ItemType::Weapon) {
+            auto *weapon = dynamic_cast<const WeaponItem*>(item.get());
+            if (weapon != nullptr && weapon->getSlotInBodyPart() == WeaponBodyPart::MainHand) {
+                auto currentEquipedId = equipment.getMainHand().has_value() ? 
+                                        boost::optional<std::string>(equipment.getMainHand()->getId()) : 
+                                        boost::none;
+                equipment.setMainHand(*weapon);
+                completeEquipTransaction(currentEquipedId);
+            }
+            else if (weapon != nullptr && weapon->getSlotInBodyPart() == WeaponBodyPart::SecondaryHand) {
+                auto currentEquipedId = getSecondaryHandEquipId(equipment);
+                equipment.setSecondaryHand(VariantEquipment(*weapon));
+                completeEquipTransaction(currentEquipedId);
+            }
+        }
+        else if (item->getType() == ItemType::Armor) {
+            auto *armor = dynamic_cast<const ArmorItem*>(item.get());
+            if (armor != nullptr) {
+                boost::optional<std::string> currentEquipedId = boost::none;
+                if (armor->getSlotInBodyPart() == ArmorBodyPart::SecondaryHand) {
+                    currentEquipedId = getSecondaryHandEquipId(equipment);
+                    equipment.setSecondaryHand(VariantEquipment(*armor));
+                }
+                else if (armor->getSlotInBodyPart() == ArmorBodyPart::Head) {
+                    currentEquipedId = getArmorItemEquipId(equipment.getHead());
+                    equipment.setHead(*armor);
+                }
+                else if (armor->getSlotInBodyPart() == ArmorBodyPart::UpperBody) {
+                    currentEquipedId = getArmorItemEquipId(equipment.getUpperBody());
+                    equipment.setUpperBody(*armor);
+                }
+                else if (armor->getSlotInBodyPart() == ArmorBodyPart::LowerBody) {
+                    currentEquipedId = getArmorItemEquipId(equipment.getLowerBody());
+                    equipment.setLowerBody(*armor);
+                }
+                else if (armor->getSlotInBodyPart() == ArmorBodyPart::Hands) {
+                    currentEquipedId = getArmorItemEquipId(equipment.getHands());
+                    equipment.setHands(*armor);
+                }
+                else if (armor->getSlotInBodyPart() == ArmorBodyPart::Feet) {
+                    currentEquipedId = getArmorItemEquipId(equipment.getFeet());
+                    equipment.setFeet(*armor);
+                }
+                completeEquipTransaction(currentEquipedId);
+            }
+        }
+    }
+}
+
+boost::optional<std::string> GLInventory::getSecondaryHandEquipId(const PlayerEquipment &equipment) const
+{
+    if (equipment.getSecondaryHandType() == SecondaryHandType::Weapon) {
+        return boost::optional<std::string>(boost::get<WeaponItem>(equipment.getSecondaryHand().get()).getId());
+    }
+    if (equipment.getSecondaryHandType() == SecondaryHandType::Armor) {
+        return boost::optional<std::string>(boost::get<ArmorItem>(equipment.getSecondaryHand().get()).getId());
+    }
+    return boost::none;
+}
+    
+boost::optional<std::string> GLInventory::getArmorItemEquipId(const boost::optional<ArmorItem> &armor) const
+{
+    return armor.has_value() ? boost::optional<std::string>(armor->getId()) : boost::none;
+}
+
+void GLInventory::completeEquipTransaction(const boost::optional<std::string> &currentEquipedId)
+{
+    if (currentEquipedId.has_value()) {
+        m_inventory->replaceItem(m_inventoryCursorPosition, m_itemStore->findItem(currentEquipedId.get()));
+    }
+    else {
+        m_inventory->dropItem(m_inventoryCursorPosition);
+    }
+    changeMode(InventoryInputMode::List);
 }

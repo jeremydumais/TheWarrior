@@ -53,3 +53,24 @@ void ArmorItem::setSlotInBodyPart(ArmorBodyPart value)
 {
     m_slotInBodyPart = value;
 }
+
+std::string ArmorItem::getBodyPartAsString(ArmorBodyPart bodyPart)
+{
+    switch (bodyPart)
+    {
+    case ArmorBodyPart::SecondaryHand:
+        return "Secondary hand";
+    case ArmorBodyPart::Head :
+        return "Head";
+    case ArmorBodyPart::UpperBody :
+        return "Upper body";
+    case ArmorBodyPart::LowerBody :
+        return "Lower body";
+    case ArmorBodyPart::Hands :
+        return "Hands";
+    case ArmorBodyPart::Feet :
+        return "Feet";
+    default:
+        return "";
+    }
+}

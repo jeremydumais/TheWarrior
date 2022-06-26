@@ -165,15 +165,10 @@ Size<float> GLTextService::getTextSize(const std::string &text, float scale) con
 
     for (c = text.begin(); c != text.end(); c++) {
         Character ch = characters.at(*c);
-        float charWidth = static_cast<float>(ch.Size.x) * scale;
-        //Fix because the space character has no width
-        if (charWidth == 0 && *c == ' ') {
-            Character chUnderscore = characters.at('_');
-            charWidth = static_cast<float>(chUnderscore.Size.x) * scale;
-        }
         float charHeight = static_cast<float>(ch.Size.y) * scale;
         float totalWidth = totalSize.width();
-        totalSize.setWidth(totalWidth + charWidth);
+        float advance = floor(static_cast<float>(ch.Advance >> 6) * scale); // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+        totalSize.setWidth(totalWidth + advance);
         if (totalSize.height() < charHeight) {
             totalSize.setHeight(charHeight);
         }

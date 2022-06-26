@@ -38,6 +38,7 @@ public:
     ArmorBodyPart getSlotInBodyPart() const;
     void setDefenseGain(float value);
     void setSlotInBodyPart(ArmorBodyPart value);
+    static std::string getBodyPartAsString(ArmorBodyPart bodyPart);
 protected:
     friend class boost::serialization::access;
     float m_defenseGain;

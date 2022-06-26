@@ -15,6 +15,7 @@
 #include "point.hpp"
 #include "size.hpp"
 #include "texture.hpp"
+#include <boost/optional.hpp>
 #include <GL/glew.h>
 #include <SDL2/SDL_events.h>
 #include <map>
@@ -71,6 +72,8 @@ private:
     const Size<float> m_inventorySize;
     GLTextObject m_glTitle;
     GLTextObject m_glDetailsTextTitle;
+    GLObject m_glDetailsIconObject;
+    GLuint m_glDetailsIconTextureId;
     std::vector<GLTextObject> m_glDetailsTextObjects;
     Point<float> m_detailsBoxPosition;
     std::vector<GLObject> m_glSlots;
@@ -82,6 +85,7 @@ private:
     void generateSlots();
     void generateDetailsInfo();
     void generateWeaponDetails(std::shared_ptr<const Item> item, float yPosition);
+    void generateArmorDetails(std::shared_ptr<const Item> item, float yPosition);
     void generateStatsItemDetails(std::shared_ptr<const Item> item, float yPosition);
     void generateDetailLabel(const std::string &text,
                              float xOffsetFromCenter,
@@ -110,4 +114,8 @@ private:
     void completeMoveActionButtonPressed();
     void prepareMoveItemMode();
     void prepareDropItemPopup();
+    void equipCurrentElement();
+    boost::optional<std::string> getSecondaryHandEquipId(const PlayerEquipment &equipment) const;
+    boost::optional<std::string> getArmorItemEquipId(const boost::optional<ArmorItem> &armor) const;
+    void completeEquipTransaction(const boost::optional<std::string> &currentEquipedId);
 };
