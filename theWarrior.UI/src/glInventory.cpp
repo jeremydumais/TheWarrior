@@ -55,10 +55,12 @@ bool GLInventory::initShader(const std::string &vertexShaderFileName,
 }
 
 void GLInventory::initialize(const std::string &resourcePath,
+                             std::shared_ptr<GLPlayer> glPlayer,
                              std::shared_ptr<GLTextService> textService,
                              std::shared_ptr<ItemStore> itemStore,
                              const std::map<std::string, unsigned int> *texturesGLItemStore)
 {
+    m_glPlayer = glPlayer;
     m_textService = textService;
     m_textureService.setResourcesPath(resourcePath);
     m_textureService.loadTexture(m_slotsGLTexture);
@@ -191,17 +193,28 @@ void GLInventory::generateWeaponDetails(std::shared_ptr<const Item> item, float 
     const auto *weapon = dynamic_cast<const WeaponItem*>(item.get());
     if (weapon) {
         std::string attackLabel = "Attack: ";
-        char attackGainSymbol = weapon->getAttackGain() >=0 ? '+': '-';
-        auto attackStrSize = m_textService->getTextSize(attackLabel, 0.4F);
-        auto attackFullStrSize = m_textService->getTextSize(fmt::format("{0}{1}{2}", 
-                                                                        attackLabel,
-                                                                        attackGainSymbol,
-                                                                        weapon->getAttackGain()), 0.4F); 
+        auto equipment = m_glPlayer->getEquipment();
+        auto currentAttackGain = [weapon, equipment]() {
+            if (weapon->getSlotInBodyPart() == WeaponBodyPart::MainHand) {
+                auto currentWeapon = equipment.getMainHand();
+                if (currentWeapon.has_value()) {
+                    return currentWeapon->getAttackGain();
+                }
+            }
+            return 0.0F;
+        }();
 
-        generateDetailLabel(attackLabel, (attackFullStrSize.width() / 2.0F) - attackStrSize.width(), yPosition, 0.4F, GLColor::White);
-        generateDetailLabel(fmt::format("{0}{1}", attackGainSymbol, weapon->getAttackGain()), 
-                            (attackFullStrSize.width() / 2.0F) + ((attackFullStrSize.width() / 2.0F) - attackStrSize.width()), 
-                            yPosition, 0.4F, GLColor::Green);
+        auto gainDifference = weapon->getAttackGain() - currentAttackGain;
+        std::string attackGainSymbol = gainDifference >=0 ? "+": "";
+        std::string attackValueStr = fmt::format("{0}{1}", attackGainSymbol, gainDifference);
+        GLColor valueColor = [gainDifference]() {
+            if (gainDifference > 0) return GLColor::Green;
+            if (gainDifference < 0) return GLColor::Red;
+            return GLColor::White;
+        }();
+        generateTwoColumnsLabels("Attack: ", attackValueStr, yPosition, 0.4F, 
+                                 GLColor::White, valueColor);
+        generateTwoColumnsLabels("Slot in: ", WeaponItem::getBodyPartAsString(weapon->getSlotInBodyPart()), yPosition + 25.0F, 0.4F);
     }
 }
 
@@ -238,6 +251,22 @@ void GLInventory::generateDetailLabelXCentered(const std::string &text,
                                                GLColor color)
 {
     generateDetailLabel(text, 0.0F, yPosition, scale, color);
+}
+
+void GLInventory::generateTwoColumnsLabels(const std::string &label, 
+                                           const std::string &value,
+                                           float yPosition,
+                                           float scale,
+                                           GLColor colorLabel,
+                                           GLColor colorValue)
+{
+    auto labelStrSize = m_textService->getTextSize(label, scale);
+    auto labelAndValueSize = m_textService->getTextSize(fmt::format("{0}{1}", label, value), scale); 
+
+    generateDetailLabel(label, -(labelAndValueSize.width() / 2.0F) + (labelStrSize.width() / 2.0F), yPosition, scale, colorLabel);
+    generateDetailLabel(value, 
+                        (labelAndValueSize.width() / 2.0F) - ((labelAndValueSize.width() / 2.0F) - (labelStrSize.width() / 2.0F)), 
+                        yPosition, scale, colorValue);
 }
 
 Point<float> GLInventory::getRowAndColFromInventoryIndex(size_t index) const

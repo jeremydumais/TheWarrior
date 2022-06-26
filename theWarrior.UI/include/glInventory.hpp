@@ -5,9 +5,10 @@
 #include "itemStore.hpp"
 #include "IShaderService.hpp"
 #include "glColor.hpp"
-#include "glFormService.hpp"
 #include "glChoicePopup.hpp"
+#include "glFormService.hpp"
 #include "glObjectService.hpp"
+#include "glPlayer.hpp"
 #include "glTextService.hpp"
 #include "glTexture.hpp"
 #include "glTextureService.hpp"
@@ -41,6 +42,7 @@ public:
     bool initShader(const std::string &vertexShaderFileName,
                     const std::string &fragmentShaderFileName) override;
     void initialize(const std::string &resourcePath,
+                    std::shared_ptr<GLPlayer> glPlayer,
                     std::shared_ptr<GLTextService> textService,
                     std::shared_ptr<ItemStore> itemStore,
                     const std::map<std::string, unsigned int> *texturesGLItemStore);
@@ -52,6 +54,7 @@ public:
     void gameWindowSizeChanged(const Size<> &size);
 private:
     std::shared_ptr<Inventory> m_inventory;
+    std::shared_ptr<GLPlayer> m_glPlayer;
     Point<float> m_inventoryWindowLocation;
     Size<float> m_gameWindowSize;
     std::shared_ptr<GLShaderProgram> m_shaderProgram;
@@ -85,6 +88,12 @@ private:
                              float yPosition,
                              float scale,
                              GLColor color = GLColor::White);
+    void generateTwoColumnsLabels(const std::string &label, 
+                                  const std::string &value,
+                                  float yPosition,
+                                  float scale,
+                                  GLColor colorLabel = GLColor::White,
+                                  GLColor colorValue = GLColor::White);
     void generateDetailLabelXCentered(const std::string &text,
                                       float yPosition,
                                       float scale,

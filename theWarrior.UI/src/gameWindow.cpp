@@ -39,6 +39,7 @@ GameWindow::GameWindow(const string &title,
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("swd001"));
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("shd001"));
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("key001"));
+    //m_glPlayer->getEquipment().setMainHand(*dynamic_cast<const WeaponItem*>(m_controller.getItemStore()->findItem("swd001").get()));
     m_gameMapMode.initialize(m_controller.getResourcesPath(), 
                              m_glPlayer,
                              m_controller.getItemStore(),

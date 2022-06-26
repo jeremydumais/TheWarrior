@@ -5,6 +5,7 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/version.hpp>
+#include <string>
 
 enum class WeaponBodyPart
 {
@@ -34,6 +35,7 @@ public:
     WeaponBodyPart getSlotInBodyPart() const;
     void setAttackGain(float value);
     void setSlotInBodyPart(WeaponBodyPart value);
+    static std::string getBodyPartAsString(WeaponBodyPart bodyPart);
 protected:
     friend class boost::serialization::access;
     float m_attackGain;

@@ -33,7 +33,7 @@ void GameMapMode::initialize(const std::string &resourcesPath,
     m_resourcesPath = resourcesPath;
     m_map = std::make_shared<GameMap>(1, 1);
     m_glPlayer = glPlayer;
-    m_glInventory.initialize(resourcesPath, textService, itemStore, texturesGLItemStore);
+    m_glInventory.initialize(resourcesPath, glPlayer, textService, itemStore, texturesGLItemStore);
     m_glInventory.setInventory(m_glPlayer->getInventory());
     m_textureService.setResourcesPath(resourcesPath);
     m_tileService = tileService;

@@ -53,3 +53,16 @@ void WeaponItem::setSlotInBodyPart(WeaponBodyPart value)
 {
     m_slotInBodyPart = value;
 }
+
+std::string WeaponItem::getBodyPartAsString(WeaponBodyPart bodyPart)
+{
+    switch (bodyPart)
+    {
+    case WeaponBodyPart::MainHand:
+        return "Main hand";
+    case WeaponBodyPart::SecondaryHand:
+        return "Secondary hand";
+    default:
+        return "";
+    }
+}
