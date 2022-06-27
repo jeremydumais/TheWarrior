@@ -3,12 +3,12 @@
 #include "glShaderProgram.hpp"
 #include "inventory.hpp"
 #include "itemStore.hpp"
-#include "IShaderService.hpp"
 #include "glColor.hpp"
 #include "glChoicePopup.hpp"
 #include "glFormService.hpp"
 #include "glObjectService.hpp"
 #include "glPlayer.hpp"
+#include "glPopupWindow.hpp"
 #include "glTextService.hpp"
 #include "glTexture.hpp"
 #include "glTextureService.hpp"
@@ -23,8 +23,6 @@
 #include <string>
 #include <vector>
 
-#define INVENTORY_WINDOW_OBJ_MAX 24
-
 enum InventoryInputMode 
 {
     List,
@@ -35,19 +33,16 @@ enum InventoryInputMode
     DropItemPopup
 };
 
-class GLInventory : public IShaderService
+class GLInventory : public GLPopupWindow
 {
 public:
     GLInventory();
-    ~GLInventory() = default;
-    bool initShader(const std::string &vertexShaderFileName,
-                    const std::string &fragmentShaderFileName) override;
+    virtual ~GLInventory() = default;
     void initialize(const std::string &resourcePath,
                     std::shared_ptr<GLPlayer> glPlayer,
                     std::shared_ptr<GLTextService> textService,
                     std::shared_ptr<ItemStore> itemStore,
                     const std::map<std::string, unsigned int> *texturesGLItemStore);
-    const std::string &getLastError() const;
     void setInventory(std::shared_ptr<Inventory> inventory);
     void processEvents(SDL_Event &e);
     void generateGLInventory();
@@ -56,22 +51,11 @@ public:
 private:
     std::shared_ptr<Inventory> m_inventory;
     std::shared_ptr<GLPlayer> m_glPlayer;
-    Point<float> m_inventoryWindowLocation;
-    Size<float> m_gameWindowSize;
-    std::shared_ptr<GLShaderProgram> m_shaderProgram;
-    std::string m_lastError;
     size_t m_inventoryCursorPosition;
     InventoryInputMode m_inputMode;
     size_t m_inventoryMoveSrc;
-    std::shared_ptr<GLFormService> m_glFormService;
-    std::shared_ptr<GLTextService> m_textService;
-    GLTextureService m_textureService;  
     std::shared_ptr<ItemStore> m_itemStore;
     const std::map<std::string, unsigned int> *m_texturesGLItemStore;
-    GLObject m_glInventoryWindow;
-    const Size<float> m_inventorySize;
-    GLTextObject m_glTitle;
-    GLTextObject m_glDetailsTextTitle;
     GLObject m_glDetailsIconObject;
     GLuint m_glDetailsIconTextureId;
     std::vector<GLTextObject> m_glDetailsTextObjects;
@@ -79,8 +63,7 @@ private:
     std::vector<GLObject> m_glSlots;
     GLTexture m_slotsGLTexture;
     std::vector<GLObject> m_glInventoryItems;
-    std::vector<GLObject> m_inventoryWindowObjects;
-    GLTexture m_inventoryWindowGLTexture;
+    std::vector<GLObject> m_detailSectionObjects;
     GLChoicePopup m_choicePopup;
     void generateSlots();
     void generateDetailsInfo();

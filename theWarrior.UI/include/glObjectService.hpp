@@ -9,6 +9,7 @@ struct GLObject
     GLuint vboPosition;
     GLuint vboColor;
     GLuint vboTexture;
+    GLuint textureGLId = 0;
 };
 
 struct GenerateGLObjectInfo {

@@ -2,6 +2,7 @@
 
 #include "gameMap.hpp"
 #include "gameMapModeController.hpp"
+#include "glCharacterWindow.hpp"
 #include "glInventory.hpp"
 #include "glPlayer.hpp"
 #include "glTextBox.hpp"
@@ -47,6 +48,7 @@ private:
     std::shared_ptr<GLTileService> m_tileService;
     GLTextureService m_textureService;
     std::shared_ptr<GLTextBox> m_textBox;
+    GLCharacterWindow m_glCharacterWindow;
     GLInventory m_glInventory;
     Size<> m_screenSize;
     std::vector<GLTile> m_glTiles;
@@ -55,6 +57,7 @@ private:
     SDL_Joystick *m_joystick;
     GLfloat m_texColorBuf[4][3];
     bool m_blockKeyDown;
+    bool m_isCharacterWindowDisplayed;
     bool m_isInventoryDisplayed;
     void generateGLMapObjects();
     void drawObjectTile(GLTile &tile);

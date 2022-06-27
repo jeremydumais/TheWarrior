@@ -17,6 +17,7 @@ GameMapMode::GameMapMode()
                       { 1.0F, 1.0F, 1.0F },   /* Blue */
                       { 1.0F, 1.0F, 1.0F } },
       m_blockKeyDown(false),
+      m_isCharacterWindowDisplayed(false),
       m_isInventoryDisplayed(false)
 {}
 
@@ -33,6 +34,7 @@ void GameMapMode::initialize(const std::string &resourcesPath,
     m_resourcesPath = resourcesPath;
     m_map = std::make_shared<GameMap>(1, 1);
     m_glPlayer = glPlayer;
+    m_glCharacterWindow.initialize(resourcesPath, glPlayer, textService, itemStore, texturesGLItemStore);
     m_glInventory.initialize(resourcesPath, glPlayer, textService, itemStore, texturesGLItemStore);
     m_glInventory.setInventory(m_glPlayer->getInventory());
     m_textureService.setResourcesPath(resourcesPath);
@@ -47,8 +49,13 @@ void GameMapMode::initialize(const std::string &resourcesPath,
 
 bool GameMapMode::initShaders(const std::string &resourcesPath)
 {
-    if (!m_glInventory.initShader(fmt::format("{0}/shaders/inventory_330_vs.glsl", resourcesPath),
-                                  fmt::format("{0}/shaders/inventory_330_fs.glsl", resourcesPath))) {
+    if (!m_glCharacterWindow.initShader(fmt::format("{0}/shaders/window_330_vs.glsl", resourcesPath),
+                                        fmt::format("{0}/shaders/window_330_fs.glsl", resourcesPath))) {
+        std::cerr << m_glCharacterWindow.getLastError() << "\n";
+        return false;
+    }
+    if (!m_glInventory.initShader(fmt::format("{0}/shaders/window_330_vs.glsl", resourcesPath),
+                                  fmt::format("{0}/shaders/window_330_fs.glsl", resourcesPath))) {
         std::cerr << m_glInventory.getLastError() << "\n";
         return false;
     }
@@ -60,7 +67,7 @@ void GameMapMode::processEvents(SDL_Event &e)
     if(e.type == SDL_KEYUP) {
         m_blockKeyDown = false;
     }
-    if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_i) {
+    if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_i && !m_isCharacterWindowDisplayed) {
         if (!m_blockKeyDown) {
             m_blockKeyDown = true;
             m_isInventoryDisplayed = !m_isInventoryDisplayed;
@@ -71,6 +78,18 @@ void GameMapMode::processEvents(SDL_Event &e)
         m_glInventory.processEvents(e);
         return;
     }
+    if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_c && !m_isInventoryDisplayed) {
+        if (!m_blockKeyDown) {
+            m_blockKeyDown = true;
+            m_isCharacterWindowDisplayed = !m_isCharacterWindowDisplayed;
+        }
+        return;
+    }
+    if (m_isCharacterWindowDisplayed) {
+        m_glCharacterWindow.processEvents(e);
+        return;
+    }
+
     if(e.type == SDL_KEYDOWN && !m_glPlayer->isInMovement()) {
         switch(e.key.keysym.sym) {
             case SDLK_UP:
@@ -144,6 +163,7 @@ void GameMapMode::gameWindowSizeChanged(const Size<> &size)
     unloadGLMapObjects();
     generateGLMapObjects();
     m_glInventory.gameWindowSizeChanged(size);
+    m_glCharacterWindow.gameWindowSizeChanged(size);
 }
 
 void GameMapMode::gameWindowTileSizeChanged(const TileSize &tileSize)
@@ -208,6 +228,9 @@ void GameMapMode::render()
     }
     if (m_isInventoryDisplayed) {
         m_glInventory.render();
+    }
+    if (m_isCharacterWindowDisplayed) {
+        m_glCharacterWindow.render();
     }
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
