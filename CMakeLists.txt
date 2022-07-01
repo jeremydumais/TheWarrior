@@ -17,7 +17,7 @@ if ("${LOWERCASE_CMAKE_BUILD_TYPE}" STREQUAL "")
 elseif(LOWERCASE_CMAKE_BUILD_TYPE MATCHES "^(release)$")
     message("-- Release mode selected")
 endif()
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 include(Conan)
 run_conan()

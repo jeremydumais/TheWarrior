@@ -6,7 +6,7 @@ GLChoicePopup::GLChoicePopup()
       m_menuCursorPosition(0),
       m_menuItemCount(0),
       m_popupGLTexture({ Texture(TextureInfo { "inventoryWindow", "window.png", 256, 256, 32, 32 }), 0 }),
-      m_menuObjects(std::vector<GLObject>(9)),
+      m_menuObjects(std::vector<GLObject>()),
       m_glTextChoices(std::vector<GLTextObject>())
 {
 }
@@ -68,12 +68,13 @@ void GLChoicePopup::generateGLInventory()
     const Point<float> POPUP_LOCATION(m_inventoryCenter.x() - (POPUP_SIZE.width() / 2.0F), 
                                       m_inventoryCenter.y() - (POPUP_SIZE.height() / 2.0F));
     const float BLOCKSIZE = 32.0F;
-    m_glFormService->generateQuad(*m_menuObjects.begin(), 
+    m_menuObjects.push_back(GLObject {});
+    m_glFormService->generateQuad(*m_menuObjects.rbegin(), 
                                 { POPUP_LOCATION.x() + BLOCKSIZE, POPUP_LOCATION.y() + BLOCKSIZE }, 
                                 { POPUP_SIZE.width() - (BLOCKSIZE * 2.0F), POPUP_SIZE.height() - (BLOCKSIZE * 2.0F) }, 
                                 &m_popupGLTexture.texture, 
                                 16); 
-    m_glFormService->generateBoxQuad(m_menuObjects.begin() + 1,
+    m_glFormService->generateBoxQuad(m_menuObjects,
                                     { POPUP_LOCATION.x(), POPUP_LOCATION.y() },
                                     { POPUP_SIZE.width(), POPUP_SIZE.height() },
                                     &m_popupGLTexture.texture,

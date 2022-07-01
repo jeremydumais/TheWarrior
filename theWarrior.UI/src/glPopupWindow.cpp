@@ -1,4 +1,6 @@
 #include "glPopupWindow.hpp"
+#include <boost/algorithm/string.hpp>
+#include <vector>
 
 GLPopupWindow::GLPopupWindow(Size<float> size)
     : m_lastError(""),
@@ -11,8 +13,8 @@ GLPopupWindow::GLPopupWindow(Size<float> size)
       m_windowGLTexture({ Texture(TextureInfo { "window", "window.png", 256, 256, 32, 32 }), 0 }),
       m_glTitle({ "", { 1.0F, 1.0F }, 0.6F }),
       m_displayTitle(false),
-      m_windowObjects(std::vector<GLObject>(8)),
-      m_windowTitleObjects(std::vector<GLObject>(8)),
+      m_windowObjects(std::vector<GLObject>()),
+      m_windowTitleObjects(std::vector<GLObject>()),
       m_glObjects(std::vector<GLObject>()),
       m_glTextObjects(std::vector<GLTextObject>())
 {
@@ -66,11 +68,13 @@ void GLPopupWindow::initialize(const std::string &title,
 
 void GLPopupWindow::generateGLElements()
 {
+    m_windowObjects.clear();
+    m_windowTitleObjects.clear();
     m_glObjects.clear();
     m_glTextObjects.clear();
     //Window
     m_glFormService->generateQuad(m_glwindow, getWindowLocation(), getWindowSize());
-    m_glFormService->generateBoxQuad(m_windowObjects.begin(),
+    m_glFormService->generateBoxQuad(m_windowObjects,
                                     getWindowLocation(),
                                     getWindowSize(),
                                     &m_windowGLTexture.texture,
@@ -80,7 +84,7 @@ void GLPopupWindow::generateGLElements()
     auto titleSize = m_textService->getTextSize(m_glTitle.text, 0.6F);
     m_glTitle.position = { getWindowLocation().x() + 15.0F + (getWindowSize().width() / 2.0F) - (titleSize.width() / 2.0F),
                            getWindowLocation().y() + 40.0F };
-    m_glFormService->generateBoxQuad(m_windowTitleObjects.begin(),
+    m_glFormService->generateBoxQuad(m_windowTitleObjects,
                                     {m_glTitle.position.x() - 35.0F, m_glTitle.position.y() - 30.0F},
                                     {titleSize.width() + 70.0F, 40.0F},
                                     &m_windowGLTexture.texture,
@@ -125,20 +129,17 @@ void GLPopupWindow::generateQuad(GLObject &object, Point<float> location, Size<f
                                   size, texture, textureId);
 }
 
-void GLPopupWindow::generateBoxQuad(std::vector<GLObject>::iterator begin, 
+void GLPopupWindow::generateBoxQuad(std::vector<GLObject> &objects, 
                      Point<float> location, 
                      Size<float> size,
                      const Texture *texture,
                      int textureBeginId,
                      GLuint textureGLId)
 {
-    for(int i=0; i<8; i++) {
-        (begin + i)->textureGLId = textureGLId;
-    }
-    m_glFormService->generateBoxQuad(begin,
+    m_glFormService->generateBoxQuad(objects,
                                      { m_windowLocation.x() + location.x(), 
                                        m_windowLocation.y() + location.y() },
-                                     size, texture, textureBeginId);
+                                     size, texture, textureBeginId, textureGLId);
 }
 
 void GLPopupWindow::addTextObject(GLTextObject textObject)
@@ -150,7 +151,16 @@ void GLPopupWindow::addTextObject(GLTextObject textObject)
 
 void GLPopupWindow::addXCenteredTextObject(GLTextObject textObject, float x, float width)
 {
-    auto textSize = m_textService->getTextSize(textObject.text, textObject.scale);
-    textObject.position.setX(x + (width / 2.0F) - (textSize.width() / 2.0F));
-    addTextObject(textObject);
+    std::vector<std::string> lines;
+    boost::split(lines, textObject.text, boost::is_any_of("\n"));
+    float initialYPosition = textObject.position.y();
+    int lineIndex = 0;
+    for(const auto &line : lines) {
+        textObject.text = line;
+        auto textSize = m_textService->getTextSize(textObject.text, textObject.scale);
+        textObject.position.setX(x + (width / 2.0F) - (textSize.width() / 2.0F));
+        textObject.position.setY(initialYPosition + (static_cast<float>(lineIndex) * 20.0F));
+        addTextObject(textObject);
+        lineIndex++;
+    }
 }

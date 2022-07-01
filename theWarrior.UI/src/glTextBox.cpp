@@ -11,7 +11,7 @@ GLTextBox::GLTextBox()
       m_lastError(""),
       m_messageDTO(nullptr),
       m_computedTextForDisplay({Size(0.0F, 0.0F), {}}),
-      m_windowObjects(std::vector<GLObject>(WINDOW_OBJ_MAX)),
+      m_windowObjects(std::vector<GLObject>()),
       m_windowGLTexture({ Texture(TextureInfo { "window", "window.png", 256, 256, 32, 32 }), 0 })
 {
 }
@@ -59,7 +59,7 @@ void GLTextBox::generateMessage(std::shared_ptr<MessageDTO> messageDTO)
     Point<float> textBoxLocation((m_screenSize.width() / 2.0F) - (textBoxSize.width() / 2.0F), 
                                  (m_screenSize.height() / 2.0F) - (textBoxSize.height() / 2.0F));
     m_glFormService.generateQuad(m_glObject, textBoxLocation, textBoxSize);
-    m_glFormService.generateBoxQuad(m_windowObjects.begin(),
+    m_glFormService.generateBoxQuad(m_windowObjects,
                                     textBoxLocation,
                                     textBoxSize,
                                     &m_windowGLTexture.texture,

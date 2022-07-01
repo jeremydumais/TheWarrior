@@ -10,6 +10,7 @@
 #include <optional>
 #include <stdexcept>
 #include <set>
+#include <ranges>
 
 MainController::MainController() 
     : m_itemStore(std::make_shared<ItemStore>()),
@@ -76,11 +77,13 @@ std::vector<ItemListDisplay> MainController::getItemsFromCategory(const std::str
     auto itemType = itemTypeFromString(categoryName);
     if (itemType.has_value()) {
         auto items = m_itemStore->getItems();
-        for(auto item : items) {
-            if (item->getType() == itemType.value()) {
-                retval.push_back({ item->getId(), item->getName(), item->getOptionalDescription() });
-            }
-        }
+        auto filterByItemType = [itemType](const auto &item) { return item->getType() == itemType.value(); };
+        auto createItemListDisplay = [](const auto &item) { return ItemListDisplay { item->getId(), 
+                                                                                     item->getName(), 
+                                                                                     item->getOptionalDescription() }; };
+        std::ranges::transform(items | std::views::filter(filterByItemType), 
+                               std::back_inserter(retval), 
+                               createItemListDisplay);
     }
     return retval;
 }

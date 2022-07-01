@@ -50,60 +50,71 @@ void GLFormService::generateQuad(GLObject &object, Point<float> location, Size<f
     }
 }
 
-void GLFormService::generateBoxQuad(std::vector<GLObject>::iterator begin, 
+void GLFormService::generateBoxQuad(std::vector<GLObject> &objects, 
                                     Point<float> location, 
                                     Size<float> size,
                                     const Texture *texture,
-                                    int textureBeginId)
+                                    int textureBeginId,
+                                    GLuint textureGLId)
 {
     const float BLOCKSIZE = 32.0F;
+    GLObject obj;
+    obj.textureGLId = textureGLId;
     //Top left corner
-    generateQuad(*begin, 
+    generateQuad(obj, 
                  {location.x(), location.y()}, 
                  { BLOCKSIZE, BLOCKSIZE }, 
                  texture, textureBeginId);
+    objects.push_back(obj);
                  
     //Top horizontal middle
-    generateQuad(*std::next(begin, 1), 
+    generateQuad(obj, 
                  {location.x() + BLOCKSIZE, location.y()}, 
                  { size.width() - (BLOCKSIZE * 2.0F), BLOCKSIZE }, 
                  texture, textureBeginId + 1); 
+    objects.push_back(obj);
 
     //Top right corner
-    generateQuad(*std::next(begin, 2), 
+    generateQuad(obj, 
                  {location.x() + (size.width() - BLOCKSIZE), location.y()}, 
                  { BLOCKSIZE, BLOCKSIZE }, 
                  texture, textureBeginId + 2);
+    objects.push_back(obj);
 
     //Left vertical middle
-    generateQuad(*std::next(begin, 3), 
+    generateQuad(obj, 
                  {location.x(), location.y() + BLOCKSIZE}, 
                  { BLOCKSIZE, size.height() - (BLOCKSIZE * 2.0F) }, 
                  texture, textureBeginId + 3); 
+    objects.push_back(obj);
 
     //Right vertical middle
-    generateQuad(*std::next(begin, 4), 
+    generateQuad(obj, 
                  {location.x() + (size.width() - BLOCKSIZE), location.y() + BLOCKSIZE}, 
                  { BLOCKSIZE, size.height() - (BLOCKSIZE * 2.0F) }, 
                  texture, textureBeginId + 4);
+    objects.push_back(obj);
 
     //Bottom left corner
-    generateQuad(*std::next(begin, 5), 
+    generateQuad(obj, 
                  {location.x(), location.y() + (size.height() - BLOCKSIZE)}, 
                  { BLOCKSIZE, BLOCKSIZE }, 
                  texture, textureBeginId + 5);
+    objects.push_back(obj);
 
     //Bottom horizontal middle
-    generateQuad(*std::next(begin, 6), 
+    generateQuad(obj, 
                  {location.x() + BLOCKSIZE, location.y() + (size.height() - BLOCKSIZE)}, 
                  { size.width() - (BLOCKSIZE * 2.0F), BLOCKSIZE }, 
                  texture, textureBeginId + 6); 
+    objects.push_back(obj);
 
     //Bottom right corner
-    generateQuad(*std::next(begin, 7), 
+    generateQuad(obj, 
                  {location.x() + (size.width() - BLOCKSIZE), location.y() + (size.height() - BLOCKSIZE)}, 
                  { BLOCKSIZE, BLOCKSIZE }, 
                  texture, textureBeginId + 7); 
+    objects.push_back(obj);
 }
 
 void GLFormService::drawQuad(const GLObject &glObject, GLuint textureGLIndex, float transparency)

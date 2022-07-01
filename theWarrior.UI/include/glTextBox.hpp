@@ -19,8 +19,6 @@
 #include <string>
 #include <vector>
 
-#define WINDOW_OBJ_MAX 8
-
 class GLTextBox : public IShaderService
 {
 public:

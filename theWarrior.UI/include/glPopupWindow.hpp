@@ -52,7 +52,7 @@ protected:
                       const Texture *texture, 
                       int textureId,
                       GLuint textureGLId = 0);
-    void generateBoxQuad(std::vector<GLObject>::iterator begin, 
+    void generateBoxQuad(std::vector<GLObject> &objects, 
                          Point<float> location, 
                          Size<float> size,
                          const Texture *texture,

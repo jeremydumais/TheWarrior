@@ -94,7 +94,8 @@
         "qtglobal": "cpp",
         "shared_mutex": "cpp",
         "queue": "cpp",
-        "*.inc": "cpp"
+        "*.inc": "cpp",
+        "ranges": "cpp"
     },
     "editor.tokenColorCustomizations": {
         "textMateRules": [

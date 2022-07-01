@@ -23,7 +23,7 @@ GLInventory::GLInventory()
       m_glSlots(std::vector<GLObject>(INVENTORY_MAX)),
       m_slotsGLTexture({ Texture(TextureInfo{ "emptySlot", "item_slot.png", 768, 256, 256, 256 }), 0 }),
       m_glInventoryItems(std::vector<GLObject>(INVENTORY_MAX)),
-      m_detailSectionObjects(std::vector<GLObject>(8))
+      m_detailSectionObjects(std::vector<GLObject>())
 {
     m_choicePopup.m_choiceClicked.connect(boost::bind(&GLInventory::itemActionPopupClicked, this, boost::placeholders::_1));
     m_choicePopup.m_cancelClicked.connect(boost::bind(&GLInventory::itemActionPopupCanceled, this));
@@ -50,9 +50,10 @@ void GLInventory::setInventory(std::shared_ptr<Inventory> inventory)
 
 void GLInventory::generateGLInventory()
 {
+    m_detailSectionObjects.clear();
     GLPopupWindow::generateGLElements();
     //Detail box
-    generateBoxQuad(m_detailSectionObjects.begin(),
+    generateBoxQuad(m_detailSectionObjects,
                     m_detailsBoxPosition,
                     DETAILSBOXSIZE,
                     &m_windowGLTexture.texture,

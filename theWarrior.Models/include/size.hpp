@@ -4,7 +4,7 @@ template<typename T = int>
 class Size
 {
 public:
-    Size<T>(T width, T height) 
+    Size(T width, T height) 
         : m_width(width), m_height(height) {}
     T width() const { return m_width; };
     T height() const { return m_height; };
