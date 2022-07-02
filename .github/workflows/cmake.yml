@@ -39,7 +39,7 @@ jobs:
         sudo apt-get install libsdl2-ttf-dev
     - name: Install conan (Ubuntu)
       shell: bash
-      if: matrix.os == 'ubuntu-latest'
+      #if: matrix.os == 'ubuntu-22.04'
       run: |
         python3 -m pip install --upgrade pip setuptools
         python3 -m pip install conan
@@ -60,7 +60,7 @@ jobs:
       # Use a bash shell so we can use the same syntax for environment variable
       # access regardless of the host operating system
       shell: bash
-      if: matrix.os == 'ubuntu-22.04'
+      #if: matrix.os == 'ubuntu-latest'
       working-directory: ${{runner.workspace}}/build
       # Note the current convention is to use the -S and -B options here to specify source 
       # and build directories, but this is only available with CMake 3.13 and higher.  
