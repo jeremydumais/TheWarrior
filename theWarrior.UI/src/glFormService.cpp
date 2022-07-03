@@ -14,7 +14,12 @@ void GLFormService::initialize(std::shared_ptr<GLShaderProgram> shaderProgram,
     m_textService = textService;
 }
 
-void GLFormService::generateQuad(GLObject &object, Point<float> location, Size<float> size, const Texture *texture, int textureId)
+void GLFormService::generateQuad(std::vector<GLObject> &objects, 
+                                 Point<float> location, 
+                                 Size<float> size, 
+                                 const Texture *texture, 
+                                 int textureId,
+                                 GLuint textureGLId)
 {
     GLfloat texColorBuf[4][3];
     //Limits: -1.0F to 1.0F (top left corner: -1.0F, 1.0F - bottom right corner: 1.0F, -1.0F)
@@ -34,6 +39,9 @@ void GLFormService::generateQuad(GLObject &object, Point<float> location, Size<f
     { normalizedLocation.x() + (BOXWIDTH * 2.0F), normalizedLocation.y() - (BOXHEIGHT * 2.0F)}, /* Bottom Right point */
     { normalizedLocation.x(), normalizedLocation.y() - (BOXHEIGHT * 2.0F)} }; /* Bottom Left point */
     
+    objects.resize(objects.size()+1);
+    GLObject &object = *objects.rbegin();
+    object.textureGLId = textureGLId;
     if (!texture) {
         GenerateGLObjectInfo infoGenTexture {
             &object,
@@ -58,63 +66,53 @@ void GLFormService::generateBoxQuad(std::vector<GLObject> &objects,
                                     GLuint textureGLId)
 {
     const float BLOCKSIZE = 32.0F;
-    GLObject obj;
-    obj.textureGLId = textureGLId;
     //Top left corner
-    generateQuad(obj, 
+    generateQuad(objects, 
                  {location.x(), location.y()}, 
                  { BLOCKSIZE, BLOCKSIZE }, 
-                 texture, textureBeginId);
-    objects.push_back(obj);
+                 texture, textureBeginId, textureGLId);
                  
     //Top horizontal middle
-    generateQuad(obj, 
+    generateQuad(objects, 
                  {location.x() + BLOCKSIZE, location.y()}, 
                  { size.width() - (BLOCKSIZE * 2.0F), BLOCKSIZE }, 
-                 texture, textureBeginId + 1); 
-    objects.push_back(obj);
+                 texture, textureBeginId + 1, textureGLId); 
 
     //Top right corner
-    generateQuad(obj, 
+    generateQuad(objects, 
                  {location.x() + (size.width() - BLOCKSIZE), location.y()}, 
                  { BLOCKSIZE, BLOCKSIZE }, 
-                 texture, textureBeginId + 2);
-    objects.push_back(obj);
+                 texture, textureBeginId + 2, textureGLId);
 
     //Left vertical middle
-    generateQuad(obj, 
+    generateQuad(objects, 
                  {location.x(), location.y() + BLOCKSIZE}, 
                  { BLOCKSIZE, size.height() - (BLOCKSIZE * 2.0F) }, 
-                 texture, textureBeginId + 3); 
-    objects.push_back(obj);
+                 texture, textureBeginId + 3, textureGLId); 
 
     //Right vertical middle
-    generateQuad(obj, 
+    generateQuad(objects, 
                  {location.x() + (size.width() - BLOCKSIZE), location.y() + BLOCKSIZE}, 
                  { BLOCKSIZE, size.height() - (BLOCKSIZE * 2.0F) }, 
-                 texture, textureBeginId + 4);
-    objects.push_back(obj);
+                 texture, textureBeginId + 4, textureGLId);
 
     //Bottom left corner
-    generateQuad(obj, 
+    generateQuad(objects, 
                  {location.x(), location.y() + (size.height() - BLOCKSIZE)}, 
                  { BLOCKSIZE, BLOCKSIZE }, 
-                 texture, textureBeginId + 5);
-    objects.push_back(obj);
+                 texture, textureBeginId + 5, textureGLId);
 
     //Bottom horizontal middle
-    generateQuad(obj, 
+    generateQuad(objects, 
                  {location.x() + BLOCKSIZE, location.y() + (size.height() - BLOCKSIZE)}, 
                  { size.width() - (BLOCKSIZE * 2.0F), BLOCKSIZE }, 
-                 texture, textureBeginId + 6); 
-    objects.push_back(obj);
+                 texture, textureBeginId + 6, textureGLId); 
 
     //Bottom right corner
-    generateQuad(obj, 
+    generateQuad(objects, 
                  {location.x() + (size.width() - BLOCKSIZE), location.y() + (size.height() - BLOCKSIZE)}, 
                  { BLOCKSIZE, BLOCKSIZE }, 
-                 texture, textureBeginId + 7); 
-    objects.push_back(obj);
+                 texture, textureBeginId + 7, textureGLId); 
 }
 
 void GLFormService::drawQuad(const GLObject &glObject, GLuint textureGLIndex, float transparency)

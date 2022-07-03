@@ -1,5 +1,6 @@
 #include "glPopupWindow.hpp"
 #include <boost/algorithm/string.hpp>
+#include <fmt/format.h>
 #include <vector>
 
 GLPopupWindow::GLPopupWindow(Size<float> size)
@@ -14,6 +15,7 @@ GLPopupWindow::GLPopupWindow(Size<float> size)
       m_glTitle({ "", { 1.0F, 1.0F }, 0.6F }),
       m_displayTitle(false),
       m_windowObjects(std::vector<GLObject>()),
+      m_windowBackgrounds(std::vector<GLObject>()),
       m_windowTitleObjects(std::vector<GLObject>()),
       m_glObjects(std::vector<GLObject>()),
       m_glTextObjects(std::vector<GLTextObject>())
@@ -69,11 +71,12 @@ void GLPopupWindow::initialize(const std::string &title,
 void GLPopupWindow::generateGLElements()
 {
     m_windowObjects.clear();
+    m_windowBackgrounds.clear();
     m_windowTitleObjects.clear();
     m_glObjects.clear();
     m_glTextObjects.clear();
     //Window
-    m_glFormService->generateQuad(m_glwindow, getWindowLocation(), getWindowSize());
+    m_glFormService->generateQuad(m_windowBackgrounds, getWindowLocation(), getWindowSize());
     m_glFormService->generateBoxQuad(m_windowObjects,
                                     getWindowLocation(),
                                     getWindowSize(),
@@ -93,7 +96,9 @@ void GLPopupWindow::generateGLElements()
 
 void GLPopupWindow::render()
 {
-    m_glFormService->drawQuad(m_glwindow, 0, 0.8F);
+    for(const auto &obj : m_windowBackgrounds) {
+        m_glFormService->drawQuad(obj, 0, 0.9F);
+    }
     for(const auto &obj : m_windowObjects) {
         m_glFormService->drawQuad(obj, m_windowGLTexture.glTextureId);
     }
@@ -120,13 +125,12 @@ void GLPopupWindow::gameWindowSizeChanged(const Size<> &size)
     m_glFormService->gameWindowSizeChanged(size);
 }
 
-void GLPopupWindow::generateQuad(GLObject &object, Point<float> location, Size<float> size, const Texture *texture, int textureId, GLuint textureGLId)
+void GLPopupWindow::generateQuad(std::vector<GLObject> &objects, Point<float> location, Size<float> size, const Texture *texture, int textureId, GLuint textureGLId)
 {
-    object.textureGLId = textureGLId;
-    m_glFormService->generateQuad(object, 
+    m_glFormService->generateQuad(objects, 
                                   { m_windowLocation.x() + location.x(), 
                                     m_windowLocation.y() + location.y() },
-                                  size, texture, textureId);
+                                  size, texture, textureId, textureGLId);
 }
 
 void GLPopupWindow::generateBoxQuad(std::vector<GLObject> &objects, 
@@ -140,6 +144,18 @@ void GLPopupWindow::generateBoxQuad(std::vector<GLObject> &objects,
                                      { m_windowLocation.x() + location.x(), 
                                        m_windowLocation.y() + location.y() },
                                      size, texture, textureBeginId, textureGLId);
+}
+    
+void GLPopupWindow::addWindowPanel(Point<float> location, 
+                                   Size<float> size,
+                                   int textureBeginId)
+{
+    generateBoxQuad(m_windowObjects, 
+                    location, 
+                    size, 
+                    &m_windowGLTexture.texture, 
+                    textureBeginId, 
+                    m_windowGLTexture.glTextureId);
 }
 
 void GLPopupWindow::addTextObject(GLTextObject textObject)
@@ -163,4 +179,20 @@ void GLPopupWindow::addXCenteredTextObject(GLTextObject textObject, float x, flo
         addTextObject(textObject);
         lineIndex++;
     }
+}
+
+void GLPopupWindow::addXCenteredTwoColumnsLabels(const std::string &label, 
+                                               const std::string &value,
+                                               float yPosition,
+                                               float scale,
+                                               float x,
+                                               float width,
+                                               GLColor colorLabel,
+                                               GLColor colorValue)
+{
+    auto labelStrSize = m_textService->getTextSize(label, scale);
+    auto labelAndValueSize = m_textService->getTextSize(fmt::format("{0}{1}", label, value), scale); 
+
+    addTextObject({label, {(x + (width / 2.0F)) - (labelAndValueSize.width() / 2.0F), yPosition}, scale, colorLabel});
+    addTextObject({value, {(x + (width / 2.0F)) - (labelAndValueSize.width() / 2.0F) + labelStrSize.width(), yPosition}, scale, colorValue});
 }

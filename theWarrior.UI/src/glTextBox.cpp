@@ -58,7 +58,8 @@ void GLTextBox::generateMessage(std::shared_ptr<MessageDTO> messageDTO)
                             m_computedTextForDisplay.textSize.height() + getImageHeight() + BOXPADDING );
     Point<float> textBoxLocation((m_screenSize.width() / 2.0F) - (textBoxSize.width() / 2.0F), 
                                  (m_screenSize.height() / 2.0F) - (textBoxSize.height() / 2.0F));
-    m_glFormService.generateQuad(m_glObject, textBoxLocation, textBoxSize);
+    //TODO to solve
+    //m_glFormService.generateQuad(m_glObject, textBoxLocation, textBoxSize);
     m_glFormService.generateBoxQuad(m_windowObjects,
                                     textBoxLocation,
                                     textBoxSize,
@@ -75,11 +76,12 @@ void GLTextBox::generateMessage(std::shared_ptr<MessageDTO> messageDTO)
         if (!texture.has_value()) {
             throw std::runtime_error(fmt::format("Unable to found the texture {0}", item->getTextureName()));
         }
-        m_glFormService.generateQuad(m_glObjectIcon, 
+        //TODO to solve
+        /*m_glFormService.generateQuad(m_glObjectIcon, 
                                      { textBoxLocation.x() + (textBoxSize.width() / 2.0F) - (ITEMICONSIZE / 2.0F), 
                                        textBoxLocation.y() + textBoxSize.height() - ITEMICONSIZE - 10.0F },
                                      { ITEMICONSIZE, ITEMICONSIZE }, 
-                                     &texture.value().get(), item->getTextureIndex());
+                                     &texture.value().get(), item->getTextureIndex());*/
     }
 }
 

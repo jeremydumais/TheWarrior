@@ -6,6 +6,7 @@
 #include "glTextService.hpp"
 #include "glTexture.hpp"
 #include "itemStore.hpp"
+#include "point.hpp"
 #include <SDL2/SDL_events.h>
 #include <map>
 #include <memory>
@@ -31,4 +32,6 @@ protected:
     std::shared_ptr<ItemStore> m_itemStore;
     const std::map<std::string, unsigned int> *m_texturesGLItemStore;
     GLTexture m_slotsGLTexture;
+    void addSlot(Point<float> location);
+    void addItemToSlot(const Item *item, Point<float> location);
 };

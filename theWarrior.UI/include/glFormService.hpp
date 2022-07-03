@@ -16,7 +16,12 @@ public:
     GLFormService();
     void initialize(std::shared_ptr<GLShaderProgram> shaderProgram,
                     std::shared_ptr<GLTextService> textService);
-    void generateQuad(GLObject &object, Point<float> location, Size<float> size, const Texture *texture = nullptr, int textureId = 0);
+    void generateQuad(std::vector<GLObject> &objects, 
+                      Point<float> location, 
+                      Size<float> size, 
+                      const Texture *texture = nullptr, 
+                      int textureId = 0,
+                      GLuint textureGLId = 0);
     void generateBoxQuad(std::vector<GLObject> &objects, 
                          Point<float> location, 
                          Size<float> size,

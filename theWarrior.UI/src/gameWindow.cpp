@@ -43,10 +43,10 @@ GameWindow::GameWindow(const string &title,
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("swd002"));
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("shd001"));
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("key001"));
-    m_glPlayer->getEquipment().setMainHand(*dynamic_cast<const WeaponItem*>(m_controller.getItemStore()->findItem("swd002").get()));
+    /*m_glPlayer->getEquipment().setMainHand(*dynamic_cast<const WeaponItem*>(m_controller.getItemStore()->findItem("swd002").get()));
     m_glPlayer->getEquipment().setSecondaryHand(VariantEquipment(*dynamic_cast<const ArmorItem*>(m_controller.getItemStore()->findItem("shd001").get())));
     m_glPlayer->getEquipment().setHead(*dynamic_cast<const ArmorItem*>(m_controller.getItemStore()->findItem("hlm001").get()));
-    m_glPlayer->getEquipment().setUpperBody(*dynamic_cast<const ArmorItem*>(m_controller.getItemStore()->findItem("ubd001").get()));
+    m_glPlayer->getEquipment().setUpperBody(*dynamic_cast<const ArmorItem*>(m_controller.getItemStore()->findItem("ubd001").get()));*/
     m_gameMapMode.initialize(m_controller.getResourcesPath(), 
                              m_glPlayer,
                              m_controller.getItemStore(),

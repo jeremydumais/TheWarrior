@@ -69,7 +69,7 @@ void GLChoicePopup::generateGLInventory()
                                       m_inventoryCenter.y() - (POPUP_SIZE.height() / 2.0F));
     const float BLOCKSIZE = 32.0F;
     m_menuObjects.push_back(GLObject {});
-    m_glFormService->generateQuad(*m_menuObjects.rbegin(), 
+    m_glFormService->generateQuad(m_menuObjects, 
                                 { POPUP_LOCATION.x() + BLOCKSIZE, POPUP_LOCATION.y() + BLOCKSIZE }, 
                                 { POPUP_SIZE.width() - (BLOCKSIZE * 2.0F), POPUP_SIZE.height() - (BLOCKSIZE * 2.0F) }, 
                                 &m_popupGLTexture.texture, 

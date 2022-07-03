@@ -56,14 +56,10 @@ private:
     size_t m_inventoryMoveSrc;
     std::shared_ptr<ItemStore> m_itemStore;
     const std::map<std::string, unsigned int> *m_texturesGLItemStore;
-    GLObject m_glDetailsIconObject;
     GLuint m_glDetailsIconTextureId;
-    std::vector<GLTextObject> m_glDetailsTextObjects;
     Point<float> m_detailsBoxPosition;
-    std::vector<GLObject> m_glSlots;
     GLTexture m_slotsGLTexture;
-    std::vector<GLObject> m_glInventoryItems;
-    std::vector<GLObject> m_detailSectionObjects;
+    GLTexture m_inventoryIconsGLTexture;
     GLChoicePopup m_choicePopup;
     void generateSlots();
     void generateDetailsInfo();

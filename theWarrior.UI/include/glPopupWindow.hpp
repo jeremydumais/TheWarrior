@@ -1,5 +1,6 @@
 #pragma once
 
+#include "glColor.hpp"
 #include "glFormService.hpp"
 #include "glObjectService.hpp"
 #include "glShaderProgram.hpp"
@@ -45,8 +46,9 @@ protected:
     GLTextObject m_glTitle;
     bool m_displayTitle;
     std::vector<GLObject> m_windowObjects;
+    std::vector<GLObject> m_windowBackgrounds;
     std::vector<GLObject> m_windowTitleObjects;
-    void generateQuad(GLObject &object, 
+    void generateQuad(std::vector<GLObject> &objects, 
                       Point<float> location, 
                       Size<float> size, 
                       const Texture *texture, 
@@ -58,8 +60,19 @@ protected:
                          const Texture *texture,
                          int textureBeginId,
                          GLuint textureGLId = 0);
+    void addWindowPanel(Point<float> location, 
+                        Size<float> size,
+                        int textureBeginId);
     void addTextObject(GLTextObject textObject);
     void addXCenteredTextObject(GLTextObject textObject, float x, float width);
+    void addXCenteredTwoColumnsLabels(const std::string &label, 
+                                      const std::string &value,
+                                      float yPosition,
+                                      float scale,
+                                      float x,
+                                      float width,
+                                      GLColor colorLabel = GLColor::White,
+                                      GLColor colorValue = GLColor::White);
     std::vector<GLObject> m_glObjects;
     std::vector<GLTextObject> m_glTextObjects;
 };

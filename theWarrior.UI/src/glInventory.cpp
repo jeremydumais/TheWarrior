@@ -18,12 +18,9 @@ GLInventory::GLInventory()
       m_inventoryCursorPosition(0),
       m_inputMode(InventoryInputMode::List),
       m_inventoryMoveSrc(0),
-      m_glDetailsTextObjects(std::vector<GLTextObject>()),
       m_detailsBoxPosition({ 1.0F, 1.0F }),
-      m_glSlots(std::vector<GLObject>(INVENTORY_MAX)),
       m_slotsGLTexture({ Texture(TextureInfo{ "emptySlot", "item_slot.png", 768, 256, 256, 256 }), 0 }),
-      m_glInventoryItems(std::vector<GLObject>(INVENTORY_MAX)),
-      m_detailSectionObjects(std::vector<GLObject>())
+      m_inventoryIconsGLTexture({ Texture(TextureInfo{ "inventory", "inventory.png", 96, 32, 32, 32 }), 0 })
 {
     m_choicePopup.m_choiceClicked.connect(boost::bind(&GLInventory::itemActionPopupClicked, this, boost::placeholders::_1));
     m_choicePopup.m_cancelClicked.connect(boost::bind(&GLInventory::itemActionPopupCanceled, this));
@@ -38,6 +35,7 @@ void GLInventory::initialize(const std::string &resourcePath,
     GLPopupWindow::initialize("Inventory", resourcePath, textService);
     m_glPlayer = glPlayer;
     m_textureService.loadTexture(m_slotsGLTexture);
+    m_textureService.loadTexture(m_inventoryIconsGLTexture);
     m_itemStore = itemStore;
     m_texturesGLItemStore = texturesGLItemStore;
     m_choicePopup.initialize(resourcePath, m_glFormService, textService);
@@ -50,28 +48,36 @@ void GLInventory::setInventory(std::shared_ptr<Inventory> inventory)
 
 void GLInventory::generateGLInventory()
 {
-    m_detailSectionObjects.clear();
     GLPopupWindow::generateGLElements();
     //Detail box
-    generateBoxQuad(m_detailSectionObjects,
+    generateBoxQuad(m_glObjects,
                     m_detailsBoxPosition,
                     DETAILSBOXSIZE,
                     &m_windowGLTexture.texture,
-                    0);
+                    0,
+                    m_windowGLTexture.glTextureId);
 
     generateSlots();
 
     //Inventory objects
     for(const auto &itemMap : m_inventory->getItemsWithIndex()) {
         const auto rowAndCol = getRowAndColFromInventoryIndex(itemMap.first);
-        generateQuad(m_glInventoryItems.at(itemMap.first), 
+        generateQuad(m_glObjects, 
                      { 365.0F + (rowAndCol.x() * SLOTSIZE) + (rowAndCol.x() * SPACING), 
                          100.0F + (rowAndCol.y() * SLOTSIZE) + (rowAndCol.y() * SPACING) }, 
                      { ITEMSIZE, ITEMSIZE }, 
                      &m_itemStore->getTextureContainer().getTextureByName(itemMap.second->getTextureName()).value().get(), 
-                     itemMap.second->getTextureIndex());              
+                     itemMap.second->getTextureIndex(),
+                     m_texturesGLItemStore->at(itemMap.second->getTextureName()));              
     }
 
+    const auto stats = m_glPlayer->getStats();
+    generateQuad(m_glObjects, {660.0F, 15.0F}, {32.0F, 32.0F}, &m_inventoryIconsGLTexture.texture, 0, m_inventoryIconsGLTexture.glTextureId);
+    addTextObject({fmt::format("{0}/{1}", stats.health, stats.maxHealth), {700.0F, 36.0F}, 0.3F});
+    generateQuad(m_glObjects, {800.0F, 15.0F}, {32.0F, 32.0F}, &m_inventoryIconsGLTexture.texture, 1, m_inventoryIconsGLTexture.glTextureId);
+    addTextObject({fmt::format("{0}", stats.attack), {840.0F, 36.0F}, 0.3F});
+    generateQuad(m_glObjects, {900.0F, 15.0F}, {32.0F, 32.0F}, &m_inventoryIconsGLTexture.texture, 2, m_inventoryIconsGLTexture.glTextureId);
+    addTextObject({fmt::format("{0}", stats.defense), {940.0F, 36.0F}, 0.3F});
     generateDetailsInfo();         
     if (m_inputMode == InventoryInputMode::StatsItemPopup ||
         m_inputMode == InventoryInputMode::ItemPopup ||
@@ -83,7 +89,7 @@ void GLInventory::generateGLInventory()
 
 void GLInventory::generateSlots()
 {
-    for(size_t index = 0; index < m_glSlots.size(); index++) {
+    for(size_t index = 0; index < INVENTORY_MAX; index++) {
         const auto rowAndCol = getRowAndColFromInventoryIndex(index);
         const int textureIndex([this, index]() -> int {
             if (this->m_inputMode != InventoryInputMode::MoveItem && index == this->m_inventoryCursorPosition) {
@@ -100,22 +106,19 @@ void GLInventory::generateSlots()
             return 0;
         }());
         
-        generateQuad(m_glSlots.at(index), 
+        generateQuad(m_glObjects, 
                      { 360.0F + (rowAndCol.x() * SLOTSIZE) + (rowAndCol.x() * SPACING), 
                        90.0F + (rowAndCol.y() * SLOTSIZE) + (rowAndCol.y() * SPACING) }, 
                      { SLOTSIZE, SLOTSIZE }, 
                      &m_slotsGLTexture.texture, 
-                     textureIndex);
+                     textureIndex,
+                     m_slotsGLTexture.glTextureId);
     }
 }
 
 void GLInventory::generateDetailsInfo()
 {
     addXCenteredTextObject({"Details", {0.0F, m_detailsBoxPosition.y() + 36}, 0.5F}, m_detailsBoxPosition.x(), DETAILSBOXSIZE.width());
-    /*auto detailSize = m_textService->getTextSize(m_glDetailsTextTitle.text, 0.5F);
-    m_glDetailsTextTitle.position = { m_windowLocation.x() + m_detailsBoxPosition.x() + (DETAILSBOXSIZE.width() / 2.0F) - (detailSize.width() / 2.0F), 
-                                      m_windowLocation.y() + m_detailsBoxPosition.y() + 36 };*/
-    m_glDetailsTextObjects.clear();
     auto item = m_inventory->getItem(m_inventoryCursorPosition);
     if (item != nullptr) {
         //Display icon
@@ -123,7 +126,12 @@ void GLInventory::generateDetailsInfo()
         m_glDetailsIconTextureId = m_texturesGLItemStore->at(item->getTextureName());
         Point<float> iconPosition( m_detailsBoxPosition.x() + (DETAILSBOXSIZE.width() / 2.0F) - (SLOTSIZE / 2.0F), 
                                    m_detailsBoxPosition.y() + 60.0F);
-        generateQuad(m_glDetailsIconObject, iconPosition, {SLOTSIZE, SLOTSIZE}, iconTexture, item->getTextureIndex());
+        generateQuad(m_glObjects, 
+                     iconPosition, 
+                     {SLOTSIZE, SLOTSIZE}, 
+                     iconTexture, 
+                     item->getTextureIndex(), 
+                     m_texturesGLItemStore->at(item->getTextureName()));
         generateDetailLabelXCentered(item->getName(), 160.0F, 0.4F);
         int index = 0;
         if (!item->getOptionalDescription().empty()) {
@@ -274,13 +282,18 @@ void GLInventory::generateDetailLabel(const std::string &text,
                                       float scale,
                                       GLColor color)
 {
-    float detailBoxXCenter = m_windowLocation.x() + m_detailsBoxPosition.x() + (DETAILSBOXSIZE.width() / 2.0F);
+    float detailBoxXCenter = m_detailsBoxPosition.x() + (DETAILSBOXSIZE.width() / 2.0F);
     auto labelSize = m_textService->getTextSize(text, scale);
-    m_glDetailsTextObjects.emplace_back(GLTextObject({ text, 
-                                                       { detailBoxXCenter + xOffsetFromCenter - (labelSize.width() / 2.0F), 
-                                                         m_windowLocation.y() + m_detailsBoxPosition.y() + yPosition }, 
-                                                       scale,
-                                                       color }));
+    /*m_glTextObjects.emplace_back(GLTextObject({ text, 
+                                                { detailBoxXCenter + xOffsetFromCenter - (labelSize.width() / 2.0F), 
+                                                    m_windowLocation.y() + m_detailsBoxPosition.y() + yPosition }, 
+                                                scale,
+                                                color }));*/
+    addTextObject({text, 
+                   {detailBoxXCenter + xOffsetFromCenter - (labelSize.width() / 2.0F), 
+                    m_detailsBoxPosition.y() + yPosition}, 
+                    scale,
+                    color });
 }
 
 void GLInventory::generateDetailLabelXCentered(const std::string &text,
@@ -288,7 +301,9 @@ void GLInventory::generateDetailLabelXCentered(const std::string &text,
                                                float scale, 
                                                GLColor color)
 {
-    generateDetailLabel(text, 0.0F, yPosition, scale, color);
+    addXCenteredTextObject({text, {0.0F, m_detailsBoxPosition.y() + yPosition}, scale, color}, 
+                           m_detailsBoxPosition.x(), 
+                           DETAILSBOXSIZE.width());
 }
 
 void GLInventory::generateTwoColumnsLabels(const std::string &label, 
@@ -316,23 +331,6 @@ Point<float> GLInventory::getRowAndColFromInventoryIndex(size_t index) const
 void GLInventory::render()
 {
     GLPopupWindow::render();
-    for(const auto &obj : m_detailSectionObjects) {
-        m_glFormService->drawQuad(obj, m_windowGLTexture.glTextureId);
-    }
-    for(const auto &itemMap : m_inventory->getItemsWithIndex()) {
-        m_glFormService->drawQuad(m_glInventoryItems.at(itemMap.first), 
-                                  m_texturesGLItemStore->at(itemMap.second->getTextureName()), 0.0F);
-    }
-    for (size_t i = 0; i < INVENTORY_MAX; i++) {
-        m_glFormService->drawQuad(m_glSlots[i], m_slotsGLTexture.glTextureId);
-    }
-    //m_glFormService->drawText(m_glDetailsTextTitle);
-    if (m_glDetailsIconTextureId != 0) {
-        m_glFormService->drawQuad(m_glDetailsIconObject, m_glDetailsIconTextureId);
-    }
-    for(const auto &text : m_glDetailsTextObjects) {
-        m_glFormService->drawText(text);
-    }
     if (m_inputMode == InventoryInputMode::StatsItemPopup ||
         m_inputMode == InventoryInputMode::ItemPopup ||
         m_inputMode == InventoryInputMode::WeaponOrArmorPopup ||

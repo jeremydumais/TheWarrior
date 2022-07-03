@@ -82,6 +82,9 @@ void GameMapMode::processEvents(SDL_Event &e)
         if (!m_blockKeyDown) {
             m_blockKeyDown = true;
             m_isCharacterWindowDisplayed = !m_isCharacterWindowDisplayed;
+            if (m_isCharacterWindowDisplayed) {
+                m_glCharacterWindow.generateGLElements();
+            }
         }
         return;
     }
