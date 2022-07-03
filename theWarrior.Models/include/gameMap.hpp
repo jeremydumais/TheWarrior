@@ -25,6 +25,7 @@ public:
     unsigned int getWidth() const;
     unsigned int getHeight() const;
     Point<> getCoordFromTileIndex(int index);
+    int getTileIndexFromCoord(Point<> coord);
     const std::vector<Texture> &getTextures() const;
     std::optional<std::reference_wrapper<const Texture>> getTextureByName(const std::string &name) const;
     bool addTexture(const TextureInfo &textureInfo);

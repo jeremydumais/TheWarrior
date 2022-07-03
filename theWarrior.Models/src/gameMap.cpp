@@ -97,6 +97,17 @@ Point<> GameMap::getCoordFromTileIndex(int index)
     return Point(x, y);
 }
 
+int GameMap::getTileIndexFromCoord(Point<> coord)
+{
+    if (coord.x() < 0) {
+        throw invalid_argument("x must be a positive number");
+    }
+    if (coord.y() < 0) {
+        throw invalid_argument("y must be a positive number");
+    }
+    return (coord.y() * static_cast<int>(getWidth())) + coord.x();
+}
+
 const vector<Texture> &GameMap::getTextures() const
 {
     return m_textureContainer.getTextures();

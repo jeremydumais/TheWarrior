@@ -9,7 +9,8 @@
 #include <vector>
 
 GameMapMode::GameMapMode()
-    : m_screenSize(1, 1),
+    : m_currentMapName(""),
+      m_screenSize(1, 1),
       m_tileSize({ 1.0F, 1.0F, 1.0F }),
       m_joystick(nullptr),
       m_texColorBuf { { 1.0F, 1.0F, 1.0F },   /* Red */
@@ -42,7 +43,7 @@ void GameMapMode::initialize(const std::string &resourcesPath,
     m_textBox = textBox;
     m_joystick = joystick;
     m_controller.initialize(itemStore, messagePipeline);
-    loadMap(fmt::format("{0}/maps/homeHouseV1.map", resourcesPath));
+    loadMap(fmt::format("{0}/maps/homeHouseV1.map", resourcesPath), "homeHouseV1.map");
     loadMapTextures();
     generateGLMapObjects();
 }
@@ -71,6 +72,9 @@ void GameMapMode::processEvents(SDL_Event &e)
         if (!m_blockKeyDown) {
             m_blockKeyDown = true;
             m_isInventoryDisplayed = !m_isInventoryDisplayed;
+            if (m_isInventoryDisplayed) {
+                m_glInventory.generateGLInventory();
+            }
         }
         return;
     }
@@ -130,13 +134,13 @@ void GameMapMode::processEvents(SDL_Event &e)
         //TODO To remove test only
         if (!m_blockKeyDown) {
             m_blockKeyDown = true;
-            auto dto = std::make_unique<ItemFoundMessageDTO>();
-            //auto dto = std::make_unique<MessageDTO>();
+            //auto dto = std::make_unique<ItemFoundMessageDTO>();
+            auto dto = std::make_unique<MessageDTO>();
             dto->message = "Hello, my name is Jed and I am the first warrior of the entire land so just let me know if you need help.";
             //dto->message = "You found a Wooden Sword!";
             dto->maxDurationInMilliseconds = -1;
-            dto->itemId = "swd002";
-            dto->textureName = "ItemsTile";
+            //dto->itemId = "swd002";
+            //dto->textureName = "ItemsTile";
             m_controller.addMessageToPipeline(std::move(dto));
         }
     }
@@ -370,40 +374,49 @@ void GameMapMode::processAction(MapTileTriggerAction action, const std::map<std:
                 m_glPlayer->faceDown();
             }
             m_glPlayer->setGridPosition(Point<>(stoi(properties.at("playerX")), stoi(properties.at("playerY"))));
-            changeMap(fmt::format("{0}/maps/{1}", m_resourcesPath, properties.at("mapFileName")));
+            changeMap(fmt::format("{0}/maps/{1}", m_resourcesPath, properties.at("mapFileName")), properties.at("mapFileName"));
             break;
         case MapTileTriggerAction::OpenChest:
-            if (properties.find("itemIdInside") != properties.end()) {
-                //Find the item in the item store
-                const auto item = m_controller.findItem(properties.find("itemIdInside")->second);
-                //Display the item on the screen
-                auto msg = std::make_unique<ItemFoundMessageDTO>();
-                msg->message = fmt::format("You found a {0}!", item.name);
-                msg->maxDurationInMilliseconds = 2000;
-                msg->itemId = item.id;
-                msg->textureName = item.textureName;
-                m_controller.addMessageToPipeline(std::move(msg));
-            }
-            if (tile != nullptr) {
-                tile->setObjectTextureIndex(stoi(properties.at("objectTextureIndexOpenedChest")));
-                //Update the GLTile
-                auto iter = find_if(m_glTiles.begin(), m_glTiles.end(), [&tilePosition](GLTile &glTile) {
-                    return glTile.x == tilePosition.x() && glTile.y == tilePosition.y();
-                });
-                if (iter != m_glTiles.end()) {
-                    GLTile &glTileToUpdate = *iter;
-                    glTileToUpdate.tile = *tile;
-                    GLfloat tileCoord[4][2];
-                    calculateGLTileCoord(Point(glTileToUpdate.x, glTileToUpdate.y), tileCoord);
-                    auto newChestTexture = m_map->getTextureByName(tile->getObjectTextureName());
-                    GenerateGLObjectInfo infoGenObject {
-                        &glTileToUpdate.glObject,
-                        newChestTexture.has_value() ? &newChestTexture.value().get() : nullptr,
-                        tile->getObjectTextureIndex(),
-                        &glTileToUpdate.vaoObject,
-                        &glTileToUpdate.vboTextureObject 
-                    };
-                    GLObjectService::generateGLObject(infoGenObject, tileCoord, m_texColorBuf);
+            {
+                //Check if the item has already been taken
+                auto tileIndex = m_map->getTileIndexFromCoord(tilePosition);
+                if (!m_controller.isTileActionAlreadyProcessed(m_currentMapName, tileIndex)) {
+                    if (properties.find("itemIdInside") != properties.end()) {
+                        auto itemIdInside = properties.find("itemIdInside")->second;
+                        //Find the item in the item store
+                        const auto item = m_controller.findItem(itemIdInside);
+                        m_controller.addItemToInventory(dynamic_cast<Player *>(m_glPlayer.get()), itemIdInside);
+                        //Display the item on the screen
+                        auto msg = std::make_unique<ItemFoundMessageDTO>();
+                        msg->message = fmt::format("You found a {0}!", item.name);
+                        msg->maxDurationInMilliseconds = 2000;
+                        msg->itemId = item.id;
+                        msg->textureName = item.textureName;
+                        m_controller.addMessageToPipeline(std::move(msg));
+                    }
+                    m_controller.addTileActionProcessed(m_currentMapName, tileIndex);
+                }
+                if (tile != nullptr) {
+                    tile->setObjectTextureIndex(stoi(properties.at("objectTextureIndexOpenedChest")));
+                    //Update the GLTile
+                    auto iter = find_if(m_glTiles.begin(), m_glTiles.end(), [&tilePosition](GLTile &glTile) {
+                        return glTile.x == tilePosition.x() && glTile.y == tilePosition.y();
+                    });
+                    if (iter != m_glTiles.end()) {
+                        GLTile &glTileToUpdate = *iter;
+                        glTileToUpdate.tile = *tile;
+                        GLfloat tileCoord[4][2];
+                        calculateGLTileCoord(Point(glTileToUpdate.x, glTileToUpdate.y), tileCoord);
+                        auto newChestTexture = m_map->getTextureByName(tile->getObjectTextureName());
+                        GenerateGLObjectInfo infoGenObject {
+                            &glTileToUpdate.glObject,
+                            newChestTexture.has_value() ? &newChestTexture.value().get() : nullptr,
+                            tile->getObjectTextureIndex(),
+                            &glTileToUpdate.vaoObject,
+                            &glTileToUpdate.vboTextureObject 
+                        };
+                        GLObjectService::generateGLObject(infoGenObject, tileCoord, m_texColorBuf);
+                    }
                 }
             }
             break;
@@ -412,11 +425,12 @@ void GameMapMode::processAction(MapTileTriggerAction action, const std::map<std:
     }
 }
 
-void GameMapMode::loadMap(const std::string &filePath) 
+void GameMapMode::loadMap(const std::string &filePath, const std::string &mapName) 
 {
 	GameMapStorage mapStorage;
 	try {
 		mapStorage.loadMap(filePath, m_map);
+        m_currentMapName = mapName;
 	}
 	catch(std::invalid_argument &err) {
         std::cerr << err.what() << '\n';
@@ -427,11 +441,11 @@ void GameMapMode::loadMap(const std::string &filePath)
     
 }
 
-void GameMapMode::changeMap(const std::string &filePath) 
+void GameMapMode::changeMap(const std::string &filePath, const std::string &mapName) 
 {
     m_glPlayer->unloadGLPlayerObject();
     unloadGLMapObjects();
-    loadMap(filePath);
+    loadMap(filePath, mapName);
     loadMapTextures();
     generateGLMapObjects();
     m_glPlayer->generateGLPlayerObject();

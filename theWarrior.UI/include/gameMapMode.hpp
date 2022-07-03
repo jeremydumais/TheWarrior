@@ -43,6 +43,7 @@ public:
 private:
     GameMapModeController m_controller;
     std::string m_resourcesPath;
+    std::string m_currentMapName;
     std::shared_ptr<GameMap> m_map;
     std::shared_ptr<GLPlayer> m_glPlayer;
     std::shared_ptr<GLTileService> m_tileService;
@@ -67,8 +68,8 @@ private:
     void moveLeftPressed();
     void moveRightPressed();
     void processAction(MapTileTriggerAction action, const std::map<std::string, std::string> &properties, MapTile *tile = nullptr, Point<> tilePosition = Point(0, 0));
-    void loadMap(const std::string &filePath);
-    void changeMap(const std::string &filePath);
+    void loadMap(const std::string &filePath, const std::string &mapName);
+    void changeMap(const std::string &filePath, const std::string &mapName);
     void calculateGLTileCoord(const Point<> &tilePosition, GLfloat tileCoord[4][2]);
     void loadMapTextures();
 };

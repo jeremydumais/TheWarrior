@@ -39,6 +39,16 @@ ItemDTO GameMapModeController::findItem(const std::string &id) const
     }
     return dto;
 }
+
+bool GameMapModeController::addItemToInventory(Player *player, const std::string &id)
+{
+    auto item = m_itemStore->findItem(id);
+    if (player == nullptr || item == nullptr) {
+        return false;
+    }
+    return player->getInventory()->addItem(item);
+}
+
 void GameMapModeController::addMessageToPipeline(std::unique_ptr<MessageDTO> messageDTO)
 {
     auto message = createMessageFromMessageDTO(std::move(messageDTO));
@@ -120,4 +130,25 @@ std::unique_ptr<MessageDTO> GameMapModeController::createMessageDTOFromMessage(s
     retval->maxDurationInMilliseconds = message->getMaxDurationInMilliseconds();
     return retval;
 
+}
+
+bool GameMapModeController::isTileActionAlreadyProcessed(const std::string &mapName, int tileIndex) const
+{
+    if (const auto tilesProcessed = m_mapTileIndexActionAlreadyProcessed.find(mapName); 
+        tilesProcessed != m_mapTileIndexActionAlreadyProcessed.end()) {
+        const auto &tileIndices = tilesProcessed->second;
+        return std::find(begin(tileIndices), end(tileIndices), tileIndex) != tileIndices.end();
+    }
+    return false;
+}
+
+void GameMapModeController::addTileActionProcessed(const std::string &mapName, int tileIndex)
+{
+    if (m_mapTileIndexActionAlreadyProcessed.find(mapName) == m_mapTileIndexActionAlreadyProcessed.end()) {
+        m_mapTileIndexActionAlreadyProcessed.insert({mapName, std::vector<int>()});
+    }
+    auto &tileIndices = m_mapTileIndexActionAlreadyProcessed.at(mapName);
+    if (std::find(begin(tileIndices), end(tileIndices), tileIndex) == tileIndices.end()) {
+        tileIndices.push_back(tileIndex);
+    }
 }

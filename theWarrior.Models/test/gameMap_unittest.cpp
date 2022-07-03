@@ -191,7 +191,7 @@ TEST_F(SampleGameMap5x6WithTwoTextures, getCoordFromTileIndex_WithIndex1_Return1
 	ASSERT_EQ(Point(1,0), map.getCoordFromTileIndex(1));
 }
 
-TEST_F(SampleGameMap5x6WithTwoTextures, getCoordFromTileIndex_WithIndex4_Return5_0)
+TEST_F(SampleGameMap5x6WithTwoTextures, getCoordFromTileIndex_WithIndex4_Return4_0)
 {
 	ASSERT_EQ(Point(4,0), map.getCoordFromTileIndex(4));
 }
@@ -211,6 +211,49 @@ TEST_F(SampleGameMap5x6WithTwoTextures, getCoordFromTileIndex_WithIndexMinus1_Th
 		ASSERT_STREQ("index must be a positive number", err.what());
 	}
 }
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getTileIndexFromCoord_WithPointMinus1And0_ThrowInvalidArgument)
+{
+	try {
+		map.getTileIndexFromCoord({-1, 0});
+		FAIL();
+	}
+	catch(const invalid_argument &err) {
+		ASSERT_STREQ("x must be a positive number", err.what());
+	}
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getTileIndexFromCoord_WithPoint0AndMinus1_ThrowInvalidArgument)
+{
+	try {
+		map.getTileIndexFromCoord({0, -1});
+		FAIL();
+	}
+	catch(const invalid_argument &err) {
+		ASSERT_STREQ("y must be a positive number", err.what());
+	}
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getTileIndexFromCoord_WithPoint0_0_Return0)
+{
+	ASSERT_EQ(0, map.getTileIndexFromCoord(Point(0,0)));
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getTileIndexFromCoord_WithPoint1_0_Return1)
+{
+	ASSERT_EQ(1, map.getTileIndexFromCoord(Point(1,0)));
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getTileIndexFromCoord_WithPoint5_0_Return4)
+{
+	ASSERT_EQ(4, map.getTileIndexFromCoord(Point(4,0)));
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getTileIndexFromCoord_WithPoint0_1_Return5)
+{
+	ASSERT_EQ(5, map.getTileIndexFromCoord(Point(0,1)));
+}
+//-------------------------------
 
 TEST_F(SampleGameMapWithTilesAssigned, isShrinkMapImpactAssignedTiles_WithMinusOneOnLeft_ReturnFalse)
 {

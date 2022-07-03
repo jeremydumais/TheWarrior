@@ -1,11 +1,14 @@
 #pragma once
 
+#include "player.hpp"
 #include "itemDTO.hpp"
 #include "itemStore.hpp"
 #include "messageDTO.hpp"
 #include "messagePipeline.hpp"
+#include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 class GameMapModeController
 {
@@ -16,13 +19,17 @@ public:
     bool isMessageDisplayed() const;
     void acknowledgeMessage();
     ItemDTO findItem(const std::string &id) const;
+    bool addItemToInventory(Player *player, const std::string &id);
     void addMessageToPipeline(std::unique_ptr<MessageDTO> messageDTO);
     std::shared_ptr<MessageDTO> getCurrentMessage();
     void deleteCurrentMessage();
     void displayCurrentMessage();
+    bool isTileActionAlreadyProcessed(const std::string &mapName, int tileIndex) const;
+    void addTileActionProcessed(const std::string &mapName, int tileIndex);
 private:
     std::shared_ptr<ItemStore> m_itemStore;
     std::shared_ptr<MessagePipeline> m_messagePipeline;
     std::shared_ptr<Message> createMessageFromMessageDTO(std::unique_ptr<MessageDTO> dto) const;
     std::unique_ptr<MessageDTO> createMessageDTOFromMessage(std::shared_ptr<Message> message) const;
+    std::map<std::string, std::vector<int>> m_mapTileIndexActionAlreadyProcessed;
 };
