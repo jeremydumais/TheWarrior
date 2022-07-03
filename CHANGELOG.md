@@ -1,10 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [1.0.0]
+## [0.0.0]
 - The initial version development with a stable version of the MapEditor.
 
-## [1.1.0]
+## [0.1.0]
 
 ### Game
 - First steps in the game application.
