@@ -11,6 +11,7 @@
 #include "point.hpp"
 #include "size.hpp"
 #include "texture.hpp"
+#include <boost/signals2.hpp>
 #include <memory>
 #include <string>
 #include <vector>
@@ -26,12 +27,14 @@ public:
     Point<float> getWindowCenter() const;
     bool initShader(const std::string &vertexShaderFileName,
                     const std::string &fragmentShaderFileName) override;
+    void initShader(const std::shared_ptr<GLShaderProgram> shaderProgram) override;
     void initialize(const std::string &title,
                     const std::string &resourcePath,
                     std::shared_ptr<GLTextService> textService);
     void generateGLElements();
     void render();
     void gameWindowSizeChanged(const Size<> &size);
+    boost::signals2::signal<void()> onCloseEvent;
 protected:
     std::string m_lastError;
     Point<float> m_windowLocation;

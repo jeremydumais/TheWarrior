@@ -24,8 +24,11 @@ void GLCharacterWindow::initialize(const std::string &resourcePath,
     m_textureService.loadTexture(m_slotsGLTexture);
 }
 
-void GLCharacterWindow::processEvents(SDL_Event &)
+void GLCharacterWindow::processEvents(SDL_Event &e)
 {
+    if (e.type == SDL_JOYBUTTONUP && e.jbutton.button == 0) {
+        onCloseEvent();
+    }
 }
 
 void GLCharacterWindow::generateGLElements()

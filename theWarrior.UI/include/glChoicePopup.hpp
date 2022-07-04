@@ -17,18 +17,20 @@ public:
     GLChoicePopup();
     void initialize(const std::string &resourcePath,
                     std::shared_ptr<GLFormService> glFormService,
-                    std::shared_ptr<GLTextService> textService);
+                    std::shared_ptr<GLTextService> textService,
+                    SDL_Joystick *joystick);
     void preparePopup(std::vector<std::string> choices);
     void processEvents(SDL_Event &e);
     void render();
-    void generateGLInventory();
-    void gameInventoryLocationChanged(const Point<float> &inventoryWindowCenter);
+    void generateGLElements();
+    void gameWindowLocationChanged(const Point<float> &windowCenter);
     boost::signals2::signal<void(size_t choice)> m_choiceClicked;
     boost::signals2::signal<void()> m_cancelClicked;
 private:
     std::shared_ptr<GLFormService> m_glFormService;
     std::shared_ptr<GLTextService> m_textService;
-    Point<float> m_inventoryCenter;
+    SDL_Joystick *m_joystick;
+    Point<float> m_windowCenter;
     size_t m_menuCursorPosition;
     size_t m_menuItemCount;
     //TODO Code the Optional question

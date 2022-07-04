@@ -15,45 +15,50 @@ GLTextService::~GLTextService()
 bool GLTextService::initShader(const std::string &vertexShaderFileName,
                          const std::string &fragmentShaderFileName) 
 {
-    shaderProgram = make_unique<GLShaderProgram>(vertexShaderFileName,
+    m_shaderProgram = make_shared<GLShaderProgram>(vertexShaderFileName,
                                                  fragmentShaderFileName);
-    if (!shaderProgram->compileShaders()) {
-        lastError = shaderProgram->getLastError();
+    if (!m_shaderProgram->compileShaders()) {
+        m_lastError = m_shaderProgram->getLastError();
         return false;
     }
-    if (!shaderProgram->linkShaders({ "vertex" })) {
-        lastError = shaderProgram->getLastError();
+    if (!m_shaderProgram->linkShaders({ "vertex" })) {
+        m_lastError = m_shaderProgram->getLastError();
         return false;
     }
     return true;
 }
 
+void GLTextService::initShader(const std::shared_ptr<GLShaderProgram> shaderProgram)
+{
+    m_shaderProgram = shaderProgram;
+}
+
 const string& GLTextService::getLastError() const
 {
-    return lastError;
+    return m_lastError;
 }
 
 void GLTextService::useShader() 
 {
-    shaderProgram->use();
+    m_shaderProgram->use();
 }
 
 bool GLTextService::initFont(const std::string &fontFileName) 
 {
     FT_Library ft;
     if (FT_Init_FreeType(&ft)) {
-        lastError = "ERROR::FREETYPE: Could not init FreeType Library";
+        m_lastError = "ERROR::FREETYPE: Could not init FreeType Library";
         return false;
     }
 
 	// find path to font
     if (fontFileName.empty()) {
-        lastError = "ERROR::FREETYPE: Failed to load fontFileName";
+        m_lastError = "ERROR::FREETYPE: Failed to load fontFileName";
         return false;
     }
     FT_Face face;
     if (FT_New_Face(ft, fontFileName.c_str(), 0, &face)) {
-        lastError = "ERROR::FREETYPE: Failed to load font";
+        m_lastError = "ERROR::FREETYPE: Failed to load font";
         return false;
     }
     else {
@@ -63,7 +68,7 @@ bool GLTextService::initFont(const std::string &fontFileName)
         {
             if (FT_Load_Char(face, c, FT_LOAD_RENDER))
             {
-                lastError = "ERROR::FREETYTPE: Failed to load Glyph";
+                m_lastError = "ERROR::FREETYTPE: Failed to load Glyph";
                 continue;
             }
             // generate texture
@@ -117,7 +122,7 @@ bool GLTextService::initFont(const std::string &fontFileName)
 
 void GLTextService::renderText(std::string text, float x, float y, float scale, glm::vec3 color)
 {
-    glUniform3f(glGetUniformLocation(shaderProgram->getShaderProgramID(), "textColor"), color.x, color.y, color.z);
+    glUniform3f(glGetUniformLocation(m_shaderProgram->getShaderProgramID(), "textColor"), color.x, color.y, color.z);
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(VAO);
 
@@ -246,8 +251,8 @@ void GLTextService::wrapLinesFromMaxScreenWidth(std::vector<std::string> &lines,
 void GLTextService::gameWindowSizeChanged(const Size<> &size)
 {
     glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(size.width()), 0.0f, static_cast<float>(size.height()));
-    shaderProgram->use();
-    GLint projectionUniformLocation  = glGetUniformLocation(shaderProgram->getShaderProgramID(), "projection");
+    m_shaderProgram->use();
+    GLint projectionUniformLocation  = glGetUniformLocation(m_shaderProgram->getShaderProgramID(), "projection");
     glUniformMatrix4fv(projectionUniformLocation, 1, GL_FALSE, glm::value_ptr(projection));
 }
 

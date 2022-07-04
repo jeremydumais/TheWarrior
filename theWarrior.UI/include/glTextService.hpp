@@ -40,6 +40,7 @@ public:
     ~GLTextService();
     bool initShader(const std::string &vertexShaderFileName,
                     const std::string &fragmentShaderFileName) override;
+    void initShader(const std::shared_ptr<GLShaderProgram> shaderProgram) override;
     bool initFont(const std::string &fontFileName);
     const std::string &getLastError() const;
     void useShader();
@@ -49,8 +50,8 @@ public:
     void wrapLinesFromMaxScreenWidth(std::vector<std::string> &lines, const float maxWidth, const float scale) const;
     void gameWindowSizeChanged(const Size<> &size);
 private:
-    std::string lastError;
-    std::unique_ptr<GLShaderProgram> shaderProgram;
+    std::string m_lastError;
+    std::shared_ptr<GLShaderProgram> m_shaderProgram;
     std::map<GLchar, Character> characters;
     unsigned int VAO, VBO;
 };

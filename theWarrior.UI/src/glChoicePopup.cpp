@@ -2,7 +2,8 @@
 
 GLChoicePopup::GLChoicePopup()
     : m_glFormService(nullptr),
-      m_inventoryCenter(1.0F, 1.0F),
+      m_joystick(nullptr),
+      m_windowCenter(1.0F, 1.0F),
       m_menuCursorPosition(0),
       m_menuItemCount(0),
       m_popupGLTexture({ Texture(TextureInfo { "inventoryWindow", "window.png", 256, 256, 32, 32 }), 0 }),
@@ -13,12 +14,14 @@ GLChoicePopup::GLChoicePopup()
 
 void GLChoicePopup::initialize(const std::string &resourcePath,
                                std::shared_ptr<GLFormService> glFormService,
-                               std::shared_ptr<GLTextService> textService)
+                               std::shared_ptr<GLTextService> textService,
+                               SDL_Joystick *joystick)
 {
     m_glFormService = glFormService;
     m_textService = textService;
     m_textureService.setResourcesPath(resourcePath);
     m_textureService.loadTexture(m_popupGLTexture);
+    m_joystick = joystick;
 }
 
 void GLChoicePopup::preparePopup(std::vector<std::string> choices)
@@ -49,6 +52,22 @@ void GLChoicePopup::processEvents(SDL_Event &e)
     else if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_ESCAPE) {
         m_cancelClicked();
     }
+    else if (e.type == SDL_JOYBUTTONUP && e.jbutton.button == 1) {
+        actionButtonPressed();
+    }
+    else if (e.type == SDL_JOYBUTTONUP && e.jbutton.button == 0) {
+        m_cancelClicked();
+    }
+    for (int i = 0 ; i < SDL_JoystickNumHats(m_joystick) ; i++ ) {
+        if (SDL_JoystickGetHat(m_joystick, i) == SDL_HAT_UP) {
+            moveUpPressed();
+            break;
+        }
+        else if (SDL_JoystickGetHat(m_joystick, i) == SDL_HAT_DOWN) {
+            moveDownPressed();
+            break;
+        }
+    }
 }
 
 void GLChoicePopup::render()
@@ -61,12 +80,12 @@ void GLChoicePopup::render()
     }
 }
 
-void GLChoicePopup::generateGLInventory()
+void GLChoicePopup::generateGLElements()
 {
 
     const Size<float> POPUP_SIZE(300.0F, (70.0F * static_cast<float>(m_glTextChoices.size())) + 50.0F);
-    const Point<float> POPUP_LOCATION(m_inventoryCenter.x() - (POPUP_SIZE.width() / 2.0F), 
-                                      m_inventoryCenter.y() - (POPUP_SIZE.height() / 2.0F));
+    const Point<float> POPUP_LOCATION(m_windowCenter.x() - (POPUP_SIZE.width() / 2.0F), 
+                                      m_windowCenter.y() - (POPUP_SIZE.height() / 2.0F));
     const float BLOCKSIZE = 32.0F;
     m_menuObjects.push_back(GLObject {});
     m_glFormService->generateQuad(m_menuObjects, 
@@ -85,16 +104,16 @@ void GLChoicePopup::generateGLInventory()
     }
 }
 
-void GLChoicePopup::gameInventoryLocationChanged(const Point<float> &inventoryWindowCenter)
+void GLChoicePopup::gameWindowLocationChanged(const Point<float> &windowCenter)
 {
-    m_inventoryCenter = inventoryWindowCenter;
+    m_windowCenter = windowCenter;
 }
 
 void GLChoicePopup::moveUpPressed()
 {
     if (m_menuCursorPosition > 0) {
         m_menuCursorPosition--;
-        generateGLInventory();
+        generateGLElements();
     }
 }
 
@@ -102,7 +121,7 @@ void GLChoicePopup::moveDownPressed()
 {
     if (m_menuCursorPosition + 1 < m_menuItemCount) {
         m_menuCursorPosition++;
-        generateGLInventory();
+        generateGLElements();
     }
 }
 

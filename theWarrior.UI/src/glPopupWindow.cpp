@@ -57,6 +57,12 @@ bool GLPopupWindow::initShader(const std::string &vertexShaderFileName,
     }
     return true;
 }
+
+void GLPopupWindow::initShader(const std::shared_ptr<GLShaderProgram> shaderProgram)
+{
+    m_shaderProgram = shaderProgram;
+}
+
 void GLPopupWindow::initialize(const std::string &title,
                                const std::string &resourcePath,
                                std::shared_ptr<GLTextService> textService)

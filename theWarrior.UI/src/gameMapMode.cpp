@@ -9,7 +9,11 @@
 #include <vector>
 
 GameMapMode::GameMapMode()
-    : m_currentMapName(""),
+    : m_lastError(""),
+      m_currentMapName(""),
+      m_inputMode(GameMapInputMode::Map),
+      m_shaderProgram(nullptr),
+      m_glFormService(std::make_shared<GLFormService>()),
       m_screenSize(1, 1),
       m_tileSize({ 1.0F, 1.0F, 1.0F }),
       m_joystick(nullptr),
@@ -20,7 +24,10 @@ GameMapMode::GameMapMode()
       m_blockKeyDown(false),
       m_isCharacterWindowDisplayed(false),
       m_isInventoryDisplayed(false)
-{}
+{
+    m_choicePopup.m_choiceClicked.connect(boost::bind(&GameMapMode::mainMenuPopupClicked, this, boost::placeholders::_1));
+    m_choicePopup.m_cancelClicked.connect(boost::bind(&GameMapMode::mainMenuPopupCanceled, this));    
+}
 
 void GameMapMode::initialize(const std::string &resourcesPath,
                              std::shared_ptr<GLPlayer> glPlayer,
@@ -35,38 +42,53 @@ void GameMapMode::initialize(const std::string &resourcesPath,
     m_resourcesPath = resourcesPath;
     m_map = std::make_shared<GameMap>(1, 1);
     m_glPlayer = glPlayer;
+    m_glFormService->initialize(m_shaderProgram, textService);
     m_glCharacterWindow.initialize(resourcesPath, glPlayer, textService, itemStore, texturesGLItemStore);
-    m_glInventory.initialize(resourcesPath, glPlayer, textService, itemStore, texturesGLItemStore);
+    m_glInventory.initialize(resourcesPath, glPlayer, textService, itemStore, texturesGLItemStore, joystick);
     m_glInventory.setInventory(m_glPlayer->getInventory());
     m_textureService.setResourcesPath(resourcesPath);
     m_tileService = tileService;
     m_textBox = textBox;
     m_joystick = joystick;
     m_controller.initialize(itemStore, messagePipeline);
+    m_choicePopup.initialize(resourcesPath, m_glFormService, textService, joystick);
     loadMap(fmt::format("{0}/maps/homeHouseV1.map", resourcesPath), "homeHouseV1.map");
     loadMapTextures();
     generateGLMapObjects();
+    m_glCharacterWindow.onCloseEvent.connect(boost::bind(&GameMapMode::onCharacterWindowClose, this));
+    m_glInventory.onCloseEvent.connect(boost::bind(&GameMapMode::onInventoryWindowClose, this));
 }
 
 bool GameMapMode::initShaders(const std::string &resourcesPath)
 {
-    if (!m_glCharacterWindow.initShader(fmt::format("{0}/shaders/window_330_vs.glsl", resourcesPath),
-                                        fmt::format("{0}/shaders/window_330_fs.glsl", resourcesPath))) {
-        std::cerr << m_glCharacterWindow.getLastError() << "\n";
+    m_shaderProgram = std::make_shared<GLShaderProgram>(fmt::format("{0}/shaders/window_330_vs.glsl", resourcesPath),
+                                                        fmt::format("{0}/shaders/window_330_fs.glsl", resourcesPath));
+    if (!m_shaderProgram->compileShaders()) {
+        m_lastError = m_shaderProgram->getLastError();
         return false;
     }
-    if (!m_glInventory.initShader(fmt::format("{0}/shaders/window_330_vs.glsl", resourcesPath),
-                                  fmt::format("{0}/shaders/window_330_fs.glsl", resourcesPath))) {
-        std::cerr << m_glInventory.getLastError() << "\n";
+    if (!m_shaderProgram->linkShaders({ "vertex" })) {
+        m_lastError = m_shaderProgram->getLastError();
         return false;
     }
+    m_glCharacterWindow.initShader(m_shaderProgram);
+    m_glInventory.initShader(m_shaderProgram);
     return true;
+}
+
+const std::string& GameMapMode::getLastError() const
+{
+    return m_lastError;
 }
 
 void GameMapMode::processEvents(SDL_Event &e)
 {
     if(e.type == SDL_KEYUP) {
         m_blockKeyDown = false;
+    }
+    if (m_inputMode == GameMapInputMode::MainMenuPopup) {
+        m_choicePopup.processEvents(e);
+        return;
     }
     if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_i && !m_isCharacterWindowDisplayed) {
         if (!m_blockKeyDown) {
@@ -125,8 +147,13 @@ void GameMapMode::processEvents(SDL_Event &e)
         if (e.jbutton.button == 0) {
             m_glPlayer->disableRunMode();
         }
-        if (e.jbutton.button == 1) {
+        else if (e.jbutton.button == 1) {
             actionButtonPressed();
+        }
+        else if (e.jbutton.button == 2) {
+            m_inputMode = GameMapInputMode::MainMenuPopup;
+            m_choicePopup.preparePopup({"Inventory", "Character", "Back"});
+            m_choicePopup.generateGLElements();
         }
     }
     const Uint8 *keystate = SDL_GetKeyboardState(NULL);
@@ -167,10 +194,13 @@ void GameMapMode::processEvents(SDL_Event &e)
 void GameMapMode::gameWindowSizeChanged(const Size<> &size)
 {
     m_screenSize = size;
+    m_glFormService->gameWindowSizeChanged(size);
     unloadGLMapObjects();
     generateGLMapObjects();
     m_glInventory.gameWindowSizeChanged(size);
     m_glCharacterWindow.gameWindowSizeChanged(size);
+    m_choicePopup.gameWindowLocationChanged({static_cast<float>(size.width()) / 2.0F,
+                                             static_cast<float>(size.height()) / 2.0F});
 }
 
 void GameMapMode::gameWindowTileSizeChanged(const TileSize &tileSize)
@@ -232,6 +262,9 @@ void GameMapMode::render()
         if (currentMessage->isExpired) {
             m_controller.deleteCurrentMessage();
         }
+    }
+    if (m_inputMode == GameMapInputMode::MainMenuPopup) {
+        m_choicePopup.render();
     }
     if (m_isInventoryDisplayed) {
         m_glInventory.render();
@@ -535,4 +568,23 @@ void GameMapMode::generateGLMapObjects()
         }
         indexRow++;
     }
+}
+
+void GameMapMode::onCharacterWindowClose()
+{
+    m_isCharacterWindowDisplayed = false;
+}
+
+void GameMapMode::onInventoryWindowClose()
+{
+    m_isInventoryDisplayed = false;
+}
+
+void GameMapMode::mainMenuPopupClicked(size_t choice)
+{
+}
+
+void GameMapMode::mainMenuPopupCanceled()
+{
+    m_inputMode = GameMapInputMode::Map;
 }

@@ -42,9 +42,12 @@ public:
                     std::shared_ptr<GLPlayer> glPlayer,
                     std::shared_ptr<GLTextService> textService,
                     std::shared_ptr<ItemStore> itemStore,
-                    const std::map<std::string, unsigned int> *texturesGLItemStore);
+                    const std::map<std::string, unsigned int> *texturesGLItemStore,
+                    SDL_Joystick *joystick);
     void setInventory(std::shared_ptr<Inventory> inventory);
     void processEvents(SDL_Event &e);
+    void processEventsListMode(SDL_Event &e);
+    void processEventsMoveMode(SDL_Event &e);
     void generateGLInventory();
     void render();
     void gameWindowSizeChanged(const Size<> &size);
@@ -61,6 +64,7 @@ private:
     GLTexture m_slotsGLTexture;
     GLTexture m_inventoryIconsGLTexture;
     GLChoicePopup m_choicePopup;
+    SDL_Joystick *m_joystick;
     void generateSlots();
     void generateDetailsInfo();
     void generateWeaponDetails(std::shared_ptr<const Item> item, float yPosition);

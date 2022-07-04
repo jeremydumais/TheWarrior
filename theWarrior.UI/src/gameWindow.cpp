@@ -211,6 +211,7 @@ bool GameWindow::loadResourceFiles()
         return false;
     }
     if (!m_gameMapMode.initShaders(m_controller.getResourcesPath())) {
+        cerr << m_gameMapMode.getLastError() << "\n";
         return false;
     }
     m_textureService.setResourcesPath(m_controller.getResourcesPath());
