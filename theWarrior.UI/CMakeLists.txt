@@ -22,14 +22,15 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glTextService.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glTextBox.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glTextureService.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/glShaderProgram.cpp)
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/glShaderProgram.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/inputDevicesState.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   target_compile_definitions(${PROJECT_NAME} PRIVATE SUPPORT_MAYBE_UNUSED)
 endif()
 
-target_link_libraries(${PROJECT_NAME} theWarrior.Models theWarrior.Storage theWarrior.UI.Controllers GLU GL GLEW)
+target_link_libraries(${PROJECT_NAME} theWarrior.Models theWarrior.Storage theWarrior.UI.Controllers SDL2 GLU GL GLEW)
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${CONAN_INCLUDE_DIRS})
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
@@ -73,6 +74,10 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
       PUBLIC /wdC4251
       INTERFACE NOMINMAX # avoid Win macro definition of min/max, use std one
       INTERFACE _SCL_SECURE_NO_WARNINGS) # disable security-paranoia warning
+endif()
+
+if (NOT DEFINED BUILD_TESTING OR BUILD_TESTING)
+    add_subdirectory("test")
 endif()
 
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)

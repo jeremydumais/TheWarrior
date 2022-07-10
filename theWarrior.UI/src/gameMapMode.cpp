@@ -9,21 +9,6 @@
 #include <vector>
 
 GameMapMode::GameMapMode()
-    : m_lastError(""),
-      m_currentMapName(""),
-      m_inputMode(GameMapInputMode::Map),
-      m_shaderProgram(nullptr),
-      m_glFormService(std::make_shared<GLFormService>()),
-      m_screenSize(1, 1),
-      m_tileSize({ 1.0F, 1.0F, 1.0F }),
-      m_joystick(nullptr),
-      m_texColorBuf { { 1.0F, 1.0F, 1.0F },   /* Red */
-                      { 1.0F, 1.0F, 1.0F },   /* Green */
-                      { 1.0F, 1.0F, 1.0F },   /* Blue */
-                      { 1.0F, 1.0F, 1.0F } },
-      m_blockKeyDown(false),
-      m_isCharacterWindowDisplayed(false),
-      m_isInventoryDisplayed(false)
 {
     m_choicePopup.m_choiceClicked.connect(boost::bind(&GameMapMode::mainMenuPopupClicked, this, boost::placeholders::_1));
     m_choicePopup.m_cancelClicked.connect(boost::bind(&GameMapMode::mainMenuPopupCanceled, this));    
@@ -37,6 +22,7 @@ void GameMapMode::initialize(const std::string &resourcesPath,
                              std::shared_ptr<GLTextBox> textBox,
                              std::shared_ptr<GLTextService> textService,
                              const std::map<std::string, unsigned int> *texturesGLItemStore,
+                             std::shared_ptr<InputDevicesState> inputDevicesState,
                              SDL_Joystick *joystick)
 {
     m_resourcesPath = resourcesPath;
@@ -49,6 +35,7 @@ void GameMapMode::initialize(const std::string &resourcesPath,
     m_textureService.setResourcesPath(resourcesPath);
     m_tileService = tileService;
     m_textBox = textBox;
+    m_inputDevicesState = inputDevicesState;
     m_joystick = joystick;
     m_controller.initialize(itemStore, messagePipeline);
     m_choicePopup.initialize(resourcesPath, m_glFormService, textService, joystick);
@@ -119,22 +106,6 @@ void GameMapMode::processEvents(SDL_Event &e)
         return;
     }
 
-    if(e.type == SDL_KEYDOWN && !m_glPlayer->isInMovement()) {
-        switch(e.key.keysym.sym) {
-            case SDLK_UP:
-                moveUpPressed();
-                break;
-            case SDLK_DOWN:
-                moveDownPressed();
-                break;
-            case SDLK_LEFT:
-                moveLeftPressed();
-                break;
-            case SDLK_RIGHT:
-                moveRightPressed();
-                break;
-        };
-    }
     else if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_RETURN) {
         actionButtonPressed();
     }
@@ -171,22 +142,24 @@ void GameMapMode::processEvents(SDL_Event &e)
             m_controller.addMessageToPipeline(std::move(dto));
         }
     }
-    for (int i = 0 ; i < SDL_JoystickNumHats(m_joystick) ; i++ ) {
-        if (SDL_JoystickGetHat(m_joystick, i) == SDL_HAT_UP && !m_glPlayer->isInMovement()) {
-            moveUpPressed();
-            break;
-        }
-        else if (SDL_JoystickGetHat(m_joystick, i) == SDL_HAT_DOWN && !m_glPlayer->isInMovement()) {
-            moveDownPressed();
-            break;
-        }
-        else if (SDL_JoystickGetHat(m_joystick, i) == SDL_HAT_LEFT && !m_glPlayer->isInMovement()) {
-            moveLeftPressed();
-            break;
-        }
-        else if (SDL_JoystickGetHat(m_joystick, i) == SDL_HAT_RIGHT && !m_glPlayer->isInMovement()) {
-            moveRightPressed();
-            break;
+}
+
+void GameMapMode::update()
+{
+    if(m_inputDevicesState->isADirectionKeyPressed()) {
+        if (!m_glPlayer->isInMovement()) {
+            if (m_inputDevicesState->getUpPressed()) {
+                moveUpPressed();
+            }
+            else if (m_inputDevicesState->getDownPressed()) {
+                moveDownPressed();
+            }
+            else if (m_inputDevicesState->getLeftPressed()) {
+                moveLeftPressed();
+            }
+            else if (m_inputDevicesState->getRightPressed()) {
+                moveRightPressed();
+            }
         }
     }
 }

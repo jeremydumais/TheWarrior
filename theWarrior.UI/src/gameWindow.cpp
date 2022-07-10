@@ -7,16 +7,7 @@ using namespace std;
 GameWindow::GameWindow(const string &title,
                        int x, int y,
                        int width, int height) 
-    : m_WindowSize(width, height),
-      m_tileSize({1.0F, 1.0F, 1.0F}),
-      m_mustExit(false),
-      m_interactionMode(InteractionMode::Game),
-      m_tileService(std::make_shared<GLTileService>()),
-      m_textBox(std::make_shared<GLTextBox>()),
-      m_textService(std::make_shared<GLTextService>()),
-      m_glPlayer(std::make_shared<GLPlayer>("Ragnar")),
-      m_toggleFPS(false),
-      m_blockKeyDown(false)
+    : m_WindowSize(width, height)
 {
     if (!initializeOpenGL(title, x, y, width, height)) {
         return;
@@ -55,6 +46,7 @@ GameWindow::GameWindow(const string &title,
                              m_textBox,
                              m_textService,
                              &m_texturesGLItemStore,
+                             m_inputDevicesState,
                              m_joystick);
     m_fpsCalculator.initialize();
     m_windowSizeChanged(m_WindowSize);
@@ -88,10 +80,10 @@ bool GameWindow::isAlive() const
 void GameWindow::processEvents() 
 {
     SDL_Event e;
-    SDL_JoystickUpdate();
-    
+    m_inputDevicesState->reset();
+    m_inputDevicesState->processJoystick(m_joystick);
     while(SDL_PollEvent(&e) != 0) {
-
+        m_inputDevicesState->processEvent(e);
         if(e.type == SDL_KEYUP) {
             m_blockKeyDown = false;
         }
@@ -124,6 +116,13 @@ void GameWindow::processEvents()
             m_toggleFPS = !m_toggleFPS;
             m_blockKeyDown = true;
         }  
+    }
+    switch (m_interactionMode) {
+        case InteractionMode::Game:
+            m_gameMapMode.update();
+            break;
+        default:
+            break;
     }
     m_windowUpdate(1.0F / 90.0F);
 	render();
