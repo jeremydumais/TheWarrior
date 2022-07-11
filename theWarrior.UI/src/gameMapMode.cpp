@@ -30,7 +30,7 @@ void GameMapMode::initialize(const std::string &resourcesPath,
     m_glPlayer = glPlayer;
     m_glFormService->initialize(m_shaderProgram, textService);
     m_glCharacterWindow.initialize(resourcesPath, glPlayer, textService, itemStore, texturesGLItemStore);
-    m_glInventory.initialize(resourcesPath, glPlayer, textService, itemStore, texturesGLItemStore, joystick);
+    m_glInventory.initialize(resourcesPath, glPlayer, textService, itemStore, texturesGLItemStore, m_inputDevicesState, joystick);
     m_glInventory.setInventory(m_glPlayer->getInventory());
     m_textureService.setResourcesPath(resourcesPath);
     m_tileService = tileService;
@@ -38,7 +38,7 @@ void GameMapMode::initialize(const std::string &resourcesPath,
     m_inputDevicesState = inputDevicesState;
     m_joystick = joystick;
     m_controller.initialize(itemStore, messagePipeline);
-    m_choicePopup.initialize(resourcesPath, m_glFormService, textService, joystick);
+    m_choicePopup.initialize(resourcesPath, m_glFormService, textService, inputDevicesState, joystick);
     loadMap(fmt::format("{0}/maps/homeHouseV1.map", resourcesPath), "homeHouseV1.map");
     loadMapTextures();
     generateGLMapObjects();
@@ -105,62 +105,46 @@ void GameMapMode::processEvents(SDL_Event &e)
         m_glCharacterWindow.processEvents(e);
         return;
     }
+}
 
-    else if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_RETURN) {
-        actionButtonPressed();
-    }
-    else if (e.type == SDL_JOYBUTTONDOWN) {
-        if (e.jbutton.button == 0) {
-            m_glPlayer->enableRunMode();
+void GameMapMode::update()
+{
+    if (m_inputMode == GameMapInputMode::Map) {
+        if(m_inputDevicesState->isADirectionKeyPressed()) {
+            if (!m_glPlayer->isInMovement()) {
+                if (m_inputDevicesState->getUpPressed()) {
+                    moveUpPressed();
+                }
+                else if (m_inputDevicesState->getDownPressed()) {
+                    moveDownPressed();
+                }
+                else if (m_inputDevicesState->getLeftPressed()) {
+                    moveLeftPressed();
+                }
+                else if (m_inputDevicesState->getRightPressed()) {
+                    moveRightPressed();
+                }
+            }
         }
-    }
-    else if (e.type == SDL_JOYBUTTONUP) {
-        if (e.jbutton.button == 0) {
-            m_glPlayer->disableRunMode();
-        }
-        else if (e.jbutton.button == 1) {
+        if(m_inputDevicesState->getButtonAReleased()) {
             actionButtonPressed();
         }
-        else if (e.jbutton.button == 2) {
+        if(m_inputDevicesState->isADirectionKeyPressed()) {
+            if (m_inputDevicesState->getButtonBPressed()) {
+                m_glPlayer->enableRunMode();
+            }
+            else {
+                m_glPlayer->disableRunMode();
+            }
+        } 
+        if(m_inputDevicesState->getButtonCReleased()) {
             m_inputMode = GameMapInputMode::MainMenuPopup;
             m_choicePopup.preparePopup({"Inventory", "Character", "Back"});
             m_choicePopup.generateGLElements();
         }
     }
-    const Uint8 *keystate = SDL_GetKeyboardState(NULL);
-    if ((keystate[SDL_SCANCODE_RCTRL] || keystate[SDL_SCANCODE_LCTRL]) && keystate[SDL_SCANCODE_M]) {
-        //TODO To remove test only
-        if (!m_blockKeyDown) {
-            m_blockKeyDown = true;
-            //auto dto = std::make_unique<ItemFoundMessageDTO>();
-            auto dto = std::make_unique<MessageDTO>();
-            dto->message = "Hello, my name is Jed and I am the first warrior of the entire land so just let me know if you need help.";
-            //dto->message = "You found a Wooden Sword!";
-            dto->maxDurationInMilliseconds = -1;
-            //dto->itemId = "swd002";
-            //dto->textureName = "ItemsTile";
-            m_controller.addMessageToPipeline(std::move(dto));
-        }
-    }
-}
-
-void GameMapMode::update()
-{
-    if(m_inputDevicesState->isADirectionKeyPressed()) {
-        if (!m_glPlayer->isInMovement()) {
-            if (m_inputDevicesState->getUpPressed()) {
-                moveUpPressed();
-            }
-            else if (m_inputDevicesState->getDownPressed()) {
-                moveDownPressed();
-            }
-            else if (m_inputDevicesState->getLeftPressed()) {
-                moveLeftPressed();
-            }
-            else if (m_inputDevicesState->getRightPressed()) {
-                moveRightPressed();
-            }
-        }
+    else if (m_inputMode == GameMapInputMode::MainMenuPopup) {
+        m_choicePopup.update();
     }
 }
 

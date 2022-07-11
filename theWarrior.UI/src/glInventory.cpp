@@ -32,6 +32,7 @@ void GLInventory::initialize(const std::string &resourcePath,
                              std::shared_ptr<GLTextService> textService,
                              std::shared_ptr<ItemStore> itemStore,
                              const std::map<std::string, unsigned int> *texturesGLItemStore,
+                             std::shared_ptr<InputDevicesState> inputDevicesState,
                              SDL_Joystick *joystick)
 {
     GLPopupWindow::initialize("Inventory", resourcePath, textService);
@@ -40,8 +41,9 @@ void GLInventory::initialize(const std::string &resourcePath,
     m_textureService.loadTexture(m_inventoryIconsGLTexture);
     m_itemStore = itemStore;
     m_texturesGLItemStore = texturesGLItemStore;
+    m_inputDevicesState = inputDevicesState;
     m_joystick = joystick;
-    m_choicePopup.initialize(resourcePath, m_glFormService, textService, joystick);
+    m_choicePopup.initialize(resourcePath, m_glFormService, textService, inputDevicesState, joystick);
 }
 
 void GLInventory::setInventory(std::shared_ptr<Inventory> inventory)

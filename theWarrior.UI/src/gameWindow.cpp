@@ -80,7 +80,6 @@ bool GameWindow::isAlive() const
 void GameWindow::processEvents() 
 {
     SDL_Event e;
-    m_inputDevicesState->reset();
     m_inputDevicesState->processJoystick(m_joystick);
     while(SDL_PollEvent(&e) != 0) {
         m_inputDevicesState->processEvent(e);

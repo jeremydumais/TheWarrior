@@ -12,6 +12,7 @@
 #include "glTextService.hpp"
 #include "glTexture.hpp"
 #include "glTextureService.hpp"
+#include "inputDevicesState.hpp"
 #include "point.hpp"
 #include "size.hpp"
 #include "texture.hpp"
@@ -43,6 +44,7 @@ public:
                     std::shared_ptr<GLTextService> textService,
                     std::shared_ptr<ItemStore> itemStore,
                     const std::map<std::string, unsigned int> *texturesGLItemStore,
+                    std::shared_ptr<InputDevicesState> inputDevicesState,
                     SDL_Joystick *joystick);
     void setInventory(std::shared_ptr<Inventory> inventory);
     void processEvents(SDL_Event &e);
@@ -64,6 +66,7 @@ private:
     GLTexture m_slotsGLTexture;
     GLTexture m_inventoryIconsGLTexture;
     GLChoicePopup m_choicePopup;
+    std::shared_ptr<InputDevicesState> m_inputDevicesState = nullptr;
     SDL_Joystick *m_joystick;
     void generateSlots();
     void generateDetailsInfo();

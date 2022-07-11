@@ -14,6 +14,10 @@ public:
     bool getButtonBPressed() const;
     bool getButtonCPressed() const;
     bool getButtonDPressed() const;
+    bool getButtonAReleased() const;
+    bool getButtonBReleased() const;
+    bool getButtonCReleased() const;
+    bool getButtonDReleased() const;
     bool isADirectionKeyPressed() const;
     void reset();
     void processJoystick(SDL_Joystick *joystick);
@@ -27,6 +31,10 @@ protected:
     void setButtonBPressed(bool value);
     void setButtonCPressed(bool value);
     void setButtonDPressed(bool value);
+    void setButtonAReleased(bool value);
+    void setButtonBReleased(bool value);
+    void setButtonCReleased(bool value);
+    void setButtonDReleased(bool value);
 private:
     bool m_upPressed = false;
     bool m_downPressed = false;
@@ -36,4 +44,8 @@ private:
     bool m_buttonBPressed = false;
     bool m_buttonCPressed = false;
     bool m_buttonDPressed = false;
+    bool m_buttonAReleased = false;
+    bool m_buttonBReleased = false;
+    bool m_buttonCReleased = false;
+    bool m_buttonDReleased = false;
 };

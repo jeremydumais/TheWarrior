@@ -9,10 +9,14 @@ public:
     void setDown(bool value) { InputDevicesState::setDownPressed(value); }
     void setLeft(bool value) { InputDevicesState::setLeftPressed(value); }
     void setRight(bool value) { InputDevicesState::setRightPressed(value); }
-    void setButtonA(bool value) { setButtonAPressed(value); }
-    void setButtonB(bool value) { setButtonBPressed(value); }
-    void setButtonC(bool value) { setButtonCPressed(value); }
-    void setButtonD(bool value) { setButtonDPressed(value); }
+    void setButtonAPre(bool value) { setButtonAPressed(value); }
+    void setButtonBPre(bool value) { setButtonBPressed(value); }
+    void setButtonCPre(bool value) { setButtonCPressed(value); }
+    void setButtonDPre(bool value) { setButtonDPressed(value); }
+    void setButtonARel(bool value) { setButtonAReleased(value); }
+    void setButtonBRel(bool value) { setButtonBReleased(value); }
+    void setButtonCRel(bool value) { setButtonCReleased(value); }
+    void setButtonDRel(bool value) { setButtonDReleased(value); }
 };
 
 TEST(InputDevicesState_getUpPressed, WithDefaultConstructed_ReturnFalse)
@@ -63,6 +67,30 @@ TEST(InputDevicesState_getButtonDPressed, WithDefaultConstructed_ReturnFalse)
     ASSERT_FALSE(devicesState.getButtonDPressed());
 }
 
+TEST(InputDevicesState_getButtonAReleased, WithDefaultConstructed_ReturnFalse)
+{
+    InputDevicesState devicesState;
+    ASSERT_FALSE(devicesState.getButtonAReleased());
+}
+
+TEST(InputDevicesState_getButtonBReleased, WithDefaultConstructed_ReturnFalse)
+{
+    InputDevicesState devicesState;
+    ASSERT_FALSE(devicesState.getButtonBReleased());
+}
+
+TEST(InputDevicesState_getButtonCReleased, WithDefaultConstructed_ReturnFalse)
+{
+    InputDevicesState devicesState;
+    ASSERT_FALSE(devicesState.getButtonCReleased());
+}
+
+TEST(InputDevicesState_getButtonDReleased, WithDefaultConstructed_ReturnFalse)
+{
+    InputDevicesState devicesState;
+    ASSERT_FALSE(devicesState.getButtonDReleased());
+}
+
 TEST_F(InputDevicesStateWithSetters, setUpPressed_WithTrue_ReturnSuccess)
 {
     setUp(true);
@@ -89,26 +117,50 @@ TEST_F(InputDevicesStateWithSetters, setRightPressed_WithTrue_ReturnSuccess)
 
 TEST_F(InputDevicesStateWithSetters, setButtonAPressed_WithTrue_ReturnSuccess)
 {
-    setButtonA(true);
+    setButtonAPre(true);
     ASSERT_TRUE(getButtonAPressed());
 }
 
 TEST_F(InputDevicesStateWithSetters, setButtonBPressed_WithTrue_ReturnSuccess)
 {
-    setButtonB(true);
+    setButtonBPre(true);
     ASSERT_TRUE(getButtonBPressed());
 }
 
 TEST_F(InputDevicesStateWithSetters, setButtonCPressed_WithTrue_ReturnSuccess)
 {
-    setButtonC(true);
+    setButtonCPre(true);
     ASSERT_TRUE(getButtonCPressed());
 }
 
 TEST_F(InputDevicesStateWithSetters, setButtonDPressed_WithTrue_ReturnSuccess)
 {
-    setButtonD(true);
+    setButtonDPre(true);
     ASSERT_TRUE(getButtonDPressed());
+}
+
+TEST_F(InputDevicesStateWithSetters, setButtonAReleased_WithTrue_ReturnSuccess)
+{
+    setButtonARel(true);
+    ASSERT_TRUE(getButtonAReleased());
+}
+
+TEST_F(InputDevicesStateWithSetters, setButtonBReleased_WithTrue_ReturnSuccess)
+{
+    setButtonBRel(true);
+    ASSERT_TRUE(getButtonBReleased());
+}
+
+TEST_F(InputDevicesStateWithSetters, setButtonCReleased_WithTrue_ReturnSuccess)
+{
+    setButtonCRel(true);
+    ASSERT_TRUE(getButtonCReleased());
+}
+
+TEST_F(InputDevicesStateWithSetters, setButtonDReleased_WithTrue_ReturnSuccess)
+{
+    setButtonDRel(true);
+    ASSERT_TRUE(getButtonDReleased());
 }
 
 TEST_F(InputDevicesStateWithSetters, reset_WithSettingAllTrueBefore_ReturnSuccess)
@@ -117,10 +169,14 @@ TEST_F(InputDevicesStateWithSetters, reset_WithSettingAllTrueBefore_ReturnSucces
     setDown(true);
     setLeft(true);
     setRight(true);
-    setButtonA(true);
-    setButtonB(true);
-    setButtonC(true);
-    setButtonD(true);
+    setButtonAPre(true);
+    setButtonBPre(true);
+    setButtonCPre(true);
+    setButtonDPre(true);
+    setButtonARel(true);
+    setButtonBRel(true);
+    setButtonCRel(true);
+    setButtonDRel(true);
     reset();
     ASSERT_FALSE(getUpPressed());
     ASSERT_FALSE(getDownPressed());
@@ -130,6 +186,10 @@ TEST_F(InputDevicesStateWithSetters, reset_WithSettingAllTrueBefore_ReturnSucces
     ASSERT_FALSE(getButtonBPressed());
     ASSERT_FALSE(getButtonCPressed());
     ASSERT_FALSE(getButtonDPressed());
+    ASSERT_FALSE(getButtonAReleased());
+    ASSERT_FALSE(getButtonBReleased());
+    ASSERT_FALSE(getButtonCReleased());
+    ASSERT_FALSE(getButtonDReleased());
 }
 
 TEST_F(InputDevicesStateWithSetters, isADirectionKeyPressed_WithUpPressed_ReturnTrue)
