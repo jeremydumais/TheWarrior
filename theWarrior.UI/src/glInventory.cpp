@@ -13,15 +13,7 @@ const float ITEMSIZE = 70.0F;
 const Size<float> DETAILSBOXSIZE = { 324.0F, 448.0F };
 
 GLInventory::GLInventory()
-    : GLPopupWindow({ 1000.0F, 570.0F }),
-      m_inventory(nullptr),
-      m_inventoryCursorPosition(0),
-      m_inputMode(InventoryInputMode::List),
-      m_inventoryMoveSrc(0),
-      m_detailsBoxPosition({ 1.0F, 1.0F }),
-      m_slotsGLTexture({ Texture(TextureInfo{ "emptySlot", "item_slot.png", 768, 256, 256, 256 }), 0 }),
-      m_inventoryIconsGLTexture({ Texture(TextureInfo{ "inventory", "inventory.png", 96, 32, 32, 32 }), 0 }),
-      m_joystick(nullptr)
+    : GLPopupWindow({ 1000.0F, 570.0F })
 {
     m_choicePopup.m_choiceClicked.connect(boost::bind(&GLInventory::itemActionPopupClicked, this, boost::placeholders::_1));
     m_choicePopup.m_cancelClicked.connect(boost::bind(&GLInventory::itemActionPopupCanceled, this));
@@ -32,8 +24,7 @@ void GLInventory::initialize(const std::string &resourcePath,
                              std::shared_ptr<GLTextService> textService,
                              std::shared_ptr<ItemStore> itemStore,
                              const std::map<std::string, unsigned int> *texturesGLItemStore,
-                             std::shared_ptr<InputDevicesState> inputDevicesState,
-                             SDL_Joystick *joystick)
+                             std::shared_ptr<InputDevicesState> inputDevicesState)
 {
     GLPopupWindow::initialize("Inventory", resourcePath, textService);
     m_glPlayer = glPlayer;
@@ -42,8 +33,7 @@ void GLInventory::initialize(const std::string &resourcePath,
     m_itemStore = itemStore;
     m_texturesGLItemStore = texturesGLItemStore;
     m_inputDevicesState = inputDevicesState;
-    m_joystick = joystick;
-    m_choicePopup.initialize(resourcePath, m_glFormService, textService, inputDevicesState, joystick);
+    m_choicePopup.initialize(resourcePath, m_glFormService, textService, inputDevicesState);
 }
 
 void GLInventory::setInventory(std::shared_ptr<Inventory> inventory)
@@ -359,127 +349,104 @@ void GLInventory::changeMode(InventoryInputMode mode)
     generateGLInventory();
 }
 
-void GLInventory::processEvents(SDL_Event &e)
+void GLInventory::update()
 {
     switch (m_inputMode)
     {
-    case InventoryInputMode::List:
-        processEventsListMode(e);
-        break;
-    case InventoryInputMode::MoveItem:
-        processEventsMoveMode(e);
-        break;
-    case InventoryInputMode::StatsItemPopup:
-        m_choicePopup.processEvents(e);
-        break;
-    case InventoryInputMode::ItemPopup:
-        m_choicePopup.processEvents(e);
-        break;
-    case InventoryInputMode::WeaponOrArmorPopup:
-        m_choicePopup.processEvents(e);
-        break;
-    case InventoryInputMode::DropItemPopup:
-        m_choicePopup.processEvents(e);
-        break;
-    default:
-        break;
-    }  
+        case InventoryInputMode::List:
+            updateListMode();
+            break;
+        case InventoryInputMode::MoveItem:
+            updateMoveMode();
+            break;
+        case InventoryInputMode::ItemPopup:
+            m_choicePopup.update();
+            break;
+        case InventoryInputMode::StatsItemPopup:
+            m_choicePopup.update();
+            break;
+        case InventoryInputMode::WeaponOrArmorPopup:
+            m_choicePopup.update();
+            break;
+        case InventoryInputMode::DropItemPopup:
+            m_choicePopup.update();
+            break;
+    }
 }
 
-void GLInventory::processEventsListMode(SDL_Event &e)
+void GLInventory::updateListMode()
 {
-    if(e.type == SDL_KEYDOWN) {
-        switch(e.key.keysym.sym) {
-            case SDLK_UP:
-                inventoryMoveUpPressed();
-                break;
-            case SDLK_DOWN:
-                inventoryMoveDownPressed();
-                break;
-            case SDLK_LEFT:
-                inventoryMoveLeftPressed();
-                break;
-            case SDLK_RIGHT:
-                inventoryMoveRightPressed();
-                break;
-        };
-    }
-    else if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_RETURN) {
+    updateInventoryMoveKeys();
+    if(m_inputDevicesState->getButtonAState() == InputElementState::Released) {
         inventoryActionButtonPressed();
     }
-    else if (e.type == SDL_JOYBUTTONUP && e.jbutton.button == 0) {
+    else if (m_inputDevicesState->getButtonBState() == InputElementState::Released) {
         onCloseEvent();
     }
-    else if (e.type == SDL_JOYBUTTONUP && e.jbutton.button == 1) {
-        inventoryActionButtonPressed();
+}
+
+void GLInventory::updateMoveMode()
+{
+    updateInventoryMoveKeys();
+    if(m_inputDevicesState->getButtonAState() == InputElementState::Released) {
+        completeMoveActionButtonPressed();
     }
-    for (int i = 0 ; i < SDL_JoystickNumHats(m_joystick) ; i++ ) {
-        if (SDL_JoystickGetHat(m_joystick, i) == SDL_HAT_UP) {
-            inventoryMoveUpPressed();
-            return;
-        }
-        else if (SDL_JoystickGetHat(m_joystick, i) == SDL_HAT_DOWN) {
-            inventoryMoveDownPressed();
-            return;
-        }
-        else if (SDL_JoystickGetHat(m_joystick, i) == SDL_HAT_LEFT) {
-            inventoryMoveLeftPressed();
-            return;
-        }
-        else if (SDL_JoystickGetHat(m_joystick, i) == SDL_HAT_RIGHT) {
-            inventoryMoveRightPressed();
-            return;
-        }
+    else if(m_inputDevicesState->getButtonBState() == InputElementState::Released) {
+        changeMode(InventoryInputMode::List);
     }
 }
 
-void GLInventory::processEventsMoveMode(SDL_Event &e)
+void GLInventory::updateInventoryMoveKeys()
 {
-    if(e.type == SDL_KEYDOWN) {
-        switch(e.key.keysym.sym) {
-            case SDLK_UP:
-                inventoryMoveUpPressed();
-                break;
-            case SDLK_DOWN:
-                inventoryMoveDownPressed();
-                break;
-            case SDLK_LEFT:
-                inventoryMoveLeftPressed();
-                break;
-            case SDLK_RIGHT:
-                inventoryMoveRightPressed();
-                break;
-        };
+    const Uint64 MS_BETWEEN_SELECTION_CHANGE = 110;
+    auto inputUpTicks = m_inputDevicesState->getUpPressedTicks();
+
+    if (m_inputDevicesState->getUpPressed() && 
+        inputUpTicks.has_value() &&
+        (inputUpTicks.value() - lastMoveUpTicks) > MS_BETWEEN_SELECTION_CHANGE) {
+        inventoryMoveUpPressed();
+        lastMoveUpTicks = inputUpTicks.value();
+        return;
     }
-    else if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_RETURN) {
-        completeMoveActionButtonPressed();
+    else if (!m_inputDevicesState->getUpPressed()) {
+        lastMoveUpTicks = 0;
     }
-    else if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_ESCAPE) {
-        changeMode(InventoryInputMode::List);
+
+
+    auto inputDownTicks = m_inputDevicesState->getDownPressedTicks();
+    if (m_inputDevicesState->getDownPressed() && 
+        inputDownTicks.has_value() &&
+        (inputDownTicks.value() - lastMoveDownTicks) > MS_BETWEEN_SELECTION_CHANGE) {
+        inventoryMoveDownPressed();
+        lastMoveDownTicks = inputDownTicks.value();
+        return;
     }
-    else if (e.type == SDL_JOYBUTTONUP && e.jbutton.button == 0) {
-        changeMode(InventoryInputMode::List);
+    else if (!m_inputDevicesState->getDownPressed()) {
+        lastMoveDownTicks = 0;
     }
-    else if (e.type == SDL_JOYBUTTONUP && e.jbutton.button == 1) {
-        completeMoveActionButtonPressed();
+
+    auto inputLeftTicks = m_inputDevicesState->getLeftPressedTicks();
+    if (m_inputDevicesState->getLeftPressed() && 
+        inputLeftTicks.has_value() &&
+        (inputLeftTicks.value() - lastMoveLeftTicks) > MS_BETWEEN_SELECTION_CHANGE) {
+        inventoryMoveLeftPressed();
+        lastMoveLeftTicks = inputLeftTicks.value();
+        return;
     }
-    for (int i = 0 ; i < SDL_JoystickNumHats(m_joystick) ; i++ ) {
-        if (SDL_JoystickGetHat(m_joystick, i) == SDL_HAT_UP) {
-            inventoryMoveUpPressed();
-            break;
-        }
-        else if (SDL_JoystickGetHat(m_joystick, i) == SDL_HAT_DOWN) {
-            inventoryMoveDownPressed();
-            break;
-        }
-        else if (SDL_JoystickGetHat(m_joystick, i) == SDL_HAT_LEFT) {
-            inventoryMoveLeftPressed();
-            break;
-        }
-        else if (SDL_JoystickGetHat(m_joystick, i) == SDL_HAT_RIGHT) {
-            inventoryMoveRightPressed();
-            break;
-        }
+    else if (!m_inputDevicesState->getLeftPressed()) {
+        lastMoveLeftTicks = 0;
+    }
+
+    auto inputRightTicks = m_inputDevicesState->getRightPressedTicks();
+    if (m_inputDevicesState->getRightPressed() && 
+        inputRightTicks.has_value() &&
+        (inputRightTicks.value() - lastMoveRightTicks) > MS_BETWEEN_SELECTION_CHANGE) {
+        inventoryMoveRightPressed();
+        lastMoveRightTicks = inputRightTicks.value();
+        return;
+    }
+    else if (!m_inputDevicesState->getRightPressed()) {
+        lastMoveRightTicks = 0;
     }
 }
 

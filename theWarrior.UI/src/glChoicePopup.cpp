@@ -2,7 +2,6 @@
 
 GLChoicePopup::GLChoicePopup()
     : m_glFormService(nullptr),
-      m_joystick(nullptr),
       m_windowCenter(1.0F, 1.0F),
       m_menuCursorPosition(0),
       m_menuItemCount(0),
@@ -15,15 +14,13 @@ GLChoicePopup::GLChoicePopup()
 void GLChoicePopup::initialize(const std::string &resourcePath,
                                std::shared_ptr<GLFormService> glFormService,
                                std::shared_ptr<GLTextService> textService,
-                               std::shared_ptr<InputDevicesState> inputDevicesState,
-                               SDL_Joystick *joystick)
+                               std::shared_ptr<InputDevicesState> inputDevicesState)
 {
     m_glFormService = glFormService;
     m_textService = textService;
     m_inputDevicesState = inputDevicesState;
     m_textureService.setResourcesPath(resourcePath);
     m_textureService.loadTexture(m_popupGLTexture);
-    m_joystick = joystick;
 }
 
 void GLChoicePopup::preparePopup(std::vector<std::string> choices)
@@ -36,49 +33,38 @@ void GLChoicePopup::preparePopup(std::vector<std::string> choices)
     m_menuCursorPosition = 0;
 }
 
-void GLChoicePopup::processEvents(SDL_Event &e)
-{
-    /*if(e.type == SDL_KEYDOWN) {
-        switch(e.key.keysym.sym) {
-            case SDLK_UP:
-                moveUpPressed();
-                break;
-            case SDLK_DOWN:
-                moveDownPressed();
-                break;
-        }
-    }
-    else*/ if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_RETURN) {
-        actionButtonPressed();
-    }
-    else if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_ESCAPE) {
-        m_cancelClicked();
-    }
-    else if (e.type == SDL_JOYBUTTONUP && e.jbutton.button == 1) {
-        actionButtonPressed();
-    }
-    else if (e.type == SDL_JOYBUTTONUP && e.jbutton.button == 0) {
-        m_cancelClicked();
-    }
-    for (int i = 0 ; i < SDL_JoystickNumHats(m_joystick) ; i++ ) {
-        if (SDL_JoystickGetHat(m_joystick, i) == SDL_HAT_UP) {
-            moveUpPressed();
-            break;
-        }
-        else if (SDL_JoystickGetHat(m_joystick, i) == SDL_HAT_DOWN) {
-            moveDownPressed();
-            break;
-        }
-    }
-}
-
 void GLChoicePopup::update()
 {
-    if (m_inputDevicesState->getUpPressed()) {
+    const Uint64 MS_BETWEEN_SELECTION_CHANGE = 110;
+    auto inputUpTicks = m_inputDevicesState->getUpPressedTicks();
+    if (m_inputDevicesState->getUpPressed() && 
+        inputUpTicks.has_value() &&
+        (inputUpTicks.value() - lastMoveUpTicks) > MS_BETWEEN_SELECTION_CHANGE) {
         moveUpPressed();
+        lastMoveUpTicks = inputUpTicks.value();
+        return;
     }
-    else if (m_inputDevicesState->getDownPressed()) {
+    else if (!m_inputDevicesState->getUpPressed()) {
+        lastMoveUpTicks = 0;
+    }
+
+    auto inputDownTicks = m_inputDevicesState->getDownPressedTicks();
+    if (m_inputDevicesState->getDownPressed() && 
+        inputDownTicks.has_value() &&
+        (inputDownTicks.value() - lastMoveDownTicks) > MS_BETWEEN_SELECTION_CHANGE) {
         moveDownPressed();
+        lastMoveDownTicks = inputDownTicks.value();
+        return;
+    }
+    else if (!m_inputDevicesState->getDownPressed()) {
+        lastMoveDownTicks = 0;
+    }
+
+    if(m_inputDevicesState->getButtonAState() == InputElementState::Released) {
+        actionButtonPressed();
+    }
+    else if(m_inputDevicesState->getButtonBState() == InputElementState::Released) {
+        m_cancelClicked();
     }
 }
 

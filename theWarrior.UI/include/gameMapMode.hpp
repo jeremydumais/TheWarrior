@@ -44,8 +44,7 @@ public:
                     std::shared_ptr<GLTextBox> textBox,
                     std::shared_ptr<GLTextService> textService,
                     const std::map<std::string, unsigned int> *texturesGLItemStore,
-                    std::shared_ptr<InputDevicesState> inputDevicesState,
-                    SDL_Joystick *joystick);
+                    std::shared_ptr<InputDevicesState> inputDevicesState);
     bool initShaders(const std::string &resourcesPath);
     const std::string &getLastError() const;
     void processEvents(SDL_Event &e);
@@ -74,7 +73,6 @@ private:
     std::vector<GLTile> m_glTiles;
     std::map<std::string, unsigned int> m_texturesGLMap;
     TileSize m_tileSize = { 1.0F, 1.0F, 1.0F };
-    SDL_Joystick *m_joystick = nullptr;
     std::shared_ptr<InputDevicesState> m_inputDevicesState = nullptr;
     GLfloat m_texColorBuf[4][3] = { { 1.0F, 1.0F, 1.0F },   /* Red */
                                     { 1.0F, 1.0F, 1.0F },   /* Green */
@@ -83,6 +81,9 @@ private:
     bool m_blockKeyDown = false;
     bool m_isCharacterWindowDisplayed = false;
     bool m_isInventoryDisplayed = false;
+    void showMainMenu();
+    void toggleInventoryWindow();
+    void toggleCharacterWindow();
     void generateGLMapObjects();
     void drawObjectTile(GLTile &tile);
     void actionButtonPressed();

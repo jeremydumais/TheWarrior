@@ -1,63 +1,65 @@
 #include "inputDevicesState.hpp"
+#include <SDL2/SDL_timer.h>
 #include <iostream>
 
 bool InputDevicesState::getUpPressed() const
 {
-    return m_upPressed;
+    return m_upPressed.has_value();
+}
+
+std::optional<Uint64> InputDevicesState::getUpPressedTicks() const
+{
+    return m_upPressed.has_value() ? std::optional<Uint64>(m_upPressed.value()) : std::nullopt;
 }
 
 bool InputDevicesState::getDownPressed() const
 {
-    return m_downPressed;
+    return m_downPressed.has_value();
+}
+
+std::optional<Uint64> InputDevicesState::getDownPressedTicks() const
+{
+    return m_downPressed.has_value() ? std::optional<Uint64>(m_downPressed.value()) : std::nullopt;
 }
 
 bool InputDevicesState::getLeftPressed() const
 {
-    return m_leftPressed;
+    return m_leftPressed.has_value();
+}
+
+std::optional<Uint64> InputDevicesState::getLeftPressedTicks() const
+{
+    return m_leftPressed.has_value() ? std::optional<Uint64>(m_leftPressed.value()) : std::nullopt;
 }
 
 bool InputDevicesState::getRightPressed() const
 {
-    return m_rightPressed;
+    return m_rightPressed.has_value();
 }
 
-bool InputDevicesState::getButtonAPressed() const
+std::optional<Uint64> InputDevicesState::getRightPressedTicks() const
 {
-    return m_buttonAPressed;
-}
-bool InputDevicesState::getButtonBPressed() const
-{
-    return m_buttonBPressed;
+    return m_rightPressed.has_value() ? std::optional<Uint64>(m_rightPressed.value()) : std::nullopt;
 }
 
-bool InputDevicesState::getButtonCPressed() const
+InputElementState InputDevicesState::getButtonAState() const
 {
-    return m_buttonCPressed;
+    return m_buttonAState;
 }
 
-bool InputDevicesState::getButtonDPressed() const
+InputElementState InputDevicesState::getButtonBState() const
 {
-    return m_buttonDPressed;
+    return m_buttonBState;
 }
 
-bool InputDevicesState::getButtonAReleased() const
+InputElementState InputDevicesState::getButtonCState() const
 {
-    return m_buttonAReleased;
+    return m_buttonCState;
 }
 
-bool InputDevicesState::getButtonBReleased() const
+InputElementState InputDevicesState::getButtonDState() const
 {
-    return m_buttonBReleased;
-}
-
-bool InputDevicesState::getButtonCReleased() const
-{
-    return m_buttonCReleased;
-}
-
-bool InputDevicesState::getButtonDReleased() const
-{
-    return m_buttonDReleased;
+    return m_buttonDState;
 }
 
 bool InputDevicesState::isADirectionKeyPressed() const
@@ -65,20 +67,22 @@ bool InputDevicesState::isADirectionKeyPressed() const
     return m_upPressed || m_downPressed || m_leftPressed || m_rightPressed;
 }
 
+InputElementState InputDevicesState::getKeyShiftState() const
+{
+    return m_keyShiftState;
+}
+
 void InputDevicesState::reset()
 {
-    m_upPressed = false;
-    m_downPressed = false;
-    m_leftPressed = false;
-    m_rightPressed = false;
-    m_buttonAPressed = false;
-    m_buttonBPressed = false;
-    m_buttonCPressed = false;
-    m_buttonDPressed = false;
-    m_buttonAReleased = false;
-    m_buttonBReleased = false;
-    m_buttonCReleased = false;
-    m_buttonDReleased = false;
+    m_upPressed = std::nullopt;
+    m_downPressed = std::nullopt;
+    m_leftPressed = std::nullopt;
+    m_rightPressed = std::nullopt;
+    m_buttonAState = InputElementState::Idle;
+    m_buttonBState = InputElementState::Idle;
+    m_buttonCState = InputElementState::Idle;
+    m_buttonDState = InputElementState::Idle;
+    m_keyShiftState = InputElementState::Idle;
 }
 
 void InputDevicesState::processJoystick(SDL_Joystick *joystick)
@@ -101,19 +105,15 @@ void InputDevicesState::processJoystick(SDL_Joystick *joystick)
             buttonDPressed = true;
         }
     }
-    bool buttonAReleased = !buttonAPressed && getButtonAPressed();
-    bool buttonBReleased = !buttonBPressed && getButtonBPressed();
-    bool buttonCReleased = !buttonCPressed && getButtonCPressed();
-    bool buttonDReleased = !buttonDPressed && getButtonDPressed();
+    auto buttonAPreviousState = m_buttonAState;
+    auto buttonBPreviousState = m_buttonBState;
+    auto buttonCPreviousState = m_buttonCState;
+    auto buttonDPreviousState = m_buttonDState;
     reset();
-    setButtonAPressed(buttonAPressed);
-    setButtonBPressed(buttonBPressed);
-    setButtonCPressed(buttonCPressed);
-    setButtonDPressed(buttonDPressed);
-    setButtonAReleased(buttonAReleased);
-    setButtonBReleased(buttonBReleased);
-    setButtonCReleased(buttonCReleased);
-    setButtonDReleased(buttonDReleased);
+    setButtonAState(getElementState(buttonAPressed, buttonAPreviousState == InputElementState::Pressed));
+    setButtonBState(getElementState(buttonBPressed, buttonBPreviousState == InputElementState::Pressed));
+    setButtonCState(getElementState(buttonCPressed, buttonCPreviousState == InputElementState::Pressed));
+    setButtonDState(getElementState(buttonDPressed, buttonDPreviousState == InputElementState::Pressed));
     for (int i = 0 ; i < SDL_JoystickNumHats(joystick); i++ ) {
         if (SDL_JoystickGetHat(joystick, i) == SDL_HAT_UP) {
             setUpPressed(true);
@@ -131,6 +131,19 @@ void InputDevicesState::processJoystick(SDL_Joystick *joystick)
             setRightPressed(true);
             break;
         }
+    }
+}
+
+InputElementState InputDevicesState::getElementState(bool pressed, bool previouslyPressed) const
+{
+    if (pressed) {
+        return InputElementState::Pressed;
+    }
+    else if (!pressed && previouslyPressed) {
+        return InputElementState::Released;
+    }
+    else {
+        return InputElementState::Idle;
     }
 }
 
@@ -153,70 +166,91 @@ void InputDevicesState::processEvent(SDL_Event &e)
         };
     }
     if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_RETURN) {
-        setButtonAPressed(true);
+        setButtonAState(InputElementState::Released);
     }
     if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_ESCAPE) {
-        setButtonBPressed(true);
+        setButtonBState(InputElementState::Released);
     }
-    
+
+    const Uint8 *keystate = SDL_GetKeyboardState(NULL);
+    if(keystate[SDL_SCANCODE_LSHIFT] || keystate[SDL_SCANCODE_RSHIFT]) {
+        setKeyShiftState(InputElementState::Pressed);
+    }
+    else {
+        setKeyShiftState(InputElementState::Idle);
+    }
 }
 
 void InputDevicesState::setUpPressed(bool value)
 {
-    m_upPressed = value;
+    if (!value) {
+        m_upPressed = std::nullopt;
+        return;
+    }
+    if (!m_upPressed.has_value()) {
+        m_upPressed = getTicks();
+    }
 }
 
 void InputDevicesState::setDownPressed(bool value)
 {
-    m_downPressed = value;
+    if (!value) {
+        m_downPressed = std::nullopt;
+        return;
+    }
+    if (!m_downPressed.has_value()) {
+        m_downPressed = getTicks();
+    }
 }
 
 void InputDevicesState::setLeftPressed(bool value)
 {
-    m_leftPressed = value;
+    if (!value) {
+        m_leftPressed = std::nullopt;
+        return;
+    }
+    if (!m_leftPressed.has_value()) {
+        m_leftPressed = getTicks();
+    }
 }
 
 void InputDevicesState::setRightPressed(bool value)
 {
-    m_rightPressed = value;
+    if (!value) {
+        m_rightPressed = std::nullopt;
+        return;
+    }
+    if (!m_rightPressed.has_value()) {
+        m_rightPressed = getTicks();
+    }
 }
 
-void InputDevicesState::setButtonAPressed(bool value)
+void InputDevicesState::setButtonAState(InputElementState state)
 {
-    m_buttonAPressed = value;
+    m_buttonAState = state;
 }
 
-void InputDevicesState::setButtonBPressed(bool value)
+void InputDevicesState::setButtonBState(InputElementState state)
 {
-    m_buttonBPressed = value;
+    m_buttonBState = state;
 }
 
-void InputDevicesState::setButtonCPressed(bool value)
+void InputDevicesState::setButtonCState(InputElementState state)
 {
-    m_buttonCPressed = value;
+    m_buttonCState = state;
 }
 
-void InputDevicesState::setButtonDPressed(bool value)
+void InputDevicesState::setButtonDState(InputElementState state)
 {
-    m_buttonDPressed = value;
+    m_buttonDState = state;
 }
 
-void InputDevicesState::setButtonAReleased(bool value)
+void InputDevicesState::setKeyShiftState(InputElementState state)
 {
-    m_buttonAReleased = value;
+    m_keyShiftState = state;
 }
 
-void InputDevicesState::setButtonBReleased(bool value)
+Uint64 InputDevicesState::getTicks() const
 {
-    m_buttonBReleased = value;
-}
-
-void InputDevicesState::setButtonCReleased(bool value)
-{
-    m_buttonCReleased = value;
-}
-
-void InputDevicesState::setButtonDReleased(bool value)
-{
-    m_buttonDReleased = value;
+    return SDL_GetTicks64();
 }

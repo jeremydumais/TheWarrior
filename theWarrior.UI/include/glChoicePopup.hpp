@@ -8,6 +8,7 @@
 #include "inputDevicesState.hpp"
 #include <boost/signals2.hpp>
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL_stdinc.h>
 #include <memory>
 #include <string>
 #include <vector>
@@ -19,10 +20,8 @@ public:
     void initialize(const std::string &resourcePath,
                     std::shared_ptr<GLFormService> glFormService,
                     std::shared_ptr<GLTextService> textService,
-                    std::shared_ptr<InputDevicesState> inputDevicesState,
-                    SDL_Joystick *joystick);
+                    std::shared_ptr<InputDevicesState> inputDevicesState);
     void preparePopup(std::vector<std::string> choices);
-    void processEvents(SDL_Event &e);
     void update();
     void render();
     void generateGLElements();
@@ -33,7 +32,6 @@ private:
     std::shared_ptr<GLFormService> m_glFormService;
     std::shared_ptr<GLTextService> m_textService;
     std::shared_ptr<InputDevicesState> m_inputDevicesState = nullptr;
-    SDL_Joystick *m_joystick;
     Point<float> m_windowCenter;
     size_t m_menuCursorPosition;
     size_t m_menuItemCount;
@@ -43,6 +41,8 @@ private:
     GLTexture m_popupGLTexture;
     std::vector<GLObject> m_menuObjects;
     std::vector<GLTextObject> m_glTextChoices;
+    Uint64 lastMoveUpTicks = 0;
+    Uint64 lastMoveDownTicks = 0;
     void moveUpPressed();
     void moveDownPressed();
     void actionButtonPressed();

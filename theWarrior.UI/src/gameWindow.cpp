@@ -46,8 +46,7 @@ GameWindow::GameWindow(const string &title,
                              m_textBox,
                              m_textService,
                              &m_texturesGLItemStore,
-                             m_inputDevicesState,
-                             m_joystick);
+                             m_inputDevicesState);
     m_fpsCalculator.initialize();
     m_windowSizeChanged(m_WindowSize);
 }

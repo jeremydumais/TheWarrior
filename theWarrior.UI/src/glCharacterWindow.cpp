@@ -15,18 +15,20 @@ void GLCharacterWindow::initialize(const std::string &resourcePath,
                                    std::shared_ptr<GLPlayer> glPlayer,
                                    std::shared_ptr<GLTextService> textService,
                                    std::shared_ptr<ItemStore> itemStore,
-                                   const std::map<std::string, unsigned int> *texturesGLItemStore)
+                                   const std::map<std::string, unsigned int> *texturesGLItemStore,
+                                   std::shared_ptr<InputDevicesState> inputDevicesState)
 {
     GLPopupWindow::initialize("Character", resourcePath, textService);
     m_glPlayer = glPlayer;
     m_itemStore = itemStore;
     m_texturesGLItemStore = texturesGLItemStore;
+    m_inputDevicesState = inputDevicesState;
     m_textureService.loadTexture(m_slotsGLTexture);
 }
 
-void GLCharacterWindow::processEvents(SDL_Event &e)
+void GLCharacterWindow::update()
 {
-    if (e.type == SDL_JOYBUTTONUP && e.jbutton.button == 0) {
+    if(m_inputDevicesState->getButtonBState() == InputElementState::Released) {
         onCloseEvent();
     }
 }

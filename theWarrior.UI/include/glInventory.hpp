@@ -44,30 +44,30 @@ public:
                     std::shared_ptr<GLTextService> textService,
                     std::shared_ptr<ItemStore> itemStore,
                     const std::map<std::string, unsigned int> *texturesGLItemStore,
-                    std::shared_ptr<InputDevicesState> inputDevicesState,
-                    SDL_Joystick *joystick);
+                    std::shared_ptr<InputDevicesState> inputDevicesState);
     void setInventory(std::shared_ptr<Inventory> inventory);
-    void processEvents(SDL_Event &e);
-    void processEventsListMode(SDL_Event &e);
-    void processEventsMoveMode(SDL_Event &e);
+    void update();
     void generateGLInventory();
     void render();
     void gameWindowSizeChanged(const Size<> &size);
 private:
-    std::shared_ptr<Inventory> m_inventory;
-    std::shared_ptr<GLPlayer> m_glPlayer;
-    size_t m_inventoryCursorPosition;
-    InventoryInputMode m_inputMode;
-    size_t m_inventoryMoveSrc;
+    std::shared_ptr<Inventory> m_inventory = nullptr;
+    std::shared_ptr<GLPlayer> m_glPlayer = nullptr;
+    size_t m_inventoryCursorPosition = 0;
+    InventoryInputMode m_inputMode = InventoryInputMode::List;
+    size_t m_inventoryMoveSrc = 0;
     std::shared_ptr<ItemStore> m_itemStore;
     const std::map<std::string, unsigned int> *m_texturesGLItemStore;
     GLuint m_glDetailsIconTextureId;
-    Point<float> m_detailsBoxPosition;
-    GLTexture m_slotsGLTexture;
-    GLTexture m_inventoryIconsGLTexture;
+    Point<float> m_detailsBoxPosition = { 1.0F, 1.0F };
+    GLTexture m_slotsGLTexture = { Texture(TextureInfo{ "emptySlot", "item_slot.png", 768, 256, 256, 256 }), 0 };
+    GLTexture m_inventoryIconsGLTexture = { Texture(TextureInfo{ "inventory", "inventory.png", 96, 32, 32, 32 }), 0 };
     GLChoicePopup m_choicePopup;
     std::shared_ptr<InputDevicesState> m_inputDevicesState = nullptr;
-    SDL_Joystick *m_joystick;
+    Uint64 lastMoveUpTicks = 0;
+    Uint64 lastMoveDownTicks = 0;
+    Uint64 lastMoveLeftTicks = 0;
+    Uint64 lastMoveRightTicks = 0;
     void generateSlots();
     void generateDetailsInfo();
     void generateWeaponDetails(std::shared_ptr<const Item> item, float yPosition);
@@ -90,6 +90,9 @@ private:
                                       GLColor color = GLColor::White);
     Point<float> getRowAndColFromInventoryIndex(size_t index) const;
     void changeMode(InventoryInputMode mode);
+    void updateListMode();
+    void updateMoveMode();
+    void updateInventoryMoveKeys();
     void inventoryMoveUpPressed();
     void inventoryMoveDownPressed();
     void inventoryMoveLeftPressed();

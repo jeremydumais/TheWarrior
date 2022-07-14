@@ -1,51 +1,57 @@
 #pragma once
 
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL_stdinc.h>
+#include <optional>
+
+enum class InputElementState 
+{
+    Idle,
+    Pressed,
+    Released
+};
 
 class InputDevicesState
 {
 public:
     virtual ~InputDevicesState() = default;
     bool getUpPressed() const;
+    std::optional<Uint64> getUpPressedTicks() const; 
     bool getDownPressed() const;
+    std::optional<Uint64> getDownPressedTicks() const; 
     bool getLeftPressed() const;
+    std::optional<Uint64> getLeftPressedTicks() const; 
     bool getRightPressed() const;
-    bool getButtonAPressed() const;
-    bool getButtonBPressed() const;
-    bool getButtonCPressed() const;
-    bool getButtonDPressed() const;
-    bool getButtonAReleased() const;
-    bool getButtonBReleased() const;
-    bool getButtonCReleased() const;
-    bool getButtonDReleased() const;
+    std::optional<Uint64> getRightPressedTicks() const; 
+    InputElementState getButtonAState() const;
+    InputElementState getButtonBState() const;
+    InputElementState getButtonCState() const;
+    InputElementState getButtonDState() const;
     bool isADirectionKeyPressed() const;
+    InputElementState getKeyShiftState() const;
     void reset();
     void processJoystick(SDL_Joystick *joystick);
+    InputElementState getElementState(bool pressed, bool previouslyPressed) const;
     void processEvent(SDL_Event &e);
 protected:
     void setUpPressed(bool value);
     void setDownPressed(bool value);
     void setLeftPressed(bool value);
     void setRightPressed(bool value);
-    void setButtonAPressed(bool value);
-    void setButtonBPressed(bool value);
-    void setButtonCPressed(bool value);
-    void setButtonDPressed(bool value);
-    void setButtonAReleased(bool value);
-    void setButtonBReleased(bool value);
-    void setButtonCReleased(bool value);
-    void setButtonDReleased(bool value);
+    void setButtonAState(InputElementState state);
+    void setButtonBState(InputElementState state);
+    void setButtonCState(InputElementState state);
+    void setButtonDState(InputElementState state);
+    void setKeyShiftState(InputElementState state);
+    virtual Uint64 getTicks() const;
 private:
-    bool m_upPressed = false;
-    bool m_downPressed = false;
-    bool m_leftPressed = false;
-    bool m_rightPressed = false;
-    bool m_buttonAPressed = false;
-    bool m_buttonBPressed = false;
-    bool m_buttonCPressed = false;
-    bool m_buttonDPressed = false;
-    bool m_buttonAReleased = false;
-    bool m_buttonBReleased = false;
-    bool m_buttonCReleased = false;
-    bool m_buttonDReleased = false;
+    std::optional<Uint64> m_upPressed = std::nullopt;
+    std::optional<Uint64> m_downPressed = std::nullopt;
+    std::optional<Uint64> m_leftPressed = std::nullopt;
+    std::optional<Uint64> m_rightPressed = std::nullopt;
+    InputElementState m_buttonAState = InputElementState::Idle;
+    InputElementState m_buttonBState = InputElementState::Idle;
+    InputElementState m_buttonCState = InputElementState::Idle;
+    InputElementState m_buttonDState = InputElementState::Idle;
+    InputElementState m_keyShiftState = InputElementState::Idle;
 };

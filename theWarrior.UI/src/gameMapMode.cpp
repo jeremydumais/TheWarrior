@@ -22,23 +22,21 @@ void GameMapMode::initialize(const std::string &resourcesPath,
                              std::shared_ptr<GLTextBox> textBox,
                              std::shared_ptr<GLTextService> textService,
                              const std::map<std::string, unsigned int> *texturesGLItemStore,
-                             std::shared_ptr<InputDevicesState> inputDevicesState,
-                             SDL_Joystick *joystick)
+                             std::shared_ptr<InputDevicesState> inputDevicesState)
 {
     m_resourcesPath = resourcesPath;
     m_map = std::make_shared<GameMap>(1, 1);
     m_glPlayer = glPlayer;
     m_glFormService->initialize(m_shaderProgram, textService);
-    m_glCharacterWindow.initialize(resourcesPath, glPlayer, textService, itemStore, texturesGLItemStore);
-    m_glInventory.initialize(resourcesPath, glPlayer, textService, itemStore, texturesGLItemStore, m_inputDevicesState, joystick);
+    m_glCharacterWindow.initialize(resourcesPath, glPlayer, textService, itemStore, texturesGLItemStore, inputDevicesState);
+    m_glInventory.initialize(resourcesPath, glPlayer, textService, itemStore, texturesGLItemStore, inputDevicesState);
     m_glInventory.setInventory(m_glPlayer->getInventory());
     m_textureService.setResourcesPath(resourcesPath);
     m_tileService = tileService;
     m_textBox = textBox;
     m_inputDevicesState = inputDevicesState;
-    m_joystick = joystick;
     m_controller.initialize(itemStore, messagePipeline);
-    m_choicePopup.initialize(resourcesPath, m_glFormService, textService, inputDevicesState, joystick);
+    m_choicePopup.initialize(resourcesPath, m_glFormService, textService, inputDevicesState);
     loadMap(fmt::format("{0}/maps/homeHouseV1.map", resourcesPath), "homeHouseV1.map");
     loadMapTextures();
     generateGLMapObjects();
@@ -70,81 +68,65 @@ const std::string& GameMapMode::getLastError() const
 
 void GameMapMode::processEvents(SDL_Event &e)
 {
-    if(e.type == SDL_KEYUP) {
-        m_blockKeyDown = false;
+    if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_i) {
+        toggleInventoryWindow();
     }
-    if (m_inputMode == GameMapInputMode::MainMenuPopup) {
-        m_choicePopup.processEvents(e);
-        return;
+    else if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_c) {
+        toggleCharacterWindow();
     }
-    if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_i && !m_isCharacterWindowDisplayed) {
-        if (!m_blockKeyDown) {
-            m_blockKeyDown = true;
-            m_isInventoryDisplayed = !m_isInventoryDisplayed;
-            if (m_isInventoryDisplayed) {
-                m_glInventory.generateGLInventory();
-            }
+    else if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_ESCAPE) {
+        if (m_inputMode == GameMapInputMode::Map) {
+            showMainMenu();
+            m_inputDevicesState->reset();
         }
-        return;
-    }
-    if (m_isInventoryDisplayed) {
-        m_glInventory.processEvents(e);
-        return;
-    }
-    if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_c && !m_isInventoryDisplayed) {
-        if (!m_blockKeyDown) {
-            m_blockKeyDown = true;
-            m_isCharacterWindowDisplayed = !m_isCharacterWindowDisplayed;
-            if (m_isCharacterWindowDisplayed) {
-                m_glCharacterWindow.generateGLElements();
-            }
-        }
-        return;
-    }
-    if (m_isCharacterWindowDisplayed) {
-        m_glCharacterWindow.processEvents(e);
-        return;
     }
 }
 
 void GameMapMode::update()
 {
-    if (m_inputMode == GameMapInputMode::Map) {
-        if(m_inputDevicesState->isADirectionKeyPressed()) {
-            if (!m_glPlayer->isInMovement()) {
-                if (m_inputDevicesState->getUpPressed()) {
-                    moveUpPressed();
-                }
-                else if (m_inputDevicesState->getDownPressed()) {
-                    moveDownPressed();
-                }
-                else if (m_inputDevicesState->getLeftPressed()) {
-                    moveLeftPressed();
-                }
-                else if (m_inputDevicesState->getRightPressed()) {
-                    moveRightPressed();
+    switch (m_inputMode) {
+        case GameMapInputMode::Map:
+            if(m_inputDevicesState->isADirectionKeyPressed()) {
+                if (!m_glPlayer->isInMovement()) {
+                    if (m_inputDevicesState->getUpPressed()) {
+                        moveUpPressed();
+                    }
+                    else if (m_inputDevicesState->getDownPressed()) {
+                        moveDownPressed();
+                    }
+                    else if (m_inputDevicesState->getLeftPressed()) {
+                        moveLeftPressed();
+                    }
+                    else if (m_inputDevicesState->getRightPressed()) {
+                        moveRightPressed();
+                    }
                 }
             }
-        }
-        if(m_inputDevicesState->getButtonAReleased()) {
-            actionButtonPressed();
-        }
-        if(m_inputDevicesState->isADirectionKeyPressed()) {
-            if (m_inputDevicesState->getButtonBPressed()) {
-                m_glPlayer->enableRunMode();
+            if(m_inputDevicesState->getButtonAState() == InputElementState::Released) {
+                actionButtonPressed();
             }
-            else {
-                m_glPlayer->disableRunMode();
+            if(m_inputDevicesState->isADirectionKeyPressed()) {
+                if (m_inputDevicesState->getButtonBState() == InputElementState::Pressed ||
+                    m_inputDevicesState->getKeyShiftState() == InputElementState::Pressed) {
+                    m_glPlayer->enableRunMode();
+                }
+                else {
+                    m_glPlayer->disableRunMode();
+                }
+            } 
+            if(m_inputDevicesState->getButtonCState() == InputElementState::Released) {
+                showMainMenu();
             }
-        } 
-        if(m_inputDevicesState->getButtonCReleased()) {
-            m_inputMode = GameMapInputMode::MainMenuPopup;
-            m_choicePopup.preparePopup({"Inventory", "Character", "Back"});
-            m_choicePopup.generateGLElements();
-        }
-    }
-    else if (m_inputMode == GameMapInputMode::MainMenuPopup) {
-        m_choicePopup.update();
+            break;
+        case GameMapInputMode::MainMenuPopup:
+            m_choicePopup.update();
+            break;
+        case GameMapInputMode::InventoryWindow:
+            m_glInventory.update();
+            break;
+        case GameMapInputMode::CharacterWindow:
+            m_glCharacterWindow.update();
+            break;
     }
 }
 
@@ -163,6 +145,37 @@ void GameMapMode::gameWindowSizeChanged(const Size<> &size)
 void GameMapMode::gameWindowTileSizeChanged(const TileSize &tileSize)
 {
     m_tileSize = tileSize;
+}
+
+void GameMapMode::showMainMenu()
+{
+    m_inputMode = GameMapInputMode::MainMenuPopup;
+    m_choicePopup.preparePopup({"Inventory", "Character", "Back"});
+    m_choicePopup.generateGLElements();
+}
+
+void GameMapMode::toggleInventoryWindow()
+{
+    if (m_inputMode == GameMapInputMode::Map || m_inputMode == GameMapInputMode::MainMenuPopup) {
+        m_inputMode = GameMapInputMode::InventoryWindow;
+        m_glInventory.generateGLInventory();
+    }
+    else if (m_inputMode == GameMapInputMode::InventoryWindow) {
+        m_inputMode = GameMapInputMode::Map;
+        onInventoryWindowClose();
+    }
+}
+
+void GameMapMode::toggleCharacterWindow()
+{
+    if (m_inputMode == GameMapInputMode::Map || m_inputMode == GameMapInputMode::MainMenuPopup) {
+        m_inputMode = GameMapInputMode::CharacterWindow;
+        m_glCharacterWindow.generateGLElements();
+    }
+    else if (m_inputMode == GameMapInputMode::CharacterWindow) {
+        m_inputMode = GameMapInputMode::Map;
+        onCharacterWindowClose();
+    }
 }
 
 void GameMapMode::render()
@@ -223,10 +236,10 @@ void GameMapMode::render()
     if (m_inputMode == GameMapInputMode::MainMenuPopup) {
         m_choicePopup.render();
     }
-    if (m_isInventoryDisplayed) {
+    if (m_inputMode == GameMapInputMode::InventoryWindow) {
         m_glInventory.render();
     }
-    if (m_isCharacterWindowDisplayed) {
+    if (m_inputMode == GameMapInputMode::CharacterWindow) {
         m_glCharacterWindow.render();
     }
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -530,15 +543,32 @@ void GameMapMode::generateGLMapObjects()
 void GameMapMode::onCharacterWindowClose()
 {
     m_isCharacterWindowDisplayed = false;
+    m_inputMode = GameMapInputMode::Map;
+
 }
 
 void GameMapMode::onInventoryWindowClose()
 {
     m_isInventoryDisplayed = false;
+    m_inputMode = GameMapInputMode::Map;
 }
 
 void GameMapMode::mainMenuPopupClicked(size_t choice)
 {
+    switch (choice)
+    {
+    case 0:
+        toggleInventoryWindow();
+        break;
+    case 1:
+        toggleCharacterWindow();
+        break;
+    case 2:
+        mainMenuPopupCanceled();
+        break;
+    default:
+        break;
+    }
 }
 
 void GameMapMode::mainMenuPopupCanceled()

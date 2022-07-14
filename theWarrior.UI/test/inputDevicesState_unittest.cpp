@@ -9,14 +9,14 @@ public:
     void setDown(bool value) { InputDevicesState::setDownPressed(value); }
     void setLeft(bool value) { InputDevicesState::setLeftPressed(value); }
     void setRight(bool value) { InputDevicesState::setRightPressed(value); }
-    void setButtonAPre(bool value) { setButtonAPressed(value); }
-    void setButtonBPre(bool value) { setButtonBPressed(value); }
-    void setButtonCPre(bool value) { setButtonCPressed(value); }
-    void setButtonDPre(bool value) { setButtonDPressed(value); }
-    void setButtonARel(bool value) { setButtonAReleased(value); }
-    void setButtonBRel(bool value) { setButtonBReleased(value); }
-    void setButtonCRel(bool value) { setButtonCReleased(value); }
-    void setButtonDRel(bool value) { setButtonDReleased(value); }
+    void setButtonASt(InputElementState state) { setButtonAState(state); }
+    void setButtonBSt(InputElementState state) { setButtonBState(state); }
+    void setButtonCSt(InputElementState state) { setButtonCState(state); }
+    void setButtonDSt(InputElementState state) { setButtonDState(state); }
+    void setKeyShiftSt(InputElementState state) { setKeyShiftState(state); }
+    Uint64 getTicks() const override { return tickCountSample; }
+    void setTicks(Uint64 ticks) { tickCountSample = ticks; }
+    Uint64 tickCountSample = 12345;
 };
 
 TEST(InputDevicesState_getUpPressed, WithDefaultConstructed_ReturnFalse)
@@ -25,10 +25,50 @@ TEST(InputDevicesState_getUpPressed, WithDefaultConstructed_ReturnFalse)
     ASSERT_FALSE(devicesState.getUpPressed());
 }
 
+TEST_F(InputDevicesStateWithSetters, getUpPressedTicks_WithNoSet_ReturnNullOpt)
+{
+    ASSERT_EQ(std::nullopt, getUpPressedTicks());
+}
+
+TEST_F(InputDevicesStateWithSetters, getUpPressedTicks_WithSetOnce_ReturnNullOpt)
+{
+    setUp(true);
+    ASSERT_EQ(tickCountSample, getUpPressedTicks());
+}
+
+TEST_F(InputDevicesStateWithSetters, getUpPressedTicks_WithSetTwice_ReturnNullOpt)
+{
+    setUp(true);
+    const Uint64 initialTicks = getTicks();
+    setTicks(45678);
+    setUp(true);
+    ASSERT_EQ(initialTicks, getUpPressedTicks());
+}
+
 TEST(InputDevicesState_getDownPressed, WithDefaultConstructed_ReturnFalse)
 {
     InputDevicesState devicesState;
     ASSERT_FALSE(devicesState.getDownPressed());
+}
+
+TEST_F(InputDevicesStateWithSetters, getDownPressedTicks_WithNoSet_ReturnNullOpt)
+{
+    ASSERT_EQ(std::nullopt, getDownPressedTicks());
+}
+
+TEST_F(InputDevicesStateWithSetters, getDownPressedTicks_WithSetOnce_ReturnNullOpt)
+{
+    setDown(true);
+    ASSERT_EQ(tickCountSample, getDownPressedTicks());
+}
+
+TEST_F(InputDevicesStateWithSetters, getDownPressedTicks_WithSetTwice_ReturnNullOpt)
+{
+    setDown(true);
+    const Uint64 initialTicks = getTicks();
+    setTicks(45678);
+    setDown(true);
+    ASSERT_EQ(initialTicks, getDownPressedTicks());
 }
 
 TEST(InputDevicesState_getLeftPressed, WithDefaultConstructed_ReturnFalse)
@@ -37,58 +77,80 @@ TEST(InputDevicesState_getLeftPressed, WithDefaultConstructed_ReturnFalse)
     ASSERT_FALSE(devicesState.getLeftPressed());
 }
 
+TEST_F(InputDevicesStateWithSetters, getLeftPressedTicks_WithNoSet_ReturnNullOpt)
+{
+    ASSERT_EQ(std::nullopt, getLeftPressedTicks());
+}
+
+TEST_F(InputDevicesStateWithSetters, getLeftPressedTicks_WithSetOnce_ReturnNullOpt)
+{
+    setLeft(true);
+    ASSERT_EQ(tickCountSample, getLeftPressedTicks());
+}
+
+TEST_F(InputDevicesStateWithSetters, getLeftPressedTicks_WithSetTwice_ReturnNullOpt)
+{
+    setLeft(true);
+    const Uint64 initialTicks = getTicks();
+    setTicks(45678);
+    setLeft(true);
+    ASSERT_EQ(initialTicks, getLeftPressedTicks());
+}
+
 TEST(InputDevicesState_getRightPressed, WithDefaultConstructed_ReturnFalse)
 {
     InputDevicesState devicesState;
     ASSERT_FALSE(devicesState.getRightPressed());
 }
 
-TEST(InputDevicesState_getButtonAPressed, WithDefaultConstructed_ReturnFalse)
+TEST_F(InputDevicesStateWithSetters, getRightPressedTicks_WithNoSet_ReturnNullOpt)
 {
-    InputDevicesState devicesState;
-    ASSERT_FALSE(devicesState.getButtonAPressed());
+    ASSERT_EQ(std::nullopt, getRightPressedTicks());
 }
 
-TEST(InputDevicesState_getButtonBPressed, WithDefaultConstructed_ReturnFalse)
+TEST_F(InputDevicesStateWithSetters, getRightPressedTicks_WithSetOnce_ReturnNullOpt)
 {
-    InputDevicesState devicesState;
-    ASSERT_FALSE(devicesState.getButtonBPressed());
+    setRight(true);
+    ASSERT_EQ(tickCountSample, getRightPressedTicks());
 }
 
-TEST(InputDevicesState_getButtonCPressed, WithDefaultConstructed_ReturnFalse)
+TEST_F(InputDevicesStateWithSetters, getRightPressedTicks_WithSetTwice_ReturnNullOpt)
 {
-    InputDevicesState devicesState;
-    ASSERT_FALSE(devicesState.getButtonCPressed());
+    setRight(true);
+    const Uint64 initialTicks = getTicks();
+    setTicks(45678);
+    setRight(true);
+    ASSERT_EQ(initialTicks, getRightPressedTicks());
 }
 
-TEST(InputDevicesState_getButtonDPressed, WithDefaultConstructed_ReturnFalse)
+TEST(InputDevicesState_getButtonAState, WithDefaultConstructed_ReturnIdle)
 {
     InputDevicesState devicesState;
-    ASSERT_FALSE(devicesState.getButtonDPressed());
+    ASSERT_EQ(InputElementState::Idle, devicesState.getButtonAState());
 }
 
-TEST(InputDevicesState_getButtonAReleased, WithDefaultConstructed_ReturnFalse)
+TEST(InputDevicesState_getButtonBState, WithDefaultConstructed_ReturnIdle)
 {
     InputDevicesState devicesState;
-    ASSERT_FALSE(devicesState.getButtonAReleased());
+    ASSERT_EQ(InputElementState::Idle, devicesState.getButtonBState());
 }
 
-TEST(InputDevicesState_getButtonBReleased, WithDefaultConstructed_ReturnFalse)
+TEST(InputDevicesState_getButtonCState, WithDefaultConstructed_ReturnIdle)
 {
     InputDevicesState devicesState;
-    ASSERT_FALSE(devicesState.getButtonBReleased());
+    ASSERT_EQ(InputElementState::Idle, devicesState.getButtonCState());
 }
 
-TEST(InputDevicesState_getButtonCReleased, WithDefaultConstructed_ReturnFalse)
+TEST(InputDevicesState_getButtonDState, WithDefaultConstructed_ReturnIdle)
 {
     InputDevicesState devicesState;
-    ASSERT_FALSE(devicesState.getButtonCReleased());
+    ASSERT_EQ(InputElementState::Idle, devicesState.getButtonDState());
 }
 
-TEST(InputDevicesState_getButtonDReleased, WithDefaultConstructed_ReturnFalse)
+TEST(InputDevicesState_getKeyShiftState, WithDefaultConstructed_ReturnIdle)
 {
     InputDevicesState devicesState;
-    ASSERT_FALSE(devicesState.getButtonDReleased());
+    ASSERT_EQ(InputElementState::Idle, devicesState.getKeyShiftState());
 }
 
 TEST_F(InputDevicesStateWithSetters, setUpPressed_WithTrue_ReturnSuccess)
@@ -115,52 +177,52 @@ TEST_F(InputDevicesStateWithSetters, setRightPressed_WithTrue_ReturnSuccess)
     ASSERT_TRUE(getRightPressed());
 }
 
-TEST_F(InputDevicesStateWithSetters, setButtonAPressed_WithTrue_ReturnSuccess)
+TEST_F(InputDevicesStateWithSetters, setButtonAState_WithReleased_ReturnSuccess)
 {
-    setButtonAPre(true);
-    ASSERT_TRUE(getButtonAPressed());
+    setButtonASt(InputElementState::Released);
+    ASSERT_EQ(InputElementState::Released, getButtonAState());
 }
 
-TEST_F(InputDevicesStateWithSetters, setButtonBPressed_WithTrue_ReturnSuccess)
+TEST_F(InputDevicesStateWithSetters, setButtonAState_WithPressed_ReturnSuccess)
 {
-    setButtonBPre(true);
-    ASSERT_TRUE(getButtonBPressed());
+    setButtonASt(InputElementState::Pressed);
+    ASSERT_EQ(InputElementState::Pressed, getButtonAState());
 }
 
-TEST_F(InputDevicesStateWithSetters, setButtonCPressed_WithTrue_ReturnSuccess)
+TEST_F(InputDevicesStateWithSetters, setButtonBState_WithReleased_ReturnSuccess)
 {
-    setButtonCPre(true);
-    ASSERT_TRUE(getButtonCPressed());
+    setButtonBSt(InputElementState::Released);
+    ASSERT_EQ(InputElementState::Released, getButtonBState());
 }
 
-TEST_F(InputDevicesStateWithSetters, setButtonDPressed_WithTrue_ReturnSuccess)
+TEST_F(InputDevicesStateWithSetters, setButtonBState_WithPressed_ReturnSuccess)
 {
-    setButtonDPre(true);
-    ASSERT_TRUE(getButtonDPressed());
+    setButtonBSt(InputElementState::Pressed);
+    ASSERT_EQ(InputElementState::Pressed, getButtonBState());
 }
 
-TEST_F(InputDevicesStateWithSetters, setButtonAReleased_WithTrue_ReturnSuccess)
+TEST_F(InputDevicesStateWithSetters, setButtonCState_WithReleased_ReturnSuccess)
 {
-    setButtonARel(true);
-    ASSERT_TRUE(getButtonAReleased());
+    setButtonCSt(InputElementState::Released);
+    ASSERT_EQ(InputElementState::Released, getButtonCState());
 }
 
-TEST_F(InputDevicesStateWithSetters, setButtonBReleased_WithTrue_ReturnSuccess)
+TEST_F(InputDevicesStateWithSetters, setButtonCState_WithPressed_ReturnSuccess)
 {
-    setButtonBRel(true);
-    ASSERT_TRUE(getButtonBReleased());
+    setButtonCSt(InputElementState::Pressed);
+    ASSERT_EQ(InputElementState::Pressed, getButtonCState());
 }
 
-TEST_F(InputDevicesStateWithSetters, setButtonCReleased_WithTrue_ReturnSuccess)
+TEST_F(InputDevicesStateWithSetters, setButtonDState_WithReleased_ReturnSuccess)
 {
-    setButtonCRel(true);
-    ASSERT_TRUE(getButtonCReleased());
+    setButtonDSt(InputElementState::Released);
+    ASSERT_EQ(InputElementState::Released, getButtonDState());
 }
 
-TEST_F(InputDevicesStateWithSetters, setButtonDReleased_WithTrue_ReturnSuccess)
+TEST_F(InputDevicesStateWithSetters, setButtonDState_WithPressed_ReturnSuccess)
 {
-    setButtonDRel(true);
-    ASSERT_TRUE(getButtonDReleased());
+    setButtonDSt(InputElementState::Pressed);
+    ASSERT_EQ(InputElementState::Pressed, getButtonDState());
 }
 
 TEST_F(InputDevicesStateWithSetters, reset_WithSettingAllTrueBefore_ReturnSuccess)
@@ -169,27 +231,21 @@ TEST_F(InputDevicesStateWithSetters, reset_WithSettingAllTrueBefore_ReturnSucces
     setDown(true);
     setLeft(true);
     setRight(true);
-    setButtonAPre(true);
-    setButtonBPre(true);
-    setButtonCPre(true);
-    setButtonDPre(true);
-    setButtonARel(true);
-    setButtonBRel(true);
-    setButtonCRel(true);
-    setButtonDRel(true);
+    setButtonASt(InputElementState::Pressed);
+    setButtonBSt(InputElementState::Pressed);
+    setButtonCSt(InputElementState::Pressed);
+    setButtonDSt(InputElementState::Pressed);
+    setKeyShiftSt(InputElementState::Pressed);
     reset();
     ASSERT_FALSE(getUpPressed());
     ASSERT_FALSE(getDownPressed());
     ASSERT_FALSE(getLeftPressed());
     ASSERT_FALSE(getRightPressed());
-    ASSERT_FALSE(getButtonAPressed());
-    ASSERT_FALSE(getButtonBPressed());
-    ASSERT_FALSE(getButtonCPressed());
-    ASSERT_FALSE(getButtonDPressed());
-    ASSERT_FALSE(getButtonAReleased());
-    ASSERT_FALSE(getButtonBReleased());
-    ASSERT_FALSE(getButtonCReleased());
-    ASSERT_FALSE(getButtonDReleased());
+    ASSERT_EQ(InputElementState::Idle, getButtonAState());
+    ASSERT_EQ(InputElementState::Idle, getButtonBState());
+    ASSERT_EQ(InputElementState::Idle, getButtonCState());
+    ASSERT_EQ(InputElementState::Idle, getButtonDState());
+    ASSERT_EQ(InputElementState::Idle, getKeyShiftState());
 }
 
 TEST_F(InputDevicesStateWithSetters, isADirectionKeyPressed_WithUpPressed_ReturnTrue)
@@ -220,3 +276,16 @@ TEST_F(InputDevicesStateWithSetters, isADirectionKeyPressed_WithNoDirectionKeyPr
 {
     ASSERT_FALSE(isADirectionKeyPressed());
 }
+
+TEST_F(InputDevicesStateWithSetters, setKeyShiftState_WithReleased_ReturnSuccess)
+{
+    setKeyShiftSt(InputElementState::Released);
+    ASSERT_EQ(InputElementState::Released, getKeyShiftState());
+}
+
+TEST_F(InputDevicesStateWithSetters, setKeyShiftState_WithPressed_ReturnSuccess)
+{
+    setKeyShiftSt(InputElementState::Pressed);
+    ASSERT_EQ(InputElementState::Pressed, getKeyShiftState());
+}
+ 
