@@ -33,3 +33,5 @@
 
 build
 Testing
+workspace.code-workspace
+.cache

@@ -1,4 +1,5 @@
 #include "mainForm.hpp"
+#include "uiUtils.hpp"
 #include <GL/glut.h>
 
 int main(int argc, char *argv[])
@@ -9,6 +10,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("The Warrior");
     QCoreApplication::setApplicationVersion(QT_VERSION_STR);
     MainForm mainWin;
-    mainWin.show();
+    UIUtils::centerToScreen(&mainWin);
+    mainWin.showMaximized();
     return QApplication::exec();
 }

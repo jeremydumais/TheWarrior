@@ -4,61 +4,53 @@
 using namespace std;
 
 MainController::MainController() 
-    : lastError(""),
-	  map(nullptr)
+    : m_lastError(""),
+	  m_map(nullptr)
 {
 }
 
-const string& MainController::getLastError() const
+const string &MainController::getLastError() const
 {
-	return lastError;
+	return this->m_lastError;
 }
 
 shared_ptr<GameMap> MainController::getMap() 
 {
-    return map;
+    return m_map;
 }
 
-vector<string> MainController::getAlreadyUsedTextureNames() const
+MapTile& MainController::getTileForEditing(int index) 
 {
-	vector<string> alreadyUsedTextureNames;
-	if (map != nullptr) {
-    	transform(map->getTextures().begin(), map->getTextures().end(), back_inserter(alreadyUsedTextureNames),
-                  [](Texture const& x) { return x.getName(); });
-	}
-	return alreadyUsedTextureNames;
+	return m_map->getTileForEditing(index);
 }
 
-int MainController::getTextureIndexFromPosition(const Point &pos, const Texture &texture) 
-{
-	int realY { texture.getHeight() - pos.y()};
-	int indexX = pos.x() / texture.getTileWidth();
-	int indexY = realY / texture.getTileHeight();
-	int tileIndex { indexX + (indexY * (texture.getWidth()/texture.getTileWidth())) };
-	return tileIndex;
-}
 
 bool MainController::createMap(unsigned int width, unsigned int height) 
 {
 	try {
-		map = make_shared<GameMap>(width, height);
+		m_map = make_shared<GameMap>(width, height);
 	}
 	catch(invalid_argument &err) {
-		lastError = err.what();
+		m_lastError = err.what();
 		return false;
 	}
 	return true;
 }
 
+Point<> MainController::getCoordFromTileIndex(int index) 
+{
+	return m_map->getCoordFromTileIndex(index);
+}
+
 const std::vector<Texture>& MainController::getTextures() const
 {
-	return map->getTextures();
+	return m_map->getTextures();
 }
 
 bool MainController::addTexture(const TextureInfo &textureInfo) 
 {
-	if (!map->addTexture(textureInfo)) {
-		lastError = map->getLastError();
+	if (!m_map->addTexture(textureInfo)) {
+		this->m_lastError = m_map->getLastError();
 		return false;
 	}
 	return true;
@@ -67,8 +59,8 @@ bool MainController::addTexture(const TextureInfo &textureInfo)
 bool MainController::replaceTexture(const string &name, const TextureInfo &textureInfo) 
 {
     string oldTextureName { name };
-	if (!map->replaceTexture(name, textureInfo)) {
-		lastError = map->getLastError();
+	if (!m_map->replaceTexture(name, textureInfo)) {
+		m_lastError = m_map->getLastError();
 		return false;
 	}
 	//If the texture name has changed, update all tiles that was using the old texture name	
@@ -80,51 +72,17 @@ bool MainController::replaceTexture(const string &name, const TextureInfo &textu
 
 bool MainController::removeTexture(const string &name) 
 {
-	if (!map->removeTexture(name)) {
-		lastError = map->getLastError();
+	if (!m_map->removeTexture(name)) {
+		m_lastError = m_map->getLastError();
 		return false;
 	}
 	return true;
 }
 
-bool MainController::isTextureUsedInMap(const string &name) 
-{
-	for(const auto &row : map->getTiles()) {
-		for (const auto &tile : row) {
-			if (tile.getTextureName() == name || tile.getObjectTextureName() == name) {
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-bool MainController::isShrinkMapImpactAssignedTiles(int offsetLeft, 
-													int offsetTop, 
-													int offsetRight, 
-													int offsetBottom) const
-{
-	return map->isShrinkMapImpactAssignedTiles(offsetLeft,
-											   offsetTop,
-											   offsetRight,
-											   offsetBottom);
-}
-
-void MainController::resizeMap(int offsetLeft, 
-                   int offsetTop, 
-                   int offsetRight, 
-                   int offsetBottom) 
-{
-	map->resizeMap(offsetLeft,
-				   offsetTop,
-				   offsetRight,
-				   offsetBottom);
-}
-
 void MainController::replaceTilesTextureName(const string &oldName, const string &newName) 
 {
-	for(int index = 0; index < static_cast<int>(map->getWidth() * map->getHeight()) - 1; index++) {
-		auto &tile = map->getTileForEditing(index);
+	for(int index = 0; index < static_cast<int>(m_map->getWidth() * m_map->getHeight()) - 1; index++) {
+		auto &tile = m_map->getTileForEditing(index);
 		if (tile.getTextureName() == oldName) {
 			tile.setTextureName(newName);
 		}

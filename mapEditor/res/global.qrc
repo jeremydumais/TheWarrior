@@ -1,15 +1,27 @@
 <RCC>
   <qresource>
+    <file>../../commonUI/res/gtk-edit.svg</file>
+    <file>../../commonUI/res/gtk-delete.svg</file>
+    <file>../../commonUI/res/gtk-add.svg</file>
+    <file>../../commonUI/res/exit.svg</file>
+    <file>../../commonUI/res/document-save.svg</file>
+    <file>../../commonUI/res/document-save-as.svg</file>
+    <file>../../commonUI/res/document-open.svg</file>
+    <file>../../commonUI/res/document-new.svg</file>
+    <file>../../commonUI/res/dialog-ok.svg</file>
+    <file>../../commonUI/res/dialog-close.svg</file>
+    <file>clearBlockBorder.png</file>
+    <file>viewBorderMode.png</file>
+    <file>blockBottomBorder.png</file>
+    <file>blockRightBorder.png</file>
+    <file>blockTopBorder.png</file>
+    <file>blockLeftBorder.png</file>
+    <file>cannotStepOn.png</file>
+    <file>canStepOn.png</file>
+    <file>object.png</file>
+    <file>texture.png</file>
+    <file>move.png</file>
+    <file>selection.png</file>
     <file>MapEditor Icon.png</file>
-    <file>dialog-close.svg</file>
-    <file>dialog-ok.svg</file>
-    <file>gtk-add.svg</file>
-    <file>gtk-delete.svg</file>
-    <file>gtk-edit.svg</file>
-    <file>document-open.svg</file>
-    <file>document-save.svg</file>
-    <file>document-save-as.svg</file>
-    <file>exit.svg</file>
-    <file>document-new.svg</file>
   </qresource>
 </RCC>

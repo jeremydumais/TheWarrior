@@ -5,7 +5,6 @@
     "version": "0.2.0",
     "configurations": [
 
-
         {
             "name": "(gdb) TheWarrior",
             "type": "cppdbg",
@@ -45,6 +44,44 @@
             ]
         },
         {
+            "name": "(gdb) ItemEditor",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/ItemEditor",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "(gdb) ItemEditor.Controllers UnitTest",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/ItemEditor.Controllers_unittests",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
             "name": "(gdb) MapEditor.Controllers UnitTest",
             "type": "cppdbg",
             "request": "launch",
@@ -64,10 +101,29 @@
             ]
         },
         {
-            "name": "(gdb) twModels UnitTest",
+            "name": "(gdb) theWarrior.Models UnitTest",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/bin/twModels_unittests",
+            "program": "${workspaceFolder}/build/bin/theWarrior.Models_unittests",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "(gdb) theWarrior.Storage UnitTest",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/theWarrior.Storage_unittests",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build",

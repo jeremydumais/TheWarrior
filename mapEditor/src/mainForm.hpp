@@ -2,9 +2,14 @@
 #define MAINFORM_H
 
 #include "gameMap.hpp"
+#include "mainController.hpp"
+#include "components/mainForm_GLComponent.hpp"
+#include "components/mainForm_MapTabComponent.hpp"
+#include "components/mainForm_TextureListTabComponent.hpp"
+#include "components/mainForm_TextureSelectionComponent.hpp"
+#include "components/mainForm_TileTabComponent.hpp"
 #include "point.hpp"
 #include "selectionMode.hpp"
-#include "mainController.hpp"
 #include <memory>
 #include <vector>
 #include "ui_mainForm.h"
@@ -18,25 +23,24 @@ public:
 	~MainForm();
 	bool event(QEvent *event) override;
     void functionAfterShown();
+	void setAppStylesheet(const std::string &style);
 private:
 	Ui::MainForm ui;
-	MainController controller;
-	std::string userConfigFolder;
-	SelectionMode selectionMode;
-	std::string currentFilePath;
-	MapTile *currentMapTile;
-	std::string lastSelectedTextureName;
-	std::string lastSelectedObjectName;
-	int lastSelectedTextureIndex;
-	int lastSelectedObjectIndex;
-	bool functionAfterShownCalled;
-	std::string executablePath;
-	std::string resourcesPath;
+	MainForm_GLComponent m_glComponent;
+	MainForm_MapTabComponent m_mapTabComponent;
+	MainForm_TileTabComponent m_tileTabComponent;
+	MainForm_TextureListTabComponent m_textureListTabComponent;
+	MainForm_TextureSelectionComponent m_textureSelectionComponent;
+	MainController m_controller;
+	std::string m_userConfigFolder;
+	std::string m_currentFilePath;
+	bool m_functionAfterShownCalled;
+	std::string m_executablePath;
+	std::string m_resourcesPath;
+	static const std::string THEME_PATH;
+	static const std::string RECENT_MAPS;
     const std::string &getExecutablePath();
     const std::string &getResourcesPath();
-	void showErrorMessage(const std::string &message,
-						  const std::string &internalError = "") const;
-	void setAppStylesheet(const std::string &style);
 	void connectUIActions();
 	void action_Open_Click();
 	void action_OpenRecentMap_Click();
@@ -52,6 +56,12 @@ private:
 	void action_ApplyObjectClick();
 	void action_EnableCanStepClick();
 	void action_DisableCanStepClick();
+	void action_ViewBorderModeClick();
+	void action_BlockLeftBorderClick();
+	void action_BlockTopBorderClick();
+	void action_BlockRightBorderClick();
+	void action_BlockBottomBorderClick();
+	void action_ClearBlockedBordersClick();
 	void openMap(const std::string &filePath);
 	void saveMap(const std::string &filePath);
 	void refreshWindowTitle();
@@ -59,27 +69,16 @@ private:
 	void addNewRecentMap(const std::string &filePath);
 	void mapPaint(QPaintEvent *e);
 	void resizeEvent(QResizeEvent *);
-	void onTileClicked(int tileIndex);
-    void onTileMouseReleaseEvent(std::vector<int> selectedTileIndexes);
+    void onTileSelected(MapTile *tile, Point<> coord);
     //void onTileMouseMoveEvent(bool mousePressed, int tileIndex);
-	void onPushButtonApplySizeChangeClick();
-	void onPushButtonAddTextureClick();
-	void onPushButtonEditTextureClick();
-	void onPushButtonDeleteTextureClick();
-	boost::optional<const Texture &> getSelectedTextureInTextureList();
+	void onTextureAdded(TextureInfo textureInfo);
+	void onTextureUpdated(const std::string &name, TextureInfo textureInfo);
+	void onTextureDeleted(const std::string &name);
 	void refreshTextureList();
-	void displaySelectedTextureImage();
-	void onPushButtonSelectedTextureClearClick();
-	void onPushButtonSelectedObjectClearClick();
-	void onLabelImageTextureMouseReleaseEvent(QMouseEvent *event);
-	void onLineEditTexNameTextChanged(const QString &text);
-	void onSpinBoxTexIndexValueChanged(int value);
-	void onLineEditObjTexNameTextChanged(const QString &text);
-	void onSpinBoxObjTexIndexValueChanged(int value);
-	void onCheckBoxTileCanSteppedOnChanged(int state);
-    void onComboBoxTextureCurrentIndexChanged();
-	QPixmap getTextureTileImageFromTexture(int tileIndex, const Texture &texture) const;
-	Point to_Point(QPoint point);
+    /*void onComboBoxTileTriggerChanged();
+    void onComboBoxTileConditionChanged();
+    void onComboBoxTileActionChanged();
+	void onPushButtonTileActionPropertiesClick();*/
 };
 
 #endif // MAINFORM_H

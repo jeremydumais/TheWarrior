@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainForm</class>
+ <widget class="QMainWindow" name="MainForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>884</width>
+    <height>590</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>ItemEditor</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../res/global.qrc">
+    <normaloff>:/ItemEditor Icon.png</normaloff>:/ItemEditor Icon.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QSplitter" name="splitter">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <widget class="QTableWidget" name="tableWidgetItemCategories">
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::SingleSelection</enum>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>24</width>
+           <height>24</height>
+          </size>
+         </property>
+         <property name="columnCount">
+          <number>1</number>
+         </property>
+         <attribute name="horizontalHeaderVisible">
+          <bool>true</bool>
+         </attribute>
+         <attribute name="horizontalHeaderStretchLastSection">
+          <bool>true</bool>
+         </attribute>
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <column/>
+        </widget>
+        <widget class="QWidget" name="verticalLayoutWidget">
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QTableWidget" name="tableWidgetItems">
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+            <property name="editTriggers">
+             <set>QAbstractItemView::NoEditTriggers</set>
+            </property>
+            <property name="alternatingRowColors">
+             <bool>true</bool>
+            </property>
+            <property name="selectionMode">
+             <enum>QAbstractItemView::SingleSelection</enum>
+            </property>
+            <property name="selectionBehavior">
+             <enum>QAbstractItemView::SelectRows</enum>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
+            </property>
+            <property name="sortingEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="rowCount">
+             <number>0</number>
+            </property>
+            <property name="columnCount">
+             <number>3</number>
+            </property>
+            <attribute name="horizontalHeaderStretchLastSection">
+             <bool>true</bool>
+            </attribute>
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
+            <column/>
+            <column/>
+            <column/>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="QPushButton" name="pushButtonAddItem">
+              <property name="text">
+               <string>&amp;Add Item</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../res/global.qrc">
+                <normaloff>:/commonUI/res/gtk-add.svg</normaloff>:/commonUI/res/gtk-add.svg</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButtonEditItem">
+              <property name="text">
+               <string>&amp;Edit item</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../res/global.qrc">
+                <normaloff>:/commonUI/res/gtk-edit.svg</normaloff>:/commonUI/res/gtk-edit.svg</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButtonDeleteItem">
+              <property name="text">
+               <string>&amp;Delete item</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../res/global.qrc">
+                <normaloff>:/commonUI/res/gtk-delete.svg</normaloff>:/commonUI/res/gtk-delete.svg</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>884</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_File">
+    <property name="geometry">
+     <rect>
+      <x>267</x>
+      <y>160</y>
+      <width>260</width>
+      <height>196</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>260</width>
+      <height>0</height>
+     </size>
+    </property>
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <widget class="QMenu" name="menu_RecentItemsDB">
+     <property name="title">
+      <string>&amp;Recent Items DB</string>
+     </property>
+     <addaction name="action_RecentMap1"/>
+     <addaction name="action_RecentMap2"/>
+     <addaction name="action_RecentMap3"/>
+     <addaction name="action_RecentMap4"/>
+     <addaction name="action_RecentMap5"/>
+    </widget>
+    <addaction name="action_Open"/>
+    <addaction name="menu_RecentItemsDB"/>
+    <addaction name="separator"/>
+    <addaction name="action_Save"/>
+    <addaction name="action_SaveAs"/>
+    <addaction name="separator"/>
+    <addaction name="action_Quit"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="action_About"/>
+   </widget>
+   <widget class="QMenu" name="menu_View">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <widget class="QMenu" name="menu_Color_theme">
+     <property name="title">
+      <string>&amp;Color theme</string>
+     </property>
+     <addaction name="action_LightTheme"/>
+     <addaction name="action_DarkTheme"/>
+    </widget>
+    <addaction name="menu_Color_theme"/>
+   </widget>
+   <widget class="QMenu" name="menu_Items">
+    <property name="title">
+     <string>&amp;Items</string>
+    </property>
+    <addaction name="action_AddItem"/>
+    <addaction name="action_EditItem"/>
+    <addaction name="action_DeleteItem"/>
+   </widget>
+   <widget class="QMenu" name="menu_Textures">
+    <property name="title">
+     <string>&amp;Textures</string>
+    </property>
+    <addaction name="action_ManageTextures"/>
+   </widget>
+   <addaction name="menu_File"/>
+   <addaction name="menu_View"/>
+   <addaction name="menu_Items"/>
+   <addaction name="menu_Textures"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="action_Quit">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/commonUI/res/exit.svg</normaloff>:/commonUI/res/exit.svg</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Quit</string>
+   </property>
+  </action>
+  <action name="action_About">
+   <property name="text">
+    <string>&amp;About...</string>
+   </property>
+  </action>
+  <action name="action_LightTheme">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Light</string>
+   </property>
+  </action>
+  <action name="action_DarkTheme">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Dark</string>
+   </property>
+  </action>
+  <action name="action_Open">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/commonUI/res/document-open.svg</normaloff>:/commonUI/res/document-open.svg</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Open...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="action_Save">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/commonUI/res/document-save.svg</normaloff>:/commonUI/res/document-save.svg</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="action_SaveAs">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/commonUI/res/document-save-as.svg</normaloff>:/commonUI/res/document-save-as.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Save as...</string>
+   </property>
+  </action>
+  <action name="action_AddItem">
+   <property name="text">
+    <string>&amp;Add an item...</string>
+   </property>
+  </action>
+  <action name="action_ManageTextures">
+   <property name="text">
+    <string>&amp;Manage textures...</string>
+   </property>
+  </action>
+  <action name="action_EditItem">
+   <property name="text">
+    <string>&amp;Edit item...</string>
+   </property>
+  </action>
+  <action name="action_DeleteItem">
+   <property name="text">
+    <string>&amp;Delete item...</string>
+   </property>
+  </action>
+  <action name="actiong">
+   <property name="text">
+    <string>g</string>
+   </property>
+  </action>
+  <action name="action_RecentMap1">
+   <property name="text">
+    <string/>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="action_RecentMap2">
+   <property name="text">
+    <string/>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="action_RecentMap3">
+   <property name="text">
+    <string/>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="action_RecentMap4">
+   <property name="text">
+    <string/>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="action_RecentMap5">
+   <property name="text">
+    <string/>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="../res/global.qrc"/>
+ </resources>
+ <connections/>
+</ui>

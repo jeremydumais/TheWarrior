@@ -76,7 +76,26 @@
         "future": "cpp",
         "qtopengl": "cpp",
         "csignal": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "qpushbutton": "cpp",
+        "qlabel": "cpp",
+        "qfiledialog": "cpp",
+        "version": "cpp",
+        "cfloat": "cpp",
+        "climits": "cpp",
+        "codecvt": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "source_location": "cpp",
+        "numbers": "cpp",
+        "semaphore": "cpp",
+        "stop_token": "cpp",
+        "qcombobox": "cpp",
+        "qtglobal": "cpp",
+        "shared_mutex": "cpp",
+        "queue": "cpp",
+        "*.inc": "cpp",
+        "ranges": "cpp"
     },
     "editor.tokenColorCustomizations": {
         "textMateRules": [
@@ -101,10 +120,15 @@
         ]
     },
     "C_Cpp.default.includePath": ["${default}", 
-                                  "${workspaceFolder}/twUI/include/",
-                                  "${workspaceFolder}/twModels/include/",
+                                  "${workspaceFolder}/commonUI/include/",
+                                  "${workspaceFolder}/theWarrior.UI/include/",
+                                  "${workspaceFolder}/theWarrior.UI.Models/include/",
+                                  "${workspaceFolder}/theWarrior.UI.Controllers/include/",
+                                  "${workspaceFolder}/theWarrior.Models/include/",
+                                  "${workspaceFolder}/theWarrior.Storage/include/",
                                   "${workspaceFolder}/mapEditor.Controllers/include/",
-                                "/usr/include/x86_64-linux-gnu/qt5/"
+                                  "${workspaceFolder}/itemEditor.Controllers/include/",
+                                  "/usr/include/x86_64-linux-gnu/qt5/"
                             ],
-                            "output.smartScroll.enabled": false
+    "output.smartScroll.enabled": false
 }

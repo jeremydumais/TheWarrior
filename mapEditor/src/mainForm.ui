@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1417</width>
-    <height>897</height>
+    <width>1483</width>
+    <height>911</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,26 +21,26 @@
        <widget class="QToolBox" name="toolBox">
         <property name="minimumSize">
          <size>
-          <width>320</width>
+          <width>410</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>300</width>
+          <width>0</width>
           <height>16777215</height>
          </size>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>3</number>
         </property>
         <widget class="QWidget" name="pageMapProperties">
          <property name="geometry">
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>320</width>
-           <height>677</height>
+           <width>410</width>
+           <height>680</height>
           </rect>
          </property>
          <attribute name="label">
@@ -182,90 +182,190 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>320</width>
-           <height>677</height>
+           <width>410</width>
+           <height>680</height>
           </rect>
          </property>
          <attribute name="label">
           <string>Tile Properties</string>
          </attribute>
-         <widget class="QWidget" name="formLayoutWidget_2">
+         <widget class="QWidget" name="verticalLayoutWidget">
           <property name="geometry">
            <rect>
             <x>10</x>
             <y>0</y>
-            <width>301</width>
-            <height>411</height>
+            <width>387</width>
+            <height>588</height>
            </rect>
           </property>
-          <layout class="QFormLayout" name="formLayout_2">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_3">
-             <property name="text">
-              <string>Texure Name :</string>
-             </property>
-            </widget>
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <item>
+            <layout class="QFormLayout" name="formLayout_2">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_17">
+               <property name="text">
+                <string>Position :</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLabel" name="labelTileCoordXY">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_3">
+               <property name="text">
+                <string>Texure Name :</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLineEdit" name="lineEditTexName"/>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="label_4">
+               <property name="text">
+                <string>Texture Index :</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QSpinBox" name="spinBoxTexIndex">
+               <property name="minimum">
+                <number>-1</number>
+               </property>
+               <property name="maximum">
+                <number>16777215</number>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="label_5">
+               <property name="text">
+                <string>Object Texture Name :</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QLineEdit" name="lineEditObjTexName"/>
+             </item>
+             <item row="4" column="0">
+              <widget class="QLabel" name="label_6">
+               <property name="text">
+                <string>Object Texture Index :</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QSpinBox" name="spinBoxObjTexIndex">
+               <property name="minimum">
+                <number>-1</number>
+               </property>
+               <property name="maximum">
+                <number>16777215</number>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="0">
+              <widget class="QLabel" name="label_12">
+               <property name="text">
+                <string>Object above player?</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="1">
+              <widget class="QCheckBox" name="checkBoxObjectAbovePlayer">
+               <property name="text">
+                <string/>
+               </property>
+               <property name="tristate">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="0">
+              <widget class="QLabel" name="label_11">
+               <property name="text">
+                <string>Can player stepped on?</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="1">
+              <widget class="QCheckBox" name="checkBoxTileCanSteppedOn">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="0">
+              <widget class="QLabel" name="label_13">
+               <property name="text">
+                <string>Is a wall to climb?</string>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="1">
+              <widget class="QCheckBox" name="checkBoxIsWallToClimb">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_4">
-             <property name="text">
-              <string>Texture Index :</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="lineEditTexName"/>
-           </item>
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="lineEditObjTexName"/>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_5">
-             <property name="text">
-              <string>Object Texture Name :</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_6">
-             <property name="text">
-              <string>Object Texture Index :</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QSpinBox" name="spinBoxTexIndex">
-             <property name="minimum">
-              <number>-1</number>
-             </property>
-             <property name="maximum">
-              <number>16777215</number>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QSpinBox" name="spinBoxObjTexIndex">
-             <property name="minimum">
-              <number>-1</number>
-             </property>
-             <property name="maximum">
-              <number>16777215</number>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="1">
-            <widget class="QCheckBox" name="checkBoxTileCanSteppedOn">
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="label_11">
-             <property name="text">
-              <string>Can player stepped on?</string>
-             </property>
-            </widget>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_5">
+             <item>
+              <widget class="QLabel" name="label_18">
+               <property name="text">
+                <string>Events</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QListWidget" name="listWidgetMapTileTriggers"/>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_7">
+               <item>
+                <widget class="QPushButton" name="pushButtonAddTileEvent">
+                 <property name="text">
+                  <string>&amp;Add...</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../res/global.qrc">
+                   <normaloff>:/commonUI/res/gtk-add.svg</normaloff>:/commonUI/res/gtk-add.svg</iconset>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButtonEditTileEvent">
+                 <property name="text">
+                  <string>&amp;Edit...</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../res/global.qrc">
+                   <normaloff>:/commonUI/res/gtk-edit.svg</normaloff>:/commonUI/res/gtk-edit.svg</iconset>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButtonDeleteTileEvent">
+                 <property name="text">
+                  <string>&amp;Delete</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../res/global.qrc">
+                   <normaloff>:/commonUI/res/gtk-delete.svg</normaloff>:/commonUI/res/gtk-delete.svg</iconset>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
            </item>
           </layout>
          </widget>
@@ -275,8 +375,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>320</width>
-           <height>677</height>
+           <width>410</width>
+           <height>680</height>
           </rect>
          </property>
          <attribute name="label">
@@ -295,7 +395,7 @@
               </property>
               <property name="icon">
                <iconset resource="../res/global.qrc">
-                <normaloff>:/gtk-add.svg</normaloff>:/gtk-add.svg</iconset>
+                <normaloff>:/commonUI/res/gtk-add.svg</normaloff>:/commonUI/res/gtk-add.svg</iconset>
               </property>
              </widget>
             </item>
@@ -306,7 +406,7 @@
               </property>
               <property name="icon">
                <iconset resource="../res/global.qrc">
-                <normaloff>:/gtk-edit.svg</normaloff>:/gtk-edit.svg</iconset>
+                <normaloff>:/commonUI/res/gtk-edit.svg</normaloff>:/commonUI/res/gtk-edit.svg</iconset>
               </property>
              </widget>
             </item>
@@ -317,7 +417,7 @@
               </property>
               <property name="icon">
                <iconset resource="../res/global.qrc">
-                <normaloff>:/dialog-close.svg</normaloff>:/dialog-close.svg</iconset>
+                <normaloff>:/commonUI/res/gtk-delete.svg</normaloff>:/commonUI/res/gtk-delete.svg</iconset>
               </property>
              </widget>
             </item>
@@ -330,8 +430,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>320</width>
-           <height>677</height>
+           <width>410</width>
+           <height>680</height>
           </rect>
          </property>
          <attribute name="label">
@@ -350,7 +450,7 @@
               </property>
               <property name="icon">
                <iconset resource="../res/global.qrc">
-                <normaloff>:/gtk-add.svg</normaloff>:/gtk-add.svg</iconset>
+                <normaloff>:/commonUI/res/gtk-add.svg</normaloff>:/commonUI/res/gtk-add.svg</iconset>
               </property>
              </widget>
             </item>
@@ -361,7 +461,7 @@
               </property>
               <property name="icon">
                <iconset resource="../res/global.qrc">
-                <normaloff>:/gtk-edit.svg</normaloff>:/gtk-edit.svg</iconset>
+                <normaloff>:/commonUI/res/gtk-edit.svg</normaloff>:/commonUI/res/gtk-edit.svg</iconset>
               </property>
              </widget>
             </item>
@@ -372,7 +472,7 @@
               </property>
               <property name="icon">
                <iconset resource="../res/global.qrc">
-                <normaloff>:/dialog-close.svg</normaloff>:/dialog-close.svg</iconset>
+                <normaloff>:/commonUI/res/gtk-delete.svg</normaloff>:/commonUI/res/gtk-delete.svg</iconset>
               </property>
              </widget>
             </item>
@@ -381,6 +481,19 @@
          </layout>
         </widget>
        </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
       <item>
        <widget class="MapOpenGLWidget" name="mapOpenGLWidget">
@@ -567,8 +680,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>261</width>
-           <height>639</height>
+           <width>232</width>
+           <height>632</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
@@ -592,8 +705,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1417</width>
-     <height>22</height>
+     <width>1483</width>
+     <height>28</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -602,7 +715,7 @@
       <x>2193</x>
       <y>146</y>
       <width>260</width>
-      <height>204</height>
+      <height>222</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -668,6 +781,9 @@
    <property name="windowTitle">
     <string>toolBar</string>
    </property>
+   <property name="toolTip">
+    <string>Select tile</string>
+   </property>
    <property name="iconSize">
     <size>
      <width>32</width>
@@ -688,11 +804,18 @@
    <addaction name="action_EnableCanStep"/>
    <addaction name="action_DisableCanStep"/>
    <addaction name="separator"/>
+   <addaction name="action_ViewBorderMode"/>
+   <addaction name="action_BlockLeftBorder"/>
+   <addaction name="action_BlockTopBorder"/>
+   <addaction name="action_BlockRightBorder"/>
+   <addaction name="action_BlockBottomBorder"/>
+   <addaction name="action_ClearBlockedBorders"/>
+   <addaction name="separator"/>
   </widget>
   <action name="action_Quit">
    <property name="icon">
     <iconset resource="../res/global.qrc">
-     <normaloff>:/exit.svg</normaloff>:/exit.svg</iconset>
+     <normaloff>:/commonUI/res/exit.svg</normaloff>:/commonUI/res/exit.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;Quit</string>
@@ -722,7 +845,7 @@
   <action name="action_Open">
    <property name="icon">
     <iconset resource="../res/global.qrc">
-     <normaloff>:/document-open.svg</normaloff>:/document-open.svg</iconset>
+     <normaloff>:/commonUI/res/document-open.svg</normaloff>:/commonUI/res/document-open.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;Open...</string>
@@ -734,7 +857,7 @@
   <action name="action_Save">
    <property name="icon">
     <iconset resource="../res/global.qrc">
-     <normaloff>:/document-save.svg</normaloff>:/document-save.svg</iconset>
+     <normaloff>:/commonUI/res/document-save.svg</normaloff>:/commonUI/res/document-save.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;Save</string>
@@ -744,21 +867,40 @@
    </property>
   </action>
   <action name="action_Select">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/selection.png</normaloff>:/selection.png</iconset>
+   </property>
    <property name="text">
-    <string>Select</string>
+    <string>Select tile</string>
+   </property>
+   <property name="iconText">
+    <string>Select tile</string>
    </property>
   </action>
   <action name="action_MoveMap">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/move.png</normaloff>:/move.png</iconset>
+   </property>
    <property name="text">
     <string>Move Map</string>
    </property>
   </action>
   <action name="action_ApplyTexture">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/texture.png</normaloff>:/texture.png</iconset>
+   </property>
    <property name="text">
     <string>Apply texture</string>
    </property>
   </action>
   <action name="action_ApplyObject">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/object.png</normaloff>:/object.png</iconset>
+   </property>
    <property name="text">
     <string>Apply Object</string>
    </property>
@@ -780,7 +922,7 @@
   <action name="action_SaveAs">
    <property name="icon">
     <iconset resource="../res/global.qrc">
-     <normaloff>:/document-save-as.svg</normaloff>:/document-save-as.svg</iconset>
+     <normaloff>:/commonUI/res/document-save-as.svg</normaloff>:/commonUI/res/document-save-as.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;Save As...</string>
@@ -792,7 +934,7 @@
   <action name="action_New">
    <property name="icon">
     <iconset resource="../res/global.qrc">
-     <normaloff>:/document-new.svg</normaloff>:/document-new.svg</iconset>
+     <normaloff>:/commonUI/res/document-new.svg</normaloff>:/commonUI/res/document-new.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;New</string>
@@ -839,6 +981,10 @@
    </property>
   </action>
   <action name="action_EnableCanStep">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/canStepOn.png</normaloff>:/canStepOn.png</iconset>
+   </property>
    <property name="text">
     <string>Enable can step</string>
    </property>
@@ -847,11 +993,87 @@
    </property>
   </action>
   <action name="action_DisableCanStep">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/cannotStepOn.png</normaloff>:/cannotStepOn.png</iconset>
+   </property>
    <property name="text">
     <string>Disable can step</string>
    </property>
    <property name="toolTip">
     <string>Disable can step</string>
+   </property>
+  </action>
+  <action name="action_BlockLeftBorder">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/blockLeftBorder.png</normaloff>:/blockLeftBorder.png</iconset>
+   </property>
+   <property name="text">
+    <string>Block Left Border</string>
+   </property>
+   <property name="toolTip">
+    <string>Block Left Border</string>
+   </property>
+  </action>
+  <action name="action_BlockTopBorder">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/blockTopBorder.png</normaloff>:/blockTopBorder.png</iconset>
+   </property>
+   <property name="text">
+    <string>Block Top Border</string>
+   </property>
+   <property name="toolTip">
+    <string>Block Top Border</string>
+   </property>
+  </action>
+  <action name="action_BlockRightBorder">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/blockRightBorder.png</normaloff>:/blockRightBorder.png</iconset>
+   </property>
+   <property name="text">
+    <string>Block Right Border</string>
+   </property>
+   <property name="toolTip">
+    <string>Block Right Border</string>
+   </property>
+  </action>
+  <action name="action_BlockBottomBorder">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/blockBottomBorder.png</normaloff>:/blockBottomBorder.png</iconset>
+   </property>
+   <property name="text">
+    <string>Block Bottom Border</string>
+   </property>
+   <property name="toolTip">
+    <string>Block Bottom Border</string>
+   </property>
+  </action>
+  <action name="action_ViewBorderMode">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/viewBorderMode.png</normaloff>:/viewBorderMode.png</iconset>
+   </property>
+   <property name="text">
+    <string>View Border Mode</string>
+   </property>
+   <property name="toolTip">
+    <string>View Border Mode</string>
+   </property>
+  </action>
+  <action name="action_ClearBlockedBorders">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/clearBlockBorder.png</normaloff>:/clearBlockBorder.png</iconset>
+   </property>
+   <property name="text">
+    <string>Clear Blocked Borders</string>
+   </property>
+   <property name="toolTip">
+    <string>Clear Blocked Borders</string>
    </property>
   </action>
  </widget>

@@ -3,16 +3,23 @@
         {
             "name": "Linux",
             "defines": [],
-            "compilerPath": "/usr/bin/clang",
+            "compilerPath": "/bin/gcc",
             "cStandard": "c11",
             "cppStandard": "c++17",
-            "intelliSenseMode": "clang-x64",
-            "compileCommands": "",
+            "intelliSenseMode": "gcc-x64",
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/twUI/include",
-                "${workspaceFolder}/twModels/include",
-                "${workspaceFolder}/mapEditor.Controllers/include"
+                "${workspaceFolder}/commonUI/include",
+                "${workspaceFolder}/theWarrior.UI/include",
+                "${workspaceFolder}/theWarrior.UI.Models/include",
+                "${workspaceFolder}/theWarrior.UI.Controllers/include",
+                "${workspaceFolder}/theWarrior.Models/include",
+                "${workspaceFolder}/theWarrior.Storage/include",
+                "${workspaceFolder}/mapEditor/src",
+                "${workspaceFolder}/mapEditor.Controllers/include",
+                "${workspaceFolder}/itemEditor/src",
+                "${workspaceFolder}/itemEditor.Controllers/include"
             ],
             "configurationProvider": "vector-of-bool.cmake-tools"
         }
