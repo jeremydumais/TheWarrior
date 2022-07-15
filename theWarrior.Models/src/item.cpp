@@ -5,10 +5,10 @@
 using namespace boost::algorithm;
 using namespace std;
 
-void validateId(const std::string &id);
-void validateName(const std::string &name);
-void validateTextureName(const std::string &textureName);
-void validateTextureIndex(int textureIndex);
+void validateItemId(const std::string &id);
+void validateItemName(const std::string &name);
+void validateItemTextureName(const std::string &textureName);
+void validateItemTextureIndex(int textureIndex);
 
 Item::Item(const ItemCreationInfo &itemInfo) 
     : m_id(itemInfo.id),
@@ -17,10 +17,10 @@ Item::Item(const ItemCreationInfo &itemInfo)
       m_textureIndex(itemInfo.textureIndex),
       m_optionalDescription(itemInfo.optionalDescription)
 {
-    validateId(m_id);
-    validateName(m_name);
-    validateTextureName(m_textureName);
-    validateTextureIndex(m_textureIndex);
+    validateItemId(m_id);
+    validateItemName(m_name);
+    validateItemTextureName(m_textureName);
+    validateItemTextureIndex(m_textureIndex);
 }
 
 //Used only for Boost Serialization
@@ -87,25 +87,25 @@ const std::string &Item::getOptionalDescription() const
 
 void Item::setId(const std::string &id) 
 {
-    validateId(id);
+    validateItemId(id);
     m_id = id;
 }
 
 void Item::setName(const std::string &name) 
 {
-    validateName(name);
+    validateItemName(name);
     m_name = name;
 }
 
 void Item::setTextureName(const std::string &name) 
 {
-    validateTextureName(name);
+    validateItemTextureName(name);
     m_textureName = name;
 }
 
 void Item::setTextureIndex(const int index) 
 {
-    validateTextureIndex(index);
+    validateItemTextureIndex(index);
     m_textureIndex = index;
 }
 
@@ -114,7 +114,7 @@ void Item::setOptionalDescription(const std::string &description)
     m_optionalDescription = description;
 }
 
-void validateId(const std::string &id) 
+void validateItemId(const std::string &id) 
 {
     string sanitizedId { trim_copy(id) };
     if (sanitizedId.empty()) {
@@ -125,21 +125,21 @@ void validateId(const std::string &id)
     }
 }
 
-void validateName(const std::string &name) 
+void validateItemName(const std::string &name) 
 {
     if (trim_copy(name).empty()) {
         throw invalid_argument("name cannot be empty.");
     }
 }
 
-void validateTextureName(const std::string &textureName)
+void validateItemTextureName(const std::string &textureName)
 {
     if (trim_copy(textureName).empty()) {
         throw invalid_argument("textureName cannot be empty.");
     }
 }
 
-void validateTextureIndex(const int textureIndex) 
+void validateItemTextureIndex(const int textureIndex) 
 {
     if (textureIndex < 0) {
         throw invalid_argument("textureIndex must be a positive number.");

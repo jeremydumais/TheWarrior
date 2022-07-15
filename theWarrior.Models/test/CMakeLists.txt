@@ -24,7 +24,8 @@ add_executable(${PROJECT_UNITTEST_NAME} ${INCLUDE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}/weaponItem_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/player_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/playerEquipment_unittest.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/inventory_unittest.cpp)
+  ${CMAKE_CURRENT_SOURCE_DIR}/inventory_unittest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/monster_unittest.cpp)
 
 target_link_libraries(${PROJECT_UNITTEST_NAME} PRIVATE theWarrior.Models ${CONAN_LIBS})
 gtest_discover_tests(${PROJECT_UNITTEST_NAME})
