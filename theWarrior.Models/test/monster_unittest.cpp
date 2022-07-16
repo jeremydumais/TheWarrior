@@ -130,14 +130,10 @@ TEST_F(MonsterSample1, GetDefense_WithMonsterSample1_Return1_1F)
     ASSERT_FLOAT_EQ(1.1F, monster.getDefense());
 }
 
-TEST_F(MonsterSample1, GetGoldMinimum_WithMonsterSample1_Return0)
+TEST_F(MonsterSample1, GetGoldRewardRange_WithMonsterSample1_Return0And2)
 {
-    ASSERT_EQ(0, monster.getGoldMinimum());
-}
-
-TEST_F(MonsterSample1, GetGoldMaximum_WithMonsterSample1_Return2)
-{
-    ASSERT_EQ(2, monster.getGoldMaximum());
+    std::pair<int, int> expected = { 0, 2 };
+    ASSERT_EQ(expected, monster.getGoldRewardRange());
 }
 
 TEST_F(MonsterSample1, SetName_WithEmptyName_ThrowInvalidArgument)
@@ -167,4 +163,108 @@ TEST_F(MonsterSample1, SetName_WithTest_ReturnSuccess)
     const std::string NEW_NAME = "Test";
     monster.setName(NEW_NAME);
     ASSERT_EQ(NEW_NAME, monster.getName());
+}
+
+TEST_F(MonsterSample1, SetTextureName_WithEmptyTextureName_ThrowInvalidArgument)
+{
+    try {
+        monster.setTextureName("");
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("texture name cannot be null or empty.", err.what());
+	}
+}
+
+TEST_F(MonsterSample1, SetTextureName_WithWhiteSpacesTextureName_ThrowInvalidArgument)
+{
+    try {
+        monster.setTextureName("  ");
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("texture name cannot be null or empty.", err.what());
+	}
+}
+
+TEST_F(MonsterSample1, SetTextureName_WithTest_ReturnSuccess)
+{
+    const std::string NEW_NAME = "Test";
+    monster.setTextureName(NEW_NAME);
+    ASSERT_EQ(NEW_NAME, monster.getTextureName());
+}
+
+TEST_F(MonsterSample1, SetTextureIndex_WithMinus1TextureIndex_ThrowInvalidArgument)
+{
+    try {
+        monster.setTextureIndex(-1);
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("texture index cannot be a negative number.", err.what());
+	}
+}
+
+TEST_F(MonsterSample1, SetTextureIndex_WithTextureIndex5_ReturnSuccess)
+{
+    monster.setTextureIndex(5);
+    ASSERT_EQ(5, monster.getTextureIndex());
+}
+
+TEST_F(MonsterSample1, SetHealth_With12_ReturnSuccess)
+{
+    monster.setHealth(12);
+    ASSERT_EQ(12, monster.getHealth());
+}
+
+TEST_F(MonsterSample1, SetAttack_With1_6F_ReturnSuccess)
+{
+    monster.setAttack(1.6F);
+    ASSERT_FLOAT_EQ(1.6F, monster.getAttack());
+}
+
+TEST_F(MonsterSample1, SetDefense_With1_6F_ReturnSuccess)
+{
+    monster.setDefense(1.6F);
+    ASSERT_FLOAT_EQ(1.6F, monster.getDefense());
+}
+
+TEST_F(MonsterSample1, SetGoldRewardRange_With1And3_ReturnSuccess)
+{
+    monster.setGoldRewardRange(1, 3);
+    std::pair<int, int> expected = { 1, 3 };
+    ASSERT_EQ(expected, monster.getGoldRewardRange());
+}
+
+TEST_F(MonsterSample1, SetGoldRewardRange_WithMinus1And3_ThrowInvalidArgument)
+{
+    try {
+        monster.setGoldRewardRange(-1, 3);
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("gold reward minimum cannot be a negative number.", err.what());
+	}
+}
+
+TEST_F(MonsterSample1, SetGoldRewardRange_With1And0_ThrowInvalidArgument)
+{
+    try {
+        monster.setGoldRewardRange(1, 0);
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("gold reward maximum must be greater or equal to the minimum.", err.what());
+	}
+}
+
+TEST_F(MonsterSample1, SetGoldRewardRange_With1AndMinus5_ThrowInvalidArgument)
+{
+    try {
+        monster.setGoldRewardRange(1, -5);
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("gold reward maximum must be greater or equal to the minimum.", err.what());
+	}
 }

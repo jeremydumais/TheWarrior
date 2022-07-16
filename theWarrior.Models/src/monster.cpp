@@ -51,20 +51,54 @@ float Monster::getDefense() const
     return m_defense;
 }
 
-int Monster::getGoldMinimum() const
+std::pair<int, int> Monster::getGoldRewardRange() const
 {
-    return m_goldMinimum;
-}
-
-int Monster::getGoldMaximum() const
-{
-    return m_goldMaximum;
+    return { m_goldMinimum, m_goldMaximum };
 }
 
 void Monster::setName(const std::string &name)
 {
     validateMonsterName(name);
     m_name = name;
+}
+
+void Monster::setTextureName(const std::string &textureName)
+{
+    validateMonsterTextureName(textureName);
+    m_textureName = textureName;
+}
+
+void Monster::setTextureIndex(int textureIndex)
+{
+    validateMonsterTextureIndex(textureIndex);
+    m_textureIndex = textureIndex;
+}
+
+void Monster::setHealth(int value)
+{
+    m_health = value;
+}
+
+void Monster::setAttack(float value)
+{
+    m_attack = value;
+}
+
+void Monster::setDefense(float value)
+{
+    m_defense = value;
+}
+
+void Monster::setGoldRewardRange(int minimum, int maximum)
+{
+    if (minimum < 0) {
+        throw std::invalid_argument("gold reward minimum cannot be a negative number.");
+    }
+    if (maximum < minimum) {
+        throw std::invalid_argument("gold reward maximum must be greater or equal to the minimum.");
+    }
+    m_goldMinimum = minimum;
+    m_goldMaximum = maximum;
 }
 
 void validateMonsterName(const std::string &name)

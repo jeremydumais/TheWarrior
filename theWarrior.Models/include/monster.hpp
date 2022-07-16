@@ -4,6 +4,7 @@
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/version.hpp>
 #include <string>
+#include <utility>
 
 struct MonsterCreationInfo
 {
@@ -27,9 +28,14 @@ public:
     int getHealth() const;
     float getAttack() const;
     float getDefense() const;
-    int getGoldMinimum() const;
-    int getGoldMaximum() const;
+    std::pair<int, int> getGoldRewardRange() const;
     void setName(const std::string &name);
+    void setTextureName(const std::string &textureName);
+    void setTextureIndex(int textureIndex);
+    void setHealth(int value);
+    void setAttack(float value);
+    void setDefense(float value);
+    void setGoldRewardRange(int minimum, int maximum);
 private:
     friend class boost::serialization::access;
     Monster() = default; //Needed for deserialization
