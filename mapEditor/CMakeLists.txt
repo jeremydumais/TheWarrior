@@ -87,8 +87,16 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
       INTERFACE _SCL_SECURE_NO_WARNINGS) # disable security-paranoia warning
 endif()
 
+include(GNUInstallDirs)
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
-#install(FILES ${RESOURCE_FILES} DESTINATION share/${PROJECT_NAME}/resources)
+install(FILES "res/MapEditor Icon16.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/16x16/apps" RENAME "thewarrior_mapeditor.png")
+install(FILES "res/MapEditor Icon32.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/32x32/apps" RENAME "thewarrior_mapeditor.png")
+install(FILES "res/MapEditor Icon48.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/48x48/apps" RENAME "thewarrior_mapeditor.png")
+install(FILES "res/MapEditor Icon64.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/64x64/apps" RENAME "thewarrior_mapeditor.png")
+install(FILES "res/MapEditor Icon128.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/128x128/apps" RENAME "thewarrior_mapeditor.png")
+install(FILES "res/MapEditor Icon256.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/256x256/apps" RENAME "thewarrior_mapeditor.png")
+install(FILES "res/MapEditor Icon512.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/512x512/apps" RENAME "thewarrior_mapeditor.png")
+install(FILES "res/thewarrior.mapeditor.desktop" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/../resources DESTINATION ${CMAKE_BINARY_DIR}/bin)
 file(COPY ${RESOURCE_FILES} DESTINATION ${CMAKE_BINARY_DIR}/bin/resources)

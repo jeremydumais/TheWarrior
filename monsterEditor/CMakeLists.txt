@@ -1,5 +1,5 @@
 # Set project name
-set(PROJECT_NAME    "ItemEditor")
+set(PROJECT_NAME    "MonsterEditor")
 
 include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/include
@@ -7,7 +7,7 @@ include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/src
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Storage/include
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../itemEditor.Controllers/include)
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../monsterEditor.Controllers/include)
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
@@ -22,17 +22,6 @@ set (RESOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/res/darkstyle)
 
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mainForm.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/aboutBoxForm.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/imageAttributionsForm.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/manageTexturesForm.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/editTextureForm.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/addItemChooserForm.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/editItemFormBase.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/editItemForm.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/editArmorItemForm.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/editStatsItemForm.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/editWeaponItemForm.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/texturePickerForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/res/darkstyle/darkstyle.qrc
                          ${CMAKE_CURRENT_SOURCE_DIR}/res/global.qrc)
 
@@ -42,7 +31,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STRE
 endif()
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${CONAN_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} ItemEditor.Controllers theWarrior.Models theWarrior.Storage commonUI Qt5::Widgets ${CONAN_LIBS})
+target_link_libraries(${PROJECT_NAME} MonsterEditor.Controllers theWarrior.Models theWarrior.Storage commonUI Qt5::Widgets ${CONAN_LIBS})
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
@@ -86,16 +75,8 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
       INTERFACE _SCL_SECURE_NO_WARNINGS) # disable security-paranoia warning
 endif()
 
-include(GNUInstallDirs)
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
-install(FILES "res/ItemEditor Icon16.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/16x16/apps" RENAME "thewarrior_itemeditor.png")
-install(FILES "res/ItemEditor Icon32.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/32x32/apps" RENAME "thewarrior_itemeditor.png")
-install(FILES "res/ItemEditor Icon48.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/48x48/apps" RENAME "thewarrior_itemeditor.png")
-install(FILES "res/ItemEditor Icon64.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/64x64/apps" RENAME "thewarrior_itemeditor.png")
-install(FILES "res/ItemEditor Icon128.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/128x128/apps" RENAME "thewarrior_itemeditor.png")
-install(FILES "res/ItemEditor Icon256.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/256x256/apps" RENAME "thewarrior_itemeditor.png")
-install(FILES "res/ItemEditor Icon512.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/512x512/apps" RENAME "thewarrior_itemeditor.png")
-install(FILES "res/thewarrior.itemeditor.desktop" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
+#install(FILES ${RESOURCE_FILES} DESTINATION share/${PROJECT_NAME}/res)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/../resources DESTINATION ${CMAKE_BINARY_DIR}/bin)
 file(COPY ${RESOURCE_FILES} DESTINATION ${CMAKE_BINARY_DIR}/bin/resources)
