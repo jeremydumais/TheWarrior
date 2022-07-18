@@ -21,6 +21,8 @@ set(CMAKE_AUTOUIC_SEARCH_PATHS AUTOGEN_BUILD_DIR/include)
 set (RESOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/res/darkstyle)
 
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/aboutBoxForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/imageAttributionsForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mainForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/res/darkstyle/darkstyle.qrc
                          ${CMAKE_CURRENT_SOURCE_DIR}/res/global.qrc)
@@ -75,8 +77,16 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
       INTERFACE _SCL_SECURE_NO_WARNINGS) # disable security-paranoia warning
 endif()
 
+include(GNUInstallDirs)
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
-#install(FILES ${RESOURCE_FILES} DESTINATION share/${PROJECT_NAME}/res)
+install(FILES "res/MonsterEditor Icon16.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/16x16/apps" RENAME "thewarrior_monstereditor.png")
+install(FILES "res/MonsterEditor Icon32.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/32x32/apps" RENAME "thewarrior_monstereditor.png")
+install(FILES "res/MonsterEditor Icon48.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/48x48/apps" RENAME "thewarrior_monstereditor.png")
+install(FILES "res/MonsterEditor Icon64.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/64x64/apps" RENAME "thewarrior_monstereditor.png")
+install(FILES "res/MonsterEditor Icon128.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/128x128/apps" RENAME "thewarrior_monstereditor.png")
+install(FILES "res/MonsterEditor Icon256.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/256x256/apps" RENAME "thewarrior_monstereditor.png")
+install(FILES "res/MonsterEditor Icon512.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/512x512/apps" RENAME "thewarrior_monstereditor.png")
+install(FILES "res/thewarrior.monstereditor.desktop" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/../resources DESTINATION ${CMAKE_BINARY_DIR}/bin)
 file(COPY ${RESOURCE_FILES} DESTINATION ${CMAKE_BINARY_DIR}/bin/resources)

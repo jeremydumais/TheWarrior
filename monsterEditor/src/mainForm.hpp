@@ -27,9 +27,21 @@ private:
 	QTableWidgetKeyPressWatcher tableWidgetItemsKeyWatcher;
 	static const std::string THEME_PATH;
 	static const std::string RECENT_DB;
+	void action_About_Click();
+	void action_LightTheme_Click();
+	void action_DarkTheme_Click();
+	void action_OpenItemStore_Click();
+	void action_OpenRecentItemsDB_Click();
+	void action_SaveItemStore_Click();
+	void action_SaveAsItemStore_Click();
+	void refreshRecentMapsMenu();
+	void addNewRecentItemsDB(const std::string &filePath);
 	const std::string &getExecutablePath();
     const std::string &getResourcesPath();
 	void setAppStylesheet(const std::string &style);
+	void openItemStore(const std::string &filePath);
+	void saveItemStore(const std::string &filePath);
+	void refreshWindowTitle();
 };
 
 #endif // MAINFORM_H

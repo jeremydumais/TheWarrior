@@ -26,41 +26,6 @@
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
-        <widget class="QTableWidget" name="tableWidgetItemCategories">
-         <property name="font">
-          <font>
-           <pointsize>12</pointsize>
-          </font>
-         </property>
-         <property name="editTriggers">
-          <set>QAbstractItemView::NoEditTriggers</set>
-         </property>
-         <property name="selectionMode">
-          <enum>QAbstractItemView::SingleSelection</enum>
-         </property>
-         <property name="selectionBehavior">
-          <enum>QAbstractItemView::SelectRows</enum>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>24</width>
-           <height>24</height>
-          </size>
-         </property>
-         <property name="columnCount">
-          <number>1</number>
-         </property>
-         <attribute name="horizontalHeaderVisible">
-          <bool>true</bool>
-         </attribute>
-         <attribute name="horizontalHeaderStretchLastSection">
-          <bool>true</bool>
-         </attribute>
-         <attribute name="verticalHeaderVisible">
-          <bool>false</bool>
-         </attribute>
-         <column/>
-        </widget>
         <widget class="QWidget" name="verticalLayoutWidget">
          <layout class="QVBoxLayout" name="verticalLayout">
           <item>
@@ -111,9 +76,9 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <item>
-             <widget class="QPushButton" name="pushButtonAddItem">
+             <widget class="QPushButton" name="pushButtonAddMonster">
               <property name="text">
-               <string>&amp;Add Item</string>
+               <string>&amp;Add Monster</string>
               </property>
               <property name="icon">
                <iconset resource="../res/global.qrc">
@@ -122,9 +87,9 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButtonEditItem">
+             <widget class="QPushButton" name="pushButtonEditMonster">
               <property name="text">
-               <string>&amp;Edit item</string>
+               <string>&amp;Edit monster</string>
               </property>
               <property name="icon">
                <iconset resource="../res/global.qrc">
@@ -133,9 +98,9 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButtonDeleteItem">
+             <widget class="QPushButton" name="pushButtonDeleteMonster">
               <property name="text">
-               <string>&amp;Delete item</string>
+               <string>&amp;Delete monster</string>
               </property>
               <property name="icon">
                <iconset resource="../res/global.qrc">
@@ -179,7 +144,7 @@
     <property name="geometry">
      <rect>
       <x>267</x>
-      <y>160</y>
+      <y>121</y>
       <width>260</width>
       <height>204</height>
      </rect>
@@ -199,9 +164,9 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
-    <widget class="QMenu" name="menu_RecentItemsDB">
+    <widget class="QMenu" name="menu_RecentMonstersDB">
      <property name="title">
-      <string>&amp;Recent Items DB</string>
+      <string>&amp;Recent Monsters DB</string>
      </property>
      <addaction name="action_RecentMap1"/>
      <addaction name="action_RecentMap2"/>
@@ -210,7 +175,7 @@
      <addaction name="action_RecentMap5"/>
     </widget>
     <addaction name="action_Open"/>
-    <addaction name="menu_RecentItemsDB"/>
+    <addaction name="menu_RecentMonstersDB"/>
     <addaction name="separator"/>
     <addaction name="action_Save"/>
     <addaction name="action_SaveAs"/>
@@ -236,13 +201,13 @@
     </widget>
     <addaction name="menu_Color_theme"/>
    </widget>
-   <widget class="QMenu" name="menu_Items">
+   <widget class="QMenu" name="menu_Monsters">
     <property name="title">
-     <string>&amp;Items</string>
+     <string>&amp;Monsters</string>
     </property>
-    <addaction name="action_AddItem"/>
-    <addaction name="action_EditItem"/>
-    <addaction name="action_DeleteItem"/>
+    <addaction name="action_AddMonster"/>
+    <addaction name="action_EditMonster"/>
+    <addaction name="action_DeleteMonster"/>
    </widget>
    <widget class="QMenu" name="menu_Textures">
     <property name="title">
@@ -252,7 +217,7 @@
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
-   <addaction name="menu_Items"/>
+   <addaction name="menu_Monsters"/>
    <addaction name="menu_Textures"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -320,9 +285,9 @@
     <string>Save as...</string>
    </property>
   </action>
-  <action name="action_AddItem">
+  <action name="action_AddMonster">
    <property name="text">
-    <string>&amp;Add an item...</string>
+    <string>&amp;Add a monster...</string>
    </property>
   </action>
   <action name="action_ManageTextures">
@@ -330,14 +295,14 @@
     <string>&amp;Manage textures...</string>
    </property>
   </action>
-  <action name="action_EditItem">
+  <action name="action_EditMonster">
    <property name="text">
-    <string>&amp;Edit item...</string>
+    <string>&amp;Edit monster...</string>
    </property>
   </action>
-  <action name="action_DeleteItem">
+  <action name="action_DeleteMonster">
    <property name="text">
-    <string>&amp;Delete item...</string>
+    <string>&amp;Delete monster...</string>
    </property>
   </action>
   <action name="actiong">
