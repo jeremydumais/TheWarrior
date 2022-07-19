@@ -2,12 +2,14 @@
 #include <boost/algorithm/string.hpp>
 #include <stdexcept>
 
+void validateMonsterId(const std::string &id);
 void validateMonsterName(const std::string &name);
 void validateMonsterTextureName(const std::string &textureName);
 void validateMonsterTextureIndex(const int textureIndex);
 
 Monster::Monster(MonsterCreationInfo info)
-    : m_name(info.name),
+    : m_id(info.id),
+      m_name(info.name),
       m_textureName(info.textureName),
       m_textureIndex(info.textureIndex),
       m_health(info.health),
@@ -16,9 +18,36 @@ Monster::Monster(MonsterCreationInfo info)
       m_goldMinimum(info.goldMinimum),
       m_goldMaximum(info.goldMaximum)
 {
+    validateMonsterId(m_id);
     validateMonsterName(m_name);
     validateMonsterTextureName(m_textureName);
     validateMonsterTextureIndex(m_textureIndex);
+}
+
+bool Monster::operator==(const Monster &other) const
+{
+    if (typeid(*this).hash_code() != typeid(other).hash_code()) {
+        return false;    
+    }
+    return this->m_id == other.m_id &&
+           this->m_name == other.m_name &&
+           this->m_textureName == other.m_textureName &&
+           this->m_textureIndex == other.m_textureIndex && 
+           this->m_health == other.m_health &&
+           this->m_attack == other.m_attack &&
+           this->m_defense == other.m_defense &&
+           this->m_goldMinimum == other.m_goldMinimum &&
+           this->m_goldMaximum == other.m_goldMaximum;
+}
+
+bool Monster::operator!=(const Monster &other) const
+{
+    return !(*this == other);
+}
+
+const std::string& Monster::getId() const
+{
+    return m_id;
 }
 
 const std::string &Monster::getName() const
@@ -54,6 +83,12 @@ float Monster::getDefense() const
 std::pair<int, int> Monster::getGoldRewardRange() const
 {
     return { m_goldMinimum, m_goldMaximum };
+}
+
+void Monster::setId(const std::string &id)
+{
+    validateMonsterId(id);
+    m_id = id;
 }
 
 void Monster::setName(const std::string &name)
@@ -99,6 +134,17 @@ void Monster::setGoldRewardRange(int minimum, int maximum)
     }
     m_goldMinimum = minimum;
     m_goldMaximum = maximum;
+}
+
+void validateMonsterId(const std::string &id) 
+{
+    std::string sanitizedId { boost::trim_copy(id) };
+    if (sanitizedId.empty()) {
+        throw std::invalid_argument("id cannot be empty.");
+    }
+    if (sanitizedId.length() != 6) {
+        throw std::invalid_argument("id must be 6 characters long.");
+    }
 }
 
 void validateMonsterName(const std::string &name)

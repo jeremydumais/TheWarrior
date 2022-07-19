@@ -59,7 +59,23 @@ MainForm::MainForm(QWidget *parent)
 		ErrorMessage::show("An error occurred while loading the configuration file.",
 						   configManager.getLastError());
 	}
+
+	initializeItemsTableControl();
 	connectUIActions();
+}
+
+void MainForm::initializeItemsTableControl()
+{
+	ui.tableWidgetMonsters->setHorizontalHeaderItem(0, new QTableWidgetItem("Id"));
+	ui.tableWidgetMonsters->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
+	ui.tableWidgetMonsters->setHorizontalHeaderItem(2, new QTableWidgetItem("Health"));
+	ui.tableWidgetMonsters->setHorizontalHeaderItem(3, new QTableWidgetItem("Attack"));
+	ui.tableWidgetMonsters->setHorizontalHeaderItem(4, new QTableWidgetItem("Defense"));
+	ui.tableWidgetMonsters->setColumnWidth(0, 120);
+	ui.tableWidgetMonsters->setColumnWidth(1, 300);
+	ui.tableWidgetMonsters->setColumnWidth(2, 120);
+	ui.tableWidgetMonsters->setColumnWidth(3, 120);
+	ui.tableWidgetMonsters->setColumnWidth(4, 120);
 }
 
 void MainForm::connectUIActions()
@@ -150,7 +166,7 @@ void MainForm::action_OpenItemStore_Click()
 	{
 		openItemStore(fullFilePath.toStdString());
 		m_currentFilePath = fullFilePath.toStdString();
-		//TODO refreshItemsTable();
+		refreshItemsTable();
 	}
 	refreshWindowTitle();
 }
@@ -260,6 +276,33 @@ void MainForm::addNewRecentItemsDB(const std::string &filePath)
 	refreshRecentMapsMenu();
 }
 
+void MainForm::refreshItemsTable()
+{
+	ui.tableWidgetMonsters->model()->removeRows(0, ui.tableWidgetMonsters->rowCount());
+	auto monstersToDisplay = m_controller.getMonsters();
+	std::vector<std::string> monsterIds;
+	std::transform(monstersToDisplay.begin(),
+									monstersToDisplay.end(),
+									std::back_inserter(monsterIds),
+									[](const MonsterListDisplay &monsterDisplay) -> std::string { return monsterDisplay.id; });
+	auto monsterIdsWithIcon = m_controller.getIconsFromMonsterIds(monsterIds, getResourcesPath());
+	int index = 0;
+	for (const auto &monster : monstersToDisplay)
+	{
+		ui.tableWidgetMonsters->insertRow(index);
+		auto idMonster = new QTableWidgetItem(monster.id.c_str());
+		if (monsterIdsWithIcon.find(monster.id) != monsterIdsWithIcon.end()) {
+			idMonster->setIcon(monsterIdsWithIcon[monster.id]);
+		}
+		ui.tableWidgetMonsters->setItem(index, 0, idMonster);
+		ui.tableWidgetMonsters->setItem(index, 1, new QTableWidgetItem(monster.name.c_str()));
+		ui.tableWidgetMonsters->setItem(index, 2, new QTableWidgetItem(monster.health));
+		ui.tableWidgetMonsters->setItem(index, 3, new QTableWidgetItem(std::to_string(monster.attack).c_str()));
+		ui.tableWidgetMonsters->setItem(index, 4, new QTableWidgetItem(std::to_string(monster.defense).c_str()));
+		index++;
+	}
+}
+
 const std::string &MainForm::getExecutablePath()
 {
 	if (m_executablePath.empty())
@@ -309,24 +352,24 @@ void MainForm::setAppStylesheet(const std::string &style)
 
 void MainForm::openItemStore(const std::string &filePath)
 {
-	/*if (!m_controller.openMonsterStore(filePath))
+	if (!m_controller.openMonsterStore(filePath))
 	{
 		ErrorMessage::show("An error occurred while loading the monster store.",
 						   m_controller.getLastError());
 		return;
 	}
 	m_currentFilePath = filePath;
-	addNewRecentItemsDB(m_currentFilePath);*/
-	//TODO refreshItemsTable();
+	addNewRecentItemsDB(m_currentFilePath);
+	refreshItemsTable();
 }
 
 void MainForm::saveItemStore(const std::string &filePath)
 {
-	/*if (!m_controller.saveMonsterStore(filePath))
+	if (!m_controller.saveMonsterStore(filePath))
 	{
 		ErrorMessage::show("An error occurred while saving the monster store.",
 						   m_controller.getLastError());
-	}*/
+	}
 }
 
 void MainForm::refreshWindowTitle()

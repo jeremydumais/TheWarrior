@@ -29,7 +29,7 @@
         <widget class="QWidget" name="verticalLayoutWidget">
          <layout class="QVBoxLayout" name="verticalLayout">
           <item>
-           <widget class="QTableWidget" name="tableWidgetItems">
+           <widget class="QTableWidget" name="tableWidgetMonsters">
             <property name="font">
              <font>
               <pointsize>12</pointsize>
@@ -60,7 +60,7 @@
              <number>0</number>
             </property>
             <property name="columnCount">
-             <number>3</number>
+             <number>5</number>
             </property>
             <attribute name="horizontalHeaderStretchLastSection">
              <bool>true</bool>
@@ -68,6 +68,8 @@
             <attribute name="verticalHeaderVisible">
              <bool>false</bool>
             </attribute>
+            <column/>
+            <column/>
             <column/>
             <column/>
             <column/>

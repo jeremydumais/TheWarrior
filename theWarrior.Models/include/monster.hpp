@@ -8,6 +8,7 @@
 
 struct MonsterCreationInfo
 {
+    std::string id;
     std::string name;
     std::string textureName;
     int textureIndex;
@@ -22,6 +23,9 @@ class Monster
 {
 public:
     explicit Monster(MonsterCreationInfo info);
+    bool operator==(const Monster &other) const;
+    bool operator!=(const Monster &other) const;
+    const std::string &getId() const;
     const std::string &getName() const;
     const std::string &getTextureName() const;
     int getTextureIndex() const;
@@ -29,6 +33,7 @@ public:
     float getAttack() const;
     float getDefense() const;
     std::pair<int, int> getGoldRewardRange() const;
+    void setId(const std::string &id);
     void setName(const std::string &name);
     void setTextureName(const std::string &textureName);
     void setTextureIndex(int textureIndex);
@@ -39,6 +44,7 @@ public:
 private:
     friend class boost::serialization::access;
     Monster() = default; //Needed for deserialization
+    std::string m_id = "";
     std::string m_name = "";
     std::string m_textureName = "";
     int m_textureIndex = -1;

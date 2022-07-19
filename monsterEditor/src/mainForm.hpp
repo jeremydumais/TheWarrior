@@ -27,6 +27,7 @@ private:
 	QTableWidgetKeyPressWatcher tableWidgetItemsKeyWatcher;
 	static const std::string THEME_PATH;
 	static const std::string RECENT_DB;
+	void initializeItemsTableControl();
 	void action_About_Click();
 	void action_LightTheme_Click();
 	void action_DarkTheme_Click();
@@ -36,6 +37,7 @@ private:
 	void action_SaveAsItemStore_Click();
 	void refreshRecentMapsMenu();
 	void addNewRecentItemsDB(const std::string &filePath);
+	void refreshItemsTable();
 	const std::string &getExecutablePath();
     const std::string &getResourcesPath();
 	void setAppStylesheet(const std::string &style);

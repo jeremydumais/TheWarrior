@@ -4,6 +4,7 @@
 MonsterCreationInfo getMonsterInfoSample1()
 {
     return {
+        "slm001",
         "Slime",
         "Tex1",
         1,
@@ -26,6 +27,45 @@ public:
 TEST(Monster_Constructor, WithMonsterSample1_ReturnSuccess)
 {
     Monster monster1(getMonsterInfoSample1());
+}
+
+TEST(Monster_Constructor, WithEmptyId_ThrowInvalidArgument)
+{
+    auto creationInfo = getMonsterInfoSample1();
+    creationInfo.id = "";
+    try {
+        Monster monster1(creationInfo);
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("id cannot be empty.", err.what());
+	}
+}
+
+TEST(Monster_Constructor, WithWhiteSpacesId_ThrowInvalidArgument)
+{
+    auto creationInfo = getMonsterInfoSample1();
+    creationInfo.id = "   ";
+    try {
+        Monster monster1(creationInfo);
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("id cannot be empty.", err.what());
+	}
+}
+
+TEST(Monster_Constructor, WithTwoCharsId_ThrowInvalidArgument)
+{
+    auto creationInfo = getMonsterInfoSample1();
+    creationInfo.id = "ab";
+    try {
+        Monster monster1(creationInfo);
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("id must be 6 characters long.", err.what());
+	}
 }
 
 TEST(Monster_Constructor, WithEmptyName_ThrowInvalidArgument)
@@ -134,6 +174,46 @@ TEST_F(MonsterSample1, GetGoldRewardRange_WithMonsterSample1_Return0And2)
 {
     std::pair<int, int> expected = { 0, 2 };
     ASSERT_EQ(expected, monster.getGoldRewardRange());
+}
+
+TEST_F(MonsterSample1, SetId_WithEmptyId_ThrowInvalidArgument)
+{
+    try {
+        monster.setId("");
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("id cannot be empty.", err.what());
+	}
+}
+
+TEST_F(MonsterSample1, SetId_WithWhiteSpacesId_ThrowInvalidArgument)
+{
+    try {
+        monster.setId("   ");
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("id cannot be empty.", err.what());
+	}
+}
+
+TEST_F(MonsterSample1, SetId_WithTwoCharsId_ThrowInvalidArgument)
+{
+    try {
+        monster.setId("ab");
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("id must be 6 characters long.", err.what());
+	}
+}
+
+TEST_F(MonsterSample1, SetId_WithTes777_ReturnSuccess)
+{
+    const std::string NEW_ID = "Tes777";
+    monster.setId(NEW_ID);
+    ASSERT_EQ(NEW_ID, monster.getId());
 }
 
 TEST_F(MonsterSample1, SetName_WithEmptyName_ThrowInvalidArgument)
@@ -267,4 +347,140 @@ TEST_F(MonsterSample1, SetGoldRewardRange_With1AndMinus5_ThrowInvalidArgument)
     catch(const std::invalid_argument &err) {
         ASSERT_STREQ("gold reward maximum must be greater or equal to the minimum.", err.what());
 	}
+}
+
+TEST_F(MonsterSample1, equalityOperator_WithIdenticalMonster_ReturnTrue)
+{
+    ASSERT_EQ(monster, Monster(getMonsterInfoSample1()));
+}
+
+TEST_F(MonsterSample1, equalityOperator_WithDifferentId_ReturnFalse)
+{
+    auto info = getMonsterInfoSample1();
+    info.id = "slm007";
+    ASSERT_FALSE(monster == Monster(info));
+}
+
+TEST_F(MonsterSample1, equalityOperator_WithDifferentName_ReturnFalse)
+{
+    auto info = getMonsterInfoSample1();
+    info.name = "Slime2";
+    ASSERT_FALSE(monster == Monster(info));
+}
+
+TEST_F(MonsterSample1, equalityOperator_WithDifferentTextureName_ReturnFalse)
+{
+    auto info = getMonsterInfoSample1();
+    info.textureName = "Tex14";
+    ASSERT_FALSE(monster == Monster(info));
+}
+
+TEST_F(MonsterSample1, equalityOperator_WithDifferentTextureIndex_ReturnFalse)
+{
+    auto info = getMonsterInfoSample1();
+    info.textureIndex = 2;
+    ASSERT_FALSE(monster == Monster(info));
+}
+
+TEST_F(MonsterSample1, equalityOperator_WithDifferentHealth_ReturnFalse)
+{
+    auto info = getMonsterInfoSample1();
+    info.health = 8;
+    ASSERT_FALSE(monster == Monster(info));
+}
+
+TEST_F(MonsterSample1, equalityOperator_WithDifferentAttack_ReturnFalse)
+{
+    auto info = getMonsterInfoSample1();
+    info.attack = 5.6F;
+    ASSERT_FALSE(monster == Monster(info));
+}
+
+TEST_F(MonsterSample1, equalityOperator_WithDifferentDefense_ReturnFalse)
+{
+    auto info = getMonsterInfoSample1();
+    info.defense = 5.6F;
+    ASSERT_FALSE(monster == Monster(info));
+}
+
+TEST_F(MonsterSample1, equalityOperator_WithDifferentGoldMinimum_ReturnFalse)
+{
+    auto info = getMonsterInfoSample1();
+    info.goldMinimum = 1;
+    ASSERT_FALSE(monster == Monster(info));
+}
+
+TEST_F(MonsterSample1, equalityOperator_WithDifferentGoldMaximum_ReturnFalse)
+{
+    auto info = getMonsterInfoSample1();
+    info.goldMaximum = 3;
+    ASSERT_FALSE(monster == Monster(info));
+}
+
+TEST_F(MonsterSample1, inequalityOperator_WithIdenticalMonster_ReturnFalse)
+{
+    ASSERT_FALSE(monster != Monster(getMonsterInfoSample1()));
+}
+
+TEST_F(MonsterSample1, inequalityOperator_WithDifferentId_ReturnTrue)
+{
+    auto info = getMonsterInfoSample1();
+    info.id = "slm007";
+    ASSERT_NE(monster, Monster(info));
+}
+
+TEST_F(MonsterSample1, inequalityOperator_WithDifferentName_ReturnTrue)
+{
+    auto info = getMonsterInfoSample1();
+    info.name = "Slime2";
+    ASSERT_NE(monster, Monster(info));
+}
+
+TEST_F(MonsterSample1, inequalityOperator_WithDifferentTextureName_ReturnTrue)
+{
+    auto info = getMonsterInfoSample1();
+    info.textureName = "Tex14";
+    ASSERT_NE(monster, Monster(info));
+}
+
+TEST_F(MonsterSample1, inequalityOperator_WithDifferentTextureIndex_ReturnTrue)
+{
+    auto info = getMonsterInfoSample1();
+    info.textureIndex = 2;
+    ASSERT_NE(monster, Monster(info));
+}
+
+TEST_F(MonsterSample1, inequalityOperator_WithDifferentHealth_ReturnTrue)
+{
+    auto info = getMonsterInfoSample1();
+    info.health = 8;
+    ASSERT_NE(monster, Monster(info));
+}
+
+TEST_F(MonsterSample1, inequalityOperator_WithDifferentAttack_ReturnTrue)
+{
+    auto info = getMonsterInfoSample1();
+    info.attack = 5.6F;
+    ASSERT_NE(monster, Monster(info));
+}
+
+TEST_F(MonsterSample1, inequalityOperator_WithDifferentDefense_ReturnTrue)
+{
+    auto info = getMonsterInfoSample1();
+    info.defense = 5.6F;
+    ASSERT_NE(monster, Monster(info));
+}
+
+TEST_F(MonsterSample1, inequalityOperator_WithDifferentGoldMinimum_ReturnTrue)
+{
+    auto info = getMonsterInfoSample1();
+    info.goldMinimum = 1;
+    ASSERT_NE(monster, Monster(info));
+}
+
+TEST_F(MonsterSample1, inequalityOperator_WithDifferentGoldMaximum_ReturnTrue)
+{
+    auto info = getMonsterInfoSample1();
+    info.goldMaximum = 3;
+    ASSERT_NE(monster, Monster(info));
 }
