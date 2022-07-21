@@ -38,6 +38,7 @@ private:
 	void refreshRecentMapsMenu();
 	void addNewRecentItemsDB(const std::string &filePath);
 	void refreshItemsTable();
+    void action_ManageTextures_Click();
 	const std::string &getExecutablePath();
     const std::string &getResourcesPath();
 	void setAppStylesheet(const std::string &style);

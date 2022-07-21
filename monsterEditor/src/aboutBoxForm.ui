@@ -77,7 +77,7 @@
     <string/>
    </property>
    <property name="pixmap">
-    <pixmap>:/ItemEditor Icon.png</pixmap>
+    <pixmap resource="../res/global.qrc">:/MonsterEditor Icon.png</pixmap>
    </property>
    <property name="scaledContents">
     <bool>true</bool>

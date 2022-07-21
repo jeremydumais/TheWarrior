@@ -7,8 +7,10 @@ include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Storage/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include)
 
-                    set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/mainController.cpp)
-                                             
+                    set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/mainController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/manageTexturesController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/editTextureFormController.cpp)
+
 find_package(Qt5 COMPONENTS Gui OpenGL REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})

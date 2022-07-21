@@ -2,6 +2,7 @@
 #include "aboutBoxForm.hpp"
 #include "configurationManager.hpp"
 #include "errorMessage.hpp"
+#include "manageTexturesForm.hpp"
 #include "specialFolders.hpp"
 #include <fmt/format.h>
 #include <QtCore/qfile.h>
@@ -92,6 +93,7 @@ void MainForm::connectUIActions()
 	connect(ui.action_RecentMap5, &QAction::triggered, this, &MainForm::action_OpenRecentItemsDB_Click);
 	connect(ui.action_Save, &QAction::triggered, this, &MainForm::action_SaveItemStore_Click);
 	connect(ui.action_SaveAs, &QAction::triggered, this, &MainForm::action_SaveAsItemStore_Click);
+	connect(ui.action_ManageTextures, &QAction::triggered, this, &MainForm::action_ManageTextures_Click);
 }
 
 void MainForm::functionAfterShown()
@@ -301,6 +303,14 @@ void MainForm::refreshItemsTable()
 		ui.tableWidgetMonsters->setItem(index, 4, new QTableWidgetItem(std::to_string(monster.defense).c_str()));
 		index++;
 	}
+}
+
+void MainForm::action_ManageTextures_Click()
+{
+	ManageTexturesForm manageTexturesForm(this,
+										  getResourcesPath(),
+										  m_controller.getTextureContainerForEdition());
+	manageTexturesForm.exec();
 }
 
 const std::string &MainForm::getExecutablePath()

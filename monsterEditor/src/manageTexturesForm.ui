@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>manageTexturesFormClass</class>
+ <widget class="QDialog" name="manageTexturesFormClass">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>474</width>
+    <height>555</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Manage textures</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QTableWidget" name="tableWidgetTextures">
+       <property name="editTriggers">
+        <set>QAbstractItemView::NoEditTriggers</set>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::SingleSelection</enum>
+       </property>
+       <property name="columnCount">
+        <number>1</number>
+       </property>
+       <attribute name="horizontalHeaderVisible">
+        <bool>false</bool>
+       </attribute>
+       <attribute name="horizontalHeaderStretchLastSection">
+        <bool>true</bool>
+       </attribute>
+       <attribute name="verticalHeaderVisible">
+        <bool>false</bool>
+       </attribute>
+       <column/>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QPushButton" name="pushButtonAddTexture">
+         <property name="text">
+          <string>&amp;Add...</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../res/global.qrc">
+           <normaloff>:/commonUI/res/gtk-add.svg</normaloff>:/commonUI/res/gtk-add.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButtonEditTexture">
+         <property name="text">
+          <string>&amp;Edit...</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../res/global.qrc">
+           <normaloff>:/commonUI/res/gtk-edit.svg</normaloff>:/commonUI/res/gtk-edit.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButtonDeleteTexture">
+         <property name="text">
+          <string>&amp;Delete</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../res/global.qrc">
+           <normaloff>:/commonUI/res/gtk-delete.svg</normaloff>:/commonUI/res/gtk-delete.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButtonClose">
+         <property name="text">
+          <string>Close</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>tableWidgetTextures</tabstop>
+  <tabstop>pushButtonAddTexture</tabstop>
+  <tabstop>pushButtonEditTexture</tabstop>
+  <tabstop>pushButtonDeleteTexture</tabstop>
+  <tabstop>pushButtonClose</tabstop>
+ </tabstops>
+ <resources>
+  <include location="../res/global.qrc"/>
+  <include location="../../mapEditor/res/global.qrc"/>
+ </resources>
+ <connections/>
+</ui>
