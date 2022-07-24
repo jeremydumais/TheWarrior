@@ -26,6 +26,8 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mainForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/manageTexturesForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editTextureForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/texturePickerForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/res/darkstyle/darkstyle.qrc
                          ${CMAKE_CURRENT_SOURCE_DIR}/res/global.qrc)
 

@@ -109,6 +109,12 @@ void MainForm::connectUIActions()
 	connect(ui.action_SaveAs, &QAction::triggered, this, &MainForm::action_SaveAsItemStore_Click);
 	connect(ui.action_ManageTextures, &QAction::triggered, this, &MainForm::action_ManageTextures_Click);
 	connect(ui.action_AddItem, &QAction::triggered, this, &MainForm::onPushButtonAddItemClick);
+	connect(ui.action_AddItem, &QAction::triggered, this, &MainForm::onPushButtonAddItemClick);
+	connect(ui.action_EditItem, &QAction::triggered, this, &MainForm::onPushButtonEditItemClick);
+	connect(ui.action_DeleteItem, &QAction::triggered, this, &MainForm::onPushButtonDeleteItemClick);
+	connect(ui.pushButtonAddItem, &QPushButton::clicked, this, &MainForm::onPushButtonAddItemClick);
+	connect(ui.pushButtonEditItem, &QPushButton::clicked, this, &MainForm::onPushButtonEditItemClick);
+	connect(ui.pushButtonDeleteItem, &QPushButton::clicked, this, &MainForm::onPushButtonDeleteItemClick);
 	connect(ui.action_EditItem, &QAction::triggered, this, &MainForm::onPushButtonEditItemClick);
 	connect(ui.action_DeleteItem, &QAction::triggered, this, &MainForm::onPushButtonDeleteItemClick);
 	connect(ui.pushButtonAddItem, &QPushButton::clicked, this, &MainForm::onPushButtonAddItemClick);

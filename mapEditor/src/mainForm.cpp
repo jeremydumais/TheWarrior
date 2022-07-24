@@ -33,7 +33,7 @@ MainForm::MainForm(QWidget *parent)
 	m_glComponent.initializeUIObjects(ui.mapOpenGLWidget);
 	m_glComponent.setResourcesPath(getResourcesPath());
 	m_glComponent.setSelectionMode(SelectionMode::Select);
-	//MapTab Component initialization
+    //MapTab Component initialization
 	MainForm_MapTabComponent_Objects mapUIObjects;
 	mapUIObjects.glComponent = &m_glComponent;
 	mapUIObjects.lineEditMapWidth = ui.lineEditMapWidth;

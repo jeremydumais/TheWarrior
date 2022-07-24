@@ -9,7 +9,9 @@ include_directories(${QT_INCLUDE_PATH}
 
                     set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/mainController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/manageTexturesController.cpp
-                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/editTextureFormController.cpp)
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/texturePickerController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/editTextureFormController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/manageMonsterController.cpp)
 
 find_package(Qt5 COMPONENTS Gui OpenGL REQUIRED)
 
@@ -26,7 +28,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
 target_compile_options(${PROJECT_NAME}
 PRIVATE "-Wfatal-errors" # stops on first error
 "-Wall" # enables all the warnings about constructions
-"-Wextra" # Print extra warning messages"
+"-Wextra" # Print extra warning messages)"
 "-pedantic" # Issue all the warnings demanded by strict ISO C and ISO C++
 "-Wshadow" # Warn the user if a variable declaration shadows one from a parent context
 "-Wnon-virtual-dtor" # Warn the user if a class with virtual functions has a non-virtual destructor. This helps catch hard to track down memory errors
@@ -64,9 +66,9 @@ target_compile_definitions(${PROJECT_NAME}
  INTERFACE _SCL_SECURE_NO_WARNINGS) # disable security-paranoia warning
 endif()
 
-#if (NOT DEFINED BUILD_TESTING OR BUILD_TESTING)
-#    add_subdirectory("test")
-#endif()
+if (NOT DEFINED BUILD_TESTING OR BUILD_TESTING)
+    add_subdirectory("test")
+endif()
 
 
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)

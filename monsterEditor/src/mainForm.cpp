@@ -1,6 +1,7 @@
 #include "mainForm.hpp"
 #include "aboutBoxForm.hpp"
 #include "configurationManager.hpp"
+#include "editMonsterForm.hpp"
 #include "errorMessage.hpp"
 #include "manageTexturesForm.hpp"
 #include "specialFolders.hpp"
@@ -11,6 +12,7 @@
 #include <boost/filesystem.hpp>
 #include <libgen.h>		  // dirname
 #include <linux/limits.h> // PATH_MAX
+#include <optional>
 #include <string>
 #include <unistd.h> // readlink
 
@@ -61,11 +63,12 @@ MainForm::MainForm(QWidget *parent)
 						   configManager.getLastError());
 	}
 
-	initializeItemsTableControl();
+	initializeMonstersTableControl();
+    refreshRecentMapsMenu();
 	connectUIActions();
 }
 
-void MainForm::initializeItemsTableControl()
+void MainForm::initializeMonstersTableControl()
 {
 	ui.tableWidgetMonsters->setHorizontalHeaderItem(0, new QTableWidgetItem("Id"));
 	ui.tableWidgetMonsters->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
@@ -85,15 +88,21 @@ void MainForm::connectUIActions()
 	connect(ui.action_LightTheme, &QAction::triggered, this, &MainForm::action_LightTheme_Click);
 	connect(ui.action_DarkTheme, &QAction::triggered, this, &MainForm::action_DarkTheme_Click);
 	connect(ui.action_About, &QAction::triggered, this, &MainForm::action_About_Click);
-	connect(ui.action_Open, &QAction::triggered, this, &MainForm::action_OpenItemStore_Click);
-	connect(ui.action_RecentMap1, &QAction::triggered, this, &MainForm::action_OpenRecentItemsDB_Click);
-	connect(ui.action_RecentMap2, &QAction::triggered, this, &MainForm::action_OpenRecentItemsDB_Click);
-	connect(ui.action_RecentMap3, &QAction::triggered, this, &MainForm::action_OpenRecentItemsDB_Click);
-	connect(ui.action_RecentMap4, &QAction::triggered, this, &MainForm::action_OpenRecentItemsDB_Click);
-	connect(ui.action_RecentMap5, &QAction::triggered, this, &MainForm::action_OpenRecentItemsDB_Click);
-	connect(ui.action_Save, &QAction::triggered, this, &MainForm::action_SaveItemStore_Click);
-	connect(ui.action_SaveAs, &QAction::triggered, this, &MainForm::action_SaveAsItemStore_Click);
+	connect(ui.action_Open, &QAction::triggered, this, &MainForm::action_OpenMonsterStore_Click);
+	connect(ui.action_RecentMap1, &QAction::triggered, this, &MainForm::action_OpenRecentMonstersDB_Click);
+	connect(ui.action_RecentMap2, &QAction::triggered, this, &MainForm::action_OpenRecentMonstersDB_Click);
+	connect(ui.action_RecentMap3, &QAction::triggered, this, &MainForm::action_OpenRecentMonstersDB_Click);
+	connect(ui.action_RecentMap4, &QAction::triggered, this, &MainForm::action_OpenRecentMonstersDB_Click);
+	connect(ui.action_RecentMap5, &QAction::triggered, this, &MainForm::action_OpenRecentMonstersDB_Click);
+	connect(ui.action_Save, &QAction::triggered, this, &MainForm::action_SaveMonsterStore_Click);
+	connect(ui.action_SaveAs, &QAction::triggered, this, &MainForm::action_SaveAsMonsterStore_Click);
 	connect(ui.action_ManageTextures, &QAction::triggered, this, &MainForm::action_ManageTextures_Click);
+	connect(ui.action_AddMonster, &QAction::triggered, this, &MainForm::onPushButtonAddMonsterClick);
+	connect(ui.action_EditMonster, &QAction::triggered, this, &MainForm::onPushButtonEditMonsterClick);
+	connect(ui.action_DeleteMonster, &QAction::triggered, this, &MainForm::onPushButtonDeleteMonsterClick);
+	connect(ui.pushButtonAddMonster, &QPushButton::clicked, this, &MainForm::onPushButtonAddMonsterClick);
+	connect(ui.pushButtonEditMonster, &QPushButton::clicked, this, &MainForm::onPushButtonEditMonsterClick);
+	connect(ui.pushButtonDeleteMonster, &QPushButton::clicked, this, &MainForm::onPushButtonDeleteMonsterClick);
 }
 
 void MainForm::functionAfterShown()
@@ -158,52 +167,52 @@ void MainForm::action_DarkTheme_Click()
 	}
 }
 
-void MainForm::action_OpenItemStore_Click()
+void MainForm::action_OpenMonsterStore_Click()
 {
 	QString fullFilePath{QFileDialog::getOpenFileName(this,
-													  tr("Open the item store"),
+													  tr("Open the monster store"),
 													  "",
-													  tr("Item store file (*.itm)"))};
+													  tr("Monster store file (*.mon)"))};
 	if (fullFilePath != "")
 	{
-		openItemStore(fullFilePath.toStdString());
+		openMonsterStore(fullFilePath.toStdString());
 		m_currentFilePath = fullFilePath.toStdString();
-		refreshItemsTable();
+		refreshMonstersTable();
 	}
 	refreshWindowTitle();
 }
 
-void MainForm::action_OpenRecentItemsDB_Click()
+void MainForm::action_OpenRecentMonstersDB_Click()
 {
 	QAction *recentAction = qobject_cast<QAction *>(sender());
 	std::string filename = recentAction->text().toStdString();
-	openItemStore(filename);
+	openMonsterStore(filename);
 }
 
-void MainForm::action_SaveItemStore_Click()
+void MainForm::action_SaveMonsterStore_Click()
 {
 	if (m_currentFilePath == "")
 	{
-		action_SaveAsItemStore_Click();
+		action_SaveAsMonsterStore_Click();
 	}
 	else
 	{
-		saveItemStore(m_currentFilePath);
+		saveMonsterStore(m_currentFilePath);
 	}
 }
 
-void MainForm::action_SaveAsItemStore_Click()
+void MainForm::action_SaveAsMonsterStore_Click()
 {
-	QString filter = "Item store file (*.itm)";
+	QString filter = "Monster store file (*.mon)";
 	QString fullFilePath{QFileDialog::getSaveFileName(this,
-													  tr("Save the item store"),
+													  tr("Save the monster store"),
 													  "",
 													  filter, &filter)};
 	if (fullFilePath != "")
 	{
 		m_currentFilePath = fullFilePath.toStdString();
-		saveItemStore(m_currentFilePath);
-		addNewRecentItemsDB(m_currentFilePath);
+		saveMonsterStore(m_currentFilePath);
+		addNewRecentMonstersDB(m_currentFilePath);
 	}
 	refreshWindowTitle();
 }
@@ -241,7 +250,7 @@ void MainForm::refreshRecentMapsMenu()
 	}
 }
 
-void MainForm::addNewRecentItemsDB(const std::string &filePath)
+void MainForm::addNewRecentMonstersDB(const std::string &filePath)
 {
 	auto recents = std::vector<std::string>{};
 	// Load existing recent maps
@@ -278,7 +287,7 @@ void MainForm::addNewRecentItemsDB(const std::string &filePath)
 	refreshRecentMapsMenu();
 }
 
-void MainForm::refreshItemsTable()
+void MainForm::refreshMonstersTable()
 {
 	ui.tableWidgetMonsters->model()->removeRows(0, ui.tableWidgetMonsters->rowCount());
 	auto monstersToDisplay = m_controller.getMonsters();
@@ -286,7 +295,8 @@ void MainForm::refreshItemsTable()
 	std::transform(monstersToDisplay.begin(),
 									monstersToDisplay.end(),
 									std::back_inserter(monsterIds),
-									[](const MonsterListDisplay &monsterDisplay) -> std::string { return monsterDisplay.id; });
+									[](const MonsterListDisplay &monsterDisplay) -> std::string { 
+                                        return monsterDisplay.id; });
 	auto monsterIdsWithIcon = m_controller.getIconsFromMonsterIds(monsterIds, getResourcesPath());
 	int index = 0;
 	for (const auto &monster : monstersToDisplay)
@@ -360,7 +370,7 @@ void MainForm::setAppStylesheet(const std::string &style)
 	}
 }
 
-void MainForm::openItemStore(const std::string &filePath)
+void MainForm::openMonsterStore(const std::string &filePath)
 {
 	if (!m_controller.openMonsterStore(filePath))
 	{
@@ -369,11 +379,11 @@ void MainForm::openItemStore(const std::string &filePath)
 		return;
 	}
 	m_currentFilePath = filePath;
-	addNewRecentItemsDB(m_currentFilePath);
-	refreshItemsTable();
+	addNewRecentMonstersDB(m_currentFilePath);
+	refreshMonstersTable();
 }
 
-void MainForm::saveItemStore(const std::string &filePath)
+void MainForm::saveMonsterStore(const std::string &filePath)
 {
 	if (!m_controller.saveMonsterStore(filePath))
 	{
@@ -384,5 +394,61 @@ void MainForm::saveItemStore(const std::string &filePath)
 
 void MainForm::refreshWindowTitle()
 {
-	setWindowTitle(m_currentFilePath.empty() ? "MonsterEditor" : fmt::format("MonsterEditor - {0}", m_currentFilePath).c_str());
+	setWindowTitle(m_currentFilePath.empty() ? 
+                   "MonsterEditor" :
+                   fmt::format("MonsterEditor - {0}", m_currentFilePath).c_str());
+}
+
+void MainForm::onPushButtonAddMonsterClick()
+{
+    EditMonsterForm editMonsterForm(this,
+                                    m_resourcesPath, 
+                                    m_controller.getMonsterStore(),
+                                    std::nullopt);
+	if (editMonsterForm.exec() == QDialog::Accepted) {
+        refreshMonstersTable();
+	}
+}
+
+void MainForm::onPushButtonEditMonsterClick()
+{
+	/*if (auto itemId = getSelectedItemId(); itemId.has_value())
+	{
+		auto itemType = m_controller.getItemTypeFromItemId(itemId.value());
+		if (itemType.has_value())
+		{
+			std::unique_ptr<QDialog> dialog = getItemTypeForm(itemType.value(),
+															  itemId.value());
+			if (dialog != nullptr && dialog->exec() == QDialog::Accepted)
+			{
+				refreshCategoriesTable();
+				refreshItemsTable();
+			}
+		}
+		else
+		{
+			ErrorMessage::show("Unable to get the type of the selected item.");
+		}
+	}*/
+}
+
+void MainForm::onPushButtonDeleteMonsterClick()
+{
+	/*if (auto itemId = getSelectedItemId(); itemId.has_value())
+	{
+		QMessageBox msgBox;
+		msgBox.setText(fmt::format("Are you sure you want to delete the item {0}?", itemId.value()).c_str());
+		msgBox.setWindowTitle("Confirmation");
+		msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+		msgBox.setDefaultButton(QMessageBox::Cancel);
+		if (msgBox.exec() == QMessageBox::Yes)
+		{
+			if (!m_controller.deleteItem(itemId.value()))
+			{
+				ErrorMessage::show("Unable to remove the item.", m_controller.getLastError());
+			}
+			refreshCategoriesTable();
+			refreshItemsTable();
+		}
+	}*/
 }
