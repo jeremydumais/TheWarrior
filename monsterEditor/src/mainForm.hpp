@@ -48,6 +48,9 @@ private:
 	void onPushButtonAddMonsterClick();
 	void onPushButtonEditMonsterClick();
 	void onPushButtonDeleteMonsterClick();
+    void onTableWidgetMonstersDoubleClicked(QTableWidgetItem *item);
+    void onTableWidgetMonstersKeyPressEvent(int key, int, int);
+	std::optional<std::string> getSelectedItemId() const;	
 };
 
 #endif // MAINFORM_H

@@ -55,9 +55,17 @@ private:
     int m_goldMaximum = 0;
     //Serialization method
     template<class Archive>
-    void serialize(Archive &, const unsigned int)
+    void serialize(Archive &ar, const unsigned int)
     {
-        //To define
+        ar & m_id;
+        ar & m_name;
+        ar & m_textureName;
+        ar & m_textureIndex;
+        ar & m_health;
+        ar & m_attack;
+        ar & m_defense;
+        ar & m_goldMinimum;
+        ar & m_goldMaximum;
     }
 };
 BOOST_CLASS_VERSION(Monster, 0)

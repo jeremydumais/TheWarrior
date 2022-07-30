@@ -1,6 +1,6 @@
 #include "mainController.hpp"
 #include "monsterStoreStorage.hpp"
-//#include "manageMonsterController.hpp"
+#include "manageMonsterController.hpp"
 #include "textureUtils.hpp"
 #include <fmt/format.h>
 #include <qpixmap.h>
@@ -119,12 +119,10 @@ std::map<std::string, QIcon> MainController::getIconsFromMonsterIds(std::vector<
 
 bool MainController::deleteMonster(const std::string &id)
 {
-    //TODO to complete
-    /*
     ManageMonsterController monsterController(m_monsterStore);
     if (!monsterController.deleteMonster(id)) {
         m_lastError = monsterController.getLastError();
         return false;
-    }*/
+    }
     return true;
 }

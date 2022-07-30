@@ -133,6 +133,35 @@ TEST(Monster_Constructor, WithMinus1TextureIndex_ThrowInvalidArgument)
 	}
 }
 
+
+TEST(Monster_Constructor, WithGoldReward3And2_ThrowInvalidArgument)
+{
+    auto creationInfo = getMonsterInfoSample1();
+    creationInfo.goldMinimum = 3;
+    creationInfo.goldMaximum = 2;
+    try {
+        Monster monster1(creationInfo);
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("gold reward maximum must be greater or equal to the minimum.", err.what());
+	}
+}
+
+TEST(Monster_Constructor, WithGoldRewardMinus1And2_ThrowInvalidArgument)
+{
+    auto creationInfo = getMonsterInfoSample1();
+    creationInfo.goldMinimum = -1;
+    creationInfo.goldMaximum = 2;
+    try {
+        Monster monster1(creationInfo);
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("gold reward minimum cannot be a negative number.", err.what());
+	}
+}
+
 TEST(Monster_Constructor, WithTextureIndex0_ReturnSuccess)
 {
     auto creationInfo = getMonsterInfoSample1();

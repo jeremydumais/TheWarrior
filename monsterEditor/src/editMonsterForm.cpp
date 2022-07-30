@@ -1,7 +1,20 @@
 #include "editMonsterForm.hpp"
 #include "errorMessage.hpp"
 #include "texturePickerForm.hpp"
+#include <boost/algorithm/string.hpp>
+#include <qdialog.h>
 #include <qtimer.h>
+#include <qwidget.h>
+
+struct TextureSelectionInfo {
+    std::string textureName;
+    int textureIndex;
+};
+
+std::optional<TextureSelectionInfo> showTexturePicker(QWidget *parent,
+                                                      const std::string &resourcesPath,
+                                                      const TextureSelectionInfo &info,
+                                                      const TextureContainer &textureContainer);
 
 EditMonsterForm::EditMonsterForm(QWidget *parent, 
 						 const std::string &resourcesPath,
@@ -40,6 +53,11 @@ bool EditMonsterForm::loadExistingMonsterToForm()
 		ui.lineEditName->setText(existingMonster->name.c_str());
 		ui.lineEditTextureName->setText(existingMonster->textureName.c_str());
 		ui.spinBoxTextureIndex->setValue(existingMonster->textureIndex);
+        ui.spinBoxHealth->setValue(existingMonster->health);
+        ui.doubleSpinBoxAttack->setValue(static_cast<double>(existingMonster->attack));
+        ui.doubleSpinBoxDefense->setValue(static_cast<double>(existingMonster->defense));
+        ui.spinBoxGoldMin->setValue(existingMonster->goldMinimum);
+        ui.spinBoxGoldMax->setValue(existingMonster->goldMaximum);
 	}
 	else {
 		ErrorMessage::show("Unable to load the selected monster");
@@ -60,8 +78,12 @@ void EditMonsterForm::onPushButtonOKClick()
 	monsterInfo->name = ui.lineEditName->text().toStdString();
 	monsterInfo->textureName = ui.lineEditTextureName->text().toStdString();
 	monsterInfo->textureIndex = ui.spinBoxTextureIndex->value();
-    //TODO Add code to validate additional fields
-    
+    monsterInfo->health = ui.spinBoxHealth->value();
+    monsterInfo->attack = static_cast<float>(ui.doubleSpinBoxAttack->value());
+    monsterInfo->defense = static_cast<float>(ui.doubleSpinBoxDefense->value());
+    monsterInfo->goldMinimum = ui.spinBoxGoldMin->value();
+    monsterInfo->goldMaximum = ui.spinBoxGoldMax->value();
+
     if (!m_monsterIdToEdit.has_value()) {
 		if (!m_controller.addMonster(std::move(monsterInfo))) {
 			ErrorMessage::show(m_controller.getLastError());
@@ -79,11 +101,36 @@ void EditMonsterForm::onPushButtonOKClick()
 
 void EditMonsterForm::onPushButtonTexturePickerClick()
 {
-	/*auto result = showTexturePicker({ ui.lineEditTextureName->text().toStdString(),
+	auto result = showTexturePicker(this,
+                                    m_resourcesPath,
+                                    { ui.lineEditTextureName->text().toStdString(),
 									  ui.spinBoxTextureIndex->value() }, 
 								    m_controller.getTextureContainer());
 	if (result.has_value()) {
 		ui.lineEditTextureName->setText(result->textureName.c_str());
 		ui.spinBoxTextureIndex->setValue(result->textureIndex);
-	}*/
+	}
+}
+
+std::optional<TextureSelectionInfo> showTexturePicker(QWidget *parent,
+                                                      const std::string &resourcesPath,
+                                                      const TextureSelectionInfo &info,
+                                                      const TextureContainer &textureContainer)
+{
+    TexturePickerForm texturePickerForm(parent, 
+										resourcesPath,
+										textureContainer);
+	auto selectedTexture = info.textureName;
+	if (!boost::trim_copy(selectedTexture).empty()) {
+		texturePickerForm.setCurrentSelection(selectedTexture,
+											  info.textureIndex);
+	}
+	if (texturePickerForm.exec() == QDialog::Accepted) {
+		const auto &result = texturePickerForm.getResult();
+        return TextureSelectionInfo { 
+            result.textureName,
+            result.textureIndex 
+        };
+	}
+    return std::nullopt;
 }

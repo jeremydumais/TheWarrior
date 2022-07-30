@@ -6,6 +6,8 @@ void validateMonsterId(const std::string &id);
 void validateMonsterName(const std::string &name);
 void validateMonsterTextureName(const std::string &textureName);
 void validateMonsterTextureIndex(const int textureIndex);
+void validateMonsterGoldReward(const int minimum, const int maximum);
+
 
 Monster::Monster(MonsterCreationInfo info)
     : m_id(info.id),
@@ -22,6 +24,7 @@ Monster::Monster(MonsterCreationInfo info)
     validateMonsterName(m_name);
     validateMonsterTextureName(m_textureName);
     validateMonsterTextureIndex(m_textureIndex);
+    validateMonsterGoldReward(m_goldMinimum, m_goldMaximum);
 }
 
 bool Monster::operator==(const Monster &other) const
@@ -126,12 +129,7 @@ void Monster::setDefense(float value)
 
 void Monster::setGoldRewardRange(int minimum, int maximum)
 {
-    if (minimum < 0) {
-        throw std::invalid_argument("gold reward minimum cannot be a negative number.");
-    }
-    if (maximum < minimum) {
-        throw std::invalid_argument("gold reward maximum must be greater or equal to the minimum.");
-    }
+    validateMonsterGoldReward(minimum, maximum);
     m_goldMinimum = minimum;
     m_goldMaximum = maximum;
 }
@@ -165,5 +163,15 @@ void validateMonsterTextureIndex(const int textureIndex)
 {
     if (textureIndex < 0) {
         throw std::invalid_argument("texture index cannot be a negative number.");
+    }
+}
+
+void validateMonsterGoldReward(const int minimum, const int maximum)
+{
+    if (minimum < 0) {
+        throw std::invalid_argument("gold reward minimum cannot be a negative number.");
+    }
+    if (maximum < minimum) {
+        throw std::invalid_argument("gold reward maximum must be greater or equal to the minimum.");
     }
 }

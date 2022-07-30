@@ -11,6 +11,11 @@ public:
         retVal.name = "monster1";
         retVal.textureName = "tex1";
         retVal.textureIndex = 0;
+        retVal.health = 15;
+        retVal.attack = 1.1F;
+        retVal.defense = 1.2F;
+        retVal.goldMinimum = 3;
+        retVal.goldMaximum = 4;
         return retVal;
     };
     static MonsterDTO getSample2() { 
@@ -19,6 +24,11 @@ public:
         retVal.name = "monster2";
         retVal.textureName = "tex2";
         retVal.textureIndex = 1;
+        retVal.health = 20;
+        retVal.attack = 2.1F;
+        retVal.defense = 2.2F;
+        retVal.goldMinimum = 5;
+        retVal.goldMaximum = 7;
         return retVal;
     };
 };
