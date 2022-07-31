@@ -24,7 +24,7 @@
 enum class InteractionMode
 {
     Game,
-    Inventory
+    NewGame
 };
 
 class GameWindow

@@ -28,6 +28,7 @@ private:
 	void onPushButtonCancelClick();
 	void onPushButtonOKClick();
 	void onPushButtonTexturePickerClick();
+    void refreshSelectedTexture();
 };
 
 #endif // EDITMONSTERFORM_H

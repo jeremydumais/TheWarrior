@@ -60,7 +60,7 @@
              <number>0</number>
             </property>
             <property name="columnCount">
-             <number>5</number>
+             <number>6</number>
             </property>
             <attribute name="horizontalHeaderStretchLastSection">
              <bool>true</bool>
@@ -68,6 +68,7 @@
             <attribute name="verticalHeaderVisible">
              <bool>false</bool>
             </attribute>
+            <column/>
             <column/>
             <column/>
             <column/>
@@ -148,7 +149,7 @@
       <x>267</x>
       <y>121</y>
       <width>260</width>
-      <height>204</height>
+      <height>196</height>
      </rect>
     </property>
     <property name="sizePolicy">

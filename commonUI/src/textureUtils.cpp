@@ -1,6 +1,8 @@
 #include "textureUtils.hpp"
 
-int TextureUtils::getTextureIndexFromPosition(const Point<> &pos, const Texture &texture) 
+int TextureUtils::getTextureIndexFromPosition(const Point<> &pos,
+                                              const Texture &texture,
+                                              const float ratio) 
 {
     int realY { texture.getHeight() - pos.y()};
 	int indexX = pos.x() / texture.getTileWidth();

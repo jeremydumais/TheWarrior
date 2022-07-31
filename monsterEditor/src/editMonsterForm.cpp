@@ -1,7 +1,9 @@
 #include "editMonsterForm.hpp"
 #include "errorMessage.hpp"
 #include "texturePickerForm.hpp"
+#include "textureUtils.hpp"
 #include <boost/algorithm/string.hpp>
+#include <fmt/format.h>
 #include <qdialog.h>
 #include <qtimer.h>
 #include <qwidget.h>
@@ -28,7 +30,8 @@ EditMonsterForm::EditMonsterForm(QWidget *parent,
 {
 	ui.setupUi(this);
 	setWindowIcon(QIcon(":/MonsterEditor Icon.png"));
-	
+    window()->layout()->setSizeConstraint(QLayout::SetFixedSize);	
+
 	connectUIActions();
 	if (m_monsterIdToEdit.has_value()) {
 		this->setWindowTitle("Edit monster");
@@ -58,6 +61,7 @@ bool EditMonsterForm::loadExistingMonsterToForm()
         ui.doubleSpinBoxDefense->setValue(static_cast<double>(existingMonster->defense));
         ui.spinBoxGoldMin->setValue(existingMonster->goldMinimum);
         ui.spinBoxGoldMax->setValue(existingMonster->goldMaximum);
+        refreshSelectedTexture();
 	}
 	else {
 		ErrorMessage::show("Unable to load the selected monster");
@@ -109,6 +113,7 @@ void EditMonsterForm::onPushButtonTexturePickerClick()
 	if (result.has_value()) {
 		ui.lineEditTextureName->setText(result->textureName.c_str());
 		ui.spinBoxTextureIndex->setValue(result->textureIndex);
+        refreshSelectedTexture();
 	}
 }
 
@@ -133,4 +138,24 @@ std::optional<TextureSelectionInfo> showTexturePicker(QWidget *parent,
         };
 	}
     return std::nullopt;
+}
+
+void EditMonsterForm::refreshSelectedTexture()
+{
+    ui.labelIcon->clear();
+    if (!ui.lineEditTextureName->text().isEmpty()) {
+        const auto &textureContainer = m_controller.getTextureContainer();
+        auto texture = textureContainer.getTextureByName(ui.lineEditTextureName->text().toStdString());
+        if (texture.has_value()) {
+            auto completeTexturePath = fmt::format("{0}/textures/{1}", m_resourcesPath, texture->get().getFilename());
+            QPixmap pixmap(QString(completeTexturePath.c_str()));
+            auto iconPixmap = TextureUtils::getTextureTileImageFromTexture(&pixmap, 
+                                                                           ui.spinBoxTextureIndex->value(),
+                                                                           texture.value());
+            iconPixmap = iconPixmap.scaled(ui.labelIcon->maximumSize(), 
+                                           Qt::KeepAspectRatio, 
+                                           Qt::SmoothTransformation);
+            ui.labelIcon->setPixmap(iconPixmap);
+        }
+    }
 }

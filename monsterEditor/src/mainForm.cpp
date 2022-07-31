@@ -60,6 +60,9 @@ MainForm::MainForm(QWidget *parent)
 	initializeMonstersTableControl();
     refreshRecentMapsMenu();
 	connectUIActions();
+    //TODO to remove (test only)
+    openMonsterStore("/home/jed/Programming/TheWarrior/resources/monsters/monsterstore.mon");
+
 }
 
 void MainForm::initializeMonstersTableControl()
@@ -69,11 +72,13 @@ void MainForm::initializeMonstersTableControl()
 	ui.tableWidgetMonsters->setHorizontalHeaderItem(2, new QTableWidgetItem("Health"));
 	ui.tableWidgetMonsters->setHorizontalHeaderItem(3, new QTableWidgetItem("Attack"));
 	ui.tableWidgetMonsters->setHorizontalHeaderItem(4, new QTableWidgetItem("Defense"));
+	ui.tableWidgetMonsters->setHorizontalHeaderItem(5, new QTableWidgetItem("Gold reward"));
 	ui.tableWidgetMonsters->setColumnWidth(0, 120);
 	ui.tableWidgetMonsters->setColumnWidth(1, 300);
 	ui.tableWidgetMonsters->setColumnWidth(2, 120);
 	ui.tableWidgetMonsters->setColumnWidth(3, 120);
 	ui.tableWidgetMonsters->setColumnWidth(4, 120);
+	ui.tableWidgetMonsters->setColumnWidth(5, 120);
 }
 
 void MainForm::connectUIActions()
@@ -272,7 +277,7 @@ void MainForm::refreshMonstersTable()
 	std::transform(monstersToDisplay.begin(),
 									monstersToDisplay.end(),
 									std::back_inserter(monsterIds),
-									[](const MonsterListDisplay &monsterDisplay) -> std::string { 
+									[](const MonsterListDisplay &monsterDisplay) -> std::string {
                                         return monsterDisplay.id; });
 	auto monsterIdsWithIcon = m_controller.getIconsFromMonsterIds(monsterIds, getResourcesPath());
 	int index = 0;
@@ -287,6 +292,9 @@ void MainForm::refreshMonstersTable()
 		ui.tableWidgetMonsters->setItem(index, 2, new QTableWidgetItem(std::to_string(monster.health).c_str()));
 		ui.tableWidgetMonsters->setItem(index, 3, new QTableWidgetItem(fmt::format("{}", monster.attack).c_str()));
 		ui.tableWidgetMonsters->setItem(index, 4, new QTableWidgetItem(fmt::format("{}", monster.defense).c_str()));
+		ui.tableWidgetMonsters->setItem(index, 5, new QTableWidgetItem(fmt::format("[{}-{}]",
+                                                                                   monster.goldMinimum,
+                                                                                   monster.goldMaximum).c_str()));
 		index++;
 	}
 }
@@ -363,7 +371,7 @@ void MainForm::saveMonsterStore(const std::string &filePath)
 
 void MainForm::refreshWindowTitle()
 {
-	setWindowTitle(m_currentFilePath.empty() ? 
+	setWindowTitle(m_currentFilePath.empty() ?
                    "MonsterEditor" :
                    fmt::format("MonsterEditor - {0}", m_currentFilePath).c_str());
 }
@@ -385,7 +393,7 @@ void MainForm::onTableWidgetMonstersKeyPressEvent(int key, int, int)
 void MainForm::onPushButtonAddMonsterClick()
 {
     EditMonsterForm editMonsterForm(this,
-                                    m_resourcesPath, 
+                                    m_resourcesPath,
                                     m_controller.getMonsterStore(),
                                     std::nullopt);
 	if (editMonsterForm.exec() == QDialog::Accepted) {
@@ -397,7 +405,7 @@ void MainForm::onPushButtonEditMonsterClick()
 {
     if (auto itemId = getSelectedItemId(); itemId.has_value()) {
         EditMonsterForm editMonsterForm(this,
-                                        m_resourcesPath, 
+                                        m_resourcesPath,
                                         m_controller.getMonsterStore(),
                                         itemId);
         if (editMonsterForm.exec() == QDialog::Accepted) {

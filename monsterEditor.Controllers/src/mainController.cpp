@@ -62,12 +62,16 @@ std::vector<MonsterListDisplay> MainController::getMonsters() const
 {
     std::vector<MonsterListDisplay> retval {};
     auto monsters = m_monsterStore->getMonsters();
-    auto createMonsterListDisplay = [](const auto &monster) { return MonsterListDisplay { .id = monster->getId(), 
-                                                                                          .name = monster->getName(), 
-                                                                                          .health = monster->getHealth(), 
-                                                                                          .attack = monster->getAttack(),
-                                                                                          .defense = monster->getDefense()
-                                                                                        }; };
+    auto createMonsterListDisplay = [](const auto &monster) { 
+        auto [min, max] = monster->getGoldRewardRange();
+        return MonsterListDisplay { .id = monster->getId(), 
+                                    .name = monster->getName(), 
+                                    .health = monster->getHealth(), 
+                                    .attack = monster->getAttack(),
+                                    .defense = monster->getDefense(),
+                                    .goldMinimum = min,
+                                    .goldMaximum = max
+                                  }; };
     std::ranges::transform(monsters, 
                            std::back_inserter(retval), 
                            createMonsterListDisplay);

@@ -8,7 +8,9 @@
 class TextureUtils
 {
 public:
-    static int getTextureIndexFromPosition(const Point<> &pos, const Texture &texture);
+    static int getTextureIndexFromPosition(const Point<> &pos,
+                                           const Texture &texture,
+                                           const float ratio = 1.0F);
     static QPixmap getTextureTileImageFromTexture(const QPixmap *sourcePixmap, int tileIndex, const Texture &texture);
     static QPixmap getTexturePixmapFromLabel(const QLabel *label);
 };

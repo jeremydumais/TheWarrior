@@ -79,6 +79,49 @@
          <height>32</height>
         </size>
        </property>
+       <property name="maximumSize">
+        <size>
+         <width>64</width>
+         <height>64</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Zoom</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSlider" name="horizontalSliderZoom">
+       <property name="minimum">
+        <number>10</number>
+       </property>
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="singleStep">
+        <number>10</number>
+       </property>
+       <property name="value">
+        <number>100</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="labelZoomValue">
        <property name="text">
         <string/>
        </property>
@@ -97,7 +140,7 @@
         <x>0</x>
         <y>0</y>
         <width>548</width>
-        <height>457</height>
+        <height>423</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
@@ -168,8 +211,11 @@
   </customwidget>
  </customwidgets>
  <tabstops>
+  <tabstop>comboBoxTexture</tabstop>
   <tabstop>lineEditTextureName</tabstop>
   <tabstop>spinBoxTextureIndex</tabstop>
+  <tabstop>horizontalSliderZoom</tabstop>
+  <tabstop>scrollArea</tabstop>
   <tabstop>pushButtonOK</tabstop>
   <tabstop>pushButtonCancel</tabstop>
  </tabstops>

@@ -16,6 +16,8 @@ struct MonsterListDisplay
     int health;
     float attack;
     float defense;
+    int goldMinimum;
+    int goldMaximum;
 };
 
 class MainController
