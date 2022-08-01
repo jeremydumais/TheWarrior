@@ -1,14 +1,20 @@
 #include "textureUtils.hpp"
+#include <cmath>
+#include <math.h>
 
 int TextureUtils::getTextureIndexFromPosition(const Point<> &pos,
                                               const Texture &texture,
-                                              const float ratio) 
+                                              const float ratio)
 {
-    int realY { texture.getHeight() - pos.y()};
-	int indexX = pos.x() / texture.getTileWidth();
-	int indexY = realY / texture.getTileHeight();
-	int tileIndex { indexX + (indexY * (texture.getWidth()/texture.getTileWidth())) };
-	return tileIndex;
+    float textureWidth = static_cast<float>(texture.getWidth()) * ratio;
+    float textureHeight = static_cast<float>(texture.getHeight()) * ratio;
+    float tileWidth = static_cast<float>(texture.getTileWidth()) * ratio;
+    float tileHeight = static_cast<float>(texture.getTileHeight()) * ratio;
+    float realY = textureHeight - static_cast<float>(pos.y());
+	float indexX = static_cast<float>(pos.x() + 1) / tileWidth;
+	float indexY = std::floor(realY / tileHeight);
+	float tileIndex = indexX + (indexY * (textureWidth / tileWidth));
+	return static_cast<int>(tileIndex);
 }
 
 QPixmap TextureUtils::getTextureTileImageFromTexture(const QPixmap *sourcePixmap, int tileIndex, const Texture &texture)
@@ -17,10 +23,10 @@ QPixmap TextureUtils::getTextureTileImageFromTexture(const QPixmap *sourcePixmap
 	int textureHeightInPixel { texture.getHeight() };
 	int x { (tileIndex * texture.getTileWidth()) % textureWidthInPixel };
 	int y { textureHeightInPixel - (((tileIndex * texture.getTileWidth()) / textureWidthInPixel) * texture.getTileHeight()) };
-    QPixmap imagePart = sourcePixmap->copy(x, 
-										   y - texture.getTileHeight(), 
-									       texture.getTileWidth(), 
-										   texture.getTileHeight());																				
+    QPixmap imagePart = sourcePixmap->copy(x,
+										   y - texture.getTileHeight(),
+									       texture.getTileWidth(),
+										   texture.getTileHeight());
 	return imagePart;
 }
 

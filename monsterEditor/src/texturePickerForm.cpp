@@ -1,7 +1,9 @@
 #include "texturePickerForm.hpp"
 #include "textureUtils.hpp"
 #include "qClickableLabel.hpp"
+#include <fmt/core.h>
 #include <fmt/format.h>
+#include <memory>
 #include <qimage.h>
 #include <qimagereader.h>
 #include <qpixmap.h>
@@ -16,7 +18,7 @@ TexturePickerForm::TexturePickerForm(QWidget *parent,
     m_controller(textureContainer)
 {
     ui.setupUi(this);
-    setWindowIcon(QIcon(":/ItemEditor Icon.png"));
+    setWindowIcon(QIcon(":/MonsterEditor Icon.png"));
     connectUIActions();
     refreshTextureComboBox();
     refreshZoomDisplayValue();
@@ -93,6 +95,7 @@ void TexturePickerForm::onLabelImageTextureMouseReleaseEvent(QMouseEvent *event)
     int comboBoxTextureCurrentIndex { ui.comboBoxTexture->currentIndex() };
     auto textureName { ui.comboBoxTexture->itemText(comboBoxTextureCurrentIndex).toStdString() };
     if (m_controller.isTextureExist(textureName)) {
+        setWindowTitle(fmt::format("{}, {}", event->pos().x(), event->pos().y()).c_str());
         int index = m_controller.getTextureIndexFromPosition(Point(event->pos().x(),
                                                                    event->pos().y()),
                                                              textureName);
@@ -126,8 +129,9 @@ void TexturePickerForm::onComboBoxTextureCurrentIndexChanged()
     if (m_controller.isTextureExist(textureName)) {
         QImageReader reader(m_controller.getTextureFileName(m_resourcesPath, textureName).c_str());
         const QImage image { reader.read() };
-        ui.labelImageTexture->setFixedSize(image.width(), image.height());
-        ui.labelImageTexture->setPixmap(QPixmap::fromImage(image));
+        m_loadedTexture = std::make_shared<QPixmap>(QPixmap::fromImage(image));
+        ui.labelImageTexture->setPixmap(*m_loadedTexture.get());
+        ui.labelImageTexture->setFixedSize(m_loadedTexture->width(), m_loadedTexture->height());
         ui.lineEditTextureName->setText(textureName.c_str());
     }
     else {
@@ -138,7 +142,15 @@ void TexturePickerForm::onComboBoxTextureCurrentIndexChanged()
     ui.labelSelectedTexture->clear();
 }
 
-void TexturePickerForm::onHorizontalSliderZoomChanged(int)
+void TexturePickerForm::onHorizontalSliderZoomChanged(int value)
 {
-
+    if (m_loadedTexture != nullptr) {
+        auto scaledImage = m_loadedTexture->scaled(m_loadedTexture->width() * value / 100,
+                                                   m_loadedTexture->height() * value / 100,
+                                                   Qt::KeepAspectRatio,
+                                                   Qt::FastTransformation);
+        ui.labelImageTexture->setPixmap(scaledImage);
+        ui.labelImageTexture->setFixedSize(scaledImage.width(), scaledImage.height());
+    }
+    refreshZoomDisplayValue();
 }

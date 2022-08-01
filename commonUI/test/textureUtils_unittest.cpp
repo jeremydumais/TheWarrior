@@ -32,3 +32,20 @@ TEST(TextureUtils_getTextureIndexFromPosition, WithSample2_223_Return16)
                                                             getTextureSample1());
     ASSERT_EQ(16, actual);
 }
+
+TEST(TextureUtils_getTextureIndexFromPosition, WithSample0_127AndRatio0_5F_Return0)
+{
+    auto actual = TextureUtils::getTextureIndexFromPosition(Point(0, 127),
+                                                            getTextureSample1(),
+                                                            0.5F);
+    ASSERT_EQ(0, actual);
+}
+
+TEST(TextureUtils_getTextureIndexFromPosition, WithSample32_128AndRatio0_5F_Return1)
+{
+    /*auto actual = TextureUtils::getTextureIndexFromPosition(Point(32, 128),
+                                                            getTextureSample1(),
+                                                            0.5F);
+    ASSERT_EQ(3, actual);*/
+}
+
