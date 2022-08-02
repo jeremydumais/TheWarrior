@@ -35,6 +35,7 @@ private:
     void onPushButtonOKClick();
     void refreshTextureComboBox();
     void onLabelImageTextureMouseReleaseEvent(QMouseEvent *event);
+    void displayTexture(const int zoomPercentage);
     void displaySelectedTile(const std::string &textureName,
             int textureIndex);
     void refreshZoomDisplayValue();

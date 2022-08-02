@@ -6,6 +6,7 @@
 #include <memory>
 #include <qimage.h>
 #include <qimagereader.h>
+#include <qnamespace.h>
 #include <qpixmap.h>
 #include <string>
 
@@ -96,25 +97,38 @@ void TexturePickerForm::onLabelImageTextureMouseReleaseEvent(QMouseEvent *event)
     auto textureName { ui.comboBoxTexture->itemText(comboBoxTextureCurrentIndex).toStdString() };
     if (m_controller.isTextureExist(textureName)) {
         setWindowTitle(fmt::format("{}, {}", event->pos().x(), event->pos().y()).c_str());
+        float zoomRatio = static_cast<float>(ui.horizontalSliderZoom->value()) / 100.0F;
         int index = m_controller.getTextureIndexFromPosition(Point(event->pos().x(),
                                                                    event->pos().y()),
-                                                             textureName);
+                                                             textureName,
+                                                             zoomRatio);
         ui.spinBoxTextureIndex->setValue(index);
         displaySelectedTile(textureName, index);
     }
 }
 
-void TexturePickerForm::displaySelectedTile(const std::string &textureName,
-        int textureIndex)
+void TexturePickerForm::displayTexture(const int zoomPercentage)
 {
-    auto pixmap = TextureUtils::getTexturePixmapFromLabel(ui.labelImageTexture);
-    auto imagePart { m_controller.getTextureTileImageFromTexture(&pixmap,
-            textureIndex,
-            textureName) };
-    imagePart = imagePart.scaled(ui.labelSelectedTexture->maximumSize(),
-            Qt::KeepAspectRatio,
-            Qt::SmoothTransformation);
-    ui.labelSelectedTexture->setPixmap(imagePart);
+    auto scaledImage = m_loadedTexture->scaled(m_loadedTexture->width() * zoomPercentage / 100,
+                                               m_loadedTexture->height() * zoomPercentage / 100,
+                                               Qt::KeepAspectRatio,
+                                               Qt::FastTransformation);
+    ui.labelImageTexture->setPixmap(scaledImage);
+    ui.labelImageTexture->setFixedSize(scaledImage.width(), scaledImage.height());
+}
+
+void TexturePickerForm::displaySelectedTile(const std::string &textureName,
+                                            int textureIndex)
+{
+    if (m_loadedTexture != nullptr) {
+        auto imagePart { m_controller.getTextureTileImageFromTexture(m_loadedTexture.get(),
+                textureIndex,
+                textureName) };
+        imagePart = imagePart.scaled(ui.labelSelectedTexture->maximumSize(),
+                Qt::KeepAspectRatio,
+                Qt::SmoothTransformation);
+        ui.labelSelectedTexture->setPixmap(imagePart);
+    }
 }
 
 void TexturePickerForm::refreshZoomDisplayValue()
@@ -130,8 +144,7 @@ void TexturePickerForm::onComboBoxTextureCurrentIndexChanged()
         QImageReader reader(m_controller.getTextureFileName(m_resourcesPath, textureName).c_str());
         const QImage image { reader.read() };
         m_loadedTexture = std::make_shared<QPixmap>(QPixmap::fromImage(image));
-        ui.labelImageTexture->setPixmap(*m_loadedTexture.get());
-        ui.labelImageTexture->setFixedSize(m_loadedTexture->width(), m_loadedTexture->height());
+        displayTexture(ui.horizontalSliderZoom->value());
         ui.lineEditTextureName->setText(textureName.c_str());
     }
     else {
@@ -145,12 +158,7 @@ void TexturePickerForm::onComboBoxTextureCurrentIndexChanged()
 void TexturePickerForm::onHorizontalSliderZoomChanged(int value)
 {
     if (m_loadedTexture != nullptr) {
-        auto scaledImage = m_loadedTexture->scaled(m_loadedTexture->width() * value / 100,
-                                                   m_loadedTexture->height() * value / 100,
-                                                   Qt::KeepAspectRatio,
-                                                   Qt::FastTransformation);
-        ui.labelImageTexture->setPixmap(scaledImage);
-        ui.labelImageTexture->setFixedSize(scaledImage.width(), scaledImage.height());
+        displayTexture(value);
     }
     refreshZoomDisplayValue();
 }

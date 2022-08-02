@@ -11,7 +11,7 @@ int TextureUtils::getTextureIndexFromPosition(const Point<> &pos,
     float tileWidth = static_cast<float>(texture.getTileWidth()) * ratio;
     float tileHeight = static_cast<float>(texture.getTileHeight()) * ratio;
     float realY = textureHeight - static_cast<float>(pos.y());
-	float indexX = static_cast<float>(pos.x() + 1) / tileWidth;
+	float indexX = static_cast<float>(pos.x()) / tileWidth;
 	float indexY = std::floor(realY / tileHeight);
 	float tileIndex = indexX + (indexY * (textureWidth / tileWidth));
 	return static_cast<int>(tileIndex);
