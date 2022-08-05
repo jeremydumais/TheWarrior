@@ -3,9 +3,9 @@
 using namespace std;
 
 ImageAttributionsForm::ImageAttributionsForm(QWidget *parent)
-	: QDialog(parent),
-	  ui(Ui::imageAttributionsFormClass())
+    : QDialog(parent),
+    ui(Ui::imageAttributionsFormClass())
 {
-	ui.setupUi(this);
-	setWindowIcon(QIcon(":/ItemEditor Icon.png"));
+    ui.setupUi(this);
+    setWindowIcon(QIcon(":/ItemEditor Icon.png"));
 }

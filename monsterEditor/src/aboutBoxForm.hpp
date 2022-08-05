@@ -9,12 +9,12 @@ class AboutBoxForm : public QDialog
 Q_OBJECT
 
 public:
-	explicit AboutBoxForm(QWidget *parent = 0);
-	~AboutBoxForm() = default;
+    explicit AboutBoxForm(QWidget *parent = 0);
+    ~AboutBoxForm() = default;
 private:
-	Ui::aboutBoxFormClass ui;
+    Ui::aboutBoxFormClass ui;
 private slots:
-	void pushButtonImageAttributions_Click();
+    void pushButtonImageAttributions_Click();
 };
 
 #endif // ABOUTBOXFORM_H

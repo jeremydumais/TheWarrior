@@ -4,16 +4,16 @@
 using namespace std;
 
 AboutBoxForm::AboutBoxForm(QWidget *parent)
-	: QDialog(parent),
-	  ui(Ui::aboutBoxFormClass())
+    : QDialog(parent),
+    ui(Ui::aboutBoxFormClass())
 {
-	ui.setupUi(this);
+    ui.setupUi(this);
     connect(ui.pushButtonImageAttributions, &QPushButton::clicked, this, &AboutBoxForm::pushButtonImageAttributions_Click);
-	setWindowIcon(QIcon(":/MonsterEditor Icon.png"));
+    setWindowIcon(QIcon(":/MonsterEditor Icon.png"));
 }
 
-void AboutBoxForm::pushButtonImageAttributions_Click() 
+void AboutBoxForm::pushButtonImageAttributions_Click()
 {
-	ImageAttributionsForm formImageAttributions(this);
-	formImageAttributions.exec();
+    ImageAttributionsForm formImageAttributions(this);
+    formImageAttributions.exec();
 }

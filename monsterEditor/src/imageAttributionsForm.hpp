@@ -9,10 +9,10 @@ class ImageAttributionsForm : public QDialog
 Q_OBJECT
 
 public:
-	explicit ImageAttributionsForm(QWidget *parent = 0);
-	~ImageAttributionsForm() = default;
+    explicit ImageAttributionsForm(QWidget *parent = 0);
+    ~ImageAttributionsForm() = default;
 private:
-	Ui::imageAttributionsFormClass ui;
+    Ui::imageAttributionsFormClass ui;
 };
 
 #endif // IMAGEATTRIBUTIONSFORM_H

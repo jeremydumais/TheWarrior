@@ -12,24 +12,23 @@ class ManageTexturesForm : public QDialog
 Q_OBJECT
 
 public:
-	ManageTexturesForm(QWidget *parent, 
-					   const std::string &resourcesPath,
-					   TextureContainer &textureContainer);
-	void connectUIActions();
+    ManageTexturesForm(QWidget *parent,
+            const std::string &resourcesPath,
+            TextureContainer &textureContainer);
+    void connectUIActions();
 private:
-	Ui::manageTexturesFormClass ui;
-	const std::string m_resourcesPath;
-	ManageTextureController m_controller;
-	QTableWidgetKeyPressWatcher tableWidgetTexturesKeyWatcher;
-	void refreshTextureList();
-	void onPushButtonCloseClick();
-	std::unique_ptr<TextureDTO> getSelectedTextureInTextureList();
-	void onPushButtonAddClick();
-	void onPushButtonEditClick();
-	void onPushButtonDeleteClick();
-	void onTableWidgetTexturesDoubleClicked(QTableWidgetItem *item);
-	void onTableWidgetTexturesKeyPressEvent(int key, int, int);
-
+    Ui::manageTexturesFormClass ui;
+    const std::string m_resourcesPath;
+    ManageTextureController m_controller;
+    QTableWidgetKeyPressWatcher tableWidgetTexturesKeyWatcher;
+    void refreshTextureList();
+    void onPushButtonCloseClick();
+    std::unique_ptr<TextureDTO> getSelectedTextureInTextureList();
+    void onPushButtonAddClick();
+    void onPushButtonEditClick();
+    void onPushButtonDeleteClick();
+    void onTableWidgetTexturesDoubleClicked(QTableWidgetItem *item);
+    void onTableWidgetTexturesKeyPressEvent(int key, int, int);
 };
 
 #endif // MANAGETEXTURESFORM_H

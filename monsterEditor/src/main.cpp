@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName("Jed# Software");
     QCoreApplication::setApplicationName("The Warrior - Monster Editor");
     QCoreApplication::setApplicationVersion(QT_VERSION_STR);
-	QGuiApplication::setDesktopFileName("thewarrior.monstereditor.desktop");
+    QGuiApplication::setDesktopFileName("thewarrior.monstereditor.desktop");
     MainForm mainWin;
     UIUtils::centerToScreen(&mainWin);
     mainWin.showMaximized();
