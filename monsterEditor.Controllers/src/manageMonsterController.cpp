@@ -3,8 +3,8 @@
 #include <memory>
 #include <stdexcept>
 
-namespace MonsterEditorControllers
-{
+namespace monstereditor::controllers {
+
 ManageMonsterController::ManageMonsterController(std::shared_ptr<MonsterStore> monsterStore)
     : m_monsterStore(monsterStore),
       m_lastError("")
@@ -116,4 +116,5 @@ std::shared_ptr<Monster> ManageMonsterController::monsterDTOToMonster(std::uniqu
     }
     return updateMonster;
 }
+
 } // namespace ManageMonsterController

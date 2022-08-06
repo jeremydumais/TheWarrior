@@ -1,8 +1,8 @@
 #include "manageTexturesController.hpp"
 #include <algorithm>
 
-namespace MonsterEditorControllers
-{
+namespace monstereditor::controllers {
+
 ManageTextureController::ManageTextureController(TextureContainer &textureContainer)
     : m_lastError(""),
       m_textureContainer(textureContainer)
@@ -81,4 +81,5 @@ std::optional<TextureInfo> ManageTextureController::createTextureInfoFromDTO(std
         textureDTO->tileHeight
     };
 }
-} // namespace MonsterEditorControllers
+
+} // namespace monstereditor::controllers

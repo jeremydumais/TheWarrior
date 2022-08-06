@@ -7,8 +7,8 @@
 #include <string>
 #include <vector>
 
-namespace MonsterEditorControllers
-{
+namespace monstereditor::controllers {
+
 class ManageTextureController
 {
 public:
@@ -24,4 +24,5 @@ private:
     TextureContainer &m_textureContainer;
     std::optional<TextureInfo> createTextureInfoFromDTO(std::unique_ptr<TextureDTO> textureDTO);
 };
-} // namespace MonsterEditorControllers
+
+} // namespace monstereditor::controllers

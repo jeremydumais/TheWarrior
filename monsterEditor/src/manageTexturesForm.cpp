@@ -6,13 +6,15 @@
 #include <fmt/format.h>
 #include <memory>
 
+using namespace monstereditor::controllers;
+
 ManageTexturesForm::ManageTexturesForm(QWidget *parent,
         const std::string &resourcesPath,
         TextureContainer &textureContainer)
     : QDialog(parent),
     ui(Ui::manageTexturesFormClass()),
     m_resourcesPath(resourcesPath),
-    m_controller(MonsterEditorControllers::ManageTextureController(textureContainer))
+    m_controller(ManageTextureController(textureContainer))
 {
     ui.setupUi(this);
     setWindowIcon(QIcon(":/ItemEditor Icon.png"));
@@ -47,7 +49,7 @@ void ManageTexturesForm::onPushButtonCloseClick()
     close();
 }
 
-std::unique_ptr<MonsterEditorControllers::TextureDTO> ManageTexturesForm::getSelectedTextureInTextureList()
+std::unique_ptr<TextureDTO> ManageTexturesForm::getSelectedTextureInTextureList()
 {
     auto selectedRows = ui.tableWidgetTextures->selectionModel()->selectedRows();
     if (selectedRows.count() == 1) {

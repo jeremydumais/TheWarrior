@@ -20,7 +20,7 @@ public:
     void connectUIActions();
 private:
     Ui::editMonsterFormClass ui;
-    MonsterEditorControllers::ManageMonsterController m_controller;
+    monstereditor::controllers::ManageMonsterController m_controller;
     std::string m_resourcesPath;
     std::optional<std::string> m_monsterIdToEdit;
     bool loadExistingMonsterToForm();

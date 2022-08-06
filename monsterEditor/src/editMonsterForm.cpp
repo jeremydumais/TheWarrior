@@ -8,6 +8,8 @@
 #include <qtimer.h>
 #include <qwidget.h>
 
+using namespace monstereditor::controllers;
+
 struct TextureSelectionInfo {
     std::string textureName;
     int textureIndex;
@@ -77,7 +79,7 @@ void EditMonsterForm::onPushButtonCancelClick()
 
 void EditMonsterForm::onPushButtonOKClick()
 {
-    auto monsterInfo = std::make_unique<MonsterEditorControllers::MonsterDTO>();
+    auto monsterInfo = std::make_unique<MonsterDTO>();
     monsterInfo->id = ui.lineEditId->text().toStdString();
     monsterInfo->name = ui.lineEditName->text().toStdString();
     monsterInfo->textureName = ui.lineEditTextureName->text().toStdString();

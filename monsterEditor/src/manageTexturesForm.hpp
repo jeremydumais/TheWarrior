@@ -19,11 +19,11 @@ public:
 private:
     Ui::manageTexturesFormClass ui;
     const std::string m_resourcesPath;
-    MonsterEditorControllers::ManageTextureController m_controller;
+    monstereditor::controllers::ManageTextureController m_controller;
     QTableWidgetKeyPressWatcher tableWidgetTexturesKeyWatcher;
     void refreshTextureList();
     void onPushButtonCloseClick();
-    std::unique_ptr<MonsterEditorControllers::TextureDTO> getSelectedTextureInTextureList();
+    std::unique_ptr<monstereditor::controllers::TextureDTO> getSelectedTextureInTextureList();
     void onPushButtonAddClick();
     void onPushButtonEditClick();
     void onPushButtonDeleteClick();

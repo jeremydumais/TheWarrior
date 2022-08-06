@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-using namespace MonsterEditorControllers;
+using namespace monstereditor::controllers;
 
 std::vector<std::string> getAllTextureNamesSample() { return { "tex1", "tex2"}; };
 TextureDTO getTextureDTOSample1() { return { "tex1", "tex1.png", 256, 512, 16, 32}; };

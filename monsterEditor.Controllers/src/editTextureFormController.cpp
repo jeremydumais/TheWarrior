@@ -5,8 +5,8 @@
 #include <algorithm>
 #include <stdexcept>
 
-namespace MonsterEditorControllers
-{
+namespace monstereditor::controllers {
+
 EditTextureFormController::EditTextureFormController(std::unique_ptr<TextureDTO> originalTexture,
                                                      const std::vector<std::string> &allTextureNames)
     : m_lastError(""),
@@ -66,4 +66,5 @@ bool EditTextureFormController::isNameAvailable(const std::string &name) const
            (m_originalTexture != nullptr && (m_originalTexture->name == sanitizedName || !nameFound));
 
 }
-} // namespace MonsterEditorControllers
+
+} // namespace monstereditor::controllers

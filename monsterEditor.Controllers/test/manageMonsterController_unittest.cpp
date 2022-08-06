@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 #include <memory>
 
-using namespace MonsterEditorControllers;
+using namespace monstereditor::controllers;
 
 class MonsterDTOSamples
 {

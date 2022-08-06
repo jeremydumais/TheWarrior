@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 
 using namespace std;
-using namespace MonsterEditorControllers;
+using namespace monstereditor::controllers;
 
 class MapTextureControllerWith2Textures : public ::testing::Test
 {

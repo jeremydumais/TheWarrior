@@ -12,8 +12,8 @@
 #include <set>
 #include <ranges>
 
-namespace MonsterEditorControllers
-{
+namespace monstereditor::controllers {
+
 MainController::MainController()
     : m_monsterStore(std::make_shared<MonsterStore>()),
       m_lastError("")
@@ -132,4 +132,5 @@ bool MainController::deleteMonster(const std::string &id)
     }
     return true;
 }
-} //namespace MonsterEditorControllers
+
+} //namespace monstereditor::controllers
