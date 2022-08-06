@@ -4,6 +4,8 @@
 #include <fmt/format.h>
 #include <algorithm>
 
+namespace MonsterEditorControllers
+{
 TexturePickerController::TexturePickerController(const TextureContainer &textureContainer)
     : m_textureContainer(textureContainer)
 {
@@ -78,3 +80,4 @@ std::optional<std::reference_wrapper<const Texture>> TexturePickerController::ge
     }
     return {*iter};
 }
+} // namespace MonsterEditorControllers

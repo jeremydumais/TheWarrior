@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+namespace MonsterEditorControllers
+{
 class TexturePickerController
 {
 public:
@@ -26,3 +28,4 @@ private:
     std::optional<std::reference_wrapper<const Texture>> getTextureByName(const std::string &name) const;
 
 };
+} // namespace MonsterEditorControllers

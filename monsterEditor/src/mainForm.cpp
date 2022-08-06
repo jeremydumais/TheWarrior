@@ -27,7 +27,7 @@ MainForm::MainForm(QWidget *parent)
     m_executablePath(""),
     m_resourcesPath(""),
     m_currentFilePath(""),
-    m_controller(MainController())
+    m_controller(MonsterEditorControllers::MainController())
 {
     ui.setupUi(this);
 
@@ -277,7 +277,7 @@ void MainForm::refreshMonstersTable()
     std::transform(monstersToDisplay.begin(),
             monstersToDisplay.end(),
             std::back_inserter(monsterIds),
-            [](const MonsterListDisplay &monsterDisplay) -> std::string {
+            [](const MonsterEditorControllers::MonsterListDisplay &monsterDisplay) -> std::string {
             return monsterDisplay.id; });
     auto monsterIdsWithIcon = m_controller.getIconsFromMonsterIds(monsterIds, getResourcesPath());
     int index = 0;

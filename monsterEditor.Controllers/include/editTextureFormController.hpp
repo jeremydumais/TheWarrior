@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+namespace MonsterEditorControllers
+{
 class EditTextureFormController
 {
 public:
@@ -19,3 +21,4 @@ private:
     const std::vector<std::string> &m_allTextureNames;
     bool isNameAvailable(const std::string &name) const;
 };
+} // namespace MonsterEditorControllers

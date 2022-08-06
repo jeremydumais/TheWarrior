@@ -77,7 +77,7 @@ void EditMonsterForm::onPushButtonCancelClick()
 
 void EditMonsterForm::onPushButtonOKClick()
 {
-    auto monsterInfo = std::make_unique<MonsterDTO>();
+    auto monsterInfo = std::make_unique<MonsterEditorControllers::MonsterDTO>();
     monsterInfo->id = ui.lineEditId->text().toStdString();
     monsterInfo->name = ui.lineEditName->text().toStdString();
     monsterInfo->textureName = ui.lineEditTextureName->text().toStdString();

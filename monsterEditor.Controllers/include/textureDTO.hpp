@@ -2,6 +2,8 @@
 
 #include <string>
 
+namespace MonsterEditorControllers
+{
 struct TextureDTO
 {
     std::string name;
@@ -11,3 +13,4 @@ struct TextureDTO
     int tileWidth;
     int tileHeight;
 };
+} // namespace MonsterEditorControllers

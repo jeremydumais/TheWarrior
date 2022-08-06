@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <stdexcept>
 
+namespace MonsterEditorControllers
+{
 EditTextureFormController::EditTextureFormController(std::unique_ptr<TextureDTO> originalTexture,
                                                      const std::vector<std::string> &allTextureNames)
     : m_lastError(""),
@@ -55,12 +57,13 @@ bool EditTextureFormController::validateTextureOperation(std::unique_ptr<Texture
 bool EditTextureFormController::isNameAvailable(const std::string &name) const
 {
     auto sanitizedName = boost::to_lower_copy(boost::trim_copy(name));
-    bool nameFound = std::find_if(m_allTextureNames.begin(), 
-				                  m_allTextureNames.end(), 
+    bool nameFound = std::find_if(m_allTextureNames.begin(),
+				                  m_allTextureNames.end(),
 				                  [sanitizedName](const std::string &texName) {
                                       return boost::to_lower_copy(boost::trim_copy(texName)) == sanitizedName;
                                   }) != m_allTextureNames.end();
-    return (m_originalTexture == nullptr && !nameFound) || 
+    return (m_originalTexture == nullptr && !nameFound) ||
            (m_originalTexture != nullptr && (m_originalTexture->name == sanitizedName || !nameFound));
 
 }
+} // namespace MonsterEditorControllers

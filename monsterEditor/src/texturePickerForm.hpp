@@ -29,7 +29,7 @@ public:
 private:
     Ui::texturePickerFormClass ui;
     const std::string &m_resourcesPath;
-    TexturePickerController m_controller;
+    MonsterEditorControllers::TexturePickerController m_controller;
     std::shared_ptr<QPixmap> m_loadedTexture = nullptr;
     void onPushButtonCancelClick();
     void onPushButtonOKClick();

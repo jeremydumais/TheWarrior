@@ -12,7 +12,7 @@ ManageTexturesForm::ManageTexturesForm(QWidget *parent,
     : QDialog(parent),
     ui(Ui::manageTexturesFormClass()),
     m_resourcesPath(resourcesPath),
-    m_controller(ManageTextureController(textureContainer))
+    m_controller(MonsterEditorControllers::ManageTextureController(textureContainer))
 {
     ui.setupUi(this);
     setWindowIcon(QIcon(":/ItemEditor Icon.png"));
@@ -47,7 +47,7 @@ void ManageTexturesForm::onPushButtonCloseClick()
     close();
 }
 
-std::unique_ptr<TextureDTO> ManageTexturesForm::getSelectedTextureInTextureList()
+std::unique_ptr<MonsterEditorControllers::TextureDTO> ManageTexturesForm::getSelectedTextureInTextureList()
 {
     auto selectedRows = ui.tableWidgetTextures->selectionModel()->selectedRows();
     if (selectedRows.count() == 1) {

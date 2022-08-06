@@ -1,7 +1,9 @@
 #include "manageTexturesController.hpp"
 #include <algorithm>
 
-ManageTextureController::ManageTextureController(TextureContainer &textureContainer) 
+namespace MonsterEditorControllers
+{
+ManageTextureController::ManageTextureController(TextureContainer &textureContainer)
     : m_lastError(""),
       m_textureContainer(textureContainer)
 {
@@ -16,15 +18,15 @@ std::vector<std::string> ManageTextureController::getTexturesNames() const
 {
     std::vector<std::string> textureNames;
     const auto &textures { m_textureContainer.getTextures() };
-    transform(textures.begin(), 
-              textures.end(), 
+    transform(textures.begin(),
+              textures.end(),
               std::back_inserter(textureNames),
               [](const Texture & x) { return x.getName(); });
     return textureNames;
 }
 
 std::unique_ptr<TextureDTO> ManageTextureController::getTextureByName(const std::string &name) const
-{    
+{
     auto texture = m_textureContainer.getTextureByName(name);
     if (texture.has_value()) {
         return std::unique_ptr<TextureDTO>(new TextureDTO {
@@ -39,9 +41,9 @@ std::unique_ptr<TextureDTO> ManageTextureController::getTextureByName(const std:
     else {
         return nullptr;
     }
-} 
+}
 
-bool ManageTextureController::addTexture(std::unique_ptr<TextureDTO> info) 
+bool ManageTextureController::addTexture(std::unique_ptr<TextureDTO> info)
 {
     auto textureCreationInfo = createTextureInfoFromDTO(std::move(info));
     if (!textureCreationInfo.has_value()) {
@@ -50,7 +52,7 @@ bool ManageTextureController::addTexture(std::unique_ptr<TextureDTO> info)
     return m_textureContainer.addTexture(textureCreationInfo.value());
 }
 
-bool ManageTextureController::replaceTexture(const std::string &name, std::unique_ptr<TextureDTO> updatedTexture) 
+bool ManageTextureController::replaceTexture(const std::string &name, std::unique_ptr<TextureDTO> updatedTexture)
 {
     auto textureUpdatedInfo = createTextureInfoFromDTO(std::move(updatedTexture));
     if (!textureUpdatedInfo.has_value()) {
@@ -59,11 +61,11 @@ bool ManageTextureController::replaceTexture(const std::string &name, std::uniqu
     return m_textureContainer.replaceTexture(name, textureUpdatedInfo.value());
 }
 
-bool ManageTextureController::removeTexture(const std::string &name) 
+bool ManageTextureController::removeTexture(const std::string &name)
 {
     return m_textureContainer.removeTexture(name);
 }
-    
+
 std::optional<TextureInfo> ManageTextureController::createTextureInfoFromDTO(std::unique_ptr<TextureDTO> textureDTO)
 {
     if (textureDTO == nullptr) {
@@ -79,3 +81,4 @@ std::optional<TextureInfo> ManageTextureController::createTextureInfoFromDTO(std
         textureDTO->tileHeight
     };
 }
+} // namespace MonsterEditorControllers

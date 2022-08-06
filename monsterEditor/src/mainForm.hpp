@@ -23,7 +23,7 @@ private:
     std::string m_executablePath;
     std::string m_resourcesPath;
     std::string m_currentFilePath;
-    MainController m_controller;
+    MonsterEditorControllers::MainController m_controller;
     QTableWidgetKeyPressWatcher tableWidgetMonstersKeyWatcher;
     static const std::string THEME_PATH;
     static const std::string RECENT_DB;

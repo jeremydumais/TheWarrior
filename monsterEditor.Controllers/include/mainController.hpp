@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 
+namespace MonsterEditorControllers
+{
 struct MonsterListDisplay
 {
     std::string id;
@@ -37,3 +39,4 @@ private:
     std::shared_ptr<MonsterStore> m_monsterStore;
     std::string m_lastError;
 };
+} //namespace MonsterEditorControllers

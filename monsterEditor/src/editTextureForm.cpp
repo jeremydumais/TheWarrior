@@ -12,12 +12,12 @@
 
 EditTextureForm::EditTextureForm(QWidget *parent,
         const std::string &resourcesPath,
-        std::unique_ptr<TextureDTO> originalTexture,
+        std::unique_ptr<MonsterEditorControllers::TextureDTO> originalTexture,
         const std::vector<std::string> &allTextureNames)
     : QDialog(parent),
     ui(Ui::editTextureFormClass()),
     m_isEditMode(originalTexture != nullptr),
-    m_controller(EditTextureFormController(std::move(originalTexture), allTextureNames)),
+    m_controller(MonsterEditorControllers::EditTextureFormController(std::move(originalTexture), allTextureNames)),
     m_resourcesPath(resourcesPath)
 {
     ui.setupUi(this);
@@ -37,7 +37,7 @@ EditTextureForm::EditTextureForm(QWidget *parent,
     refreshZoomDisplayValue();
 }
 
-std::unique_ptr<TextureDTO> EditTextureForm::getTextureInfo() const
+std::unique_ptr<MonsterEditorControllers::TextureDTO> EditTextureForm::getTextureInfo() const
 {
     return createTextureDTOFromFields();
 }
@@ -114,9 +114,9 @@ void EditTextureForm::onHorizontalSliderZoomChanged(int value)
     refreshZoomDisplayValue();
 }
 
-std::unique_ptr<TextureDTO> EditTextureForm::createTextureDTOFromFields() const
+std::unique_ptr<MonsterEditorControllers::TextureDTO> EditTextureForm::createTextureDTOFromFields() const
 {
-    return std::unique_ptr<TextureDTO>(new TextureDTO {
+    return std::unique_ptr<MonsterEditorControllers::TextureDTO>(new MonsterEditorControllers::TextureDTO {
             ui.lineEditName->text().toStdString(),
             ui.lineEditFilename->text().toStdString(),
             ui.spinBoxWidth->value(),

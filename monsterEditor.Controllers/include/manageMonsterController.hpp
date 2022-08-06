@@ -5,7 +5,9 @@
 #include <memory>
 #include <string>
 
-struct MonsterDTO 
+namespace MonsterEditorControllers
+{
+struct MonsterDTO
 {
     std::string id;
     std::string name;
@@ -37,3 +39,4 @@ protected:
     std::shared_ptr<MonsterStore> getMonsterStore();
     virtual std::shared_ptr<Monster> monsterDTOToMonster(std::unique_ptr<MonsterDTO> dto);
 };
+} // namespace ManageMonsterController

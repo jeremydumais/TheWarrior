@@ -2,10 +2,12 @@
 #include <gtest/gtest.h>
 #include <memory>
 
+using namespace MonsterEditorControllers;
+
 class MonsterDTOSamples
 {
 public:
-    static MonsterDTO getSample1() { 
+    static MonsterDTO getSample1() {
         MonsterDTO retVal;
         retVal.id = "mon001";
         retVal.name = "monster1";
@@ -18,7 +20,7 @@ public:
         retVal.goldMaximum = 4;
         return retVal;
     };
-    static MonsterDTO getSample2() { 
+    static MonsterDTO getSample2() {
         MonsterDTO retVal;
         retVal.id = "mon002";
         retVal.name = "monster2";
@@ -36,7 +38,7 @@ public:
 class MonsterStoreWith2Monsters : public ::testing::Test
 {
 public:
-    MonsterStoreWith2Monsters() 
+    MonsterStoreWith2Monsters()
         : m_monsterStore(std::make_shared<MonsterStore>()),
           m_controller(m_monsterStore)
     {
