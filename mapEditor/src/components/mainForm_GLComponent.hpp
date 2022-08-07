@@ -23,10 +23,10 @@ public:
     SelectionMode getSelectionMode() const;
     unsigned int getMapWidth() const;
     unsigned int getMapHeight() const;
-    void setCurrentMap(std::shared_ptr<GameMap> map);
+    void setCurrentMap(std::shared_ptr<thewarrior::models::GameMap> map);
     void setResourcesPath(const std::string &path);
     void setSelectionMode(SelectionMode mode);
-    MapTile *getCurrentMapTile();
+    thewarrior::models::MapTile *getCurrentMapTile();
     void setLastSelectedTexture(const std::string &name, int index);
     void setLastSelectedObject(const std::string &name, int index);
     void clearLastSelectedTexture();
@@ -35,8 +35,8 @@ public:
     void startAutoUpdate();
     void resetMapMovePosition();
     void updateGL();
-    const std::vector<Texture>& getTextures() const;
-    std::optional<std::reference_wrapper<const Texture>> getTextureByName(const std::string &name) const;
+    const std::vector<thewarrior::models::Texture>& getTextures() const;
+    std::optional<std::reference_wrapper<const thewarrior::models::Texture>> getTextureByName(const std::string &name) const;
     std::vector<std::string> getAlreadyUsedTextureNames() const;
     bool isTextureUsedInMap(const std::string &name);
     void reloadTextures();
@@ -49,16 +49,17 @@ public:
                    int offsetRight,
                    int offsetBottom);
 signals:
-    void tileSelected(MapTile *tile, Point<> coord);
+    void tileSelected(thewarrior::models::MapTile *tile, thewarrior::models::Point<> coord);
 private:
     MapOpenGLWidget *m_glWidget;
     mapeditor::controllers::GLComponentController m_controller;
-    MapTile *m_currentMapTile;
+    thewarrior::models::MapTile *m_currentMapTile;
     std::string m_lastSelectedTextureName;
 	std::string m_lastSelectedObjectName;
 	int m_lastSelectedTextureIndex;
 	int m_lastSelectedObjectIndex;
     void onTileClicked(int tileIndex);
     void onTileMouseReleaseEvent(std::vector<int> selectedTileIndexes);
-    void addMoveDenyTrigger(const std::vector<int> &selectedTileIndexes, MapTileTriggerEvent event);
+    void addMoveDenyTrigger(const std::vector<int> &selectedTileIndexes,
+                            thewarrior::models::MapTileTriggerEvent event);
 };

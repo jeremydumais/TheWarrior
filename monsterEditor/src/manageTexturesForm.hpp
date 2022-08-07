@@ -14,7 +14,7 @@ Q_OBJECT
 public:
     ManageTexturesForm(QWidget *parent,
             const std::string &resourcesPath,
-            TextureContainer &textureContainer);
+            thewarrior::models::TextureContainer &textureContainer);
     void connectUIActions();
 private:
     Ui::manageTexturesFormClass ui;

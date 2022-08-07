@@ -13,6 +13,7 @@
 #include <ranges>
 
 using namespace commoneditor::ui;
+using namespace thewarrior::models;
 
 namespace itemeditor::controllers {
 

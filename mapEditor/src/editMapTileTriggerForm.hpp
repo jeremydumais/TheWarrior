@@ -12,16 +12,16 @@ Q_OBJECT
 public:
 	explicit EditMapTileTriggerForm(QWidget *parent,
 									const std::string &resourcesPath,
-									const MapTileTrigger * const currentTrigger,
-									const std::vector<MapTileTrigger> &allTriggers);
+									const thewarrior::models::MapTileTrigger * const currentTrigger,
+									const std::vector<thewarrior::models::MapTileTrigger> &allTriggers);
 	~EditMapTileTriggerForm() = default;
-	const MapTileTrigger &getUpdatedTrigger() const;
+	const thewarrior::models::MapTileTrigger &getUpdatedTrigger() const;
 private:
 	Ui::editMapTileTriggerFormClass ui;
 	std::string m_resourcesPath;
-	const MapTileTrigger * const m_currentTrigger;
-	const std::vector<MapTileTrigger> &m_allTriggers;
-	MapTileTrigger m_updatedTrigger;
+	const thewarrior::models::MapTileTrigger * const m_currentTrigger;
+	const std::vector<thewarrior::models::MapTileTrigger> &m_allTriggers;
+	thewarrior::models::MapTileTrigger m_updatedTrigger;
 	bool m_isEditMode;
 	void generateComboxItems();
 	void refreshComboBoxEvent();
@@ -29,7 +29,7 @@ private:
     void refreshComboBoxAction();
 	void onPushButtonTileActionPropertiesClick();
 	void onPushButtonOK();
-	
+
 };
 
 #endif // EDITMAPTILETRIGGERFORM_H

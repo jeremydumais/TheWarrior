@@ -6,6 +6,7 @@
 #include <linux/limits.h>   // PATH_MAX
 #include <unistd.h>         // readlink
 
+using namespace thewarrior::models;
 using namespace thewarrior::ui::models;
 
 namespace thewarrior::ui::controllers {

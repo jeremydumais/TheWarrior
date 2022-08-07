@@ -2,6 +2,7 @@
 #include "itemFoundMessage.hpp"
 #include "itemFoundMessageDTO.hpp"
 
+using namespace thewarrior::models;
 using namespace thewarrior::ui::models;
 
 namespace thewarrior::ui::controllers {

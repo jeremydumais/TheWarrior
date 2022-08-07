@@ -4,6 +4,7 @@
 #include <fmt/format.h>
 #include <stdexcept>
 
+using namespace thewarrior::models;
 using namespace thewarrior::ui::controllers;
 
 namespace thewarrior::ui {

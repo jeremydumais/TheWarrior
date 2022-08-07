@@ -2,6 +2,8 @@
 #include "boost/algorithm/string.hpp"
 #include <stdexcept>
 
+namespace thewarrior::models {
+
 Player::Player(const std::string &name)
     : m_level(1),
       m_health(10),
@@ -48,7 +50,7 @@ PlayerStats Player::getStats() const
         stats.attack += m_equipment.getMainHand()->getAttackGain();
     }
     if (m_equipment.getSecondaryHandType() != SecondaryHandType::None) {
-        if (m_equipment.getSecondaryHandType() == SecondaryHandType::Weapon) { 
+        if (m_equipment.getSecondaryHandType() == SecondaryHandType::Weapon) {
             stats.attack += boost::get<WeaponItem>(m_equipment.getSecondaryHand().get()).getAttackGain();
         }
         else {
@@ -90,3 +92,5 @@ void Player::validateName(const std::string &name) const
         throw std::invalid_argument("name cannot be null or empty.");
     }
 }
+
+} // namespace thewarrior::models

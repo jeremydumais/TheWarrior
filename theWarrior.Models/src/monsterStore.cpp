@@ -3,7 +3,9 @@
 
 using namespace std;
 
-MonsterStore::MonsterStore() 
+namespace thewarrior::models {
+
+MonsterStore::MonsterStore()
     : m_lastError(""),
       m_textureContainer(TextureContainer()),
       m_monsters(unordered_map<string, std::shared_ptr<Monster>>())
@@ -23,8 +25,8 @@ size_t MonsterStore::getMonsterCount() const
 std::vector<std::shared_ptr<Monster>> MonsterStore::getMonsters() const
 {
     std::vector<std::shared_ptr<Monster>> retval {};
-    std::transform(m_monsters.begin(), 
-                   m_monsters.end(), 
+    std::transform(m_monsters.begin(),
+                   m_monsters.end(),
                    std::back_inserter(retval),
                    [] (std::pair<const std::string &, std::shared_ptr<Monster>>monster) {
                        return std::reference_wrapper(monster.second);
@@ -53,13 +55,13 @@ bool MonsterStore::isMonsterExists(const std::string &id) const
 }
 
 
-bool MonsterStore::addMonster(std::shared_ptr<Monster> monster) 
+bool MonsterStore::addMonster(std::shared_ptr<Monster> monster)
 {
     bool wasInserted = m_monsters.insert({ monster->getId(), monster }).second;
     return wasInserted;
 }
 
-bool MonsterStore::replaceMonster(const string oldId, std::shared_ptr<Monster> monster) 
+bool MonsterStore::replaceMonster(const string oldId, std::shared_ptr<Monster> monster)
 {
     //Check if the old monster name specified exist
     const auto iter = m_monsters.find(oldId);
@@ -73,7 +75,7 @@ bool MonsterStore::replaceMonster(const string oldId, std::shared_ptr<Monster> m
     return wasInserted;
 }
 
-bool MonsterStore::removeMonster(const std::string &id) 
+bool MonsterStore::removeMonster(const std::string &id)
 {
     if (m_monsters.erase(id) == 0) {
         return false;
@@ -90,3 +92,5 @@ TextureContainer &MonsterStore::getTextureContainerForEdition()
 {
     return m_textureContainer;
 }
+
+} // namespace thewarrior::models

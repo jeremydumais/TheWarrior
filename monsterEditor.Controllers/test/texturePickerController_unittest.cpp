@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 
 using namespace MonsterEditorControllers;
+using namespace thewarrior::models;
 
 class TextureContainerSample1 : public ::testing::Test
 {

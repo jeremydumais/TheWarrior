@@ -6,6 +6,7 @@
 
 using namespace std;
 using namespace commoneditor::ui;
+using namespace thewarrior::models;
 
 MainForm_TextureSelectionComponent::MainForm_TextureSelectionComponent()
     : m_glComponent(nullptr),

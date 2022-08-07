@@ -27,14 +27,14 @@ public:
     void update();
     void render();
     void generateGLElements();
-    void gameWindowLocationChanged(const Point<float> &windowCenter);
+    void gameWindowLocationChanged(const thewarrior::models::Point<float> &windowCenter);
     boost::signals2::signal<void(size_t choice)> m_choiceClicked;
     boost::signals2::signal<void()> m_cancelClicked;
 private:
     std::shared_ptr<GLFormService> m_glFormService;
     std::shared_ptr<GLTextService> m_textService;
     std::shared_ptr<InputDevicesState> m_inputDevicesState = nullptr;
-    Point<float> m_windowCenter;
+    thewarrior::models::Point<float> m_windowCenter;
     size_t m_menuCursorPosition;
     size_t m_menuItemCount;
     //TODO Code the Optional question

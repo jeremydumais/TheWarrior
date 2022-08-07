@@ -69,9 +69,9 @@ private:
     void addNewRecentMap(const std::string &filePath);
     void mapPaint(QPaintEvent *e);
     void resizeEvent(QResizeEvent *) override;
-    void onTileSelected(MapTile *tile, Point<> coord);
-    void onTextureAdded(TextureInfo textureInfo);
-    void onTextureUpdated(const std::string &name, TextureInfo textureInfo);
+    void onTileSelected(thewarrior::models::MapTile *tile, thewarrior::models::Point<> coord);
+    void onTextureAdded(thewarrior::models::TextureInfo textureInfo);
+    void onTextureUpdated(const std::string &name, thewarrior::models::TextureInfo textureInfo);
     void onTextureDeleted(const std::string &name);
     void refreshTextureList();
 };

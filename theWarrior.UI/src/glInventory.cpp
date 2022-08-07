@@ -6,6 +6,8 @@
 #include <fmt/format.h>
 #include <iostream>
 
+using namespace thewarrior::models;
+
 namespace thewarrior::ui {
 
 const size_t COL_MAX = 7;

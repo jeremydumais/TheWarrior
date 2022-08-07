@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 
 using namespace std;
+using namespace thewarrior::models;
 
 class SampleGameMap5x6WithTwoTextures : public ::testing::Test
 {
@@ -56,15 +57,15 @@ public:
         tile8.setTextureIndex(0);
 		tile8.setCanPlayerSteppedOn(false);
         auto &tile13 { map.getTileForEditing(13) };
-        tile13.setTextureIndex(0); 
+        tile13.setTextureIndex(0);
         auto &tile14 { map.getTileForEditing(14) };
-        tile14.setTextureIndex(0); 
+        tile14.setTextureIndex(0);
         auto &tile15 { map.getTileForEditing(15) };
-        tile15.setTextureIndex(1); 
+        tile15.setTextureIndex(1);
         auto &tile20 { map.getTileForEditing(20) };
-        tile20.setObjectTextureIndex(1); 
+        tile20.setObjectTextureIndex(1);
         auto &tile28 { map.getTileForEditing(28) };
-        tile28.setObjectTextureName("tex1"); 
+        tile28.setObjectTextureName("tex1");
     }
 	GameMap map;
 };
@@ -77,7 +78,7 @@ TEST(GameMap_Constructor, ZeroWidth_ThrowInvalidArgument)
 		GameMap map(0, 10);
 		FAIL();
 	}
-	catch(invalid_argument &err) 
+	catch(invalid_argument &err)
 	{
         ASSERT_STREQ("width must be greater than zero.", err.what());
 	}
@@ -90,7 +91,7 @@ TEST(GameMap_Constructor, ZeroHeight_ThrowInvalidArgument)
 		GameMap map(10, 0);
 		FAIL();
 	}
-	catch(invalid_argument &err) 
+	catch(invalid_argument &err)
 	{
         ASSERT_STREQ("height must be greater than zero.", err.what());
 	}
@@ -536,10 +537,10 @@ TEST_F(SampleGameMapWithTilesAssigned, resizeMap_WithOffsetLeftNegativeAndGreate
 		map.resizeMap(-6, 0, 0, 0);
 		FAIL();
 	}
-	catch(invalid_argument &err) 
+	catch(invalid_argument &err)
 	{
         ASSERT_STREQ("This left offset would remove all the remaining tiles.", err.what());
-	}	
+	}
 }
 
 TEST_F(SampleGameMapWithTilesAssigned, resizeMap_WithOffsetTopNegativeAndGreaterThanRemainingTiles_ThrowInvalidArgument)
@@ -549,10 +550,10 @@ TEST_F(SampleGameMapWithTilesAssigned, resizeMap_WithOffsetTopNegativeAndGreater
 		map.resizeMap(0, -6, 0, 0);
 		FAIL();
 	}
-	catch(invalid_argument &err) 
+	catch(invalid_argument &err)
 	{
         ASSERT_STREQ("This top offset would remove all the remaining tiles.", err.what());
-	}	
+	}
 }
 
 TEST_F(SampleGameMapWithTilesAssigned, resizeMap_WithOffsetRightNegativeAndGreaterThanRemainingTiles_ThrowInvalidArgument)
@@ -562,10 +563,10 @@ TEST_F(SampleGameMapWithTilesAssigned, resizeMap_WithOffsetRightNegativeAndGreat
 		map.resizeMap(0, 0, -6, 0);
 		FAIL();
 	}
-	catch(invalid_argument &err) 
+	catch(invalid_argument &err)
 	{
         ASSERT_STREQ("This right offset would remove all the remaining tiles.", err.what());
-	}	
+	}
 }
 
 TEST_F(SampleGameMapWithTilesAssigned, resizeMap_WithOffsetBottomNegativeAndGreaterThanRemainingTiles_ThrowInvalidArgument)
@@ -575,10 +576,10 @@ TEST_F(SampleGameMapWithTilesAssigned, resizeMap_WithOffsetBottomNegativeAndGrea
 		map.resizeMap(0, 0, 0, -6);
 		FAIL();
 	}
-	catch(invalid_argument &err) 
+	catch(invalid_argument &err)
 	{
         ASSERT_STREQ("This bottom offset would remove all the remaining tiles.", err.what());
-	}	
+	}
 }
 
 TEST_F(SampleGameMapWithTilesAssigned, canSteppedOnTile_WithPoint2And2_ReturnTrue)

@@ -24,20 +24,20 @@ struct MonsterDTO
 class ManageMonsterController
 {
 public:
-    ManageMonsterController(std::shared_ptr<MonsterStore> monsterStore);
+    ManageMonsterController(std::shared_ptr<thewarrior::models::MonsterStore> monsterStore);
     virtual ~ManageMonsterController() = default;
     const std::string &getLastError() const;
-    const TextureContainer &getTextureContainer() const;
+    const thewarrior::models::TextureContainer &getTextureContainer() const;
     virtual std::unique_ptr<MonsterDTO> getMonster(const std::string &id) const;
     bool addMonster(std::unique_ptr<MonsterDTO> monsterInfo);
     bool updateMonster(std::unique_ptr<MonsterDTO> monsterInfo,
                     const std::string &oldMonsterId);
     bool deleteMonster(const std::string &monsterId);
 protected:
-    std::shared_ptr<MonsterStore> m_monsterStore;
+    std::shared_ptr<thewarrior::models::MonsterStore> m_monsterStore;
     std::string m_lastError;
-    std::shared_ptr<MonsterStore> getMonsterStore();
-    virtual std::shared_ptr<Monster> monsterDTOToMonster(std::unique_ptr<MonsterDTO> dto);
+    std::shared_ptr<thewarrior::models::MonsterStore> getMonsterStore();
+    virtual std::shared_ptr<thewarrior::models::Monster> monsterDTOToMonster(std::unique_ptr<MonsterDTO> dto);
 };
 
 } // namespace ManageMonsterController

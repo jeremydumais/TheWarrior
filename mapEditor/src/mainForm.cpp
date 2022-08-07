@@ -19,6 +19,7 @@
 
 using namespace std;
 using namespace commoneditor::ui;
+using namespace thewarrior::models;
 
 const std::string MainForm::THEME_PATH { "Display.Theme" };
 const std::string MainForm::RECENT_MAPS { "Map.Recents" };

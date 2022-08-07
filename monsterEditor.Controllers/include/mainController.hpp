@@ -26,8 +26,8 @@ class MainController
 {
 public:
     MainController();
-    TextureContainer &getTextureContainerForEdition();
-    std::shared_ptr<MonsterStore> getMonsterStore();
+    thewarrior::models::TextureContainer &getTextureContainerForEdition();
+    std::shared_ptr<thewarrior::models::MonsterStore> getMonsterStore();
     const std::string &getLastError() const;
     bool openMonsterStore(const std::string &fileName);
     bool saveMonsterStore(const std::string &fileName);
@@ -36,7 +36,7 @@ public:
                                                      const std::string &resourcesPath) const;
     bool deleteMonster(const std::string &id);
 private:
-    std::shared_ptr<MonsterStore> m_monsterStore;
+    std::shared_ptr<thewarrior::models::MonsterStore> m_monsterStore;
     std::string m_lastError;
 };
 

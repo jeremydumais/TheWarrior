@@ -1,10 +1,12 @@
 #pragma once
 
+namespace thewarrior::models {
+
 template<typename T = int>
 class Size
 {
 public:
-    Size(T width, T height) 
+    Size(T width, T height)
         : m_width(width), m_height(height) {}
     T width() const { return m_width; };
     T height() const { return m_height; };
@@ -25,3 +27,5 @@ private:
     T m_width;
     T m_height;
 };
+
+} // namespace thewarrior::models

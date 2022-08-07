@@ -1,6 +1,8 @@
 #include "player.hpp"
 #include <gtest/gtest.h>
 
+using namespace thewarrior::models;
+
 class PlayerSample : public ::testing::Test
 {
 public:
@@ -78,12 +80,12 @@ TEST(Player_Constructor, WithJedName_ReturnSuccess)
     ASSERT_EQ("Jed", actual.getName());
 }
 
-TEST_F(PlayerSample, getName_ReturnPlayer1) 
+TEST_F(PlayerSample, getName_ReturnPlayer1)
 {
     ASSERT_EQ("player1", player.getName());
 }
 
-TEST_F(PlayerSample, getLevel_Return1) 
+TEST_F(PlayerSample, getLevel_Return1)
 {
     ASSERT_EQ(1, player.getLevel());
 }

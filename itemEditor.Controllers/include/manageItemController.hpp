@@ -20,20 +20,20 @@ struct ItemDTO
 class ManageItemController
 {
 public:
-    ManageItemController(std::shared_ptr<ItemStore> itemStore);
+    ManageItemController(std::shared_ptr<thewarrior::models::ItemStore> itemStore);
     virtual ~ManageItemController() = default;
     const std::string &getLastError() const;
-    const TextureContainer &getTextureContainer() const;
+    const thewarrior::models::TextureContainer &getTextureContainer() const;
     virtual std::unique_ptr<ItemDTO> getItem(const std::string &id) const;
     bool addItem(std::unique_ptr<ItemDTO> itemInfo);
     bool updateItem(std::unique_ptr<ItemDTO> itemInfo,
                     const std::string &oldItemId);
     bool deleteItem(const std::string &itemId);
 protected:
-    std::shared_ptr<ItemStore> m_itemStore;
+    std::shared_ptr<thewarrior::models::ItemStore> m_itemStore;
     std::string m_lastError;
-    std::shared_ptr<ItemStore> getItemStore();
-    virtual std::shared_ptr<Item> itemDTOToItem(std::unique_ptr<ItemDTO> dto);
+    std::shared_ptr<thewarrior::models::ItemStore> getItemStore();
+    virtual std::shared_ptr<thewarrior::models::Item> itemDTOToItem(std::unique_ptr<ItemDTO> dto);
 };
 
 } // namespace itemeditor::controllers

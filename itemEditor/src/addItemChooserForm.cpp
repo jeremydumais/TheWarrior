@@ -1,5 +1,7 @@
 #include "addItemChooserForm.hpp"
 
+using namespace thewarrior::models;
+
 AddItemChooserForm::AddItemChooserForm(QWidget *parent)
     : QDialog(parent),
     ui(Ui::addItemChooserFormClass()),

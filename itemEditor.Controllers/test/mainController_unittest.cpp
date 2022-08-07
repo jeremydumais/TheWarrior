@@ -6,6 +6,7 @@
 #include <memory>
 
 using namespace itemeditor::controllers;
+using namespace thewarrior::models;
 
 class MainControllerSampleWithOneItem : public ::testing::Test
 {

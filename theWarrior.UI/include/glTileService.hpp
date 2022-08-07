@@ -20,7 +20,7 @@ public:
                               unsigned int mapHeight,
                               int windowWidth,
                               int windowHeight,
-                              Point<float> playerPosition);
+                              thewarrior::models::Point<float> playerPosition);
 private:
     std::string m_lastError;
     std::shared_ptr<GLShaderProgram> m_shaderProgram;

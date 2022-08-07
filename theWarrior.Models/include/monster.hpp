@@ -6,6 +6,8 @@
 #include <string>
 #include <utility>
 
+namespace thewarrior::models {
+
 struct MonsterCreationInfo
 {
     std::string id;
@@ -68,4 +70,7 @@ private:
         ar & m_goldMaximum;
     }
 };
-BOOST_CLASS_VERSION(Monster, 0)
+
+} // namespace thewarrior::models
+
+BOOST_CLASS_VERSION(thewarrior::models::Monster, 0)

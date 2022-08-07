@@ -13,6 +13,7 @@
 
 using namespace std;
 using namespace commoneditor::ui;
+using namespace thewarrior::models;
 
 EditMapTileTriggerForm::EditMapTileTriggerForm(QWidget *parent,
         const string &resourcesPath,

@@ -19,7 +19,7 @@ Q_OBJECT
 public:
     TexturePickerForm(QWidget *parent,
             const std::string &resourcesPath,
-            const TextureContainer &textureContainer);
+            const thewarrior::models::TextureContainer &textureContainer);
     void connectUIActions();
     void setCurrentSelection(const std::string &textureName,
             int textureIndex);

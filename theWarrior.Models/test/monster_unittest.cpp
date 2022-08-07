@@ -1,6 +1,8 @@
 #include "monster.hpp"
 #include <gtest/gtest.h>
 
+using namespace thewarrior::models;
+
 MonsterCreationInfo getMonsterInfoSample1()
 {
     return {

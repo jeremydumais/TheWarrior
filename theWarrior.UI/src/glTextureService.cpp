@@ -4,6 +4,8 @@
 #include <stb_image.h>
 #include <stdexcept>
 
+using namespace thewarrior::models;
+
 namespace thewarrior::ui {
 
 GLTextureService::GLTextureService()

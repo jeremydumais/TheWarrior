@@ -57,7 +57,7 @@ private:
 	void onPushButtonEditItemClick();
 	void onPushButtonDeleteItemClick();
 	std::optional<std::string> getSelectedItemId() const;
-	std::unique_ptr<QDialog> getItemTypeForm(ItemType itemType, std::optional<std::string> itemIdToEdit);
+	std::unique_ptr<QDialog> getItemTypeForm(thewarrior::models::ItemType itemType, std::optional<std::string> itemIdToEdit);
 };
 
 #endif // MAINFORM_H

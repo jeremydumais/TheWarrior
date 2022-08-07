@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+namespace thewarrior::models {
+
 class MapTileTriggerConditionConverter
 {
 public:
@@ -13,3 +15,5 @@ public:
     static boost::optional<MapTileTriggerCondition> conditionFromString(const std::string &conditionStr);
     static std::vector<std::string> allConditionsToString();
 };
+
+} // namespace thewarrior::models

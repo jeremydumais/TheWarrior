@@ -5,12 +5,12 @@
 #include <memory>
 #include <string>
 
-class ItemStoreStorage 
+class ItemStoreStorage
 {
 public:
-    void loadItemStore(const std::string &fileName, std::shared_ptr<ItemStore> itemStore);
-    void saveItemStore(const std::string &fileName, std::shared_ptr<ItemStore> itemStore);
-    void setFileStream(std::unique_ptr<IBinaryFileStream<ItemStore>> bfs);
+    void loadItemStore(const std::string &fileName, std::shared_ptr<thewarrior::models::ItemStore> itemStore);
+    void saveItemStore(const std::string &fileName, std::shared_ptr<thewarrior::models::ItemStore> itemStore);
+    void setFileStream(std::unique_ptr<IBinaryFileStream<thewarrior::models::ItemStore>> bfs);
 private:
-    std::unique_ptr<IBinaryFileStream<ItemStore>> m_bfs;
+    std::unique_ptr<IBinaryFileStream<thewarrior::models::ItemStore>> m_bfs;
 };

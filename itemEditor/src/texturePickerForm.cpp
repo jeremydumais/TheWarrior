@@ -9,6 +9,7 @@
 
 using namespace commoneditor::ui;
 using namespace itemeditor::controllers;
+using namespace thewarrior::models;
 
 TexturePickerForm::TexturePickerForm(QWidget *parent,
         const std::string &resourcesPath,

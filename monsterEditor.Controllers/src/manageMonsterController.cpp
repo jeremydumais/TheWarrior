@@ -3,6 +3,8 @@
 #include <memory>
 #include <stdexcept>
 
+using namespace thewarrior::models;
+
 namespace monstereditor::controllers {
 
 ManageMonsterController::ManageMonsterController(std::shared_ptr<MonsterStore> monsterStore)

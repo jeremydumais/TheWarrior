@@ -1,6 +1,7 @@
 #include "mainForm_GLComponent.hpp"
 
 using namespace std;
+using namespace thewarrior::models;
 
 MainForm_GLComponent::MainForm_GLComponent()
     : m_glWidget(nullptr),

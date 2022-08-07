@@ -1,5 +1,7 @@
 #include "glFormService.hpp"
 
+using namespace thewarrior::models;
+
 namespace thewarrior::ui {
 
 GLFormService::GLFormService()

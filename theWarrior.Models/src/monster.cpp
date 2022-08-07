@@ -2,6 +2,8 @@
 #include <boost/algorithm/string.hpp>
 #include <stdexcept>
 
+namespace thewarrior::models {
+
 void validateMonsterId(const std::string &id);
 void validateMonsterName(const std::string &name);
 void validateMonsterTextureName(const std::string &textureName);
@@ -30,12 +32,12 @@ Monster::Monster(MonsterCreationInfo info)
 bool Monster::operator==(const Monster &other) const
 {
     if (typeid(*this).hash_code() != typeid(other).hash_code()) {
-        return false;    
+        return false;
     }
     return this->m_id == other.m_id &&
            this->m_name == other.m_name &&
            this->m_textureName == other.m_textureName &&
-           this->m_textureIndex == other.m_textureIndex && 
+           this->m_textureIndex == other.m_textureIndex &&
            this->m_health == other.m_health &&
            this->m_attack == other.m_attack &&
            this->m_defense == other.m_defense &&
@@ -134,7 +136,7 @@ void Monster::setGoldRewardRange(int minimum, int maximum)
     m_goldMaximum = maximum;
 }
 
-void validateMonsterId(const std::string &id) 
+void validateMonsterId(const std::string &id)
 {
     std::string sanitizedId { boost::trim_copy(id) };
     if (sanitizedId.empty()) {
@@ -175,3 +177,5 @@ void validateMonsterGoldReward(const int minimum, const int maximum)
         throw std::invalid_argument("gold reward maximum must be greater or equal to the minimum.");
     }
 }
+
+} // namespace thewarrior::models

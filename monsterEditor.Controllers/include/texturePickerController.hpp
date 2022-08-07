@@ -12,20 +12,20 @@ namespace MonsterEditorControllers
 class TexturePickerController
 {
 public:
-    TexturePickerController(const TextureContainer &textureContainer);
+    TexturePickerController(const thewarrior::models::TextureContainer &textureContainer);
     std::vector<std::string> getTextureNames() const;
     std::string getTextureFileName(const std::string &resourcesPath,
                                    const std::string &textureName) const;
     bool isTextureExist(const std::string &name) const;
-    int getTextureIndexFromPosition(const Point<> &pos,
+    int getTextureIndexFromPosition(const thewarrior::models::Point<> &pos,
                                     const std::string &textureName,
                                     const float ratio = 1.0F) const;
     QPixmap getTextureTileImageFromTexture(const QPixmap *sourcePixmap,
                                            int tileIndex,
                                            const std::string &textureName) const;
 private:
-    const TextureContainer &m_textureContainer;
-    std::optional<std::reference_wrapper<const Texture>> getTextureByName(const std::string &name) const;
+    const thewarrior::models::TextureContainer &m_textureContainer;
+    std::optional<std::reference_wrapper<const thewarrior::models::Texture>> getTextureByName(const std::string &name) const;
 
 };
 } // namespace MonsterEditorControllers

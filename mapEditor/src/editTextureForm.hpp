@@ -14,13 +14,13 @@ Q_OBJECT
 public:
     explicit EditTextureForm(QWidget *parent,
             const std::string &resourcesPath,
-            const Texture * const texture,
+            const thewarrior::models::Texture * const texture,
             const std::vector<std::string> &alreadyUsedNames);
-    const TextureInfo &getTextureInfo() const;
+    const thewarrior::models::TextureInfo &getTextureInfo() const;
 private:
     Ui::editTextureFormClass ui;
     std::string m_resourcesPath;
-    TextureInfo m_textureInfo;
+    thewarrior::models::TextureInfo m_textureInfo;
     const std::vector<std::string> &m_alreadyUsedNames;
     bool m_isEditMode;
     void showErrorMessage(const std::string &message) const;

@@ -10,6 +10,8 @@
 #include <qpixmap.h>
 #include <string>
 
+using namespace thewarrior::models;
+
 TexturePickerForm::TexturePickerForm(QWidget *parent,
         const std::string &resourcesPath,
         const TextureContainer &textureContainer)

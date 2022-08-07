@@ -1,5 +1,7 @@
 #include "glChoicePopup.hpp"
 
+using namespace thewarrior::models;
+
 namespace thewarrior::ui {
 
 GLChoicePopup::GLChoicePopup()

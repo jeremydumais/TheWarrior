@@ -1,6 +1,9 @@
 #include "glCharacterWindow.hpp"
+#include <fmt/core.h>
 #include <fmt/format.h>
 #include <string>
+
+using namespace thewarrior::models;
 
 namespace thewarrior::ui {
 

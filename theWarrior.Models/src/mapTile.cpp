@@ -3,7 +3,9 @@
 
 using namespace std;
 
-MapTile::MapTile() 
+namespace thewarrior::models {
+
+MapTile::MapTile()
     : m_textureName(""),
       m_textureIndex(-1),
       m_objectTextureName(""),
@@ -48,7 +50,7 @@ bool MapTile::hasObjectTexture() const
 bool MapTile::isAssigned() const
 {
     return (!m_textureName.empty() ||
-            m_textureIndex != -1 || 
+            m_textureIndex != -1 ||
             !m_objectTextureName.empty() ||
             m_objectTextureIndex != -1);
 }
@@ -83,7 +85,7 @@ boost::optional<const MapTileTrigger &> MapTile::findConstTrigger(MapTileTrigger
     return {};
 }
 
-boost::optional<MapTileTrigger &> MapTile::findTrigger(MapTileTriggerEvent event) 
+boost::optional<MapTileTrigger &> MapTile::findTrigger(MapTileTriggerEvent event)
 {
     auto iter = std::find_if(m_triggers.begin(), m_triggers.end(), [&event](const MapTileTrigger &trigger) {
 	    return trigger.getEvent() == event; });
@@ -93,47 +95,47 @@ boost::optional<MapTileTrigger &> MapTile::findTrigger(MapTileTriggerEvent event
     return {};
 }
 
-void MapTile::setTextureName(const std::string &name) 
+void MapTile::setTextureName(const std::string &name)
 {
     m_textureName = name;
 }
 
-void MapTile::setTextureIndex(int index) 
+void MapTile::setTextureIndex(int index)
 {
     m_textureIndex = index;
 }
 
-void MapTile::setObjectTextureName(const std::string &name) 
+void MapTile::setObjectTextureName(const std::string &name)
 {
     m_objectTextureName = name;
 }
 
-void MapTile::setObjectTextureIndex(int index) 
+void MapTile::setObjectTextureIndex(int index)
 {
     m_objectTextureIndex = index;
 }
 
-void MapTile::setCanPlayerSteppedOn(bool value) 
+void MapTile::setCanPlayerSteppedOn(bool value)
 {
     m_canSteppedOn = value;
 }
 
-void MapTile::setObjectAbovePlayer(bool value) 
+void MapTile::setObjectAbovePlayer(bool value)
 {
     m_objectAbovePlayer = value;
 }
 
-void MapTile::setIsWallToClimb(bool value) 
+void MapTile::setIsWallToClimb(bool value)
 {
     m_isWallToClimb = value;
 }
 
-void MapTile::addTrigger(const MapTileTrigger &trigger) 
+void MapTile::addTrigger(const MapTileTrigger &trigger)
 {
     m_triggers.emplace_back(trigger);
 }
 
-bool MapTile::updateTrigger(const MapTileTrigger &triggerToUpdate, const MapTileTrigger &updatedTrigger) 
+bool MapTile::updateTrigger(const MapTileTrigger &triggerToUpdate, const MapTileTrigger &updatedTrigger)
 {
     auto iter { find_if(m_triggers.begin(), m_triggers.end(), [&triggerToUpdate](const MapTileTrigger &trigger) {
         return triggerToUpdate.getEvent() == trigger.getEvent();
@@ -145,7 +147,7 @@ bool MapTile::updateTrigger(const MapTileTrigger &triggerToUpdate, const MapTile
     return false;
 }
 
-bool MapTile::deleteTrigger(const MapTileTrigger &triggerToDelete) 
+bool MapTile::deleteTrigger(const MapTileTrigger &triggerToDelete)
 {
     auto oldSize { m_triggers.size() };
     auto newTriggersEnd { remove_if(m_triggers.begin(), m_triggers.end(), [&triggerToDelete](const MapTileTrigger &trigger) {
@@ -154,3 +156,5 @@ bool MapTile::deleteTrigger(const MapTileTrigger &triggerToDelete)
     m_triggers.erase(newTriggersEnd, m_triggers.end());
     return oldSize - m_triggers.size() > 0;
 }
+
+} // namespace thewarrior::models

@@ -2,6 +2,8 @@
 #include <cmath>
 #include <math.h>
 
+using namespace thewarrior::models;
+
 namespace commoneditor::ui {
 
 int TextureUtils::getTextureIndexFromPosition(const Point<> &pos,

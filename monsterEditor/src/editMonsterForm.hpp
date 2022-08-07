@@ -15,7 +15,7 @@ Q_OBJECT
 public:
     EditMonsterForm(QWidget *parent,
             const std::string &resourcesPath,
-            std::shared_ptr<MonsterStore> monsterStore,
+            std::shared_ptr<thewarrior::models::MonsterStore> monsterStore,
             std::optional<std::string> monsterIdToEdit);
     void connectUIActions();
 private:

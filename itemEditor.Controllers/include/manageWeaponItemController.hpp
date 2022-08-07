@@ -17,12 +17,12 @@ struct WeaponItemDTO : public ItemDTO
 class ManageWeaponItemController : public ManageItemController
 {
 public:
-    ManageWeaponItemController(std::shared_ptr<ItemStore> itemStore);
+    ManageWeaponItemController(std::shared_ptr<thewarrior::models::ItemStore> itemStore);
     virtual ~ManageWeaponItemController() = default;
     bool validateAttackGain(const std::string &attackGainStr);
     virtual std::unique_ptr<ItemDTO> getItem(const std::string &id) const override;
 private:
-    virtual std::shared_ptr<Item> itemDTOToItem(std::unique_ptr<ItemDTO> dto) override;
+    virtual std::shared_ptr<thewarrior::models::Item> itemDTOToItem(std::unique_ptr<ItemDTO> dto) override;
 };
 
 } // namespace itemeditor::controllers

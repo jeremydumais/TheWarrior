@@ -3,6 +3,7 @@
 #include <memory>
 
 using namespace monstereditor::controllers;
+using namespace thewarrior::models;
 
 class MonsterDTOSamples
 {

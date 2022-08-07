@@ -11,8 +11,8 @@ class GLComponentController
 {
 public:
     GLComponentController();
-    const std::shared_ptr<GameMap> getMap() const;
-    void setCurrentMap(std::shared_ptr<GameMap> map);
+    const std::shared_ptr<thewarrior::models::GameMap> getMap() const;
+    void setCurrentMap(std::shared_ptr<thewarrior::models::GameMap> map);
     std::vector<std::string> getAlreadyUsedTextureNames() const;
     bool isTextureUsedInMap(const std::string &name);
     bool isShrinkMapImpactAssignedTiles(int offsetLeft,
@@ -24,7 +24,7 @@ public:
                    int offsetRight,
                    int offsetBottom);
 private:
-    std::shared_ptr<GameMap> m_map;
+    std::shared_ptr<thewarrior::models::GameMap> m_map;
 };
 
 } // namespace mapeditor::controllers

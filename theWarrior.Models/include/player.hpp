@@ -9,6 +9,8 @@
 #include <memory>
 #include <string>
 
+namespace thewarrior::models {
+
 class Player
 {
 public:
@@ -43,4 +45,7 @@ private:
         //To define
     }
 };
-BOOST_CLASS_VERSION(Player, 0)
+
+} // namespace thewarrior::models
+
+BOOST_CLASS_VERSION(thewarrior::models::Player, 0)

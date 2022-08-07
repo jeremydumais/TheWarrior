@@ -6,6 +6,7 @@
 #include <fmt/format.h>
 
 using namespace commoneditor::ui;
+using namespace thewarrior::models;
 
 MainForm_TileTabComponent::MainForm_TileTabComponent()
     : m_glComponent(nullptr),

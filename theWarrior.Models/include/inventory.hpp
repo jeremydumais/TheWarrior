@@ -8,6 +8,8 @@
 #include <map>
 #include <memory>
 
+namespace thewarrior::models {
+
 #define INVENTORY_MAX 35
 
 typedef std::array<std::shared_ptr<const Item>, INVENTORY_MAX> InventoryArray;
@@ -34,4 +36,7 @@ private:
         //To define
     }
 };
-BOOST_CLASS_VERSION(Inventory, 0)
+
+} // namespace thewarrior::models
+
+BOOST_CLASS_VERSION(thewarrior::models::Inventory, 0)

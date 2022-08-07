@@ -3,6 +3,7 @@
 
 using namespace std;
 using namespace monstereditor::controllers;
+using namespace thewarrior::models;
 
 class MapTextureControllerWith2Textures : public ::testing::Test
 {

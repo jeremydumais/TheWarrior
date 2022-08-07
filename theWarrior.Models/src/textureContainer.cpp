@@ -4,7 +4,9 @@
 
 using namespace std;
 
-TextureContainer::TextureContainer() 
+namespace thewarrior::models {
+
+TextureContainer::TextureContainer()
     : m_textures(vector<Texture>())
 {
 }
@@ -33,7 +35,7 @@ optional<reference_wrapper<const Texture>> TextureContainer::getTextureByName(co
     return nullopt;
 }
 
-bool TextureContainer::addTexture(const TextureInfo &textureInfo) 
+bool TextureContainer::addTexture(const TextureInfo &textureInfo)
 {
     //Check that name doesn't already exist in the list
     if (getTextureByName(textureInfo.name).has_value()) {
@@ -50,7 +52,7 @@ bool TextureContainer::addTexture(const TextureInfo &textureInfo)
     return true;
 }
 
-bool TextureContainer::replaceTexture(const std::string &name, const TextureInfo &textureInfo) 
+bool TextureContainer::replaceTexture(const std::string &name, const TextureInfo &textureInfo)
 {
     //Find the texture to replace
     auto iter { getTextureIterator(name) };
@@ -75,7 +77,7 @@ bool TextureContainer::replaceTexture(const std::string &name, const TextureInfo
     return true;
 }
 
-bool TextureContainer::removeTexture(const std::string &name) 
+bool TextureContainer::removeTexture(const std::string &name)
 {
     //Find the texture to delete
     auto iter { getTextureIterator(name) };
@@ -93,3 +95,5 @@ vector<Texture>::iterator TextureContainer::getTextureIterator(const string &nam
         return x.getName() == name;
     });
 }
+
+} // namespace thewarrior::models

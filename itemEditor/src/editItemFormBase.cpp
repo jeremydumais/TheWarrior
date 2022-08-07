@@ -2,6 +2,8 @@
 #include "texturePickerForm.hpp"
 #include <boost/algorithm/string.hpp>
 
+using namespace thewarrior::models;
+
 EditItemFormBase::EditItemFormBase(QWidget *parent,
         const std::string &resourcesPath,
         std::optional<std::string> itemIdToEdit)

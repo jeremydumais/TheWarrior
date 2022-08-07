@@ -3,6 +3,7 @@
 
 using namespace std;
 using namespace commoneditor::ui;
+using namespace thewarrior::models;
 
 Texture getTextureSample1() {
     return Texture({

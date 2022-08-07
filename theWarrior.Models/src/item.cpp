@@ -5,12 +5,14 @@
 using namespace boost::algorithm;
 using namespace std;
 
+namespace thewarrior::models {
+
 void validateItemId(const std::string &id);
 void validateItemName(const std::string &name);
 void validateItemTextureName(const std::string &textureName);
 void validateItemTextureIndex(int textureIndex);
 
-Item::Item(const ItemCreationInfo &itemInfo) 
+Item::Item(const ItemCreationInfo &itemInfo)
     : m_id(itemInfo.id),
       m_name(itemInfo.name),
       m_textureName(itemInfo.textureName),
@@ -33,15 +35,15 @@ Item::Item()
 {
 }
 
-bool Item::equals(const Item &other) const 
+bool Item::equals(const Item &other) const
 {
     if (typeid(*this).hash_code() != typeid(other).hash_code()) {
-        return false;    
+        return false;
     }
     return this->m_id == other.m_id &&
            this->m_name == other.m_name &&
            this->m_textureName == other.m_textureName &&
-           this->m_textureIndex == other.m_textureIndex && 
+           this->m_textureIndex == other.m_textureIndex &&
            this->m_optionalDescription == other.m_optionalDescription;
 }
 
@@ -85,25 +87,25 @@ const std::string &Item::getOptionalDescription() const
     return m_optionalDescription;
 }
 
-void Item::setId(const std::string &id) 
+void Item::setId(const std::string &id)
 {
     validateItemId(id);
     m_id = id;
 }
 
-void Item::setName(const std::string &name) 
+void Item::setName(const std::string &name)
 {
     validateItemName(name);
     m_name = name;
 }
 
-void Item::setTextureName(const std::string &name) 
+void Item::setTextureName(const std::string &name)
 {
     validateItemTextureName(name);
     m_textureName = name;
 }
 
-void Item::setTextureIndex(const int index) 
+void Item::setTextureIndex(const int index)
 {
     validateItemTextureIndex(index);
     m_textureIndex = index;
@@ -114,7 +116,7 @@ void Item::setOptionalDescription(const std::string &description)
     m_optionalDescription = description;
 }
 
-void validateItemId(const std::string &id) 
+void validateItemId(const std::string &id)
 {
     string sanitizedId { trim_copy(id) };
     if (sanitizedId.empty()) {
@@ -125,7 +127,7 @@ void validateItemId(const std::string &id)
     }
 }
 
-void validateItemName(const std::string &name) 
+void validateItemName(const std::string &name)
 {
     if (trim_copy(name).empty()) {
         throw invalid_argument("name cannot be empty.");
@@ -139,9 +141,11 @@ void validateItemTextureName(const std::string &textureName)
     }
 }
 
-void validateItemTextureIndex(const int textureIndex) 
+void validateItemTextureIndex(const int textureIndex)
 {
     if (textureIndex < 0) {
         throw invalid_argument("textureIndex must be a positive number.");
     }
 }
+
+} // namespace thewarrior::models

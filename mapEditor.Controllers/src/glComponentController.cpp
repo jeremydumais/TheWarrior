@@ -2,6 +2,7 @@
 #include <algorithm>
 
 using namespace std;
+using namespace thewarrior::models;
 
 namespace mapeditor::controllers {
 

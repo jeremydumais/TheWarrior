@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+namespace thewarrior::models {
+
 class MapTileTriggerActionConverter
 {
 public:
@@ -13,3 +15,5 @@ public:
     static boost::optional<MapTileTriggerAction> actionFromString(const std::string &actionStr);
     static std::vector<std::string> allActionsToString();
 };
+
+} // namespace thewarrior::models

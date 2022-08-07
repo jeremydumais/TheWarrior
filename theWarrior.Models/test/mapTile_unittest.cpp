@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 
 using namespace std;
+using namespace thewarrior::models;
 
 class MapTileWith2Triggers : public ::testing::Test
 {
@@ -279,7 +280,7 @@ TEST_F(MapTileWith2Triggers, deleteTrigger_WithFirstTrigger_ReturnTrue)
 	ASSERT_EQ(secondTrigger.getCondition(), tile.getTriggers()[0].getCondition());
 	ASSERT_EQ(secondTrigger.getAction(), tile.getTriggers()[0].getAction());
 	ASSERT_EQ(0, tile.getTriggers()[0].getActionProperties().size());
-	
+
 }
 
 TEST_F(MapTileWith2Triggers, deleteTrigger_WithSecondTrigger_ReturnTrue)
@@ -299,7 +300,7 @@ TEST_F(MapTileWith2Triggers, deleteTrigger_WithInexistantTrigger_ReturnFalse)
 								   			MapTileTriggerCondition::None,
 								     		MapTileTriggerAction::ChangeMap,
 								     		map<string, string>()) };
-								
+
 	ASSERT_EQ(2, tile.getTriggers().size());
 	ASSERT_FALSE(tile.deleteTrigger(inexistantTrigger));
 	ASSERT_EQ(2, tile.getTriggers().size());

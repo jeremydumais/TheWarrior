@@ -10,6 +10,7 @@
 
 using namespace commoneditor::ui;
 using namespace monstereditor::controllers;
+using namespace thewarrior::models;
 
 struct TextureSelectionInfo {
     std::string textureName;

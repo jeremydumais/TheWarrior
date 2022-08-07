@@ -48,7 +48,7 @@
          </property>
          <property name="icon">
           <iconset resource="../res/global.qrc">
-           <normaloff>:/commonUI/res/gtk-add.svg</normaloff>:/commonUI/res/gtk-add.svg</iconset>
+           <normaloff>:/commonEditor.UI/res/gtk-add.svg</normaloff>:/commonEditor.UI/res/gtk-add.svg</iconset>
          </property>
         </widget>
        </item>
@@ -59,7 +59,7 @@
          </property>
          <property name="icon">
           <iconset resource="../res/global.qrc">
-           <normaloff>:/commonUI/res/gtk-edit.svg</normaloff>:/commonUI/res/gtk-edit.svg</iconset>
+           <normaloff>:/commonEditor.UI/res/gtk-edit.svg</normaloff>:/commonEditor.UI/res/gtk-edit.svg</iconset>
          </property>
         </widget>
        </item>
@@ -70,7 +70,7 @@
          </property>
          <property name="icon">
           <iconset resource="../res/global.qrc">
-           <normaloff>:/commonUI/res/gtk-delete.svg</normaloff>:/commonUI/res/gtk-delete.svg</iconset>
+           <normaloff>:/commonEditor.UI/res/gtk-delete.svg</normaloff>:/commonEditor.UI/res/gtk-delete.svg</iconset>
          </property>
         </widget>
        </item>

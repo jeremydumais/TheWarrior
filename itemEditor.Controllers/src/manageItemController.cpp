@@ -3,6 +3,8 @@
 #include <memory>
 #include <stdexcept>
 
+using namespace thewarrior::models;
+
 namespace itemeditor::controllers {
 
 ManageItemController::ManageItemController(std::shared_ptr<ItemStore> itemStore)

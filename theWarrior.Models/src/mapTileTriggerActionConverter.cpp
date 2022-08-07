@@ -4,12 +4,14 @@
 
 using namespace std;
 
-string MapTileTriggerActionConverter::actionToString(MapTileTriggerAction action) 
+namespace thewarrior::models {
+
+string MapTileTriggerActionConverter::actionToString(MapTileTriggerAction action)
 {
     return allActionsToString()[static_cast<size_t>(action)];
 }
 
-boost::optional<MapTileTriggerAction> MapTileTriggerActionConverter::actionFromString(const std::string &actionStr) 
+boost::optional<MapTileTriggerAction> MapTileTriggerActionConverter::actionFromString(const std::string &actionStr)
 {
     auto allActionsStr { allActionsToString() };
 
@@ -22,10 +24,12 @@ boost::optional<MapTileTriggerAction> MapTileTriggerActionConverter::actionFromS
     return {};
 }
 
-vector<string> MapTileTriggerActionConverter::allActionsToString() 
+vector<string> MapTileTriggerActionConverter::allActionsToString()
 {
     return { "None"s,
              "OpenChest"s,
              "ChangeMap"s,
              "DenyMove"s };
 }
+
+} // namespace thewarrior::models

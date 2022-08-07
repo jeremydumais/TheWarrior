@@ -3,6 +3,7 @@
 #include <memory>
 
 using namespace std;
+using namespace thewarrior::models;
 
 const Item itemSample1({ "shd001", "Wooden Shield", "tex1", 1});
 const Item itemSample2({ "shd002", "Iron Shield", "tex1", 2});

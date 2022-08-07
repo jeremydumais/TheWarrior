@@ -3,6 +3,8 @@
 #include <fmt/format.h>
 #include <vector>
 
+using namespace thewarrior::models;
+
 namespace thewarrior::ui {
 
 GLPopupWindow::GLPopupWindow(Size<float> size)

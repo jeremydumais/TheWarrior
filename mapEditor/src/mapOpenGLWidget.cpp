@@ -7,6 +7,7 @@
 #include <string>
 
 using namespace std;
+using namespace thewarrior::models;
 
 MapOpenGLWidget::MapOpenGLWidget(QWidget *parent)
     : QOpenGLWidget(parent),

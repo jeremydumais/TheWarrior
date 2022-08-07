@@ -6,8 +6,9 @@
 
 using namespace std;
 using namespace boost::algorithm;
+using namespace thewarrior::models;
 
-void GameMapStorage::loadMap(const string &fileName, shared_ptr<GameMap> map) 
+void GameMapStorage::loadMap(const string &fileName, shared_ptr<GameMap> map)
 {
     if (trim_copy(fileName).empty()) {
         throw invalid_argument("The filename cannot be empty!");
@@ -29,7 +30,7 @@ void GameMapStorage::loadMap(const string &fileName, shared_ptr<GameMap> map)
 	}
 }
 
-void GameMapStorage::setFileStream(std::unique_ptr<IBinaryFileStream<GameMap>> bfs) 
+void GameMapStorage::setFileStream(std::unique_ptr<IBinaryFileStream<GameMap>> bfs)
 {
     m_bfs = move(bfs);
 }

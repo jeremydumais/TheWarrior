@@ -5,6 +5,7 @@
 
 using namespace commoneditor::ui;
 using namespace itemeditor::controllers;
+using namespace thewarrior::models;
 
 EditWeaponItemForm::EditWeaponItemForm(QWidget *parent,
         const std::string &resourcesPath,

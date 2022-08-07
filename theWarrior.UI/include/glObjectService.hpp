@@ -16,7 +16,7 @@ struct GLObject
 
 struct GenerateGLObjectInfo {
     GLObject *glObject;
-    const Texture *texture;
+    const thewarrior::models::Texture *texture;
     const int textureIndex;
     GLuint *specialVAO = nullptr;
     GLuint *specialVBOTexture = nullptr;

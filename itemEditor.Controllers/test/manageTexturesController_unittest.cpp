@@ -3,6 +3,7 @@
 
 using namespace std;
 using namespace itemeditor::controllers;
+using namespace thewarrior::models;
 
 class MapTextureControllerWith2Textures : public ::testing::Test
 {

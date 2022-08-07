@@ -4,11 +4,11 @@
 #include <boost/serialization/export.hpp>
 #include <fmt/format.h>
 
-
 using namespace std;
 using namespace boost::algorithm;
+using namespace thewarrior::models;
 
-void MonsterStoreStorage::loadMonsterStore(const std::string &fileName, std::shared_ptr<MonsterStore> monsterStore) 
+void MonsterStoreStorage::loadMonsterStore(const std::string &fileName, std::shared_ptr<MonsterStore> monsterStore)
 {
     if (trim_copy(fileName).empty()) {
         throw invalid_argument("The fileName cannot be empty.");
@@ -30,7 +30,7 @@ void MonsterStoreStorage::loadMonsterStore(const std::string &fileName, std::sha
 	}
 }
 
-void MonsterStoreStorage::saveMonsterStore(const std::string &fileName, std::shared_ptr<MonsterStore> monsterStore) 
+void MonsterStoreStorage::saveMonsterStore(const std::string &fileName, std::shared_ptr<MonsterStore> monsterStore)
 {
     if (trim_copy(fileName).empty()) {
         throw invalid_argument("The fileName cannot be empty.");
@@ -52,7 +52,7 @@ void MonsterStoreStorage::saveMonsterStore(const std::string &fileName, std::sha
 	}
 }
 
-void MonsterStoreStorage::setFileStream(std::unique_ptr<IBinaryFileStream<MonsterStore>> bfs) 
+void MonsterStoreStorage::setFileStream(std::unique_ptr<IBinaryFileStream<MonsterStore>> bfs)
 {
     m_bfs = move(bfs);
 }

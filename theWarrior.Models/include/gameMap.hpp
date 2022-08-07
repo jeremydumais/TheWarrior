@@ -13,6 +13,8 @@
 #include <string>
 #include <vector>
 
+namespace thewarrior::models {
+
 class GameMap
 {
 public:
@@ -31,13 +33,13 @@ public:
     bool addTexture(const TextureInfo &textureInfo);
     bool replaceTexture(const std::string &name, const TextureInfo &textureInfo);
     bool removeTexture(const std::string &name);
-    bool isShrinkMapImpactAssignedTiles(int offsetLeft, 
-                                        int offsetTop, 
-                                        int offsetRight, 
+    bool isShrinkMapImpactAssignedTiles(int offsetLeft,
+                                        int offsetTop,
+                                        int offsetRight,
                                         int offsetBottom) const;
-    void resizeMap(int offsetLeft, 
-                   int offsetTop, 
-                   int offsetRight, 
+    void resizeMap(int offsetLeft,
+                   int offsetTop,
+                   int offsetRight,
                    int offsetBottom);
     bool canSteppedOnTile(Point<> playerCoord);
 private:
@@ -62,4 +64,6 @@ private:
     }
 };
 
-BOOST_CLASS_VERSION(GameMap, 1)
+} // namespace thewarrior::models
+
+BOOST_CLASS_VERSION(thewarrior::models::GameMap, 1)

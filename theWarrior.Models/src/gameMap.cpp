@@ -6,6 +6,8 @@
 
 using namespace std;
 
+namespace thewarrior::models {
+
 GameMap::GameMap(unsigned int width, unsigned int height)
     : m_lastError("")
 {
@@ -44,7 +46,7 @@ MapTile& GameMap::getTileForEditing(int index)
     return m_tiles.at(indexConverted / getWidth()).at(indexConverted % getWidth());
 }
 
-MapTile& GameMap::getTileForEditing(Point<> coord) 
+MapTile& GameMap::getTileForEditing(Point<> coord)
 {
     if (coord.x() < 0) {
         throw invalid_argument("x must be a positive number");
@@ -74,7 +76,7 @@ unsigned int GameMap::getWidth() const
     if (widthSize > UINT_MAX) {
         return UINT_MAX;
     }
-    return static_cast<unsigned int>(widthSize);    
+    return static_cast<unsigned int>(widthSize);
 }
 
 unsigned int GameMap::getHeight() const
@@ -86,7 +88,7 @@ unsigned int GameMap::getHeight() const
     return static_cast<unsigned int>(heightSize);
 }
 
-Point<> GameMap::getCoordFromTileIndex(int index) 
+Point<> GameMap::getCoordFromTileIndex(int index)
 {
     if (index < 0) {
         throw invalid_argument("index must be a positive number");
@@ -112,7 +114,7 @@ const vector<Texture> &GameMap::getTextures() const
 {
     return m_textureContainer.getTextures();
 }
-    
+
 optional<reference_wrapper<const Texture>> GameMap::getTextureByName(const string &name) const
 {
     return m_textureContainer.getTextureByName(name);
@@ -145,9 +147,9 @@ bool GameMap::removeTexture(const std::string &name)
     return retVal;
 }
 
-bool GameMap::isShrinkMapImpactAssignedTiles(int offsetLeft, 
-                                             int offsetTop, 
-                                             int offsetRight, 
+bool GameMap::isShrinkMapImpactAssignedTiles(int offsetLeft,
+                                             int offsetTop,
+                                             int offsetRight,
                                              int offsetBottom) const
 {
     return (_isShrinkMapFromLeftImpactAssignedTiles(offsetLeft) ||
@@ -156,7 +158,7 @@ bool GameMap::isShrinkMapImpactAssignedTiles(int offsetLeft,
             _isShrinkMapFromBottomImpactAssignedTiles(offsetBottom));
 }
 
-bool GameMap::_isShrinkMapFromLeftImpactAssignedTiles(int offset) const 
+bool GameMap::_isShrinkMapFromLeftImpactAssignedTiles(int offset) const
 {
     if (offset < 0) {
 		size_t col { 0 };
@@ -224,10 +226,10 @@ bool GameMap::_isShrinkMapFromBottomImpactAssignedTiles(int offset) const
     return false;
 }
 
-void GameMap::resizeMap(int offsetLeft, 
-                   int offsetTop, 
-                   int offsetRight, 
-                   int offsetBottom) 
+void GameMap::resizeMap(int offsetLeft,
+                   int offsetTop,
+                   int offsetRight,
+                   int offsetBottom)
 {
     if (offsetLeft < 0 && abs(offsetLeft) >= static_cast<long long>(getWidth())) {
         throw invalid_argument("This left offset would remove all the remaining tiles.");
@@ -247,7 +249,7 @@ void GameMap::resizeMap(int offsetLeft,
     _resizeMapFromBottom(offsetBottom);
 }
 
-void GameMap::_resizeMapFromLeft(int offset) 
+void GameMap::_resizeMapFromLeft(int offset)
 {
     if (offset < 0) {
         for(auto &row : m_tiles) {
@@ -265,7 +267,7 @@ void GameMap::_resizeMapFromLeft(int offset)
     }
 }
 
-void GameMap::_resizeMapFromTop(int offset) 
+void GameMap::_resizeMapFromTop(int offset)
 {
     if (offset < 0) {
         for(int index=offset; index<0; index++) {
@@ -280,7 +282,7 @@ void GameMap::_resizeMapFromTop(int offset)
     }
 }
 
-void GameMap::_resizeMapFromRight(int offset) 
+void GameMap::_resizeMapFromRight(int offset)
 {
     if (offset < 0) {
         for(auto &row : m_tiles) {
@@ -298,7 +300,7 @@ void GameMap::_resizeMapFromRight(int offset)
     }
 }
 
-void GameMap::_resizeMapFromBottom(int offset) 
+void GameMap::_resizeMapFromBottom(int offset)
 {
     if (offset < 0) {
         for(int index=offset; index<0; index++) {
@@ -313,11 +315,13 @@ void GameMap::_resizeMapFromBottom(int offset)
     }
 }
 
-bool GameMap::canSteppedOnTile(Point<> playerCoord) 
+bool GameMap::canSteppedOnTile(Point<> playerCoord)
 {
-    return (playerCoord.x() >= 0 && 
+    return (playerCoord.x() >= 0 &&
             static_cast<unsigned int>(playerCoord.x()) < getWidth() &&
             playerCoord.y() >= 0 &&
             static_cast<unsigned int>(playerCoord.y()) < getHeight() &&
             getTileFromCoord(playerCoord).canPlayerSteppedOn());
 }
+
+} // namespace thewarrior::models

@@ -2,6 +2,8 @@
 #include <gtest/gtest.h>
 #include <stdexcept>
 
+using namespace thewarrior::models;
+
 class StatsItemCreationInfoSamples
 {
 public:
@@ -130,7 +132,7 @@ TEST_F(StatsItemSample1, getDurationInSecs_Return0)
     ASSERT_EQ(30, item.getDurationInSecs());
 }
 
-TEST_F(StatsItemSample1, getType_ReturnItem) 
+TEST_F(StatsItemSample1, getType_ReturnItem)
 {
     ASSERT_EQ(ItemType::StatsItem, item.getType());
 }

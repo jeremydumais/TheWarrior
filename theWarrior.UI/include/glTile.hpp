@@ -14,7 +14,7 @@ struct GLTile
     GLuint vboTextureObject;
     int x;
     int y;
-    MapTile tile;
+    thewarrior::models::MapTile tile;
 };
 
 } // namespace thewarrior::ui

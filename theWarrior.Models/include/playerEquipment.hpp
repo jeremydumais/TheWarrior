@@ -10,6 +10,8 @@
 #include <boost/serialization/variant.hpp>
 #include <boost/serialization/version.hpp>
 
+namespace thewarrior::models {
+
 typedef boost::optional<boost::variant<WeaponItem, ArmorItem>> VariantEquipment;
 
 enum class SecondaryHandType {
@@ -59,3 +61,5 @@ private:
         //To code later
     }
 };
+
+} // namespace thewarrior::models

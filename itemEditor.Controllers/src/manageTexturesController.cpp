@@ -1,6 +1,8 @@
 #include "manageTexturesController.hpp"
 #include <algorithm>
 
+using namespace thewarrior::models;
+
 namespace itemeditor::controllers {
 
 ManageTextureController::ManageTextureController(TextureContainer &textureContainer)

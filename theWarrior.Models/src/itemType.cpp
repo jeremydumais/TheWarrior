@@ -1,6 +1,8 @@
 #include "itemType.hpp"
 #include <boost/algorithm/string.hpp>
 
+namespace thewarrior::models {
+
 std::string itemTypeToString(ItemType itemType)
 {
     switch (itemType)
@@ -40,3 +42,5 @@ std::optional<ItemType> itemTypeFromString(const std::string &value)
     }
     return std::nullopt;
 }
+
+} // namespace thewarrior::models

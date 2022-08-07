@@ -2,6 +2,8 @@
 #include "boost/algorithm/string.hpp"
 #include <limits>
 
+using namespace thewarrior::models;
+
 namespace itemeditor::controllers {
 
 ManageStatsItemController::ManageStatsItemController(std::shared_ptr<ItemStore> itemStore)

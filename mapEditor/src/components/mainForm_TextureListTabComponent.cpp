@@ -6,6 +6,7 @@
 
 using namespace std;
 using namespace commoneditor::ui;
+using namespace thewarrior::models;
 
 MainForm_TextureListTabComponent::MainForm_TextureListTabComponent()
     : m_glComponent(nullptr),

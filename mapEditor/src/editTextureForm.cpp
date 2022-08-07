@@ -6,6 +6,7 @@
 #include <fmt/format.h>
 
 using namespace std;
+using namespace thewarrior::models;
 
 EditTextureForm::EditTextureForm(QWidget *parent,
         const std::string &resourcesPath,

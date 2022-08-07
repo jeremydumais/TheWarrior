@@ -5,6 +5,8 @@
 using namespace std;
 using namespace boost::algorithm;
 
+namespace thewarrior::models {
+
 Texture::Texture(const TextureInfo &textureInfo)
     : m_name(textureInfo.name),
       m_filename(textureInfo.filename),
@@ -54,20 +56,20 @@ const std::string &Texture::getFilename() const
     return m_filename;
 }
 
-void Texture::setName(const std::string &name) 
+void Texture::setName(const std::string &name)
 {
     if (trim_copy(name).empty()) {
         throw invalid_argument("name cannot be null or empty.");
-    }    
+    }
     m_name = name;
 }
 
-void Texture::setFilename(const std::string &filename) 
+void Texture::setFilename(const std::string &filename)
 {
     if (trim_copy(filename).empty()) {
         throw invalid_argument("filename cannot be null or empty.");
-    } 
-    m_filename = filename;  
+    }
+    m_filename = filename;
 }
 
 int Texture::getWidth() const
@@ -112,7 +114,7 @@ TextureInfo Texture::getTextureInfo() const
     };
 }
 
-void Texture::setWidth(int value) 
+void Texture::setWidth(int value)
 {
     if (value <= 0) {
         throw invalid_argument("width must be greater than zero.");
@@ -124,7 +126,7 @@ void Texture::setWidth(int value)
     updateTileWidthGL();
 }
 
-void Texture::setHeight(int value) 
+void Texture::setHeight(int value)
 {
     if (value <= 0) {
         throw invalid_argument("height must be greater than zero.");
@@ -137,7 +139,7 @@ void Texture::setHeight(int value)
 
 }
 
-void Texture::setTileWidth(int value) 
+void Texture::setTileWidth(int value)
 {
     if (value <= 0) {
         throw invalid_argument("tile width must be greater than zero.");
@@ -149,7 +151,7 @@ void Texture::setTileWidth(int value)
     updateTileWidthGL();
 }
 
-void Texture::setTileHeight(int value) 
+void Texture::setTileHeight(int value)
 {
     if (value <= 0) {
         throw invalid_argument("tile height must be greater than zero.");
@@ -161,12 +163,14 @@ void Texture::setTileHeight(int value)
     updateTileHeightGL();
 }
 
-void Texture::updateTileWidthGL() 
+void Texture::updateTileWidthGL()
 {
     m_tileWidthGL = static_cast<float>(m_tileWidth) / static_cast<float>(m_width);
 }
 
-void Texture::updateTileHeightGL() 
+void Texture::updateTileHeightGL()
 {
     m_tileHeightGL = static_cast<float>(m_tileHeight) / static_cast<float>(m_height);
 }
+
+} // namespace thewarrior::models

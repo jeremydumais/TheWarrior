@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <stdexcept>
 
+using namespace thewarrior::models;
+
 namespace itemeditor::controllers {
 
 EditTextureFormController::EditTextureFormController(std::unique_ptr<TextureDTO> originalTexture,

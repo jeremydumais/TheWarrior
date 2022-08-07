@@ -45,9 +45,9 @@ private:
     SDL_Window *m_window;
     SDL_Renderer *m_renderer;
     SDL_GLContext m_gContext;
-    Size<> m_WindowSize;
+    thewarrior::models::Size<> m_WindowSize;
     TileSize m_tileSize = {1.0F, 1.0F, 1.0F};
-    boost::signals2::signal<void(const Size<> &)> m_windowSizeChanged;
+    boost::signals2::signal<void(const thewarrior::models::Size<> &)> m_windowSizeChanged;
     boost::signals2::signal<void(const TileSize &)> m_tileSizeChanged;
     boost::signals2::signal<void(float deltaTime)> m_windowUpdate;
     bool m_mustExit = false;

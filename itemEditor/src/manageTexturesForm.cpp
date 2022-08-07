@@ -8,6 +8,7 @@
 
 using namespace commoneditor::ui;
 using namespace itemeditor::controllers;
+using namespace thewarrior::models;
 
 ManageTexturesForm::ManageTexturesForm(QWidget *parent,
         const std::string &resourcesPath,

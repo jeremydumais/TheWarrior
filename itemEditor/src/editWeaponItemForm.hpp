@@ -16,7 +16,7 @@ Q_OBJECT
 public:
     EditWeaponItemForm(QWidget *parent,
             const std::string &resourcesPath,
-            std::shared_ptr<ItemStore> itemStore,
+            std::shared_ptr<thewarrior::models::ItemStore> itemStore,
             std::optional<std::string> itemIdToEdit);
     void connectUIActions();
 private:

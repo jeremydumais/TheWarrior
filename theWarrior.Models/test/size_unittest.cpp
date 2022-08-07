@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 
 using namespace std;
+using namespace thewarrior::models;
 
 TEST(size_Contructor, With1and2_ReturnSuccess)
 {

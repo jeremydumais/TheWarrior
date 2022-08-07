@@ -1,6 +1,8 @@
 #include "manageWeaponItemController.hpp"
 #include "boost/algorithm/string.hpp"
 
+using namespace thewarrior::models;
+
 namespace itemeditor::controllers {
 
 ManageWeaponItemController::ManageWeaponItemController(std::shared_ptr<ItemStore> itemStore)

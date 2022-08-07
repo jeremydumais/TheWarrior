@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 
 using namespace itemeditor::controllers;
+using namespace thewarrior::models;
 
 class ManageArmorItemControllerEmptyStoreSample : public ::testing::Test
 {

@@ -6,6 +6,8 @@
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/version.hpp>
 
+namespace thewarrior::models {
+
 enum class ArmorBodyPart
 {
     Head,
@@ -47,9 +49,12 @@ protected:
     template<class Archive>
     void serialize(Archive & ar, const unsigned int)
     {
-        ar & boost::serialization::base_object<Item>(*this);    
+        ar & boost::serialization::base_object<Item>(*this);
         ar & m_defenseGain;
         ar & m_slotInBodyPart;
     }
 };
-BOOST_CLASS_VERSION(ArmorItem, 0)
+
+} // namespace thewarrior::models
+
+BOOST_CLASS_VERSION(thewarrior::models::ArmorItem, 0)

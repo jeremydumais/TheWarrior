@@ -4,12 +4,14 @@
 
 using namespace std;
 
-string MapTileTriggerEventConverter::eventToString(MapTileTriggerEvent event) 
+namespace thewarrior::models {
+
+string MapTileTriggerEventConverter::eventToString(MapTileTriggerEvent event)
 {
     return allEventsToString()[static_cast<size_t>(event)];
 }
 
-boost::optional<MapTileTriggerEvent> MapTileTriggerEventConverter::eventFromString(const std::string &eventStr) 
+boost::optional<MapTileTriggerEvent> MapTileTriggerEventConverter::eventFromString(const std::string &eventStr)
 {
     auto allEventsStr { allEventsToString() };
 
@@ -22,7 +24,7 @@ boost::optional<MapTileTriggerEvent> MapTileTriggerEventConverter::eventFromStri
     return {};
 }
 
-vector<string> MapTileTriggerEventConverter::allEventsToString() 
+vector<string> MapTileTriggerEventConverter::allEventsToString()
 {
     return { "None"s,
              "SteppedOn"s,
@@ -32,3 +34,5 @@ vector<string> MapTileTriggerEventConverter::allEventsToString()
              "MoveRightPressed"s,
              "ActionButtonPressed"s };
 }
+
+} // namespace thewarrior::models

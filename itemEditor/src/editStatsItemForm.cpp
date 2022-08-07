@@ -4,6 +4,7 @@
 
 using namespace commoneditor::ui;
 using namespace itemeditor::controllers;
+using namespace thewarrior::models;
 
 EditStatsItemForm::EditStatsItemForm(QWidget *parent,
         const std::string &resourcesPath,

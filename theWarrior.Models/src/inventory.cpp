@@ -1,6 +1,8 @@
 #include "inventory.hpp"
 #include <algorithm>
 
+namespace thewarrior::models {
+
 Inventory::Inventory()
 {
     std::fill(m_slots.begin(), m_slots.end(), nullptr);
@@ -106,3 +108,5 @@ bool Inventory::replaceItem(size_t slotIndexDst, std::shared_ptr<const Item> ite
     slotDst = item;
     return true;
 }
+
+} // namespace thewarrior::models
