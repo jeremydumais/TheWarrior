@@ -2,6 +2,8 @@
 #include "uiUtils.hpp"
 #include <GL/glut.h>
 
+using namespace commoneditor::ui;
+
 int main(int argc, char *argv[])
 {
     glutInit(&argc, argv);

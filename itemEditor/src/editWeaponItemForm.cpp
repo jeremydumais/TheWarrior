@@ -3,6 +3,7 @@
 #include "texturePickerForm.hpp"
 #include <boost/lexical_cast.hpp>
 
+using namespace commoneditor::ui;
 using namespace itemeditor::controllers;
 
 EditWeaponItemForm::EditWeaponItemForm(QWidget *parent,

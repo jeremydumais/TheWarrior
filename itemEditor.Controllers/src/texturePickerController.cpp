@@ -4,6 +4,8 @@
 #include <fmt/format.h>
 #include <algorithm>
 
+using namespace commoneditor::ui;
+
 namespace itemeditor::controllers {
 
 TexturePickerController::TexturePickerController(const TextureContainer &textureContainer)

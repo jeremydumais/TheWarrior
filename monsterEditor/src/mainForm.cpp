@@ -16,6 +16,7 @@
 #include <string>
 #include <unistd.h> // readlink
 
+using namespace commoneditor::ui;
 using namespace monstereditor::controllers;
 
 const std::string MainForm::THEME_PATH{"Display.Theme"};

@@ -2,6 +2,8 @@
 #include <cmath>
 #include <math.h>
 
+namespace commoneditor::ui {
+
 int TextureUtils::getTextureIndexFromPosition(const Point<> &pos,
                                               const Texture &texture,
                                               const float ratio)
@@ -38,3 +40,5 @@ QPixmap TextureUtils::getTexturePixmapFromLabel(const QLabel *label)
 		return *label->pixmap();
 	#endif
 }
+
+} // namespace commoneditor::ui

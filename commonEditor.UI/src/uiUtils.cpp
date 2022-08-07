@@ -5,7 +5,9 @@
 #include <QScreen>
 
 
-void UIUtils::centerToScreen(QWidget* widget) 
+namespace commoneditor::ui {
+
+void UIUtils::centerToScreen(QWidget* widget)
 {
   if (!widget)
     return;
@@ -16,3 +18,5 @@ void UIUtils::centerToScreen(QWidget* widget)
   int y = widget->height();
   widget->move(desk_x / 2 - x / 2 + screen->geometry().left(), desk_y / 2 - y / 2 + screen->geometry().top());
 }
+
+} // namespace commoneditor::ui

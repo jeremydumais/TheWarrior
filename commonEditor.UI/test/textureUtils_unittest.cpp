@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 
 using namespace std;
+using namespace commoneditor::ui;
 
 Texture getTextureSample1() {
     return Texture({

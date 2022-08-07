@@ -9,6 +9,7 @@
 #include <qpixmap.h>
 #include <qslider.h>
 
+using namespace commoneditor::ui;
 using namespace monstereditor::controllers;
 
 EditTextureForm::EditTextureForm(QWidget *parent,

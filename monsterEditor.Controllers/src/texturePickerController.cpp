@@ -4,8 +4,10 @@
 #include <fmt/format.h>
 #include <algorithm>
 
-namespace MonsterEditorControllers
-{
+using namespace commoneditor::ui;
+
+namespace MonsterEditorControllers {
+
 TexturePickerController::TexturePickerController(const TextureContainer &textureContainer)
     : m_textureContainer(textureContainer)
 {

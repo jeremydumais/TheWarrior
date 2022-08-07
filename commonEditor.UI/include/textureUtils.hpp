@@ -5,6 +5,8 @@
 #include <qlabel.h>
 #include <qpixmap.h>
 
+namespace commoneditor::ui {
+
 class TextureUtils
 {
 public:
@@ -14,3 +16,5 @@ public:
     static QPixmap getTextureTileImageFromTexture(const QPixmap *sourcePixmap, int tileIndex, const Texture &texture);
     static QPixmap getTexturePixmapFromLabel(const QLabel *label);
 };
+
+} // namespace commoneditor::ui

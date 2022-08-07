@@ -1,6 +1,8 @@
 #include "mainForm.hpp"
 #include "uiUtils.hpp"
 
+using namespace commoneditor::ui;
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);

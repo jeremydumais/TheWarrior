@@ -2,6 +2,7 @@
 #include "errorMessage.hpp"
 #include "texturePickerForm.hpp"
 
+using namespace commoneditor::ui;
 using namespace itemeditor::controllers;
 
 EditStatsItemForm::EditStatsItemForm(QWidget *parent,

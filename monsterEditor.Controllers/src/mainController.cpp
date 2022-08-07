@@ -12,6 +12,8 @@
 #include <set>
 #include <ranges>
 
+using namespace commoneditor::ui;
+
 namespace monstereditor::controllers {
 
 MainController::MainController()

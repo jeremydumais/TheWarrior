@@ -1,8 +1,10 @@
 #include "errorMessage.hpp"
 #include <QtWidgets/qmessagebox.h>
 
+namespace commoneditor::ui {
+
 void ErrorMessage::show(const std::string &message,
-					    const std::string &internalError) 
+					    const std::string &internalError)
 {
     QMessageBox msgBox;
 	msgBox.setText(message.c_str());
@@ -14,3 +16,5 @@ void ErrorMessage::show(const std::string &message,
 	msgBox.setStandardButtons(QMessageBox::Ok);
 	msgBox.exec();
 }
+
+} // namespace commoneditor::ui

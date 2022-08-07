@@ -2,6 +2,8 @@
 
 #include <string>
 
+namespace commoneditor::ui {
+
 class ErrorMessage
 {
 public:
@@ -9,3 +11,5 @@ public:
     static void show(const std::string &message,
 					 const std::string &internalError = "");
 };
+
+} // namespace commoneditor::ui

@@ -6,6 +6,7 @@
 #include <fmt/format.h>
 #include <memory>
 
+using namespace commoneditor::ui;
 using namespace itemeditor::controllers;
 
 ManageTexturesForm::ManageTexturesForm(QWidget *parent,

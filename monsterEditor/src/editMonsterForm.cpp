@@ -8,6 +8,7 @@
 #include <qtimer.h>
 #include <qwidget.h>
 
+using namespace commoneditor::ui;
 using namespace monstereditor::controllers;
 
 struct TextureSelectionInfo {

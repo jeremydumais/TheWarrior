@@ -12,6 +12,8 @@
 #include <set>
 #include <ranges>
 
+using namespace commoneditor::ui;
+
 namespace itemeditor::controllers {
 
 MainController::MainController()

@@ -5,19 +5,20 @@
 #include <qnamespace.h>
 
 using namespace std;
+using namespace commoneditor::ui;
 
-MainForm_TextureSelectionComponent::MainForm_TextureSelectionComponent() 
+MainForm_TextureSelectionComponent::MainForm_TextureSelectionComponent()
     : m_glComponent(nullptr),
-      m_comboBoxTexture(nullptr),
-      m_labelSelectedTexture(nullptr),
-      m_pushButtonSelectedTextureClear(nullptr),
-      m_labelSelectedObject(nullptr),
-      m_pushButtonSelectedObjectClear(nullptr),
-      m_labelImageTexture(nullptr)
+    m_comboBoxTexture(nullptr),
+    m_labelSelectedTexture(nullptr),
+    m_pushButtonSelectedTextureClear(nullptr),
+    m_labelSelectedObject(nullptr),
+    m_pushButtonSelectedObjectClear(nullptr),
+    m_labelImageTexture(nullptr)
 {
 }
 
-void MainForm_TextureSelectionComponent::initializeUIObjects(const MainForm_TextureSelectionComponent_Objects &objects) 
+void MainForm_TextureSelectionComponent::initializeUIObjects(const MainForm_TextureSelectionComponent_Objects &objects)
 {
     this->m_glComponent = objects.glComponent;
     this->m_comboBoxTexture = objects.comboBoxTexture;
@@ -28,100 +29,100 @@ void MainForm_TextureSelectionComponent::initializeUIObjects(const MainForm_Text
     this->m_labelImageTexture = objects.labelImageTexture;
 }
 
-void MainForm_TextureSelectionComponent::connectUIActions() 
+void MainForm_TextureSelectionComponent::connectUIActions()
 {
     connect(m_pushButtonSelectedTextureClear, &QPushButton::clicked, this, &MainForm_TextureSelectionComponent::onPushButtonSelectedTextureClearClick);
-	connect(m_pushButtonSelectedObjectClear, &QPushButton::clicked, this, &MainForm_TextureSelectionComponent::onPushButtonSelectedObjectClearClick);
-	connect(m_labelImageTexture, &QClickableLabel::onMouseReleaseEvent, this, &MainForm_TextureSelectionComponent::onLabelImageTextureMouseReleaseEvent);
-	connect(m_comboBoxTexture, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm_TextureSelectionComponent::onComboBoxTextureCurrentIndexChanged);
+    connect(m_pushButtonSelectedObjectClear, &QPushButton::clicked, this, &MainForm_TextureSelectionComponent::onPushButtonSelectedObjectClearClick);
+    connect(m_labelImageTexture, &QClickableLabel::onMouseReleaseEvent, this, &MainForm_TextureSelectionComponent::onLabelImageTextureMouseReleaseEvent);
+    connect(m_comboBoxTexture, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm_TextureSelectionComponent::onComboBoxTextureCurrentIndexChanged);
 }
 
-void MainForm_TextureSelectionComponent::refreshTextureList() 
+void MainForm_TextureSelectionComponent::refreshTextureList()
 {
-	m_comboBoxTexture->model()->removeRows(0, m_comboBoxTexture->count());
-	int index {0};
-	for(const auto &texture : m_glComponent->getTextures()) {
-		m_comboBoxTexture->insertItem(index, texture.getName().c_str());
-		index++;
-	}
-	displaySelectedTextureImage();
+    m_comboBoxTexture->model()->removeRows(0, m_comboBoxTexture->count());
+    int index {0};
+    for(const auto &texture : m_glComponent->getTextures()) {
+        m_comboBoxTexture->insertItem(index, texture.getName().c_str());
+        index++;
+    }
+    displaySelectedTextureImage();
 }
 
-void MainForm_TextureSelectionComponent::displaySelectedTextureImage() 
+void MainForm_TextureSelectionComponent::displaySelectedTextureImage()
 {
-	//Find the selected texture
-	auto texture { m_glComponent->getTextureByName(m_comboBoxTexture->itemText(m_comboBoxTexture->currentIndex()).toStdString()) };
-	if (texture.has_value()) {
-		QImageReader reader(fmt::format("{0}/textures/{1}", m_glComponent->getResourcesPath(), texture->get().getFilename()).c_str());
-		const QImage image { reader.read() };
-		m_labelImageTexture->setFixedSize(image.width(), image.height());
-		m_labelImageTexture->setPixmap(QPixmap::fromImage(image));
-	}
-	else {
-		m_labelImageTexture->clear();
-		m_glComponent->clearLastSelectedTexture();
-		m_glComponent->clearLastSelectedObject();
-		m_labelSelectedTexture->clear();
-		m_labelSelectedObject->clear();
-	}
+    //Find the selected texture
+    auto texture { m_glComponent->getTextureByName(m_comboBoxTexture->itemText(m_comboBoxTexture->currentIndex()).toStdString()) };
+    if (texture.has_value()) {
+        QImageReader reader(fmt::format("{0}/textures/{1}", m_glComponent->getResourcesPath(), texture->get().getFilename()).c_str());
+        const QImage image { reader.read() };
+        m_labelImageTexture->setFixedSize(image.width(), image.height());
+        m_labelImageTexture->setPixmap(QPixmap::fromImage(image));
+    }
+    else {
+        m_labelImageTexture->clear();
+        m_glComponent->clearLastSelectedTexture();
+        m_glComponent->clearLastSelectedObject();
+        m_labelSelectedTexture->clear();
+        m_labelSelectedObject->clear();
+    }
 }
 
-/*QPixmap MainForm_TextureSelectionComponent::getTextureTileImageFromTexture(int tileIndex, const Texture &texture) const 
-{
-	int textureWidthInPixel { texture.getWidth() };
-	int textureHeightInPixel { texture.getHeight() };
-	int x { (tileIndex * texture.getTileWidth()) % textureWidthInPixel };
-	int y { textureHeightInPixel - (((tileIndex * texture.getTileWidth()) / textureWidthInPixel) * texture.getTileHeight()) };
-	#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
-		QPixmap imagePart = m_labelImageTexture->pixmap(Qt::ReturnByValue).copy(x, 
-																				y - texture.getTileHeight(), 
-																				texture.getTileWidth(), 
-																				texture.getTileHeight());
-	#else
-		QPixmap imagePart = m_labelImageTexture->pixmap()->copy(x, 
-																y - texture.getTileHeight(), 
-																texture.getTileWidth(), 
-																texture.getTileHeight());
-	#endif																				
-	return imagePart;
+/*QPixmap MainForm_TextureSelectionComponent::getTextureTileImageFromTexture(int tileIndex, const Texture &texture) const
+  {
+  int textureWidthInPixel { texture.getWidth() };
+  int textureHeightInPixel { texture.getHeight() };
+  int x { (tileIndex * texture.getTileWidth()) % textureWidthInPixel };
+  int y { textureHeightInPixel - (((tileIndex * texture.getTileWidth()) / textureWidthInPixel) * texture.getTileHeight()) };
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+QPixmap imagePart = m_labelImageTexture->pixmap(Qt::ReturnByValue).copy(x,
+y - texture.getTileHeight(),
+texture.getTileWidth(),
+texture.getTileHeight());
+#else
+QPixmap imagePart = m_labelImageTexture->pixmap()->copy(x,
+y - texture.getTileHeight(),
+texture.getTileWidth(),
+texture.getTileHeight());
+#endif
+return imagePart;
 }*/
 
-void MainForm_TextureSelectionComponent::onPushButtonSelectedTextureClearClick() 
+void MainForm_TextureSelectionComponent::onPushButtonSelectedTextureClearClick()
 {
-	m_glComponent->clearLastSelectedTexture();
-	m_labelSelectedTexture->clear();
+    m_glComponent->clearLastSelectedTexture();
+    m_labelSelectedTexture->clear();
 }
 
-void MainForm_TextureSelectionComponent::onPushButtonSelectedObjectClearClick() 
+void MainForm_TextureSelectionComponent::onPushButtonSelectedObjectClearClick()
 {
-	m_glComponent->clearLastSelectedObject();
-	m_labelSelectedObject->clear();
+    m_glComponent->clearLastSelectedObject();
+    m_labelSelectedObject->clear();
 }
 
-void MainForm_TextureSelectionComponent::onLabelImageTextureMouseReleaseEvent(QMouseEvent *event) 
+void MainForm_TextureSelectionComponent::onLabelImageTextureMouseReleaseEvent(QMouseEvent *event)
 {
-	int comboBoxTextureCurrentIndex { m_comboBoxTexture->currentIndex() };
-	string textureName { m_comboBoxTexture->itemText(comboBoxTextureCurrentIndex).toStdString() };
-	auto texture { m_glComponent->getTextureByName(textureName) };
-	if (texture.has_value()) {
-		string name { textureName };
-		int index = TextureUtils::getTextureIndexFromPosition(Point(event->pos().x(), event->pos().y()), texture->get());
-		//Display the selected texture or object on the selected image
-		auto qpixmap = TextureUtils::getTexturePixmapFromLabel(m_labelImageTexture);
-		auto imagePart { TextureUtils::getTextureTileImageFromTexture(&qpixmap, index, texture->get()) };
+    int comboBoxTextureCurrentIndex { m_comboBoxTexture->currentIndex() };
+    string textureName { m_comboBoxTexture->itemText(comboBoxTextureCurrentIndex).toStdString() };
+    auto texture { m_glComponent->getTextureByName(textureName) };
+    if (texture.has_value()) {
+        string name { textureName };
+        int index = TextureUtils::getTextureIndexFromPosition(Point(event->pos().x(), event->pos().y()), texture->get());
+        //Display the selected texture or object on the selected image
+        auto qpixmap = TextureUtils::getTexturePixmapFromLabel(m_labelImageTexture);
+        auto imagePart { TextureUtils::getTextureTileImageFromTexture(&qpixmap, index, texture->get()) };
         auto selectionMode { m_glComponent->getSelectionMode() };
-		if (selectionMode == SelectionMode::ApplyTexture) {
-			m_glComponent->setLastSelectedTexture(name, index);
-			m_labelSelectedTexture->setPixmap(imagePart);
-		}
-		else if (selectionMode == SelectionMode::ApplyObject) {
-			m_glComponent->setLastSelectedObject(name, index);
-			m_labelSelectedObject->setPixmap(imagePart);
-		}
-	}	
+        if (selectionMode == SelectionMode::ApplyTexture) {
+            m_glComponent->setLastSelectedTexture(name, index);
+            m_labelSelectedTexture->setPixmap(imagePart);
+        }
+        else if (selectionMode == SelectionMode::ApplyObject) {
+            m_glComponent->setLastSelectedObject(name, index);
+            m_labelSelectedObject->setPixmap(imagePart);
+        }
+    }
 }
 
-void MainForm_TextureSelectionComponent::onComboBoxTextureCurrentIndexChanged() 
+void MainForm_TextureSelectionComponent::onComboBoxTextureCurrentIndexChanged()
 {
-	displaySelectedTextureImage();
+    displaySelectedTextureImage();
 }

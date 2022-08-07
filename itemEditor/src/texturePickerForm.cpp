@@ -7,6 +7,7 @@
 #include <qpixmap.h>
 #include <string>
 
+using namespace commoneditor::ui;
 using namespace itemeditor::controllers;
 
 TexturePickerForm::TexturePickerForm(QWidget *parent,
