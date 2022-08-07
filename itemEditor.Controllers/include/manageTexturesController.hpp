@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+namespace itemeditor::controllers {
+
 class ManageTextureController
 {
 public:
@@ -22,3 +24,5 @@ private:
     TextureContainer &m_textureContainer;
     std::optional<TextureInfo> createTextureInfoFromDTO(std::unique_ptr<TextureDTO> textureDTO);
 };
+
+} // namespace itemeditor::controllers

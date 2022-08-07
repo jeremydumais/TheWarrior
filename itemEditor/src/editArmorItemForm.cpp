@@ -4,7 +4,9 @@
 #include <memory>
 #include <string>
 
-EditArmorItemForm::EditArmorItemForm(QWidget *parent, 
+using namespace itemeditor::controllers;
+
+EditArmorItemForm::EditArmorItemForm(QWidget *parent,
 						 		   const std::string &resourcesPath,
 						 		   std::shared_ptr<ItemStore> itemStore,
 								   std::optional<std::string> itemIdToEdit)
@@ -24,7 +26,7 @@ EditArmorItemForm::EditArmorItemForm(QWidget *parent,
 	}
 }
 
-void EditArmorItemForm::connectUIActions() 
+void EditArmorItemForm::connectUIActions()
 {
 	connect(ui.pushButtonCancel, &QPushButton::clicked, this, &EditArmorItemForm::onPushButtonCancelClick);
 	connect(ui.pushButtonOK, &QPushButton::clicked, this, &EditArmorItemForm::onPushButtonOKClick);
@@ -104,7 +106,7 @@ void EditArmorItemForm::onPushButtonOKClick()
 void EditArmorItemForm::onPushButtonTexturePickerClick()
 {
 	auto result = showTexturePicker({ ui.lineEditTextureName->text().toStdString(),
-									  ui.spinBoxTextureIndex->value() }, 
+									  ui.spinBoxTextureIndex->value() },
 								    m_controller.getTextureContainer());
 	if (result.has_value()) {
 		ui.lineEditTextureName->setText(result->textureName.c_str());

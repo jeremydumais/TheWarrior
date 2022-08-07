@@ -31,7 +31,7 @@ private:
 	MainForm_TileTabComponent m_tileTabComponent;
 	MainForm_TextureListTabComponent m_textureListTabComponent;
 	MainForm_TextureSelectionComponent m_textureSelectionComponent;
-	MainController m_controller;
+    mapeditor::controllers::MainController m_controller;
 	std::string m_userConfigFolder;
 	std::string m_currentFilePath;
 	bool m_functionAfterShownCalled;

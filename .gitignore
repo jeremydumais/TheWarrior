@@ -32,6 +32,8 @@
 *.app
 
 build
+Debug
+Release
 Testing
 workspace.code-workspace
 .cache

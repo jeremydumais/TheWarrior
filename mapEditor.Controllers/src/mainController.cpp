@@ -3,7 +3,9 @@
 
 using namespace std;
 
-MainController::MainController() 
+namespace mapeditor::controllers {
+
+MainController::MainController()
     : m_lastError(""),
 	  m_map(nullptr)
 {
@@ -14,18 +16,18 @@ const string &MainController::getLastError() const
 	return this->m_lastError;
 }
 
-shared_ptr<GameMap> MainController::getMap() 
+shared_ptr<GameMap> MainController::getMap()
 {
     return m_map;
 }
 
-MapTile& MainController::getTileForEditing(int index) 
+MapTile& MainController::getTileForEditing(int index)
 {
 	return m_map->getTileForEditing(index);
 }
 
 
-bool MainController::createMap(unsigned int width, unsigned int height) 
+bool MainController::createMap(unsigned int width, unsigned int height)
 {
 	try {
 		m_map = make_shared<GameMap>(width, height);
@@ -37,7 +39,7 @@ bool MainController::createMap(unsigned int width, unsigned int height)
 	return true;
 }
 
-Point<> MainController::getCoordFromTileIndex(int index) 
+Point<> MainController::getCoordFromTileIndex(int index)
 {
 	return m_map->getCoordFromTileIndex(index);
 }
@@ -47,7 +49,7 @@ const std::vector<Texture>& MainController::getTextures() const
 	return m_map->getTextures();
 }
 
-bool MainController::addTexture(const TextureInfo &textureInfo) 
+bool MainController::addTexture(const TextureInfo &textureInfo)
 {
 	if (!m_map->addTexture(textureInfo)) {
 		this->m_lastError = m_map->getLastError();
@@ -56,21 +58,21 @@ bool MainController::addTexture(const TextureInfo &textureInfo)
 	return true;
 }
 
-bool MainController::replaceTexture(const string &name, const TextureInfo &textureInfo) 
+bool MainController::replaceTexture(const string &name, const TextureInfo &textureInfo)
 {
     string oldTextureName { name };
 	if (!m_map->replaceTexture(name, textureInfo)) {
 		m_lastError = m_map->getLastError();
 		return false;
 	}
-	//If the texture name has changed, update all tiles that was using the old texture name	
+	//If the texture name has changed, update all tiles that was using the old texture name
     if (oldTextureName != textureInfo.name) {
         replaceTilesTextureName(oldTextureName, textureInfo.name);
     }
 	return true;
 }
 
-bool MainController::removeTexture(const string &name) 
+bool MainController::removeTexture(const string &name)
 {
 	if (!m_map->removeTexture(name)) {
 		m_lastError = m_map->getLastError();
@@ -79,7 +81,7 @@ bool MainController::removeTexture(const string &name)
 	return true;
 }
 
-void MainController::replaceTilesTextureName(const string &oldName, const string &newName) 
+void MainController::replaceTilesTextureName(const string &oldName, const string &newName)
 {
 	for(int index = 0; index < static_cast<int>(m_map->getWidth() * m_map->getHeight()) - 1; index++) {
 		auto &tile = m_map->getTileForEditing(index);
@@ -91,3 +93,5 @@ void MainController::replaceTilesTextureName(const string &oldName, const string
 		}
 	}
 }
+
+} // namespace mapeditor::controllers

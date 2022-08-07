@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+namespace mapeditor::controllers {
+
 class MainController
 {
 public:
@@ -26,3 +28,5 @@ private:
     std::string m_lastError;
 	std::shared_ptr<GameMap> m_map;
 };
+
+} // namespace mapeditor::controllers

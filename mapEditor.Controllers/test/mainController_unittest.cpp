@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 
 using namespace std;
+using namespace mapeditor::controllers;
 
 class SampleMainController : public ::testing::Test
 {
@@ -25,7 +26,7 @@ public:
         tile.setTextureName("tex1");
         tile.setTextureIndex(0);
         tile.setObjectTextureName("tex1");
-        tile.setObjectTextureIndex(0);    
+        tile.setObjectTextureIndex(0);
     }
 	MainController mainController;
 };

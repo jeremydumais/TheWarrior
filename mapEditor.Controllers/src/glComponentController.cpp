@@ -3,7 +3,9 @@
 
 using namespace std;
 
-GLComponentController::GLComponentController() 
+namespace mapeditor::controllers {
+
+GLComponentController::GLComponentController()
     : m_map(nullptr)
 {
 }
@@ -13,7 +15,7 @@ const std::shared_ptr<GameMap> GLComponentController::getMap() const
     return this->m_map;
 }
 
-void GLComponentController::setCurrentMap(std::shared_ptr<GameMap> map) 
+void GLComponentController::setCurrentMap(std::shared_ptr<GameMap> map)
 {
     this->m_map = map;
 }
@@ -28,7 +30,7 @@ vector<string> GLComponentController::getAlreadyUsedTextureNames() const
 	return alreadyUsedTextureNames;
 }
 
-bool GLComponentController::isTextureUsedInMap(const std::string &name) 
+bool GLComponentController::isTextureUsedInMap(const std::string &name)
 {
 	for(const auto &row : m_map->getTiles()) {
 		for (const auto &tile : row) {
@@ -40,9 +42,9 @@ bool GLComponentController::isTextureUsedInMap(const std::string &name)
 	return false;
 }
 
-bool GLComponentController::isShrinkMapImpactAssignedTiles(int offsetLeft, 
-													      int offsetTop, 
-														  int offsetRight, 
+bool GLComponentController::isShrinkMapImpactAssignedTiles(int offsetLeft,
+													      int offsetTop,
+														  int offsetRight,
 														  int offsetBottom) const
 {
 	return m_map->isShrinkMapImpactAssignedTiles(offsetLeft,
@@ -51,10 +53,10 @@ bool GLComponentController::isShrinkMapImpactAssignedTiles(int offsetLeft,
 											   offsetBottom);
 }
 
-void GLComponentController::resizeMap(int offsetLeft, 
-                   int offsetTop, 
-                   int offsetRight, 
-                   int offsetBottom) 
+void GLComponentController::resizeMap(int offsetLeft,
+                   int offsetTop,
+                   int offsetRight,
+                   int offsetBottom)
 {
 	m_map->resizeMap(offsetLeft,
 				   offsetTop,
@@ -62,3 +64,4 @@ void GLComponentController::resizeMap(int offsetLeft,
 				   offsetBottom);
 }
 
+} // namespace mapeditor::controllers

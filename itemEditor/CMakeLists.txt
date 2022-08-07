@@ -2,8 +2,8 @@
 set(PROJECT_NAME    "ItemEditor")
 
 include_directories(${QT_INCLUDE_PATH}
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/include
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/src
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../commonEditor.UI/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../commonEditor.UI/src
                     ${CMAKE_CURRENT_SOURCE_DIR}/src
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Storage/include
@@ -18,7 +18,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOUIC_SEARCH_PATHS AUTOGEN_BUILD_DIR/include)
 
-set (RESOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/res/darkstyle)
+set (RESOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/../commonEditor.UI/res/darkstyle)
 
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mainForm.cpp
@@ -33,7 +33,7 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editStatsItemForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editWeaponItemForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/texturePickerForm.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/res/darkstyle/darkstyle.qrc
+                         ${CMAKE_CURRENT_SOURCE_DIR}/../commonEditor.UI/res/darkstyle/darkstyle.qrc
                          ${CMAKE_CURRENT_SOURCE_DIR}/res/global.qrc)
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_FILES})
@@ -42,7 +42,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STRE
 endif()
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${CONAN_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} ItemEditor.Controllers theWarrior.Models theWarrior.Storage commonUI Qt5::Widgets ${CONAN_LIBS})
+target_link_libraries(${PROJECT_NAME} ItemEditor.Controllers theWarrior.Models theWarrior.Storage commonEditor.UI Qt5::Widgets ${CONAN_LIBS})
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html

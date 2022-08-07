@@ -24,6 +24,8 @@
 #include <unistd.h> // readlink
 #include <vector>
 
+using namespace itemeditor::controllers;
+
 const std::string MainForm::THEME_PATH{"Display.Theme"};
 const std::string MainForm::RECENT_MAPS{"ItemsDB.Recents"};
 

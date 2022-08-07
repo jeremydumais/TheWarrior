@@ -2,10 +2,12 @@
 #include <gtest/gtest.h>
 #include <memory>
 
+using namespace itemeditor::controllers;
+
 class ItemDTOSamples
 {
 public:
-    static ItemDTO getSample1() { 
+    static ItemDTO getSample1() {
         ItemDTO retVal;
         retVal.id = "ite001";
         retVal.name = "item1";
@@ -13,7 +15,7 @@ public:
         retVal.textureIndex = 0;
         return retVal;
     };
-    static ItemDTO getSample2() { 
+    static ItemDTO getSample2() {
         ItemDTO retVal;
         retVal.id = "ite002";
         retVal.name = "item2";
@@ -26,7 +28,7 @@ public:
 class ItemStoreWith2Items : public ::testing::Test
 {
 public:
-    ItemStoreWith2Items() 
+    ItemStoreWith2Items()
         : m_itemStore(std::make_shared<ItemStore>()),
           m_controller(m_itemStore)
     {

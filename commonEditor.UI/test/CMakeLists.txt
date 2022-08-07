@@ -1,4 +1,4 @@
-set(PROJECT_UNITTEST_NAME   "commonUI_unittests")
+set(PROJECT_UNITTEST_NAME   "commonEditor.UI_unittests")
 
 project(${PROJECT_UNITTEST_NAME} LANGUAGES CXX)
 
@@ -8,5 +8,5 @@ add_executable(${PROJECT_UNITTEST_NAME} ${INCLUDE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/textureUtils_unittest.cpp)
 
-target_link_libraries(${PROJECT_UNITTEST_NAME} PRIVATE commonUI theWarrior.Models ${CONAN_LIBS})
+target_link_libraries(${PROJECT_UNITTEST_NAME} PRIVATE commonEditor.UI theWarrior.Models ${CONAN_LIBS})
 gtest_discover_tests(${PROJECT_UNITTEST_NAME})

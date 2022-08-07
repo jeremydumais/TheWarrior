@@ -6,6 +6,8 @@
 #include <memory>
 #include <string>
 
+namespace itemeditor::controllers {
+
 struct WeaponItemDTO : public ItemDTO
 {
     float attackGain;
@@ -17,8 +19,10 @@ class ManageWeaponItemController : public ManageItemController
 public:
     ManageWeaponItemController(std::shared_ptr<ItemStore> itemStore);
     virtual ~ManageWeaponItemController() = default;
-    bool validateAttackGain(const std::string &attackGainStr); 
+    bool validateAttackGain(const std::string &attackGainStr);
     virtual std::unique_ptr<ItemDTO> getItem(const std::string &id) const override;
 private:
     virtual std::shared_ptr<Item> itemDTOToItem(std::unique_ptr<ItemDTO> dto) override;
 };
+
+} // namespace itemeditor::controllers

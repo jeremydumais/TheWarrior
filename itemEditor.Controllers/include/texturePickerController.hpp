@@ -7,7 +7,9 @@
 #include <string>
 #include <vector>
 
-class TexturePickerController 
+namespace itemeditor::controllers {
+
+class TexturePickerController
 {
 public:
     TexturePickerController(const TextureContainer &textureContainer);
@@ -19,5 +21,6 @@ public:
 private:
     const TextureContainer &m_textureContainer;
     std::optional<std::reference_wrapper<const Texture>> getTextureByName(const std::string &name) const;
-
 };
+
+} // namespace itemeditor::controllers

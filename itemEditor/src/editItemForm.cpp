@@ -3,7 +3,9 @@
 #include "texturePickerForm.hpp"
 #include <qtimer.h>
 
-EditItemForm::EditItemForm(QWidget *parent, 
+using namespace itemeditor::controllers;
+
+EditItemForm::EditItemForm(QWidget *parent,
 						 const std::string &resourcesPath,
 						 std::shared_ptr<ItemStore> itemStore,
 						 std::optional<std::string> itemIdToEdit)
@@ -13,7 +15,7 @@ EditItemForm::EditItemForm(QWidget *parent,
 {
 	ui.setupUi(this);
 	setWindowIcon(QIcon(":/ItemEditor Icon.png"));
-	
+
 	connectUIActions();
 	if (m_itemIdToEdit.has_value()) {
 		this->setWindowTitle("Edit item");
@@ -23,7 +25,7 @@ EditItemForm::EditItemForm(QWidget *parent,
 	}
 }
 
-void EditItemForm::connectUIActions() 
+void EditItemForm::connectUIActions()
 {
 	connect(ui.pushButtonCancel, &QPushButton::clicked, this, &EditItemForm::onPushButtonCancelClick);
 	connect(ui.pushButtonOK, &QPushButton::clicked, this, &EditItemForm::onPushButtonOKClick);
@@ -78,7 +80,7 @@ void EditItemForm::onPushButtonOKClick()
 void EditItemForm::onPushButtonTexturePickerClick()
 {
 	auto result = showTexturePicker({ ui.lineEditTextureName->text().toStdString(),
-									  ui.spinBoxTextureIndex->value() }, 
+									  ui.spinBoxTextureIndex->value() },
 								    m_controller.getTextureContainer());
 	if (result.has_value()) {
 		ui.lineEditTextureName->setText(result->textureName.c_str());

@@ -5,15 +5,15 @@
     <file>item.png</file>
     <file>statsitem.png</file>
     <file>ItemEditor Icon.png</file>
-    <file>../../commonUI/res/gtk-edit.svg</file>
-    <file>../../commonUI/res/gtk-delete.svg</file>
-    <file>../../commonUI/res/gtk-add.svg</file>
-    <file>../../commonUI/res/exit.svg</file>
-    <file>../../commonUI/res/document-save.svg</file>
-    <file>../../commonUI/res/document-save-as.svg</file>
-    <file>../../commonUI/res/document-open.svg</file>
-    <file>../../commonUI/res/document-new.svg</file>
-    <file>../../commonUI/res/dialog-ok.svg</file>
-    <file>../../commonUI/res/dialog-close.svg</file>
+    <file>../../commonEditor.UI/res/gtk-edit.svg</file>
+    <file>../../commonEditor.UI/res/gtk-delete.svg</file>
+    <file>../../commonEditor.UI/res/gtk-add.svg</file>
+    <file>../../commonEditor.UI/res/exit.svg</file>
+    <file>../../commonEditor.UI/res/document-save.svg</file>
+    <file>../../commonEditor.UI/res/document-save-as.svg</file>
+    <file>../../commonEditor.UI/res/document-open.svg</file>
+    <file>../../commonEditor.UI/res/document-new.svg</file>
+    <file>../../commonEditor.UI/res/dialog-ok.svg</file>
+    <file>../../commonEditor.UI/res/dialog-close.svg</file>
   </qresource>
 </RCC>

@@ -4,6 +4,8 @@
 #include <fmt/format.h>
 #include <algorithm>
 
+namespace itemeditor::controllers {
+
 TexturePickerController::TexturePickerController(const TextureContainer &textureContainer)
     : m_textureContainer(textureContainer)
 {
@@ -13,9 +15,9 @@ std::vector<std::string> TexturePickerController::getTextureNames() const
 {
     std::vector<std::string> retval {};
     auto textures = m_textureContainer.getTextures();
-    std::transform(textures.begin(), 
-                   textures.end(), 
-                   std::back_inserter(retval), 
+    std::transform(textures.begin(),
+                   textures.end(),
+                   std::back_inserter(retval),
                    [](const Texture &texture) -> std::string { return texture.getName(); });
     return retval;
 }
@@ -37,9 +39,9 @@ std::string TexturePickerController::getTextureFileName(const std::string &resou
 
 bool TexturePickerController::isTextureExist(const std::string &name) const
 {
-    return getTextureByName(name).has_value();    
+    return getTextureByName(name).has_value();
 }
-    
+
 int TexturePickerController::getTextureIndexFromPosition(const Point<> &pos, const std::string &textureName) const
 {
     auto texture = getTextureByName(textureName);
@@ -63,13 +65,15 @@ QPixmap TexturePickerController::getTextureTileImageFromTexture(const QPixmap *s
 std::optional<std::reference_wrapper<const Texture>> TexturePickerController::getTextureByName(const std::string &name) const
 {
     auto textures = m_textureContainer.getTextures();
-    auto iter =  std::find_if(textures.begin(), 
-                              textures.end(), 
-                              [name](const Texture &texture) { 
-                                  return texture.getName() == name; 
+    auto iter =  std::find_if(textures.begin(),
+                              textures.end(),
+                              [name](const Texture &texture) {
+                                  return texture.getName() == name;
                                   });
     if (iter == textures.end()) {
         return std::nullopt;
     }
     return {*iter};
 }
+
+} // namespace itemeditor::controllers

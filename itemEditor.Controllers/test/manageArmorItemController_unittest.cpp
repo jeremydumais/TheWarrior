@@ -1,6 +1,8 @@
 #include "manageArmorItemController.hpp"
 #include <gtest/gtest.h>
 
+using namespace itemeditor::controllers;
+
 class ManageArmorItemControllerEmptyStoreSample : public ::testing::Test
 {
 public:

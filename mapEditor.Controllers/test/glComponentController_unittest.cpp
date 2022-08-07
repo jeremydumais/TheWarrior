@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 
 using namespace std;
+using namespace mapeditor::controllers;
 
 class SampleGLComponentController : public ::testing::Test
 {
@@ -26,7 +27,7 @@ public:
         tile.setTextureName("tex1");
         tile.setTextureIndex(0);
         tile.setObjectTextureName("tex1");
-        tile.setObjectTextureIndex(0);    
+        tile.setObjectTextureIndex(0);
         glComponentController.setCurrentMap(map);
     }
 	MainController mainController;
@@ -57,17 +58,17 @@ public:
         });
         auto &tile8 { map->getTileForEditing(8) };
         tile8.setTextureName("tex1");
-        tile8.setTextureIndex(0); 
+        tile8.setTextureIndex(0);
         auto &tile13 { map->getTileForEditing(13) };
-        tile13.setTextureIndex(0); 
+        tile13.setTextureIndex(0);
         auto &tile14 { map->getTileForEditing(14) };
-        tile14.setTextureIndex(0); 
+        tile14.setTextureIndex(0);
         auto &tile15 { map->getTileForEditing(15) };
-        tile15.setTextureIndex(1); 
+        tile15.setTextureIndex(1);
         auto &tile20 { map->getTileForEditing(20) };
-        tile20.setObjectTextureIndex(1); 
+        tile20.setObjectTextureIndex(1);
         auto &tile28 { map->getTileForEditing(28) };
-        tile28.setObjectTextureName("tex1"); 
+        tile28.setObjectTextureName("tex1");
         glComponentController.setCurrentMap(map);
     }
 	MainController mainController;

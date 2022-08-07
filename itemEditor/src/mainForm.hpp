@@ -25,7 +25,7 @@ private:
 	std::string m_executablePath;
 	std::string m_resourcesPath;
 	std::string m_currentFilePath;
-	MainController m_controller;
+    itemeditor::controllers::MainController m_controller;
 	QTableWidgetKeyPressWatcher tableWidgetItemsKeyWatcher;
 	static const std::string THEME_PATH;
 	static const std::string RECENT_MAPS;
@@ -56,7 +56,7 @@ private:
 	void onPushButtonAddItemClick();
 	void onPushButtonEditItemClick();
 	void onPushButtonDeleteItemClick();
-	std::optional<std::string> getSelectedItemId() const;	
+	std::optional<std::string> getSelectedItemId() const;
 	std::unique_ptr<QDialog> getItemTypeForm(ItemType itemType, std::optional<std::string> itemIdToEdit);
 };
 

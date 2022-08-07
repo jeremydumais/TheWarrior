@@ -5,6 +5,8 @@
 #include <gtest/gtest.h>
 #include <memory>
 
+using namespace itemeditor::controllers;
+
 class MainControllerSampleWithOneItem : public ::testing::Test
 {
 public:
@@ -30,7 +32,7 @@ public:
     MainController controller;
 };
 
-TEST(MainController_getItemCategories, With_EmptyItemStore_ReturnEmpty) 
+TEST(MainController_getItemCategories, With_EmptyItemStore_ReturnEmpty)
 {
     MainController controller;
     ASSERT_EQ(0, controller.getItemCategories().size());

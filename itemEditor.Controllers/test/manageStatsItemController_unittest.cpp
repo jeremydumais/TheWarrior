@@ -3,6 +3,8 @@
 #include <limits>
 #include <string>
 
+using namespace itemeditor::controllers;
+
 class ManageStatsItemControllerEmptyStoreSample : public ::testing::Test
 {
 public:

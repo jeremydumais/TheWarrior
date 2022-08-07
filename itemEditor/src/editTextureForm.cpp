@@ -5,8 +5,10 @@
 #include <QMessageBox>
 #include <fmt/format.h>
 
+using namespace itemeditor::controllers;
+
 EditTextureForm::EditTextureForm(QWidget *parent,
-								 const std::string &resourcesPath, 
+								 const std::string &resourcesPath,
 								 std::unique_ptr<TextureDTO> originalTexture,
 								 const std::vector<std::string> &allTextureNames)
 	: QDialog(parent),
@@ -48,14 +50,14 @@ void EditTextureForm::loadExistingItemToForm()
 	if (!image.load(imageFullPath.c_str())) {
 		ErrorMessage::show(fmt::format("Unable to load the image {0}", imageFullPath));
 		ui.lineEditFilename->clear();
-	} 
+	}
 	else {
 		ui.labelImage->setFixedSize(image.width(), image.height());
 		ui.labelImage->setPixmap(QPixmap::fromImage(image));
 	}
 }
 
-void EditTextureForm::onPushButtonOK() 
+void EditTextureForm::onPushButtonOK()
 {
 	auto textureInfo = createTextureDTOFromFields();
 
@@ -66,18 +68,18 @@ void EditTextureForm::onPushButtonOK()
 	accept();
 }
 
-void EditTextureForm::onPushButtonOpenFilenameClick() 
+void EditTextureForm::onPushButtonOpenFilenameClick()
 {
-	QString fullFilePath { QFileDialog::getOpenFileName(this, 
-														tr("Open Texture"), 
-														m_resourcesPath.c_str(), 
+	QString fullFilePath { QFileDialog::getOpenFileName(this,
+														tr("Open Texture"),
+														m_resourcesPath.c_str(),
 														tr("Images (*.png)")) };
 	QFileInfo fileInfo(fullFilePath);
 	std::string filename { fileInfo.fileName().toStdString() };
 	ui.lineEditFilename->setText(filename.c_str());
 	//Detect width and height of the image
 	QImage image;
-	
+
 	std::string imageFullPath { fmt::format("{0}/textures/{1}", m_resourcesPath, filename) };
 	if (!image.load(imageFullPath.c_str())) {
 		ErrorMessage::show(fmt::format("Unable to load the image {0}", imageFullPath));

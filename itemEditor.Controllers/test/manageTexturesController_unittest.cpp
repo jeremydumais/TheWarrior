@@ -2,25 +2,26 @@
 #include <gtest/gtest.h>
 
 using namespace std;
+using namespace itemeditor::controllers;
 
 class MapTextureControllerWith2Textures : public ::testing::Test
 {
 public:
-	MapTextureControllerWith2Textures()
+    MapTextureControllerWith2Textures()
         : controller(textureContainer)
-	{
-		textureContainer.addTexture({
-            "tex1", "tex1.png",
-            256, 128,
-            32, 16
-        });
+    {
         textureContainer.addTexture({
-            "tex2", "tex2.png",
-            128, 128,
-            16, 16
-        });
-	}
-	ManageTextureController controller;
+                "tex1", "tex1.png",
+                256, 128,
+                32, 16
+                });
+        textureContainer.addTexture({
+                "tex2", "tex2.png",
+                128, 128,
+                16, 16
+                });
+    }
+    ManageTextureController controller;
 private:
     TextureContainer textureContainer;
 };
@@ -69,8 +70,8 @@ TEST_F(MapTextureControllerWith2Textures, addTexture_WithNull_ReturnFalse)
 TEST_F(MapTextureControllerWith2Textures, addTexture_WithNewValidTexture_ReturnTrue)
 {
     auto newTexture = std::unique_ptr<TextureDTO>(new TextureDTO({
-        "tex3", "tex3.png", 128, 256, 16, 32
-    }));
+                "tex3", "tex3.png", 128, 256, 16, 32
+                }));
     ASSERT_TRUE(controller.addTexture(std::move(newTexture)));
     ASSERT_EQ(3, controller.getTexturesNames().size());
     auto actual = controller.getTextureByName("tex3");
@@ -92,8 +93,8 @@ TEST_F(MapTextureControllerWith2Textures, replaceTexture_WithNull_ReturnFalse)
 TEST_F(MapTextureControllerWith2Textures, replaceTexture_WithNewValidTexture_ReturnTrue)
 {
     auto newTexture = std::unique_ptr<TextureDTO>(new TextureDTO({
-        "tex3", "tex3.png", 128, 256, 16, 32
-    }));
+                "tex3", "tex3.png", 128, 256, 16, 32
+                }));
     ASSERT_TRUE(controller.replaceTexture("tex2", std::move(newTexture)));
     ASSERT_EQ(2, controller.getTexturesNames().size());
     auto actual = controller.getTextureByName("tex3");

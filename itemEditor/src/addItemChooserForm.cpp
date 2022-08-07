@@ -10,7 +10,7 @@ AddItemChooserForm::AddItemChooserForm(QWidget *parent)
 	connectUIActions();
 }
 
-void AddItemChooserForm::connectUIActions() 
+void AddItemChooserForm::connectUIActions()
 {
 	connect(ui.pushButtonClose, &QPushButton::clicked, this, &AddItemChooserForm::onPushButtonCloseClick);
 	connect(ui.pushButtonAddItem, &QPushButton::clicked, this, &AddItemChooserForm::onPushButtonAddItemClick);
@@ -21,14 +21,14 @@ void AddItemChooserForm::connectUIActions()
 
 ItemType AddItemChooserForm::getResult() const
 {
-	return m_result;
+    return m_result;
 }
 
 void AddItemChooserForm::onPushButtonCloseClick()
 {
 	reject();
 }
-	
+
 void AddItemChooserForm::onPushButtonAddItemClick()
 {
 	m_result = ItemType::Item;

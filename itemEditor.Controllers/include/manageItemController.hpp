@@ -5,7 +5,9 @@
 #include <memory>
 #include <string>
 
-struct ItemDTO 
+namespace itemeditor::controllers {
+
+struct ItemDTO
 {
     std::string id;
     std::string name;
@@ -33,3 +35,5 @@ protected:
     std::shared_ptr<ItemStore> getItemStore();
     virtual std::shared_ptr<Item> itemDTOToItem(std::unique_ptr<ItemDTO> dto);
 };
+
+} // namespace itemeditor::controllers

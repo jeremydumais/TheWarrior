@@ -1,5 +1,5 @@
 # Set project name
-set(PROJECT_NAME    "commonUI")
+set(PROJECT_NAME    "commonEditor.UI")
 
 include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/include

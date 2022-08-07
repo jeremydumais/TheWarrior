@@ -10,7 +10,9 @@
 #include <string>
 #include <vector>
 
-struct ItemListDisplay 
+namespace itemeditor::controllers {
+
+struct ItemListDisplay
 {
     std::string id;
     std::string name;
@@ -36,3 +38,5 @@ private:
     std::shared_ptr<ItemStore> m_itemStore;
     std::string m_lastError;
 };
+
+} // namespace itemeditor::controllers

@@ -3,7 +3,7 @@ set(PROJECT_NAME    "ItemEditor.Controllers")
 
 include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/include
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../commonEditor.UI/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Storage/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include)
 
@@ -24,7 +24,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STRE
 endif()
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${CONAN_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} theWarrior.Models theWarrior.Storage commonUI Qt5::Widgets)
+target_link_libraries(${PROJECT_NAME} theWarrior.Models theWarrior.Storage commonEditor.UI Qt5::Widgets)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
 # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
