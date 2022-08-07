@@ -3,6 +3,8 @@
 #include <fmt/format.h>
 #include <vector>
 
+namespace thewarrior::ui {
+
 GLPopupWindow::GLPopupWindow(Size<float> size)
     : m_lastError(""),
       m_windowLocation({ 1.0F, 1.0F }),
@@ -124,7 +126,7 @@ void GLPopupWindow::render()
 
 void GLPopupWindow::gameWindowSizeChanged(const Size<> &size)
 {
-    m_windowLocation = { (static_cast<float>(size.width()) / 2.0F) - (m_windowSize.width() / 2.0F), 
+    m_windowLocation = { (static_cast<float>(size.width()) / 2.0F) - (m_windowSize.width() / 2.0F),
                          (static_cast<float>(size.height()) / 2.0F) - (m_windowSize.height() / 2.0F) };
     m_windowCenter = { m_windowLocation.x() + (m_windowSize.width() / 2.0F),
                        m_windowLocation.y() + (m_windowSize.height() / 2.0F) };
@@ -133,34 +135,34 @@ void GLPopupWindow::gameWindowSizeChanged(const Size<> &size)
 
 void GLPopupWindow::generateQuad(std::vector<GLObject> &objects, Point<float> location, Size<float> size, const Texture *texture, int textureId, GLuint textureGLId)
 {
-    m_glFormService->generateQuad(objects, 
-                                  { m_windowLocation.x() + location.x(), 
+    m_glFormService->generateQuad(objects,
+                                  { m_windowLocation.x() + location.x(),
                                     m_windowLocation.y() + location.y() },
                                   size, texture, textureId, textureGLId);
 }
 
-void GLPopupWindow::generateBoxQuad(std::vector<GLObject> &objects, 
-                     Point<float> location, 
+void GLPopupWindow::generateBoxQuad(std::vector<GLObject> &objects,
+                     Point<float> location,
                      Size<float> size,
                      const Texture *texture,
                      int textureBeginId,
                      GLuint textureGLId)
 {
     m_glFormService->generateBoxQuad(objects,
-                                     { m_windowLocation.x() + location.x(), 
+                                     { m_windowLocation.x() + location.x(),
                                        m_windowLocation.y() + location.y() },
                                      size, texture, textureBeginId, textureGLId);
 }
-    
-void GLPopupWindow::addWindowPanel(Point<float> location, 
+
+void GLPopupWindow::addWindowPanel(Point<float> location,
                                    Size<float> size,
                                    int textureBeginId)
 {
-    generateBoxQuad(m_windowObjects, 
-                    location, 
-                    size, 
-                    &m_windowGLTexture.texture, 
-                    textureBeginId, 
+    generateBoxQuad(m_windowObjects,
+                    location,
+                    size,
+                    &m_windowGLTexture.texture,
+                    textureBeginId,
                     m_windowGLTexture.glTextureId);
 }
 
@@ -187,7 +189,7 @@ void GLPopupWindow::addXCenteredTextObject(GLTextObject textObject, float x, flo
     }
 }
 
-void GLPopupWindow::addXCenteredTwoColumnsLabels(const std::string &label, 
+void GLPopupWindow::addXCenteredTwoColumnsLabels(const std::string &label,
                                                const std::string &value,
                                                float yPosition,
                                                float scale,
@@ -197,8 +199,10 @@ void GLPopupWindow::addXCenteredTwoColumnsLabels(const std::string &label,
                                                GLColor colorValue)
 {
     auto labelStrSize = m_textService->getTextSize(label, scale);
-    auto labelAndValueSize = m_textService->getTextSize(fmt::format("{0}{1}", label, value), scale); 
+    auto labelAndValueSize = m_textService->getTextSize(fmt::format("{0}{1}", label, value), scale);
 
     addTextObject({label, {(x + (width / 2.0F)) - (labelAndValueSize.width() / 2.0F), yPosition}, scale, colorLabel});
     addTextObject({value, {(x + (width / 2.0F)) - (labelAndValueSize.width() / 2.0F) + labelStrSize.width(), yPosition}, scale, colorValue});
 }
+
+} // namespace thewarrior::ui

@@ -11,6 +11,8 @@
 #include "memory"
 #include <string>
 
+namespace thewarrior::ui {
+
 enum class PlayerMovement { None, MoveLeft, MoveRight, MoveUp, MoveDown };
 enum class PlayerFacing { Left, Up, Right, Down };
 
@@ -18,7 +20,7 @@ struct MovingResult {
     bool needToRefreshTexture;
 };
 
-class GLPlayer : public Player 
+class GLPlayer : public Player
 {
 public:
     explicit GLPlayer(const std::string &name);
@@ -67,7 +69,7 @@ private:
     int m_baseTextureIndex;
     int m_currentMovementTextureIndex;
     std::shared_ptr<Texture> m_texture;
-    GLTextureService m_textureService;    
+    GLTextureService m_textureService;
 };
 
-
+} // namespace thewarrior::ui

@@ -6,6 +6,8 @@
 #include <fmt/format.h>
 #include <iostream>
 
+namespace thewarrior::ui {
+
 const size_t COL_MAX = 7;
 const float SPACING = 10.F;
 const float SLOTSIZE = 80.0F;
@@ -57,13 +59,13 @@ void GLInventory::generateGLInventory()
     //Inventory objects
     for(const auto &itemMap : m_inventory->getItemsWithIndex()) {
         const auto rowAndCol = getRowAndColFromInventoryIndex(itemMap.first);
-        generateQuad(m_glObjects, 
-                     { 365.0F + (rowAndCol.x() * SLOTSIZE) + (rowAndCol.x() * SPACING), 
-                         100.0F + (rowAndCol.y() * SLOTSIZE) + (rowAndCol.y() * SPACING) }, 
-                     { ITEMSIZE, ITEMSIZE }, 
-                     &m_itemStore->getTextureContainer().getTextureByName(itemMap.second->getTextureName()).value().get(), 
+        generateQuad(m_glObjects,
+                     { 365.0F + (rowAndCol.x() * SLOTSIZE) + (rowAndCol.x() * SPACING),
+                         100.0F + (rowAndCol.y() * SLOTSIZE) + (rowAndCol.y() * SPACING) },
+                     { ITEMSIZE, ITEMSIZE },
+                     &m_itemStore->getTextureContainer().getTextureByName(itemMap.second->getTextureName()).value().get(),
                      itemMap.second->getTextureIndex(),
-                     m_texturesGLItemStore->at(itemMap.second->getTextureName()));              
+                     m_texturesGLItemStore->at(itemMap.second->getTextureName()));
     }
 
     const auto stats = m_glPlayer->getStats();
@@ -73,7 +75,7 @@ void GLInventory::generateGLInventory()
     addTextObject({fmt::format("{0}", stats.attack), {840.0F, 36.0F}, 0.3F});
     generateQuad(m_glObjects, {900.0F, 15.0F}, {32.0F, 32.0F}, &m_inventoryIconsGLTexture.texture, 2, m_inventoryIconsGLTexture.glTextureId);
     addTextObject({fmt::format("{0}", stats.defense), {940.0F, 36.0F}, 0.3F});
-    generateDetailsInfo();         
+    generateDetailsInfo();
     if (m_inputMode == InventoryInputMode::StatsItemPopup ||
         m_inputMode == InventoryInputMode::ItemPopup ||
         m_inputMode == InventoryInputMode::WeaponOrArmorPopup ||
@@ -100,12 +102,12 @@ void GLInventory::generateSlots()
             }
             return 0;
         }());
-        
-        generateQuad(m_glObjects, 
-                     { 360.0F + (rowAndCol.x() * SLOTSIZE) + (rowAndCol.x() * SPACING), 
-                       90.0F + (rowAndCol.y() * SLOTSIZE) + (rowAndCol.y() * SPACING) }, 
-                     { SLOTSIZE, SLOTSIZE }, 
-                     &m_slotsGLTexture.texture, 
+
+        generateQuad(m_glObjects,
+                     { 360.0F + (rowAndCol.x() * SLOTSIZE) + (rowAndCol.x() * SPACING),
+                       90.0F + (rowAndCol.y() * SLOTSIZE) + (rowAndCol.y() * SPACING) },
+                     { SLOTSIZE, SLOTSIZE },
+                     &m_slotsGLTexture.texture,
                      textureIndex,
                      m_slotsGLTexture.glTextureId);
     }
@@ -117,15 +119,15 @@ void GLInventory::generateDetailsInfo()
     auto item = m_inventory->getItem(m_inventoryCursorPosition);
     if (item != nullptr) {
         //Display icon
-        auto iconTexture = &m_itemStore->getTextureContainer().getTextureByName(item->getTextureName()).value().get(); 
+        auto iconTexture = &m_itemStore->getTextureContainer().getTextureByName(item->getTextureName()).value().get();
         m_glDetailsIconTextureId = m_texturesGLItemStore->at(item->getTextureName());
-        Point<float> iconPosition( m_detailsBoxPosition.x() + (DETAILSBOXSIZE.width() / 2.0F) - (SLOTSIZE / 2.0F), 
+        Point<float> iconPosition( m_detailsBoxPosition.x() + (DETAILSBOXSIZE.width() / 2.0F) - (SLOTSIZE / 2.0F),
                                    m_detailsBoxPosition.y() + 60.0F);
-        generateQuad(m_glObjects, 
-                     iconPosition, 
-                     {SLOTSIZE, SLOTSIZE}, 
-                     iconTexture, 
-                     item->getTextureIndex(), 
+        generateQuad(m_glObjects,
+                     iconPosition,
+                     {SLOTSIZE, SLOTSIZE},
+                     iconTexture,
+                     item->getTextureIndex(),
                      m_texturesGLItemStore->at(item->getTextureName()));
         generateDetailLabelXCentered(item->getName(), 160.0F, 0.4F);
         int index = 0;
@@ -133,7 +135,7 @@ void GLInventory::generateDetailsInfo()
             auto result = m_textService->prepareTextForDisplay(DETAILSBOXSIZE, item->getOptionalDescription(), 0.4F);
             for(const auto &str : result.lines) {
                 generateDetailLabelXCentered(str, 200.0F + (static_cast<float>(index) * 25.0F), 0.4F);
-                index++;                                                                   
+                index++;
             }
         }
         float nextItemAfterDescY = index > 0 ? 200.0F + (static_cast<float>(index) * 25.0F) + 25.0F : 200.0F;
@@ -141,16 +143,16 @@ void GLInventory::generateDetailsInfo()
         {
         case ItemType::Armor:
             generateArmorDetails(item, nextItemAfterDescY);
-            break;  
+            break;
         case ItemType::Weapon:
             generateWeaponDetails(item, nextItemAfterDescY);
-            break;    
+            break;
         case ItemType::StatsItem:
             generateStatsItemDetails(item, nextItemAfterDescY);
             break;
         default:
             break;
-        } 
+        }
     }
     else {
         m_glDetailsIconTextureId = 0;
@@ -178,7 +180,7 @@ void GLInventory::generateWeaponDetails(std::shared_ptr<const Item> item, float 
             }
             return 0.0F;
         }();
-        if (weapon->getSlotInBodyPart() == WeaponBodyPart::SecondaryHand && 
+        if (weapon->getSlotInBodyPart() == WeaponBodyPart::SecondaryHand &&
             equipment.getSecondaryHandType() == SecondaryHandType::Armor) {
             showDefenseLossSection = true;
             auto currentArmor = equipment.getSecondaryHand();
@@ -193,13 +195,13 @@ void GLInventory::generateWeaponDetails(std::shared_ptr<const Item> item, float 
             if (gainDifference < 0) return GLColor::Red;
             return GLColor::White;
         }();
-        generateTwoColumnsLabels("Attack: ", attackValueStr, yPosition, 0.4F, 
+        generateTwoColumnsLabels("Attack: ", attackValueStr, yPosition, 0.4F,
                                  GLColor::White, valueColor);
         float nextSectionY = 25.0F;
         if(showDefenseLossSection) {
-            generateTwoColumnsLabels("Defense: ", fmt::format("{0}", defenseLoss), yPosition + nextSectionY, 0.4F, 
-                                     GLColor::White, GLColor::Red);   
-            nextSectionY += 25.0F; 
+            generateTwoColumnsLabels("Defense: ", fmt::format("{0}", defenseLoss), yPosition + nextSectionY, 0.4F,
+                                     GLColor::White, GLColor::Red);
+            nextSectionY += 25.0F;
         }
         generateTwoColumnsLabels("Slot in: ", WeaponItem::getBodyPartAsString(weapon->getSlotInBodyPart()), yPosition + nextSectionY, 0.4F);
     }
@@ -216,8 +218,8 @@ void GLInventory::generateArmorDetails(std::shared_ptr<const Item> item, float y
             switch (armor->getSlotInBodyPart())
             {
             case ArmorBodyPart::SecondaryHand:
-                return equipment.getSecondaryHandType() != SecondaryHandType::Armor ? 
-                      0.0F : 
+                return equipment.getSecondaryHandType() != SecondaryHandType::Armor ?
+                      0.0F :
                       boost::get<ArmorItem>(equipment.getSecondaryHand().get()).getDefenseGain();
             case ArmorBodyPart::Head:
                 return equipment.getHead().has_value() ? equipment.getHead()->getDefenseGain() : 0.0F;
@@ -233,7 +235,7 @@ void GLInventory::generateArmorDetails(std::shared_ptr<const Item> item, float y
                 return 0.0F;
             }
         }();
-        if (armor->getSlotInBodyPart() == ArmorBodyPart::SecondaryHand && 
+        if (armor->getSlotInBodyPart() == ArmorBodyPart::SecondaryHand &&
             equipment.getSecondaryHandType() == SecondaryHandType::Weapon) {
             showAttackLossSection = true;
             auto currentWeapon = equipment.getSecondaryHand();
@@ -247,13 +249,13 @@ void GLInventory::generateArmorDetails(std::shared_ptr<const Item> item, float y
             if (gainDifference < 0) return GLColor::Red;
             return GLColor::White;
         }();
-        generateTwoColumnsLabels("Defense: ", defenseValueStr, yPosition, 0.4F, 
+        generateTwoColumnsLabels("Defense: ", defenseValueStr, yPosition, 0.4F,
                                  GLColor::White, valueColor);
         float nextSectionY = 25.0F;
         if(showAttackLossSection) {
-            generateTwoColumnsLabels("Attack: ", fmt::format("{0}", attackLoss), yPosition + nextSectionY, 0.4F, 
-                                     GLColor::White, GLColor::Red);   
-            nextSectionY += 25.0F; 
+            generateTwoColumnsLabels("Attack: ", fmt::format("{0}", attackLoss), yPosition + nextSectionY, 0.4F,
+                                     GLColor::White, GLColor::Red);
+            nextSectionY += 25.0F;
         }
         generateTwoColumnsLabels("Slot in: ", ArmorItem::getBodyPartAsString(armor->getSlotInBodyPart()), yPosition + nextSectionY, 0.4F);
     }
@@ -266,8 +268,8 @@ void GLInventory::generateStatsItemDetails(std::shared_ptr<const Item> item, flo
         generateDetailLabelXCentered("Limit of one applied.", yPosition, 0.4F, GLColor::LightGray);
     }
     if (statsItem && statsItem->getDurationInSecs() > 0) {
-        generateDetailLabelXCentered(fmt::format("Last {0} seconds.", statsItem->getDurationInSecs()), 
-                            yPosition + 25.0F, 
+        generateDetailLabelXCentered(fmt::format("Last {0} seconds.", statsItem->getDurationInSecs()),
+                            yPosition + 25.0F,
                             0.4F, GLColor::LightGray);
     }
 }
@@ -279,29 +281,29 @@ void GLInventory::generateDetailLabel(const std::string &text,
 {
     float detailBoxXCenter = m_detailsBoxPosition.x() + (DETAILSBOXSIZE.width() / 2.0F);
     auto labelSize = m_textService->getTextSize(text, scale);
-    /*m_glTextObjects.emplace_back(GLTextObject({ text, 
-                                                { detailBoxXCenter + xOffsetFromCenter - (labelSize.width() / 2.0F), 
-                                                    m_windowLocation.y() + m_detailsBoxPosition.y() + yPosition }, 
+    /*m_glTextObjects.emplace_back(GLTextObject({ text,
+                                                { detailBoxXCenter + xOffsetFromCenter - (labelSize.width() / 2.0F),
+                                                    m_windowLocation.y() + m_detailsBoxPosition.y() + yPosition },
                                                 scale,
                                                 color }));*/
-    addTextObject({text, 
-                   {detailBoxXCenter + xOffsetFromCenter - (labelSize.width() / 2.0F), 
-                    m_detailsBoxPosition.y() + yPosition}, 
+    addTextObject({text,
+                   {detailBoxXCenter + xOffsetFromCenter - (labelSize.width() / 2.0F),
+                    m_detailsBoxPosition.y() + yPosition},
                     scale,
                     color });
 }
 
 void GLInventory::generateDetailLabelXCentered(const std::string &text,
                                                float yPosition,
-                                               float scale, 
+                                               float scale,
                                                GLColor color)
 {
-    addXCenteredTextObject({text, {0.0F, m_detailsBoxPosition.y() + yPosition}, scale, color}, 
-                           m_detailsBoxPosition.x(), 
+    addXCenteredTextObject({text, {0.0F, m_detailsBoxPosition.y() + yPosition}, scale, color},
+                           m_detailsBoxPosition.x(),
                            DETAILSBOXSIZE.width());
 }
 
-void GLInventory::generateTwoColumnsLabels(const std::string &label, 
+void GLInventory::generateTwoColumnsLabels(const std::string &label,
                                            const std::string &value,
                                            float yPosition,
                                            float scale,
@@ -309,11 +311,11 @@ void GLInventory::generateTwoColumnsLabels(const std::string &label,
                                            GLColor colorValue)
 {
     auto labelStrSize = m_textService->getTextSize(label, scale);
-    auto labelAndValueSize = m_textService->getTextSize(fmt::format("{0}{1}", label, value), scale); 
+    auto labelAndValueSize = m_textService->getTextSize(fmt::format("{0}{1}", label, value), scale);
 
     generateDetailLabel(label, -(labelAndValueSize.width() / 2.0F) + (labelStrSize.width() / 2.0F), yPosition, scale, colorLabel);
-    generateDetailLabel(value, 
-                        (labelAndValueSize.width() / 2.0F) - ((labelAndValueSize.width() / 2.0F) - (labelStrSize.width() / 2.0F)), 
+    generateDetailLabel(value,
+                        (labelAndValueSize.width() / 2.0F) - ((labelAndValueSize.width() / 2.0F) - (labelStrSize.width() / 2.0F)),
                         yPosition, scale, colorValue);
 }
 
@@ -337,7 +339,7 @@ void GLInventory::render()
 void GLInventory::gameWindowSizeChanged(const Size<> &size)
 {
     GLPopupWindow::gameWindowSizeChanged(size);
-    m_detailsBoxPosition = { 16.0F, 
+    m_detailsBoxPosition = { 16.0F,
                              80.0F };
     m_choicePopup.gameWindowLocationChanged(getWindowCenter());
     generateGLInventory();
@@ -401,7 +403,7 @@ void GLInventory::updateInventoryMoveKeys()
     const Uint64 MS_BETWEEN_SELECTION_CHANGE = 110;
     auto inputUpTicks = m_inputDevicesState->getUpPressedTicks();
 
-    if (m_inputDevicesState->getUpPressed() && 
+    if (m_inputDevicesState->getUpPressed() &&
         inputUpTicks.has_value() &&
         (inputUpTicks.value() - lastMoveUpTicks) > MS_BETWEEN_SELECTION_CHANGE) {
         inventoryMoveUpPressed();
@@ -414,7 +416,7 @@ void GLInventory::updateInventoryMoveKeys()
 
 
     auto inputDownTicks = m_inputDevicesState->getDownPressedTicks();
-    if (m_inputDevicesState->getDownPressed() && 
+    if (m_inputDevicesState->getDownPressed() &&
         inputDownTicks.has_value() &&
         (inputDownTicks.value() - lastMoveDownTicks) > MS_BETWEEN_SELECTION_CHANGE) {
         inventoryMoveDownPressed();
@@ -426,7 +428,7 @@ void GLInventory::updateInventoryMoveKeys()
     }
 
     auto inputLeftTicks = m_inputDevicesState->getLeftPressedTicks();
-    if (m_inputDevicesState->getLeftPressed() && 
+    if (m_inputDevicesState->getLeftPressed() &&
         inputLeftTicks.has_value() &&
         (inputLeftTicks.value() - lastMoveLeftTicks) > MS_BETWEEN_SELECTION_CHANGE) {
         inventoryMoveLeftPressed();
@@ -438,7 +440,7 @@ void GLInventory::updateInventoryMoveKeys()
     }
 
     auto inputRightTicks = m_inputDevicesState->getRightPressedTicks();
-    if (m_inputDevicesState->getRightPressed() && 
+    if (m_inputDevicesState->getRightPressed() &&
         inputRightTicks.has_value() &&
         (inputRightTicks.value() - lastMoveRightTicks) > MS_BETWEEN_SELECTION_CHANGE) {
         inventoryMoveRightPressed();
@@ -459,7 +461,7 @@ void GLInventory::inventoryMoveUpPressed()
 }
 
 void GLInventory::inventoryMoveDownPressed()
-{    
+{
     if (m_inventoryCursorPosition + COL_MAX < INVENTORY_MAX) {
         m_inventoryCursorPosition += COL_MAX;
         generateGLInventory();
@@ -554,7 +556,7 @@ void GLInventory::itemActionPopupClicked(size_t choice)
     default:
         break;
     }
-    
+
 }
 void GLInventory::itemActionPopupCanceled()
 {
@@ -587,8 +589,8 @@ void GLInventory::equipCurrentElement()
         if (item->getType() == ItemType::Weapon) {
             auto *weapon = dynamic_cast<const WeaponItem*>(item.get());
             if (weapon != nullptr && weapon->getSlotInBodyPart() == WeaponBodyPart::MainHand) {
-                auto currentEquipedId = equipment.getMainHand().has_value() ? 
-                                        boost::optional<std::string>(equipment.getMainHand()->getId()) : 
+                auto currentEquipedId = equipment.getMainHand().has_value() ?
+                                        boost::optional<std::string>(equipment.getMainHand()->getId()) :
                                         boost::none;
                 equipment.setMainHand(*weapon);
                 completeEquipTransaction(currentEquipedId);
@@ -643,7 +645,7 @@ boost::optional<std::string> GLInventory::getSecondaryHandEquipId(const PlayerEq
     }
     return boost::none;
 }
-    
+
 boost::optional<std::string> GLInventory::getArmorItemEquipId(const boost::optional<ArmorItem> &armor) const
 {
     return armor.has_value() ? boost::optional<std::string>(armor->getId()) : boost::none;
@@ -659,3 +661,5 @@ void GLInventory::completeEquipTransaction(const boost::optional<std::string> &c
     }
     changeMode(InventoryInputMode::List);
 }
+
+} // namespace thewarrior::ui

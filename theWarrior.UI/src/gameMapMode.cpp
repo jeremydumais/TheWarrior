@@ -11,6 +11,8 @@
 using namespace thewarrior::ui::controllers;
 using namespace thewarrior::ui::models;
 
+namespace thewarrior::ui {
+
 GameMapMode::GameMapMode()
 {
     m_choicePopup.m_choiceClicked.connect(boost::bind(&GameMapMode::mainMenuPopupClicked, this, boost::placeholders::_1));
@@ -578,3 +580,5 @@ void GameMapMode::mainMenuPopupCanceled()
 {
     m_inputMode = GameMapInputMode::Map;
 }
+
+} // namespace thewarrior::ui

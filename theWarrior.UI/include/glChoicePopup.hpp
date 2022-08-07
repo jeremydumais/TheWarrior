@@ -13,6 +13,8 @@
 #include <string>
 #include <vector>
 
+namespace thewarrior::ui {
+
 class GLChoicePopup
 {
 public:
@@ -37,7 +39,7 @@ private:
     size_t m_menuItemCount;
     //TODO Code the Optional question
     std::string m_optionalQuestion;
-    GLTextureService m_textureService;  
+    GLTextureService m_textureService;
     GLTexture m_popupGLTexture;
     std::vector<GLObject> m_menuObjects;
     std::vector<GLTextObject> m_glTextChoices;
@@ -47,3 +49,5 @@ private:
     void moveDownPressed();
     void actionButtonPressed();
 };
+
+} // namespace thewarrior::ui

@@ -1,7 +1,9 @@
 #include "inputDevicesState.hpp"
 #include <gtest/gtest.h>
 
-class InputDevicesStateWithSetters : public InputDevicesState, 
+using namespace thewarrior::ui;
+
+class InputDevicesStateWithSetters : public InputDevicesState,
                                      public ::testing::Test
 {
 public:
@@ -288,4 +290,4 @@ TEST_F(InputDevicesStateWithSetters, setKeyShiftState_WithPressed_ReturnSuccess)
     setKeyShiftSt(InputElementState::Pressed);
     ASSERT_EQ(InputElementState::Pressed, getKeyShiftState());
 }
- 
+

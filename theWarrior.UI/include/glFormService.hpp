@@ -10,20 +10,22 @@
 #include <memory>
 #include <vector>
 
+namespace thewarrior::ui {
+
 class GLFormService
 {
 public:
     GLFormService();
     void initialize(std::shared_ptr<GLShaderProgram> shaderProgram,
                     std::shared_ptr<GLTextService> textService);
-    void generateQuad(std::vector<GLObject> &objects, 
-                      Point<float> location, 
-                      Size<float> size, 
-                      const Texture *texture = nullptr, 
+    void generateQuad(std::vector<GLObject> &objects,
+                      Point<float> location,
+                      Size<float> size,
+                      const Texture *texture = nullptr,
                       int textureId = 0,
                       GLuint textureGLId = 0);
-    void generateBoxQuad(std::vector<GLObject> &objects, 
-                         Point<float> location, 
+    void generateBoxQuad(std::vector<GLObject> &objects,
+                         Point<float> location,
                          Size<float> size,
                          const Texture *texture,
                          int textureBeginId,
@@ -37,3 +39,5 @@ private:
     std::shared_ptr<GLShaderProgram> m_shaderProgram;
     std::shared_ptr<GLTextService> m_textService;
 };
+
+} // namespace thewarrior::ui

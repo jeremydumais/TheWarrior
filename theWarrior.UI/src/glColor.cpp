@@ -1,5 +1,7 @@
 #include "glColor.hpp"
 
+namespace thewarrior::ui {
+
 glm::vec3 getVec3FromGLColor(GLColor color)
 {
     switch (color)
@@ -18,3 +20,5 @@ glm::vec3 getVec3FromGLColor(GLColor color)
         return glm::vec3(0.0f, 0.0f, 0.0f);
     }
 }
+
+} // namespace thewarrior::ui

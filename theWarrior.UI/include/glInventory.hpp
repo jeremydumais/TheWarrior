@@ -24,7 +24,9 @@
 #include <string>
 #include <vector>
 
-enum InventoryInputMode 
+namespace thewarrior::ui {
+
+enum InventoryInputMode
 {
     List,
     ItemPopup,
@@ -62,7 +64,7 @@ private:
     Point<float> m_detailsBoxPosition = { 1.0F, 1.0F };
     GLTexture m_slotsGLTexture = { Texture(TextureInfo{ "emptySlot", "item_slot.png", 768, 256, 256, 256 }), 0 };
     GLTexture m_inventoryIconsGLTexture = { Texture(TextureInfo{ "inventory", "inventory.png", 96, 32, 32, 32 }), 0 };
-    GLChoicePopup m_choicePopup;
+    thewarrior::ui::GLChoicePopup m_choicePopup;
     std::shared_ptr<InputDevicesState> m_inputDevicesState = nullptr;
     Uint64 lastMoveUpTicks = 0;
     Uint64 lastMoveDownTicks = 0;
@@ -78,7 +80,7 @@ private:
                              float yPosition,
                              float scale,
                              GLColor color = GLColor::White);
-    void generateTwoColumnsLabels(const std::string &label, 
+    void generateTwoColumnsLabels(const std::string &label,
                                   const std::string &value,
                                   float yPosition,
                                   float scale,
@@ -108,3 +110,5 @@ private:
     boost::optional<std::string> getArmorItemEquipId(const boost::optional<ArmorItem> &armor) const;
     void completeEquipTransaction(const boost::optional<std::string> &currentEquipedId);
 };
+
+} // namespace thewarrior::ui

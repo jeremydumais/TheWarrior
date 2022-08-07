@@ -5,14 +5,16 @@
 
 using namespace std;
 
+namespace thewarrior::ui {
+
 GLShaderProgram::GLShaderProgram(const std::string &vertexShaderFileName,
-                                 const std::string &fragmentShaderFileName) 
+                                 const std::string &fragmentShaderFileName)
     : m_vertexShaderFileName(vertexShaderFileName),
       m_fragmentShaderFileName(fragmentShaderFileName)
 {
 }
 
-GLShaderProgram::~GLShaderProgram() 
+GLShaderProgram::~GLShaderProgram()
 {
     glDetachShader(m_shaderprogram, m_vertexshader);
     glDetachShader(m_shaderprogram, m_fragmentshader);
@@ -31,7 +33,7 @@ GLuint GLShaderProgram::getShaderProgramID() const
     return m_shaderprogram;
 }
 
-bool GLShaderProgram::compileShaders() 
+bool GLShaderProgram::compileShaders()
 {
     int IsCompiled_VS;
     int IsCompiled_FS;
@@ -95,7 +97,7 @@ string GLShaderProgram::loadShaderFile(const string &file)
     return retVal.str();
 }
 
-bool GLShaderProgram::linkShaders(const vector<string> &attributes) 
+bool GLShaderProgram::linkShaders(const vector<string> &attributes)
 {
     m_shaderprogram = glCreateProgram();
     glAttachShader(m_shaderprogram, m_vertexshader);
@@ -128,7 +130,9 @@ bool GLShaderProgram::linkShaders(const vector<string> &attributes)
     return true;
 }
 
-void GLShaderProgram::use() 
+void GLShaderProgram::use()
 {
     glUseProgram(m_shaderprogram);
 }
+
+} // namespace thewarrior::ui

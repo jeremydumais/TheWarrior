@@ -2,6 +2,8 @@
 #include <SDL2/SDL.h>
 #include <fmt/format.h>
 
+namespace thewarrior::ui {
+
 FPSCalculator::FPSCalculator()
     : m_frameNo(0),
       m_updateTicks(0),
@@ -10,13 +12,13 @@ FPSCalculator::FPSCalculator()
       m_lastFPSDisplayText("")
 {}
 
-void FPSCalculator::initialize() 
+void FPSCalculator::initialize()
 {
     m_updateTicks = SDL_GetTicks();
     m_fpsTicks = SDL_GetTicks();
 }
 
-void FPSCalculator::calculate() 
+void FPSCalculator::calculate()
 {
     m_frameNo++;
     if( SDL_GetTicks() - m_updateTicks > 1000 )
@@ -32,7 +34,7 @@ float FPSCalculator::getFPS() const
     return m_lastFPS;
 }
 
-void FPSCalculator::reset() 
+void FPSCalculator::reset()
 {
     m_frameNo = 0;
     m_updateTicks = SDL_GetTicks();
@@ -43,3 +45,5 @@ const std::string &FPSCalculator::getFPSDisplayText() const
 {
     return m_lastFPSDisplayText;
 }
+
+} // namespace thewarrior::ui

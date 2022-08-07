@@ -5,6 +5,8 @@
 #include <GL/glew.h>
 #include <string>
 
+namespace thewarrior::ui {
+
 struct GLTile
 {
     GLObject glObject;
@@ -14,3 +16,5 @@ struct GLTile
     int y;
     MapTile tile;
 };
+
+} // namespace thewarrior::ui

@@ -16,6 +16,8 @@
 #include <string>
 #include <vector>
 
+namespace thewarrior::ui {
+
 class GLPopupWindow : public IShaderService
 {
 public:
@@ -43,7 +45,7 @@ protected:
     std::shared_ptr<GLShaderProgram> m_shaderProgram;
     std::shared_ptr<GLFormService> m_glFormService;
     std::shared_ptr<GLTextService> m_textService;
-    GLTextureService m_textureService; 
+    GLTextureService m_textureService;
     GLTexture m_windowGLTexture;
     GLObject m_glwindow;
     GLTextObject m_glTitle;
@@ -51,24 +53,24 @@ protected:
     std::vector<GLObject> m_windowObjects;
     std::vector<GLObject> m_windowBackgrounds;
     std::vector<GLObject> m_windowTitleObjects;
-    void generateQuad(std::vector<GLObject> &objects, 
-                      Point<float> location, 
-                      Size<float> size, 
-                      const Texture *texture, 
+    void generateQuad(std::vector<GLObject> &objects,
+                      Point<float> location,
+                      Size<float> size,
+                      const Texture *texture,
                       int textureId,
                       GLuint textureGLId = 0);
-    void generateBoxQuad(std::vector<GLObject> &objects, 
-                         Point<float> location, 
+    void generateBoxQuad(std::vector<GLObject> &objects,
+                         Point<float> location,
                          Size<float> size,
                          const Texture *texture,
                          int textureBeginId,
                          GLuint textureGLId = 0);
-    void addWindowPanel(Point<float> location, 
+    void addWindowPanel(Point<float> location,
                         Size<float> size,
                         int textureBeginId);
     void addTextObject(GLTextObject textObject);
     void addXCenteredTextObject(GLTextObject textObject, float x, float width);
-    void addXCenteredTwoColumnsLabels(const std::string &label, 
+    void addXCenteredTwoColumnsLabels(const std::string &label,
                                       const std::string &value,
                                       float yPosition,
                                       float scale,
@@ -79,3 +81,5 @@ protected:
     std::vector<GLObject> m_glObjects;
     std::vector<GLTextObject> m_glTextObjects;
 };
+
+} // namespace thewarrior::ui

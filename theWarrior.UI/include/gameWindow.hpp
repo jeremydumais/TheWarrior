@@ -21,6 +21,8 @@
 #include <memory>
 #include <string>
 
+namespace thewarrior::ui {
+
 enum class InteractionMode
 {
     Game,
@@ -50,7 +52,7 @@ private:
     boost::signals2::signal<void(float deltaTime)> m_windowUpdate;
     bool m_mustExit = false;
     InteractionMode m_interactionMode = InteractionMode::Game;
-    GameMapMode m_gameMapMode;
+    thewarrior::ui::GameMapMode m_gameMapMode;
     std::string m_executablePath;
     std::shared_ptr<GLTileService> m_tileService = std::make_shared<GLTileService>();
     std::shared_ptr<GLTextBox> m_textBox = std::make_shared<GLTextBox>();
@@ -59,7 +61,7 @@ private:
     std::shared_ptr<GLPlayer> m_glPlayer = std::make_shared<GLPlayer>("Ragnar");
     std::map<std::string, unsigned int> m_texturesGLItemStore;
     //FPS variables
-    FPSCalculator m_fpsCalculator;
+    thewarrior::ui::FPSCalculator m_fpsCalculator;
     bool m_toggleFPS = false;
     //Input
     std::shared_ptr<InputDevicesState> m_inputDevicesState = std::make_shared<InputDevicesState>();
@@ -76,3 +78,4 @@ private:
 
 };
 
+} // namespace thewarrior::ui

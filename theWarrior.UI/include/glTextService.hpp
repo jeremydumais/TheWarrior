@@ -10,9 +10,11 @@
 #include <string>
 #include <vector>
 #include <ft2build.h>
-#include FT_FREETYPE_H  
+#include FT_FREETYPE_H
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+namespace thewarrior::ui {
 
 struct GLTextObject
 {
@@ -55,3 +57,5 @@ private:
     std::map<GLchar, Character> characters;
     unsigned int VAO, VBO;
 };
+
+} // namespace thewarrior::ui

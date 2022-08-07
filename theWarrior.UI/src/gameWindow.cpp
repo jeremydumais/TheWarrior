@@ -4,6 +4,8 @@
 
 using namespace std;
 
+namespace thewarrior::ui {
+
 GameWindow::GameWindow(const string &title,
         int x, int y,
         int width, int height)
@@ -270,3 +272,5 @@ void GameWindow::calculateTileSize()
     m_tileSize.tileHalfHeight = (screenSizeFloat.width() * m_tileSize.tileHalfWidth) / screenSizeFloat.height();
     m_tileSizeChanged(m_tileSize);
 }
+
+} // namespace thewarrior::ui

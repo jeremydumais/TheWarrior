@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+namespace thewarrior::ui {
+
 class GLShaderProgram
 {
 public:
@@ -24,3 +26,5 @@ private:
     GLuint m_shaderprogram;
     std::string loadShaderFile(const std::string &file);
 };
+
+} // namespace thewarrior::ui

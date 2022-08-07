@@ -2,6 +2,8 @@
 #include <fmt/format.h>
 #include <string>
 
+namespace thewarrior::ui {
+
 const float SLOTSIZE = 80.0F;
 const float ITEMSIZE = 70.0F;
 
@@ -122,7 +124,7 @@ void GLCharacterWindow::generateGLElements()
         addItemToSlot(item, {175.0F, 470.0F});
     }
 }
-    
+
 void GLCharacterWindow::addSlot(Point<float> location)
 {
     generateQuad(m_glObjects, location, {SLOTSIZE, SLOTSIZE}, &m_slotsGLTexture.texture, 0, m_slotsGLTexture.glTextureId);
@@ -130,12 +132,12 @@ void GLCharacterWindow::addSlot(Point<float> location)
 
 void GLCharacterWindow::addItemToSlot(const Item *item, Point<float> location)
 {
-    auto iconTexture = &m_itemStore->getTextureContainer().getTextureByName(item->getTextureName()).value().get(); 
-    generateQuad(m_glObjects, 
-                    location, 
-                    {ITEMSIZE, ITEMSIZE}, 
-                    iconTexture, 
-                    item->getTextureIndex(), 
+    auto iconTexture = &m_itemStore->getTextureContainer().getTextureByName(item->getTextureName()).value().get();
+    generateQuad(m_glObjects,
+                    location,
+                    {ITEMSIZE, ITEMSIZE},
+                    iconTexture,
+                    item->getTextureIndex(),
                     m_texturesGLItemStore->at(item->getTextureName()));
 }
 
@@ -149,3 +151,5 @@ void GLCharacterWindow::gameWindowSizeChanged(const Size<> &size)
     GLPopupWindow::gameWindowSizeChanged(size);
     generateGLElements();
 }
+
+} // namespace thewarrior::ui

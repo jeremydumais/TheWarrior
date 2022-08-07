@@ -20,6 +20,8 @@
 #include <string>
 #include <vector>
 
+namespace thewarrior::ui {
+
 class GLTextBox : public GLPopupWindow
 {
 public:
@@ -45,3 +47,5 @@ private:
     const float ITEMICONSIZE = 60.0F;
     float getImageHeight() const;
 };
+
+} // namespace thewarrior::ui

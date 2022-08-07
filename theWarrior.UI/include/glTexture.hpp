@@ -2,8 +2,12 @@
 
 #include "texture.hpp"
 
+namespace thewarrior::ui {
+
 struct GLTexture
 {
-    Texture texture;  
+    Texture texture;
     unsigned int glTextureId;
 };
+
+} // namespace thewarrior::ui

@@ -5,6 +5,8 @@
 #include <GL/glew.h>
 #include <string>
 
+namespace thewarrior::ui {
+
 class GLTextureService
 {
 public:
@@ -17,3 +19,5 @@ public:
 private:
     std::string m_resourcePath;
 };
+
+} // namespace thewarrior::ui

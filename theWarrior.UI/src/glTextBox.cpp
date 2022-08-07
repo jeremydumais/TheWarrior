@@ -6,6 +6,8 @@
 
 using namespace thewarrior::ui::controllers;
 
+namespace thewarrior::ui {
+
 GLTextBox::GLTextBox()
     : GLPopupWindow({ 1.0F, 1.0F }),
       m_screenSize(1.0F, 1.0F),
@@ -100,3 +102,5 @@ void GLTextBox::gameWindowSizeChanged(const Size<> &size)
         generateMessage(m_messageDTO);
     }
 }
+
+} // namespace thewarrior::ui

@@ -24,6 +24,8 @@
 #include <string>
 #include <vector>
 
+namespace thewarrior::ui {
+
 enum GameMapInputMode
 {
     Map,
@@ -101,3 +103,5 @@ private:
     void mainMenuPopupClicked(size_t choice);
     void mainMenuPopupCanceled();
 };
+
+} // namespace thewarrior::ui

@@ -14,6 +14,8 @@
 #include <string>
 #include <vector>
 
+namespace thewarrior::ui {
+
 class GLCharacterWindow : public GLPopupWindow
 {
 public:
@@ -38,3 +40,5 @@ protected:
     void addSlot(Point<float> location);
     void addItemToSlot(const Item *item, Point<float> location);
 };
+
+} // namespace thewarrior::ui
