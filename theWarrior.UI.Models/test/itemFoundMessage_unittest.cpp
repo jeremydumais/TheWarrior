@@ -1,6 +1,8 @@
 #include "itemFoundMessage.hpp"
 #include <gtest/gtest.h>
 
+using namespace thewarrior::ui::models;
+
 class ItemFoundMessageSample : public ::testing::Test
 {
 public:

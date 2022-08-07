@@ -2,15 +2,19 @@
 #include "itemFoundMessage.hpp"
 #include "itemFoundMessageDTO.hpp"
 
+using namespace thewarrior::ui::models;
+
+namespace thewarrior::ui::controllers {
+
 GameMapModeController::GameMapModeController()
     : m_itemStore(nullptr),
-      m_messagePipeline(nullptr)
+    m_messagePipeline(nullptr)
 {
 }
 
-void GameMapModeController::initialize(std::shared_ptr<ItemStore> itemStore, 
-                                       std::shared_ptr<MessagePipeline> messagePipeline)
-      
+void GameMapModeController::initialize(std::shared_ptr<ItemStore> itemStore,
+        std::shared_ptr<MessagePipeline> messagePipeline)
+
 {
     m_itemStore = itemStore;
     m_messagePipeline = messagePipeline;
@@ -18,13 +22,13 @@ void GameMapModeController::initialize(std::shared_ptr<ItemStore> itemStore,
 
 bool GameMapModeController::isMessageDisplayed() const
 {
-    auto currentMessage = m_messagePipeline->getCurrentMessage(); 
+    auto currentMessage = m_messagePipeline->getCurrentMessage();
     return currentMessage != nullptr && currentMessage->isDisplayed();
 }
 
 void GameMapModeController::acknowledgeMessage()
 {
-    m_messagePipeline->deleteCurrentMessage();                    
+    m_messagePipeline->deleteCurrentMessage();
 }
 
 ItemDTO GameMapModeController::findItem(const std::string &id) const
@@ -80,24 +84,24 @@ std::shared_ptr<Message> GameMapModeController::createMessageFromMessageDTO(std:
     if (!dto) {
         return nullptr;
     }
-    
+
     switch (dto->getType())
     {
-    case MessageDTOType::Message:
-        return std::make_shared<Message>(dto->message, dto->maxDurationInMilliseconds);
-        break;
-    case MessageDTOType::ItemFoundMessage:
-        {
-            ItemFoundMessageDTO *itemFoundMsgDTO = dynamic_cast<ItemFoundMessageDTO *>(dto.get());
-            return std::make_shared<ItemFoundMessage>(itemFoundMsgDTO->message, 
-                                                      itemFoundMsgDTO->maxDurationInMilliseconds, 
-                                                      itemFoundMsgDTO->itemId,
-                                                      itemFoundMsgDTO->textureName);
-        }
-        break;
-    default:
-        return nullptr;
-        break;
+        case MessageDTOType::Message:
+            return std::make_shared<Message>(dto->message, dto->maxDurationInMilliseconds);
+            break;
+        case MessageDTOType::ItemFoundMessage:
+            {
+                ItemFoundMessageDTO *itemFoundMsgDTO = dynamic_cast<ItemFoundMessageDTO *>(dto.get());
+                return std::make_shared<ItemFoundMessage>(itemFoundMsgDTO->message,
+                        itemFoundMsgDTO->maxDurationInMilliseconds,
+                        itemFoundMsgDTO->itemId,
+                        itemFoundMsgDTO->textureName);
+            }
+            break;
+        default:
+            return nullptr;
+            break;
     }
 }
 
@@ -109,20 +113,20 @@ std::unique_ptr<MessageDTO> GameMapModeController::createMessageDTOFromMessage(s
     std::unique_ptr<MessageDTO> retval = nullptr;
     switch (message->getType())
     {
-    case MessageType::Message:
-        retval = std::make_unique<MessageDTO>();
-        break;
-    case MessageType::ItemFoundMessage:
-        {
-            retval = std::make_unique<ItemFoundMessageDTO>();
-            ItemFoundMessage *itemFoundMessage = dynamic_cast<ItemFoundMessage *>(message.get());
-            ItemFoundMessageDTO *dto = dynamic_cast<ItemFoundMessageDTO *>(retval.get());
-            dto->itemId = itemFoundMessage->getItemId();
-            dto->textureName = itemFoundMessage->getTextureName();
+        case MessageType::Message:
+            retval = std::make_unique<MessageDTO>();
             break;
-        }
-    default:
-        break;
+        case MessageType::ItemFoundMessage:
+            {
+                retval = std::make_unique<ItemFoundMessageDTO>();
+                ItemFoundMessage *itemFoundMessage = dynamic_cast<ItemFoundMessage *>(message.get());
+                ItemFoundMessageDTO *dto = dynamic_cast<ItemFoundMessageDTO *>(retval.get());
+                dto->itemId = itemFoundMessage->getItemId();
+                dto->textureName = itemFoundMessage->getTextureName();
+                break;
+            }
+        default:
+            break;
     }
     retval->message = message->getMessage();
     retval->isDisplayed = message->isDisplayed();
@@ -134,8 +138,8 @@ std::unique_ptr<MessageDTO> GameMapModeController::createMessageDTOFromMessage(s
 
 bool GameMapModeController::isTileActionAlreadyProcessed(const std::string &mapName, int tileIndex) const
 {
-    if (const auto tilesProcessed = m_mapTileIndexActionAlreadyProcessed.find(mapName); 
-        tilesProcessed != m_mapTileIndexActionAlreadyProcessed.end()) {
+    if (const auto tilesProcessed = m_mapTileIndexActionAlreadyProcessed.find(mapName);
+            tilesProcessed != m_mapTileIndexActionAlreadyProcessed.end()) {
         const auto &tileIndices = tilesProcessed->second;
         return std::find(begin(tileIndices), end(tileIndices), tileIndex) != tileIndices.end();
     }
@@ -152,3 +156,5 @@ void GameMapModeController::addTileActionProcessed(const std::string &mapName, i
         tileIndices.push_back(tileIndex);
     }
 }
+
+} // namespace thewarrior::ui::models

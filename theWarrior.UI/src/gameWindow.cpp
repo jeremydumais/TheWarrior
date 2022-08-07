@@ -5,8 +5,8 @@
 using namespace std;
 
 GameWindow::GameWindow(const string &title,
-                       int x, int y,
-                       int width, int height) 
+        int x, int y,
+        int width, int height)
     : m_WindowSize(width, height)
 {
     if (!initializeOpenGL(title, x, y, width, height)) {
@@ -21,9 +21,9 @@ GameWindow::GameWindow(const string &title,
 
     subscribeEvents();
     m_textBox->initialize(m_controller.getResourcesPath(),
-                          m_textService,
-                          m_controller.getItemStore(),
-                          &m_texturesGLItemStore);
+            m_textService,
+            m_controller.getItemStore(),
+            &m_texturesGLItemStore);
     m_glPlayer->initialize(m_controller.getResourcesPath());
     //TODO to remove (Test only)
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("pot001"));
@@ -35,23 +35,23 @@ GameWindow::GameWindow(const string &title,
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("shd001"));
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("key001"));
     /*m_glPlayer->getEquipment().setMainHand(*dynamic_cast<const WeaponItem*>(m_controller.getItemStore()->findItem("swd002").get()));
-    m_glPlayer->getEquipment().setSecondaryHand(VariantEquipment(*dynamic_cast<const ArmorItem*>(m_controller.getItemStore()->findItem("shd001").get())));
-    m_glPlayer->getEquipment().setHead(*dynamic_cast<const ArmorItem*>(m_controller.getItemStore()->findItem("hlm001").get()));
-    m_glPlayer->getEquipment().setUpperBody(*dynamic_cast<const ArmorItem*>(m_controller.getItemStore()->findItem("ubd001").get()));*/
-    m_gameMapMode.initialize(m_controller.getResourcesPath(), 
-                             m_glPlayer,
-                             m_controller.getItemStore(),
-                             m_controller.getMessagePipeline(),
-                             m_tileService,
-                             m_textBox,
-                             m_textService,
-                             &m_texturesGLItemStore,
-                             m_inputDevicesState);
+      m_glPlayer->getEquipment().setSecondaryHand(VariantEquipment(*dynamic_cast<const ArmorItem*>(m_controller.getItemStore()->findItem("shd001").get())));
+      m_glPlayer->getEquipment().setHead(*dynamic_cast<const ArmorItem*>(m_controller.getItemStore()->findItem("hlm001").get()));
+      m_glPlayer->getEquipment().setUpperBody(*dynamic_cast<const ArmorItem*>(m_controller.getItemStore()->findItem("ubd001").get()));*/
+    m_gameMapMode.initialize(m_controller.getResourcesPath(),
+            m_glPlayer,
+            m_controller.getItemStore(),
+            m_controller.getMessagePipeline(),
+            m_tileService,
+            m_textBox,
+            m_textService,
+            &m_texturesGLItemStore,
+            m_inputDevicesState);
     m_fpsCalculator.initialize();
     m_windowSizeChanged(m_WindowSize);
 }
 
-GameWindow::~GameWindow() 
+GameWindow::~GameWindow()
 {
     m_gameMapMode.unloadGLMapObjects();
     m_glPlayer->unloadGLPlayerObject();
@@ -61,12 +61,12 @@ GameWindow::~GameWindow()
     SDL_Quit();
 }
 
-void GameWindow::show() 
+void GameWindow::show()
 {
     SDL_ShowWindow(m_window);
 }
 
-void GameWindow::hide() 
+void GameWindow::hide()
 {
     SDL_HideWindow(m_window);
 }
@@ -76,7 +76,7 @@ bool GameWindow::isAlive() const
     return !m_mustExit;
 }
 
-void GameWindow::processEvents() 
+void GameWindow::processEvents()
 {
     SDL_Event e;
     m_inputDevicesState->processJoystick(m_joystick);
@@ -88,15 +88,15 @@ void GameWindow::processEvents()
         if(e.type == SDL_QUIT){
             m_mustExit = true;
             continue;
-        }   
-        switch (m_interactionMode) {
-        case InteractionMode::Game:
-            m_gameMapMode.processEvents(e);
-            break;
-        default:
-            break;
         }
-        
+        switch (m_interactionMode) {
+            case InteractionMode::Game:
+                m_gameMapMode.processEvents(e);
+                break;
+            default:
+                break;
+        }
+
         if (e.type == SDL_WINDOWEVENT) {
             if (e.window.event == SDL_WINDOWEVENT_RESIZED) {
                 int screenWidth = 0, screenHeight = 0;
@@ -106,14 +106,14 @@ void GameWindow::processEvents()
                 calculateTileSize();
                 m_windowSizeChanged(m_WindowSize);
             }
-        } 
+        }
     }
     const Uint8 *keystate = SDL_GetKeyboardState(NULL);
     if ((keystate[SDL_SCANCODE_RCTRL] || keystate[SDL_SCANCODE_LCTRL]) && keystate[SDL_SCANCODE_F]) {
         if (!m_blockKeyDown) {
             m_toggleFPS = !m_toggleFPS;
             m_blockKeyDown = true;
-        }  
+        }
     }
     switch (m_interactionMode) {
         case InteractionMode::Game:
@@ -123,21 +123,21 @@ void GameWindow::processEvents()
             break;
     }
     m_windowUpdate(1.0F / 90.0F);
-	render();
+    render();
     if (m_toggleFPS) {
         m_fpsCalculator.calculate();
     }
 }
 
 bool GameWindow::initializeOpenGL(const std::string &title,
-                                  int x, int y,
-                                  int width, int height)
+        int x, int y,
+        int width, int height)
 {
     //Initialize SDL
-	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0) {
-		cerr << fmt::format("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0) {
+        cerr << fmt::format("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
         return false;
-	}
+    }
 
     //Use OpenGL 3.1 core
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -145,12 +145,12 @@ bool GameWindow::initializeOpenGL(const std::string &title,
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
     //Create window
-    m_window = SDL_CreateWindow(title.c_str(), 
-        x, 
-        y, 
-        width, 
-        height, 
-        SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL | SDL_WINDOW_MAXIMIZED);
+    m_window = SDL_CreateWindow(title.c_str(),
+            x,
+            y,
+            width,
+            height,
+            SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL | SDL_WINDOW_MAXIMIZED);
     if(m_window == nullptr) {
         cerr << fmt::format("Window could not be created! SDL_Error: %s\n", SDL_GetError());
         return false;
@@ -164,7 +164,7 @@ bool GameWindow::initializeOpenGL(const std::string &title,
     }
 
     //Initialize GLEW
-    glewExperimental = GL_TRUE; 
+    glewExperimental = GL_TRUE;
     GLenum glewError = glewInit();
     if( glewError != GLEW_OK ) {
         cerr << fmt::format("Error initializing GLEW! {0}\n", glewGetErrorString(glewError));
@@ -178,7 +178,7 @@ bool GameWindow::initializeOpenGL(const std::string &title,
     }
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
+
     return true;
 }
 
@@ -189,17 +189,17 @@ bool GameWindow::loadResourceFiles()
         return false;
     }
     if (!m_tileService->initShader(fmt::format("{0}/shaders/tile_330_vs.glsl", m_controller.getResourcesPath()),
-                                   fmt::format("{0}/shaders/tile_330_fs.glsl", m_controller.getResourcesPath()))) {
+                fmt::format("{0}/shaders/tile_330_fs.glsl", m_controller.getResourcesPath()))) {
         cerr << m_tileService->getLastError() << "\n";
         return false;
     }
     if (!m_textBox->initShader(fmt::format("{0}/shaders/textbox_330_vs.glsl", m_controller.getResourcesPath()),
-                               fmt::format("{0}/shaders/textbox_330_fs.glsl", m_controller.getResourcesPath()))) {
+                fmt::format("{0}/shaders/textbox_330_fs.glsl", m_controller.getResourcesPath()))) {
         cerr << m_textBox->getLastError() << "\n";
         return false;
     }
     if (!m_textService->initShader(fmt::format("{0}/shaders/text_330_vs.glsl", m_controller.getResourcesPath()),
-                                  fmt::format("{0}/shaders/text_330_fs.glsl", m_controller.getResourcesPath()))) {
+                fmt::format("{0}/shaders/text_330_fs.glsl", m_controller.getResourcesPath()))) {
         cerr << m_textService->getLastError() << "\n";
         return false;
     }
@@ -231,7 +231,7 @@ void GameWindow::render()
 {
     switch (m_interactionMode) {
         case InteractionMode::Game:
-            m_gameMapMode.render();    
+            m_gameMapMode.render();
             break;
         default:
             break;
@@ -239,11 +239,11 @@ void GameWindow::render()
     //Display the FPS
     if (m_toggleFPS) {
         m_textService->useShader();
-        m_textService->renderText(m_fpsCalculator.getFPSDisplayText(), 
-                               1.0f,                               // X
-                               static_cast<float>(m_WindowSize.height()) - 24.0f, // Y
-                               0.5f,                               // Scale
-                               glm::vec3(1.0f, 1.0f, 1.0f));       // Color
+        m_textService->renderText(m_fpsCalculator.getFPSDisplayText(),
+                1.0f,                               // X
+                static_cast<float>(m_WindowSize.height()) - 24.0f, // Y
+                0.5f,                               // Scale
+                glm::vec3(1.0f, 1.0f, 1.0f));       // Color
     }
     SDL_GL_SwapWindow(m_window);
 }
@@ -256,17 +256,17 @@ void GameWindow::loadItemStoreTextures()
     }
     m_texturesGLItemStore.clear();
     for(const auto &texture : m_controller.getItemStore()->getTextureContainer().getTextures()) {
-        const auto &textureName { texture.getName() }; 
+        const auto &textureName { texture.getName() };
         m_textureService.loadTexture(texture, m_texturesGLItemStore[textureName]);
     }
 }
 
-void GameWindow::calculateTileSize() 
+void GameWindow::calculateTileSize()
 {
     Size<float> screenSizeFloat(static_cast<float>(m_WindowSize.width()), static_cast<float>(m_WindowSize.height()));
-    
+
     m_tileSize.tileWidth = (1.0F / (screenSizeFloat.width() / 51.2F)) * 2.0F;
     m_tileSize.tileHalfWidth = m_tileSize.tileWidth / 2.0F;
     m_tileSize.tileHalfHeight = (screenSizeFloat.width() * m_tileSize.tileHalfWidth) / screenSizeFloat.height();
-    m_tileSizeChanged(m_tileSize);   
+    m_tileSizeChanged(m_tileSize);
 }

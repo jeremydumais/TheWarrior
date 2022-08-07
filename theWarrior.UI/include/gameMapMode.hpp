@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 
-enum GameMapInputMode 
+enum GameMapInputMode
 {
     Map,
     MainMenuPopup,
@@ -37,14 +37,14 @@ class GameMapMode
 public:
     GameMapMode();
     void initialize(const std::string &resourcesPath,
-                    std::shared_ptr<GLPlayer> glPlayer,
-                    std::shared_ptr<ItemStore> itemStore, 
-                    std::shared_ptr<MessagePipeline> messagePipeline,
-                    std::shared_ptr<GLTileService> tileService,
-                    std::shared_ptr<GLTextBox> textBox,
-                    std::shared_ptr<GLTextService> textService,
-                    const std::map<std::string, unsigned int> *texturesGLItemStore,
-                    std::shared_ptr<InputDevicesState> inputDevicesState);
+            std::shared_ptr<GLPlayer> glPlayer,
+            std::shared_ptr<ItemStore> itemStore,
+            std::shared_ptr<thewarrior::ui::models::MessagePipeline> messagePipeline,
+            std::shared_ptr<GLTileService> tileService,
+            std::shared_ptr<GLTextBox> textBox,
+            std::shared_ptr<GLTextService> textService,
+            const std::map<std::string, unsigned int> *texturesGLItemStore,
+            std::shared_ptr<InputDevicesState> inputDevicesState);
     bool initShaders(const std::string &resourcesPath);
     const std::string &getLastError() const;
     void processEvents(SDL_Event &e);
@@ -54,7 +54,7 @@ public:
     void gameWindowSizeChanged(const Size<> &size);
     void gameWindowTileSizeChanged(const TileSize &tileSize);
 private:
-    GameMapModeController m_controller;
+    thewarrior::ui::controllers::GameMapModeController m_controller;
     std::string m_lastError = "";
     std::string m_resourcesPath = "";
     std::string m_currentMapName = "";
@@ -65,7 +65,7 @@ private:
     GLTextureService m_textureService;
     std::shared_ptr<GLTextBox> m_textBox;
     std::shared_ptr<GLShaderProgram> m_shaderProgram = nullptr;
-    std::shared_ptr<GLFormService> m_glFormService = std::make_shared<GLFormService>(); 
+    std::shared_ptr<GLFormService> m_glFormService = std::make_shared<GLFormService>();
     GLCharacterWindow m_glCharacterWindow;
     GLInventory m_glInventory;
     GLChoicePopup m_choicePopup;
@@ -75,9 +75,9 @@ private:
     TileSize m_tileSize = { 1.0F, 1.0F, 1.0F };
     std::shared_ptr<InputDevicesState> m_inputDevicesState = nullptr;
     GLfloat m_texColorBuf[4][3] = { { 1.0F, 1.0F, 1.0F },   /* Red */
-                                    { 1.0F, 1.0F, 1.0F },   /* Green */
-                                    { 1.0F, 1.0F, 1.0F },   /* Blue */
-                                    { 1.0F, 1.0F, 1.0F } };
+        { 1.0F, 1.0F, 1.0F },   /* Green */
+        { 1.0F, 1.0F, 1.0F },   /* Blue */
+        { 1.0F, 1.0F, 1.0F } };
     bool m_blockKeyDown = false;
     bool m_isCharacterWindowDisplayed = false;
     bool m_isInventoryDisplayed = false;

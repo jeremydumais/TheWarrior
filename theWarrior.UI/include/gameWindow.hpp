@@ -39,7 +39,7 @@ public:
     bool isAlive() const;
     void processEvents();
 private:
-    GameWindowController m_controller;
+    thewarrior::ui::controllers::GameWindowController m_controller;
     SDL_Window *m_window;
     SDL_Renderer *m_renderer;
     SDL_GLContext m_gContext;

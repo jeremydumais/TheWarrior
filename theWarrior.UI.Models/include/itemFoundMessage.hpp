@@ -4,10 +4,12 @@
 #include "messageType.hpp"
 #include <string>
 
+namespace thewarrior::ui::models {
+
 class ItemFoundMessage : public Message
 {
 public:
-    ItemFoundMessage(const std::string &message, 
+    ItemFoundMessage(const std::string &message,
                      int maxDurationInMilliseconds,
                      const std::string &itemId,
                      const std::string &textureName);
@@ -21,3 +23,5 @@ private:
     std::string m_itemId;
     std::string m_textureName;
 };
+
+} // namespace thewarrior::ui::models

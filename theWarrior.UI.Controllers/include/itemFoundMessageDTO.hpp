@@ -3,6 +3,8 @@
 #include "messageDTO.hpp"
 #include <string>
 
+namespace thewarrior::ui::controllers {
+
 struct ItemFoundMessageDTO : public MessageDTO
 {
     std::string itemId;
@@ -10,3 +12,5 @@ struct ItemFoundMessageDTO : public MessageDTO
     virtual ~ItemFoundMessageDTO() = default;
     virtual MessageDTOType getType() { return MessageDTOType::ItemFoundMessage; };
 };
+
+} // namespace thewarrior::ui::controllers

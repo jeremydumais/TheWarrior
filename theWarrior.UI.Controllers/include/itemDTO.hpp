@@ -2,6 +2,8 @@
 
 #include <string>
 
+namespace thewarrior::ui::controllers {
+
 struct ItemDTO
 {
     std::string id;
@@ -10,3 +12,5 @@ struct ItemDTO
     int textureIndex;
     virtual ~ItemDTO() = default;
 };
+
+} // namespace thewarrior::ui::controllers

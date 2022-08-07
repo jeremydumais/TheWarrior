@@ -1,6 +1,8 @@
 #include "message.hpp"
 #include <gtest/gtest.h>
 
+using namespace thewarrior::ui::models;
+
 class MessageSample : public ::testing::Test
 {
 public:

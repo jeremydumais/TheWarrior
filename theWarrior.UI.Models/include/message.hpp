@@ -5,6 +5,8 @@
 #include <optional>
 #include <string>
 
+namespace thewarrior::ui::models {
+
 class Message
 {
 public:
@@ -24,3 +26,5 @@ private:
     int m_maxDurationInMilliseconds;
     std::optional<std::chrono::_V2::system_clock::time_point> m_displayStartTime;
 };
+
+} // namespace thewarrior::ui::models
