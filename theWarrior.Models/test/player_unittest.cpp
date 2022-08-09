@@ -18,9 +18,11 @@ public:
     FakePlayer() : Player("FakeName")
     {
         m_level = 2;
+        m_health = 5;
         m_bonusAttackFromLevel = 2.0F;
         m_bonusDefenseFromLevel = 2.1F;
         m_bonusHealthFromLevel = 5;
+        m_gold = 24;
         getEquipment().setMainHand(WeaponItem({"swd001",
                                                "Sword1",
                                                "Tex1",
@@ -102,10 +104,15 @@ TEST_F(PlayerSample, getStats_ReturnLvl1Stats)
 TEST_F(PlayerLvl2WithEquipmentsSample, getStats_ReturnLvl2Stats)
 {
     auto stats = player.getStats();
-    ASSERT_FLOAT_EQ(4.1F, stats.attack);
-    ASSERT_FLOAT_EQ(7.3F, stats.defense);
-    ASSERT_EQ(15, stats.health);
-    ASSERT_EQ(15, stats.maxHealth);
+    ASSERT_FLOAT_EQ(3.6F, stats.attack);
+    ASSERT_FLOAT_EQ(6.8F, stats.defense);
+    ASSERT_EQ(5, stats.health);
+    ASSERT_EQ(5, stats.maxHealth);
+}
+
+TEST_F(PlayerLvl2WithEquipmentsSample, getGold_Return24)
+{
+    ASSERT_EQ(24, player.getGold());
 }
 
 TEST_F(PlayerSample, SetName_WithJohn_ReturnSuccess)

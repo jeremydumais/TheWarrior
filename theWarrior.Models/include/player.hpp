@@ -21,20 +21,26 @@ public:
     std::shared_ptr<Inventory> getInventory();
     PlayerEquipment &getEquipment();
     PlayerStats getStats() const;
+    int getGold() const;
     void setName(const std::string &name);
     void setLevel(unsigned int level);
     void incrementLevel();
+    //reduceHealth
+    //restoreHealth
+    //addGold
+    //removeGold
 protected:
-    unsigned int m_level;
-    int m_health;
-    float m_bonusAttackFromLevel;
-    float m_bonusDefenseFromLevel;
-    int m_bonusHealthFromLevel;
+    unsigned int m_level = 1;
+    int m_health = 10;
+    float m_bonusAttackFromLevel = 0.5F;
+    float m_bonusDefenseFromLevel = 0.5F;
+    int m_bonusHealthFromLevel = 10;
+    int m_gold = 0;
 private:
     friend class boost::serialization::access;
     Player() = default; //Needed for deserialization
     std::string m_name;
-    std::shared_ptr<Inventory> m_inventory;
+    std::shared_ptr<Inventory> m_inventory = std::make_shared<Inventory>();
     PlayerEquipment m_equipment;
     void validateName(const std::string &name) const;
     static float getOptionalArmorItemDefense(const boost::optional<ArmorItem> &item);
