@@ -27,6 +27,7 @@
 using namespace commoneditor::ui;
 using namespace itemeditor::controllers;
 using namespace thewarrior::models;
+using namespace thewarrior::storage;
 
 const std::string MainForm::THEME_PATH{"Display.Theme"};
 const std::string MainForm::RECENT_MAPS{"ItemsDB.Recents"};

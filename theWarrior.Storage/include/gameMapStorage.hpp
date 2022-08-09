@@ -5,6 +5,8 @@
 #include <memory>
 #include <string>
 
+namespace thewarrior::storage {
+
 class GameMapStorage
 {
 public:
@@ -13,3 +15,5 @@ public:
 private:
     std::unique_ptr<IBinaryFileStream<thewarrior::models::GameMap>> m_bfs;
 };
+
+} // namespace thewarrior::storage

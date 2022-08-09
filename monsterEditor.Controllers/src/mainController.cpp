@@ -14,6 +14,7 @@
 
 using namespace commoneditor::ui;
 using namespace thewarrior::models;
+using namespace thewarrior::storage;
 
 namespace monstereditor::controllers {
 

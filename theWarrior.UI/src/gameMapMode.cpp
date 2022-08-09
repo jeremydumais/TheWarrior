@@ -11,6 +11,7 @@
 using namespace thewarrior::models;
 using namespace thewarrior::ui::controllers;
 using namespace thewarrior::ui::models;
+using namespace thewarrior::storage;
 
 namespace thewarrior::ui {
 

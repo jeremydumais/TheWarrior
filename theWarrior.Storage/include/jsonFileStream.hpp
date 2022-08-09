@@ -2,6 +2,8 @@
 
 #include "iJSONFileStream.hpp"
 
+namespace thewarrior::storage {
+
 class JSONFileStream : public IJSONFileStream
 {
 public:
@@ -10,3 +12,5 @@ public:
     bool readFile(boost::property_tree::ptree &obj) override;
     bool writeFile(const boost::property_tree::ptree &obj) override;
 };
+
+} // namespace thewarrior::storage

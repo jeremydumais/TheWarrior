@@ -4,10 +4,12 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <string>
 
+namespace thewarrior::storage {
+
 class IJSONFileStream
 {
 public:
-    explicit IJSONFileStream(const std::string &fileName) 
+    explicit IJSONFileStream(const std::string &fileName)
         : m_fileName(fileName),
           m_lastError("") {}
     virtual ~IJSONFileStream() = default;
@@ -25,3 +27,5 @@ private:
     std::string m_fileName;
     std::string m_lastError;
 };
+
+} // namespace thewarrior::storage

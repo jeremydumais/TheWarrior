@@ -10,6 +10,8 @@ using namespace boost::filesystem;
 using namespace boost::property_tree;
 using namespace boost::algorithm;
 
+namespace thewarrior::storage {
+
 ConfigurationManager::ConfigurationManager(const string &fileName,
                                            unique_ptr<IJSONFileStream> jfs)
     : m_lastError(""),
@@ -104,3 +106,5 @@ bool ConfigurationManager::save()
     }
     return true;
 }
+
+} // namespace thewarrior::storage

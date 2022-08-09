@@ -14,6 +14,7 @@ BOOST_CLASS_EXPORT_GUID(thewarrior::models::StatsItem, "SItem")
 using namespace std;
 using namespace boost::algorithm;
 using namespace thewarrior::models;
+using namespace thewarrior::storage;
 
 void ItemStoreStorage::loadItemStore(const std::string &fileName, std::shared_ptr<ItemStore> itemStore)
 {

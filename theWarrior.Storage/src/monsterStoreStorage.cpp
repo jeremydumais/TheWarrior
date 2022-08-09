@@ -7,6 +7,7 @@
 using namespace std;
 using namespace boost::algorithm;
 using namespace thewarrior::models;
+using namespace thewarrior::storage;
 
 void MonsterStoreStorage::loadMonsterStore(const std::string &fileName, std::shared_ptr<MonsterStore> monsterStore)
 {

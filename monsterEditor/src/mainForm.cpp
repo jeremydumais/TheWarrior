@@ -18,6 +18,7 @@
 
 using namespace commoneditor::ui;
 using namespace monstereditor::controllers;
+using namespace thewarrior::storage;
 
 const std::string MainForm::THEME_PATH{"Display.Theme"};
 const std::string MainForm::RECENT_DB{"MonsterDB.Recents"};

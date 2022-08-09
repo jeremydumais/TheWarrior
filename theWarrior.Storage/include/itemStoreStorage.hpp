@@ -5,6 +5,8 @@
 #include <memory>
 #include <string>
 
+namespace thewarrior::storage {
+
 class ItemStoreStorage
 {
 public:
@@ -14,3 +16,5 @@ public:
 private:
     std::unique_ptr<IBinaryFileStream<thewarrior::models::ItemStore>> m_bfs;
 };
+
+} // namespace thewarrior::storage

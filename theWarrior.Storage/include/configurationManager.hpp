@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+namespace thewarrior::storage {
+
 class ConfigurationManager
 {
 public:
@@ -24,3 +26,5 @@ private:
     boost::property_tree::ptree m_config;
     std::unique_ptr<IJSONFileStream> m_jfs;
 };
+
+} // namespace thewarrior::storage

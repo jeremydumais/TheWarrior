@@ -5,6 +5,8 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <fstream>
 
+namespace thewarrior::storage {
+
 template<class T>
 class BinaryFileStream : public IBinaryFileStream<T>
 {
@@ -15,8 +17,8 @@ public:
     bool open(FileOpenMode mode) override {
         try {
             m_fs.exceptions(std::fstream::failbit);
-            m_fs.open(this->getFileName(), 
-                      std::fstream::binary | 
+            m_fs.open(this->getFileName(),
+                      std::fstream::binary |
                       (mode == FileOpenMode::Read ? std::fstream::in : std::fstream::out));
         }
         catch(const std::ios_base::failure &fail) {
@@ -60,7 +62,9 @@ public:
         }
         return true;
     }
-    
+
 private:
     std::fstream m_fs;
 };
+
+} // namespace thewarrior::storage

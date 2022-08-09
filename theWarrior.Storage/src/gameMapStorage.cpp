@@ -8,6 +8,8 @@ using namespace std;
 using namespace boost::algorithm;
 using namespace thewarrior::models;
 
+namespace thewarrior::storage {
+
 void GameMapStorage::loadMap(const string &fileName, shared_ptr<GameMap> map)
 {
     if (trim_copy(fileName).empty()) {
@@ -34,3 +36,5 @@ void GameMapStorage::setFileStream(std::unique_ptr<IBinaryFileStream<GameMap>> b
 {
     m_bfs = move(bfs);
 }
+
+} // namespace thewarrior::storage

@@ -6,7 +6,9 @@ using namespace std;
 using namespace boost::filesystem;
 using namespace boost::property_tree::json_parser;
 
-JSONFileStream::JSONFileStream(const std::string &fileName) 
+namespace thewarrior::storage {
+
+JSONFileStream::JSONFileStream(const std::string &fileName)
     : IJSONFileStream(fileName)
 {
 }
@@ -16,7 +18,7 @@ bool JSONFileStream::fileExists() const
     return exists(getFileName());
 }
 
-bool JSONFileStream::readFile(boost::property_tree::ptree &obj) 
+bool JSONFileStream::readFile(boost::property_tree::ptree &obj)
 {
     try {
         read_json(getFileName(), obj);
@@ -28,7 +30,7 @@ bool JSONFileStream::readFile(boost::property_tree::ptree &obj)
     return true;
 }
 
-bool JSONFileStream::writeFile(const boost::property_tree::ptree &obj) 
+bool JSONFileStream::writeFile(const boost::property_tree::ptree &obj)
 {
     try {
         write_json(getFileName(), obj);
@@ -40,3 +42,5 @@ bool JSONFileStream::writeFile(const boost::property_tree::ptree &obj)
     }
     return true;
 }
+
+} // namespace thewarrior::storage
