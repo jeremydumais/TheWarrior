@@ -1,8 +1,10 @@
 #include "mainForm.hpp"
 #include "aboutBoxForm.hpp"
+#include "components/mainForm_MonsterZoneTabComponent.hpp"
 #include "configurationManager.hpp"
 #include "errorMessage.hpp"
 #include "gameMapStorage.hpp"
+#include "manageItemStoreForm.hpp"
 #include "specialFolders.hpp"
 #include <QtCore/qfile.h>
 #include <algorithm>
@@ -14,6 +16,7 @@
 #include <fstream>
 #include <libgen.h>         // dirname
 #include <linux/limits.h>   // PATH_MAX
+#include <qcombobox.h>
 #include <qtimer.h>
 #include <unistd.h>         // readlink
 
@@ -64,6 +67,14 @@ MainForm::MainForm(QWidget *parent)
     tileUIObjects.pushButtonEditTileEvent = ui.pushButtonEditTileEvent;
     tileUIObjects.pushButtonDeleteTileEvent = ui.pushButtonDeleteTileEvent;
     m_tileTabComponent.initializeUIObjects(tileUIObjects);
+    //MonsterZoneTab Component initialization
+    MainForm_MonsterZoneTabComponent_Objects monsterZoneUIObjects;
+    monsterZoneUIObjects.glComponent = &m_glComponent;
+    monsterZoneUIObjects.tableWidgetMonsterZone = ui.tableWidgetMonsterZone;
+    monsterZoneUIObjects.pushButtonAddMonsterZone = ui.pushButtonAddMonsterZone;
+    monsterZoneUIObjects.pushButtonEditMonsterZone = ui.pushButtonEditMonsterZone;
+    monsterZoneUIObjects.pushButtonDeleteMonsterZone = ui.pushButtonDeleteMonsterZone;
+    m_monsterZoneTabComponent.initializeUIObjects(monsterZoneUIObjects);
     //TextureListTab Component initialization
     MainForm_TextureListTabComponent_Objects textureListUIObjects;
     textureListUIObjects.glComponent = &m_glComponent;
@@ -82,6 +93,11 @@ MainForm::MainForm(QWidget *parent)
     textureSelectionUIObjects.pushButtonSelectedObjectClear = ui.pushButtonSelectedObjectClear;
     textureSelectionUIObjects.labelImageTexture = ui.labelImageTexture;
     m_textureSelectionComponent.initializeUIObjects(textureSelectionUIObjects);
+
+    comboBoxToolbarMonsterZone = std::make_shared<QComboBox>(this);
+    ui.toolBar->insertWidget(ui.action_ApplyMonsterZone, comboBoxToolbarMonsterZone.get());
+
+    initializeMonstersZoneTableControl();
     connectUIActions();
 
     //Check if the user configuration folder exist
@@ -119,7 +135,20 @@ MainForm::MainForm(QWidget *parent)
     m_glComponent.setCurrentMap(map);
     refreshRecentMapsMenu();
     refreshTextureList();
+    refreshMonsterZones();
     m_mapTabComponent.reset();
+
+    //TODO To remove. Only for development
+    //m_monsterZoneTabComponent.onPushButtonAddMonsterZoneClick();
+    action_ManageItemStore_Click();
+}
+
+void MainForm::initializeMonstersZoneTableControl()
+{
+    ui.tableWidgetMonsterZone->setHorizontalHeaderItem(0, new QTableWidgetItem("Color"));
+    ui.tableWidgetMonsterZone->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
+    ui.tableWidgetMonsterZone->setColumnWidth(0, 80);
+    ui.tableWidgetMonsterZone->setColumnWidth(1, 300);
 }
 
 void MainForm::connectUIActions()
@@ -137,6 +166,8 @@ void MainForm::connectUIActions()
     connect(ui.action_LightTheme, &QAction::triggered, this, &MainForm::action_LightTheme_Click);
     connect(ui.action_DarkTheme, &QAction::triggered, this, &MainForm::action_DarkTheme_Click);
     connect(ui.action_DisplayGrid, &QAction::triggered, this, &MainForm::action_DisplayGrid_Click);
+    connect(ui.action_ItemStore, &QAction::triggered, this, &MainForm::action_ManageItemStore_Click);
+    connect(ui.action_MonsterStore, &QAction::triggered, this, &MainForm::action_ManageMonsterStore_Click);
     connect(ui.action_Select, &QAction::triggered, this, &MainForm::action_SelectClick);
     connect(ui.action_MoveMap, &QAction::triggered, this, &MainForm::action_MoveMapClick);
     connect(ui.action_ApplyTexture, &QAction::triggered, this, &MainForm::action_ApplyTextureClick);
@@ -152,6 +183,7 @@ void MainForm::connectUIActions()
     m_glComponent.connectUIActions();
     m_mapTabComponent.connectUIActions();
     m_tileTabComponent.connectUIActions();
+    m_monsterZoneTabComponent.connectUIActions();
     m_textureListTabComponent.connectUIActions();
     m_textureSelectionComponent.connectUIActions();
     connect(&m_glComponent, &MainForm_GLComponent::tileSelected, this, &MainForm::onTileSelected);
@@ -297,6 +329,17 @@ void MainForm::action_DisplayGrid_Click()
     ui.mapOpenGLWidget->setGridEnabled(ui.action_DisplayGrid->isChecked());
 }
 
+void MainForm::action_ManageItemStore_Click()
+{
+    ManageItemStoreForm manageItemStoreForm(this, m_resourcesPath, m_userConfigFolder);
+    manageItemStoreForm.exec();
+}
+
+void MainForm::action_ManageMonsterStore_Click()
+{
+
+}
+
 void MainForm::action_SelectClick()
 {
     m_glComponent.setSelectionMode(SelectionMode::Select);
@@ -376,6 +419,7 @@ void MainForm::openMap(const std::string &filePath)
     m_glComponent.setCurrentMap(m_controller.getMap());
     m_glComponent.resetMapMovePosition();
     refreshTextureList();
+    refreshMonsterZones();
     m_tileTabComponent.reset();
     m_mapTabComponent.reset();
 }
@@ -522,4 +566,9 @@ void MainForm::refreshTextureList()
     m_textureListTabComponent.refreshTextureList();
     m_textureSelectionComponent.refreshTextureList();
     m_glComponent.reloadTextures();
+}
+
+void MainForm::refreshMonsterZones()
+{
+    m_monsterZoneTabComponent.refreshMonsterZones();
 }

@@ -63,6 +63,7 @@ void GLCharacterWindow::generateGLElements()
     addXCenteredTwoColumnsLabels("Health: ", fmt::format("{0}/{1}", stats.health, stats.maxHealth), 275.0F, 0.4F, 420.0F, 360.0F, GLColor::LightGray, GLColor::Green);
     addXCenteredTwoColumnsLabels("Total attack: ", fmt::format("{0}", stats.attack), 305.0F, 0.4F, 420.0F, 360.0F, GLColor::LightGray, GLColor::Green);
     addXCenteredTwoColumnsLabels("Total defense: ", fmt::format("{0}", stats.defense), 335.0F, 0.4F, 420.0F, 360.0F, GLColor::LightGray, GLColor::Green);
+    addXCenteredTwoColumnsLabels("Gold: ", fmt::format("{0}", m_glPlayer->getGold()), 365.0F, 0.4F, 420.0F, 360.0F, GLColor::LightGray, GLColor::Green);
     //Main hand
     if (!equipment.getMainHand().has_value()) {
         addXCenteredTextObject({"Main\nhand", {0.0F, 225.0F}, 0.3F}, 55.0F, 80.0F);

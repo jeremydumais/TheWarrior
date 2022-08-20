@@ -1,5 +1,6 @@
 #include "player.hpp"
 #include "boost/algorithm/string.hpp"
+#include <limits>
 #include <stdexcept>
 
 namespace thewarrior::models {
@@ -82,6 +83,27 @@ void Player::setLevel(unsigned int level)
 void Player::incrementLevel()
 {
     m_level++;
+}
+
+void Player::addGold(int value)
+{
+    int intMax = std::numeric_limits<int>::max();
+    if (intMax - m_gold >= value) {
+        m_gold += value;
+    }
+    else {
+        m_gold = intMax;
+    }
+}
+
+void Player::removeGold(int value)
+{
+    if (m_gold - value >= 0) {
+        m_gold -= value;
+    }
+    else {
+        m_gold = 0;
+    }
 }
 
 void Player::validateName(const std::string &name) const

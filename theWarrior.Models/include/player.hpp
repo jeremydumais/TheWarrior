@@ -27,8 +27,8 @@ public:
     void incrementLevel();
     //reduceHealth
     //restoreHealth
-    //addGold
-    //removeGold
+    void addGold(int value);
+    void removeGold(int value);
 protected:
     unsigned int m_level = 1;
     int m_health = 10;

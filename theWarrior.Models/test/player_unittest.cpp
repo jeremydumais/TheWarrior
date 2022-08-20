@@ -1,5 +1,6 @@
 #include "player.hpp"
 #include <gtest/gtest.h>
+#include <limits>
 
 using namespace thewarrior::models;
 
@@ -101,6 +102,11 @@ TEST_F(PlayerSample, getStats_ReturnLvl1Stats)
     ASSERT_EQ(10, stats.maxHealth);
 }
 
+TEST_F(PlayerSample, getGold_Return0)
+{
+    ASSERT_EQ(0, player.getGold());
+}
+
 TEST_F(PlayerLvl2WithEquipmentsSample, getStats_ReturnLvl2Stats)
 {
     auto stats = player.getStats();
@@ -153,4 +159,63 @@ TEST_F(PlayerSample, IncrementLevel_ReturnSuccess)
 {
     player.incrementLevel();
     ASSERT_EQ(2, player.getLevel());
+}
+
+TEST_F(PlayerSample, AddGoldWith15_ReturnSuccess)
+{
+    player.addGold(15);
+    ASSERT_EQ(15, player.getGold());
+}
+
+TEST_F(PlayerSample, AddGoldWithIntMax_ReturnSuccess)
+{
+    int max = std::numeric_limits<int>::max();
+    player.addGold(max);
+    ASSERT_EQ(max, player.getGold());
+}
+
+TEST_F(PlayerSample, AddGoldWithIntMaxAndPlayerHad1Gold_ReturnSuccessAndMaxGold)
+{
+    player.addGold(1);
+    int max = std::numeric_limits<int>::max();
+    player.addGold(max);
+    ASSERT_EQ(max, player.getGold());
+}
+
+TEST_F(PlayerSample, AddGoldWithIntMaxMinus1AndPlayerHad1Gold_ReturnSuccess)
+{
+    int max = std::numeric_limits<int>::max();
+    player.addGold(max - 1);
+    player.addGold(1);
+    ASSERT_EQ(max, player.getGold());
+}
+
+TEST_F(PlayerSample, RemoveGoldWith0_ReturnSuccessAndStay0)
+{
+    player.removeGold(0);
+    ASSERT_EQ(0, player.getGold());
+}
+
+TEST_F(PlayerSample, RemoveGoldWith3_ReturnSuccessAndStay0)
+{
+    player.removeGold(3);
+    ASSERT_EQ(0, player.getGold());
+}
+
+TEST_F(PlayerLvl2WithEquipmentsSample, RemoveGoldWith3_ReturnSuccess)
+{
+    player.removeGold(3);
+    ASSERT_EQ(21, player.getGold());
+}
+
+TEST_F(PlayerLvl2WithEquipmentsSample, RemoveGoldWith24_ReturnSuccess)
+{
+    player.removeGold(24);
+    ASSERT_EQ(0, player.getGold());
+}
+
+TEST_F(PlayerLvl2WithEquipmentsSample, RemoveGoldWith25_ReturnSuccess)
+{
+    player.removeGold(25);
+    ASSERT_EQ(0, player.getGold());
 }
