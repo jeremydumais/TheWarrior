@@ -4,6 +4,7 @@
 
 #include "ui_manageItemStoreForm.h"
 #include "itemStoreInfo.hpp"
+#include "manageItemStoreController.hpp"
 #include <qdialog.h>
 #include <string>
 #include <vector>
@@ -18,9 +19,7 @@ public:
                                  const std::string &userConfigFolder);
 private:
     Ui::manageItemStoreFormClass ui;
-    std::string m_resourcesPath = "";
-    std::string m_userConfigFolder = "";
-    std::vector<ItemStoreInfo> m_itemStores;
+    mapeditor::controllers::ManageItemStoreController m_controller;
     void connectUIActions();
     void initializeItemTable();
     void onPushButtonAddClick();

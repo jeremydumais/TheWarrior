@@ -16,8 +16,10 @@ public:
     const std::string &getLastError() const;
     std::vector<std::string> getVectorOfStringValue(const std::string &path) const;
     std::string getStringValue(const std::string &path) const;
+    boost::property_tree::ptree getPTreeNode(const std::string &path) const;
     void setStringValue(const std::string &path, const std::string &value);
     void setVectorOfStringValue(const std::string &path, const std::vector<std::string> &values);
+    void setPTreeNode(const std::string &path, const boost::property_tree::ptree &node);
     bool fileExists() const;
     bool load();
     bool save();

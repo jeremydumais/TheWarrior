@@ -3,6 +3,7 @@
 #define EDITITEMSTOREFORM_H
 
 #include "ui_editItemStoreForm.h"
+#include "editItemStoreController.hpp"
 #include "itemStoreInfo.hpp"
 #include <qdialog.h>
 #include <string>
@@ -16,12 +17,10 @@ public:
     explicit EditItemStoreForm(QWidget *parent,
                                const std::string &resourcesPath,
                                const std::string &userConfigFolder,
-                               const std::vector<ItemStoreInfo> &itemStores);
+                               const std::vector<mapeditor::controllers::ItemStoreInfo> &itemStores);
 private:
     Ui::editItemStoreFormClass ui;
-    std::string m_resourcesPath = "";
-    std::string m_userConfigFolder = "";
-    std::vector<ItemStoreInfo> m_itemStores;
+    mapeditor::controllers::EditItemStoreController m_controller;
     void connectUIActions();
     void onPushButtonOKClick();
     void onPushButtonOpenFileClick();

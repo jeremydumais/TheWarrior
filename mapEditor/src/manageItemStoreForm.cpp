@@ -7,8 +7,7 @@ ManageItemStoreForm::ManageItemStoreForm(QWidget *parent,
                                          const std::string &userConfigFolder)
     : QDialog(parent),
     ui(Ui::manageItemStoreFormClass()),
-    m_resourcesPath(resourcesPath),
-    m_userConfigFolder(userConfigFolder)
+    m_controller(resourcesPath, userConfigFolder)
 {
     ui.setupUi(this);
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
@@ -34,8 +33,8 @@ void ManageItemStoreForm::initializeItemTable()
 
 void ManageItemStoreForm::onPushButtonAddClick()
 {
-    EditItemStoreForm editItemStoreForm(this, m_resourcesPath, m_userConfigFolder, m_itemStores);
-    editItemStoreForm.exec();
+    //EditItemStoreForm editItemStoreForm(this, m_resourcesPath, m_userConfigFolder, m_itemStores);
+    //editItemStoreForm.exec();
 }
 
 void ManageItemStoreForm::onPushButtonEditClick()

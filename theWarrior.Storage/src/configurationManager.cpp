@@ -56,6 +56,11 @@ std::string ConfigurationManager::getStringValue(const string &path) const
     return m_config.get<string>(path, "");
 }
 
+boost::property_tree::ptree ConfigurationManager::getPTreeNode(const std::string &path) const
+{
+    return m_config.get_child(path);
+}
+
 void ConfigurationManager::setStringValue(const string &path, const string &value)
 {
     m_config.put(path, value);
@@ -72,6 +77,11 @@ void ConfigurationManager::setVectorOfStringValue(const string &path, const vect
         recents_node.push_back(make_pair("", recent_node));
     }
     m_config.put_child(path, recents_node);
+}
+
+void ConfigurationManager::setPTreeNode(const std::string &path, const boost::property_tree::ptree &node)
+{
+    m_config.add_child(path, node);
 }
 
 bool ConfigurationManager::fileExists() const
