@@ -33,7 +33,7 @@ void ManageItemStoreForm::initializeItemTable()
 
 void ManageItemStoreForm::onPushButtonAddClick()
 {
-    //EditItemStoreForm editItemStoreForm(this, m_resourcesPath, m_userConfigFolder, m_itemStores);
+    //EditItemStoreForm editItemStoreForm(this, m_controller.getResourcesPath(), m_userConfigFolder, m_itemStores);
     //editItemStoreForm.exec();
 }
 
