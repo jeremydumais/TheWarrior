@@ -1,6 +1,11 @@
 #include "manageItemStoreForm.hpp"
 #include "editItemStoreForm.hpp"
 #include "editTextureForm.hpp"
+#include "errorMessage.hpp"
+#include <optional>
+#include <qdialog.h>
+
+using namespace commoneditor::ui;
 
 ManageItemStoreForm::ManageItemStoreForm(QWidget *parent,
                                          const std::string &resourcesPath,
@@ -13,6 +18,10 @@ ManageItemStoreForm::ManageItemStoreForm(QWidget *parent,
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
     initializeItemTable();
     connectUIActions();
+    if (!m_controller.loadItemStore()) {
+        ErrorMessage::show(m_controller.getLastError());
+    }
+    refreshItemStoreList();
 }
 
 void ManageItemStoreForm::connectUIActions()
@@ -31,10 +40,23 @@ void ManageItemStoreForm::initializeItemTable()
     ui.tableWidgetItem->setColumnWidth(1, 250);
 }
 
+void ManageItemStoreForm::refreshItemStoreList()
+{
+    ui.tableWidgetItem->model()->removeRows(0, ui.tableWidgetItem->rowCount());
+    int index = 0;
+    for(const auto &item : m_controller.getItemStores()) {
+        ui.tableWidgetItem->insertRow(index);
+        ui.tableWidgetItem->setItem(index, 0, new QTableWidgetItem(item.name.c_str()));
+        ui.tableWidgetItem->setItem(index, 1, new QTableWidgetItem(item.filename.c_str()));
+    }
+}
+
 void ManageItemStoreForm::onPushButtonAddClick()
 {
-    //EditItemStoreForm editItemStoreForm(this, m_controller.getResourcesPath(), m_userConfigFolder, m_itemStores);
-    //editItemStoreForm.exec();
+    EditItemStoreForm editItemStoreForm(this, m_controller, std::nullopt);
+    if (editItemStoreForm.exec() == QDialog::Accepted) {
+        refreshItemStoreList();
+    }
 }
 
 void ManageItemStoreForm::onPushButtonEditClick()

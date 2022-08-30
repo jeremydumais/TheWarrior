@@ -22,6 +22,7 @@ private:
     mapeditor::controllers::ManageItemStoreController m_controller;
     void connectUIActions();
     void initializeItemTable();
+    void refreshItemStoreList();
     void onPushButtonAddClick();
     void onPushButtonEditClick();
     void onPushButtonDeleteClick();

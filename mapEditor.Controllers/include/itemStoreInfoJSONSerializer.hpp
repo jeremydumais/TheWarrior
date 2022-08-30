@@ -1,4 +1,3 @@
-#define BOOST_BIND_GLOBAL_PLACEHOLDERS 1
 #pragma once
 
 #include "itemStoreInfo.hpp"

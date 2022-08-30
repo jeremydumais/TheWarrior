@@ -1,3 +1,4 @@
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS
 #include "itemStoreInfo.hpp"
 #include "itemStoreInfoJSONSerializer.hpp"
 #include <boost/property_tree/json_parser.hpp>
@@ -5,6 +6,7 @@
 #include <sstream>
 #include <string.h>
 #include <vector>
+
 
 using namespace mapeditor::controllers;
 using namespace boost::property_tree;

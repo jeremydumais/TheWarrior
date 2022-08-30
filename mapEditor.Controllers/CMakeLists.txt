@@ -7,7 +7,6 @@ include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Storage/include)
 
                     set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/mainController.cpp
-                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/editItemStoreController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/glComponentController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/itemStoreInfoJSONSerializer.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/manageItemStoreController.cpp)

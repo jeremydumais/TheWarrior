@@ -162,3 +162,121 @@ TEST_F(ManageItemStoreControllerTwoStoresSample, AddItemStore_WithExistingNameEx
     ASSERT_FALSE(controller.addItemStore({ .name = "   N1  ", .filename = "f1" }));
     ASSERT_EQ("name N1 already exist.", controller.getLastError());
 }
+
+TEST_F(ManageItemStoreControllerTwoStoresSample, UpdateItemStore_WithNonExistingName_ReturnFalse)
+{
+    ASSERT_FALSE(controller.updateItemStore("T1", { .name = "N3", .filename = "F3" }));
+    ASSERT_EQ("name T1 doesn't exist.", controller.getLastError());
+}
+
+TEST_F(ManageItemStoreControllerTwoStoresSample, UpdateItemStore_WithExistingNameButAlreadyUsed_ReturnFalse)
+{
+    ASSERT_FALSE(controller.updateItemStore("N1", { .name = "N2", .filename = "F3" }));
+    ASSERT_EQ("name N2 already exist.", controller.getLastError());
+}
+
+TEST_F(ManageItemStoreControllerTwoStoresSample, UpdateItemStore_WithExistingNameWithSpacesAlreadyUsed_ReturnFalse)
+{
+    ASSERT_FALSE(controller.updateItemStore("N1", { .name = "  N2  ", .filename = "F3" }));
+    ASSERT_EQ("name N2 already exist.", controller.getLastError());
+}
+
+TEST_F(ManageItemStoreControllerTwoStoresSample, UpdateItemStore_WithExistingNameWithSpacesAndUpperCaseAlreadyUsed_ReturnFalse)
+{
+    ASSERT_FALSE(controller.updateItemStore("N1", { .name = "  N2  ", .filename = "F3" }));
+    ASSERT_EQ("name N2 already exist.", controller.getLastError());
+}
+
+TEST_F(ManageItemStoreControllerTwoStoresSample, UpdateItemStore_WithEmptyNameToEdit_ReturnFalse)
+{
+    ASSERT_FALSE(controller.updateItemStore("", { .name = "N3", .filename = "F3" }));
+    ASSERT_EQ("name to edit cannot be empty.", controller.getLastError());
+}
+
+TEST_F(ManageItemStoreControllerTwoStoresSample, UpdateItemStore_WithWhiteSpacesNameToEdit_ReturnFalse)
+{
+    ASSERT_FALSE(controller.updateItemStore("  ", { .name = "N3", .filename = "F3" }));
+    ASSERT_EQ("name to edit cannot be empty.", controller.getLastError());
+}
+
+TEST_F(ManageItemStoreControllerTwoStoresSample, UpdateItemStore_WithEmptyUpdatedName_ReturnFalse)
+{
+    ASSERT_FALSE(controller.updateItemStore("N1", { .name = "", .filename = "F3" }));
+    ASSERT_EQ("updated name cannot be empty.", controller.getLastError());
+}
+
+TEST_F(ManageItemStoreControllerTwoStoresSample, UpdateItemStore_WithWhiteSpacesUpdatedName_ReturnFalse)
+{
+    ASSERT_FALSE(controller.updateItemStore("N1", { .name = "   ", .filename = "F3" }));
+    ASSERT_EQ("updated name cannot be empty.", controller.getLastError());
+}
+
+TEST_F(ManageItemStoreControllerTwoStoresSample, UpdateItemStore_WithEmptyUpdatedFilename_ReturnFalse)
+{
+    ASSERT_FALSE(controller.updateItemStore("N1", { .name = "N3", .filename = "" }));
+    ASSERT_EQ("updated filename cannot be empty.", controller.getLastError());
+}
+
+TEST_F(ManageItemStoreControllerTwoStoresSample, UpdateItemStore_WithWhiteSpacesUpdatedFilename_ReturnFalse)
+{
+    ASSERT_FALSE(controller.updateItemStore("N1", { .name = "N3", .filename = "   " }));
+    ASSERT_EQ("updated filename cannot be empty.", controller.getLastError());
+}
+
+TEST_F(ManageItemStoreControllerTwoStoresSample, UpdateItemStore_WithSameNameWithSpacesAndLowerCase_ReturnTrue)
+{
+    ASSERT_TRUE(controller.updateItemStore("N1", { .name = "  n1  ", .filename = "F3" }));
+    const auto &itemStore = controller.getItemStores();
+    ASSERT_EQ(2, itemStore.size());
+    ASSERT_EQ("n1", itemStore[0].name);
+    ASSERT_EQ("F3", itemStore[0].filename);
+    ASSERT_EQ("n2", itemStore[1].name);
+    ASSERT_EQ("f2", itemStore[1].filename);
+}
+
+TEST_F(ManageItemStoreControllerTwoStoresSample, UpdateItemStore_WithNonExistingName_ReturnTrue)
+{
+    ASSERT_TRUE(controller.updateItemStore("N1", { .name = "  n3  ", .filename = "F3" }));
+    const auto &itemStore = controller.getItemStores();
+    ASSERT_EQ(2, itemStore.size());
+    ASSERT_EQ("n3", itemStore[0].name);
+    ASSERT_EQ("F3", itemStore[0].filename);
+    ASSERT_EQ("n2", itemStore[1].name);
+    ASSERT_EQ("f2", itemStore[1].filename);
+}
+
+TEST_F(ManageItemStoreControllerTwoStoresSample, DeleteItemStore_WithEmptyName_ReturnFalse)
+{
+    ASSERT_FALSE(controller.deleteItemStore(""));
+    ASSERT_EQ("name to delete cannot be empty.", controller.getLastError());
+}
+
+TEST_F(ManageItemStoreControllerTwoStoresSample, DeleteItemStore_WithWhiteSpacesName_ReturnFalse)
+{
+    ASSERT_FALSE(controller.deleteItemStore("  "));
+    ASSERT_EQ("name to delete cannot be empty.", controller.getLastError());
+}
+
+TEST_F(ManageItemStoreControllerTwoStoresSample, DeleteItemStore_WithNonExistingName_ReturnFalse)
+{
+    ASSERT_FALSE(controller.deleteItemStore("N3"));
+    ASSERT_EQ("name N3 doesn't exist.", controller.getLastError());
+}
+
+TEST_F(ManageItemStoreControllerTwoStoresSample, DeleteItemStore_WithExactExistingName_ReturnTrue)
+{
+    ASSERT_TRUE(controller.deleteItemStore("n1"));
+    const auto &itemStore = controller.getItemStores();
+    ASSERT_EQ(1, itemStore.size());
+    ASSERT_EQ("n2", itemStore[0].name);
+    ASSERT_EQ("f2", itemStore[0].filename);
+}
+
+TEST_F(ManageItemStoreControllerTwoStoresSample, DeleteItemStore_WithExistingNameSpacesAndCaps_ReturnTrue)
+{
+    ASSERT_TRUE(controller.deleteItemStore("  N2  "));
+    const auto &itemStore = controller.getItemStores();
+    ASSERT_EQ(1, itemStore.size());
+    ASSERT_EQ("n1", itemStore[0].name);
+    ASSERT_EQ("f1", itemStore[0].filename);
+}

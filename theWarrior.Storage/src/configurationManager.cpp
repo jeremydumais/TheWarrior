@@ -81,7 +81,7 @@ void ConfigurationManager::setVectorOfStringValue(const string &path, const vect
 
 void ConfigurationManager::setPTreeNode(const std::string &path, const boost::property_tree::ptree &node)
 {
-    m_config.add_child(path, node);
+    m_config.put_child(path, node);
 }
 
 bool ConfigurationManager::fileExists() const

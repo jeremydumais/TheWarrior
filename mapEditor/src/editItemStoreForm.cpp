@@ -1,17 +1,20 @@
 #include "editItemStoreForm.hpp"
 #include "errorMessage.hpp"
+#include "itemStoreInfo.hpp"
 #include <qfiledialog.h>
 #include <qfileinfo.h>
 
 using namespace commoneditor::ui;
+using namespace mapeditor::controllers;
 
 EditItemStoreForm::EditItemStoreForm(QWidget *parent,
-                                     const std::string &resourcesPath,
-                                     const std::string &userConfigFolder,
-                                     const std::vector<mapeditor::controllers::ItemStoreInfo> &itemStores)
+                                     ManageItemStoreController &controller,
+                                     std::optional<std::reference_wrapper<const std::string>> nameToEdit)
     : QDialog(parent),
     ui(Ui::editItemStoreFormClass()),
-    m_controller(resourcesPath, userConfigFolder, itemStores)
+    m_controller(controller),
+    m_isEditMode(nameToEdit.has_value()),
+    m_itemStoreNameToEdit(nameToEdit.has_value() ? nameToEdit.value().get() : "")
 {
     ui.setupUi(this);
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
@@ -28,6 +31,16 @@ void EditItemStoreForm::connectUIActions()
 
 void EditItemStoreForm::onPushButtonOKClick()
 {
+    ItemStoreInfo item = { .name = ui.lineEditName->text().toStdString(),
+                           .filename = ui.lineEditFilename->text().toStdString() };
+    if (!m_isEditMode && !m_controller.addItemStore(item)) {
+        ErrorMessage::show(m_controller.getLastError());
+        return;
+    }
+    if (m_isEditMode && !m_controller.updateItemStore(m_itemStoreNameToEdit, item)) {
+        ErrorMessage::show(m_controller.getLastError());
+        return;
+    }
     if (m_controller.saveItemStore()) {
         accept();
     }
