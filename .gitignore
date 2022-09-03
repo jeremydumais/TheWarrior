@@ -39,3 +39,4 @@ workspace.code-workspace
 .cache
 .vimspector.json
 tags
+Session.vim

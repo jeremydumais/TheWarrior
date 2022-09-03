@@ -26,7 +26,9 @@ add_executable(${PROJECT_UNITTEST_NAME} ${INCLUDE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}/playerEquipment_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/inventory_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/monster_unittest.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/monsterStore_unittest.cpp)
+  ${CMAKE_CURRENT_SOURCE_DIR}/monsterStore_unittest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/monsterZone_unittest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/rgbItemColor_unittest.cpp)
 
 target_link_libraries(${PROJECT_UNITTEST_NAME} PRIVATE theWarrior.Models ${CONAN_LIBS})
 gtest_discover_tests(${PROJECT_UNITTEST_NAME})

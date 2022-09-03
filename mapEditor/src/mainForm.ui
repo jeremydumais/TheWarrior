@@ -494,6 +494,13 @@
          </attribute>
          <layout class="QVBoxLayout" name="verticalLayoutMonsterZone">
           <item>
+           <widget class="QCheckBox" name="checkBoxOneMonsterZoneForAllTheMap">
+            <property name="text">
+             <string>Use only one monster zone for all the map</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QTableWidget" name="tableWidgetMonsterZone">
             <property name="columnCount">
              <number>2</number>
