@@ -25,6 +25,7 @@ private:
 	bool m_isEditMode;
     const std::string m_itemStoreNameToEdit;
     void connectUIActions();
+    bool loadExistingItemStoreToForm();
     void onPushButtonOKClick();
     void onPushButtonOpenFileClick();
 };

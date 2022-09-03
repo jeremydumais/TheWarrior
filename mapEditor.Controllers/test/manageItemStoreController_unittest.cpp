@@ -5,6 +5,8 @@
 
 using namespace mapeditor::controllers;
 
+namespace mapeditor::controllers::manageitemstorcontroller::unittest {
+
 std::string getResourcesPathSample()
 {
     return "/home/test/theWarrior/resources";
@@ -110,6 +112,30 @@ TEST_F(ManageItemStoreControllerTwoStoresSample, GetItemStores_Return2ItemStores
     ASSERT_EQ("f1", controller.getItemStores()[0].filename);
     ASSERT_EQ("n2", controller.getItemStores()[1].name);
     ASSERT_EQ("f2", controller.getItemStores()[1].filename);
+}
+
+TEST_F(ManageItemStoreControllerTwoStoresSample, FindItemStore_WithN1LowerCase_Return1ItemStore)
+{
+    auto actual = controller.findItemStore("n1");
+    ASSERT_TRUE(actual.has_value());
+}
+
+TEST_F(ManageItemStoreControllerTwoStoresSample, FindItemStore_WithN1UpperCase_Return1ItemStore)
+{
+    auto actual = controller.findItemStore("N1");
+    ASSERT_TRUE(actual.has_value());
+}
+
+TEST_F(ManageItemStoreControllerTwoStoresSample, FindItemStore_WithN1UpperCaseAndSpaces_Return1ItemStore)
+{
+    auto actual = controller.findItemStore("  N1   ");
+    ASSERT_TRUE(actual.has_value());
+}
+
+TEST_F(ManageItemStoreControllerTwoStoresSample, FindItemStore_WithN3_ReturnNullOpt)
+{
+    auto actual = controller.findItemStore("n3");
+    ASSERT_FALSE(actual.has_value());
 }
 
 TEST_F(ManageItemStoreControllerEmptySample, AddItemStore_WithEmptyName_ReturnFalse)
@@ -280,3 +306,5 @@ TEST_F(ManageItemStoreControllerTwoStoresSample, DeleteItemStore_WithExistingNam
     ASSERT_EQ("n1", itemStore[0].name);
     ASSERT_EQ("f1", itemStore[0].filename);
 }
+
+} // namespace mapeditor::controllers::manageitemstorcontroller::unittest

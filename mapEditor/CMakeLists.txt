@@ -29,12 +29,14 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_TextureSelectionComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_MapTabComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editItemStoreForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterStoreForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterZoneForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editTextureForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editMapTileTriggerForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editTileActionChangeMapPropertiesForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editTileActionOpenChestPropertiesForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/manageItemStoreForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/manageMonsterStoreForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mapOpenGLWidget.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/aboutBoxForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/imageAttributionsForm.cpp

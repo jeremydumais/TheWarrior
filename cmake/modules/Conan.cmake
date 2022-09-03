@@ -25,6 +25,7 @@ endif()
   conan_cmake_run(
     REQUIRES
     ${CONAN_EXTRA_REQUIRES}
+    zlib/1.2.12
     boost/1.73.0
     gtest/1.10.0
     fmt/7.0.1

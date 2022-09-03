@@ -20,6 +20,15 @@ EditItemStoreForm::EditItemStoreForm(QWidget *parent,
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
     this->setFixedSize(this->geometry().size());
     connectUIActions();
+    if (m_isEditMode) {
+        this->setWindowTitle("Edit item store");
+        if (!loadExistingItemStoreToForm()) {
+            ErrorMessage::show("Unable to locate the item store to load.");
+        }
+    }
+    else {
+        this->setWindowTitle("Add item store");
+    }
 }
 
 void EditItemStoreForm::connectUIActions()
@@ -27,6 +36,19 @@ void EditItemStoreForm::connectUIActions()
     connect(ui.pushButtonOK, &QPushButton::clicked, this, &EditItemStoreForm::onPushButtonOKClick);
     connect(ui.pushButtonCancel, &QPushButton::clicked, this, &EditItemStoreForm::reject);
     connect(ui.pushButtonOpenFile, &QPushButton::clicked, this, &EditItemStoreForm::onPushButtonOpenFileClick);
+}
+
+bool EditItemStoreForm::loadExistingItemStoreToForm()
+{
+    //Locate the item store from it's name
+    auto itemStore = m_controller.findItemStore(m_itemStoreNameToEdit);
+    if (!itemStore.has_value()) {
+        return false;
+    }
+    //Fill the form fields
+    ui.lineEditName->setText(itemStore->name.c_str());
+    ui.lineEditFilename->setText(itemStore->filename.c_str());
+    return true;
 }
 
 void EditItemStoreForm::onPushButtonOKClick()

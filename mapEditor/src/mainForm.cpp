@@ -5,6 +5,7 @@
 #include "errorMessage.hpp"
 #include "gameMapStorage.hpp"
 #include "manageItemStoreForm.hpp"
+#include "manageMonsterStoreForm.hpp"
 #include "specialFolders.hpp"
 #include <QtCore/qfile.h>
 #include <algorithm>
@@ -137,10 +138,6 @@ MainForm::MainForm(QWidget *parent)
     refreshTextureList();
     refreshMonsterZones();
     m_mapTabComponent.reset();
-
-    //TODO To remove. Only for development
-    //m_monsterZoneTabComponent.onPushButtonAddMonsterZoneClick();
-    action_ManageItemStore_Click();
 }
 
 void MainForm::initializeMonstersZoneTableControl()
@@ -337,7 +334,8 @@ void MainForm::action_ManageItemStore_Click()
 
 void MainForm::action_ManageMonsterStore_Click()
 {
-
+    ManageMonsterStoreForm manageMonsterStoreForm(this, m_resourcesPath, m_userConfigFolder);
+    manageMonsterStoreForm.exec();
 }
 
 void MainForm::action_SelectClick()

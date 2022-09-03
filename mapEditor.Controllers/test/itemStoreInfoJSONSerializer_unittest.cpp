@@ -12,6 +12,8 @@ using namespace mapeditor::controllers;
 using namespace boost::property_tree;
 using namespace std::literals;
 
+namespace mapeditor::controllers::itemstoreinfojsonserializer::unittest {
+
 std::string ptree_toString(ptree node)
 {
     std::stringstream ss;
@@ -85,3 +87,5 @@ TEST(ItemStoreInfoJSONSerializer_Deserialize, WithTwoItems_ReturnTwoItemsVector)
     ASSERT_EQ("d2", actual[1].name);
     ASSERT_EQ("f2", actual[1].filename);
 }
+
+} // namespace mapeditor::controllers::itemstoreinfojsonserializer::unittest

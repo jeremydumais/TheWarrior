@@ -58,7 +58,7 @@ std::string ConfigurationManager::getStringValue(const string &path) const
 
 boost::property_tree::ptree ConfigurationManager::getPTreeNode(const std::string &path) const
 {
-    return m_config.get_child(path);
+    return m_config.get_child(path, ptree());
 }
 
 void ConfigurationManager::setStringValue(const string &path, const string &value)

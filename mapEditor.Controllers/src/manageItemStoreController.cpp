@@ -6,6 +6,7 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <fmt/core.h>
 #include <fmt/format.h>
+#include <optional>
 #include <stdexcept>
 
 using namespace thewarrior::storage;
@@ -14,6 +15,14 @@ using namespace boost::algorithm;
 namespace mapeditor::controllers {
 
 const std::string ManageItemStoreController::ITEMSTORES_PATH{"ItemStores"};
+
+CompareItemStoreName::CompareItemStoreName(const std::string &name)
+    : m_name(name) {}
+
+bool CompareItemStoreName::operator() (const ItemStoreInfo &itemStore)
+{
+    return to_lower_copy(trim_copy(itemStore.name)) == to_lower_copy(m_name);
+}
 
 ManageItemStoreController::ManageItemStoreController(const std::string &resourcesPath,
                                                      const std::string &userConfigFolder,
@@ -50,6 +59,15 @@ const std::vector<ItemStoreInfo> &ManageItemStoreController::getItemStores() con
     return m_itemStores;
 }
 
+std::optional<ItemStoreInfo> ManageItemStoreController::findItemStore(const std::string &name) const
+{
+    const auto iter = getItemInStoreIterator(trim_copy(name));
+    if (iter != m_itemStores.cend()) {
+        return *iter;
+    }
+    return std::nullopt;
+}
+
 bool ManageItemStoreController::addItemStore(const ItemStoreInfo &value)
 {
     const std::string nameToAdd = trim_copy(value.name);
@@ -83,7 +101,7 @@ bool ManageItemStoreController::updateItemStore(const std::string &itemNameToEdi
     if (!validateFilename(newValue.filename, "updated filename")) {
         return false;
     }
-    auto itemToUpdate = findItemInStore(sanitizeItemNameToEdit);
+    auto itemToUpdate = getItemInStoreIterator(sanitizeItemNameToEdit);
     if (itemToUpdate == m_itemStores.end()) {
         m_lastError = fmt::format("name {0} doesn't exist.", sanitizeItemNameToEdit);
         return false;
@@ -105,7 +123,7 @@ bool ManageItemStoreController::deleteItemStore(const std::string &itemNameToDel
     if (!validateName(sanitizeItemNameToDelete, "name to delete")) {
         return false;
     }
-    auto item = findItemInStore(sanitizeItemNameToDelete);
+    auto item = getItemInStoreIterator(sanitizeItemNameToDelete);
     if (item == m_itemStores.end()) {
         m_lastError = fmt::format("name {0} doesn't exist.", sanitizeItemNameToDelete);
         return false;
@@ -167,18 +185,27 @@ bool ManageItemStoreController::validateFilename(const std::string &filename, co
     return true;
 }
 
-std::vector<ItemStoreInfo>::iterator ManageItemStoreController::findItemInStore(const std::string &name)
+
+
+std::vector<ItemStoreInfo>::iterator ManageItemStoreController::getItemInStoreIterator(const std::string &name)
 {
+    CompareItemStoreName compareName(name);
     return std::find_if(m_itemStores.begin(),
                         m_itemStores.end(),
-                        [&name] (const auto &itemStore) {
-                    return to_lower_copy(trim_copy(itemStore.name)) == to_lower_copy(name);
-    });
+                        compareName);
 }
 
-bool ManageItemStoreController::isNameAlreadyExists(const std::string &name)
+std::vector<ItemStoreInfo>::const_iterator ManageItemStoreController::getItemInStoreIterator(const std::string &name) const
 {
-    return findItemInStore(name) != m_itemStores.end() ;
+    CompareItemStoreName compareName(name);
+    return std::find_if(m_itemStores.cbegin(),
+                        m_itemStores.cend(),
+                        compareName);
+}
+
+bool ManageItemStoreController::isNameAlreadyExists(const std::string &name) const
+{
+    return getItemInStoreIterator(name) != m_itemStores.end() ;
 }
 
 } // namespace mapeditor::controllers

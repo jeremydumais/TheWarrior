@@ -9,7 +9,9 @@ include_directories(${QT_INCLUDE_PATH}
                     set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/mainController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/glComponentController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/itemStoreInfoJSONSerializer.cpp
-                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/manageItemStoreController.cpp)
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/manageItemStoreController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/manageMonsterStoreController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterStoreInfoJSONSerializer.cpp)
 
 find_package(Qt5 COMPONENTS Gui OpenGL REQUIRED)
 

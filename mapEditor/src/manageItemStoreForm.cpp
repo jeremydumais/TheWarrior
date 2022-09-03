@@ -2,8 +2,10 @@
 #include "editItemStoreForm.hpp"
 #include "editTextureForm.hpp"
 #include "errorMessage.hpp"
+#include <fmt/format.h>
 #include <optional>
 #include <qdialog.h>
+#include <qmessagebox.h>
 
 using namespace commoneditor::ui;
 
@@ -26,10 +28,13 @@ ManageItemStoreForm::ManageItemStoreForm(QWidget *parent,
 
 void ManageItemStoreForm::connectUIActions()
 {
-    connect(ui.pushButtonClose, &QPushButton::clicked, this, std::terminate);
+    connect(ui.pushButtonClose, &QPushButton::clicked, this, &ManageItemStoreForm::close);
     connect(ui.pushButtonAdd, &QPushButton::clicked, this, &ManageItemStoreForm::onPushButtonAddClick);
     connect(ui.pushButtonEdit, &QPushButton::clicked, this, &ManageItemStoreForm::onPushButtonEditClick);
     connect(ui.pushButtonDelete, &QPushButton::clicked, this, &ManageItemStoreForm::onPushButtonDeleteClick);
+    connect(ui.tableWidgetItem, &QTableWidget::itemDoubleClicked, this, &ManageItemStoreForm::onPushButtonEditClick);
+    tableWidgetItemKeyWatcher.installOn(ui.tableWidgetItem);
+    connect(&tableWidgetItemKeyWatcher, &QTableWidgetKeyPressWatcher::keyPressed, this, &ManageItemStoreForm::onTableWidgetItemKeyPressEvent);
 }
 
 void ManageItemStoreForm::initializeItemTable()
@@ -61,10 +66,48 @@ void ManageItemStoreForm::onPushButtonAddClick()
 
 void ManageItemStoreForm::onPushButtonEditClick()
 {
-
+if (const auto itemStoreName = getSelectedItemStoreName(); itemStoreName.has_value()) {
+        EditItemStoreForm editItemStoreForm(this, m_controller, itemStoreName.value());
+        if (editItemStoreForm.exec() == QDialog::Accepted) {
+            refreshItemStoreList();
+        }
+    }
 }
 
 void ManageItemStoreForm::onPushButtonDeleteClick()
 {
+    if (const auto itemStoreName = getSelectedItemStoreName(); itemStoreName.has_value()) {
+        QMessageBox msgBox;
+        msgBox.setText(fmt::format("Are you sure you want to delete the item store {0}?", itemStoreName.value()).c_str());
+        msgBox.setWindowTitle("Confirmation");
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::Cancel);
+        if (msgBox.exec() == QMessageBox::Yes) {
+            if (m_controller.deleteItemStore(itemStoreName.value())) {
+                if (!m_controller.saveItemStore()) {
+                    ErrorMessage::show(m_controller.getLastError());
+                }
+                refreshItemStoreList();
+            }
+            else {
+                ErrorMessage::show(m_controller.getLastError());
+            }
+        }
+    }
+}
 
+void ManageItemStoreForm::onTableWidgetItemKeyPressEvent(int key, int, int)
+{
+    if (key == Qt::Key_Delete) {
+        onPushButtonDeleteClick();
+    }
+}
+
+std::optional<std::string> ManageItemStoreForm::getSelectedItemStoreName() const
+{
+    auto selectedRows = ui.tableWidgetItem->selectionModel()->selectedRows();
+    if (selectedRows.count() == 1) {
+        return selectedRows[0].data().toString().toStdString();
+    }
+    return std::nullopt;
 }
