@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mapTile.hpp"
+#include "monsterZone.hpp"
 #include "point.hpp"
 #include "texture.hpp"
 #include "textureContainer.hpp"
@@ -46,6 +47,7 @@ private:
     friend class boost::serialization::access;
     std::string m_lastError;
     std::vector<std::vector<MapTile>> m_tiles;
+    std::vector<MonsterZone> m_monsterZones;
     TextureContainer m_textureContainer;
     bool _isShrinkMapFromLeftImpactAssignedTiles(int offset) const;
     bool _isShrinkMapFromTopImpactAssignedTiles(int offset) const;
@@ -57,13 +59,16 @@ private:
     void _resizeMapFromBottom(int offset);
     //Serialization method
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int)
+    void serialize(Archive & ar, const unsigned int version)
     {
         ar & m_tiles;
         ar & m_textureContainer;
+        if (version > 1) {
+            ar & m_monsterZones;
+        }
     }
 };
 
 } // namespace thewarrior::models
 
-BOOST_CLASS_VERSION(thewarrior::models::GameMap, 1)
+BOOST_CLASS_VERSION(thewarrior::models::GameMap, 2)

@@ -1,10 +1,11 @@
 #include "monster.hpp"
 #include <boost/algorithm/string.hpp>
+#include <fmt/core.h>
+#include <fmt/format.h>
 #include <stdexcept>
 
 namespace thewarrior::models {
 
-void validateMonsterId(const std::string &id);
 void validateMonsterName(const std::string &name);
 void validateMonsterTextureName(const std::string &textureName);
 void validateMonsterTextureIndex(const int textureIndex);
@@ -22,7 +23,7 @@ Monster::Monster(MonsterCreationInfo info)
       m_goldMinimum(info.goldMinimum),
       m_goldMaximum(info.goldMaximum)
 {
-    validateMonsterId(m_id);
+    Monster::validateId(m_id);
     validateMonsterName(m_name);
     validateMonsterTextureName(m_textureName);
     validateMonsterTextureIndex(m_textureIndex);
@@ -92,7 +93,7 @@ std::pair<int, int> Monster::getGoldRewardRange() const
 
 void Monster::setId(const std::string &id)
 {
-    validateMonsterId(id);
+    validateId(id);
     m_id = id;
 }
 
@@ -136,14 +137,14 @@ void Monster::setGoldRewardRange(int minimum, int maximum)
     m_goldMaximum = maximum;
 }
 
-void validateMonsterId(const std::string &id)
+void Monster::validateId(const std::string &id, const std::string &field)
 {
     std::string sanitizedId { boost::trim_copy(id) };
     if (sanitizedId.empty()) {
-        throw std::invalid_argument("id cannot be empty.");
+        throw std::invalid_argument(fmt::format("{0} cannot be empty.", field));
     }
     if (sanitizedId.length() != 6) {
-        throw std::invalid_argument("id must be 6 characters long.");
+        throw std::invalid_argument(fmt::format("{0} must be 6 characters long.", field));
     }
 }
 

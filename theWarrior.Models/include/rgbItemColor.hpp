@@ -18,10 +18,19 @@ public:
     friend bool operator==(const RGBItemColor &lhs, const RGBItemColor &rhs);
     friend bool operator!=(const RGBItemColor &lhs, const RGBItemColor &rhs);
 private:
+    friend class boost::serialization::access;
+    RGBItemColor() = default; //Needed for deserialization
     std::string m_name;
     std::string m_value;
     void validateName(const std::string &name) const;
     void validateValue(const std::string &value) const;
+    //Serialization method
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int)
+    {
+        ar & m_name;
+        ar & m_value;
+    }
 };
 
 } // namespace thewarrior::models

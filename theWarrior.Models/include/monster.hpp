@@ -43,6 +43,7 @@ public:
     void setAttack(float value);
     void setDefense(float value);
     void setGoldRewardRange(int minimum, int maximum);
+    static void validateId(const std::string &id, const std::string &field = "id");
 private:
     friend class boost::serialization::access;
     Monster() = default; //Needed for deserialization

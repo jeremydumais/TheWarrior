@@ -1,5 +1,10 @@
 #include "monsterZone.hpp"
+#include "monster.hpp"
 #include "boost/algorithm/string.hpp"
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string/trim.hpp>
+#include <fmt/format.h>
+#include <algorithm>
 #include <stdexcept>
 
 using namespace boost::algorithm;
@@ -15,16 +20,25 @@ MonsterZone::MonsterZone(const std::string &name,
                          const RGBItemColor &color,
                          const unsigned int ratioEncounter,
                          const unsigned int rationEncounterOn,
-                         const std::vector<Monster> &monsters)
+                         const std::vector<std::string> &monsterIds)
     : m_name(name),
       m_color(color),
       m_ratioEncounter(ratioEncounter),
       m_ratioEncounterOn(rationEncounterOn),
-      m_monsters(monsters)
+      m_monsterIds(monsterIds)
 {
     validateName(m_name);
     validateRatioEncounter(m_ratioEncounter, m_ratioEncounterOn);
 }
+
+//Needed for deserialization
+MonsterZone::MonsterZone()
+    :   m_name("Default"),
+        m_color("White", "#FFFFFF"),
+        m_ratioEncounter(1),
+        m_ratioEncounterOn(10),
+        m_monsterIds({})
+{}
 
 const std::string &MonsterZone::getName() const
 {
@@ -46,9 +60,9 @@ unsigned int MonsterZone::getRatioEncounterOn() const
     return m_ratioEncounterOn;
 }
 
-const std::vector<Monster> &MonsterZone::getMonsters() const
+const std::vector<std::string> &MonsterZone::getMonsterIds() const
 {
-    return m_monsters;
+    return m_monsterIds;
 }
 
 void MonsterZone::setName(const std::string &name)
@@ -64,12 +78,35 @@ void MonsterZone::setColor(const RGBItemColor &color)
 
 void MonsterZone::setRatioEncounter(const unsigned int value)
 {
-    //TODO NEXT: Code this method
+    validateRatioEncounter(value, m_ratioEncounterOn);
+    m_ratioEncounter = value;
 }
 
 void MonsterZone::setRatioEncounterOn(const unsigned int value)
 {
-    //TODO NEXT: Code this method
+    validateRatioEncounter(m_ratioEncounter, value);
+    m_ratioEncounterOn = value;
+}
+
+void MonsterZone::addMonsterId(const std::string &id)
+{
+    Monster::validateId(id);
+    //Check if already exists
+    if (std::find_if(m_monsterIds.begin(),
+                     m_monsterIds.end(),
+                     [&id] (const std::string &value) {
+                        return to_upper_copy(id) == to_upper_copy(value);
+                     })  != m_monsterIds.end()) {
+        throw std::invalid_argument(fmt::format("id {0} already exists.", id));
+    }
+    m_monsterIds.push_back(id);
+}
+
+void MonsterZone::replaceMonsterId(const std::string &oldId, const std::string &newId)
+{
+    Monster::validateId(oldId, "oldId");
+    Monster::validateId(newId, "newId");
+    //TODO Next continue this part
 }
 
 void MonsterZone::validateName(const std::string &name) const
@@ -82,8 +119,14 @@ void MonsterZone::validateName(const std::string &name) const
 void MonsterZone::validateRatioEncounter(const unsigned int ratioEncounter,
                                          const unsigned int ratioEncounterOn)
 {
+    if (ratioEncounter == 0) {
+        throw std::invalid_argument("ratio encounter must be greater than zero.");
+    }
+    if (ratioEncounterOn == 0) {
+        throw std::invalid_argument("ratio encounter on must be greater than zero.");
+    }
     if (ratioEncounter > ratioEncounterOn) {
-        throw std::invalid_argument("ratio encounter cannot be grater then ratio encounter on.");
+        throw std::invalid_argument("ratio encounter cannot be greater than ratio encounter on.");
     }
 }
 
