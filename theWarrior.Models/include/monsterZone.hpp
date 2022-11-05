@@ -1,14 +1,25 @@
 #pragma once
 
+#include "monsterZoneMonsterEncounter.hpp"
 #include "rgbItemColor.hpp"
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/version.hpp>
+#include <optional>
 #include <string>
 #include <vector>
 
 namespace thewarrior::models {
+
+struct CompareMonsterEncounter
+{
+public:
+    CompareMonsterEncounter(const std::string &id);
+    bool operator() (const MonsterZoneMonsterEncounter &monsterEncounter);
+private:
+    std::string m_id;
+};
 
 class MonsterZone
 {
@@ -18,18 +29,20 @@ public:
                 const RGBItemColor &color,
                 const unsigned int ratioEncounter,
                 const unsigned int rationEncounterOn,
-                const std::vector<std::string> &monsterIds = {});
+                const std::vector<MonsterZoneMonsterEncounter> &monsterEncounters = {});
     const std::string &getName() const;
     const RGBItemColor &getColor() const;
     unsigned int getRatioEncounter() const;
     unsigned int getRatioEncounterOn() const;
-    const std::vector<std::string> &getMonsterIds() const;
+    std::optional<MonsterZoneMonsterEncounter> getMonsterEncounter(const std::string &monsterId) const;
+    const std::vector<MonsterZoneMonsterEncounter> &getMonsterEncounters() const;
     void setName(const std::string &name);
     void setColor(const RGBItemColor &color);
     void setRatioEncounter(const unsigned int value);
     void setRatioEncounterOn(const unsigned int value);
-    void addMonsterId(const std::string &id);
-    void replaceMonsterId(const std::string &oldId, const std::string &newId);
+    void addMonsterEncounter(const MonsterZoneMonsterEncounter &monsterEncounter);
+    void replaceMonsterEncounter(const MonsterZoneMonsterEncounter &oldMonsterEncounter,
+                                 const MonsterZoneMonsterEncounter &newMonsterEncounter);
 private:
     friend class boost::serialization::access;
     MonsterZone();
@@ -37,10 +50,12 @@ private:
     RGBItemColor m_color;
     unsigned int m_ratioEncounter = 1;
     unsigned int m_ratioEncounterOn = 10;
-    std::vector<std::string> m_monsterIds = {};
+    std::vector<MonsterZoneMonsterEncounter> m_monsterEncounters = {};
     void validateName(const std::string &name) const;
     void validateRatioEncounter(const unsigned int ratioEncounter,
                                 const unsigned int rationEncounterOn);
+    std::vector<MonsterZoneMonsterEncounter>::const_iterator findMonsterEncounter(const std::string &id) const;
+    std::vector<MonsterZoneMonsterEncounter>::iterator findMonsterEncounter(const std::string &id);
     //Serialization method
     template<class Archive>
     void serialize(Archive & ar, const unsigned int)
@@ -49,7 +64,7 @@ private:
         ar & m_color;
         ar & m_ratioEncounter;
         ar & m_ratioEncounterOn;
-        ar & m_monsterIds;
+        ar & m_monsterEncounters;
     }
 };
 

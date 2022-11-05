@@ -1,6 +1,8 @@
 #include "monster.hpp"
-#include <monsterZone.hpp>
+#include "monsterZone.hpp"
+#include "monsterZoneMonsterEncounter.hpp"
 #include <gtest/gtest.h>
+#include <optional>
 
 using namespace thewarrior::models;
 
@@ -9,8 +11,11 @@ namespace thewarrior::models::monsterzone::unittest {
 RGBItemColor getWhiteColor() { return RGBItemColor("White", "#FFFFFF"); }
 RGBItemColor getGreenColor() { return RGBItemColor("Green", "#00FF00"); }
 
-std::vector<std::string> getTwoMonsterSample() {
-    return { "MON001", "MON002" };
+std::vector<MonsterZoneMonsterEncounter> getTwoMonsterSample() {
+    return {
+        MonsterZoneMonsterEncounter("MON001", MonsterEncounterRatio::Normal),
+        MonsterZoneMonsterEncounter("MON002", MonsterEncounterRatio::LessThanNormal)
+    };
 }
 
 class MonsterZoneSample : public ::testing::Test
@@ -61,7 +66,7 @@ TEST(MonsterZone_Constructor, WithTestName_ReturnSuccess)
     ASSERT_EQ(getWhiteColor(), zone.getColor());
     ASSERT_EQ(1, zone.getRatioEncounter());
     ASSERT_EQ(10, zone.getRatioEncounterOn());
-    ASSERT_EQ(0, zone.getMonsterIds().size());
+    ASSERT_EQ(0, zone.getMonsterEncounters().size());
 }
 
 TEST(MonsterZone_Constructor, WithRatioEncounterHigherThanRatioEncounterOn_ThrowInvalidArgument)
@@ -126,17 +131,50 @@ TEST_F(MonsterZoneSample, GetRatioEncounterOn_ReturnTen)
     ASSERT_EQ(10, zone.getRatioEncounterOn());
 }
 
+TEST_F(MonsterZoneSample, GetMonsterEncounter_WithEmptyMonsterId_ReturnNullOpt)
+{
+    ASSERT_FALSE(zone.getMonsterEncounter("").has_value());
+}
+
+TEST_F(MonsterZoneSample, GetMonsterEncounter_WithWhiteSpacesMonsterId_ReturnNullOpt)
+{
+    ASSERT_FALSE(zone.getMonsterEncounter("   ").has_value());
+}
+
+TEST_F(MonsterZoneSample, GetMonsterEncounter_WithNotExistingMonsterId_ReturnNullOpt)
+{
+    ASSERT_FALSE(zone.getMonsterEncounter("AAA111").has_value());
+}
+
+TEST_F(MonsterZoneWithTwoMonstersSample, GetMonsterEncounter_WithMON001MonsterId_ReturnFirstElement)
+{
+    const auto item = zone.getMonsterEncounter("MON001");
+    ASSERT_TRUE(item.has_value());
+    ASSERT_EQ("MON001", item->getMonsterId());
+    ASSERT_EQ(MonsterEncounterRatio::Normal, item->getEncounterRatio());
+}
+
+TEST_F(MonsterZoneWithTwoMonstersSample, GetMonsterEncounter_WithMON002MonsterId_ReturnSecondElement)
+{
+    const auto item = zone.getMonsterEncounter("MON002");
+    ASSERT_TRUE(item.has_value());
+    ASSERT_EQ("MON002", item->getMonsterId());
+    ASSERT_EQ(MonsterEncounterRatio::LessThanNormal, item->getEncounterRatio());
+}
+
 TEST_F(MonsterZoneSample, GetMonsters_Return0Monster)
 {
-    ASSERT_EQ(0, zone.getMonsterIds().size());
+    ASSERT_EQ(0, zone.getMonsterEncounters().size());
 }
 
 TEST_F(MonsterZoneWithTwoMonstersSample, GetMonsters_Return2Monsters)
 {
-    const auto &monsters = zone.getMonsterIds();
+    const auto &monsters = zone.getMonsterEncounters();
     ASSERT_EQ(2, monsters.size());
-    ASSERT_EQ("MON001", monsters[0]);
-    ASSERT_EQ("MON002", monsters[1]);
+    ASSERT_EQ("MON001", monsters[0].getMonsterId());
+    ASSERT_EQ(MonsterEncounterRatio::Normal, monsters[0].getEncounterRatio());
+    ASSERT_EQ("MON002", monsters[1].getMonsterId());
+    ASSERT_EQ(MonsterEncounterRatio::LessThanNormal, monsters[1].getEncounterRatio());
 }
 
 TEST_F(MonsterZoneSample, SetNameWithEmptyString_ThrowInvalidArgument)
@@ -229,144 +267,83 @@ TEST_F(MonsterZoneSample, SetRatioEncounterOnWithZero_ThrowInvalidArgument)
 	}
 }
 
-TEST_F(MonsterZoneSample, AddMonsterIdWithEmptyId_ThrowInvalidArgument)
+TEST_F(MonsterZoneWithTwoMonstersSample, AddMonsterEncounterWithExistingMonsterId_ThrowInvalidArgument)
 {
-	try {
-        zone.addMonsterId("");
-		FAIL();
-	}
-	catch(const std::invalid_argument &err) {
-        ASSERT_STREQ("id cannot be empty.", err.what());
-	}
-}
-
-TEST_F(MonsterZoneSample, AddMonsterIdWithWhiteSpacesId_ThrowInvalidArgument)
-{
-	try {
-        zone.addMonsterId("  ");
-		FAIL();
-	}
-	catch(const std::invalid_argument &err) {
-        ASSERT_STREQ("id cannot be empty.", err.what());
-	}
-}
-
-TEST_F(MonsterZoneSample, AddMonsterIdWithOnlyFiveChars_ThrowInvalidArgument)
-{
-	try {
-        zone.addMonsterId("MON00");
-		FAIL();
-	}
-	catch(const std::invalid_argument &err) {
-        ASSERT_STREQ("id must be 6 characters long.", err.what());
-	}
-}
-
-TEST_F(MonsterZoneWithTwoMonstersSample, AddMonsterIdWithExistingMonsterId_ThrowInvalidArgument)
-{
-	try {
-        zone.addMonsterId("MON001");
-		FAIL();
-	}
-	catch(const std::invalid_argument &err) {
+    try {
+        zone.addMonsterEncounter({"MON001", MonsterEncounterRatio::Normal});
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
         ASSERT_STREQ("id MON001 already exists.", err.what());
-	}
+    }
 }
 
-TEST_F(MonsterZoneWithTwoMonstersSample, AddMonsterIdWithExistingMonsterIdDifferentCaps_ThrowInvalidArgument)
+TEST_F(MonsterZoneWithTwoMonstersSample, AddMonsterEncounterWithExistingMonsterIdDifferentCaps_ThrowInvalidArgument)
 {
-	try {
-        zone.addMonsterId("Mon001");
-		FAIL();
-	}
-	catch(const std::invalid_argument &err) {
+    try {
+        zone.addMonsterEncounter({"Mon001", MonsterEncounterRatio::Normal});
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
         ASSERT_STREQ("id Mon001 already exists.", err.what());
-	}
+    }
 }
 
-TEST_F(MonsterZoneSample, AddMonsterIdWithValidId_ReturnSuccess)
+TEST_F(MonsterZoneSample, AddMonsterEncounterWithNonExistantId_ReturnSuccess)
 {
-    ASSERT_NO_THROW(zone.addMonsterId("MON001"));
-    const auto &monsterIds = zone.getMonsterIds();
-    ASSERT_EQ(1, monsterIds.size());
-    ASSERT_EQ("MON001", monsterIds[0]);
+    ASSERT_NO_THROW(zone.addMonsterEncounter({ "MON001", MonsterEncounterRatio::Rare}));
+    const auto &monsterEncounters = zone.getMonsterEncounters();
+    ASSERT_EQ(1, monsterEncounters.size());
+    ASSERT_EQ("MON001", monsterEncounters[0].getMonsterId());
+    ASSERT_EQ(MonsterEncounterRatio::Rare, monsterEncounters[0].getEncounterRatio());
 }
 
-TEST_F(MonsterZoneWithTwoMonstersSample, ReplaceMonsterIdWithEmptyOldId_ThrowInvalidArgument)
+TEST_F(MonsterZoneWithTwoMonstersSample, ReplaceMonsterEncounterWithOldIdNotInList_ThrowInvalidArgument)
 {
-	try {
-        zone.replaceMonsterId("", "MON003");
-		FAIL();
-	}
-	catch(const std::invalid_argument &err) {
-        ASSERT_STREQ("oldId cannot be empty.", err.what());
-	}
+    try {
+        zone.replaceMonsterEncounter({ "MON003", MonsterEncounterRatio::Normal },
+                                     { "MON004", MonsterEncounterRatio::Normal });
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("oldId MON003 doesn't exist in the list.", err.what());
+    }
 }
 
-TEST_F(MonsterZoneWithTwoMonstersSample, ReplaceMonsterIdWithWhiteSpacesOldId_ThrowInvalidArgument)
+TEST_F(MonsterZoneWithTwoMonstersSample, ReplaceMonsterEncounterWithNewIdAlreadyInList_ThrowInvalidArgument)
 {
-	try {
-        zone.replaceMonsterId("  ", "MON003");
-		FAIL();
-	}
-	catch(const std::invalid_argument &err) {
-        ASSERT_STREQ("oldId cannot be empty.", err.what());
-	}
+    try {
+        zone.replaceMonsterEncounter({ "MON001", MonsterEncounterRatio::Normal },
+                                     { "MON002", MonsterEncounterRatio::Normal });
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("newId MON002 is already in the list.", err.what());
+    }
 }
 
-TEST_F(MonsterZoneWithTwoMonstersSample, ReplaceMonsterIdWithOnlyFiveCharsOldId_ThrowInvalidArgument)
+TEST_F(MonsterZoneWithTwoMonstersSample, ReplaceMonsterEncounterWithSameId_ThrowInvalidArgument)
 {
-	try {
-        zone.replaceMonsterId("MON00", "MON003");
-		FAIL();
-	}
-	catch(const std::invalid_argument &err) {
-        ASSERT_STREQ("oldId must be 6 characters long.", err.what());
-	}
+    try {
+        zone.replaceMonsterEncounter({ "MON002", MonsterEncounterRatio::Normal },
+                                     { "MON002", MonsterEncounterRatio::Normal });
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("newId MON002 is already in the list.", err.what());
+    }
 }
 
-TEST_F(MonsterZoneWithTwoMonstersSample, ReplaceMonsterIdWithEmptyNewId_ThrowInvalidArgument)
+TEST_F(MonsterZoneWithTwoMonstersSample, ReplaceMonsterEncounterWithNewIdNotAlreadyInList_ReturnSuccess)
 {
-	try {
-        zone.replaceMonsterId("MON001", "");
-		FAIL();
-	}
-	catch(const std::invalid_argument &err) {
-        ASSERT_STREQ("newId cannot be empty.", err.what());
-	}
+    zone.replaceMonsterEncounter({ "MON001", MonsterEncounterRatio::Normal },
+                                 { "MON003", MonsterEncounterRatio::Rare });
+    const auto &monsterEncounters = zone.getMonsterEncounters();
+    ASSERT_EQ(2, monsterEncounters.size());
+    ASSERT_EQ("MON003", monsterEncounters[0].getMonsterId());
+    ASSERT_EQ(MonsterEncounterRatio::Rare, monsterEncounters[0].getEncounterRatio());
+    ASSERT_EQ("MON002", monsterEncounters[1].getMonsterId());
+    ASSERT_EQ(MonsterEncounterRatio::LessThanNormal, monsterEncounters[1].getEncounterRatio());
 }
-
-TEST_F(MonsterZoneWithTwoMonstersSample, ReplaceMonsterIdWithWhiteSpacesNewId_ThrowInvalidArgument)
-{
-	try {
-        zone.replaceMonsterId("MON001", "   ");
-		FAIL();
-	}
-	catch(const std::invalid_argument &err) {
-        ASSERT_STREQ("newId cannot be empty.", err.what());
-	}
-}
-
-TEST_F(MonsterZoneWithTwoMonstersSample, ReplaceMonsterIdWithOnlyFiveCharsNewId_ThrowInvalidArgument)
-{
-	try {
-        zone.replaceMonsterId("MON001", "MON00");
-		FAIL();
-	}
-	catch(const std::invalid_argument &err) {
-        ASSERT_STREQ("newId must be 6 characters long.", err.what());
-	}
-}
-
-//TEST_F(MonsterZoneWithTwoMonstersSample, ReplaceMonsterIdInexistantId_ThrowInvalidArgument)
-//{
-	//try {
-        //zone.replaceMonsterId("MON003", "MON004");
-		//FAIL();
-	//}
-	//catch(const std::invalid_argument &err) {
-        //ASSERT_STREQ("oldId MON003 doesn't exist in the list.", err.what());
-	//}
-//}
 
 } // namespace thewarrior::models::monsterzone::unittest

@@ -1,15 +1,25 @@
 #include "monsterZone.hpp"
 #include "monster.hpp"
-#include "boost/algorithm/string.hpp"
+#include "monsterZoneMonsterEncounter.hpp"
+#include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <fmt/format.h>
 #include <algorithm>
+#include <optional>
 #include <stdexcept>
 
 using namespace boost::algorithm;
 
 namespace thewarrior::models {
+
+CompareMonsterEncounter::CompareMonsterEncounter(const std::string &id)
+    : m_id(id) {}
+
+bool CompareMonsterEncounter::operator() (const MonsterZoneMonsterEncounter &monsterEncounter)
+{
+    return to_lower_copy(trim_copy(monsterEncounter.getMonsterId())) == to_lower_copy(m_id);
+}
 
 MonsterZone::MonsterZone(const std::string &name, const RGBItemColor &color)
     : MonsterZone(name, color, 1, 10)
@@ -20,12 +30,12 @@ MonsterZone::MonsterZone(const std::string &name,
                          const RGBItemColor &color,
                          const unsigned int ratioEncounter,
                          const unsigned int rationEncounterOn,
-                         const std::vector<std::string> &monsterIds)
+                         const std::vector<MonsterZoneMonsterEncounter> &monsterEncounters)
     : m_name(name),
       m_color(color),
       m_ratioEncounter(ratioEncounter),
       m_ratioEncounterOn(rationEncounterOn),
-      m_monsterIds(monsterIds)
+      m_monsterEncounters(monsterEncounters)
 {
     validateName(m_name);
     validateRatioEncounter(m_ratioEncounter, m_ratioEncounterOn);
@@ -37,7 +47,7 @@ MonsterZone::MonsterZone()
         m_color("White", "#FFFFFF"),
         m_ratioEncounter(1),
         m_ratioEncounterOn(10),
-        m_monsterIds({})
+        m_monsterEncounters({})
 {}
 
 const std::string &MonsterZone::getName() const
@@ -60,9 +70,18 @@ unsigned int MonsterZone::getRatioEncounterOn() const
     return m_ratioEncounterOn;
 }
 
-const std::vector<std::string> &MonsterZone::getMonsterIds() const
+std::optional<MonsterZoneMonsterEncounter> MonsterZone::getMonsterEncounter(const std::string &monsterId) const
 {
-    return m_monsterIds;
+    const auto item = findMonsterEncounter(monsterId);
+    if (item == m_monsterEncounters.end()) {
+        return std::nullopt;
+    }
+    return *item;
+}
+
+const std::vector<MonsterZoneMonsterEncounter> &MonsterZone::getMonsterEncounters() const
+{
+    return m_monsterEncounters;
 }
 
 void MonsterZone::setName(const std::string &name)
@@ -88,25 +107,28 @@ void MonsterZone::setRatioEncounterOn(const unsigned int value)
     m_ratioEncounterOn = value;
 }
 
-void MonsterZone::addMonsterId(const std::string &id)
+void MonsterZone::addMonsterEncounter(const MonsterZoneMonsterEncounter &monsterEncounter)
 {
-    Monster::validateId(id);
-    //Check if already exists
-    if (std::find_if(m_monsterIds.begin(),
-                     m_monsterIds.end(),
-                     [&id] (const std::string &value) {
-                        return to_upper_copy(id) == to_upper_copy(value);
-                     })  != m_monsterIds.end()) {
+    const auto &id = monsterEncounter.getMonsterId();
+    if (findMonsterEncounter(id) != m_monsterEncounters.end()) {
         throw std::invalid_argument(fmt::format("id {0} already exists.", id));
     }
-    m_monsterIds.push_back(id);
+    m_monsterEncounters.push_back(monsterEncounter);
 }
 
-void MonsterZone::replaceMonsterId(const std::string &oldId, const std::string &newId)
+void MonsterZone::replaceMonsterEncounter(const MonsterZoneMonsterEncounter &oldMonsterEncounter,
+                                          const MonsterZoneMonsterEncounter &newMonsterEncounter)
 {
-    Monster::validateId(oldId, "oldId");
-    Monster::validateId(newId, "newId");
-    //TODO Next continue this part
+    const auto &oldId = oldMonsterEncounter.getMonsterId();
+    const auto &newId = newMonsterEncounter.getMonsterId();
+    auto oldItem = findMonsterEncounter(oldId);
+    if (oldItem == m_monsterEncounters.end() ) {
+        throw std::invalid_argument(fmt::format("oldId {0} doesn't exist in the list.", oldId));
+    }
+    if (findMonsterEncounter(newId) != m_monsterEncounters.end()) {
+        throw std::invalid_argument(fmt::format("newId {0} is already in the list.", newId));
+    }
+    *oldItem = newMonsterEncounter;
 }
 
 void MonsterZone::validateName(const std::string &name) const
@@ -128,6 +150,22 @@ void MonsterZone::validateRatioEncounter(const unsigned int ratioEncounter,
     if (ratioEncounter > ratioEncounterOn) {
         throw std::invalid_argument("ratio encounter cannot be greater than ratio encounter on.");
     }
+}
+
+std::vector<MonsterZoneMonsterEncounter>::const_iterator MonsterZone::findMonsterEncounter(const std::string &id) const
+{
+    CompareMonsterEncounter comparer(id);
+    return std::find_if(m_monsterEncounters.cbegin(),
+                        m_monsterEncounters.cend(),
+                        comparer);
+}
+
+std::vector<MonsterZoneMonsterEncounter>::iterator MonsterZone::findMonsterEncounter(const std::string &id)
+{
+    CompareMonsterEncounter comparer(id);
+    return std::find_if(m_monsterEncounters.begin(),
+                        m_monsterEncounters.end(),
+                        comparer);
 }
 
 } // namespace thewarrior::models

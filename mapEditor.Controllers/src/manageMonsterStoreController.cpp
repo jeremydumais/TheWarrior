@@ -185,8 +185,6 @@ bool ManageMonsterStoreController::validateFilename(const std::string &filename,
     return true;
 }
 
-
-
 std::vector<MonsterStoreInfo>::iterator ManageMonsterStoreController::getMonsterInStoreIterator(const std::string &name)
 {
     CompareMonsterStoreName compareName(name);
