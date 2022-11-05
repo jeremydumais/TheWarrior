@@ -346,4 +346,15 @@ TEST_F(MonsterZoneWithTwoMonstersSample, ReplaceMonsterEncounterWithNewIdNotAlre
     ASSERT_EQ(MonsterEncounterRatio::LessThanNormal, monsterEncounters[1].getEncounterRatio());
 }
 
+//TEST_F(MonsterZoneWithTwoMonstersSample, RemoveMonsterEncounter_WithEmptyMonsterId_ThrowInvalidArgument)
+//{
+    //try {
+        //zone.removeMonsterEncounter("");
+        //FAIL();
+    //}
+    //catch(const std::invalid_argument &err) {
+        //ASSERT_STREQ("", err.what());
+    //}
+//}
+
 } // namespace thewarrior::models::monsterzone::unittest

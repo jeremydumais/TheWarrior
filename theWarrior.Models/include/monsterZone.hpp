@@ -43,6 +43,7 @@ public:
     void addMonsterEncounter(const MonsterZoneMonsterEncounter &monsterEncounter);
     void replaceMonsterEncounter(const MonsterZoneMonsterEncounter &oldMonsterEncounter,
                                  const MonsterZoneMonsterEncounter &newMonsterEncounter);
+    void removeMonsterEncounter(const std::string &monsterId);
 private:
     friend class boost::serialization::access;
     MonsterZone();

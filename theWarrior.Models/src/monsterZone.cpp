@@ -131,6 +131,11 @@ void MonsterZone::replaceMonsterEncounter(const MonsterZoneMonsterEncounter &old
     *oldItem = newMonsterEncounter;
 }
 
+void MonsterZone::removeMonsterEncounter(const std::string &monsterId)
+{
+    //TODO Next
+}
+
 void MonsterZone::validateName(const std::string &name) const
 {
     if (trim_copy(name).empty()) {
