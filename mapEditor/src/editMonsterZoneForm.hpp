@@ -3,6 +3,10 @@
 #define EDITMONSTERZONEFORM_H
 
 #include "ui_editMonsterZoneForm.h"
+#include "editMonsterZoneFormController.hpp"
+#include "manageMonsterStoreController.hpp"
+#include "types.hpp"
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -11,7 +15,8 @@ class EditMonsterZoneForm : public QDialog
 Q_OBJECT
 
 public:
-    explicit EditMonsterZoneForm(QWidget *parent);
+    explicit EditMonsterZoneForm(QWidget *parent,
+                                 const std::shared_ptr<mapeditor::controllers::VecOfMonsterStore> monsterStores);
 private:
     struct ColorItem
     {
@@ -29,6 +34,8 @@ private:
         { "Orange", "#ff711e" },
         { "Purple", "#c8a4ff" }
     };
+    mapeditor::controllers::EditMonsterZoneFormController m_controller;
+    std::shared_ptr<mapeditor::controllers::VecOfMonsterStore> m_monsterStores;
     void connectUIActions();
     void initializeColors();
     void initializeMonsterTable();

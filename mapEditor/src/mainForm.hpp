@@ -36,16 +36,10 @@ private:
     MainForm_TextureSelectionComponent m_textureSelectionComponent;
     mapeditor::controllers::MainController m_controller;
     std::shared_ptr<QComboBox> comboBoxToolbarMonsterZone = nullptr;
-    std::string m_userConfigFolder;
-    std::string m_currentFilePath;
-    bool m_functionAfterShownCalled;
-    std::string m_executablePath;
-    std::string m_resourcesPath;
+    std::string m_currentFilePath = "";
+    bool m_functionAfterShownCalled = false;
     static const std::string THEME_PATH;
     static const std::string RECENT_MAPS;
-    const std::string &getExecutablePath();
-    const std::string &getResourcesPath();
-    void initializeMonstersZoneTableControl();
     void connectUIActions();
     void action_Open_Click();
     void action_OpenRecentMap_Click();

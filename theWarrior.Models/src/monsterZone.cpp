@@ -50,6 +50,11 @@ MonsterZone::MonsterZone()
         m_monsterEncounters({})
 {}
 
+const std::string &MonsterZone::getLastError() const
+{
+    return m_lastError;
+}
+
 const std::string &MonsterZone::getName() const
 {
     return m_name;
@@ -107,33 +112,44 @@ void MonsterZone::setRatioEncounterOn(const unsigned int value)
     m_ratioEncounterOn = value;
 }
 
-void MonsterZone::addMonsterEncounter(const MonsterZoneMonsterEncounter &monsterEncounter)
+bool MonsterZone::addMonsterEncounter(const MonsterZoneMonsterEncounter &monsterEncounter)
 {
     const auto &id = monsterEncounter.getMonsterId();
     if (findMonsterEncounter(id) != m_monsterEncounters.end()) {
-        throw std::invalid_argument(fmt::format("id {0} already exists.", id));
+        m_lastError = fmt::format("id {0} already exists.", id);
+        return false;
     }
     m_monsterEncounters.push_back(monsterEncounter);
+    return true;
 }
 
-void MonsterZone::replaceMonsterEncounter(const MonsterZoneMonsterEncounter &oldMonsterEncounter,
+bool MonsterZone::replaceMonsterEncounter(const MonsterZoneMonsterEncounter &oldMonsterEncounter,
                                           const MonsterZoneMonsterEncounter &newMonsterEncounter)
 {
     const auto &oldId = oldMonsterEncounter.getMonsterId();
     const auto &newId = newMonsterEncounter.getMonsterId();
     auto oldItem = findMonsterEncounter(oldId);
     if (oldItem == m_monsterEncounters.end() ) {
-        throw std::invalid_argument(fmt::format("oldId {0} doesn't exist in the list.", oldId));
+        m_lastError = fmt::format("oldId {0} doesn't exist in the list.", oldId);
+        return false;
     }
     if (findMonsterEncounter(newId) != m_monsterEncounters.end()) {
-        throw std::invalid_argument(fmt::format("newId {0} is already in the list.", newId));
+        m_lastError = fmt::format("newId {0} is already in the list.", newId);
+        return false;
     }
     *oldItem = newMonsterEncounter;
+    return true;
 }
 
-void MonsterZone::removeMonsterEncounter(const std::string &monsterId)
+bool MonsterZone::removeMonsterEncounter(const std::string &monsterId)
 {
-    //TODO Next
+    const auto iter = findMonsterEncounter(monsterId);
+    if (iter == m_monsterEncounters.end()) {
+        m_lastError = fmt::format("monsterId {0} doesn't exist in the list.", monsterId);
+        return false;
+    }
+    m_monsterEncounters.erase(iter);
+    return true;
 }
 
 void MonsterZone::validateName(const std::string &name) const

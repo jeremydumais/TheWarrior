@@ -30,6 +30,7 @@ public:
                 const unsigned int ratioEncounter,
                 const unsigned int rationEncounterOn,
                 const std::vector<MonsterZoneMonsterEncounter> &monsterEncounters = {});
+    const std::string &getLastError() const;
     const std::string &getName() const;
     const RGBItemColor &getColor() const;
     unsigned int getRatioEncounter() const;
@@ -40,13 +41,14 @@ public:
     void setColor(const RGBItemColor &color);
     void setRatioEncounter(const unsigned int value);
     void setRatioEncounterOn(const unsigned int value);
-    void addMonsterEncounter(const MonsterZoneMonsterEncounter &monsterEncounter);
-    void replaceMonsterEncounter(const MonsterZoneMonsterEncounter &oldMonsterEncounter,
+    bool addMonsterEncounter(const MonsterZoneMonsterEncounter &monsterEncounter);
+    bool replaceMonsterEncounter(const MonsterZoneMonsterEncounter &oldMonsterEncounter,
                                  const MonsterZoneMonsterEncounter &newMonsterEncounter);
-    void removeMonsterEncounter(const std::string &monsterId);
+    bool removeMonsterEncounter(const std::string &monsterId);
 private:
     friend class boost::serialization::access;
     MonsterZone();
+    std::string m_lastError;
     std::string m_name;
     RGBItemColor m_color;
     unsigned int m_ratioEncounter = 1;

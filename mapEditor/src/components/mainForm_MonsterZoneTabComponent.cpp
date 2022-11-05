@@ -1,12 +1,15 @@
 #include "mainForm_MonsterZoneTabComponent.hpp"
 #include "editMonsterZoneForm.hpp"
+#include "types.hpp"
 #include "uiUtils.hpp"
 #include <QStyle>
 #include <fmt/format.h>
+#include <memory>
 
 using namespace std;
 using namespace commoneditor::ui;
 using namespace thewarrior::models;
+using namespace mapeditor::controllers;
 
 MainForm_MonsterZoneTabComponent::MainForm_MonsterZoneTabComponent()
     : m_glComponent(nullptr),
@@ -24,6 +27,10 @@ void MainForm_MonsterZoneTabComponent::initializeUIObjects(const MainForm_Monste
     this->m_pushButtonAddMonsterZone = objects.pushButtonAddMonsterZone;
     this->m_pushButtonEditMonsterZone = objects.pushButtonEditMonsterZone;
     this->m_pushButtonDeleteMonsterZone = objects.pushButtonDeleteMonsterZone;
+    this->m_tableWidgetMonsterZone->setHorizontalHeaderItem(0, new QTableWidgetItem("Color"));
+    this->m_tableWidgetMonsterZone->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
+    this->m_tableWidgetMonsterZone->setColumnWidth(0, 80);
+    this->m_tableWidgetMonsterZone->setColumnWidth(1, 300);
 }
 
 void MainForm_MonsterZoneTabComponent::connectUIActions()
@@ -55,11 +62,16 @@ void MainForm_MonsterZoneTabComponent::refreshMonsterZones()
     //}
 //}
 
+void MainForm_MonsterZoneTabComponent::setMonsterStores(const std::shared_ptr<VecOfMonsterStore> monsterStores)
+{
+    m_monsterStores = monsterStores;
+}
+
 void MainForm_MonsterZoneTabComponent::onPushButtonAddMonsterZoneClick()
 {
     m_glComponent->stopAutoUpdate();
     //auto alreadyUsedMonsterZoneNames { m_glComponent->getAlreadyUsedMonsterZoneNames() };
-    EditMonsterZoneForm formEditMonsterZone(this);
+    EditMonsterZoneForm formEditMonsterZone(this, m_monsterStores);
     UIUtils::centerToScreen(&formEditMonsterZone);
     if (formEditMonsterZone.exec() == QDialog::Accepted) {
         //emit textureAdded(formEditMonsterZone.getMonsterZoneInfo());

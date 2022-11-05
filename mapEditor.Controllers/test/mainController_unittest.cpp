@@ -98,7 +98,6 @@ TEST_F(SampleMainController, removeTexture_WithExistingName_ReturnTrue)
     ASSERT_TRUE(mainController.removeTexture("tex1"));
 }
 
-
 TEST_F(SampleMainController, replaceTilesTextureName_WithOneTileAffected_ReturnSuccess)
 {
     mainController.replaceTilesTextureName("tex1", "newTex1");

@@ -1,12 +1,22 @@
 #include "editMonsterZoneForm.hpp"
+#include "editMonsterEncounterForm.hpp"
+#include "errorMessage.hpp"
+#include "manageMonsterStoreController.hpp"
+#include "types.hpp"
 #include <cstddef>
 #include <exception>
 #include <fmt/format.h>
 #include <qapplication.h>
+#include <memory>
 
-EditMonsterZoneForm::EditMonsterZoneForm(QWidget *parent)
+using namespace commoneditor::ui;
+using namespace mapeditor::controllers;
+
+EditMonsterZoneForm::EditMonsterZoneForm(QWidget *parent,
+                                         const std::shared_ptr<VecOfMonsterStore> monsterStores)
     : QDialog(parent),
-    ui(Ui::editMonsterZoneFormClass())
+    ui(Ui::editMonsterZoneFormClass()),
+    m_monsterStores(monsterStores)
 {
     ui.setupUi(this);
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
@@ -38,9 +48,9 @@ void EditMonsterZoneForm::initializeMonsterTable()
 {
     ui.tableWidgetMonsters->setHorizontalHeaderItem(0, new QTableWidgetItem("Id"));
     ui.tableWidgetMonsters->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
-    ui.tableWidgetMonsters->setHorizontalHeaderItem(2, new QTableWidgetItem("Is Rare? (ratio)"));
+    ui.tableWidgetMonsters->setHorizontalHeaderItem(2, new QTableWidgetItem("Ratio"));
     ui.tableWidgetMonsters->setColumnWidth(0, 80);
-    ui.tableWidgetMonsters->setColumnWidth(1, 250);
+    ui.tableWidgetMonsters->setColumnWidth(1, 325);
     ui.tableWidgetMonsters->setColumnWidth(2, 50);
 }
 
@@ -65,7 +75,8 @@ void EditMonsterZoneForm::onComboBoxColorCurrentIndexChanged()
 
 void EditMonsterZoneForm::onPushButtonAddMonsterClick()
 {
-
+    EditMonsterEncounterForm monsterEncounterForm(this);
+    monsterEncounterForm.exec();
 }
 
 void EditMonsterZoneForm::onPushButtonEditMonsterClick()

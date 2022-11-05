@@ -15,11 +15,8 @@
 #include <boost/filesystem.hpp>
 #include <fmt/format.h>
 #include <fstream>
-#include <libgen.h>         // dirname
-#include <linux/limits.h>   // PATH_MAX
 #include <qcombobox.h>
 #include <qtimer.h>
-#include <unistd.h>         // readlink
 
 using namespace std;
 using namespace commoneditor::ui;
@@ -31,15 +28,44 @@ const std::string MainForm::RECENT_MAPS { "Map.Recents" };
 
 MainForm::MainForm(QWidget *parent)
     : QMainWindow(parent),
-    ui(Ui::MainForm()),
-    m_currentFilePath(""),
-    m_functionAfterShownCalled(false),
-    m_executablePath(""),
-    m_resourcesPath("")
+    ui(Ui::MainForm())
 {
     ui.setupUi(this);
+
+    m_controller.initializeExecutablePath();
+    m_controller.initializeResourcesPath();
+    m_controller.initializeUserConfigFolder();
+
+    //Check if the user configuration folder exist
+    const auto &userConfigFolder = m_controller.getUserConfigFolder();
+    if (!boost::filesystem::exists(userConfigFolder)) {
+        if (!boost::filesystem::create_directory(userConfigFolder)) {
+            ErrorMessage::show(fmt::format("Unable to create the folder {0}", userConfigFolder), "");
+            exit(1);
+        }
+    }
+
+    //Check if the configuration file exist
+    ConfigurationManager configManager(userConfigFolder + "config.json");
+    if (!configManager.fileExists()) {
+        //Try to create a default configuration
+        if (!configManager.save()) {
+            ErrorMessage::show("An error occurred while creation a default the configuration file.",
+                    configManager.getLastError());
+        }
+    }
+    if (configManager.load()) {
+        setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
+    }
+    else {
+        ErrorMessage::show("An error occurred while loading the configuration file.",
+                configManager.getLastError());
+    }
+
+    m_controller.loadConfiguredMonsterStores();
+
     m_glComponent.initializeUIObjects(ui.mapOpenGLWidget);
-    m_glComponent.setResourcesPath(getResourcesPath());
+    m_glComponent.setResourcesPath(m_controller.getResourcesPath());
     m_glComponent.setSelectionMode(SelectionMode::Select);
     //MapTab Component initialization
     MainForm_MapTabComponent_Objects mapUIObjects;
@@ -76,6 +102,7 @@ MainForm::MainForm(QWidget *parent)
     monsterZoneUIObjects.pushButtonEditMonsterZone = ui.pushButtonEditMonsterZone;
     monsterZoneUIObjects.pushButtonDeleteMonsterZone = ui.pushButtonDeleteMonsterZone;
     m_monsterZoneTabComponent.initializeUIObjects(monsterZoneUIObjects);
+    m_monsterZoneTabComponent.setMonsterStores(m_controller.getMonsterStores());
     //TextureListTab Component initialization
     MainForm_TextureListTabComponent_Objects textureListUIObjects;
     textureListUIObjects.glComponent = &m_glComponent;
@@ -98,34 +125,7 @@ MainForm::MainForm(QWidget *parent)
     comboBoxToolbarMonsterZone = std::make_shared<QComboBox>(this);
     ui.toolBar->insertWidget(ui.action_ApplyMonsterZone, comboBoxToolbarMonsterZone.get());
 
-    initializeMonstersZoneTableControl();
     connectUIActions();
-
-    //Check if the user configuration folder exist
-    m_userConfigFolder = SpecialFolders::getAppConfigDirectory("TheWarrior_MapEditor");
-    if (!boost::filesystem::exists(m_userConfigFolder)) {
-        if (!boost::filesystem::create_directory(m_userConfigFolder)) {
-            ErrorMessage::show(fmt::format("Unable to create the folder {0}", m_userConfigFolder), "");
-            exit(1);
-        }
-    }
-
-    //Check if the configuration file exist
-    ConfigurationManager configManager(m_userConfigFolder + "config.json");
-    if (!configManager.fileExists()) {
-        //Try to create a default configuration
-        if (!configManager.save()) {
-            ErrorMessage::show("An error occurred while creation a default the configuration file.",
-                    configManager.getLastError());
-        }
-    }
-    if (configManager.load()) {
-        setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
-    }
-    else {
-        ErrorMessage::show("An error occurred while loading the configuration file.",
-                configManager.getLastError());
-    }
 
     //Generate a test map
     if (!m_controller.createMap(20, 20)) {
@@ -138,14 +138,6 @@ MainForm::MainForm(QWidget *parent)
     refreshTextureList();
     refreshMonsterZones();
     m_mapTabComponent.reset();
-}
-
-void MainForm::initializeMonstersZoneTableControl()
-{
-    ui.tableWidgetMonsterZone->setHorizontalHeaderItem(0, new QTableWidgetItem("Color"));
-    ui.tableWidgetMonsterZone->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
-    ui.tableWidgetMonsterZone->setColumnWidth(0, 80);
-    ui.tableWidgetMonsterZone->setColumnWidth(1, 300);
 }
 
 void MainForm::connectUIActions()
@@ -249,26 +241,6 @@ void MainForm::functionAfterShown()
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
 }
 
-const std::string &MainForm::getExecutablePath()
-{
-    if (m_executablePath.empty()) {
-        char result[PATH_MAX];
-        ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
-        if (count != -1) {
-            m_executablePath = dirname(result);
-        }
-    }
-    return m_executablePath;
-}
-
-const std::string& MainForm::getResourcesPath()
-{
-    if (m_resourcesPath.empty()) {
-        m_resourcesPath = fmt::format("{0}/resources/", getExecutablePath());
-    }
-    return m_resourcesPath;
-}
-
 bool MainForm::event(QEvent *event)
 {
     const bool ret_val = QMainWindow::event(event);
@@ -288,7 +260,7 @@ void MainForm::action_About_Click()
 
 void MainForm::action_LightTheme_Click()
 {
-    ConfigurationManager configManager(m_userConfigFolder + "config.json");
+    ConfigurationManager configManager(m_controller.getUserConfigFolder() + "config.json");
     if (configManager.load()) {
         configManager.setStringValue(MainForm::THEME_PATH, "");
         setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
@@ -306,7 +278,7 @@ void MainForm::action_LightTheme_Click()
 
 void MainForm::action_DarkTheme_Click()
 {
-    ConfigurationManager configManager(m_userConfigFolder + "config.json");
+    ConfigurationManager configManager(m_controller.getUserConfigFolder() + "config.json");
     if (configManager.load()) {
         configManager.setStringValue(MainForm::THEME_PATH, "Dark");
         setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
@@ -328,13 +300,13 @@ void MainForm::action_DisplayGrid_Click()
 
 void MainForm::action_ManageItemStore_Click()
 {
-    ManageItemStoreForm manageItemStoreForm(this, m_resourcesPath, m_userConfigFolder);
+    ManageItemStoreForm manageItemStoreForm(this, m_controller.getResourcesPath(), m_controller.getUserConfigFolder());
     manageItemStoreForm.exec();
 }
 
 void MainForm::action_ManageMonsterStore_Click()
 {
-    ManageMonsterStoreForm manageMonsterStoreForm(this, m_resourcesPath, m_userConfigFolder);
+    ManageMonsterStoreForm manageMonsterStoreForm(this, m_controller.getResourcesPath(), m_controller.getUserConfigFolder());
     manageMonsterStoreForm.exec();
 }
 
@@ -442,7 +414,7 @@ void MainForm::refreshWindowTitle()
 void MainForm::refreshRecentMapsMenu()
 {
     auto recents = vector<string> {};
-    ConfigurationManager configManager(m_userConfigFolder + "config.json");
+    ConfigurationManager configManager(m_controller.getUserConfigFolder() + "config.json");
     if (configManager.load()) {
         recents = configManager.getVectorOfStringValue(MainForm::RECENT_MAPS);
     }
@@ -473,7 +445,7 @@ void MainForm::addNewRecentMap(const std::string &filePath)
 {
     auto recents = vector<string> {};
     //Load existing recent maps
-    ConfigurationManager configManager(m_userConfigFolder + "config.json");
+    ConfigurationManager configManager(m_controller.getUserConfigFolder() + "config.json");
     if (configManager.load()) {
         recents = configManager.getVectorOfStringValue(MainForm::RECENT_MAPS);
     }
@@ -512,7 +484,7 @@ void MainForm::setAppStylesheet(const std::string &style)
     ui.action_DarkTheme->setChecked(false);
     QString styleSheet = "";
     if (style == "Dark") {
-        QFile file(fmt::format("{0}/darkstyle/darkstyle.qss", getResourcesPath()).c_str());
+        QFile file(fmt::format("{0}/darkstyle/darkstyle.qss", m_controller.getResourcesPath()).c_str());
         file.open(QFile::ReadOnly);
         styleSheet = QLatin1String(file.readAll());
         ui.action_DarkTheme->setChecked(true);
