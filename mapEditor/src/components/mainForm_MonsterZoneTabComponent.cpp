@@ -62,7 +62,7 @@ void MainForm_MonsterZoneTabComponent::refreshMonsterZones()
     //}
 //}
 
-void MainForm_MonsterZoneTabComponent::setMonsterStores(const std::shared_ptr<VecOfMonsterStore> monsterStores)
+void MainForm_MonsterZoneTabComponent::setMonsterStores(const std::shared_ptr<ContainerOfMonsterStore> monsterStores)
 {
     m_monsterStores = monsterStores;
 }

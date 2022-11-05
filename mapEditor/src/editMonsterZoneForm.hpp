@@ -16,7 +16,7 @@ Q_OBJECT
 
 public:
     explicit EditMonsterZoneForm(QWidget *parent,
-                                 const std::shared_ptr<mapeditor::controllers::VecOfMonsterStore> monsterStores);
+                                 const std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> monsterStores);
 private:
     struct ColorItem
     {
@@ -35,7 +35,6 @@ private:
         { "Purple", "#c8a4ff" }
     };
     mapeditor::controllers::EditMonsterZoneFormController m_controller;
-    std::shared_ptr<mapeditor::controllers::VecOfMonsterStore> m_monsterStores;
     void connectUIActions();
     void initializeColors();
     void initializeMonsterTable();

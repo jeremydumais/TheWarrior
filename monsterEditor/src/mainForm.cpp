@@ -64,9 +64,6 @@ MainForm::MainForm(QWidget *parent)
     initializeMonstersTableControl();
     refreshRecentMapsMenu();
     connectUIActions();
-    //TODO to remove (test only)
-    openMonsterStore("/home/jed/Programming/TheWarrior/resources/monsters/monsterstore.mon");
-
 }
 
 void MainForm::initializeMonstersTableControl()

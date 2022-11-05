@@ -23,7 +23,7 @@ class MainController
         const std::string &getExecutablePath() const;
         const std::string &getResourcesPath() const;
         const std::string &getUserConfigFolder() const;
-        const std::shared_ptr<VecOfMonsterStore> &getMonsterStores() const;
+        const std::shared_ptr<ContainerOfMonsterStore> &getMonsterStores() const;
         bool createMap(unsigned int width, unsigned int height);
         void initializeExecutablePath();
         void initializeResourcesPath();
@@ -40,7 +40,7 @@ class MainController
         std::string m_resourcesPath = "";
         std::string m_userConfigFolder = "";
         std::shared_ptr<thewarrior::models::GameMap> m_map = nullptr;
-        std::shared_ptr<VecOfMonsterStore> m_monsterStores = nullptr;
+        std::shared_ptr<ContainerOfMonsterStore> m_monsterStores = nullptr;
 };
 
 } // namespace mapeditor::controllers

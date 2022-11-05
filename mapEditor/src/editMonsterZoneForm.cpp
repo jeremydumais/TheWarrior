@@ -13,10 +13,10 @@ using namespace commoneditor::ui;
 using namespace mapeditor::controllers;
 
 EditMonsterZoneForm::EditMonsterZoneForm(QWidget *parent,
-                                         const std::shared_ptr<VecOfMonsterStore> monsterStores)
+                                         const std::shared_ptr<ContainerOfMonsterStore> monsterStores)
     : QDialog(parent),
     ui(Ui::editMonsterZoneFormClass()),
-    m_monsterStores(monsterStores)
+    m_controller(monsterStores)
 {
     ui.setupUi(this);
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
@@ -24,6 +24,7 @@ EditMonsterZoneForm::EditMonsterZoneForm(QWidget *parent,
     connectUIActions();
     initializeColors();
     initializeMonsterTable();
+    onPushButtonAddMonsterClick();
 }
 
 void EditMonsterZoneForm::connectUIActions()
@@ -75,7 +76,7 @@ void EditMonsterZoneForm::onComboBoxColorCurrentIndexChanged()
 
 void EditMonsterZoneForm::onPushButtonAddMonsterClick()
 {
-    EditMonsterEncounterForm monsterEncounterForm(this);
+    EditMonsterEncounterForm monsterEncounterForm(this, m_controller.getMonsterStores());
     monsterEncounterForm.exec();
 }
 

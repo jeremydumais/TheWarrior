@@ -308,6 +308,7 @@ void MainForm::action_ManageMonsterStore_Click()
 {
     ManageMonsterStoreForm manageMonsterStoreForm(this, m_controller.getResourcesPath(), m_controller.getUserConfigFolder());
     manageMonsterStoreForm.exec();
+    m_controller.loadConfiguredMonsterStores();
 }
 
 void MainForm::action_SelectClick()

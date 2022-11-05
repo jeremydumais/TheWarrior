@@ -62,7 +62,7 @@ const std::string &MainController::getUserConfigFolder() const
     return m_userConfigFolder;
 }
 
-const std::shared_ptr<VecOfMonsterStore> &MainController::getMonsterStores() const
+const std::shared_ptr<ContainerOfMonsterStore> &MainController::getMonsterStores() const
 {
     return m_monsterStores;
 }
@@ -148,19 +148,22 @@ void MainController::replaceTilesTextureName(const string &oldName, const string
 
 bool MainController::loadConfiguredMonsterStores()
 {
-    m_monsterStores = make_shared<VecOfMonsterStore>();
+    if (m_monsterStores == nullptr) {
+        m_monsterStores = make_shared<ContainerOfMonsterStore>();
+    }
     ManageMonsterStoreController manageMonsterStoreController(m_resourcesPath, m_userConfigFolder);
     if (!manageMonsterStoreController.loadMonsterStore()) {
         m_lastError = fmt::format("Unable to load configured monster store list. {0}",
                                   manageMonsterStoreController.getLastError());
         return false;
     }
-    MonsterStoreStorage storage;
+    m_monsterStores->clear();
     for(const auto &monsterStoreInfo : manageMonsterStoreController.getMonsterStores()) {
+        MonsterStoreStorage storage;
         std::shared_ptr<MonsterStore> store = std::make_shared<MonsterStore>();
         try {
-            storage.loadMonsterStore(monsterStoreInfo.filename, store);
-            m_monsterStores->push_back(store);
+            storage.loadMonsterStore(fmt::format("{0}/monsters/{1}", m_resourcesPath, monsterStoreInfo.filename), store);
+            m_monsterStores->insert({ monsterStoreInfo.name, store });
         }
         catch(const std::exception &err) {
             m_lastError = err.what();

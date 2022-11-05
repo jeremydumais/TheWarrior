@@ -28,14 +28,14 @@ public:
     void connectUIActions();
     void refreshMonsterZones();
     //std::optional<std::reference_wrapper<const thewarrior::models::MonsterZone>> getSelectedMonsterZoneInMonsterZoneList() const;
-    void setMonsterStores(const std::shared_ptr<mapeditor::controllers::VecOfMonsterStore> monsterStores);
+    void setMonsterStores(const std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> monsterStores);
     void onPushButtonAddMonsterZoneClick();
 signals:
     //void textureAdded(thewarrior::models::MonsterZoneInfo textureInfo);
     //void textureUpdated(const std::string &name, thewarrior::models::MonsterZoneInfo textureInfo);
     //void textureDeleted(const std::string &name);
 private:
-    std::shared_ptr<mapeditor::controllers::VecOfMonsterStore> m_monsterStores = nullptr;
+    std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> m_monsterStores = nullptr;
     MainForm_GLComponent *m_glComponent;
     QTableWidget *m_tableWidgetMonsterZone;
     QPushButton *m_pushButtonAddMonsterZone;

@@ -2,11 +2,11 @@
 
 #include "monsterStore.hpp"
 #include <memory>
-#include <vector>
+#include <unordered_map>
 
 namespace mapeditor::controllers {
 
-typedef std::vector<std::shared_ptr<thewarrior::models::MonsterStore>> VecOfMonsterStore;
+typedef std::unordered_map<std::string, std::shared_ptr<thewarrior::models::MonsterStore>> ContainerOfMonsterStore;
 
 } // namespace mapeditor::controllers
 
