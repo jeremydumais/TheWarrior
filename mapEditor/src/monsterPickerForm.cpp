@@ -24,20 +24,17 @@ MonsterPickerForm::MonsterPickerForm(QWidget *parent,
 
 void MonsterPickerForm::connectUIActions()
 {
-    connect(ui.pushButtonCancel, &QPushButton::clicked, this, std::terminate);//&EditMonsterEncounterForm::reject);
+    connect(ui.pushButtonOK, &QPushButton::clicked, this, &MonsterPickerForm::onPushButtonOkClicked);//&EditMonsterEncounterForm::reject);
+    connect(ui.pushButtonCancel, &QPushButton::clicked, this, &MonsterPickerForm::reject);
     connect(ui.lineEditSearch, &QLineEdit::textChanged, this, &MonsterPickerForm::onLineEditSearchTextChanged);
     connect(ui.comboBoxStore, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MonsterPickerForm::onComboBoxStoreIndexChanged);
-
 }
 
 void MonsterPickerForm::populateMonsterStoreComboBox()
 {
     ui.comboBoxStore->model()->removeRows(0, ui.comboBoxStore->count());
-    const auto stores = m_controller.getMonsterStores();
-    if (stores != nullptr) {
-        for(const auto &storeWithName : *stores) {
-            ui.comboBoxStore->addItem(storeWithName.first.c_str());
-        }
+    for(const auto &storeName : m_controller.getMonsterStoreNames()) {
+        ui.comboBoxStore->addItem(storeName.c_str());
     }
 }
 
@@ -62,23 +59,31 @@ void MonsterPickerForm::refreshMonsterTable(const std::string &filter)
     int index = 0;
     ui.tableWidgetMonsters->model()->removeRows(0, ui.tableWidgetMonsters->rowCount());
     const auto selectedStoreName = ui.comboBoxStore->currentText().toStdString();
-    const auto stores = m_controller.getMonsterStores();
-    if (ui.comboBoxStore->currentIndex() != -1 && stores != nullptr && stores->find(selectedStoreName) != stores->end()) {
-        const auto store = stores->find(selectedStoreName)->second;
-        for (const auto &monster : store->getMonsters()) {;
-            if (icontains(monster->getId(), filter) || icontains(monster->getName(), filter) ) {
-                ui.tableWidgetMonsters->insertRow(index);
-                ui.tableWidgetMonsters->setItem(index, 0, new QTableWidgetItem(monster->getId().c_str()));
-                ui.tableWidgetMonsters->setItem(index, 1, new QTableWidgetItem(monster->getName().c_str()));
-                ui.tableWidgetMonsters->setItem(index, 2, new QTableWidgetItem(fmt::format("{}", monster->getHealth()).c_str()));
-                ui.tableWidgetMonsters->setItem(index, 3, new QTableWidgetItem(fmt::format("{}", monster->getAttack()).c_str()));
-                ui.tableWidgetMonsters->setItem(index, 4, new QTableWidgetItem(fmt::format("{}", monster->getDefense()).c_str()));
-                ui.tableWidgetMonsters->setItem(index, 5, new QTableWidgetItem(fmt::format("[{}-{}]",
-                                                                                           monster->getGoldRewardRange().first,
-                                                                                           monster->getGoldRewardRange().second).c_str()));
-                index++;
-            }
-        }
+    for (const auto &monster : m_controller.getMonsters(selectedStoreName, filter)) {;
+        ui.tableWidgetMonsters->insertRow(index);
+        ui.tableWidgetMonsters->setItem(index, 0, new QTableWidgetItem(monster.id.c_str()));
+        ui.tableWidgetMonsters->setItem(index, 1, new QTableWidgetItem(monster.name.c_str()));
+        ui.tableWidgetMonsters->setItem(index, 2, new QTableWidgetItem(fmt::format("{}", monster.health).c_str()));
+        ui.tableWidgetMonsters->setItem(index, 3, new QTableWidgetItem(fmt::format("{}", monster.attack).c_str()));
+        ui.tableWidgetMonsters->setItem(index, 4, new QTableWidgetItem(fmt::format("{}", monster.defense).c_str()));
+        ui.tableWidgetMonsters->setItem(index, 5, new QTableWidgetItem(fmt::format("[{}-{}]",
+                                                                                   monster.goldMinimum,
+                                                                                   monster.goldMaximum).c_str()));
+        index++;
+    }
+}
+
+const std::string &MonsterPickerForm::getSelectedMonsterId() const
+{
+    return m_selectedMonsterId;
+}
+
+void MonsterPickerForm::onPushButtonOkClicked()
+{
+    const auto selectedRows = ui.tableWidgetMonsters->selectionModel()->selectedRows();
+    if (selectedRows.count() == 1) {
+        m_selectedMonsterId = selectedRows[0].data().toString().toStdString();
+        accept();
     }
 }
 

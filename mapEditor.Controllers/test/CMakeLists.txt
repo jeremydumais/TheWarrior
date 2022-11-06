@@ -10,6 +10,7 @@ add_executable(${PROJECT_UNITTEST_NAME} ${INCLUDE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}/mainController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/manageItemStoreController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/manageMonsterStoreController_unittest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/monsterPickerFormController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/monsterStoreInfoJSONSerializer_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/glComponentController_unittest.cpp)
 

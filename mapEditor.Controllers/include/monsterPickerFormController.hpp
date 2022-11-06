@@ -1,5 +1,6 @@
 #pragma once
 
+#include "monster.hpp"
 #include "types.hpp"
 #include <memory>
 
@@ -9,7 +10,9 @@ class MonsterPickerFormController
 {
 public:
     MonsterPickerFormController(const std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> monsterStores);
-    const std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> getMonsterStores() const;
+    std::vector<std::string> getMonsterStoreNames() const;
+    std::vector<thewarrior::models::MonsterCreationInfo> getMonsters(const std::string &storeName,
+                                                                     const std::string &filter) const;
 private:
     std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> m_monsterStores;
 };
