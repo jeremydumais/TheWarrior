@@ -15,6 +15,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOUIC_SEARCH_PATHS AUTOGEN_BUILD_DIR/include)
 
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/errorMessage.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterUtils.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/uiUtils.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/qClickableLabel.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/qTableWidgetKeyPressWatcher.cpp

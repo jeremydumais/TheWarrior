@@ -67,6 +67,20 @@ TEST_F(MonsterStoreWithTwoMonsters, findMonster_ExistingMonster2_ReturnMonster)
     ASSERT_EQ(monsterSample2, *result);
 }
 
+TEST_F(MonsterStoreWithTwoMonsters, findMonster_ExistingMonster2WithCaps_ReturnMonster)
+{
+    auto result = monsterStore.findMonster("SLM002");
+    ASSERT_TRUE(result != nullptr);
+    ASSERT_EQ(monsterSample2, *result);
+}
+
+TEST_F(MonsterStoreWithTwoMonsters, findMonster_ExistingMonster2MixedCaps_ReturnMonster)
+{
+    auto result = monsterStore.findMonster("Slm002");
+    ASSERT_TRUE(result != nullptr);
+    ASSERT_EQ(monsterSample2, *result);
+}
+
 TEST_F(MonsterStoreWithTwoMonsters, isMonsterExists_NonExistingMonster_ReturnFalse)
 {
     ASSERT_FALSE(monsterStore.isMonsterExists("non123"));

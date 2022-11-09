@@ -16,7 +16,8 @@ Q_OBJECT
 
 public:
     explicit EditMonsterZoneForm(QWidget *parent,
-                                 const std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> monsterStores);
+                                 const std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> monsterStores,
+                                 const std::string resourcesPath);
 private:
     struct ColorItem
     {
@@ -38,6 +39,7 @@ private:
     void connectUIActions();
     void initializeColors();
     void initializeMonsterTable();
+    void refreshMonsterEncounterList();
     void onPushButtonOK();
     void onComboBoxColorCurrentIndexChanged();
     void onPushButtonAddMonsterClick();

@@ -15,7 +15,8 @@ Q_OBJECT
 
 public:
     explicit MonsterPickerForm(QWidget *parent,
-                               const std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> monsterStores);
+                               const std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> monsterStores,
+                               const std::string &resourcesPath);
     const std::string &getSelectedMonsterId() const;
 private:
     Ui::monsterPickerFormClass ui;

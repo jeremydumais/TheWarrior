@@ -103,6 +103,7 @@ MainForm::MainForm(QWidget *parent)
     monsterZoneUIObjects.pushButtonDeleteMonsterZone = ui.pushButtonDeleteMonsterZone;
     m_monsterZoneTabComponent.initializeUIObjects(monsterZoneUIObjects);
     m_monsterZoneTabComponent.setMonsterStores(m_controller.getMonsterStores());
+    m_monsterZoneTabComponent.setResourcesPath(m_controller.getResourcesPath());
     //TextureListTab Component initialization
     MainForm_TextureListTabComponent_Objects textureListUIObjects;
     textureListUIObjects.glComponent = &m_glComponent;

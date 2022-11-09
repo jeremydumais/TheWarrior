@@ -1,7 +1,10 @@
 #include "monsterStore.hpp"
+#include <boost/algorithm/string.hpp>
 #include <algorithm>
+#include <boost/algorithm/string/case_conv.hpp>
 
 using namespace std;
+using namespace boost::algorithm;
 
 namespace thewarrior::models {
 
@@ -40,7 +43,7 @@ std::vector<std::shared_ptr<Monster>> MonsterStore::getMonsters() const
 
 const std::shared_ptr<const Monster> MonsterStore::findMonster(const std::string &id) const
 {
-    const auto iter = m_monsters.find(id);
+    const auto iter = m_monsters.find(to_upper_copy(id));
     if (iter != m_monsters.end()) {
         return iter->second;
     }
@@ -57,27 +60,27 @@ bool MonsterStore::isMonsterExists(const std::string &id) const
 
 bool MonsterStore::addMonster(std::shared_ptr<Monster> monster)
 {
-    bool wasInserted = m_monsters.insert({ monster->getId(), monster }).second;
+    bool wasInserted = m_monsters.insert({ to_upper_copy(monster->getId()), monster }).second;
     return wasInserted;
 }
 
 bool MonsterStore::replaceMonster(const string oldId, std::shared_ptr<Monster> monster)
 {
     //Check if the old monster name specified exist
-    const auto iter = m_monsters.find(oldId);
+    const auto iter = m_monsters.find(to_upper_copy(oldId));
     if (iter == m_monsters.end()) {
         return false;
     }
-    if (m_monsters.erase(oldId) == 0) {
+    if (m_monsters.erase(to_upper_copy(oldId)) == 0) {
         return false;
     }
-    bool wasInserted = m_monsters.insert({ monster->getId(), monster }).second;
+    bool wasInserted = m_monsters.insert({ to_upper_copy(monster->getId()), monster }).second;
     return wasInserted;
 }
 
 bool MonsterStore::removeMonster(const std::string &id)
 {
-    if (m_monsters.erase(id) == 0) {
+    if (m_monsters.erase(to_upper_copy(id)) == 0) {
         return false;
     }
     return true;

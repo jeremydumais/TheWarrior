@@ -3,16 +3,19 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <fmt/format.h>
 #include <QString>
+#include <algorithm>
 #include <memory>
 
 using namespace mapeditor::controllers;
+using namespace thewarrior::models;
 using namespace boost::algorithm;
 
 MonsterPickerForm::MonsterPickerForm(QWidget *parent,
-                                     const std::shared_ptr<ContainerOfMonsterStore> monsterStores)
+                                     const std::shared_ptr<ContainerOfMonsterStore> monsterStores,
+                                     const std::string &resourcesPath)
     : QDialog(parent),
     ui(Ui::monsterPickerFormClass()),
-    m_controller(monsterStores)
+    m_controller(monsterStores, resourcesPath)
 {
     ui.setupUi(this);
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
@@ -28,6 +31,7 @@ void MonsterPickerForm::connectUIActions()
     connect(ui.pushButtonCancel, &QPushButton::clicked, this, &MonsterPickerForm::reject);
     connect(ui.lineEditSearch, &QLineEdit::textChanged, this, &MonsterPickerForm::onLineEditSearchTextChanged);
     connect(ui.comboBoxStore, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MonsterPickerForm::onComboBoxStoreIndexChanged);
+    connect(ui.tableWidgetMonsters, &QTableWidget::itemDoubleClicked, this, &MonsterPickerForm::onPushButtonOkClicked);
 }
 
 void MonsterPickerForm::populateMonsterStoreComboBox()
@@ -59,9 +63,16 @@ void MonsterPickerForm::refreshMonsterTable(const std::string &filter)
     int index = 0;
     ui.tableWidgetMonsters->model()->removeRows(0, ui.tableWidgetMonsters->rowCount());
     const auto selectedStoreName = ui.comboBoxStore->currentText().toStdString();
-    for (const auto &monster : m_controller.getMonsters(selectedStoreName, filter)) {;
+    const auto &monsterIds = m_controller.getMonsterIds(selectedStoreName, filter);
+    auto monstersToDisplay = m_controller.getMonsters(selectedStoreName, monsterIds);
+    auto monsterIdsWithIcon = m_controller.getMonstersIcon(selectedStoreName, monsterIds);
+    for (const auto &monster : monstersToDisplay) {;
         ui.tableWidgetMonsters->insertRow(index);
-        ui.tableWidgetMonsters->setItem(index, 0, new QTableWidgetItem(monster.id.c_str()));
+        auto idMonster = new QTableWidgetItem(monster.id.c_str());
+        if (monsterIdsWithIcon.find(monster.id) != monsterIdsWithIcon.end()) {
+            idMonster->setIcon(monsterIdsWithIcon[monster.id]);
+        }
+        ui.tableWidgetMonsters->setItem(index, 0, idMonster);
         ui.tableWidgetMonsters->setItem(index, 1, new QTableWidgetItem(monster.name.c_str()));
         ui.tableWidgetMonsters->setItem(index, 2, new QTableWidgetItem(fmt::format("{}", monster.health).c_str()));
         ui.tableWidgetMonsters->setItem(index, 3, new QTableWidgetItem(fmt::format("{}", monster.attack).c_str()));

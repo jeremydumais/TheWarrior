@@ -67,11 +67,16 @@ void MainForm_MonsterZoneTabComponent::setMonsterStores(const std::shared_ptr<Co
     m_monsterStores = monsterStores;
 }
 
+void MainForm_MonsterZoneTabComponent::setResourcesPath(const std::string resourcesPath)
+{
+    m_resourcesPath = resourcesPath;
+}
+
 void MainForm_MonsterZoneTabComponent::onPushButtonAddMonsterZoneClick()
 {
     m_glComponent->stopAutoUpdate();
     //auto alreadyUsedMonsterZoneNames { m_glComponent->getAlreadyUsedMonsterZoneNames() };
-    EditMonsterZoneForm formEditMonsterZone(this, m_monsterStores);
+    EditMonsterZoneForm formEditMonsterZone(this, m_monsterStores, m_resourcesPath);
     UIUtils::centerToScreen(&formEditMonsterZone);
     if (formEditMonsterZone.exec() == QDialog::Accepted) {
         //emit textureAdded(formEditMonsterZone.getMonsterZoneInfo());

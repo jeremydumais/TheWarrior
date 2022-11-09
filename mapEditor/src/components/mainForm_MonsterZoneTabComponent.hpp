@@ -8,6 +8,7 @@
 #include <QtWidgets/QWidget>
 #include <memory>
 #include <optional>
+#include <string>
 #include <vector>
 
 struct MainForm_MonsterZoneTabComponent_Objects
@@ -29,6 +30,7 @@ public:
     void refreshMonsterZones();
     //std::optional<std::reference_wrapper<const thewarrior::models::MonsterZone>> getSelectedMonsterZoneInMonsterZoneList() const;
     void setMonsterStores(const std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> monsterStores);
+    void setResourcesPath(const std::string resourcesPath);
     void onPushButtonAddMonsterZoneClick();
 signals:
     //void textureAdded(thewarrior::models::MonsterZoneInfo textureInfo);
@@ -36,6 +38,7 @@ signals:
     //void textureDeleted(const std::string &name);
 private:
     std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> m_monsterStores = nullptr;
+    std::string m_resourcesPath;
     MainForm_GLComponent *m_glComponent;
     QTableWidget *m_tableWidgetMonsterZone;
     QPushButton *m_pushButtonAddMonsterZone;

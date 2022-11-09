@@ -6,17 +6,18 @@
 #include <cstddef>
 #include <exception>
 #include <fmt/format.h>
-#include <qapplication.h>
 #include <memory>
+#include <qdialog.h>
 
 using namespace commoneditor::ui;
 using namespace mapeditor::controllers;
 
 EditMonsterZoneForm::EditMonsterZoneForm(QWidget *parent,
-                                         const std::shared_ptr<ContainerOfMonsterStore> monsterStores)
+                                         const std::shared_ptr<ContainerOfMonsterStore> monsterStores,
+                                         const std::string resourcesPath)
     : QDialog(parent),
     ui(Ui::editMonsterZoneFormClass()),
-    m_controller(monsterStores)
+    m_controller(monsterStores, resourcesPath)
 {
     ui.setupUi(this);
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
@@ -24,7 +25,7 @@ EditMonsterZoneForm::EditMonsterZoneForm(QWidget *parent,
     connectUIActions();
     initializeColors();
     initializeMonsterTable();
-    onPushButtonAddMonsterClick();
+    refreshMonsterEncounterList();
 }
 
 void EditMonsterZoneForm::connectUIActions()
@@ -55,8 +56,27 @@ void EditMonsterZoneForm::initializeMonsterTable()
     ui.tableWidgetMonsters->setColumnWidth(2, 50);
 }
 
+void EditMonsterZoneForm::refreshMonsterEncounterList()
+{
+    ui.tableWidgetMonsters->model()->removeRows(0, ui.tableWidgetMonsters->rowCount());
+    int index = 0;
+    for(const auto &dto : m_controller.getMonsterEncounters()) {
+        ui.tableWidgetMonsters->insertRow(index);
+        auto idMonster = new QTableWidgetItem(dto.monsterId.c_str());
+        if (dto.monsterIcon.has_value()) {
+            idMonster->setIcon(dto.monsterIcon.value());
+        }
+        ui.tableWidgetMonsters->setItem(index, 0, idMonster);
+        ui.tableWidgetMonsters->setItem(index, 1, new QTableWidgetItem(dto.monsterName.c_str()));
+        ui.tableWidgetMonsters->setItem(index, 2, new QTableWidgetItem(dto.encounterRatio.c_str()));
+        index++;
+    }
+}
+
 void EditMonsterZoneForm::onPushButtonOK()
 {
+    //TODO Required fields and at least one monster
+    accept();
 }
 
 void EditMonsterZoneForm::onComboBoxColorCurrentIndexChanged()
@@ -76,8 +96,15 @@ void EditMonsterZoneForm::onComboBoxColorCurrentIndexChanged()
 
 void EditMonsterZoneForm::onPushButtonAddMonsterClick()
 {
-    EditMonsterEncounterForm monsterEncounterForm(this, m_controller.getMonsterStores());
-    monsterEncounterForm.exec();
+    EditMonsterEncounterForm monsterEncounterForm(this,
+                                                  m_controller.getMonsterStores(),
+                                                  m_controller.getResourcesPath(),
+                                                  m_controller.getMonsterEncounterIds());
+    if (monsterEncounterForm.exec() == QDialog::Accepted) {
+        //Add the new monster encounter
+        m_controller.addMonsterEncounter(monsterEncounterForm.getResult());
+        refreshMonsterEncounterList();
+    }
 }
 
 void EditMonsterZoneForm::onPushButtonEditMonsterClick()

@@ -6,6 +6,9 @@ include_directories(PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
 add_executable(${PROJECT_UNITTEST_NAME} ${INCLUDE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/containerOfMonsterStoreTestUtils.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/editMonsterEncounterFormController_unittest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/editMonsterZoneFormController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/itemStoreInfoJSONSerializer_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/mainController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/manageItemStoreController_unittest.cpp
