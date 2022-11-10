@@ -20,7 +20,6 @@ using namespace commoneditor::ui;
 using namespace mapeditor::controllers;
 using namespace thewarrior::models;
 using namespace thewarrior::storage;
-using namespace std::literals;
 
 namespace mapeditor::controllers {
 
@@ -61,7 +60,7 @@ std::vector<MonsterEncounterDTO> EditMonsterZoneFormController::getMonsterEncoun
                         return MonsterEncounterDTO {
                             .monsterId = monsterEncounter.getMonsterId(),
                             .monsterName = getMonsterNameById(monsterEncounter.getMonsterId()),
-                            .encounterRatio = getEncounterRatioStr(monsterEncounter.getEncounterRatio()),
+                            .encounterRatio = MonsterUtils::getEncounterRatioStr(monsterEncounter.getEncounterRatio()),
                             .monsterIcon = icon
                         };
                    });
@@ -108,44 +107,11 @@ std::map<std::string, QIcon> EditMonsterZoneFormController::getMonsterIconByMons
     return icons;
 }
 
-std::string EditMonsterZoneFormController::getEncounterRatioStr(MonsterEncounterRatio ratio)
-{
-    switch (ratio) {
-        case MonsterEncounterRatio::LessThanNormal:
-            return "Less than normal"s;
-            break;
-        case MonsterEncounterRatio::Normal:
-            return "Normal"s;
-            break;
-        case MonsterEncounterRatio::Rare:
-            return "Rare"s;
-            break;
-        default:
-            return ""s;
-    }
-}
-
-MonsterEncounterRatio EditMonsterZoneFormController::getEncounterRatioFromString(const std::string &ratioStr)
-{
-    if (ratioStr == "Normal") {
-        return MonsterEncounterRatio::Normal;
-    }
-    else if (ratioStr == "Less than normal") {
-        return MonsterEncounterRatio::LessThanNormal;
-    }
-    else if (ratioStr == "Rare") {
-        return MonsterEncounterRatio::Rare;
-    }
-    else {
-        throw std::invalid_argument(fmt::format("Encounter ratio {} cannot be determined.", ratioStr));
-    }
-}
-
 bool EditMonsterZoneFormController::addMonsterEncounter(mapeditor::controllers::MonsterEncounterDTO monsterEncounter)
 {
     try {
         MonsterEncounterRatio ratio = [monsterEncounter]() {
-            return getEncounterRatioFromString(monsterEncounter.encounterRatio);
+            return MonsterUtils::getEncounterRatioFromString(monsterEncounter.encounterRatio);
         }();
         m_monsterEncounters.push_back(MonsterZoneMonsterEncounter(monsterEncounter.monsterId, ratio));
     }
@@ -157,4 +123,11 @@ bool EditMonsterZoneFormController::addMonsterEncounter(mapeditor::controllers::
     return false;
 }
 
-} // namespace mapeditor::controllers
+bool EditMonsterZoneFormController::updateMonsterEncounter(const std::string &oldMonsterId,
+                                                           MonsterEncounterDTO monsterEncounter)
+{
+    //TODO Complete this method
+    return false;
+}
+
+}// namespace mapeditor::controllers

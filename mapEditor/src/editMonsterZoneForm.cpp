@@ -1,12 +1,15 @@
 #include "editMonsterZoneForm.hpp"
 #include "editMonsterEncounterForm.hpp"
+#include "editMonsterZoneFormController.hpp"
 #include "errorMessage.hpp"
 #include "manageMonsterStoreController.hpp"
+#include "monsterEncounterDTO.hpp"
 #include "types.hpp"
 #include <cstddef>
 #include <exception>
 #include <fmt/format.h>
 #include <memory>
+#include <optional>
 #include <qdialog.h>
 
 using namespace commoneditor::ui;
@@ -36,6 +39,7 @@ void EditMonsterZoneForm::connectUIActions()
     connect(ui.pushButtonAddMonster, &QPushButton::clicked, this, &EditMonsterZoneForm::onPushButtonAddMonsterClick);
     connect(ui.pushButtonEditMonster, &QPushButton::clicked, this, &EditMonsterZoneForm::onPushButtonEditMonsterClick);
     connect(ui.pushButtonDeleteMonster, &QPushButton::clicked, this, &EditMonsterZoneForm::onPushButtonDeleteMonsterClick);
+    connect(ui.tableWidgetMonsters, &QTableWidget::itemDoubleClicked, this, &EditMonsterZoneForm::onPushButtonEditMonsterClick);
 }
 
 void EditMonsterZoneForm::initializeColors()
@@ -99,9 +103,9 @@ void EditMonsterZoneForm::onPushButtonAddMonsterClick()
     EditMonsterEncounterForm monsterEncounterForm(this,
                                                   m_controller.getMonsterStores(),
                                                   m_controller.getResourcesPath(),
-                                                  m_controller.getMonsterEncounterIds());
+                                                  m_controller.getMonsterEncounterIds(),
+                                                  std::nullopt);
     if (monsterEncounterForm.exec() == QDialog::Accepted) {
-        //Add the new monster encounter
         m_controller.addMonsterEncounter(monsterEncounterForm.getResult());
         refreshMonsterEncounterList();
     }
@@ -109,10 +113,39 @@ void EditMonsterZoneForm::onPushButtonAddMonsterClick()
 
 void EditMonsterZoneForm::onPushButtonEditMonsterClick()
 {
-
+    if (auto itemId = getSelectedItemId(); itemId.has_value()) {
+        const auto selectedRow = ui.tableWidgetMonsters->selectionModel()->selectedRows()[0];
+        const auto ratio = selectedRow.sibling(selectedRow.row(), 2).data().toString().toStdString();
+        MonsterEncounterDTO itemToEdit {
+            .monsterId = itemId.value(),
+            .monsterName = "",
+            .encounterRatio = ratio,
+            .monsterIcon = std::nullopt
+        };
+        EditMonsterEncounterForm monsterEncounterForm(this,
+                                                      m_controller.getMonsterStores(),
+                                                      m_controller.getResourcesPath(),
+                                                      m_controller.getMonsterEncounterIds(),
+                                                      itemToEdit);
+        if (monsterEncounterForm.exec() == QDialog::Accepted) {
+            //TODO Next update selected row;
+            //m_controller.addMonsterEncounter(monsterEncounterForm.getResult());
+            refreshMonsterEncounterList();
+        }
+    }
 }
 
 void EditMonsterZoneForm::onPushButtonDeleteMonsterClick()
 {
 
 }
+
+std::optional<std::string> EditMonsterZoneForm::getSelectedItemId() const
+{
+    auto selectedRows = ui.tableWidgetMonsters->selectionModel()->selectedRows();
+    if (selectedRows.count() == 1) {
+        return selectedRows[0].data().toString().toStdString();
+    }
+    return std::nullopt;
+}
+

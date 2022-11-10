@@ -81,4 +81,15 @@ bool EditMonsterEncounterFormController::isMonsterAlreadyUsed(const std::string 
                         }) != m_alreadyUsedMonsterIds.end();
 }
 
+int EditMonsterEncounterFormController::getEncounterRatioIndex(const std::string &ratioStr) const
+{
+    try {
+        const auto ratio = MonsterUtils::getEncounterRatioFromString(ratioStr);
+        return static_cast<int>(ratio);
+    }
+    catch(const std::exception &err) {
+        return -1;
+    }
+}
+
 } // namespace mapeditor::controllers

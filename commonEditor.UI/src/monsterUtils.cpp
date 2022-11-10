@@ -1,8 +1,10 @@
 #include "monsterUtils.hpp"
 #include "textureUtils.hpp"
-#include "fmt/format.h"
+#include <fmt/format.h>
+#include <string>
 
 using namespace thewarrior::models;
+using namespace std::literals;
 
 namespace commoneditor::ui {
 
@@ -48,6 +50,39 @@ std::map<std::string, QIcon> MonsterUtils::getIconsFromMonsterIds(const std::vec
         }
     }
     return retval;
+}
+
+std::string MonsterUtils::getEncounterRatioStr(MonsterEncounterRatio ratio)
+{
+    switch (ratio) {
+        case MonsterEncounterRatio::LessThanNormal:
+            return "Less than normal"s;
+            break;
+        case MonsterEncounterRatio::Normal:
+            return "Normal"s;
+            break;
+        case MonsterEncounterRatio::Rare:
+            return "Rare"s;
+            break;
+        default:
+            return ""s;
+    }
+}
+
+MonsterEncounterRatio MonsterUtils::getEncounterRatioFromString(const std::string &ratioStr)
+{
+    if (ratioStr == "Normal") {
+        return MonsterEncounterRatio::Normal;
+    }
+    else if (ratioStr == "Less than normal") {
+        return MonsterEncounterRatio::LessThanNormal;
+    }
+    else if (ratioStr == "Rare") {
+        return MonsterEncounterRatio::Rare;
+    }
+    else {
+        throw std::invalid_argument(fmt::format("Encounter ratio {} cannot be determined.", ratioStr));
+    }
 }
 
 } // namespace commoneditor::ui

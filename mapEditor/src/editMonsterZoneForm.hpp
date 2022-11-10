@@ -7,6 +7,7 @@
 #include "manageMonsterStoreController.hpp"
 #include "types.hpp"
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -45,6 +46,7 @@ private:
     void onPushButtonAddMonsterClick();
     void onPushButtonEditMonsterClick();
     void onPushButtonDeleteMonsterClick();
+    std::optional<std::string> getSelectedItemId() const;
 };
 
 #endif // EDITMONSTERZONEFORM_H

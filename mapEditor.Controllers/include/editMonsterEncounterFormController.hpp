@@ -20,6 +20,7 @@ public:
     std::optional<QIcon> getMonsterIcon(const std::string &monsterId) const;
     bool isMonsterIdValid(const std::string &monsterId) const;
     bool isMonsterAlreadyUsed(const std::string &monsterId) const;
+    int getEncounterRatioIndex(const std::string &ratioStr) const;
 private:
     std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> m_monsterStores;
     std::string m_resourcesPath;

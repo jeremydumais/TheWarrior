@@ -3,6 +3,7 @@
 #include "monsterEncounterDTO.hpp"
 #include "monsterPickerForm.hpp"
 #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <fmt/core.h>
 #include <fmt/format.h>
@@ -10,6 +11,7 @@
 #include <qdialog.h>
 #include <qlineedit.h>
 #include <qpushbutton.h>
+#include <qtimer.h>
 
 using namespace commoneditor::ui;
 using namespace mapeditor::controllers;
@@ -18,18 +20,28 @@ using namespace boost::algorithm;
 EditMonsterEncounterForm::EditMonsterEncounterForm(QWidget *parent,
                                                    const std::shared_ptr<ContainerOfMonsterStore> monsterStores,
                                                    const std::string &resourcesPath,
-                                                   const std::vector<std::string> &alreadyUsedMonsterIds)
+                                                   const std::vector<std::string> &alreadyUsedMonsterIds,
+                                                   const std::optional<MonsterEncounterDTO> &editMonsterInfo)
     : QDialog(parent),
     ui(Ui::editMonsterEncounterFormClass()),
-    m_controller(monsterStores, resourcesPath, alreadyUsedMonsterIds)
+    m_controller(monsterStores, resourcesPath, alreadyUsedMonsterIds),
+    m_editMonsterInfo(editMonsterInfo)
 {
     ui.setupUi(this);
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
     this->setFixedSize(this->geometry().size());
     populateComboBoxEncounter();
     connectUIActions();
+    if (m_editMonsterInfo.has_value()) {
+        this->setWindowTitle("Edit monster encounter");
+        if (!loadExistingItemToForm()) {
+            QTimer::singleShot(0, this, SLOT(close()));
+        }
+    }
+    else {
+        this->setWindowTitle("Add monster encounter");
+    }
 }
-
 mapeditor::controllers::MonsterEncounterDTO EditMonsterEncounterForm::getResult() const
 {
     return MonsterEncounterDTO {
@@ -48,13 +60,27 @@ void EditMonsterEncounterForm::connectUIActions()
     connect(ui.lineEditId, &QLineEdit::editingFinished, this , &EditMonsterEncounterForm::onLineEditIdEditingFinish);
 }
 
-
 void EditMonsterEncounterForm::populateComboBoxEncounter()
 {
     ui.comboBoxEncounter->model()->removeRows(0, ui.comboBoxEncounter->count());
     ui.comboBoxEncounter->insertItem(0, "Normal");
     ui.comboBoxEncounter->insertItem(1, "Less than normal");
     ui.comboBoxEncounter->insertItem(2, "Rare");
+}
+
+bool EditMonsterEncounterForm::loadExistingItemToForm()
+{
+    ui.lineEditId->setText(m_editMonsterInfo.value().monsterId.c_str());
+    const auto ratioIndex = m_controller.getEncounterRatioIndex(m_editMonsterInfo.value().encounterRatio);
+    if (ratioIndex == -1) {
+        ErrorMessage::show("Unable to convert the encounter ratio value");
+        return false;
+    }
+    else {
+        ui.comboBoxEncounter->setCurrentIndex(ratioIndex);
+    }
+    onLineEditIdEditingFinish();
+    return true;
 }
 
 void EditMonsterEncounterForm::onPushButtonOKClick()
@@ -68,7 +94,8 @@ void EditMonsterEncounterForm::onPushButtonOKClick()
         ErrorMessage::show(fmt::format("Monster Id {0} has an incorrect format.", monsterId));
         return;
     }
-    if (m_controller.isMonsterAlreadyUsed(monsterId)) {
+    if ((!m_editMonsterInfo.has_value() && m_controller.isMonsterAlreadyUsed(monsterId)) ||
+        (m_editMonsterInfo.has_value() && m_controller.isMonsterAlreadyUsed(monsterId) && to_upper_copy(monsterId) != to_upper_copy(m_editMonsterInfo.value().monsterId))) {
         ErrorMessage::show(fmt::format("Monster {0} is already part of the zone.", monsterId));
         return;
     }
