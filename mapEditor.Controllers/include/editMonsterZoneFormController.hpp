@@ -1,5 +1,6 @@
 #pragma once
 
+#include "monster.hpp"
 #include "monsterStoreInfo.hpp"
 #include "monsterEncounterDTO.hpp"
 #include "monsterZoneMonsterEncounter.hpp"
@@ -32,8 +33,10 @@ private:
         thewarrior::models::MonsterZoneMonsterEncounter("DRA001", thewarrior::models::MonsterEncounterRatio::Normal),
         thewarrior::models::MonsterZoneMonsterEncounter("slm001", thewarrior::models::MonsterEncounterRatio::Rare)
     };
+    const std::shared_ptr<const thewarrior::models::Monster> getMonsterById(const std::string &monsterId) const;
     std::string getMonsterNameById(const std::string &monsterId) const;
     std::map<std::string, QIcon> getMonsterIconByMonsterIds(const std::vector<std::string> &monsterIds) const;
+    std::vector<thewarrior::models::MonsterZoneMonsterEncounter>::iterator getMonsterEncounterById(const std::string &monsterId);
 };
 
 } // namespace mapeditor::controllers
