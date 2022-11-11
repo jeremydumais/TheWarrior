@@ -11,6 +11,7 @@
 #include <memory>
 #include <optional>
 #include <qdialog.h>
+#include <qmessagebox.h>
 
 using namespace commoneditor::ui;
 using namespace mapeditor::controllers;
@@ -28,6 +29,9 @@ EditMonsterZoneForm::EditMonsterZoneForm(QWidget *parent,
     connectUIActions();
     initializeColors();
     initializeMonsterTable();
+    //TODO To remove only for tests
+    //m_controller.addMonsterEncounter(MonsterEncounterDTO { "DRA001", "", "Normal", std::nullopt });
+    //m_controller.addMonsterEncounter(MonsterEncounterDTO { "slm001", "", "Rare", std::nullopt });
     refreshMonsterEncounterList();
 }
 
@@ -80,6 +84,22 @@ void EditMonsterZoneForm::refreshMonsterEncounterList()
 void EditMonsterZoneForm::onPushButtonOK()
 {
     //TODO Required fields and at least one monster
+    if (ui.lineEditName->text().trimmed().isEmpty()) {
+        ErrorMessage::show("The name is required.");
+        return;
+    }
+    if (ui.spinBoxRatioChance->value() > ui.spinBoxRatioTotal->value()) {
+        ErrorMessage::show("The ratio to encounter a monster must be smaller than to total chance.");
+        return;
+    }
+    if (ui.spinBoxRatioTotal->value() == 0) {
+        ErrorMessage::show("The total chance must be at least 1.");
+        return;
+    }
+    if (m_controller.getMonsterEncounterIds().size() == 0) {
+        ErrorMessage::show("You must add at least one monster.");
+        return;
+    }
     accept();
 }
 
@@ -106,7 +126,9 @@ void EditMonsterZoneForm::onPushButtonAddMonsterClick()
                                                   m_controller.getMonsterEncounterIds(),
                                                   std::nullopt);
     if (monsterEncounterForm.exec() == QDialog::Accepted) {
-        m_controller.addMonsterEncounter(monsterEncounterForm.getResult());
+        if (!m_controller.addMonsterEncounter(monsterEncounterForm.getResult())) {
+            ErrorMessage::show(m_controller.getLastError());
+        }
         refreshMonsterEncounterList();
     }
 }
@@ -115,6 +137,7 @@ void EditMonsterZoneForm::onPushButtonEditMonsterClick()
 {
     if (auto itemId = getSelectedItemId(); itemId.has_value()) {
         const auto selectedRow = ui.tableWidgetMonsters->selectionModel()->selectedRows()[0];
+        const auto oldMonsterId = selectedRow.data().toString().toStdString();
         const auto ratio = selectedRow.sibling(selectedRow.row(), 2).data().toString().toStdString();
         MonsterEncounterDTO itemToEdit {
             .monsterId = itemId.value(),
@@ -128,8 +151,9 @@ void EditMonsterZoneForm::onPushButtonEditMonsterClick()
                                                       m_controller.getMonsterEncounterIds(),
                                                       itemToEdit);
         if (monsterEncounterForm.exec() == QDialog::Accepted) {
-            //TODO Next update selected row;
-            //m_controller.addMonsterEncounter(monsterEncounterForm.getResult());
+            if (!m_controller.updateMonsterEncounter(oldMonsterId, monsterEncounterForm.getResult())) {
+                ErrorMessage::show(m_controller.getLastError());
+            }
             refreshMonsterEncounterList();
         }
     }
@@ -137,7 +161,19 @@ void EditMonsterZoneForm::onPushButtonEditMonsterClick()
 
 void EditMonsterZoneForm::onPushButtonDeleteMonsterClick()
 {
-
+    if (auto itemId = getSelectedItemId(); itemId.has_value()) {
+        QMessageBox msgBox;
+        msgBox.setText(fmt::format("Are you sure you want to delete the monster encounter {}?", itemId.value()).c_str());
+        msgBox.setWindowTitle("Confirmation");
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::Cancel);
+        if (msgBox.exec() == QMessageBox::Yes) {
+            if (!m_controller.removeMonsterEncounter(itemId.value())) {
+                ErrorMessage::show(m_controller.getLastError());
+            }
+            refreshMonsterEncounterList();
+        }
+    }
 }
 
 std::optional<std::string> EditMonsterZoneForm::getSelectedItemId() const

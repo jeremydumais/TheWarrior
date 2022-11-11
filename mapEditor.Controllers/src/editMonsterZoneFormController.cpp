@@ -6,6 +6,8 @@
 #include "monsterUtils.hpp"
 #include "types.h"
 #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/case_conv.hpp>
+#include <cctype>
 #include <fmt/format.h>
 #include <algorithm>
 #include <iterator>
@@ -144,11 +146,26 @@ bool EditMonsterZoneFormController::addMonsterEncounter(mapeditor::controllers::
 bool EditMonsterZoneFormController::updateMonsterEncounter(const std::string &oldMonsterId,
                                                            MonsterEncounterDTO monsterEncounter)
 {
-    //TODO Complete this method
-    //Find the monsterId to update
-    auto iter = getMonsterEncounterById(oldMonsterId);
-    if (iter == m_monsterEncounters.end()) {
-        m_lastError = fmt::format("Unable to find the old monster id {}", oldMonsterId);
+    try {
+        MonsterEncounterRatio ratio = [monsterEncounter]() {
+            return MonsterUtils::getEncounterRatioFromString(monsterEncounter.encounterRatio);
+        }();
+        //Find the monsterId to update
+        auto iter = getMonsterEncounterById(oldMonsterId);
+        if (iter == m_monsterEncounters.end()) {
+            m_lastError = fmt::format("Unable to find the old monster id {}.", oldMonsterId);
+            return false;
+        }
+        if (getMonsterEncounterById(monsterEncounter.monsterId) != m_monsterEncounters.end() &&
+                                    to_upper_copy(oldMonsterId) != to_upper_copy(monsterEncounter.monsterId)) {
+            m_lastError = fmt::format("The new monster id {} is already part of the zone.", monsterEncounter.monsterId);
+            return false;
+        }
+        iter->setMonsterId(monsterEncounter.monsterId);
+        iter->setEncounterRatio(ratio);
+    }
+    catch(const std::invalid_argument &err) {
+        m_lastError = err.what();
         return false;
     }
     return true;
@@ -161,6 +178,17 @@ std::vector<thewarrior::models::MonsterZoneMonsterEncounter>::iterator EditMonst
                         [monsterId](const auto &monsterEncounterItem) {
                           return to_upper_copy(monsterEncounterItem.getMonsterId()) == to_upper_copy(monsterId);
                         });
+}
+
+bool EditMonsterZoneFormController::removeMonsterEncounter(const std::string &monsterId)
+{
+    auto iter = getMonsterEncounterById(monsterId);
+    if (iter == m_monsterEncounters.end()) {
+        m_lastError = fmt::format("Unable to find the monster id {}.", monsterId);
+        return false;
+    }
+    m_monsterEncounters.erase(iter);
+    return true;
 }
 
 }// namespace mapeditor::controllers
