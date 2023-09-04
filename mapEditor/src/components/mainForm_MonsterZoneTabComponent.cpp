@@ -37,14 +37,15 @@ void MainForm_MonsterZoneTabComponent::connectUIActions() {
 }
 
 void MainForm_MonsterZoneTabComponent::refreshMonsterZones() {
-    /*
-     *m_listWidgetMonsterZones->model()->removeRows(0, m_listWidgetMonsterZones->count());
-     *int index {0};
-     *for(const auto &texture : m_glComponent->getMonsterZones()) {
-     *    m_listWidgetMonsterZones->insertItem(index, texture.getName().c_str());
-     *    index++;
-     *}
-     */
+    // TODO(jed): 2023-09-04
+    m_tableWidgetMonsterZone->model()->removeRows(0, m_tableWidgetMonsterZone->rowCount());
+    int index {0};
+    // for(const auto &texture : m_glComponent->getMonsterZones()) {
+        m_tableWidgetMonsterZone->insertRow(index);
+        m_tableWidgetMonsterZone->setItem(index, 0, new QTableWidgetItem("Color1"));
+        m_tableWidgetMonsterZone->setItem(index, 1, new QTableWidgetItem("Name1"));
+        // index++;
+    // }
 }
 
 /*

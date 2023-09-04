@@ -40,3 +40,4 @@ workspace.code-workspace
 .vimspector.json
 tags
 Session.vim
+CMakeUserPresets.json

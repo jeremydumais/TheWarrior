@@ -30,6 +30,7 @@ class SampleGameMap5x6WithTwoTextures : public ::testing::Test {
         tileIndex0.setObjectTextureName(firstTexture.getName());
         tileIndex0.setObjectTextureIndex(0);
         const MonsterZone zone("Zone1", RGBItemColor("Green", "#00FF00"));
+        map.addMonsterZone(zone);
     }
     GameMap map;
 };
@@ -546,4 +547,10 @@ TEST_F(SampleGameMapWithTilesAssigned, canSteppedOnTile_WithPoint1And6_ReturnFal
 TEST_F(SampleGameMap5x6WithTwoTextures, addMonsterZone_WithNotExistingMonsterZone_ReturnTrue) {
     const MonsterZone zone("Test", RGBItemColor("Green", "#00FF00"));
     ASSERT_TRUE(map.addMonsterZone(zone));
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, addMonsterZone_WithExistingMonsterZone_ReturnFalse) {
+    const MonsterZone zoneSameName("Zone1", RGBItemColor("Green", "#00FF00"));
+    ASSERT_FALSE(map.addMonsterZone(zoneSameName));
+    ASSERT_EQ("The zone Zone1 already exist.", map.getLastError());
 }

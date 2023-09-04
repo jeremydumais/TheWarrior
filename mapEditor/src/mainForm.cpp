@@ -497,7 +497,10 @@ void MainForm::refreshTextureList() {
 }
 
 void MainForm::onMonsterZoneAdded(mapeditor::controllers::MonsterZoneDTO monsterZoneDTO) {
-    ErrorMessage::show("Added!");
+    if (!m_controller.addMonsterZone(monsterZoneDTO)) {
+        ErrorMessage::show(m_controller.getLastError());
+    }
+    refreshMonsterZones();
 }
 
 void MainForm::refreshMonsterZones() {

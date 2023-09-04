@@ -2,6 +2,7 @@
 
 #include "gameMap.hpp"
 #include "monsterStore.hpp"
+#include "monsterZoneDTO.hpp"
 #include "point.hpp"
 #include "types.hpp"
 #include <boost/serialization/access.hpp>
@@ -32,6 +33,7 @@ class MainController
         bool replaceTexture(const std::string &name, const thewarrior::models::TextureInfo &textureInfo);
         bool removeTexture(const std::string &name);
         void replaceTilesTextureName(const std::string &oldName, const std::string &newName);
+        bool addMonsterZone(const MonsterZoneDTO &monsterZoneDTO);
         bool loadConfiguredMonsterStores();
     private:
         friend class boost::serialization::access;
@@ -41,6 +43,7 @@ class MainController
         std::string m_userConfigFolder = "";
         std::shared_ptr<thewarrior::models::GameMap> m_map = nullptr;
         std::shared_ptr<ContainerOfMonsterStore> m_monsterStores = nullptr;
+        thewarrior::models::MonsterZone monsterZoneDTOToMonsterZone(const MonsterZoneDTO &dto) const;
 };
 
 } // namespace mapeditor::controllers

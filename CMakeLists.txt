@@ -7,7 +7,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake/modules)
 if (UNIX)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
     set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
-    set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "") 
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 endif()
 
 string(TOLOWER "${CMAKE_BUILD_TYPE}" LOWERCASE_CMAKE_BUILD_TYPE)
@@ -19,11 +19,8 @@ elseif(LOWERCASE_CMAKE_BUILD_TYPE MATCHES "^(release)$")
 endif()
 set(CMAKE_CXX_STANDARD 20)
 
-include(Conan)
-run_conan()
-
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
+include_directories(${CMAKE_INCLUDE_PATH})
+link_directories(${CMAKE_LIBRARY_PATH})
 
 if (${CODE_COVERAGE})
     include(CodeCoverage)
