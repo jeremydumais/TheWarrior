@@ -1,5 +1,8 @@
 #pragma once
 
+#include <optional>
+#include <string>
+#include <vector>
 #include "mapTile.hpp"
 #include "monsterZone.hpp"
 #include "point.hpp"
@@ -10,15 +13,11 @@
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/version.hpp>
-#include <optional>
-#include <string>
-#include <vector>
 
 namespace thewarrior::models {
 
-class GameMap
-{
-public:
+class GameMap {
+ public:
     GameMap(unsigned int width, unsigned int height);
     const std::string &getLastError() const;
     const std::vector<std::vector<MapTile>> &getTiles() const;
@@ -34,6 +33,7 @@ public:
     bool addTexture(const TextureInfo &textureInfo);
     bool replaceTexture(const std::string &name, const TextureInfo &textureInfo);
     bool removeTexture(const std::string &name);
+    bool addMonsterZone(const MonsterZone &zone);
     bool isShrinkMapImpactAssignedTiles(int offsetLeft,
                                         int offsetTop,
                                         int offsetRight,
@@ -43,7 +43,8 @@ public:
                    int offsetRight,
                    int offsetBottom);
     bool canSteppedOnTile(Point<> playerCoord);
-private:
+
+ private:
     friend class boost::serialization::access;
     std::string m_lastError;
     std::vector<std::vector<MapTile>> m_tiles;
@@ -57,10 +58,10 @@ private:
     void _resizeMapFromTop(int offset);
     void _resizeMapFromRight(int offset);
     void _resizeMapFromBottom(int offset);
-    //Serialization method
+    std::vector<MonsterZone>::iterator getMonsterZoneIterator(const std::string &name);
+    // Serialization method
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version)
-    {
+    void serialize(Archive & ar, const unsigned int version) {
         ar & m_tiles;
         ar & m_textureContainer;
         if (version > 1) {
@@ -69,6 +70,6 @@ private:
     }
 };
 
-} // namespace thewarrior::models
+}  // namespace thewarrior::models
 
 BOOST_CLASS_VERSION(thewarrior::models::GameMap, 2)

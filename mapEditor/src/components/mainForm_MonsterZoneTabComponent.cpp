@@ -1,27 +1,24 @@
 #include "mainForm_MonsterZoneTabComponent.hpp"
-#include "editMonsterZoneForm.hpp"
-#include "types.hpp"
-#include "uiUtils.hpp"
 #include <QStyle>
 #include <fmt/format.h>
 #include <memory>
+#include "editMonsterZoneForm.hpp"
+#include "errorMessage.hpp"
+#include "types.hpp"
+#include "uiUtils.hpp"
 
-using namespace std;
-using namespace commoneditor::ui;
-using namespace thewarrior::models;
-using namespace mapeditor::controllers;
+using commoneditor::ui::UIUtils;
+using mapeditor::controllers::ContainerOfMonsterStore;
 
 MainForm_MonsterZoneTabComponent::MainForm_MonsterZoneTabComponent()
     : m_glComponent(nullptr),
     m_tableWidgetMonsterZone(nullptr),
     m_pushButtonAddMonsterZone(nullptr),
     m_pushButtonEditMonsterZone(nullptr),
-    m_pushButtonDeleteMonsterZone(nullptr)
-{
+    m_pushButtonDeleteMonsterZone(nullptr) {
 }
 
-void MainForm_MonsterZoneTabComponent::initializeUIObjects(const MainForm_MonsterZoneTabComponent_Objects &objects)
-{
+void MainForm_MonsterZoneTabComponent::initializeUIObjects(const MainForm_MonsterZoneTabComponent_Objects &objects) {
     this->m_glComponent = objects.glComponent;
     this->m_tableWidgetMonsterZone = objects.tableWidgetMonsterZone;
     this->m_pushButtonAddMonsterZone = objects.pushButtonAddMonsterZone;
@@ -33,59 +30,60 @@ void MainForm_MonsterZoneTabComponent::initializeUIObjects(const MainForm_Monste
     this->m_tableWidgetMonsterZone->setColumnWidth(1, 300);
 }
 
-void MainForm_MonsterZoneTabComponent::connectUIActions()
-{
+void MainForm_MonsterZoneTabComponent::connectUIActions() {
     connect(m_pushButtonAddMonsterZone, &QPushButton::clicked, this, &MainForm_MonsterZoneTabComponent::onPushButtonAddMonsterZoneClick);
     connect(m_pushButtonEditMonsterZone, &QPushButton::clicked, this, &MainForm_MonsterZoneTabComponent::onPushButtonEditMonsterZoneClick);
     connect(m_pushButtonDeleteMonsterZone, &QPushButton::clicked, this, &MainForm_MonsterZoneTabComponent::onPushButtonDeleteMonsterZoneClick);
 }
 
-void MainForm_MonsterZoneTabComponent::refreshMonsterZones()
-{
-    //m_listWidgetMonsterZones->model()->removeRows(0, m_listWidgetMonsterZones->count());
-    //int index {0};
-    //for(const auto &texture : m_glComponent->getMonsterZones()) {
-        //m_listWidgetMonsterZones->insertItem(index, texture.getName().c_str());
-        //index++;
-    //}
+void MainForm_MonsterZoneTabComponent::refreshMonsterZones() {
+    /*
+     *m_listWidgetMonsterZones->model()->removeRows(0, m_listWidgetMonsterZones->count());
+     *int index {0};
+     *for(const auto &texture : m_glComponent->getMonsterZones()) {
+     *    m_listWidgetMonsterZones->insertItem(index, texture.getName().c_str());
+     *    index++;
+     *}
+     */
 }
 
-//optional<reference_wrapper<const MonsterZone>> MainForm_MonsterZoneTabComponent::getSelectedMonsterZoneInMonsterZoneList() const
-//{
-    //if (m_listWidgetMonsterZones->selectionModel()->hasSelection()) {
-        //Find the selected texture
-        //auto selectedItemName { m_listWidgetMonsterZones->selectionModel()->selectedRows()[0].data().toString().toStdString() };
-        //return m_glComponent->getMonsterZoneByName(selectedItemName);
-    //}
-    //else {
-        //return nullopt;
-    //}
-//}
+/*
+ *optional<reference_wrapper<const MonsterZone>> MainForm_MonsterZoneTabComponent::getSelectedMonsterZoneInMonsterZoneList() const
+ *{
+ *    if (m_listWidgetMonsterZones->selectionModel()->hasSelection()) {
+ *        Find the selected texture
+ *        auto selectedItemName { m_listWidgetMonsterZones->selectionModel()->selectedRows()[0].data().toString().toStdString() };
+ *        return m_glComponent->getMonsterZoneByName(selectedItemName);
+ *    }
+ *    else {
+ *        return nullopt;
+ *    }
+ *}
+ */
 
-void MainForm_MonsterZoneTabComponent::setMonsterStores(const std::shared_ptr<ContainerOfMonsterStore> monsterStores)
-{
+void MainForm_MonsterZoneTabComponent::setMonsterStores(const std::shared_ptr<ContainerOfMonsterStore> monsterStores) {
     m_monsterStores = monsterStores;
 }
 
-void MainForm_MonsterZoneTabComponent::setResourcesPath(const std::string resourcesPath)
-{
+void MainForm_MonsterZoneTabComponent::setResourcesPath(const std::string &resourcesPath) {
     m_resourcesPath = resourcesPath;
 }
 
-void MainForm_MonsterZoneTabComponent::onPushButtonAddMonsterZoneClick()
-{
+void MainForm_MonsterZoneTabComponent::onPushButtonAddMonsterZoneClick() {
     m_glComponent->stopAutoUpdate();
-    //auto alreadyUsedMonsterZoneNames { m_glComponent->getAlreadyUsedMonsterZoneNames() };
+    // TODO(jed) Ensure we cannot create two monster zone with the same name
+    /*
+     *auto alreadyUsedMonsterZoneNames { m_glComponent->getAlreadyUsedMonsterZoneNames() };
+     */
     EditMonsterZoneForm formEditMonsterZone(this, m_monsterStores, m_resourcesPath);
     UIUtils::centerToScreen(&formEditMonsterZone);
     if (formEditMonsterZone.exec() == QDialog::Accepted) {
-        //emit textureAdded(formEditMonsterZone.getMonsterZoneInfo());
+        emit monsterZoneAdded(formEditMonsterZone.getResult());
     }
     m_glComponent->startAutoUpdate();
 }
 
-void MainForm_MonsterZoneTabComponent::onPushButtonEditMonsterZoneClick()
-{
+void MainForm_MonsterZoneTabComponent::onPushButtonEditMonsterZoneClick() {
     m_glComponent->stopAutoUpdate();
     /*auto selectedMonsterZone = getSelectedMonsterZoneInMonsterZoneList();
     if (selectedMonsterZone.has_value()) {
@@ -103,8 +101,7 @@ void MainForm_MonsterZoneTabComponent::onPushButtonEditMonsterZoneClick()
     m_glComponent->startAutoUpdate();
 }
 
-void MainForm_MonsterZoneTabComponent::onPushButtonDeleteMonsterZoneClick()
-{
+void MainForm_MonsterZoneTabComponent::onPushButtonDeleteMonsterZoneClick() {
     /*auto selectedMonsterZone = getSelectedMonsterZoneInMonsterZoneList();
     if (selectedMonsterZone.has_value()) {
         QMessageBox msgBox;

@@ -1,4 +1,14 @@
 #include "mainForm.hpp"
+#include <qcombobox.h>
+#include <qtimer.h>
+#include <QtCore/qfile.h>
+#include <fmt/format.h>
+#include <algorithm>
+#include <fstream>
+#include <boost/algorithm/string.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/filesystem.hpp>
 #include "aboutBoxForm.hpp"
 #include "components/mainForm_MonsterZoneTabComponent.hpp"
 #include "configurationManager.hpp"
@@ -6,37 +16,30 @@
 #include "gameMapStorage.hpp"
 #include "manageItemStoreForm.hpp"
 #include "manageMonsterStoreForm.hpp"
+#include "mapTile.hpp"
 #include "specialFolders.hpp"
-#include <QtCore/qfile.h>
-#include <algorithm>
-#include <boost/algorithm/string.hpp>
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/filesystem.hpp>
-#include <fmt/format.h>
-#include <fstream>
-#include <qcombobox.h>
-#include <qtimer.h>
+#include "textureInfo.hpp"
 
-using namespace std;
-using namespace commoneditor::ui;
-using namespace thewarrior::models;
-using namespace thewarrior::storage;
+using commoneditor::ui::ErrorMessage;
+using thewarrior::models::MapTile;
+using thewarrior::models::Point;
+using thewarrior::models::TextureInfo;
+using thewarrior::storage::ConfigurationManager;
+using thewarrior::storage::GameMapStorage;
 
 const std::string MainForm::THEME_PATH { "Display.Theme" };
 const std::string MainForm::RECENT_MAPS { "Map.Recents" };
 
 MainForm::MainForm(QWidget *parent)
     : QMainWindow(parent),
-    ui(Ui::MainForm())
-{
+    ui(Ui::MainForm()) {
     ui.setupUi(this);
 
     m_controller.initializeExecutablePath();
     m_controller.initializeResourcesPath();
     m_controller.initializeUserConfigFolder();
 
-    //Check if the user configuration folder exist
+    // Check if the user configuration folder exist
     const auto &userConfigFolder = m_controller.getUserConfigFolder();
     if (!boost::filesystem::exists(userConfigFolder)) {
         if (!boost::filesystem::create_directory(userConfigFolder)) {
@@ -45,10 +48,10 @@ MainForm::MainForm(QWidget *parent)
         }
     }
 
-    //Check if the configuration file exist
+    // Check if the configuration file exist
     ConfigurationManager configManager(userConfigFolder + "config.json");
     if (!configManager.fileExists()) {
-        //Try to create a default configuration
+        // Try to create a default configuration
         if (!configManager.save()) {
             ErrorMessage::show("An error occurred while creation a default the configuration file.",
                     configManager.getLastError());
@@ -56,8 +59,7 @@ MainForm::MainForm(QWidget *parent)
     }
     if (configManager.load()) {
         setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
-    }
-    else {
+    } else {
         ErrorMessage::show("An error occurred while loading the configuration file.",
                 configManager.getLastError());
     }
@@ -67,7 +69,7 @@ MainForm::MainForm(QWidget *parent)
     m_glComponent.initializeUIObjects(ui.mapOpenGLWidget);
     m_glComponent.setResourcesPath(m_controller.getResourcesPath());
     m_glComponent.setSelectionMode(SelectionMode::Select);
-    //MapTab Component initialization
+    // MapTab Component initialization
     MainForm_MapTabComponent_Objects mapUIObjects;
     mapUIObjects.glComponent = &m_glComponent;
     mapUIObjects.lineEditMapWidth = ui.lineEditMapWidth;
@@ -78,7 +80,7 @@ MainForm::MainForm(QWidget *parent)
     mapUIObjects.spinBoxMapSizeBottom = ui.spinBoxMapSizeBottom;
     mapUIObjects.pushButtonApplySizeChange = ui.pushButtonApplySizeChange;
     m_mapTabComponent.initializeUIObjects(mapUIObjects);
-    //TileTab Component initialization
+    // TileTab Component initialization
     MainForm_TileTabComponent_Objects tileUIObjects;
     tileUIObjects.glComponent = &m_glComponent;
     tileUIObjects.labelTileCoordXY = ui.labelTileCoordXY;
@@ -94,7 +96,7 @@ MainForm::MainForm(QWidget *parent)
     tileUIObjects.pushButtonEditTileEvent = ui.pushButtonEditTileEvent;
     tileUIObjects.pushButtonDeleteTileEvent = ui.pushButtonDeleteTileEvent;
     m_tileTabComponent.initializeUIObjects(tileUIObjects);
-    //MonsterZoneTab Component initialization
+    // MonsterZoneTab Component initialization
     MainForm_MonsterZoneTabComponent_Objects monsterZoneUIObjects;
     monsterZoneUIObjects.glComponent = &m_glComponent;
     monsterZoneUIObjects.tableWidgetMonsterZone = ui.tableWidgetMonsterZone;
@@ -104,7 +106,7 @@ MainForm::MainForm(QWidget *parent)
     m_monsterZoneTabComponent.initializeUIObjects(monsterZoneUIObjects);
     m_monsterZoneTabComponent.setMonsterStores(m_controller.getMonsterStores());
     m_monsterZoneTabComponent.setResourcesPath(m_controller.getResourcesPath());
-    //TextureListTab Component initialization
+    // TextureListTab Component initialization
     MainForm_TextureListTabComponent_Objects textureListUIObjects;
     textureListUIObjects.glComponent = &m_glComponent;
     textureListUIObjects.listWidgetTextures = ui.listWidgetTextures;
@@ -112,7 +114,7 @@ MainForm::MainForm(QWidget *parent)
     textureListUIObjects.pushButtonEditTexture = ui.pushButtonEditTexture;
     textureListUIObjects.pushButtonDeleteTexture = ui.pushButtonDeleteTexture;
     m_textureListTabComponent.initializeUIObjects(textureListUIObjects);
-    //TextureSelection Component initialization
+    // TextureSelection Component initialization
     MainForm_TextureSelectionComponent_Objects textureSelectionUIObjects;
     textureSelectionUIObjects.glComponent = &m_glComponent;
     textureSelectionUIObjects.comboBoxTexture = ui.comboBoxTexture;
@@ -128,7 +130,7 @@ MainForm::MainForm(QWidget *parent)
 
     connectUIActions();
 
-    //Generate a test map
+    // Generate a test map
     if (!m_controller.createMap(20, 20)) {
         ErrorMessage::show(m_controller.getLastError());
         exit(1);
@@ -141,8 +143,7 @@ MainForm::MainForm(QWidget *parent)
     m_mapTabComponent.reset();
 }
 
-void MainForm::connectUIActions()
-{
+void MainForm::connectUIActions() {
     connect(ui.action_Quit, &QAction::triggered, this, &MainForm::close);
     connect(ui.action_About, &QAction::triggered, this, &MainForm::action_About_Click);
     connect(ui.action_Open, &QAction::triggered, this, &MainForm::action_Open_Click);
@@ -180,10 +181,10 @@ void MainForm::connectUIActions()
     connect(&m_textureListTabComponent, &MainForm_TextureListTabComponent::textureAdded, this, &MainForm::onTextureAdded);
     connect(&m_textureListTabComponent, &MainForm_TextureListTabComponent::textureUpdated, this, &MainForm::onTextureUpdated);
     connect(&m_textureListTabComponent, &MainForm_TextureListTabComponent::textureDeleted, this, &MainForm::onTextureDeleted);
+    connect(&m_monsterZoneTabComponent, &MainForm_MonsterZoneTabComponent::monsterZoneAdded, this, &MainForm::onMonsterZoneAdded);
 }
 
-void MainForm::action_Open_Click()
-{
+void MainForm::action_Open_Click() {
     ui.mapOpenGLWidget->stopAutoUpdate();
     QString fullFilePath { QFileDialog::getOpenFileName(this,
             tr("Open map"),
@@ -196,28 +197,24 @@ void MainForm::action_Open_Click()
     ui.mapOpenGLWidget->startAutoUpdate();
 }
 
-void MainForm::action_OpenRecentMap_Click()
-{
+void MainForm::action_OpenRecentMap_Click() {
     QAction *recentAction = qobject_cast<QAction *>(sender());
-    string filename = recentAction->text().toStdString();
+    std::string filename = recentAction->text().toStdString();
     ui.mapOpenGLWidget->stopAutoUpdate();
     openMap(filename);
     refreshWindowTitle();
     ui.mapOpenGLWidget->startAutoUpdate();
 }
 
-void MainForm::action_Save_Click()
-{
+void MainForm::action_Save_Click() {
     if (m_currentFilePath == "") {
         action_SaveAs_Click();
-    }
-    else {
+    } else {
         saveMap(m_currentFilePath);
     }
 }
 
-void MainForm::action_SaveAs_Click()
-{
+void MainForm::action_SaveAs_Click() {
     ui.mapOpenGLWidget->stopAutoUpdate();
     QString filter = "Map Files (*.map)";
     QString fullFilePath { QFileDialog::getSaveFileName(this,
@@ -233,34 +230,28 @@ void MainForm::action_SaveAs_Click()
     ui.mapOpenGLWidget->startAutoUpdate();
 }
 
-MainForm::~MainForm()
-{
+MainForm::~MainForm() {
 }
 
-void MainForm::functionAfterShown()
-{
+void MainForm::functionAfterShown() {
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
 }
 
-bool MainForm::event(QEvent *event)
-{
+bool MainForm::event(QEvent *event) {
     const bool ret_val = QMainWindow::event(event);
-    if(!m_functionAfterShownCalled && event->type() == QEvent::Paint)
-    {
+    if (!m_functionAfterShownCalled && event->type() == QEvent::Paint) {
         m_functionAfterShownCalled = true;
         functionAfterShown();
     }
     return ret_val;
 }
 
-void MainForm::action_About_Click()
-{
+void MainForm::action_About_Click() {
     AboutBoxForm aboutBoxForm(this);
     aboutBoxForm.exec();
 }
 
-void MainForm::action_LightTheme_Click()
-{
+void MainForm::action_LightTheme_Click() {
     ConfigurationManager configManager(m_controller.getUserConfigFolder() + "config.json");
     if (configManager.load()) {
         configManager.setStringValue(MainForm::THEME_PATH, "");
@@ -269,16 +260,13 @@ void MainForm::action_LightTheme_Click()
             ErrorMessage::show("An error occurred while saving the configuration file.",
                     configManager.getLastError());
         }
-    }
-    else {
+    } else {
         ErrorMessage::show("An error occurred while loading the configuration file.",
                 configManager.getLastError());
     }
-
 }
 
-void MainForm::action_DarkTheme_Click()
-{
+void MainForm::action_DarkTheme_Click() {
     ConfigurationManager configManager(m_controller.getUserConfigFolder() + "config.json");
     if (configManager.load()) {
         configManager.setStringValue(MainForm::THEME_PATH, "Dark");
@@ -287,101 +275,84 @@ void MainForm::action_DarkTheme_Click()
             ErrorMessage::show("An error occurred while saving the configuration file.",
                     configManager.getLastError());
         }
-    }
-    else {
+    } else {
         ErrorMessage::show("An error occurred while loading the configuration file.",
                 configManager.getLastError());
     }
 }
 
-void MainForm::action_DisplayGrid_Click()
-{
+void MainForm::action_DisplayGrid_Click() {
     ui.mapOpenGLWidget->setGridEnabled(ui.action_DisplayGrid->isChecked());
 }
 
-void MainForm::action_ManageItemStore_Click()
-{
+void MainForm::action_ManageItemStore_Click() {
     ManageItemStoreForm manageItemStoreForm(this, m_controller.getResourcesPath(), m_controller.getUserConfigFolder());
     manageItemStoreForm.exec();
 }
 
-void MainForm::action_ManageMonsterStore_Click()
-{
+void MainForm::action_ManageMonsterStore_Click() {
     ManageMonsterStoreForm manageMonsterStoreForm(this, m_controller.getResourcesPath(), m_controller.getUserConfigFolder());
     manageMonsterStoreForm.exec();
     m_controller.loadConfiguredMonsterStores();
 }
 
-void MainForm::action_SelectClick()
-{
+void MainForm::action_SelectClick() {
     m_glComponent.setSelectionMode(SelectionMode::Select);
 }
 
-void MainForm::action_MoveMapClick()
-{
+void MainForm::action_MoveMapClick() {
     m_glComponent.setSelectionMode(SelectionMode::MoveMap);
 }
 
-void MainForm::action_ApplyTextureClick()
-{
+void MainForm::action_ApplyTextureClick() {
     m_glComponent.setSelectionMode(SelectionMode::ApplyTexture);
 }
 
-void MainForm::action_ApplyObjectClick()
-{
+void MainForm::action_ApplyObjectClick() {
     m_glComponent.setSelectionMode(SelectionMode::ApplyObject);
 }
 
-void MainForm::action_EnableCanStepClick()
-{
+void MainForm::action_EnableCanStepClick() {
     m_glComponent.setSelectionMode(SelectionMode::EnableCanStep);
 }
 
-void MainForm::action_DisableCanStepClick()
-{
+void MainForm::action_DisableCanStepClick() {
     m_glComponent.setSelectionMode(SelectionMode::DisableCanStep);
 }
 
-void MainForm::action_ViewBorderModeClick()
-{
+void MainForm::action_ViewBorderModeClick() {
     m_glComponent.setSelectionMode(SelectionMode::ViewBorderMode);
 }
 
-void MainForm::action_BlockLeftBorderClick()
-{
+void MainForm::action_BlockLeftBorderClick() {
     m_glComponent.setSelectionMode(SelectionMode::BlockBorderLeft);
 }
 
-void MainForm::action_BlockTopBorderClick()
-{
+void MainForm::action_BlockTopBorderClick() {
     m_glComponent.setSelectionMode(SelectionMode::BlockBorderTop);
 }
 
-void MainForm::action_BlockRightBorderClick()
-{
+void MainForm::action_BlockRightBorderClick() {
     m_glComponent.setSelectionMode(SelectionMode::BlockBorderRight);
 }
-void MainForm::action_BlockBottomBorderClick()
-{
+void MainForm::action_BlockBottomBorderClick() {
     m_glComponent.setSelectionMode(SelectionMode::BlockBorderBottom);
 }
 
-void MainForm::action_ClearBlockedBordersClick()
-{
+void MainForm::action_ClearBlockedBordersClick() {
     m_glComponent.setSelectionMode(SelectionMode::ClearBlockedBorders);
 }
 
-void MainForm::openMap(const std::string &filePath)
-{
+void MainForm::openMap(const std::string &filePath) {
     GameMapStorage mapStorage;
     try {
         mapStorage.loadMap(filePath, m_controller.getMap());
     }
-    catch(invalid_argument &err) {
+    catch(std::invalid_argument &err) {
         ErrorMessage::show(err.what());
         return;
     }
-    catch(runtime_error &err) {
+    catch(std::runtime_error &err) {
         ErrorMessage::show(err.what());
         return;
     }
@@ -396,31 +367,26 @@ void MainForm::openMap(const std::string &filePath)
     m_mapTabComponent.reset();
 }
 
-void MainForm::saveMap(const std::string &filePath)
-{
-    ofstream ofs(filePath, ofstream::binary);
+void MainForm::saveMap(const std::string &filePath) {
+    std::ofstream ofs(filePath, std::ofstream::binary);
     boost::archive::binary_oarchive oa(ofs);
     oa << *m_controller.getMap();
 }
 
-void MainForm::refreshWindowTitle()
-{
+void MainForm::refreshWindowTitle() {
     if (m_currentFilePath == "") {
         setWindowTitle("MapEditor");
-    }
-    else {
+    } else {
         setWindowTitle(fmt::format("MapEditor - {0}", m_currentFilePath).c_str());
     }
 }
 
-void MainForm::refreshRecentMapsMenu()
-{
-    auto recents = vector<string> {};
+void MainForm::refreshRecentMapsMenu() {
+    auto recents = std::vector<std::string> {};
     ConfigurationManager configManager(m_controller.getUserConfigFolder() + "config.json");
     if (configManager.load()) {
         recents = configManager.getVectorOfStringValue(MainForm::RECENT_MAPS);
-    }
-    else {
+    } else {
         ErrorMessage::show("An error occurred while loading the configuration file.",
                 configManager.getLastError());
         return;
@@ -430,38 +396,36 @@ void MainForm::refreshRecentMapsMenu()
         recents.resize(5);
     }
     ui.menu_RecentMaps->setEnabled(!recents.empty());
-    vector<QAction *> actions {
+    std::vector<QAction *> actions {
         ui.action_RecentMap1,
             ui.action_RecentMap2,
             ui.action_RecentMap3,
             ui.action_RecentMap4,
             ui.action_RecentMap5
     };
-    for(size_t i = 0; i < recents.size(); i++) {
+    for (size_t i = 0; i < recents.size(); i++) {
         actions[i]->setVisible(true);
         actions[i]->setText(recents[i].c_str());
     }
 }
 
-void MainForm::addNewRecentMap(const std::string &filePath)
-{
-    auto recents = vector<string> {};
-    //Load existing recent maps
+void MainForm::addNewRecentMap(const std::string &filePath) {
+    auto recents = std::vector<std::string> {};
+    // Load existing recent maps
     ConfigurationManager configManager(m_controller.getUserConfigFolder() + "config.json");
     if (configManager.load()) {
         recents = configManager.getVectorOfStringValue(MainForm::RECENT_MAPS);
-    }
-    else {
+    } else {
         ErrorMessage::show("An error occurred while loading the configuration file.",
                 configManager.getLastError());
         return;
     }
-    //Scan to find the currentMap, if found remove it from the list
+    // Scan to find the currentMap, if found remove it from the list
     auto iter = std::find(recents.begin(), recents.end(), filePath);
     if (iter != recents.end()) {
         recents.erase(iter);
     }
-    //Add it at the beginning of the vector
+    // Add it at the beginning of the vector
     recents.insert(recents.begin(), filePath);
     if (recents.size() > 5) {
         recents.resize(5);
@@ -475,8 +439,7 @@ void MainForm::addNewRecentMap(const std::string &filePath)
     refreshRecentMapsMenu();
 }
 
-void MainForm::setAppStylesheet(const std::string &style)
-{
+void MainForm::setAppStylesheet(const std::string &style) {
     /*
        The Dark theme comes has been built by Colin Duquesnoy
        Github page : https://github.com/ColinDuquesnoy
@@ -490,8 +453,7 @@ void MainForm::setAppStylesheet(const std::string &style)
         file.open(QFile::ReadOnly);
         styleSheet = QLatin1String(file.readAll());
         ui.action_DarkTheme->setChecked(true);
-    }
-    else {
+    } else {
         ui.action_LightTheme->setChecked(true);
     }
     this->setStyleSheet(styleSheet);
@@ -499,48 +461,45 @@ void MainForm::setAppStylesheet(const std::string &style)
     m_tileTabComponent.setStyleSheet(styleSheet);
 }
 
-void MainForm::resizeEvent(QResizeEvent *)
-{
+void MainForm::resizeEvent(QResizeEvent *) {
     ui.mapOpenGLWidget->resizeGL(ui.mapOpenGLWidget->width(), ui.mapOpenGLWidget->height());
 }
 
-void MainForm::onTileSelected(MapTile *, Point<>)
-{
+void MainForm::onTileSelected(MapTile *, Point<>) {
     ui.toolBox->setCurrentWidget(ui.page_TileProperties);
 }
 
-void MainForm::onTextureAdded(TextureInfo textureInfo)
-{
+void MainForm::onTextureAdded(TextureInfo textureInfo) {
     if (!m_controller.addTexture(textureInfo)) {
         ErrorMessage::show(m_controller.getLastError());
     }
     refreshTextureList();
 }
 
-void MainForm::onTextureUpdated(const std::string &name, TextureInfo textureInfo)
-{
+void MainForm::onTextureUpdated(const std::string &name, TextureInfo textureInfo) {
     if (!m_controller.replaceTexture(name, textureInfo)) {
         ErrorMessage::show(m_controller.getLastError());
     }
     refreshTextureList();
 }
 
-void MainForm::onTextureDeleted(const std::string &name)
-{
+void MainForm::onTextureDeleted(const std::string &name) {
     if (!m_controller.removeTexture(name)) {
         ErrorMessage::show(m_controller.getLastError());
     }
     refreshTextureList();
 }
 
-void MainForm::refreshTextureList()
-{
+void MainForm::refreshTextureList() {
     m_textureListTabComponent.refreshTextureList();
     m_textureSelectionComponent.refreshTextureList();
     m_glComponent.reloadTextures();
 }
 
-void MainForm::refreshMonsterZones()
-{
+void MainForm::onMonsterZoneAdded(mapeditor::controllers::MonsterZoneDTO monsterZoneDTO) {
+    ErrorMessage::show("Added!");
+}
+
+void MainForm::refreshMonsterZones() {
     m_monsterZoneTabComponent.refreshMonsterZones();
 }

@@ -1,44 +1,47 @@
 #include "editMonsterZoneForm.hpp"
+#include <fmt/format.h>
+#include <qdialog.h>
+#include <qmessagebox.h>
+#include <cstddef>
+#include <exception>
+#include <memory>
+#include <optional>
 #include "editMonsterEncounterForm.hpp"
 #include "editMonsterZoneFormController.hpp"
 #include "errorMessage.hpp"
 #include "manageMonsterStoreController.hpp"
 #include "monsterEncounterDTO.hpp"
 #include "types.hpp"
-#include <cstddef>
-#include <exception>
-#include <fmt/format.h>
-#include <memory>
-#include <optional>
-#include <qdialog.h>
-#include <qmessagebox.h>
 
-using namespace commoneditor::ui;
-using namespace mapeditor::controllers;
+using commoneditor::ui::ErrorMessage;
+using mapeditor::controllers::ContainerOfMonsterStore;
+using mapeditor::controllers::MonsterEncounterDTO;
 
 EditMonsterZoneForm::EditMonsterZoneForm(QWidget *parent,
                                          const std::shared_ptr<ContainerOfMonsterStore> monsterStores,
-                                         const std::string resourcesPath)
+                                         const std::string &resourcesPath)
     : QDialog(parent),
     ui(Ui::editMonsterZoneFormClass()),
-    m_controller(monsterStores, resourcesPath)
-{
+    m_controller(monsterStores, resourcesPath) {
     ui.setupUi(this);
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
     this->setFixedSize(this->geometry().size());
     connectUIActions();
     initializeColors();
     initializeMonsterTable();
-    //TODO To remove only for tests
-    //m_controller.addMonsterEncounter(MonsterEncounterDTO { "DRA001", "", "Normal", std::nullopt });
-    //m_controller.addMonsterEncounter(MonsterEncounterDTO { "slm001", "", "Rare", std::nullopt });
+    // TODO(jed) To remove only for tests
+    // m_controller.addMonsterEncounter(MonsterEncounterDTO { "DRA001", "", "Normal", std::nullopt });
+    // m_controller.addMonsterEncounter(MonsterEncounterDTO { "slm001", "", "Rare", std::nullopt });
     refreshMonsterEncounterList();
 }
 
-void EditMonsterZoneForm::connectUIActions()
-{
+const mapeditor::controllers::MonsterZoneDTO &EditMonsterZoneForm::getResult() const {
+    return m_result;
+}
+
+void EditMonsterZoneForm::connectUIActions() {
     connect(ui.pushButtonOK, &QPushButton::clicked, this, &EditMonsterZoneForm::onPushButtonOK);
-    connect(ui.pushButtonCancel, &QPushButton::clicked, this, std::terminate);//&EditMonsterZoneForm::reject);
+    connect(ui.pushButtonCancel, &QPushButton::clicked, this, &EditMonsterZoneForm::reject);
     connect(ui.comboBoxColor, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &EditMonsterZoneForm::onComboBoxColorCurrentIndexChanged);
     connect(ui.pushButtonAddMonster, &QPushButton::clicked, this, &EditMonsterZoneForm::onPushButtonAddMonsterClick);
     connect(ui.pushButtonEditMonster, &QPushButton::clicked, this, &EditMonsterZoneForm::onPushButtonEditMonsterClick);
@@ -46,16 +49,14 @@ void EditMonsterZoneForm::connectUIActions()
     connect(ui.tableWidgetMonsters, &QTableWidget::itemDoubleClicked, this, &EditMonsterZoneForm::onPushButtonEditMonsterClick);
 }
 
-void EditMonsterZoneForm::initializeColors()
-{
+void EditMonsterZoneForm::initializeColors() {
     ui.comboBoxColor->model()->removeRows(0, ui.comboBoxColor->count());
     for (const auto &color : colors) {
         ui.comboBoxColor->addItem(color.displayName.c_str());
     }
 }
 
-void EditMonsterZoneForm::initializeMonsterTable()
-{
+void EditMonsterZoneForm::initializeMonsterTable() {
     ui.tableWidgetMonsters->setHorizontalHeaderItem(0, new QTableWidgetItem("Id"));
     ui.tableWidgetMonsters->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
     ui.tableWidgetMonsters->setHorizontalHeaderItem(2, new QTableWidgetItem("Ratio"));
@@ -64,11 +65,10 @@ void EditMonsterZoneForm::initializeMonsterTable()
     ui.tableWidgetMonsters->setColumnWidth(2, 50);
 }
 
-void EditMonsterZoneForm::refreshMonsterEncounterList()
-{
+void EditMonsterZoneForm::refreshMonsterEncounterList() {
     ui.tableWidgetMonsters->model()->removeRows(0, ui.tableWidgetMonsters->rowCount());
     int index = 0;
-    for(const auto &dto : m_controller.getMonsterEncounters()) {
+    for (const auto &dto : m_controller.getMonsterEncounters()) {
         ui.tableWidgetMonsters->insertRow(index);
         auto idMonster = new QTableWidgetItem(dto.monsterId.c_str());
         if (dto.monsterIcon.has_value()) {
@@ -81,9 +81,7 @@ void EditMonsterZoneForm::refreshMonsterEncounterList()
     }
 }
 
-void EditMonsterZoneForm::onPushButtonOK()
-{
-    //TODO Required fields and at least one monster
+void EditMonsterZoneForm::onPushButtonOK() {
     if (ui.lineEditName->text().trimmed().isEmpty()) {
         ErrorMessage::show("The name is required.");
         return;
@@ -100,12 +98,21 @@ void EditMonsterZoneForm::onPushButtonOK()
         ErrorMessage::show("You must add at least one monster.");
         return;
     }
+
+    m_result.m_name = ui.lineEditName->text().toStdString();
+    m_result.m_colorName = ui.comboBoxColor->currentText().toStdString();
+    m_result.m_colorValue = colors[static_cast<size_t>(ui.comboBoxColor->currentIndex())].value;
+    m_result.m_ratioEncounter = static_cast<unsigned int>(ui.spinBoxRatioChance->value());
+    m_result.m_ratioEncounterOn = static_cast<unsigned int>(ui.spinBoxRatioTotal->value());
+    for (const auto &dto : m_controller.getMonsterEncounters()) {
+        m_result.m_monsterEncounters.push_back({dto.monsterId, dto.encounterRatio});
+    }
+
     accept();
 }
 
-void EditMonsterZoneForm::onComboBoxColorCurrentIndexChanged()
-{
-    //Find the selected color
+void EditMonsterZoneForm::onComboBoxColorCurrentIndexChanged() {
+    // Find the selected color
     auto selectedIndex = ui.comboBoxColor->currentIndex();
     if (selectedIndex >= 0) {
         size_t colorIndex = static_cast<size_t>(selectedIndex);
@@ -118,8 +125,7 @@ void EditMonsterZoneForm::onComboBoxColorCurrentIndexChanged()
     ui.labelColor->setStyleSheet("");
 }
 
-void EditMonsterZoneForm::onPushButtonAddMonsterClick()
-{
+void EditMonsterZoneForm::onPushButtonAddMonsterClick() {
     EditMonsterEncounterForm monsterEncounterForm(this,
                                                   m_controller.getMonsterStores(),
                                                   m_controller.getResourcesPath(),
@@ -133,8 +139,7 @@ void EditMonsterZoneForm::onPushButtonAddMonsterClick()
     }
 }
 
-void EditMonsterZoneForm::onPushButtonEditMonsterClick()
-{
+void EditMonsterZoneForm::onPushButtonEditMonsterClick() {
     if (auto itemId = getSelectedItemId(); itemId.has_value()) {
         const auto selectedRow = ui.tableWidgetMonsters->selectionModel()->selectedRows()[0];
         const auto oldMonsterId = selectedRow.data().toString().toStdString();
@@ -159,8 +164,7 @@ void EditMonsterZoneForm::onPushButtonEditMonsterClick()
     }
 }
 
-void EditMonsterZoneForm::onPushButtonDeleteMonsterClick()
-{
+void EditMonsterZoneForm::onPushButtonDeleteMonsterClick() {
     if (auto itemId = getSelectedItemId(); itemId.has_value()) {
         QMessageBox msgBox;
         msgBox.setText(fmt::format("Are you sure you want to delete the monster encounter {}?", itemId.value()).c_str());
@@ -176,8 +180,7 @@ void EditMonsterZoneForm::onPushButtonDeleteMonsterClick()
     }
 }
 
-std::optional<std::string> EditMonsterZoneForm::getSelectedItemId() const
-{
+std::optional<std::string> EditMonsterZoneForm::getSelectedItemId() const {
     auto selectedRows = ui.tableWidgetMonsters->selectionModel()->selectedRows();
     if (selectedRows.count() == 1) {
         return selectedRows[0].data().toString().toStdString();

@@ -1,56 +1,52 @@
 #include "editMonsterZoneFormController.hpp"
+#include <fmt/format.h>
+#include <qicon.h>
+#include <algorithm>
+#include <cctype>
+#include <iterator>
+#include <map>
+#include <memory>
+#include <optional>
+#include <stdexcept>
+#include <string>
+#include <vector>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/case_conv.hpp>
 #include "editMonsterEncounterFormController.hpp"
+#include "monster.hpp"
 #include "monsterEncounterDTO.hpp"
 #include "monsterStoreStorage.hpp"
 #include "monsterZoneMonsterEncounter.hpp"
 #include "monsterUtils.hpp"
 #include "types.h"
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/case_conv.hpp>
-#include <cctype>
-#include <fmt/format.h>
-#include <algorithm>
-#include <iterator>
-#include <map>
-#include <memory>
-#include <optional>
-#include <qicon.h>
-#include <stdexcept>
-#include <string>
-#include <vector>
 
-using namespace commoneditor::ui;
-using namespace mapeditor::controllers;
-using namespace thewarrior::models;
-using namespace thewarrior::storage;
-using namespace boost::algorithm;
+using commoneditor::ui::MonsterUtils;
+using thewarrior::models::Monster;
+using thewarrior::models::MonsterEncounterRatio;
+using thewarrior::models::MonsterZoneMonsterEncounter;
+using boost::algorithm::to_upper_copy;
 
 namespace mapeditor::controllers {
 
 EditMonsterZoneFormController::EditMonsterZoneFormController(const std::shared_ptr<ContainerOfMonsterStore> monsterStores,
-                                                             const std::string resourcesPath)
+                                                             const std::string &resourcesPath)
     : m_monsterStores(monsterStores),
-      m_resourcesPath(resourcesPath)
-{
+      m_resourcesPath(resourcesPath) {
 }
 
-std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> EditMonsterZoneFormController::getMonsterStores()
-{
+std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> EditMonsterZoneFormController::getMonsterStores() {
     return m_monsterStores;
 }
 
-const std::string &EditMonsterZoneFormController::getResourcesPath() const
-{
+const std::string &EditMonsterZoneFormController::getResourcesPath() const {
     return m_resourcesPath;
 }
 
-const std::string &EditMonsterZoneFormController::getLastError() const
-{
+const std::string &EditMonsterZoneFormController::getLastError() const {
     return m_lastError;
 }
 
-std::vector<MonsterEncounterDTO> EditMonsterZoneFormController::getMonsterEncounters() const
-{
+std::vector<MonsterEncounterDTO> EditMonsterZoneFormController::getMonsterEncounters() const {
     std::vector<MonsterEncounterDTO> retval = {};
     std::vector<std::string> monsterIds = getMonsterEncounterIds();
     std::map<std::string, QIcon> icons = getMonsterIconByMonsterIds(monsterIds);
@@ -71,8 +67,7 @@ std::vector<MonsterEncounterDTO> EditMonsterZoneFormController::getMonsterEncoun
     return retval;
 }
 
-std::vector<std::string> EditMonsterZoneFormController::getMonsterEncounterIds() const
-{
+std::vector<std::string> EditMonsterZoneFormController::getMonsterEncounterIds() const {
     std::vector<std::string> monsterIds = {};
     std::transform(m_monsterEncounters.begin(),
                    m_monsterEncounters.end(),
@@ -83,8 +78,7 @@ std::vector<std::string> EditMonsterZoneFormController::getMonsterEncounterIds()
     return monsterIds;
 }
 
-const std::shared_ptr<const Monster> EditMonsterZoneFormController::getMonsterById(const std::string &monsterId) const
-{
+const std::shared_ptr<const Monster> EditMonsterZoneFormController::getMonsterById(const std::string &monsterId) const {
     std::shared_ptr<const Monster> retval = nullptr;
     if (m_monsterStores != nullptr) {
         for (const auto &store : *m_monsterStores) {
@@ -98,8 +92,7 @@ const std::shared_ptr<const Monster> EditMonsterZoneFormController::getMonsterBy
     return retval;
 }
 
-std::string EditMonsterZoneFormController::getMonsterNameById(const std::string &monsterId) const
-{
+std::string EditMonsterZoneFormController::getMonsterNameById(const std::string &monsterId) const {
     const auto monster = getMonsterById(monsterId);
     if (monster != nullptr) {
         return monster->getName();
@@ -107,8 +100,7 @@ std::string EditMonsterZoneFormController::getMonsterNameById(const std::string 
     return m_emptyName;
 }
 
-std::map<std::string, QIcon> EditMonsterZoneFormController::getMonsterIconByMonsterIds(const std::vector<std::string> &monsterIds) const
-{
+std::map<std::string, QIcon> EditMonsterZoneFormController::getMonsterIconByMonsterIds(const std::vector<std::string> &monsterIds) const {
     std::map<std::string, QIcon> icons = {};
     if (m_monsterStores != nullptr) {
         for (const auto &store : *m_monsterStores) {
@@ -122,13 +114,12 @@ std::map<std::string, QIcon> EditMonsterZoneFormController::getMonsterIconByMons
     return icons;
 }
 
-bool EditMonsterZoneFormController::addMonsterEncounter(mapeditor::controllers::MonsterEncounterDTO monsterEncounter)
-{
+bool EditMonsterZoneFormController::addMonsterEncounter(mapeditor::controllers::MonsterEncounterDTO monsterEncounter) {
     try {
         MonsterEncounterRatio ratio = [monsterEncounter]() {
             return MonsterUtils::getEncounterRatioFromString(monsterEncounter.encounterRatio);
         }();
-        //Ensure the new monster id doesn't exist in the list
+        // Ensure the new monster id doesn't exist in the list
         auto iter = getMonsterEncounterById(monsterEncounter.monsterId);
         if (iter != m_monsterEncounters.end()) {
             m_lastError = fmt::format("Monster {0} is already part of the zone.", monsterEncounter.monsterId);
@@ -144,13 +135,12 @@ bool EditMonsterZoneFormController::addMonsterEncounter(mapeditor::controllers::
 }
 
 bool EditMonsterZoneFormController::updateMonsterEncounter(const std::string &oldMonsterId,
-                                                           MonsterEncounterDTO monsterEncounter)
-{
+                                                           MonsterEncounterDTO monsterEncounter) {
     try {
         MonsterEncounterRatio ratio = [monsterEncounter]() {
             return MonsterUtils::getEncounterRatioFromString(monsterEncounter.encounterRatio);
         }();
-        //Find the monsterId to update
+        // Find the monsterId to update
         auto iter = getMonsterEncounterById(oldMonsterId);
         if (iter == m_monsterEncounters.end()) {
             m_lastError = fmt::format("Unable to find the old monster id {}.", oldMonsterId);
@@ -171,8 +161,7 @@ bool EditMonsterZoneFormController::updateMonsterEncounter(const std::string &ol
     return true;
 }
 
-std::vector<thewarrior::models::MonsterZoneMonsterEncounter>::iterator EditMonsterZoneFormController::getMonsterEncounterById(const std::string &monsterId)
-{
+std::vector<thewarrior::models::MonsterZoneMonsterEncounter>::iterator EditMonsterZoneFormController::getMonsterEncounterById(const std::string &monsterId) {
     return std::find_if(m_monsterEncounters.begin(),
                         m_monsterEncounters.end(),
                         [monsterId](const auto &monsterEncounterItem) {
@@ -180,8 +169,7 @@ std::vector<thewarrior::models::MonsterZoneMonsterEncounter>::iterator EditMonst
                         });
 }
 
-bool EditMonsterZoneFormController::removeMonsterEncounter(const std::string &monsterId)
-{
+bool EditMonsterZoneFormController::removeMonsterEncounter(const std::string &monsterId) {
     auto iter = getMonsterEncounterById(monsterId);
     if (iter == m_monsterEncounters.end()) {
         m_lastError = fmt::format("Unable to find the monster id {}.", monsterId);
@@ -191,4 +179,4 @@ bool EditMonsterZoneFormController::removeMonsterEncounter(const std::string &mo
     return true;
 }
 
-}// namespace mapeditor::controllers
+}  // namespace mapeditor::controllers

@@ -1,6 +1,10 @@
-#ifndef MAINFORM_H
-#define MAINFORM_H
+#ifndef MAPEDITOR_SRC_MAINFORM_HPP_
+#define MAPEDITOR_SRC_MAINFORM_HPP_
 
+#include <qcombobox.h>
+#include <memory>
+#include <string>
+#include <vector>
 #include "gameMap.hpp"
 #include "mainController.hpp"
 #include "components/mainForm_GLComponent.hpp"
@@ -9,24 +13,22 @@
 #include "components/mainForm_TextureListTabComponent.hpp"
 #include "components/mainForm_TextureSelectionComponent.hpp"
 #include "components/mainForm_TileTabComponent.hpp"
+#include "monsterZoneDTO.hpp"
 #include "point.hpp"
 #include "selectionMode.hpp"
-#include <memory>
-#include <qcombobox.h>
-#include <vector>
 #include "ui_mainForm.h"
 
-class MainForm : public QMainWindow
-{
+class MainForm : public QMainWindow {
 Q_OBJECT
 
-public:
+ public:
     explicit MainForm(QWidget *parent = 0);
     ~MainForm();
     bool event(QEvent *event) override;
     void functionAfterShown();
     void setAppStylesheet(const std::string &style);
-private:
+
+ private:
     Ui::MainForm ui;
     MainForm_GLComponent m_glComponent;
     MainForm_MapTabComponent m_mapTabComponent;
@@ -75,8 +77,9 @@ private:
     void onTextureUpdated(const std::string &name, thewarrior::models::TextureInfo textureInfo);
     void onTextureDeleted(const std::string &name);
     void refreshTextureList();
+    void onMonsterZoneAdded(mapeditor::controllers::MonsterZoneDTO monsterZoneDTO);
     void refreshMonsterZones();
 };
 
-#endif // MAINFORM_H
+#endif  // MAPEDITOR_SRC_MAINFORM_HPP_
 

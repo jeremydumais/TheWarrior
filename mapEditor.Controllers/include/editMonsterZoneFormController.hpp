@@ -1,21 +1,21 @@
 #pragma once
 
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
 #include "monster.hpp"
 #include "monsterStoreInfo.hpp"
 #include "monsterEncounterDTO.hpp"
 #include "monsterZoneMonsterEncounter.hpp"
 #include "types.hpp"
-#include <memory>
-#include <string>
-#include <vector>
 
 namespace mapeditor::controllers {
 
-class EditMonsterZoneFormController
-{
-public:
+class EditMonsterZoneFormController {
+ public:
     EditMonsterZoneFormController(const std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> monsterStores,
-                                  const std::string resourcesPath);
+                                  const std::string &resourcesPath);
     const std::string &getResourcesPath() const;
     const std::string &getLastError() const;
     std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> getMonsterStores();
@@ -25,7 +25,8 @@ public:
     bool updateMonsterEncounter(const std::string &oldMonsterId,
                                 mapeditor::controllers::MonsterEncounterDTO monsterEncounter);
     bool removeMonsterEncounter(const std::string &monsterId);
-private:
+
+ private:
     std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> m_monsterStores;
     std::string m_resourcesPath;
     std::string m_lastError = "";
@@ -37,4 +38,4 @@ private:
     std::vector<thewarrior::models::MonsterZoneMonsterEncounter>::iterator getMonsterEncounterById(const std::string &monsterId);
 };
 
-} // namespace mapeditor::controllers
+}  // namespace mapeditor::controllers

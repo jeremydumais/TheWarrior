@@ -1,27 +1,28 @@
 
-#ifndef EDITMONSTERZONEFORM_H
-#define EDITMONSTERZONEFORM_H
+#ifndef MAPEDITOR_SRC_EDITMONSTERZONEFORM_HPP_
+#define MAPEDITOR_SRC_EDITMONSTERZONEFORM_HPP_
 
-#include "ui_editMonsterZoneForm.h"
-#include "editMonsterZoneFormController.hpp"
-#include "manageMonsterStoreController.hpp"
-#include "types.hpp"
 #include <memory>
 #include <optional>
 #include <string>
 #include <vector>
+#include "ui_editMonsterZoneForm.h"
+#include "editMonsterZoneFormController.hpp"
+#include "manageMonsterStoreController.hpp"
+#include "monsterZoneDTO.hpp"
+#include "types.hpp"
 
-class EditMonsterZoneForm : public QDialog
-{
+class EditMonsterZoneForm : public QDialog {
 Q_OBJECT
 
-public:
+ public:
     explicit EditMonsterZoneForm(QWidget *parent,
                                  const std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> monsterStores,
-                                 const std::string resourcesPath);
-private:
-    struct ColorItem
-    {
+                                 const std::string &resourcesPath);
+    const mapeditor::controllers::MonsterZoneDTO &getResult() const;
+
+ private:
+    struct ColorItem {
         std::string displayName;
         std::string value;
     };
@@ -37,6 +38,7 @@ private:
         { "Purple", "#c8a4ff" }
     };
     mapeditor::controllers::EditMonsterZoneFormController m_controller;
+    mapeditor::controllers::MonsterZoneDTO m_result;
     void connectUIActions();
     void initializeColors();
     void initializeMonsterTable();
@@ -49,4 +51,4 @@ private:
     std::optional<std::string> getSelectedItemId() const;
 };
 
-#endif // EDITMONSTERZONEFORM_H
+#endif  // MAPEDITOR_SRC_EDITMONSTERZONEFORM_HPP_
