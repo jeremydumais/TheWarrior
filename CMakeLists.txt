@@ -19,7 +19,8 @@ elseif(LOWERCASE_CMAKE_BUILD_TYPE MATCHES "^(release)$")
 endif()
 set(CMAKE_CXX_STANDARD 20)
 
-include_directories(${CMAKE_INCLUDE_PATH})
+# Fix to consider Conan libraries as system and ignore compiler flags
+include_directories(SYSTEM ${CMAKE_INCLUDE_PATH})
 link_directories(${CMAKE_LIBRARY_PATH})
 
 if (${CODE_COVERAGE})

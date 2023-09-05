@@ -35,6 +35,8 @@ endif()
 
 #target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${CONAN_INCLUDE_DIRS})
 #target_link_libraries(${PROJECT_NAME} Models DataServices Controllers Qt5::Widgets sqlite3)
+message(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
+message(STATUS "CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
