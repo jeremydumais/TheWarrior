@@ -33,7 +33,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STRE
 endif()
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${CONAN_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} theWarrior.Models theWarrior.Storage theWarrior.UI.Controllers SDL2 GLU GL GLEW freetype bz2 png16 brotlicommon-static brotlidec-static brotlienc-static z)
+target_link_libraries(${PROJECT_NAME} theWarrior.Models theWarrior.Storage theWarrior.UI.Controllers SDL2 GLU GL GLEW freetype bz2 png16 brotlicommon brotlidec brotlienc z)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
