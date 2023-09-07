@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 #include "gameMap.hpp"
+#include "monsterZone.hpp"
+#include "monsterZoneDTO.hpp"
 
 namespace mapeditor::controllers {
 
@@ -23,9 +25,11 @@ class GLComponentController {
                    int offsetTop,
                    int offsetRight,
                    int offsetBottom);
+    std::vector<mapeditor::controllers::MonsterZoneDTO> getMonsterZones() const;
 
  private:
     std::shared_ptr<thewarrior::models::GameMap> m_map;
+    static mapeditor::controllers::MonsterZoneDTO monsterZoneToMonsterZoneDTO(const thewarrior::models::MonsterZone &zone);
 };
 
 }  // namespace mapeditor::controllers

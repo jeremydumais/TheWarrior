@@ -544,6 +544,17 @@ TEST_F(SampleGameMapWithTilesAssigned, canSteppedOnTile_WithPoint1And6_ReturnFal
     ASSERT_FALSE(map.canSteppedOnTile({1, 6}));
 }
 
+TEST(GameMap_getMonsterZones, withEmptyZone_ReturnEmpty) {
+    GameMap map(6, 5);
+    ASSERT_EQ(0, map.getMonsterZones().size());
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getMonsterZones_ReturnOneZone) {
+    const auto &zones = map.getMonsterZones();
+    ASSERT_EQ(1, zones.size());
+    ASSERT_EQ("Zone1", zones[0].getName());
+}
+
 TEST_F(SampleGameMap5x6WithTwoTextures, addMonsterZone_WithNotExistingMonsterZone_ReturnTrue) {
     const MonsterZone zone("Test", RGBItemColor("Green", "#00FF00"));
     ASSERT_TRUE(map.addMonsterZone(zone));

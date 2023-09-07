@@ -7,6 +7,9 @@
 using thewarrior::models::Texture;
 using thewarrior::models::GameMap;
 using thewarrior::models::MapTile;
+using thewarrior::models::MonsterZone;
+using mapeditor::controllers::MonsterZoneDTO;
+
 
 namespace mapeditor::controllers {
 
@@ -69,5 +72,27 @@ void GLComponentController::resizeMap(int offsetLeft,
             offsetRight,
             offsetBottom);
 }
+
+std::vector<mapeditor::controllers::MonsterZoneDTO> GLComponentController::getMonsterZones() const {
+    std::vector<MonsterZoneDTO> retval = {};
+    std::ranges::transform(m_map->getMonsterZones(),
+                           std::back_inserter(retval),
+                           monsterZoneToMonsterZoneDTO);
+    return retval;
+}
+
+MonsterZoneDTO GLComponentController::monsterZoneToMonsterZoneDTO(const MonsterZone &zone) {
+    return MonsterZoneDTO {
+        zone.getName(),
+        zone.getColor().getName(),
+        zone.getColor().getValue(),
+        zone.getRatioEncounter(),
+        zone.getRatioEncounterOn(),
+        // TODO(jed) 2023-09-06 To continue (TDD)
+        {}
+    };
+}
+
+
 
 }  // namespace mapeditor::controllers

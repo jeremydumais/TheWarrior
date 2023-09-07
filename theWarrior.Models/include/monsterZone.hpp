@@ -1,29 +1,27 @@
 #pragma once
 
+#include <optional>
+#include <string>
+#include <vector>
 #include "monsterZoneMonsterEncounter.hpp"
 #include "rgbItemColor.hpp"
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/version.hpp>
-#include <optional>
-#include <string>
-#include <vector>
 
 namespace thewarrior::models {
 
-struct CompareMonsterEncounter
-{
-public:
-    CompareMonsterEncounter(const std::string &id);
+struct CompareMonsterEncounter {
+ public:
+    explicit CompareMonsterEncounter(const std::string &id);
     bool operator() (const MonsterZoneMonsterEncounter &monsterEncounter);
-private:
+ private:
     std::string m_id;
 };
 
-class MonsterZone
-{
-public:
+class MonsterZone {
+ public:
     MonsterZone(const std::string &name, const RGBItemColor &color);
     MonsterZone(const std::string &name,
                 const RGBItemColor &color,
@@ -45,7 +43,8 @@ public:
     bool replaceMonsterEncounter(const MonsterZoneMonsterEncounter &oldMonsterEncounter,
                                  const MonsterZoneMonsterEncounter &newMonsterEncounter);
     bool removeMonsterEncounter(const std::string &monsterId);
-private:
+
+ private:
     friend class boost::serialization::access;
     MonsterZone();
     std::string m_lastError;
@@ -59,10 +58,9 @@ private:
                                 const unsigned int rationEncounterOn);
     std::vector<MonsterZoneMonsterEncounter>::const_iterator findMonsterEncounter(const std::string &id) const;
     std::vector<MonsterZoneMonsterEncounter>::iterator findMonsterEncounter(const std::string &id);
-    //Serialization method
+    // Serialization method
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int)
-    {
+    void serialize(Archive & ar, const unsigned int) {
         ar & m_name;
         ar & m_color;
         ar & m_ratioEncounter;
@@ -71,6 +69,6 @@ private:
     }
 };
 
-} // namespace thewarrior::models
+}  // namespace thewarrior::models
 
 BOOST_CLASS_VERSION(thewarrior::models::MonsterZone, 0)

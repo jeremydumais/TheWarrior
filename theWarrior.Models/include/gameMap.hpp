@@ -33,6 +33,7 @@ class GameMap {
     bool addTexture(const TextureInfo &textureInfo);
     bool replaceTexture(const std::string &name, const TextureInfo &textureInfo);
     bool removeTexture(const std::string &name);
+    const std::vector<MonsterZone> &getMonsterZones() const;
     bool addMonsterZone(const MonsterZone &zone);
     bool isShrinkMapImpactAssignedTiles(int offsetLeft,
                                         int offsetTop,

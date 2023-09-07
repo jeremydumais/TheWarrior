@@ -39,8 +39,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>410</width>
-           <height>640</height>
+           <width>100</width>
+           <height>30</height>
           </rect>
          </property>
          <attribute name="label">
@@ -182,8 +182,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>410</width>
-           <height>640</height>
+           <width>100</width>
+           <height>30</height>
           </rect>
          </property>
          <attribute name="label">
@@ -375,8 +375,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>410</width>
-           <height>640</height>
+           <width>278</width>
+           <height>141</height>
           </rect>
          </property>
          <attribute name="label">
@@ -430,8 +430,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>410</width>
-           <height>640</height>
+           <width>278</width>
+           <height>141</height>
           </rect>
          </property>
          <attribute name="label">
@@ -502,6 +502,15 @@
           </item>
           <item>
            <widget class="QTableWidget" name="tableWidgetMonsterZone">
+            <property name="editTriggers">
+             <set>QAbstractItemView::NoEditTriggers</set>
+            </property>
+            <property name="selectionMode">
+             <enum>QAbstractItemView::SingleSelection</enum>
+            </property>
+            <property name="selectionBehavior">
+             <enum>QAbstractItemView::SelectRows</enum>
+            </property>
             <property name="columnCount">
              <number>2</number>
             </property>

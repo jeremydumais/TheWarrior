@@ -131,6 +131,10 @@ bool GameMap::removeTexture(const std::string &name) {
     return retVal;
 }
 
+const std::vector<MonsterZone> &GameMap::getMonsterZones() const {
+    return m_monsterZones;
+}
+
 bool GameMap::addMonsterZone(const MonsterZone &zone) {
     // Ensure that the monster zone does not exist
     const auto iter = getMonsterZoneIterator(zone.getName());

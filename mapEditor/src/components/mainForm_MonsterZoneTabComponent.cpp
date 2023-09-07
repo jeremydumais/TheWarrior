@@ -37,17 +37,19 @@ void MainForm_MonsterZoneTabComponent::connectUIActions() {
 }
 
 void MainForm_MonsterZoneTabComponent::refreshMonsterZones() {
-    // TODO(jed): 2023-09-04
     m_tableWidgetMonsterZone->model()->removeRows(0, m_tableWidgetMonsterZone->rowCount());
     int index {0};
-    // for(const auto &texture : m_glComponent->getMonsterZones()) {
+     for (const auto &monsterZone : m_glComponent->getMonsterZones()) {
         m_tableWidgetMonsterZone->insertRow(index);
-        m_tableWidgetMonsterZone->setItem(index, 0, new QTableWidgetItem("Color1"));
-        m_tableWidgetMonsterZone->setItem(index, 1, new QTableWidgetItem("Name1"));
-        // index++;
-    // }
+        m_tableWidgetMonsterZone->setItem(index, 0, new QTableWidgetItem(monsterZone.m_colorName.c_str()));
+        m_tableWidgetMonsterZone->setItem(index, 1, new QTableWidgetItem(monsterZone.m_name.c_str()));
+         index++;
+     }
 }
 
+std::vector<mapeditor::controllers::MonsterZoneDTO> MainForm_MonsterZoneTabComponent::getMonsterZones() const {
+    return m_glComponent->getMonsterZones();
+}
 /*
  *optional<reference_wrapper<const MonsterZone>> MainForm_MonsterZoneTabComponent::getSelectedMonsterZoneInMonsterZoneList() const
  *{

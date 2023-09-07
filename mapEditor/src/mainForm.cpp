@@ -505,4 +505,11 @@ void MainForm::onMonsterZoneAdded(mapeditor::controllers::MonsterZoneDTO monster
 
 void MainForm::refreshMonsterZones() {
     m_monsterZoneTabComponent.refreshMonsterZones();
+    // Refresh Monster Zones toolbar combobox
+    comboBoxToolbarMonsterZone->model()->removeRows(0, comboBoxToolbarMonsterZone->count());
+    int i = 0;
+    for (const auto &zone : m_monsterZoneTabComponent.getMonsterZones()) {
+        comboBoxToolbarMonsterZone->insertItem(i, zone.m_name.c_str());
+        i++;
+    }
 }
