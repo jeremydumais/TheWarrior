@@ -74,7 +74,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     "-Wall" # enables all the warnings about constructions
     "-Wextra" # Print extra warning messages"
     "-Werror" # Make all warnings into errors.
-    "-Wno-unused-lambda-capture" # FIX: It is necessary when building on MSVC
+    "-Wno-unused-lambda-capture" # FIX It is necessary when building on MSVC
     "-pedantic" # Issue all the warnings demanded by strict ISO C and ISO C++
     "-pedantic-errors" # Like -pedantic, except that errors are produced rather than warnings http://stackoverflow.com/questions/30255294/how-to-hide-extra-output-from-pragma-message
     )

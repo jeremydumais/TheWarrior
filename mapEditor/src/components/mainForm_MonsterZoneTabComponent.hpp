@@ -30,7 +30,7 @@ class MainForm_MonsterZoneTabComponent : public QWidget {
     void connectUIActions();
     void refreshMonsterZones();
     std::vector<mapeditor::controllers::MonsterZoneDTO> getMonsterZones() const;
-    // std::optional<std::reference_wrapper<const thewarrior::models::MonsterZone>> getSelectedMonsterZoneInMonsterZoneList() const;
+    std::optional<const mapeditor::controllers::MonsterZoneDTO> getSelectedMonsterZoneInMonsterZoneList() const;
     void setMonsterStores(const std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> monsterStores);
     void setResourcesPath(const std::string &resourcesPath);
     void onPushButtonAddMonsterZoneClick();

@@ -16,6 +16,8 @@
 
 namespace thewarrior::models {
 
+typedef std::optional<std::reference_wrapper<const MonsterZone>> OptMonsterZoneConstRef;
+
 class GameMap {
  public:
     GameMap(unsigned int width, unsigned int height);
@@ -34,6 +36,7 @@ class GameMap {
     bool replaceTexture(const std::string &name, const TextureInfo &textureInfo);
     bool removeTexture(const std::string &name);
     const std::vector<MonsterZone> &getMonsterZones() const;
+    OptMonsterZoneConstRef getMonsterZoneByName(const std::string &zoneName) const;
     bool addMonsterZone(const MonsterZone &zone);
     bool isShrinkMapImpactAssignedTiles(int offsetLeft,
                                         int offsetTop,

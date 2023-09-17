@@ -1,7 +1,7 @@
+#include <gtest/gtest.h>
 #include "gameMap.hpp"
 #include "monsterZone.hpp"
 #include "rgbItemColor.hpp"
-#include <gtest/gtest.h>
 
 using thewarrior::models::GameMap;
 using thewarrior::models::MonsterZone;
@@ -553,6 +553,28 @@ TEST_F(SampleGameMap5x6WithTwoTextures, getMonsterZones_ReturnOneZone) {
     const auto &zones = map.getMonsterZones();
     ASSERT_EQ(1, zones.size());
     ASSERT_EQ("Zone1", zones[0].getName());
+}
+
+TEST(GameMap_getMonsterZoneByName, withEmptyName_ReturnNullOpt) {
+    GameMap map(6, 5);
+    const auto zone = map.getMonsterZoneByName("");
+    ASSERT_FALSE(zone.has_value());
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getMonsterZoneByName_WithZone1_ReturnZone) {
+    const auto zone = map.getMonsterZoneByName("Zone1");
+    ASSERT_TRUE(zone.has_value());
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getMonsterZoneByName_WithZone1Caps_ReturnZone) {
+    const auto zone = map.getMonsterZoneByName("ZONE1");
+    ASSERT_TRUE(zone.has_value());
+    ASSERT_EQ("Zone1", zone->get().getName());
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getMonsterZoneByName_WithZone2_ReturnNone) {
+    const auto zone = map.getMonsterZoneByName("Zone2");
+    ASSERT_FALSE(zone.has_value());
 }
 
 TEST_F(SampleGameMap5x6WithTwoTextures, addMonsterZone_WithNotExistingMonsterZone_ReturnTrue) {

@@ -1,9 +1,13 @@
 #include <gtest/gtest.h>
 #include "glComponentController.hpp"
 #include "mainController.hpp"
+#include "monsterZone.hpp"
+#include "rgbItemColor.hpp"
 
-using mapeditor::controllers::GLComponentController;
-using mapeditor::controllers::MainController;
+using thewarrior::models::MonsterZone;
+using thewarrior::models::RGBItemColor;
+
+namespace mapeditor::controllers::glcomponentcontroller::unittest {
 
 class SampleGLComponentController : public ::testing::Test {
  public:
@@ -22,6 +26,7 @@ class SampleGLComponentController : public ::testing::Test {
                 1024, 512,
                 32, 32
                 });
+        map->addMonsterZone(MonsterZone("Zone1", RGBItemColor("Black", "#000000")));
         auto &tile { map->getTileForEditing(0) };
         tile.setTextureName("tex1");
         tile.setTextureIndex(0);
@@ -78,8 +83,18 @@ TEST(GLComponentController_getAlreadyUsedTextureNames, DefaultConstructor_Return
     ASSERT_EQ(0, glComponentController.getAlreadyUsedTextureNames().size());
 }
 
-TEST_F(SampleGLComponentController, getAlreadyUsedTextureNames_WithTwoTexture_ReturnVectorSizeTeo) {
+TEST(GLComponentController_getAlreadyUsedMonsterZoneNames, DefaultConstructor_ReturnEmptyVector) {
+    GLComponentController glComponentController;
+    ASSERT_EQ(0, glComponentController.getAlreadyUsedMonsterZoneNames().size());
+}
+
+TEST_F(SampleGLComponentController, getAlreadyUsedTextureNames_WithTwoTexture_ReturnVectorSizeTwo) {
     ASSERT_EQ(2, glComponentController.getAlreadyUsedTextureNames().size());
+}
+
+TEST_F(SampleGLComponentController, getAlreadyUsedMonsterZoneNames_WithOneZone_ReturnVectorSizeOne) {
+    ASSERT_EQ(1, glComponentController.getAlreadyUsedMonsterZoneNames().size());
+    ASSERT_EQ("Zone1", glComponentController.getAlreadyUsedMonsterZoneNames()[0]);
 }
 
 TEST_F(SampleGLComponentController, isTextureUsedInMap_WithUnusedTexture_ReturnFalse) {
@@ -127,3 +142,16 @@ TEST_F(SampleGLComponentControllerWithTilesAssigned, resizeMap_WithMinusOneOnLef
     ASSERT_EQ(5, glComponentController.getMap()->getWidth());
     ASSERT_EQ(6, glComponentController.getMap()->getHeight());
 }
+
+TEST_F(SampleGLComponentController, getMonsterZoneByName_WithEmpty_ReturnEmpty) {
+    const auto zoneOpt = glComponentController.getMonsterZoneByName("");
+    ASSERT_FALSE(zoneOpt.has_value());
+}
+
+TEST_F(SampleGLComponentController, getMonsterZoneByName_WithZone1_ReturnZone) {
+    const auto zoneOpt = glComponentController.getMonsterZoneByName("Zone1");
+    ASSERT_TRUE(zoneOpt.has_value());
+    ASSERT_EQ("Zone1", zoneOpt.value().m_name);
+}
+
+}  // namespace mapeditor::controllers::glcomponentcontroller::unittest

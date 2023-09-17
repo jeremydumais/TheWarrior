@@ -19,19 +19,20 @@ using mapeditor::controllers::MonsterEncounterDTO;
 
 EditMonsterZoneForm::EditMonsterZoneForm(QWidget *parent,
                                          const std::shared_ptr<ContainerOfMonsterStore> monsterStores,
-                                         const std::string &resourcesPath)
+                                         const std::string &resourcesPath,
+                                         const std::optional<mapeditor::controllers::MonsterZoneDTO> selectedZone,
+                                         const std::vector<std::string> &alreadyUsedZoneNames)
     : QDialog(parent),
     ui(Ui::editMonsterZoneFormClass()),
-    m_controller(monsterStores, resourcesPath) {
+    m_controller(monsterStores, resourcesPath, selectedZone, alreadyUsedZoneNames),
+    m_alreadyUsedZoneNames(alreadyUsedZoneNames) {
     ui.setupUi(this);
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
     this->setFixedSize(this->geometry().size());
     connectUIActions();
     initializeColors();
     initializeMonsterTable();
-    // TODO(jed) To remove only for tests
-    // m_controller.addMonsterEncounter(MonsterEncounterDTO { "DRA001", "", "Normal", std::nullopt });
-    // m_controller.addMonsterEncounter(MonsterEncounterDTO { "slm001", "", "Rare", std::nullopt });
+    //TODO: Load selected zone in the form
     refreshMonsterEncounterList();
 }
 
@@ -86,11 +87,15 @@ void EditMonsterZoneForm::onPushButtonOK() {
         ErrorMessage::show("The name is required.");
         return;
     }
+    if (ui.spinBoxRatioChance->value() <= 0) {
+        ErrorMessage::show("The ratio to encounter a monster must be at least 1.");
+        return;
+    }
     if (ui.spinBoxRatioChance->value() > ui.spinBoxRatioTotal->value()) {
         ErrorMessage::show("The ratio to encounter a monster must be smaller than to total chance.");
         return;
     }
-    if (ui.spinBoxRatioTotal->value() == 0) {
+    if (ui.spinBoxRatioTotal->value() <= 0) {
         ErrorMessage::show("The total chance must be at least 1.");
         return;
     }
@@ -98,8 +103,13 @@ void EditMonsterZoneForm::onPushButtonOK() {
         ErrorMessage::show("You must add at least one monster.");
         return;
     }
+    const auto zoneName = ui.lineEditName->text().toStdString();
+    if (m_controller.isMonsterZoneNameAlreadyUsed(zoneName)) {
+        ErrorMessage::show(fmt::format("The monster zone name {} already exists in the list", zoneName));
+        return;
+    }
 
-    m_result.m_name = ui.lineEditName->text().toStdString();
+    m_result.m_name = zoneName;
     m_result.m_colorName = ui.comboBoxColor->currentText().toStdString();
     m_result.m_colorValue = colors[static_cast<size_t>(ui.comboBoxColor->currentIndex())].value;
     m_result.m_ratioEncounter = static_cast<unsigned int>(ui.spinBoxRatioChance->value());

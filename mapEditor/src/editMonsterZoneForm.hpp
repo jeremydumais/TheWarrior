@@ -16,9 +16,11 @@ class EditMonsterZoneForm : public QDialog {
 Q_OBJECT
 
  public:
-    explicit EditMonsterZoneForm(QWidget *parent,
-                                 const std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> monsterStores,
-                                 const std::string &resourcesPath);
+    EditMonsterZoneForm(QWidget *parent,
+                        const std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> monsterStores,
+                        const std::string &resourcesPath,
+                        const std::optional<mapeditor::controllers::MonsterZoneDTO> selectedZone,
+                        const std::vector<std::string> &alreadyUsedZoneNames);
     const mapeditor::controllers::MonsterZoneDTO &getResult() const;
 
  private:
@@ -39,6 +41,7 @@ Q_OBJECT
     };
     mapeditor::controllers::EditMonsterZoneFormController m_controller;
     mapeditor::controllers::MonsterZoneDTO m_result;
+    std::vector<std::string> m_alreadyUsedZoneNames;
     void connectUIActions();
     void initializeColors();
     void initializeMonsterTable();

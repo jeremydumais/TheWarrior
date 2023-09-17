@@ -29,9 +29,13 @@ using boost::algorithm::to_upper_copy;
 namespace mapeditor::controllers {
 
 EditMonsterZoneFormController::EditMonsterZoneFormController(const std::shared_ptr<ContainerOfMonsterStore> monsterStores,
-                                                             const std::string &resourcesPath)
+                                                             const std::string &resourcesPath,
+                                                             const std::optional<MonsterZoneDTO> selectedZone,
+                                                             const std::vector<std::string> &alreadyUsedZoneNames)
     : m_monsterStores(monsterStores),
-      m_resourcesPath(resourcesPath) {
+      m_resourcesPath(resourcesPath),
+      m_selectedZone(selectedZone),
+      m_alreadyUsedZoneNames(alreadyUsedZoneNames) {
 }
 
 std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> EditMonsterZoneFormController::getMonsterStores() {
@@ -112,6 +116,14 @@ std::map<std::string, QIcon> EditMonsterZoneFormController::getMonsterIconByMons
         }
     }
     return icons;
+}
+
+bool EditMonsterZoneFormController::isMonsterZoneNameAlreadyUsed(const std::string &zoneName) const {
+    return std::find_if(m_alreadyUsedZoneNames.begin(),
+                        m_alreadyUsedZoneNames.end(),
+                        [zoneName](const std::string &name) {
+                            return to_upper_copy(zoneName) == to_upper_copy(name);
+                        }) != m_alreadyUsedZoneNames.end();
 }
 
 bool EditMonsterZoneFormController::addMonsterEncounter(mapeditor::controllers::MonsterEncounterDTO monsterEncounter) {

@@ -1,7 +1,9 @@
 #include "mainForm_GLComponent.hpp"
 #include <algorithm>
+#include <optional>
 #include "components/mainForm_MonsterZoneTabComponent.hpp"
 #include "monsterZoneDTO.hpp"
+#include "monsterZoneDTOUtils.hpp"
 
 using thewarrior::models::GameMap;
 using thewarrior::models::MapTile;
@@ -9,9 +11,9 @@ using thewarrior::models::MapTileTriggerAction;
 using thewarrior::models::MapTileTriggerCondition;
 using thewarrior::models::MapTileTriggerEvent;
 using thewarrior::models::MapTileTrigger;
-using thewarrior::models::MonsterZone;
 using thewarrior::models::Texture;
 using mapeditor::controllers::MonsterZoneDTO;
+using mapeditor::controllers::OptMonsterZoneDTOConst;
 using std::map;
 using std::optional;
 using std::string;
@@ -219,7 +221,14 @@ void MainForm_GLComponent::addMoveDenyTrigger(const std::vector<int> &selectedTi
     }
 }
 
-std::vector<mapeditor::controllers::MonsterZoneDTO> MainForm_GLComponent::getMonsterZones() const {
+std::vector<MonsterZoneDTO> MainForm_GLComponent::getMonsterZones() const {
     return m_controller.getMonsterZones();
 }
 
+OptMonsterZoneDTOConst MainForm_GLComponent::getMonsterZoneByName(const std::string &name) const {
+    return m_controller.getMonsterZoneByName(name);
+}
+
+std::vector<std::string> MainForm_GLComponent::getAlreadyUsedMonsterZoneNames() const {
+    return m_controller.getAlreadyUsedMonsterZoneNames();
+}

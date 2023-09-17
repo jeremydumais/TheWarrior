@@ -28,7 +28,7 @@ GameWindow::GameWindow(const string &title,
             m_controller.getItemStore(),
             &m_texturesGLItemStore);
     m_glPlayer->initialize(m_controller.getResourcesPath());
-    //TODO to remove (Test only)
+    // HACK: to remove (Test only)
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("pot001"));
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("ubd001"));
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("hlm001"));

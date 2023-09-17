@@ -15,7 +15,7 @@ include_directories(${QT_INCLUDE_PATH}
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/manageWeaponItemController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/editTextureFormController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/texturePickerController.cpp)
-                                             
+
 find_package(Qt5 COMPONENTS Gui OpenGL REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
@@ -57,7 +57,7 @@ PRIVATE "-Wfatal-errors" # stops on first error
 "-Wall" # enables all the warnings about constructions
 "-Wextra" # Print extra warning messages"
 "-Werror" # Make all warnings into errors.
-"-Wno-unused-lambda-capture" # FIX: It is necessary when building on MSVC
+"-Wno-unused-lambda-capture" # FIX It is necessary when building on MSVC
 "-pedantic" # Issue all the warnings demanded by strict ISO C and ISO C++
 "-pedantic-errors" # Like -pedantic, except that errors are produced rather than warnings http://stackoverflow.com/questions/30255294/how-to-hide-extra-output-from-pragma-message
 )

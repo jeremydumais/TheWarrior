@@ -17,6 +17,7 @@
 #include "manageItemStoreForm.hpp"
 #include "manageMonsterStoreForm.hpp"
 #include "mapTile.hpp"
+#include "monsterZoneMonsterEncounter.hpp"
 #include "specialFolders.hpp"
 #include "textureInfo.hpp"
 
@@ -136,6 +137,13 @@ MainForm::MainForm(QWidget *parent)
         exit(1);
     }
     auto map { m_controller.getMap() };
+    // HACK: To remove (test only)
+    map->addMonsterZone(thewarrior::models::MonsterZone("Zone1",
+                thewarrior::models::RGBItemColor("Black", "#000000"),
+                1,
+                3,
+                { thewarrior::models::MonsterZoneMonsterEncounter("DRA001", thewarrior::models::MonsterEncounterRatio::Rare)}));
+
     m_glComponent.setCurrentMap(map);
     refreshRecentMapsMenu();
     refreshTextureList();

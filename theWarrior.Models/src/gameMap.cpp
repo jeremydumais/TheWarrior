@@ -1,9 +1,15 @@
 #include "gameMap.hpp"
+#include "monsterZone.hpp"
+#include <bits/ranges_util.h>
 #include <fmt/format.h>
 #include <algorithm>
 #include <cstdint>
 #include <limits>
+#include <optional>
 #include <stdexcept>
+#include <boost/algorithm/string.hpp>
+
+using boost::algorithm::to_upper_copy;
 
 namespace thewarrior::models {
 
@@ -133,6 +139,18 @@ bool GameMap::removeTexture(const std::string &name) {
 
 const std::vector<MonsterZone> &GameMap::getMonsterZones() const {
     return m_monsterZones;
+}
+
+OptMonsterZoneConstRef GameMap::getMonsterZoneByName(const std::string &zoneName) const {
+    auto it = std::find_if(m_monsterZones.begin(),
+                        m_monsterZones.end(),
+                        [zoneName](const MonsterZone &zone) {
+                            return to_upper_copy(zone.getName()) == to_upper_copy(zoneName);
+                        });
+    if (it != m_monsterZones.end()) {
+        return OptMonsterZoneConstRef(*it);
+    }
+    return std::nullopt;
 }
 
 bool GameMap::addMonsterZone(const MonsterZone &zone) {

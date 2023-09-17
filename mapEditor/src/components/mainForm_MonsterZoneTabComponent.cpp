@@ -2,13 +2,16 @@
 #include <QStyle>
 #include <fmt/format.h>
 #include <memory>
+#include <optional>
 #include "editMonsterZoneForm.hpp"
 #include "errorMessage.hpp"
+#include "monsterZoneDTO.hpp"
 #include "types.hpp"
 #include "uiUtils.hpp"
 
 using commoneditor::ui::UIUtils;
 using mapeditor::controllers::ContainerOfMonsterStore;
+using mapeditor::controllers::MonsterZoneDTO;
 
 MainForm_MonsterZoneTabComponent::MainForm_MonsterZoneTabComponent()
     : m_glComponent(nullptr),
@@ -47,22 +50,19 @@ void MainForm_MonsterZoneTabComponent::refreshMonsterZones() {
      }
 }
 
-std::vector<mapeditor::controllers::MonsterZoneDTO> MainForm_MonsterZoneTabComponent::getMonsterZones() const {
+std::vector<MonsterZoneDTO> MainForm_MonsterZoneTabComponent::getMonsterZones() const {
     return m_glComponent->getMonsterZones();
 }
-/*
- *optional<reference_wrapper<const MonsterZone>> MainForm_MonsterZoneTabComponent::getSelectedMonsterZoneInMonsterZoneList() const
- *{
- *    if (m_listWidgetMonsterZones->selectionModel()->hasSelection()) {
- *        Find the selected texture
- *        auto selectedItemName { m_listWidgetMonsterZones->selectionModel()->selectedRows()[0].data().toString().toStdString() };
- *        return m_glComponent->getMonsterZoneByName(selectedItemName);
- *    }
- *    else {
- *        return nullopt;
- *    }
- *}
- */
+std::optional<const MonsterZoneDTO> MainForm_MonsterZoneTabComponent::getSelectedMonsterZoneInMonsterZoneList() const {
+    if (m_tableWidgetMonsterZone->selectionModel()->hasSelection()) {
+        // Find the selected monster zone
+        const auto selectedRow = m_tableWidgetMonsterZone->selectionModel()->selectedRows()[0];
+        auto selectedItemName { selectedRow.sibling(selectedRow.row(), 1).data().toString().toStdString() };
+        return m_glComponent->getMonsterZoneByName(selectedItemName);
+    } else {
+        return std::nullopt;
+    }
+}
 
 void MainForm_MonsterZoneTabComponent::setMonsterStores(const std::shared_ptr<ContainerOfMonsterStore> monsterStores) {
     m_monsterStores = monsterStores;
@@ -74,11 +74,12 @@ void MainForm_MonsterZoneTabComponent::setResourcesPath(const std::string &resou
 
 void MainForm_MonsterZoneTabComponent::onPushButtonAddMonsterZoneClick() {
     m_glComponent->stopAutoUpdate();
-    // TODO(jed) Ensure we cannot create two monster zone with the same name
-    /*
-     *auto alreadyUsedMonsterZoneNames { m_glComponent->getAlreadyUsedMonsterZoneNames() };
-     */
-    EditMonsterZoneForm formEditMonsterZone(this, m_monsterStores, m_resourcesPath);
+    const auto alreadyUsedMonsterZoneNames = m_glComponent->getAlreadyUsedMonsterZoneNames();
+    EditMonsterZoneForm formEditMonsterZone(this,
+            m_monsterStores,
+            m_resourcesPath,
+            std::nullopt,
+            alreadyUsedMonsterZoneNames);
     UIUtils::centerToScreen(&formEditMonsterZone);
     if (formEditMonsterZone.exec() == QDialog::Accepted) {
         emit monsterZoneAdded(formEditMonsterZone.getResult());
@@ -88,19 +89,23 @@ void MainForm_MonsterZoneTabComponent::onPushButtonAddMonsterZoneClick() {
 
 void MainForm_MonsterZoneTabComponent::onPushButtonEditMonsterZoneClick() {
     m_glComponent->stopAutoUpdate();
-    /*auto selectedMonsterZone = getSelectedMonsterZoneInMonsterZoneList();
+    auto selectedMonsterZone = getSelectedMonsterZoneInMonsterZoneList();
     if (selectedMonsterZone.has_value()) {
         auto alreadyUsedMonsterZoneNames = m_glComponent->getAlreadyUsedMonsterZoneNames();
-        //Remove the actual selected texture name
-        auto iter = std::find(alreadyUsedMonsterZoneNames.begin(), alreadyUsedMonsterZoneNames.end(), selectedMonsterZone->get().getName());
+        // Remove the actual selected monster zone name
+        auto iter = std::find(alreadyUsedMonsterZoneNames.begin(), alreadyUsedMonsterZoneNames.end(), selectedMonsterZone.value().m_name);
         if (iter != alreadyUsedMonsterZoneNames.end()) {
             alreadyUsedMonsterZoneNames.erase(iter);
         }
-         formEditMonsterZone(this, m_glComponent->getResourcesPath(), &selectedMonsterZone->get(), alreadyUsedMonsterZoneNames);
-        if (formEditMonsterZone.exec() == QDialog::Accepted) {
-            emit textureUpdated(selectedMonsterZone->get().getName(), formEditMonsterZone.getMonsterZoneInfo());
-        }
-    }*/
+        EditMonsterZoneForm formEditMonsterZone(this,
+                m_monsterStores,
+                m_resourcesPath,
+                selectedMonsterZone,
+                alreadyUsedMonsterZoneNames);
+         if (formEditMonsterZone.exec() == QDialog::Accepted) {
+             // emit textureUpdated(selectedMonsterZone->get().getName(), formEditMonsterZone.getMonsterZoneInfo());
+         }
+    }
     m_glComponent->startAutoUpdate();
 }
 

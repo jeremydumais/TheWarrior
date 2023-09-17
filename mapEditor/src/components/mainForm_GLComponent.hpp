@@ -13,6 +13,7 @@
 #include "point.hpp"
 #include "selectionMode.hpp"
 
+
 class MainForm_GLComponent : public QWidget {
     Q_OBJECT
 
@@ -50,6 +51,8 @@ class MainForm_GLComponent : public QWidget {
             int offsetRight,
             int offsetBottom);
     std::vector<mapeditor::controllers::MonsterZoneDTO> getMonsterZones() const;
+    mapeditor::controllers::OptMonsterZoneDTOConst getMonsterZoneByName(const std::string &name) const;
+    std::vector<std::string> getAlreadyUsedMonsterZoneNames() const;
  signals:
         void tileSelected(thewarrior::models::MapTile *tile, thewarrior::models::Point<> coord);
 

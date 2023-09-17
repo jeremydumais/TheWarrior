@@ -9,6 +9,8 @@
 
 namespace mapeditor::controllers {
 
+typedef std::optional<const mapeditor::controllers::MonsterZoneDTO> OptMonsterZoneDTOConst;
+
 class GLComponentController {
  public:
     GLComponentController();
@@ -26,6 +28,7 @@ class GLComponentController {
                    int offsetRight,
                    int offsetBottom);
     std::vector<mapeditor::controllers::MonsterZoneDTO> getMonsterZones() const;
+    OptMonsterZoneDTOConst getMonsterZoneByName(const std::string &name) const;
 
  private:
     std::shared_ptr<thewarrior::models::GameMap> m_map;

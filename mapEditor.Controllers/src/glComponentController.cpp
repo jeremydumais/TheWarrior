@@ -2,9 +2,11 @@
 #include <algorithm>
 #include "gameMap.hpp"
 #include "mapTile.hpp"
+#include "monsterZone.hpp"
 #include "monsterZoneDTOUtils.hpp"
 #include "texture.hpp"
 
+using thewarrior::models::MonsterZone;
 using thewarrior::models::Texture;
 using thewarrior::models::GameMap;
 using thewarrior::models::MapTile;
@@ -28,14 +30,23 @@ void GLComponentController::setCurrentMap(std::shared_ptr<GameMap> map) {
 std::vector<std::string> GLComponentController::getAlreadyUsedTextureNames() const {
     std::vector<std::string> alreadyUsedTextureNames;
     if (m_map != nullptr) {
-        std::transform(m_map->getTextures().begin(), m_map->getTextures().end(), back_inserter(alreadyUsedTextureNames),
+        std::transform(m_map->getTextures().begin(),
+                       m_map->getTextures().end(),
+                       back_inserter(alreadyUsedTextureNames),
                        [](Texture const& x) { return x.getName(); });
     }
     return alreadyUsedTextureNames;
 }
 
 std::vector<std::string> GLComponentController::getAlreadyUsedMonsterZoneNames() const {
-    return {};
+    std::vector<std::string> alreadyUsedMonsterZoneNames;
+    if (m_map != nullptr) {
+        std::transform(m_map->getMonsterZones().begin(),
+                       m_map->getMonsterZones().end(),
+                       back_inserter(alreadyUsedMonsterZoneNames),
+                       [](MonsterZone const& x) { return x.getName(); });
+    }
+    return alreadyUsedMonsterZoneNames;
 }
 
 bool isTextureNameUsedInTile(const std::string &name, const MapTile &tile) {
@@ -79,6 +90,15 @@ std::vector<mapeditor::controllers::MonsterZoneDTO> GLComponentController::getMo
                            std::back_inserter(retval),
                            MonsterZoneDTOUtils::fromMonsterZone);
     return retval;
+}
+
+OptMonsterZoneDTOConst GLComponentController::getMonsterZoneByName(const std::string &name) const {
+    const auto zoneOpt = m_map->getMonsterZoneByName(name);
+    if (zoneOpt.has_value()) {
+        const auto zoneDTO = MonsterZoneDTOUtils::fromMonsterZone(zoneOpt->get());
+        return OptMonsterZoneDTOConst { zoneDTO };
+    }
+    return std::nullopt;
 }
 
 }  // namespace mapeditor::controllers
