@@ -4,15 +4,14 @@
 namespace thewarrior::models::monsterzonemonsterencounter::unittest {
 
 class MonsterZoneMonsterEncounterSample : public ::testing::Test {
-public:
+ public:
     MonsterZoneMonsterEncounterSample()
         : monsterEncounter("MON001", MonsterEncounterRatio::Rare)
     {}
     MonsterZoneMonsterEncounter monsterEncounter;
 };
 
-TEST(MonsterZoneMonsterEncounter, WithEmptyMonsterId_ThrowInvalidArgumentException)
-{
+TEST(MonsterZoneMonsterEncounter, WithEmptyMonsterId_ThrowInvalidArgumentException) {
     try {
         auto item = MonsterZoneMonsterEncounter("", MonsterEncounterRatio::Normal);
         FAIL();
@@ -22,8 +21,7 @@ TEST(MonsterZoneMonsterEncounter, WithEmptyMonsterId_ThrowInvalidArgumentExcepti
     }
 }
 
-TEST(MonsterZoneMonsterEncounter, WithWhiteSpacesMonsterId_ThrowInvalidArgumentException)
-{
+TEST(MonsterZoneMonsterEncounter, WithWhiteSpacesMonsterId_ThrowInvalidArgumentException) {
     try {
         auto item = MonsterZoneMonsterEncounter("   ", MonsterEncounterRatio::Normal);
         FAIL();
@@ -33,8 +31,7 @@ TEST(MonsterZoneMonsterEncounter, WithWhiteSpacesMonsterId_ThrowInvalidArgumentE
     }
 }
 
-TEST(MonsterZoneMonsterEncounter, WithTestMonsterId_ThrowInvalidArgumentException)
-{
+TEST(MonsterZoneMonsterEncounter, WithTestMonsterId_ThrowInvalidArgumentException) {
     try {
         auto item = MonsterZoneMonsterEncounter("Test", MonsterEncounterRatio::Normal);
         FAIL();
@@ -44,8 +41,7 @@ TEST(MonsterZoneMonsterEncounter, WithTestMonsterId_ThrowInvalidArgumentExceptio
     }
 }
 
-TEST(MonsterZoneMonsterEncounter, With6SpacesMonsterId_ThrowInvalidArgumentException)
-{
+TEST(MonsterZoneMonsterEncounter, With6SpacesMonsterId_ThrowInvalidArgumentException) {
     try {
         auto item = MonsterZoneMonsterEncounter("      ", MonsterEncounterRatio::Normal);
         FAIL();
@@ -55,23 +51,49 @@ TEST(MonsterZoneMonsterEncounter, With6SpacesMonsterId_ThrowInvalidArgumentExcep
     }
 }
 
-TEST(MonsterZoneMonsterEncounter, WithValidValues_ReturnSuccess)
-{
+TEST(MonsterZoneMonsterEncounter, WithValidValues_ReturnSuccess) {
     auto item = MonsterZoneMonsterEncounter("MON001", MonsterEncounterRatio::Normal);
 }
 
-TEST_F(MonsterZoneMonsterEncounterSample, getMonsterId_ReturnMON001)
-{
+TEST_F(MonsterZoneMonsterEncounterSample, operatorEqual_WithSame_ReturnTrue) {
+    MonsterZoneMonsterEncounter monsterEncounter2("MON001", MonsterEncounterRatio::Rare);
+    ASSERT_EQ(monsterEncounter, monsterEncounter2);
+}
+
+TEST_F(MonsterZoneMonsterEncounterSample, operatorEqual_WithDiffId_ReturnFalse) {
+    MonsterZoneMonsterEncounter monsterEncounter2("MON002", MonsterEncounterRatio::Rare);
+    ASSERT_FALSE(monsterEncounter == monsterEncounter2);
+}
+
+TEST_F(MonsterZoneMonsterEncounterSample, operatorEqual_WithDiffRatio_ReturnFalse) {
+    MonsterZoneMonsterEncounter monsterEncounter2("MON001", MonsterEncounterRatio::Normal);
+    ASSERT_FALSE(monsterEncounter == monsterEncounter2);
+}
+
+TEST_F(MonsterZoneMonsterEncounterSample, operatorNotEqual_WithSame_ReturnFalse) {
+    MonsterZoneMonsterEncounter monsterEncounter2("MON001", MonsterEncounterRatio::Rare);
+    ASSERT_FALSE(monsterEncounter != monsterEncounter2);
+}
+
+TEST_F(MonsterZoneMonsterEncounterSample, operatorNotEqual_WithDiffId_ReturnTrue) {
+    MonsterZoneMonsterEncounter monsterEncounter2("MON002", MonsterEncounterRatio::Rare);
+    ASSERT_NE(monsterEncounter, monsterEncounter2);
+}
+
+TEST_F(MonsterZoneMonsterEncounterSample, operatorNotEqual_WithDiffRatio_ReturnTrue) {
+    MonsterZoneMonsterEncounter monsterEncounter2("MON001", MonsterEncounterRatio::Normal);
+    ASSERT_NE(monsterEncounter, monsterEncounter2);
+}
+
+TEST_F(MonsterZoneMonsterEncounterSample, getMonsterId_ReturnMON001) {
     ASSERT_EQ("MON001", monsterEncounter.getMonsterId());
 }
 
-TEST_F(MonsterZoneMonsterEncounterSample, getEncounterRatio_ReturnRare)
-{
+TEST_F(MonsterZoneMonsterEncounterSample, getEncounterRatio_ReturnRare) {
     ASSERT_EQ(MonsterEncounterRatio::Rare, monsterEncounter.getEncounterRatio());
 }
 
-TEST_F(MonsterZoneMonsterEncounterSample, setMonsterId_WithEmptyString_ThrowInvalidArgumentException)
-{
+TEST_F(MonsterZoneMonsterEncounterSample, setMonsterId_WithEmptyString_ThrowInvalidArgumentException) {
     try {
         monsterEncounter.setMonsterId("");
         FAIL();
@@ -81,8 +103,7 @@ TEST_F(MonsterZoneMonsterEncounterSample, setMonsterId_WithEmptyString_ThrowInva
     }
 }
 
-TEST_F(MonsterZoneMonsterEncounterSample, setMonsterId_WithWhiteSpacesString_ThrowInvalidArgumentException)
-{
+TEST_F(MonsterZoneMonsterEncounterSample, setMonsterId_WithWhiteSpacesString_ThrowInvalidArgumentException) {
     try {
         monsterEncounter.setMonsterId("  ");
         FAIL();
@@ -92,8 +113,7 @@ TEST_F(MonsterZoneMonsterEncounterSample, setMonsterId_WithWhiteSpacesString_Thr
     }
 }
 
-TEST_F(MonsterZoneMonsterEncounterSample, setMonsterId_With6WhiteSpacesString_ThrowInvalidArgumentException)
-{
+TEST_F(MonsterZoneMonsterEncounterSample, setMonsterId_With6WhiteSpacesString_ThrowInvalidArgumentException) {
     try {
         monsterEncounter.setMonsterId("      ");
         FAIL();
@@ -103,8 +123,7 @@ TEST_F(MonsterZoneMonsterEncounterSample, setMonsterId_With6WhiteSpacesString_Th
     }
 }
 
-TEST_F(MonsterZoneMonsterEncounterSample, setMonsterId_WithTest_ThrowInvalidArgumentException)
-{
+TEST_F(MonsterZoneMonsterEncounterSample, setMonsterId_WithTest_ThrowInvalidArgumentException) {
     try {
         monsterEncounter.setMonsterId("Test");
         FAIL();
@@ -114,17 +133,15 @@ TEST_F(MonsterZoneMonsterEncounterSample, setMonsterId_WithTest_ThrowInvalidArgu
     }
 }
 
-TEST_F(MonsterZoneMonsterEncounterSample, setMonsterId_WithABC123_ReturnSuccess)
-{
+TEST_F(MonsterZoneMonsterEncounterSample, setMonsterId_WithABC123_ReturnSuccess) {
     auto newMonsterId = "ABC123";
     monsterEncounter.setMonsterId(newMonsterId);
     ASSERT_EQ(newMonsterId, monsterEncounter.getMonsterId());
 }
 
-TEST_F(MonsterZoneMonsterEncounterSample, setEncounterRatio_WithLessThanNormal_ReturnSuccess)
-{
+TEST_F(MonsterZoneMonsterEncounterSample, setEncounterRatio_WithLessThanNormal_ReturnSuccess) {
     monsterEncounter.setEncounterRatio(MonsterEncounterRatio::LessThanNormal);
     ASSERT_EQ(MonsterEncounterRatio::LessThanNormal, monsterEncounter.getEncounterRatio());
 }
 
-} // namespace thewarrior::models::monsterzonemonsterencounter::unittest
+}  // namespace thewarrior::models::monsterzonemonsterencounter::unittest

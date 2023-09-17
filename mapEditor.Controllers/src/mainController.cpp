@@ -9,6 +9,7 @@
 #include "manageMonsterStoreController.hpp"
 #include "monsterStore.hpp"
 #include "monsterStoreStorage.hpp"
+#include "monsterZoneDTOUtils.hpp"
 #include "specialFolders.hpp"
 #include "types.hpp"
 
@@ -128,7 +129,7 @@ void MainController::replaceTilesTextureName(const string &oldName, const string
 }
 
 bool MainController::addMonsterZone(const MonsterZoneDTO &monsterZoneDTO) {
-    if (!m_map->addMonsterZone(monsterZoneDTOToMonsterZone(monsterZoneDTO))) {
+    if (!m_map->addMonsterZone(MonsterZoneDTOUtils::toMonsterZone(monsterZoneDTO))) {
         this->m_lastError = m_map->getLastError();
         return false;
     }
@@ -160,11 +161,5 @@ bool MainController::loadConfiguredMonsterStores() {
     }
     return true;
 }
-
-MonsterZone MainController::monsterZoneDTOToMonsterZone(const MonsterZoneDTO &dto) const {
-    return MonsterZone(dto.m_name,
-                       RGBItemColor(dto.m_colorName, dto.m_colorValue));
-}
-
 
 }  // namespace mapeditor::controllers

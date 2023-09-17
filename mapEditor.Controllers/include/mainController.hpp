@@ -43,7 +43,6 @@ class MainController
         std::string m_userConfigFolder = "";
         std::shared_ptr<thewarrior::models::GameMap> m_map = nullptr;
         std::shared_ptr<ContainerOfMonsterStore> m_monsterStores = nullptr;
-        thewarrior::models::MonsterZone monsterZoneDTOToMonsterZone(const MonsterZoneDTO &dto) const;
 };
 
 } // namespace mapeditor::controllers

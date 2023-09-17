@@ -17,6 +17,8 @@ class MonsterZoneMonsterEncounter {
  public:
     MonsterZoneMonsterEncounter(const std::string &monsterId,
                                 MonsterEncounterRatio encounterRatio);
+    friend bool operator==(const MonsterZoneMonsterEncounter &lhs, const MonsterZoneMonsterEncounter &rhs);
+    friend bool operator!=(const MonsterZoneMonsterEncounter &lhs, const MonsterZoneMonsterEncounter &rhs);
     const std::string &getMonsterId() const;
     MonsterEncounterRatio getEncounterRatio() const;
     void setMonsterId(const std::string &id);

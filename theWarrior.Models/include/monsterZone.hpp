@@ -28,6 +28,8 @@ class MonsterZone {
                 const unsigned int ratioEncounter,
                 const unsigned int rationEncounterOn,
                 const std::vector<MonsterZoneMonsterEncounter> &monsterEncounters = {});
+    friend bool operator==(const MonsterZone &lhs, const MonsterZone &rhs);
+    friend bool operator!=(const MonsterZone &lhs, const MonsterZone &rhs);
     const std::string &getLastError() const;
     const std::string &getName() const;
     const RGBItemColor &getColor() const;

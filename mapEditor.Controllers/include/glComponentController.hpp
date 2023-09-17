@@ -29,7 +29,6 @@ class GLComponentController {
 
  private:
     std::shared_ptr<thewarrior::models::GameMap> m_map;
-    static mapeditor::controllers::MonsterZoneDTO monsterZoneToMonsterZoneDTO(const thewarrior::models::MonsterZone &zone);
 };
 
 }  // namespace mapeditor::controllers

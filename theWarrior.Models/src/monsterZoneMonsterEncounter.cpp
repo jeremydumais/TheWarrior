@@ -15,6 +15,15 @@ MonsterZoneMonsterEncounter::MonsterZoneMonsterEncounter(const std::string &mons
     Monster::validateId(monsterId);
 }
 
+bool operator==(const MonsterZoneMonsterEncounter &lhs, const MonsterZoneMonsterEncounter &rhs) {
+    return lhs.getMonsterId() == rhs.getMonsterId() &&
+        lhs.getEncounterRatio() == rhs.getEncounterRatio();
+}
+
+bool operator!=(const MonsterZoneMonsterEncounter &lhs, const MonsterZoneMonsterEncounter &rhs) {
+    return !(lhs == rhs);
+}
+
 const std::string &MonsterZoneMonsterEncounter::getMonsterId() const {
     return m_monsterId;
 }

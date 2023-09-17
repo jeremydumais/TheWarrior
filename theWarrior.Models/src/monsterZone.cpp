@@ -9,7 +9,8 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/trim.hpp>
 
-using namespace boost::algorithm;
+using boost::algorithm::to_lower_copy;
+using boost::algorithm::trim_copy;
 
 namespace thewarrior::models {
 
@@ -46,6 +47,18 @@ MonsterZone::MonsterZone()
         m_ratioEncounterOn(10),
         m_monsterEncounters({})
 {}
+
+bool operator==(const MonsterZone &lhs, const MonsterZone &rhs) {
+    return lhs.getName() == rhs.getName() &&
+        lhs.getColor() == rhs.getColor() &&
+        lhs.getRatioEncounter() == rhs.getRatioEncounter() &&
+        lhs.getRatioEncounterOn() == rhs.getRatioEncounterOn() &&
+        lhs.getMonsterEncounters() == rhs.getMonsterEncounters();
+}
+
+bool operator!=(const MonsterZone &lhs, const MonsterZone &rhs) {
+    return !(lhs == rhs);
+}
 
 const std::string &MonsterZone::getLastError() const {
     return m_lastError;
