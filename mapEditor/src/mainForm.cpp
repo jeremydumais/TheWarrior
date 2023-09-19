@@ -139,7 +139,7 @@ MainForm::MainForm(QWidget *parent)
     auto map { m_controller.getMap() };
     // HACK: To remove (test only)
     map->addMonsterZone(thewarrior::models::MonsterZone("Zone1",
-                thewarrior::models::RGBItemColor("Black", "#000000"),
+                thewarrior::models::RGBItemColor("Yellow", "#000000"),
                 1,
                 3,
                 { thewarrior::models::MonsterZoneMonsterEncounter("DRA001", thewarrior::models::MonsterEncounterRatio::Rare)}));

@@ -1,5 +1,7 @@
 #include "editMonsterZoneForm.hpp"
+#include <algorithm>
 #include <fmt/format.h>
+#include <iterator>
 #include <qdialog.h>
 #include <qmessagebox.h>
 #include <cstddef>
@@ -33,6 +35,12 @@ EditMonsterZoneForm::EditMonsterZoneForm(QWidget *parent,
     initializeColors();
     initializeMonsterTable();
     //TODO: Load selected zone in the form
+    if (selectedZone.has_value()) {
+        ui.comboBoxColor->setCurrentIndex(static_cast<int>(findColorIndexByName(selectedZone->m_colorName)));
+        ui.lineEditName->setText(selectedZone->m_name.c_str());
+        ui.spinBoxRatioChance->setValue(static_cast<int>(selectedZone->m_ratioEncounter));
+        ui.spinBoxRatioTotal->setValue(static_cast<int>(selectedZone->m_ratioEncounterOn));
+    }
     refreshMonsterEncounterList();
 }
 
@@ -198,3 +206,14 @@ std::optional<std::string> EditMonsterZoneForm::getSelectedItemId() const {
     return std::nullopt;
 }
 
+std::vector<EditMonsterZoneForm::ColorItem>::difference_type EditMonsterZoneForm::findColorIndexByName(std::string_view name) const  {
+    auto it = std::find_if(colors.begin(),
+            colors.end(),
+            [name](const auto &color) {
+                return color.displayName == name;
+            });
+    if (it != colors.end()) {
+        return std::distance(colors.begin(), it);
+    }
+    return -1;
+}

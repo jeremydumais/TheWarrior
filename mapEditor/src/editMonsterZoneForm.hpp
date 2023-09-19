@@ -5,6 +5,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 #include "ui_editMonsterZoneForm.h"
 #include "editMonsterZoneFormController.hpp"
@@ -52,6 +53,7 @@ Q_OBJECT
     void onPushButtonEditMonsterClick();
     void onPushButtonDeleteMonsterClick();
     std::optional<std::string> getSelectedItemId() const;
+    std::vector<EditMonsterZoneForm::ColorItem>::difference_type findColorIndexByName(std::string_view name) const;
 };
 
 #endif  // MAPEDITOR_SRC_EDITMONSTERZONEFORM_HPP_

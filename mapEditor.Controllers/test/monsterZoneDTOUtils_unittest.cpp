@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <stdexcept>
+#include <utility>
 #include "monsterZone.hpp"
 #include "monsterZoneDTO.hpp"
 #include "monsterZoneDTOUtils.hpp"
@@ -54,6 +55,24 @@ TEST(monsterZoneDTOUtils_fromMonsterZone, withThreeZonesEncounter_ReturnValidDTO
     assertMonsterZoneDTO(expected, MonsterZoneDTOUtils::fromMonsterZone(zone));
 }
 
+TEST(monsterZoneDTOUtils_fromMonsterZoneMonsterEncounter, WithDRA001_Rare_ReturnPairString) {
+    MonsterZoneMonsterEncounter encounter("DRA001", MonsterEncounterRatio::Rare);
+    std::pair<std::string, std::string> expected = { "DRA001", "Rare"};
+    ASSERT_EQ(expected, MonsterZoneDTOUtils::fromMonsterZoneMonsterEncounter(encounter));
+}
+
+TEST(monsterZoneDTOUtils_fromMonsterZoneMonsterEncounter, WithDRA001_LessThanNormal_ReturnPairString) {
+    MonsterZoneMonsterEncounter encounter("DRA001", MonsterEncounterRatio::LessThanNormal);
+    std::pair<std::string, std::string> expected = { "DRA001", "Less than normal"};
+    ASSERT_EQ(expected, MonsterZoneDTOUtils::fromMonsterZoneMonsterEncounter(encounter));
+}
+
+TEST(monsterZoneDTOUtils_fromMonsterZoneMonsterEncounter, WithDRA001_Normal_ReturnPairString) {
+    MonsterZoneMonsterEncounter encounter("DRA001", MonsterEncounterRatio::Normal);
+    std::pair<std::string, std::string> expected = { "DRA001", "Normal"};
+    ASSERT_EQ(expected, MonsterZoneDTOUtils::fromMonsterZoneMonsterEncounter(encounter));
+}
+
 TEST(monsterZoneDTOUtils_toMonsterZone, withEmptyZoneEncouter_ReturnValidZone) {
     MonsterZone expected("Test", RGBItemColor("black", "#000000"), 1, 2, { });
     auto dto = MonsterZoneDTO {
@@ -99,6 +118,24 @@ TEST(monsterZoneDTOUtils_toMonsterZone, withUnknownRatio_ThrowInvalidArgument) {
     catch(const std::invalid_argument &err) {
        ASSERT_STREQ("unknown monster encouter ratio", err.what());
     }
+}
+
+TEST(monsterZoneDTOUtils_toMonsterZoneMonsterEncounter, withDRA001_Rare_ReturnEncounter) {
+    std::pair<std::string, std::string> dto = { "DRA001", "Rare" };
+    MonsterZoneMonsterEncounter expected("DRA001", MonsterEncounterRatio::Rare);
+    ASSERT_EQ(expected, MonsterZoneDTOUtils::toMonsterZoneMonsterEncounter(dto));
+}
+
+TEST(monsterZoneDTOUtils_toMonsterZoneMonsterEncounter, withDRA001_LessThanNormal_ReturnEncounter) {
+    std::pair<std::string, std::string> dto = { "DRA001", "Less than normal" };
+    MonsterZoneMonsterEncounter expected("DRA001", MonsterEncounterRatio::LessThanNormal);
+    ASSERT_EQ(expected, MonsterZoneDTOUtils::toMonsterZoneMonsterEncounter(dto));
+}
+
+TEST(monsterZoneDTOUtils_toMonsterZoneMonsterEncounter, withDRA001_Normal_ReturnEncounter) {
+    std::pair<std::string, std::string> dto = { "DRA001", "Normal" };
+    MonsterZoneMonsterEncounter expected("DRA001", MonsterEncounterRatio::Normal);
+    ASSERT_EQ(expected, MonsterZoneDTOUtils::toMonsterZoneMonsterEncounter(dto));
 }
 
 }  // namespace mapeditor::controllers::monsterzonedtoutils::unittest

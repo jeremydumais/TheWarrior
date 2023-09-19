@@ -16,6 +16,7 @@
 #include "monster.hpp"
 #include "monsterEncounterDTO.hpp"
 #include "monsterStoreStorage.hpp"
+#include "monsterZoneDTOUtils.hpp"
 #include "monsterZoneMonsterEncounter.hpp"
 #include "monsterUtils.hpp"
 #include "types.h"
@@ -36,6 +37,12 @@ EditMonsterZoneFormController::EditMonsterZoneFormController(const std::shared_p
       m_resourcesPath(resourcesPath),
       m_selectedZone(selectedZone),
       m_alreadyUsedZoneNames(alreadyUsedZoneNames) {
+    if (selectedZone.has_value()) {
+        std::transform(selectedZone->m_monsterEncounters.begin(),
+                selectedZone->m_monsterEncounters.end(),
+                std::back_inserter(m_monsterEncounters),
+                MonsterZoneDTOUtils::toMonsterZoneMonsterEncounter);
+    }
 }
 
 std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> EditMonsterZoneFormController::getMonsterStores() {

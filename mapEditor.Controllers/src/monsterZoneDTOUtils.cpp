@@ -17,25 +17,7 @@ MonsterZoneDTO MonsterZoneDTOUtils::fromMonsterZone(const thewarrior::models::Mo
     std::transform(zone.getMonsterEncounters().begin(),
             zone.getMonsterEncounters().end(),
             std::back_inserter(encounters),
-            [](const MonsterZoneMonsterEncounter &encounter) {
-                const std::string ratioStr = [encounter]() {
-                    switch (encounter.getEncounterRatio()) {
-                        case MonsterEncounterRatio::LessThanNormal:
-                            return "Less than normal";
-                        break;
-                        case MonsterEncounterRatio::Normal:
-                            return "Normal";
-                        break;
-                        case MonsterEncounterRatio::Rare:
-                            return "Rare";
-                        break;
-                        default:
-                            throw std::runtime_error("unknown monster encouter ratio");
-                    }
-                }();
-
-                return std::pair<std::string, std::string>{ encounter.getMonsterId(), ratioStr };
-            });
+            MonsterZoneDTOUtils::fromMonsterZoneMonsterEncounter);
     return MonsterZoneDTO {
         zone.getName(),
         zone.getColor().getName(),
@@ -46,31 +28,49 @@ MonsterZoneDTO MonsterZoneDTOUtils::fromMonsterZone(const thewarrior::models::Mo
     };
 }
 
+std::pair<std::string, std::string> MonsterZoneDTOUtils::fromMonsterZoneMonsterEncounter(const MonsterZoneMonsterEncounter encounter) {
+    const std::string ratioStr = [encounter]() {
+        switch (encounter.getEncounterRatio()) {
+            case MonsterEncounterRatio::LessThanNormal:
+                return "Less than normal";
+            case MonsterEncounterRatio::Normal:
+                return "Normal";
+            case MonsterEncounterRatio::Rare:
+                return "Rare";
+        }
+        throw std::runtime_error("unknown monster encouter ratio");
+    }();
+
+    return std::pair<std::string, std::string>{ encounter.getMonsterId(), ratioStr };
+}
+
 thewarrior::models::MonsterZone MonsterZoneDTOUtils::toMonsterZone(const MonsterZoneDTO &dto) {
     std::vector<MonsterZoneMonsterEncounter> encounters {};
     std::transform(dto.m_monsterEncounters.begin(),
             dto.m_monsterEncounters.end(),
             std::back_inserter(encounters),
-            [](const std::pair<std::string, std::string> &encounter) {
-                const MonsterEncounterRatio ratio = [encounter]() {
-                    if (encounter.second == "Less than normal") {
-                        return MonsterEncounterRatio::LessThanNormal;
-                    } else if (encounter.second == "Normal") {
-                        return MonsterEncounterRatio::Normal;
-                    } else if (encounter.second == "Rare") {
-                        return MonsterEncounterRatio::Rare;
-                    }
-                throw std::invalid_argument("unknown monster encouter ratio");
-                }();
-
-                return MonsterZoneMonsterEncounter(encounter.first, ratio);
-            });
+            MonsterZoneDTOUtils::toMonsterZoneMonsterEncounter);
 
     return MonsterZone(dto.m_name,
                        RGBItemColor(dto.m_colorName, dto.m_colorValue),
                        dto.m_ratioEncounter,
                        dto.m_ratioEncounterOn,
                        encounters);
+}
+
+MonsterZoneMonsterEncounter MonsterZoneDTOUtils::toMonsterZoneMonsterEncounter(const std::pair<std::string, std::string> &dto) {
+    const MonsterEncounterRatio ratio = [dto]() {
+        if (dto.second == "Less than normal") {
+            return MonsterEncounterRatio::LessThanNormal;
+        } else if (dto.second == "Normal") {
+            return MonsterEncounterRatio::Normal;
+        } else if (dto.second == "Rare") {
+            return MonsterEncounterRatio::Rare;
+        }
+        throw std::invalid_argument("unknown monster encouter ratio");
+    }();
+
+    return MonsterZoneMonsterEncounter(dto.first, ratio);
 }
 
 }  // namespace mapeditor::controllers
