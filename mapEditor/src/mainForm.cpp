@@ -17,11 +17,13 @@
 #include "manageItemStoreForm.hpp"
 #include "manageMonsterStoreForm.hpp"
 #include "mapTile.hpp"
+#include "monsterZoneDTO.hpp"
 #include "monsterZoneMonsterEncounter.hpp"
 #include "specialFolders.hpp"
 #include "textureInfo.hpp"
 
 using commoneditor::ui::ErrorMessage;
+using mapeditor::controllers::MonsterZoneDTO;
 using thewarrior::models::MapTile;
 using thewarrior::models::Point;
 using thewarrior::models::TextureInfo;
@@ -139,10 +141,15 @@ MainForm::MainForm(QWidget *parent)
     auto map { m_controller.getMap() };
     // HACK: To remove (test only)
     map->addMonsterZone(thewarrior::models::MonsterZone("Zone1",
-                thewarrior::models::RGBItemColor("Yellow", "#000000"),
+                thewarrior::models::RGBItemColor("Yellow", "#00FFFF"),
                 1,
                 3,
                 { thewarrior::models::MonsterZoneMonsterEncounter("DRA001", thewarrior::models::MonsterEncounterRatio::Rare)}));
+    map->addMonsterZone(thewarrior::models::MonsterZone("Zone2",
+                thewarrior::models::RGBItemColor("Green", "#00FF00"),
+                2,
+                4,
+                { thewarrior::models::MonsterZoneMonsterEncounter("DRA001", thewarrior::models::MonsterEncounterRatio::Normal)}));
 
     m_glComponent.setCurrentMap(map);
     refreshRecentMapsMenu();
@@ -190,6 +197,8 @@ void MainForm::connectUIActions() {
     connect(&m_textureListTabComponent, &MainForm_TextureListTabComponent::textureUpdated, this, &MainForm::onTextureUpdated);
     connect(&m_textureListTabComponent, &MainForm_TextureListTabComponent::textureDeleted, this, &MainForm::onTextureDeleted);
     connect(&m_monsterZoneTabComponent, &MainForm_MonsterZoneTabComponent::monsterZoneAdded, this, &MainForm::onMonsterZoneAdded);
+    connect(&m_monsterZoneTabComponent, &MainForm_MonsterZoneTabComponent::monsterZoneUpdated, this, &MainForm::onMonsterZoneUpdated);
+    connect(&m_monsterZoneTabComponent, &MainForm_MonsterZoneTabComponent::monsterZoneDeleted, this, &MainForm::onMonsterZoneDeleted);
 }
 
 void MainForm::action_Open_Click() {
@@ -504,12 +513,28 @@ void MainForm::refreshTextureList() {
     m_glComponent.reloadTextures();
 }
 
-void MainForm::onMonsterZoneAdded(mapeditor::controllers::MonsterZoneDTO monsterZoneDTO) {
+void MainForm::onMonsterZoneAdded(MonsterZoneDTO monsterZoneDTO) {
     if (!m_controller.addMonsterZone(monsterZoneDTO)) {
         ErrorMessage::show(m_controller.getLastError());
     }
     refreshMonsterZones();
 }
+
+void MainForm::onMonsterZoneUpdated(const std::string &name, MonsterZoneDTO monsterZoneDTO) {
+    if (!m_controller.replaceMonsterZone(name, monsterZoneDTO)) {
+        ErrorMessage::show(m_controller.getLastError());
+    }
+    refreshMonsterZones();
+}
+
+void MainForm::onMonsterZoneDeleted(const std::string &name) {
+    // TODO: Continu this part
+    //if (!m_controller.removeTexture(name)) {
+        //ErrorMessage::show(m_controller.getLastError());
+    //}
+    //refreshTextureList();
+}
+
 
 void MainForm::refreshMonsterZones() {
     m_monsterZoneTabComponent.refreshMonsterZones();

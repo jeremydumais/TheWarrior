@@ -1,5 +1,4 @@
 #include "gameMap.hpp"
-#include "monsterZone.hpp"
 #include <bits/ranges_util.h>
 #include <fmt/format.h>
 #include <algorithm>
@@ -8,6 +7,8 @@
 #include <optional>
 #include <stdexcept>
 #include <boost/algorithm/string.hpp>
+#include "boost/algorithm/string/case_conv.hpp"
+#include "monsterZone.hpp"
 
 using boost::algorithm::to_upper_copy;
 
@@ -163,6 +164,31 @@ bool GameMap::addMonsterZone(const MonsterZone &zone) {
 
     m_lastError = fmt::format("The zone {0} already exist.", zone.getName());
     return false;
+}
+
+bool GameMap::replaceMonsterZone(const std::string &name, const MonsterZone &zone) {
+    const auto zoneToUpdateIter = getMonsterZoneIterator(name);
+    if (zoneToUpdateIter == m_monsterZones.end()) {
+        m_lastError = fmt::format("Unable to find the zone {0} to update.", name);
+        return false;
+    }
+    const auto isNameAlreadyExist = getMonsterZoneByName(zone.getName()).has_value();
+    if (isNameAlreadyExist && to_upper_copy(name) != to_upper_copy(zone.getName())) {
+        m_lastError = fmt::format("The zone {0} already exist.", zone.getName());
+        return false;
+    }
+    *zoneToUpdateIter = zone;
+    return true;
+}
+
+bool GameMap::removeMonsterZone(const std::string &name) {
+    const auto zoneToRemoveIter = getMonsterZoneIterator(name);
+    if (zoneToRemoveIter == m_monsterZones.end()) {
+        m_lastError = fmt::format("Unable to find the zone {0} to delete.", name);
+        return false;
+    }
+
+    return true;
 }
 
 bool GameMap::isShrinkMapImpactAssignedTiles(int offsetLeft,
@@ -329,7 +355,7 @@ bool GameMap::canSteppedOnTile(Point<> playerCoord) {
 
 std::vector<MonsterZone>::iterator GameMap::getMonsterZoneIterator(const std::string &name) {
     return std::find_if(m_monsterZones.begin(), m_monsterZones.end(), [&name](const auto &zone) {
-        return zone.getName() == name;
+        return to_upper_copy(zone.getName()) == to_upper_copy(name);
         });
 }
 

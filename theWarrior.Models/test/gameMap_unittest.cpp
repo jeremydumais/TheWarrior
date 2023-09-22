@@ -29,8 +29,8 @@ class SampleGameMap5x6WithTwoTextures : public ::testing::Test {
         tileIndex0.setTextureIndex(0);
         tileIndex0.setObjectTextureName(firstTexture.getName());
         tileIndex0.setObjectTextureIndex(0);
-        const MonsterZone zone("Zone1", RGBItemColor("Green", "#00FF00"));
-        map.addMonsterZone(zone);
+        map.addMonsterZone(MonsterZone("Zone1", RGBItemColor("Green", "#00FF00")));
+        map.addMonsterZone(MonsterZone("Zone2", RGBItemColor("Blue", "#0000FF")));
     }
     GameMap map;
 };
@@ -549,10 +549,11 @@ TEST(GameMap_getMonsterZones, withEmptyZone_ReturnEmpty) {
     ASSERT_EQ(0, map.getMonsterZones().size());
 }
 
-TEST_F(SampleGameMap5x6WithTwoTextures, getMonsterZones_ReturnOneZone) {
+TEST_F(SampleGameMap5x6WithTwoTextures, getMonsterZones_ReturnTwoZones) {
     const auto &zones = map.getMonsterZones();
-    ASSERT_EQ(1, zones.size());
+    ASSERT_EQ(2, zones.size());
     ASSERT_EQ("Zone1", zones[0].getName());
+    ASSERT_EQ("Zone2", zones[1].getName());
 }
 
 TEST(GameMap_getMonsterZoneByName, withEmptyName_ReturnNullOpt) {
@@ -573,17 +574,55 @@ TEST_F(SampleGameMap5x6WithTwoTextures, getMonsterZoneByName_WithZone1Caps_Retur
 }
 
 TEST_F(SampleGameMap5x6WithTwoTextures, getMonsterZoneByName_WithZone2_ReturnNone) {
-    const auto zone = map.getMonsterZoneByName("Zone2");
+    const auto zone = map.getMonsterZoneByName("Zone3");
     ASSERT_FALSE(zone.has_value());
 }
 
 TEST_F(SampleGameMap5x6WithTwoTextures, addMonsterZone_WithNotExistingMonsterZone_ReturnTrue) {
     const MonsterZone zone("Test", RGBItemColor("Green", "#00FF00"));
     ASSERT_TRUE(map.addMonsterZone(zone));
+    ASSERT_EQ(3, map.getMonsterZones().size());
 }
 
 TEST_F(SampleGameMap5x6WithTwoTextures, addMonsterZone_WithExistingMonsterZone_ReturnFalse) {
     const MonsterZone zoneSameName("Zone1", RGBItemColor("Green", "#00FF00"));
     ASSERT_FALSE(map.addMonsterZone(zoneSameName));
     ASSERT_EQ("The zone Zone1 already exist.", map.getLastError());
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, replaceMonsterZone_WithNonExistingOldZone_ReturnFalse) {
+    const MonsterZone zoneSameName("Zone1", RGBItemColor("Green", "#00FF00"));
+    ASSERT_FALSE(map.replaceMonsterZone("Zone99", zoneSameName));
+    ASSERT_EQ("Unable to find the zone Zone99 to update.", map.getLastError());
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, replaceMonsterZone_WithExistingMonsterZone_ReturnFalse) {
+    const MonsterZone zoneSameName("Zone2", RGBItemColor("Green", "#00FF00"));
+    ASSERT_FALSE(map.replaceMonsterZone("Zone1", zoneSameName));
+    ASSERT_EQ("The zone Zone2 already exist.", map.getLastError());
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, replaceMonsterZone_WithSameNameMonsterZone_ReturnFalse) {
+    const MonsterZone zoneSameName("Zone1", RGBItemColor("Red", "#FF0000"));
+    ASSERT_TRUE(map.replaceMonsterZone("Zone1", zoneSameName));
+    const auto zones = map.getMonsterZones();
+    ASSERT_EQ(2, zones.size());
+    ASSERT_EQ("Zone1", zones[0].getName());
+    ASSERT_EQ("Red", zones[0].getColor().getName());
+    ASSERT_EQ("Zone2", zones[1].getName());
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, replaceMonsterZone_WithDiffNameMonsterZone_ReturnFalse) {
+    const MonsterZone zoneSameName("Zone3", RGBItemColor("Red", "#FF0000"));
+    ASSERT_TRUE(map.replaceMonsterZone("Zone1", zoneSameName));
+    const auto zones = map.getMonsterZones();
+    ASSERT_EQ(2, zones.size());
+    ASSERT_EQ("Zone3", zones[0].getName());
+    ASSERT_EQ("Red", zones[0].getColor().getName());
+    ASSERT_EQ("Zone2", zones[1].getName());
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, removeMonsterZone_WithNonExistingMonsterZone_ReturnFalse) {
+    ASSERT_FALSE(map.removeMonsterZone("Zone3"));
+    ASSERT_EQ("Unable to find the zone Zone3 to delete.", map.getLastError());
 }

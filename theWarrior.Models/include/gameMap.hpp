@@ -38,6 +38,8 @@ class GameMap {
     const std::vector<MonsterZone> &getMonsterZones() const;
     OptMonsterZoneConstRef getMonsterZoneByName(const std::string &zoneName) const;
     bool addMonsterZone(const MonsterZone &zone);
+    bool replaceMonsterZone(const std::string &name, const MonsterZone &zone);
+    bool removeMonsterZone(const std::string &name);
     bool isShrinkMapImpactAssignedTiles(int offsetLeft,
                                         int offsetTop,
                                         int offsetRight,

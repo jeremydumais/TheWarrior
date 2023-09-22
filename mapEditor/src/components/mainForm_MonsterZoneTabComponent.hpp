@@ -35,9 +35,9 @@ class MainForm_MonsterZoneTabComponent : public QWidget {
     void setResourcesPath(const std::string &resourcesPath);
     void onPushButtonAddMonsterZoneClick();
  signals:
-     void monsterZoneAdded(mapeditor::controllers::MonsterZoneDTO monsterZoneDTO);
-    // void textureUpdated(const std::string &name, thewarrior::models::MonsterZoneInfo textureInfo);
-    // void textureDeleted(const std::string &name);
+    void monsterZoneAdded(mapeditor::controllers::MonsterZoneDTO monsterZoneDTO);
+    void monsterZoneUpdated(const std::string &name, mapeditor::controllers::MonsterZoneDTO monsterZoneDTO);
+    void monsterZoneDeleted(const std::string &name);
 
  private:
     std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> m_monsterStores = nullptr;

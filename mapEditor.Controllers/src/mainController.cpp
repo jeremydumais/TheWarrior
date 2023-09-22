@@ -13,20 +13,25 @@
 #include "specialFolders.hpp"
 #include "types.hpp"
 
-using namespace std;
-using namespace thewarrior::models;
-using namespace thewarrior::storage;
+using thewarrior::models::GameMap;
+using thewarrior::models::MapTile;
+using thewarrior::models::MonsterStore;
+using thewarrior::models::Point;
+using thewarrior::models::Texture;
+using thewarrior::models::TextureInfo;
+using thewarrior::storage::MonsterStoreStorage;
+using thewarrior::storage::SpecialFolders;
 
 namespace mapeditor::controllers {
 
 MainController::MainController() {
 }
 
-const string &MainController::getLastError() const {
+const std::string &MainController::getLastError() const {
     return this->m_lastError;
 }
 
-shared_ptr<GameMap> MainController::getMap() {
+std::shared_ptr<GameMap> MainController::getMap() {
     return m_map;
 }
 
@@ -60,9 +65,9 @@ const std::shared_ptr<ContainerOfMonsterStore> &MainController::getMonsterStores
 
 bool MainController::createMap(unsigned int width, unsigned int height) {
     try {
-        m_map = make_shared<GameMap>(width, height);
+        m_map = std::make_shared<GameMap>(width, height);
     }
-    catch(invalid_argument &err) {
+    catch(std::invalid_argument &err) {
         m_lastError = err.what();
         return false;
     }
@@ -95,8 +100,8 @@ bool MainController::addTexture(const TextureInfo &textureInfo) {
     return true;
 }
 
-bool MainController::replaceTexture(const string &name, const TextureInfo &textureInfo) {
-    string oldTextureName { name };
+bool MainController::replaceTexture(const std::string &name, const TextureInfo &textureInfo) {
+    std::string oldTextureName { name };
     if (!m_map->replaceTexture(name, textureInfo)) {
         m_lastError = m_map->getLastError();
         return false;
@@ -108,7 +113,7 @@ bool MainController::replaceTexture(const string &name, const TextureInfo &textu
     return true;
 }
 
-bool MainController::removeTexture(const string &name) {
+bool MainController::removeTexture(const std::string &name) {
     if (!m_map->removeTexture(name)) {
         m_lastError = m_map->getLastError();
         return false;
@@ -116,7 +121,7 @@ bool MainController::removeTexture(const string &name) {
     return true;
 }
 
-void MainController::replaceTilesTextureName(const string &oldName, const string &newName) {
+void MainController::replaceTilesTextureName(const std::string &oldName, const std::string &newName) {
     for (int index = 0; index < static_cast<int>(m_map->getWidth() * m_map->getHeight()) - 1; index++) {
         auto &tile = m_map->getTileForEditing(index);
         if (tile.getTextureName() == oldName) {
@@ -129,16 +134,43 @@ void MainController::replaceTilesTextureName(const string &oldName, const string
 }
 
 bool MainController::addMonsterZone(const MonsterZoneDTO &monsterZoneDTO) {
-    if (!m_map->addMonsterZone(MonsterZoneDTOUtils::toMonsterZone(monsterZoneDTO))) {
-        this->m_lastError = m_map->getLastError();
+    try {
+        if (!m_map->addMonsterZone(MonsterZoneDTOUtils::toMonsterZone(monsterZoneDTO))) {
+            this->m_lastError = m_map->getLastError();
+            return false;
+        }
+    } catch(const std::invalid_argument &err) {
+        this->m_lastError = err.what();
         return false;
     }
     return true;
 }
 
+bool MainController::replaceMonsterZone(const std::string &name, const MonsterZoneDTO &monsterZoneDTO) {
+    try {
+        if (!m_map->replaceMonsterZone(name, MonsterZoneDTOUtils::toMonsterZone(monsterZoneDTO))) {
+            this->m_lastError = m_map->getLastError();
+            return false;
+        }
+    } catch(const std::invalid_argument &err) {
+        this->m_lastError = err.what();
+        return false;
+    }
+    return true;
+}
+
+bool MainController::removeMonsterZone(const std::string &name) {
+    // TODO: Continue this part
+    //if (!m_map->removeMonsterZone(name)) {
+        //m_lastError = m_map->getLastError();
+        //return false;
+    //}
+    return true;
+}
+
 bool MainController::loadConfiguredMonsterStores() {
     if (m_monsterStores == nullptr) {
-        m_monsterStores = make_shared<ContainerOfMonsterStore>();
+        m_monsterStores = std::make_shared<ContainerOfMonsterStore>();
     }
     ManageMonsterStoreController manageMonsterStoreController(m_resourcesPath, m_userConfigFolder);
     if (!manageMonsterStoreController.loadMonsterStore()) {

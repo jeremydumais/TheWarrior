@@ -1,9 +1,9 @@
 #include "editMonsterZoneForm.hpp"
-#include <algorithm>
 #include <fmt/format.h>
-#include <iterator>
 #include <qdialog.h>
 #include <qmessagebox.h>
+#include <algorithm>
+#include <iterator>
 #include <cstddef>
 #include <exception>
 #include <memory>
@@ -34,12 +34,12 @@ EditMonsterZoneForm::EditMonsterZoneForm(QWidget *parent,
     connectUIActions();
     initializeColors();
     initializeMonsterTable();
-    //TODO: Load selected zone in the form
     if (selectedZone.has_value()) {
         ui.comboBoxColor->setCurrentIndex(static_cast<int>(findColorIndexByName(selectedZone->m_colorName)));
         ui.lineEditName->setText(selectedZone->m_name.c_str());
         ui.spinBoxRatioChance->setValue(static_cast<int>(selectedZone->m_ratioEncounter));
         ui.spinBoxRatioTotal->setValue(static_cast<int>(selectedZone->m_ratioEncounterOn));
+        // Monster encounter list are repopulated in the controller constructor
     }
     refreshMonsterEncounterList();
 }

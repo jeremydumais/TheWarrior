@@ -37,6 +37,7 @@ void MainForm_MonsterZoneTabComponent::connectUIActions() {
     connect(m_pushButtonAddMonsterZone, &QPushButton::clicked, this, &MainForm_MonsterZoneTabComponent::onPushButtonAddMonsterZoneClick);
     connect(m_pushButtonEditMonsterZone, &QPushButton::clicked, this, &MainForm_MonsterZoneTabComponent::onPushButtonEditMonsterZoneClick);
     connect(m_pushButtonDeleteMonsterZone, &QPushButton::clicked, this, &MainForm_MonsterZoneTabComponent::onPushButtonDeleteMonsterZoneClick);
+    connect(m_tableWidgetMonsterZone, &QTableWidget::itemDoubleClicked, this, &MainForm_MonsterZoneTabComponent::onPushButtonEditMonsterZoneClick);
 }
 
 void MainForm_MonsterZoneTabComponent::refreshMonsterZones() {
@@ -102,28 +103,29 @@ void MainForm_MonsterZoneTabComponent::onPushButtonEditMonsterZoneClick() {
                 m_resourcesPath,
                 selectedMonsterZone,
                 alreadyUsedMonsterZoneNames);
-         if (formEditMonsterZone.exec() == QDialog::Accepted) {
-             // emit textureUpdated(selectedMonsterZone->get().getName(), formEditMonsterZone.getMonsterZoneInfo());
-         }
+        if (formEditMonsterZone.exec() == QDialog::Accepted) {
+             emit monsterZoneUpdated(selectedMonsterZone->m_name, formEditMonsterZone.getResult());
+        }
     }
     m_glComponent->startAutoUpdate();
 }
 
 void MainForm_MonsterZoneTabComponent::onPushButtonDeleteMonsterZoneClick() {
-    /*auto selectedMonsterZone = getSelectedMonsterZoneInMonsterZoneList();
+    auto selectedMonsterZone = getSelectedMonsterZoneInMonsterZoneList();
     if (selectedMonsterZone.has_value()) {
         QMessageBox msgBox;
-        msgBox.setText(fmt::format("Are you sure you want to delete the texture {0}?", selectedMonsterZone->get().getName()).c_str());
+        msgBox.setText(fmt::format("Are you sure you want to delete the monster zone {0}?", selectedMonsterZone->m_name).c_str());
         msgBox.setWindowTitle("Confirmation");
         msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
         msgBox.setDefaultButton(QMessageBox::Cancel);
         if (msgBox.exec() == QMessageBox::Yes) {
-            //Check if the texture is used in the map
-            msgBox.setText(fmt::format("The texture {0} is used by some map tiles.\nAre you sure you want to proceed?", selectedMonsterZone->get().getName()).c_str());
-            bool isUsed = m_glComponent->isMonsterZoneUsedInMap(selectedMonsterZone->get().getName());
-            if (!isUsed || (isUsed && msgBox.exec() == QMessageBox::Yes)) {
-                emit textureDeleted(selectedMonsterZone->get().getName());
-            }
+                emit monsterZoneDeleted(selectedMonsterZone->m_name);
+            // TODO: Check if the monster zone is used in the map
+            //msgBox.setText(fmt::format("The monster zone {0} is used by some map tiles.\nAre you sure you want to proceed?", selectedMonsterZone->get().getName()).c_str());
+            //bool isUsed = m_glComponent->isMonsterZoneUsedInMap(selectedMonsterZone->get().getName());
+            //if (!isUsed || (isUsed && msgBox.exec() == QMessageBox::Yes)) {
+                //emit textureDeleted(selectedMonsterZone->get().getName());
+            //}
         }
-    }*/
+    }
 }

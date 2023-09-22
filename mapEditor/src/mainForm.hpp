@@ -78,6 +78,8 @@ Q_OBJECT
     void onTextureDeleted(const std::string &name);
     void refreshTextureList();
     void onMonsterZoneAdded(mapeditor::controllers::MonsterZoneDTO monsterZoneDTO);
+    void onMonsterZoneUpdated(const std::string &name, mapeditor::controllers::MonsterZoneDTO monsterZoneDTO);
+    void onMonsterZoneDeleted(const std::string &name);
     void refreshMonsterZones();
 };
 
