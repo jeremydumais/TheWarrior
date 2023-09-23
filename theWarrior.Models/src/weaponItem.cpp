@@ -1,5 +1,7 @@
 #include "weaponItem.hpp"
 
+namespace thewarrior::models {
+
 //Used only for Boost Serialization
 WeaponItem::WeaponItem()
     : Item(),
@@ -15,10 +17,10 @@ WeaponItem::WeaponItem(const WeaponItemCreationInfo &itemInfo)
 {
 }
 
-bool WeaponItem::equals(const Item &other) const 
+bool WeaponItem::equals(const Item &other) const
 {
     if (typeid(*this).hash_code() != typeid(other).hash_code()) {
-        return false;    
+        return false;
     }
     const WeaponItem *otherWeaponItem = dynamic_cast<const WeaponItem *>(&other);
     if (otherWeaponItem == nullptr) {
@@ -66,3 +68,5 @@ std::string WeaponItem::getBodyPartAsString(WeaponBodyPart bodyPart)
         return "";
     }
 }
+
+} // namespace thewarrior::models

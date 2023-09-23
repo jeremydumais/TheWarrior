@@ -1,11 +1,19 @@
-#include "mainController.hpp"
 #include <gtest/gtest.h>
+#include <stdexcept>
+#include "mainController.hpp"
+#include "monsterZone.hpp"
+#include "monsterZoneDTO.hpp"
+#include "monsterZoneMonsterEncounter.hpp"
+#include "rgbItemColor.hpp"
 
-using namespace std;
+using mapeditor::controllers::MainController;
+using thewarrior::models::MonsterEncounterRatio;
+using thewarrior::models::MonsterZone;
+using thewarrior::models::MonsterZoneMonsterEncounter;
+using thewarrior::models::RGBItemColor;
 
-class SampleMainController : public ::testing::Test
-{
-public:
+class SampleMainController : public ::testing::Test {
+ public:
     SampleMainController() {
         mainController.createMap(6, 6);
         auto map { mainController.getMap() };
@@ -25,26 +33,29 @@ public:
         tile.setTextureName("tex1");
         tile.setTextureIndex(0);
         tile.setObjectTextureName("tex1");
-        tile.setObjectTextureIndex(0);    
+        tile.setObjectTextureIndex(0);
+        map->addMonsterZone(MonsterZone("Zone1", RGBItemColor("Black", "#000000"),
+                1, 3,
+                { MonsterZoneMonsterEncounter("DRA001", MonsterEncounterRatio::Normal) }));
+        map->addMonsterZone(MonsterZone("Zone2", RGBItemColor("Blue", "#0000FF"),
+                2, 4,
+                { MonsterZoneMonsterEncounter("DRA002", MonsterEncounterRatio::Rare) }));
     }
-	MainController mainController;
+    MainController mainController;
 };
 
-TEST(MainController_Constructor, Default_ReturnSuccess)
-{
+TEST(MainController_Constructor, Default_ReturnSuccess) {
     MainController mainController;
     ASSERT_EQ(nullptr, mainController.getMap());
 }
 
-TEST(MainController_createMap, WithInvalidWidth_ReturnFalse)
-{
+TEST(MainController_createMap, WithInvalidWidth_ReturnFalse) {
     MainController mainController;
     ASSERT_FALSE(mainController.createMap(0, 10));
     ASSERT_EQ("width must be greater than zero.", mainController.getLastError());
 }
 
-TEST_F(SampleMainController, addTexture_WithValidArg_ReturnTrue)
-{
+TEST_F(SampleMainController, addTexture_WithValidArg_ReturnTrue) {
     ASSERT_TRUE(mainController.addTexture({
             "tex3",
             "tex3.png",
@@ -54,8 +65,7 @@ TEST_F(SampleMainController, addTexture_WithValidArg_ReturnTrue)
     ASSERT_EQ(3, mainController.getTextures().size());
 }
 
-TEST_F(SampleMainController, addTexture_WithInvalidArg_ReturnFalse)
-{
+TEST_F(SampleMainController, addTexture_WithInvalidArg_ReturnFalse) {
     ASSERT_FALSE(mainController.addTexture({
             "",
             "tex3.png",
@@ -65,8 +75,7 @@ TEST_F(SampleMainController, addTexture_WithInvalidArg_ReturnFalse)
     ASSERT_EQ("name cannot be null or empty.", mainController.getLastError());
 }
 
-TEST_F(SampleMainController, replaceTexture_WithNonExistantName_ReturnFalse)
-{
+TEST_F(SampleMainController, replaceTexture_WithNonExistantName_ReturnFalse) {
     ASSERT_FALSE(mainController.replaceTexture("x", {
             "tex3",
             "tex3.png",
@@ -76,8 +85,7 @@ TEST_F(SampleMainController, replaceTexture_WithNonExistantName_ReturnFalse)
     ASSERT_EQ("Unable to find the texture x in the texture list.", mainController.getLastError());
 }
 
-TEST_F(SampleMainController, replaceTexture_WithValidArgs_ReturnTrue)
-{
+TEST_F(SampleMainController, replaceTexture_WithValidArgs_ReturnTrue) {
     ASSERT_TRUE(mainController.replaceTexture("tex1", {
             "tex3",
             "tex3.png",
@@ -86,20 +94,16 @@ TEST_F(SampleMainController, replaceTexture_WithValidArgs_ReturnTrue)
         }));
 }
 
-TEST_F(SampleMainController, removeTexture_WithNonExistantName_ReturnFalse)
-{
+TEST_F(SampleMainController, removeTexture_WithNonExistantName_ReturnFalse) {
     ASSERT_FALSE(mainController.removeTexture("x"));
     ASSERT_EQ("Unable to find the texture x in the texture list.", mainController.getLastError());
 }
 
-TEST_F(SampleMainController, removeTexture_WithExistingName_ReturnTrue)
-{
+TEST_F(SampleMainController, removeTexture_WithExistingName_ReturnTrue) {
     ASSERT_TRUE(mainController.removeTexture("tex1"));
 }
 
-
-TEST_F(SampleMainController, replaceTilesTextureName_WithOneTileAffected_ReturnSuccess)
-{
+TEST_F(SampleMainController, replaceTilesTextureName_WithOneTileAffected_ReturnSuccess) {
     mainController.replaceTilesTextureName("tex1", "newTex1");
     auto map { mainController.getMap() };
     const auto &tileIndex0 = map->getTiles()[0][0];
@@ -113,4 +117,95 @@ TEST_F(SampleMainController, replaceTilesTextureName_WithOneTileAffected_ReturnS
     ASSERT_EQ(-1, tileIndex1.getTextureIndex());
     ASSERT_EQ("", tileIndex1.getObjectTextureName());
     ASSERT_EQ(-1, tileIndex1.getObjectTextureIndex());
+}
+
+TEST_F(SampleMainController, addMonsterZone_WithInvalidArg_ReturnFalse) {
+    ASSERT_FALSE(mainController.addMonsterZone({
+            .m_name = "",
+            .m_colorName = "Black",
+            .m_colorValue = "#000000",
+            .m_ratioEncounter = 3,
+            .m_ratioEncounterOn = 5,
+            .m_monsterEncounters = { { "DRA003", "Less than normal" } }
+        }));
+}
+
+TEST_F(SampleMainController, addMonsterZone_WithExistingName_ReturnFalse) {
+    ASSERT_FALSE(mainController.addMonsterZone({
+            .m_name = "Zone1",
+            .m_colorName = "Black",
+            .m_colorValue = "#000000",
+            .m_ratioEncounter = 3,
+            .m_ratioEncounterOn = 5,
+            .m_monsterEncounters = { { "DRA003", "Less than normal" } }
+        }));
+    ASSERT_EQ("The zone Zone1 already exist.", mainController.getLastError());
+}
+
+TEST_F(SampleMainController, addMonsterZone_WithExistingNameCAPS_ReturnFalse) {
+    ASSERT_FALSE(mainController.addMonsterZone({
+            .m_name = "ZONE1",
+            .m_colorName = "Black",
+            .m_colorValue = "#000000",
+            .m_ratioEncounter = 3,
+            .m_ratioEncounterOn = 5,
+            .m_monsterEncounters = { { "DRA003", "Less than normal" } }
+        }));
+    ASSERT_EQ("The zone ZONE1 already exist.", mainController.getLastError());
+}
+
+TEST_F(SampleMainController, addMonsterZone_WithNonExistingName_ReturnTrue) {
+    ASSERT_TRUE(mainController.addMonsterZone({
+            .m_name = "Zone3",
+            .m_colorName = "Black",
+            .m_colorValue = "#000000",
+            .m_ratioEncounter = 3,
+            .m_ratioEncounterOn = 5,
+            .m_monsterEncounters = { { "DRA003", "Less than normal" } }
+        }));
+    ASSERT_EQ(3, mainController.getMap()->getMonsterZones().size());
+}
+
+TEST_F(SampleMainController, replaceMonsterZone_WithInvalidName_ReturnFalse) {
+    ASSERT_FALSE(mainController.replaceMonsterZone("Zone1", {
+                .m_name = "",
+                .m_colorName = "Black",
+                .m_colorValue = "#000000",
+                .m_ratioEncounter = 3,
+                .m_ratioEncounterOn = 5,
+                .m_monsterEncounters = { { "DRA003", "Less than normal" } }
+                }));
+}
+
+TEST_F(SampleMainController, replaceMonsterZone_WithAlreadyExistingZone_ReturnFalse) {
+    ASSERT_FALSE(mainController.replaceMonsterZone("Zone1", {
+                .m_name = "Zone2",
+                .m_colorName = "Black",
+                .m_colorValue = "#000000",
+                .m_ratioEncounter = 3,
+                .m_ratioEncounterOn = 5,
+                .m_monsterEncounters = { { "DRA003", "Less than normal" } }
+                }));
+}
+
+TEST_F(SampleMainController, replaceMonsterZone_WithSameNameZone_ReturnTrue) {
+    ASSERT_TRUE(mainController.replaceMonsterZone("Zone1", {
+                .m_name = "Zone1",
+                .m_colorName = "Black",
+                .m_colorValue = "#000000",
+                .m_ratioEncounter = 3,
+                .m_ratioEncounterOn = 5,
+                .m_monsterEncounters = { { "DRA003", "Less than normal" } }
+                }));
+}
+
+TEST_F(SampleMainController, replaceMonsterZone_WithNewNameZone_ReturnTrue) {
+    ASSERT_TRUE(mainController.replaceMonsterZone("Zone1", {
+                .m_name = "Zone3",
+                .m_colorName = "Black",
+                .m_colorValue = "#000000",
+                .m_ratioEncounter = 3,
+                .m_ratioEncounterOn = 5,
+                .m_monsterEncounters = { { "DRA003", "Less than normal" } }
+                }));
 }

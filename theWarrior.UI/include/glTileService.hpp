@@ -6,6 +6,8 @@
 #include <memory>
 #include <string>
 
+namespace thewarrior::ui {
+
 class GLTileService : public IShaderService
 {
 public:
@@ -14,8 +16,14 @@ public:
     void initShader(const std::shared_ptr<GLShaderProgram> shaderProgram) override;
     const std::string &getLastError() const;
     void useShader();
-    void setShaderTranslation(unsigned int mapWidth, unsigned int mapHeight, int windowWidth, int windowHeight, Point<float> playerPosition);
+    void setShaderTranslation(unsigned int mapWidth,
+                              unsigned int mapHeight,
+                              int windowWidth,
+                              int windowHeight,
+                              thewarrior::models::Point<float> playerPosition);
 private:
     std::string m_lastError;
     std::shared_ptr<GLShaderProgram> m_shaderProgram;
 };
+
+} // namespace thewarrior::ui

@@ -4,6 +4,8 @@
 #include <memory>
 #include <string>
 
+namespace thewarrior::ui {
+
 class IShaderService
 {
 public:
@@ -12,3 +14,5 @@ public:
     virtual void initShader(const std::shared_ptr<GLShaderProgram> shaderProgram) = 0;
     virtual ~IShaderService() = default;
 };
+
+} // namespace thewarrior::ui

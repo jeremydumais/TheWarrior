@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 
 using namespace std;
+using namespace thewarrior::models;
 
 TEST(MapTileTriggerEventConverter_allEventsToString, Return7Events)
 {

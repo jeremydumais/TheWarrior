@@ -8,21 +8,28 @@
 #include <stdexcept>
 #include <vector>
 
+using namespace thewarrior::models;
+using namespace thewarrior::ui::controllers;
+using namespace thewarrior::ui::models;
+using namespace thewarrior::storage;
+
+namespace thewarrior::ui {
+
 GameMapMode::GameMapMode()
 {
     m_choicePopup.m_choiceClicked.connect(boost::bind(&GameMapMode::mainMenuPopupClicked, this, boost::placeholders::_1));
-    m_choicePopup.m_cancelClicked.connect(boost::bind(&GameMapMode::mainMenuPopupCanceled, this));    
+    m_choicePopup.m_cancelClicked.connect(boost::bind(&GameMapMode::mainMenuPopupCanceled, this));
 }
 
 void GameMapMode::initialize(const std::string &resourcesPath,
-                             std::shared_ptr<GLPlayer> glPlayer,
-                             std::shared_ptr<ItemStore> itemStore, 
-                             std::shared_ptr<MessagePipeline> messagePipeline,
-                             std::shared_ptr<GLTileService> tileService,
-                             std::shared_ptr<GLTextBox> textBox,
-                             std::shared_ptr<GLTextService> textService,
-                             const std::map<std::string, unsigned int> *texturesGLItemStore,
-                             std::shared_ptr<InputDevicesState> inputDevicesState)
+        std::shared_ptr<GLPlayer> glPlayer,
+        std::shared_ptr<ItemStore> itemStore,
+        std::shared_ptr<MessagePipeline> messagePipeline,
+        std::shared_ptr<GLTileService> tileService,
+        std::shared_ptr<GLTextBox> textBox,
+        std::shared_ptr<GLTextService> textService,
+        const std::map<std::string, unsigned int> *texturesGLItemStore,
+        std::shared_ptr<InputDevicesState> inputDevicesState)
 {
     m_resourcesPath = resourcesPath;
     m_map = std::make_shared<GameMap>(1, 1);
@@ -47,7 +54,7 @@ void GameMapMode::initialize(const std::string &resourcesPath,
 bool GameMapMode::initShaders(const std::string &resourcesPath)
 {
     m_shaderProgram = std::make_shared<GLShaderProgram>(fmt::format("{0}/shaders/window_330_vs.glsl", resourcesPath),
-                                                        fmt::format("{0}/shaders/window_330_fs.glsl", resourcesPath));
+            fmt::format("{0}/shaders/window_330_fs.glsl", resourcesPath));
     if (!m_shaderProgram->compileShaders()) {
         m_lastError = m_shaderProgram->getLastError();
         return false;
@@ -107,13 +114,13 @@ void GameMapMode::update()
             }
             if(m_inputDevicesState->isADirectionKeyPressed()) {
                 if (m_inputDevicesState->getButtonBState() == InputElementState::Pressed ||
-                    m_inputDevicesState->getKeyShiftState() == InputElementState::Pressed) {
+                        m_inputDevicesState->getKeyShiftState() == InputElementState::Pressed) {
                     m_glPlayer->enableRunMode();
                 }
                 else {
                     m_glPlayer->disableRunMode();
                 }
-            } 
+            }
             if(m_inputDevicesState->getButtonCState() == InputElementState::Released) {
                 showMainMenu();
             }
@@ -139,7 +146,7 @@ void GameMapMode::gameWindowSizeChanged(const Size<> &size)
     m_glInventory.gameWindowSizeChanged(size);
     m_glCharacterWindow.gameWindowSizeChanged(size);
     m_choicePopup.gameWindowLocationChanged({static_cast<float>(size.width()) / 2.0F,
-                                             static_cast<float>(size.height()) / 2.0F});
+            static_cast<float>(size.height()) / 2.0F});
 }
 
 void GameMapMode::gameWindowTileSizeChanged(const TileSize &tileSize)
@@ -182,8 +189,8 @@ void GameMapMode::render()
 {
     m_tileService->useShader();
     m_tileService->setShaderTranslation(m_map->getWidth(), m_map->getHeight(),
-                                       m_screenSize.width(), m_screenSize.height(),
-                                       m_glPlayer->getGLObjectPositionWithMovement());
+            m_screenSize.width(), m_screenSize.height(),
+            m_glPlayer->getGLObjectPositionWithMovement());
     glClearColor(0.3F, 0.3F, 0.3F, 1.0F);
     glClear(GL_COLOR_BUFFER_BIT);
     glEnable(GL_TEXTURE_2D);
@@ -251,7 +258,7 @@ void GameMapMode::render()
     glDisableVertexAttribArray(2);
 }
 
-void GameMapMode::drawObjectTile(GLTile &tile) 
+void GameMapMode::drawObjectTile(GLTile &tile)
 {
     glBindTexture(GL_TEXTURE_2D, m_texturesGLMap[tile.tile.getObjectTextureName()]);
     glBindVertexArray(tile.vaoObject);
@@ -262,7 +269,7 @@ void GameMapMode::drawObjectTile(GLTile &tile)
     glBindBuffer(GL_ARRAY_BUFFER, tile.vboTextureObject);
     glEnableVertexAttribArray(2);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-    
+
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisableVertexAttribArray(0);
@@ -273,7 +280,7 @@ void GameMapMode::drawObjectTile(GLTile &tile)
 void GameMapMode::actionButtonPressed()
 {
     if (m_controller.isMessageDisplayed()) {
-        m_controller.acknowledgeMessage();                    
+        m_controller.acknowledgeMessage();
     }
     else {
         //Check if you are facing a tile with a ActionButton trigger configured.
@@ -289,7 +296,7 @@ void GameMapMode::actionButtonPressed()
     }
 }
 
-void GameMapMode::moveUpPressed() 
+void GameMapMode::moveUpPressed()
 {
     //Check if there is an action
     const auto playerCoord = m_glPlayer->getGridPosition();
@@ -300,12 +307,12 @@ void GameMapMode::moveUpPressed()
     }
     else if (m_map->canSteppedOnTile(Point(playerCoord.x(), playerCoord.y() - 1))) {
         m_glPlayer->moveUp();
-    } 
+    }
     m_glPlayer->faceUp();
     m_glPlayer->applyCurrentGLTexture(m_textureService);
 }
 
-void GameMapMode::moveDownPressed() 
+void GameMapMode::moveDownPressed()
 {
     //Check if there is an action
     const auto playerCoord = m_glPlayer->getGridPosition();
@@ -316,7 +323,7 @@ void GameMapMode::moveDownPressed()
     }
     else if (m_map->canSteppedOnTile(Point(playerCoord.x(), playerCoord.y() + 1))) {
         m_glPlayer->moveDown(tile.getIsWallToClimb());
-    } 
+    }
     if (tile.getIsWallToClimb()) {
         m_glPlayer->faceUp();
     }
@@ -326,7 +333,7 @@ void GameMapMode::moveDownPressed()
     m_glPlayer->applyCurrentGLTexture(m_textureService);
 }
 
-void GameMapMode::moveLeftPressed() 
+void GameMapMode::moveLeftPressed()
 {
     //Check if there is an action
     const auto playerCoord = m_glPlayer->getGridPosition();
@@ -337,7 +344,7 @@ void GameMapMode::moveLeftPressed()
     }
     else if (m_map->canSteppedOnTile(Point(playerCoord.x() - 1, playerCoord.y()))) {
         m_glPlayer->moveLeft();
-    } 
+    }
     if (tile.getIsWallToClimb()) {
         m_glPlayer->faceUp();
     }
@@ -347,7 +354,7 @@ void GameMapMode::moveLeftPressed()
     m_glPlayer->applyCurrentGLTexture(m_textureService);
 }
 
-void GameMapMode::moveRightPressed() 
+void GameMapMode::moveRightPressed()
 {
     //Check if there is an action
     const auto playerCoord = m_glPlayer->getGridPosition();
@@ -358,7 +365,7 @@ void GameMapMode::moveRightPressed()
     }
     else if (m_map->canSteppedOnTile(Point(playerCoord.x() + 1, playerCoord.y()))) {
         m_glPlayer->moveRight();
-    } 
+    }
     if (tile.getIsWallToClimb()) {
         m_glPlayer->faceUp();
     }
@@ -368,9 +375,9 @@ void GameMapMode::moveRightPressed()
     m_glPlayer->applyCurrentGLTexture(m_textureService);
 }
 
-void GameMapMode::processAction(MapTileTriggerAction action, const std::map<std::string, std::string> &properties, MapTile *tile, Point<> tilePosition) 
+void GameMapMode::processAction(MapTileTriggerAction action, const std::map<std::string, std::string> &properties, MapTile *tile, Point<> tilePosition)
 {
-    switch (action) 
+    switch (action)
     {
         case MapTileTriggerAction::ChangeMap:
             if (properties.at("playerFacing") == "1") {
@@ -403,8 +410,8 @@ void GameMapMode::processAction(MapTileTriggerAction action, const std::map<std:
                     tile->setObjectTextureIndex(stoi(properties.at("objectTextureIndexOpenedChest")));
                     //Update the GLTile
                     auto iter = find_if(m_glTiles.begin(), m_glTiles.end(), [&tilePosition](GLTile &glTile) {
-                        return glTile.x == tilePosition.x() && glTile.y == tilePosition.y();
-                    });
+                            return glTile.x == tilePosition.x() && glTile.y == tilePosition.y();
+                            });
                     if (iter != m_glTiles.end()) {
                         GLTile &glTileToUpdate = *iter;
                         glTileToUpdate.tile = *tile;
@@ -413,38 +420,38 @@ void GameMapMode::processAction(MapTileTriggerAction action, const std::map<std:
                         auto newChestTexture = m_map->getTextureByName(tile->getObjectTextureName());
                         GenerateGLObjectInfo infoGenObject {
                             &glTileToUpdate.glObject,
-                            newChestTexture.has_value() ? &newChestTexture.value().get() : nullptr,
-                            tile->getObjectTextureIndex(),
-                            &glTileToUpdate.vaoObject,
-                            &glTileToUpdate.vboTextureObject 
+                                newChestTexture.has_value() ? &newChestTexture.value().get() : nullptr,
+                                tile->getObjectTextureIndex(),
+                                &glTileToUpdate.vaoObject,
+                                &glTileToUpdate.vboTextureObject
                         };
                         GLObjectService::generateGLObject(infoGenObject, tileCoord, m_texColorBuf);
                     }
                 }
             }
             break;
-        default:   
+        default:
             break;
     }
 }
 
-void GameMapMode::loadMap(const std::string &filePath, const std::string &mapName) 
+void GameMapMode::loadMap(const std::string &filePath, const std::string &mapName)
 {
-	GameMapStorage mapStorage;
-	try {
-		mapStorage.loadMap(filePath, m_map);
+    GameMapStorage mapStorage;
+    try {
+        mapStorage.loadMap(filePath, m_map);
         m_currentMapName = mapName;
-	}
-	catch(std::invalid_argument &err) {
+    }
+    catch(std::invalid_argument &err) {
         std::cerr << err.what() << '\n';
-	}
-	catch(std::runtime_error &err) {
+    }
+    catch(std::runtime_error &err) {
         std::cerr << err.what() << '\n';
-	}
-    
+    }
+
 }
 
-void GameMapMode::changeMap(const std::string &filePath, const std::string &mapName) 
+void GameMapMode::changeMap(const std::string &filePath, const std::string &mapName)
 {
     m_glPlayer->unloadGLPlayerObject();
     unloadGLMapObjects();
@@ -455,7 +462,7 @@ void GameMapMode::changeMap(const std::string &filePath, const std::string &mapN
     m_glPlayer->setGLObjectPosition();
 }
 
-void GameMapMode::calculateGLTileCoord(const Point<> &tilePosition, GLfloat tileCoord[4][2]) 
+void GameMapMode::calculateGLTileCoord(const Point<> &tilePosition, GLfloat tileCoord[4][2])
 {
     auto tileWidth = m_tileSize.tileWidth;
     auto tileHalfWidth = m_tileSize.tileHalfWidth;
@@ -475,13 +482,13 @@ void GameMapMode::calculateGLTileCoord(const Point<> &tilePosition, GLfloat tile
     tileCoord[3][1] = { -tileHalfHeight + startPosY - ((tileHalfHeight * 2) * yConverted) };    /* Bottom Left point */
 }
 
-void GameMapMode::unloadGLMapObjects() 
+void GameMapMode::unloadGLMapObjects()
 {
     for(auto &item : m_glTiles) {
-        glDeleteBuffers(1, &item.glObject.vboPosition); 
-        glDeleteBuffers(1, &item.glObject.vboColor); 
-        glDeleteBuffers(1, &item.glObject.vboTexture); 
-        glDeleteBuffers(1, &item.vboTextureObject); 
+        glDeleteBuffers(1, &item.glObject.vboPosition);
+        glDeleteBuffers(1, &item.glObject.vboColor);
+        glDeleteBuffers(1, &item.glObject.vboTexture);
+        glDeleteBuffers(1, &item.vboTextureObject);
         glDeleteVertexArrays(1, &item.glObject.vao);
         if (item.tile.hasObjectTexture()) {
             glDeleteVertexArrays(1, &item.vaoObject);
@@ -490,7 +497,7 @@ void GameMapMode::unloadGLMapObjects()
     m_glTiles.clear();
 }
 
-void GameMapMode::loadMapTextures() 
+void GameMapMode::loadMapTextures()
 {
     //Clear existing textures in graphics memory
     for(auto &glTexture : m_texturesGLMap) {
@@ -498,18 +505,18 @@ void GameMapMode::loadMapTextures()
     }
     m_texturesGLMap.clear();
     //Load texture in graphics memory
-    for(const auto &texture : m_map->getTextures()) {  
-        const auto &textureName { texture.getName() }; 
+    for(const auto &texture : m_map->getTextures()) {
+        const auto &textureName { texture.getName() };
         m_textureService.loadTexture(texture, m_texturesGLMap[textureName]);
     }
 }
 
-void GameMapMode::generateGLMapObjects() 
+void GameMapMode::generateGLMapObjects()
 {
     int indexRow {0};
     for(const auto &row : m_map->getTiles()) {
         int indexCol {0};
-        for(const auto &tile : row) { 
+        for(const auto &tile : row) {
             GLTile glTile;
             glTile.x = indexCol;
             glTile.y = indexRow;
@@ -518,19 +525,19 @@ void GameMapMode::generateGLMapObjects()
             calculateGLTileCoord(Point(indexCol, indexRow), tileCoord);
             auto tileTexture = m_map->getTextureByName(tile.getTextureName());
             GenerateGLObjectInfo infoGenTexture {
-                    &glTile.glObject,
+                &glTile.glObject,
                     tileTexture.has_value() ? &tileTexture.value().get() : nullptr,
                     tile.getTextureIndex()};
             GLObjectService::generateGLObject(infoGenTexture, tileCoord, m_texColorBuf);
-            
+
             if (glTile.tile.hasObjectTexture()) {
                 auto objectTexture = m_map->getTextureByName(tile.getObjectTextureName());
                 GenerateGLObjectInfo infoGenObject {
                     &glTile.glObject,
-                    objectTexture.has_value() ? &objectTexture.value().get() : nullptr,
-                    tile.getObjectTextureIndex(),
-                    &glTile.vaoObject,
-                    &glTile.vboTextureObject };
+                        objectTexture.has_value() ? &objectTexture.value().get() : nullptr,
+                        tile.getObjectTextureIndex(),
+                        &glTile.vaoObject,
+                        &glTile.vboTextureObject };
                 GLObjectService::generateGLObject(infoGenObject, tileCoord, m_texColorBuf);
             }
             indexCol++;
@@ -557,17 +564,17 @@ void GameMapMode::mainMenuPopupClicked(size_t choice)
 {
     switch (choice)
     {
-    case 0:
-        toggleInventoryWindow();
-        break;
-    case 1:
-        toggleCharacterWindow();
-        break;
-    case 2:
-        mainMenuPopupCanceled();
-        break;
-    default:
-        break;
+        case 0:
+            toggleInventoryWindow();
+            break;
+        case 1:
+            toggleCharacterWindow();
+            break;
+        case 2:
+            mainMenuPopupCanceled();
+            break;
+        default:
+            break;
     }
 }
 
@@ -575,3 +582,5 @@ void GameMapMode::mainMenuPopupCanceled()
 {
     m_inputMode = GameMapInputMode::Map;
 }
+
+} // namespace thewarrior::ui

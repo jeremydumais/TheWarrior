@@ -6,6 +6,12 @@
 #include <linux/limits.h>   // PATH_MAX
 #include <unistd.h>         // readlink
 
+using namespace thewarrior::models;
+using namespace thewarrior::ui::models;
+using namespace thewarrior::storage;
+
+namespace thewarrior::ui::controllers {
+
 GameWindowController::GameWindowController()
     : m_itemStore(std::make_shared<ItemStore>()),
       m_messagePipeline(std::make_shared<MessagePipeline>()),
@@ -39,7 +45,7 @@ bool GameWindowController::loadItemStore(const std::string &filePath)
 {
     ItemStoreStorage storage;
     try {
-        storage.loadItemStore(filePath, m_itemStore);      
+        storage.loadItemStore(filePath, m_itemStore);
         return true;
     }
     catch(const std::exception &err) {
@@ -63,3 +69,5 @@ void GameWindowController::initializeResourcesPath()
     }
     m_resourcesPath = fmt::format("{0}/resources/", executablePath);
 }
+
+} // namespace thewarrior::ui::controllers

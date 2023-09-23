@@ -3,6 +3,9 @@
 #include <limits>
 #include <string>
 
+using namespace itemeditor::controllers;
+using namespace thewarrior::models;
+
 class ManageStatsItemControllerEmptyStoreSample : public ::testing::Test
 {
 public:

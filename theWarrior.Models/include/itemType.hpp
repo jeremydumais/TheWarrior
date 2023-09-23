@@ -3,7 +3,9 @@
 #include <optional>
 #include <string>
 
-enum class ItemType 
+namespace thewarrior::models {
+
+enum class ItemType
 {
 	Item,
 	Weapon,
@@ -13,3 +15,5 @@ enum class ItemType
 
 std::string itemTypeToString(ItemType itemType);
 std::optional<ItemType> itemTypeFromString(const std::string &value);
+
+} // namespace thewarrior::models

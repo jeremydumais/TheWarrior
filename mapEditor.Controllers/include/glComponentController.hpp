@@ -1,27 +1,37 @@
 #pragma once
 
-#include "gameMap.hpp"
 #include <memory>
 #include <string>
 #include <vector>
+#include "gameMap.hpp"
+#include "monsterZone.hpp"
+#include "monsterZoneDTO.hpp"
 
-class GLComponentController
-{
-public:
+namespace mapeditor::controllers {
+
+typedef std::optional<const mapeditor::controllers::MonsterZoneDTO> OptMonsterZoneDTOConst;
+
+class GLComponentController {
+ public:
     GLComponentController();
-    const std::shared_ptr<GameMap> getMap() const;
-    void setCurrentMap(std::shared_ptr<GameMap> map);
+    const std::shared_ptr<thewarrior::models::GameMap> getMap() const;
+    void setCurrentMap(std::shared_ptr<thewarrior::models::GameMap> map);
     std::vector<std::string> getAlreadyUsedTextureNames() const;
+    std::vector<std::string> getAlreadyUsedMonsterZoneNames() const;
     bool isTextureUsedInMap(const std::string &name);
-    bool isShrinkMapImpactAssignedTiles(int offsetLeft, 
-                                        int offsetTop, 
-                                        int offsetRight, 
+    bool isShrinkMapImpactAssignedTiles(int offsetLeft,
+                                        int offsetTop,
+                                        int offsetRight,
                                         int offsetBottom) const;
-    void resizeMap(int offsetLeft, 
-                   int offsetTop, 
-                   int offsetRight, 
+    void resizeMap(int offsetLeft,
+                   int offsetTop,
+                   int offsetRight,
                    int offsetBottom);
-private:
-    std::shared_ptr<GameMap> m_map;
+    std::vector<mapeditor::controllers::MonsterZoneDTO> getMonsterZones() const;
+    OptMonsterZoneDTOConst getMonsterZoneByName(const std::string &name) const;
+
+ private:
+    std::shared_ptr<thewarrior::models::GameMap> m_map;
 };
 
+}  // namespace mapeditor::controllers

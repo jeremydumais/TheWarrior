@@ -2,6 +2,8 @@
 #include <fmt/format.h>
 #include <stdexcept>
 
+namespace thewarrior::models {
+
 SecondaryHandType getVariantEquipmentType(VariantEquipment variantEquipment);
 void validateMainHand(boost::optional<WeaponItem> mainHand);
 void validateSecondaryHand(VariantEquipment secondaryHand);
@@ -43,7 +45,7 @@ PlayerEquipment::PlayerEquipment(boost::optional<WeaponItem> mainHand,
     validateUpperBody(upperBody);
     validateLowerBody(lowerBody);
     validateHands(hands);
-    validateFeet(feet); 
+    validateFeet(feet);
 }
 
 const boost::optional<WeaponItem> &PlayerEquipment::getMainHand() const
@@ -194,3 +196,5 @@ void validateFeet(boost::optional<ArmorItem> feet)
         throw std::invalid_argument(fmt::format("Cannot slot {0} in feet.", feet->getName()));
     }
 }
+
+} // namespace thewarrior::models

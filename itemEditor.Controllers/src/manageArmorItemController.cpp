@@ -1,6 +1,10 @@
 #include "manageArmorItemController.hpp"
 #include "boost/algorithm/string.hpp"
 
+using namespace thewarrior::models;
+
+namespace itemeditor::controllers {
+
 ManageArmorItemController::ManageArmorItemController(std::shared_ptr<ItemStore> itemStore)
     : ManageItemController(itemStore)
 {
@@ -27,7 +31,7 @@ bool ManageArmorItemController::validateDefenseGain(const std::string &defenseGa
 	return true;
 }
 
-std::unique_ptr<ItemDTO> ManageArmorItemController::getItem(const std::string &id) const 
+std::unique_ptr<ItemDTO> ManageArmorItemController::getItem(const std::string &id) const
 {
 	auto item = m_itemStore->findItem(id);
     if (item != nullptr) {
@@ -68,3 +72,5 @@ std::shared_ptr<Item> ManageArmorItemController::itemDTOToItem(std::unique_ptr<I
     }
     return updateItem;
 }
+
+} // namespace itemeditor::controllers

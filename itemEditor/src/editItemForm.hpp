@@ -14,15 +14,15 @@ class EditItemForm : public EditItemFormBase
 Q_OBJECT
 
 public:
-	EditItemForm(QWidget *parent, 
+	EditItemForm(QWidget *parent,
 				const std::string &resourcesPath,
-				std::shared_ptr<ItemStore> itemStore,
+				std::shared_ptr<thewarrior::models::ItemStore> itemStore,
 				std::optional<std::string> itemIdToEdit);
 	void connectUIActions();
-	
+
 private:
 	Ui::editItemFormClass ui;
-	ManageItemController m_controller;
+    itemeditor::controllers::ManageItemController m_controller;
 	bool loadExistingItemToForm();
 	void onPushButtonCancelClick();
 	void onPushButtonOKClick();

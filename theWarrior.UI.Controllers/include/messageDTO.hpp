@@ -2,6 +2,8 @@
 
 #include <string>
 
+namespace thewarrior::ui::controllers {
+
 enum class MessageDTOType
 {
     Message,
@@ -18,3 +20,5 @@ struct MessageDTO
     virtual ~MessageDTO() = default;
     virtual MessageDTOType getType() { return MessageDTOType::Message; };
 };
+
+} // namespace thewarrior::ui::controllers

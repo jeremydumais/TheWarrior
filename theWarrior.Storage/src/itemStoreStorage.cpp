@@ -7,14 +7,16 @@
 #include <boost/serialization/export.hpp>
 #include <fmt/format.h>
 
-BOOST_CLASS_EXPORT_GUID(WeaponItem, "WItem")
-BOOST_CLASS_EXPORT_GUID(ArmorItem, "AItem")
-BOOST_CLASS_EXPORT_GUID(StatsItem, "SItem")
+BOOST_CLASS_EXPORT_GUID(thewarrior::models::WeaponItem, "WItem")
+BOOST_CLASS_EXPORT_GUID(thewarrior::models::ArmorItem, "AItem")
+BOOST_CLASS_EXPORT_GUID(thewarrior::models::StatsItem, "SItem")
 
 using namespace std;
 using namespace boost::algorithm;
+using namespace thewarrior::models;
+using namespace thewarrior::storage;
 
-void ItemStoreStorage::loadItemStore(const std::string &fileName, std::shared_ptr<ItemStore> itemStore) 
+void ItemStoreStorage::loadItemStore(const std::string &fileName, std::shared_ptr<ItemStore> itemStore)
 {
     if (trim_copy(fileName).empty()) {
         throw invalid_argument("The fileName cannot be empty.");
@@ -36,7 +38,7 @@ void ItemStoreStorage::loadItemStore(const std::string &fileName, std::shared_pt
 	}
 }
 
-void ItemStoreStorage::saveItemStore(const std::string &fileName, std::shared_ptr<ItemStore> itemStore) 
+void ItemStoreStorage::saveItemStore(const std::string &fileName, std::shared_ptr<ItemStore> itemStore)
 {
     if (trim_copy(fileName).empty()) {
         throw invalid_argument("The fileName cannot be empty.");
@@ -58,7 +60,7 @@ void ItemStoreStorage::saveItemStore(const std::string &fileName, std::shared_pt
 	}
 }
 
-void ItemStoreStorage::setFileStream(std::unique_ptr<IBinaryFileStream<ItemStore>> bfs) 
+void ItemStoreStorage::setFileStream(std::unique_ptr<IBinaryFileStream<ItemStore>> bfs)
 {
     m_bfs = move(bfs);
 }

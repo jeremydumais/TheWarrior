@@ -2,6 +2,8 @@
 
 #include <string>
 
+namespace thewarrior::models {
+
 struct TextureInfo
 {
     std::string name;
@@ -11,3 +13,5 @@ struct TextureInfo
     int tileWidth;
     int tileHeight;
 };
+
+} // namespace thewarrior::models

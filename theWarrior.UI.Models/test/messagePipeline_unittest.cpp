@@ -2,6 +2,8 @@
 #include <gtest/gtest.h>
 #include <memory>
 
+using namespace thewarrior::ui::models;
+
 class MessagePipelineSample : public ::testing::Test
 {
 public:

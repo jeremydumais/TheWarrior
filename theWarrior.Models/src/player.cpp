@@ -1,15 +1,12 @@
 #include "player.hpp"
 #include "boost/algorithm/string.hpp"
+#include <limits>
 #include <stdexcept>
 
+namespace thewarrior::models {
+
 Player::Player(const std::string &name)
-    : m_level(1),
-      m_health(10),
-      m_bonusAttackFromLevel(0),
-      m_bonusDefenseFromLevel(0),
-      m_bonusHealthFromLevel(0),
-      m_name(name),
-      m_inventory(std::make_shared<Inventory>())
+    : m_name(name)
 {
     validateName(name);
 }
@@ -36,19 +33,18 @@ PlayerEquipment& Player::getEquipment()
 
 PlayerStats Player::getStats() const
 {
-    PlayerStats stats
-    {
-        0.5F + m_bonusAttackFromLevel,
-        0.5F + m_bonusDefenseFromLevel,
-        10 + m_bonusHealthFromLevel,
-        10 + m_bonusHealthFromLevel
+    PlayerStats stats {
+        .attack = m_bonusAttackFromLevel,
+        .defense = m_bonusDefenseFromLevel,
+        .health = m_health,
+        .maxHealth = m_bonusHealthFromLevel
     };
     //Add equipment stats
     if (m_equipment.getMainHand().has_value()) {
         stats.attack += m_equipment.getMainHand()->getAttackGain();
     }
     if (m_equipment.getSecondaryHandType() != SecondaryHandType::None) {
-        if (m_equipment.getSecondaryHandType() == SecondaryHandType::Weapon) { 
+        if (m_equipment.getSecondaryHandType() == SecondaryHandType::Weapon) {
             stats.attack += boost::get<WeaponItem>(m_equipment.getSecondaryHand().get()).getAttackGain();
         }
         else {
@@ -61,6 +57,11 @@ PlayerStats Player::getStats() const
     stats.defense += Player::getOptionalArmorItemDefense(m_equipment.getHands());
     stats.defense += Player::getOptionalArmorItemDefense(m_equipment.getFeet());
     return stats;
+}
+
+int Player::getGold() const
+{
+    return m_gold;
 }
 
 float Player::getOptionalArmorItemDefense(const boost::optional<ArmorItem> &item)
@@ -84,9 +85,32 @@ void Player::incrementLevel()
     m_level++;
 }
 
+void Player::addGold(int value)
+{
+    int intMax = std::numeric_limits<int>::max();
+    if (intMax - m_gold >= value) {
+        m_gold += value;
+    }
+    else {
+        m_gold = intMax;
+    }
+}
+
+void Player::removeGold(int value)
+{
+    if (m_gold - value >= 0) {
+        m_gold -= value;
+    }
+    else {
+        m_gold = 0;
+    }
+}
+
 void Player::validateName(const std::string &name) const
 {
     if (boost::trim_copy(name).empty()) {
         throw std::invalid_argument("name cannot be null or empty.");
     }
 }
+
+} // namespace thewarrior::models

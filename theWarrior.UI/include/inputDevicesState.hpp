@@ -4,7 +4,9 @@
 #include <SDL2/SDL_stdinc.h>
 #include <optional>
 
-enum class InputElementState 
+namespace thewarrior::ui {
+
+enum class InputElementState
 {
     Idle,
     Pressed,
@@ -16,13 +18,13 @@ class InputDevicesState
 public:
     virtual ~InputDevicesState() = default;
     bool getUpPressed() const;
-    std::optional<Uint64> getUpPressedTicks() const; 
+    std::optional<Uint64> getUpPressedTicks() const;
     bool getDownPressed() const;
-    std::optional<Uint64> getDownPressedTicks() const; 
+    std::optional<Uint64> getDownPressedTicks() const;
     bool getLeftPressed() const;
-    std::optional<Uint64> getLeftPressedTicks() const; 
+    std::optional<Uint64> getLeftPressedTicks() const;
     bool getRightPressed() const;
-    std::optional<Uint64> getRightPressedTicks() const; 
+    std::optional<Uint64> getRightPressedTicks() const;
     InputElementState getButtonAState() const;
     InputElementState getButtonBState() const;
     InputElementState getButtonCState() const;
@@ -55,3 +57,5 @@ private:
     InputElementState m_buttonDState = InputElementState::Idle;
     InputElementState m_keyShiftState = InputElementState::Idle;
 };
+
+} // namespace thewarrior::ui

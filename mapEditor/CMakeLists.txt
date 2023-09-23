@@ -3,8 +3,8 @@ set(PROJECT_NAME    "MapEditor")
 
 include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/src
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/include
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/src
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../commonEditor.UI/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../commonEditor.UI/src
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Storage/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../mapEditor.Controllers/include)
@@ -18,23 +18,31 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOUIC_SEARCH_PATHS AUTOGEN_BUILD_DIR/include)
 
-set (RESOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/res/darkstyle)
+set (RESOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/../commonEditor.UI/res/darkstyle)
 
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mainForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_GLComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_TileTabComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_TextureListTabComponent.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_MonsterZoneTabComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_TextureSelectionComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_MapTabComponent.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/editItemStoreForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterEncounterForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterStoreForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterZoneForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editTextureForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editMapTileTriggerForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editTileActionChangeMapPropertiesForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editTileActionOpenChestPropertiesForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/manageItemStoreForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/manageMonsterStoreForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mapOpenGLWidget.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterPickerForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/aboutBoxForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/imageAttributionsForm.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/res/darkstyle/darkstyle.qrc
+                         ${CMAKE_CURRENT_SOURCE_DIR}/../commonEditor.UI/res/darkstyle/darkstyle.qrc
                          ${CMAKE_CURRENT_SOURCE_DIR}/res/global.qrc)
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_FILES})
@@ -43,7 +51,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STRE
 endif()
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${CONAN_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} MapEditor.Controllers theWarrior.Models theWarrior.Storage commonUI Qt5::Widgets Qt5::OpenGL glut GLU GL ${CONAN_LIBS})
+target_link_libraries(${PROJECT_NAME} MapEditor.Controllers theWarrior.Models theWarrior.Storage commonEditor.UI Qt5::Widgets Qt5::OpenGL glut GLU GL ${CONAN_LIBS})
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
@@ -75,7 +83,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     "-Wall" # enables all the warnings about constructions
     "-Wextra" # Print extra warning messages"
     "-Werror" # Make all warnings into errors.
-    "-Wno-unused-lambda-capture" # FIX: It is necessary when building on MSVC
+    "-Wno-unused-lambda-capture" # FIX It is necessary when building on MSVC
     "-pedantic" # Issue all the warnings demanded by strict ISO C and ISO C++
     "-pedantic-errors" # Like -pedantic, except that errors are produced rather than warnings http://stackoverflow.com/questions/30255294/how-to-hide-extra-output-from-pragma-message
     )
@@ -87,8 +95,16 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
       INTERFACE _SCL_SECURE_NO_WARNINGS) # disable security-paranoia warning
 endif()
 
+include(GNUInstallDirs)
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
-#install(FILES ${RESOURCE_FILES} DESTINATION share/${PROJECT_NAME}/resources)
+install(FILES "res/MapEditor Icon16.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/16x16/apps" RENAME "thewarrior_mapeditor.png")
+install(FILES "res/MapEditor Icon32.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/32x32/apps" RENAME "thewarrior_mapeditor.png")
+install(FILES "res/MapEditor Icon48.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/48x48/apps" RENAME "thewarrior_mapeditor.png")
+install(FILES "res/MapEditor Icon64.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/64x64/apps" RENAME "thewarrior_mapeditor.png")
+install(FILES "res/MapEditor Icon128.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/128x128/apps" RENAME "thewarrior_mapeditor.png")
+install(FILES "res/MapEditor Icon256.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/256x256/apps" RENAME "thewarrior_mapeditor.png")
+install(FILES "res/MapEditor Icon512.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/512x512/apps" RENAME "thewarrior_mapeditor.png")
+install(FILES "res/thewarrior.mapeditor.desktop" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/../resources DESTINATION ${CMAKE_BINARY_DIR}/bin)
 file(COPY ${RESOURCE_FILES} DESTINATION ${CMAKE_BINARY_DIR}/bin/resources)

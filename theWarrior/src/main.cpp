@@ -2,6 +2,8 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 
+using namespace thewarrior::ui;
+
 int main(int, char **)
 {
     GameWindow gameWindow("The Warrior", 100, 50, 1024, 900);

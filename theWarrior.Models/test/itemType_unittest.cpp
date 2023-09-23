@@ -1,22 +1,24 @@
 #include "itemType.hpp"
 #include <gtest/gtest.h>
 
-TEST(itemTypeToString, WithItem_ReturnItem) 
+using namespace thewarrior::models;
+
+TEST(itemTypeToString, WithItem_ReturnItem)
 {
     ASSERT_EQ("Item", itemTypeToString(ItemType::Item));
 }
 
-TEST(itemTypeToString, WithArmor_ReturnArmor) 
+TEST(itemTypeToString, WithArmor_ReturnArmor)
 {
     ASSERT_EQ("Armor", itemTypeToString(ItemType::Armor));
 }
 
-TEST(itemTypeToString, WithStatsItem_ReturnStatsItem) 
+TEST(itemTypeToString, WithStatsItem_ReturnStatsItem)
 {
     ASSERT_EQ("Stats Item", itemTypeToString(ItemType::StatsItem));
 }
 
-TEST(itemTypeToString, WithWeapon_ReturnWeapon) 
+TEST(itemTypeToString, WithWeapon_ReturnWeapon)
 {
     ASSERT_EQ("Weapon", itemTypeToString(ItemType::Weapon));
 }

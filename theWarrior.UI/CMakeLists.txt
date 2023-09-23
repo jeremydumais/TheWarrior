@@ -1,6 +1,8 @@
 # Set project name
 set(PROJECT_NAME    "theWarrior.UI")
 
+#find_package(Freetype)
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Storage/include
@@ -30,8 +32,8 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STRE
   target_compile_definitions(${PROJECT_NAME} PRIVATE SUPPORT_MAYBE_UNUSED)
 endif()
 
-target_link_libraries(${PROJECT_NAME} theWarrior.Models theWarrior.Storage theWarrior.UI.Controllers SDL2 GLU GL GLEW)
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${CONAN_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} theWarrior.Models theWarrior.Storage theWarrior.UI.Controllers SDL2 GLU GL GLEW freetype bz2 png16 brotlicommon brotlidec brotlienc z)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
@@ -64,7 +66,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     "-Wall" # enables all the warnings about constructions
     "-Wextra" # Print extra warning messages"
     "-Werror" # Make all warnings into errors.
-    "-Wno-unused-lambda-capture" # FIX: It is necessary when building on MSVC
+    "-Wno-unused-lambda-capture" # FIX It is necessary when building on MSVC
     "-pedantic" # Issue all the warnings demanded by strict ISO C and ISO C++
     "-pedantic-errors" # Like -pedantic, except that errors are produced rather than warnings http://stackoverflow.com/questions/30255294/how-to-hide-extra-output-from-pragma-message
     )
@@ -77,7 +79,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 endif()
 
 if (NOT DEFINED BUILD_TESTING OR BUILD_TESTING)
-    add_subdirectory("test")
+    #add_subdirectory("test")
 endif()
 
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)

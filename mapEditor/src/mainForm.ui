@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1483</width>
-    <height>911</height>
+    <width>1491</width>
+    <height>923</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,15 +32,15 @@
          </size>
         </property>
         <property name="currentIndex">
-         <number>3</number>
+         <number>4</number>
         </property>
         <widget class="QWidget" name="pageMapProperties">
          <property name="geometry">
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>410</width>
-           <height>680</height>
+           <width>100</width>
+           <height>30</height>
           </rect>
          </property>
          <attribute name="label">
@@ -52,7 +52,7 @@
             <x>10</x>
             <y>0</y>
             <width>301</width>
-            <height>71</height>
+            <height>72</height>
            </rect>
           </property>
           <layout class="QFormLayout" name="formLayout">
@@ -182,8 +182,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>410</width>
-           <height>680</height>
+           <width>100</width>
+           <height>30</height>
           </rect>
          </property>
          <attribute name="label">
@@ -337,7 +337,7 @@
                  </property>
                  <property name="icon">
                   <iconset resource="../res/global.qrc">
-                   <normaloff>:/commonUI/res/gtk-add.svg</normaloff>:/commonUI/res/gtk-add.svg</iconset>
+                   <normaloff>:/commonEditor.UI/res/gtk-add.svg</normaloff>:/commonEditor.UI/res/gtk-add.svg</iconset>
                  </property>
                 </widget>
                </item>
@@ -348,7 +348,7 @@
                  </property>
                  <property name="icon">
                   <iconset resource="../res/global.qrc">
-                   <normaloff>:/commonUI/res/gtk-edit.svg</normaloff>:/commonUI/res/gtk-edit.svg</iconset>
+                   <normaloff>:/commonEditor.UI/res/gtk-edit.svg</normaloff>:/commonEditor.UI/res/gtk-edit.svg</iconset>
                  </property>
                 </widget>
                </item>
@@ -359,7 +359,7 @@
                  </property>
                  <property name="icon">
                   <iconset resource="../res/global.qrc">
-                   <normaloff>:/commonUI/res/gtk-delete.svg</normaloff>:/commonUI/res/gtk-delete.svg</iconset>
+                   <normaloff>:/commonEditor.UI/res/gtk-delete.svg</normaloff>:/commonEditor.UI/res/gtk-delete.svg</iconset>
                  </property>
                 </widget>
                </item>
@@ -375,8 +375,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>410</width>
-           <height>680</height>
+           <width>278</width>
+           <height>141</height>
           </rect>
          </property>
          <attribute name="label">
@@ -395,7 +395,7 @@
               </property>
               <property name="icon">
                <iconset resource="../res/global.qrc">
-                <normaloff>:/commonUI/res/gtk-add.svg</normaloff>:/commonUI/res/gtk-add.svg</iconset>
+                <normaloff>:/commonEditor.UI/res/gtk-add.svg</normaloff>:/commonEditor.UI/res/gtk-add.svg</iconset>
               </property>
              </widget>
             </item>
@@ -406,7 +406,7 @@
               </property>
               <property name="icon">
                <iconset resource="../res/global.qrc">
-                <normaloff>:/commonUI/res/gtk-edit.svg</normaloff>:/commonUI/res/gtk-edit.svg</iconset>
+                <normaloff>:/commonEditor.UI/res/gtk-edit.svg</normaloff>:/commonEditor.UI/res/gtk-edit.svg</iconset>
               </property>
              </widget>
             </item>
@@ -417,7 +417,7 @@
               </property>
               <property name="icon">
                <iconset resource="../res/global.qrc">
-                <normaloff>:/commonUI/res/gtk-delete.svg</normaloff>:/commonUI/res/gtk-delete.svg</iconset>
+                <normaloff>:/commonEditor.UI/res/gtk-delete.svg</normaloff>:/commonEditor.UI/res/gtk-delete.svg</iconset>
               </property>
              </widget>
             </item>
@@ -430,8 +430,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>410</width>
-           <height>680</height>
+           <width>278</width>
+           <height>141</height>
           </rect>
          </property>
          <attribute name="label">
@@ -450,7 +450,7 @@
               </property>
               <property name="icon">
                <iconset resource="../res/global.qrc">
-                <normaloff>:/commonUI/res/gtk-add.svg</normaloff>:/commonUI/res/gtk-add.svg</iconset>
+                <normaloff>:/commonEditor.UI/res/gtk-add.svg</normaloff>:/commonEditor.UI/res/gtk-add.svg</iconset>
               </property>
              </widget>
             </item>
@@ -461,7 +461,7 @@
               </property>
               <property name="icon">
                <iconset resource="../res/global.qrc">
-                <normaloff>:/commonUI/res/gtk-edit.svg</normaloff>:/commonUI/res/gtk-edit.svg</iconset>
+                <normaloff>:/commonEditor.UI/res/gtk-edit.svg</normaloff>:/commonEditor.UI/res/gtk-edit.svg</iconset>
               </property>
              </widget>
             </item>
@@ -472,7 +472,90 @@
               </property>
               <property name="icon">
                <iconset resource="../res/global.qrc">
-                <normaloff>:/commonUI/res/gtk-delete.svg</normaloff>:/commonUI/res/gtk-delete.svg</iconset>
+                <normaloff>:/commonEditor.UI/res/gtk-delete.svg</normaloff>:/commonEditor.UI/res/gtk-delete.svg</iconset>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="page_MonsterZone">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>410</width>
+           <height>640</height>
+          </rect>
+         </property>
+         <attribute name="label">
+          <string>Monster zones</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayoutMonsterZone">
+          <item>
+           <widget class="QCheckBox" name="checkBoxOneMonsterZoneForAllTheMap">
+            <property name="text">
+             <string>Use only one monster zone for all the map</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTableWidget" name="tableWidgetMonsterZone">
+            <property name="editTriggers">
+             <set>QAbstractItemView::NoEditTriggers</set>
+            </property>
+            <property name="selectionMode">
+             <enum>QAbstractItemView::SingleSelection</enum>
+            </property>
+            <property name="selectionBehavior">
+             <enum>QAbstractItemView::SelectRows</enum>
+            </property>
+            <property name="columnCount">
+             <number>2</number>
+            </property>
+            <attribute name="horizontalHeaderStretchLastSection">
+             <bool>true</bool>
+            </attribute>
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
+            <column/>
+            <column/>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayoutMonsterZoneActions">
+            <item>
+             <widget class="QPushButton" name="pushButtonAddMonsterZone">
+              <property name="text">
+               <string>&amp;Add...</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../res/global.qrc">
+                <normaloff>:/commonEditor.UI/res/gtk-add.svg</normaloff>:/commonEditor.UI/res/gtk-add.svg</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButtonEditMonsterZone">
+              <property name="text">
+               <string>&amp;Edit...</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../res/global.qrc">
+                <normaloff>:/commonEditor.UI/res/gtk-edit.svg</normaloff>:/commonEditor.UI/res/gtk-edit.svg</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButtonDeleteMonsterZone">
+              <property name="text">
+               <string>&amp;Delete</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../res/global.qrc">
+                <normaloff>:/commonEditor.UI/res/gtk-delete.svg</normaloff>:/commonEditor.UI/res/gtk-delete.svg</iconset>
               </property>
              </widget>
             </item>
@@ -680,8 +763,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>232</width>
-           <height>632</height>
+           <width>243</width>
+           <height>628</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
@@ -705,8 +788,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1483</width>
-     <height>28</height>
+     <width>1491</width>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -772,8 +855,16 @@
     <addaction name="menu_Color_theme"/>
     <addaction name="action_DisplayGrid"/>
    </widget>
+   <widget class="QMenu" name="menu_Settings">
+    <property name="title">
+     <string>&amp;Settings</string>
+    </property>
+    <addaction name="action_ItemStore"/>
+    <addaction name="action_MonsterStore"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
+   <addaction name="menu_Settings"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -811,11 +902,13 @@
    <addaction name="action_BlockBottomBorder"/>
    <addaction name="action_ClearBlockedBorders"/>
    <addaction name="separator"/>
+   <addaction name="action_ApplyMonsterZone"/>
+   <addaction name="action_ClearMonsterZone"/>
   </widget>
   <action name="action_Quit">
    <property name="icon">
     <iconset resource="../res/global.qrc">
-     <normaloff>:/commonUI/res/exit.svg</normaloff>:/commonUI/res/exit.svg</iconset>
+     <normaloff>:/commonEditor.UI/res/exit.svg</normaloff>:/commonEditor.UI/res/exit.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;Quit</string>
@@ -845,7 +938,7 @@
   <action name="action_Open">
    <property name="icon">
     <iconset resource="../res/global.qrc">
-     <normaloff>:/commonUI/res/document-open.svg</normaloff>:/commonUI/res/document-open.svg</iconset>
+     <normaloff>:/commonEditor.UI/res/document-open.svg</normaloff>:/commonEditor.UI/res/document-open.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;Open...</string>
@@ -857,7 +950,7 @@
   <action name="action_Save">
    <property name="icon">
     <iconset resource="../res/global.qrc">
-     <normaloff>:/commonUI/res/document-save.svg</normaloff>:/commonUI/res/document-save.svg</iconset>
+     <normaloff>:/commonEditor.UI/res/document-save.svg</normaloff>:/commonEditor.UI/res/document-save.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;Save</string>
@@ -922,7 +1015,7 @@
   <action name="action_SaveAs">
    <property name="icon">
     <iconset resource="../res/global.qrc">
-     <normaloff>:/commonUI/res/document-save-as.svg</normaloff>:/commonUI/res/document-save-as.svg</iconset>
+     <normaloff>:/commonEditor.UI/res/document-save-as.svg</normaloff>:/commonEditor.UI/res/document-save-as.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;Save As...</string>
@@ -934,7 +1027,7 @@
   <action name="action_New">
    <property name="icon">
     <iconset resource="../res/global.qrc">
-     <normaloff>:/commonUI/res/document-new.svg</normaloff>:/commonUI/res/document-new.svg</iconset>
+     <normaloff>:/commonEditor.UI/res/document-new.svg</normaloff>:/commonEditor.UI/res/document-new.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;New</string>
@@ -1074,6 +1167,40 @@
    </property>
    <property name="toolTip">
     <string>Clear Blocked Borders</string>
+   </property>
+  </action>
+  <action name="action_ApplyMonsterZone">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/applyMonsterZone.png</normaloff>:/applyMonsterZone.png</iconset>
+   </property>
+   <property name="text">
+    <string>Apply Monster Zone</string>
+   </property>
+   <property name="toolTip">
+    <string>Apply Monster Zone</string>
+   </property>
+  </action>
+  <action name="action_ClearMonsterZone">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/clearMonsterZone.png</normaloff>:/clearMonsterZone.png</iconset>
+   </property>
+   <property name="text">
+    <string>Clear Monster Zone</string>
+   </property>
+   <property name="toolTip">
+    <string>Clear Monster Zone</string>
+   </property>
+  </action>
+  <action name="action_ItemStore">
+   <property name="text">
+    <string>&amp;Item store...</string>
+   </property>
+  </action>
+  <action name="action_MonsterStore">
+   <property name="text">
+    <string>&amp;Monster store...</string>
    </property>
   </action>
  </widget>

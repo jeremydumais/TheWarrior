@@ -2,12 +2,14 @@
 
 #include <string>
 
+namespace thewarrior::storage {
+
 enum class FileOpenMode { Read, Write };
 
 template<class T>
 class IBinaryFileStream
 {
-public:   
+public:
     IBinaryFileStream(const std::string &fileName) : m_fileName(fileName) {}
     virtual ~IBinaryFileStream() = default;
     const std::string &getFileName() const { return m_fileName; }
@@ -20,3 +22,5 @@ private:
     std::string m_fileName;
     std::string m_lastError;
 };
+
+} // namespace thewarrior::storage

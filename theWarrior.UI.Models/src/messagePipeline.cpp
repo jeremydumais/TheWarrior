@@ -1,5 +1,7 @@
 #include "messagePipeline.hpp"
 
+namespace thewarrior::ui::models {
+
 MessagePipeline::MessagePipeline()
     : m_messages(std::queue<std::shared_ptr<Message>>())
 {
@@ -24,3 +26,5 @@ void MessagePipeline::deleteCurrentMessage()
 {
     m_messages.pop();
 }
+
+} // namespace thewarrior::ui::models

@@ -11,6 +11,8 @@
 #include "memory"
 #include <string>
 
+namespace thewarrior::ui {
+
 enum class PlayerMovement { None, MoveLeft, MoveRight, MoveUp, MoveDown };
 enum class PlayerFacing { Left, Up, Right, Down };
 
@@ -18,24 +20,24 @@ struct MovingResult {
     bool needToRefreshTexture;
 };
 
-class GLPlayer : public Player 
+class GLPlayer : public thewarrior::models::Player
 {
 public:
     explicit GLPlayer(const std::string &name);
     const std::string &getTextureName() const;
     int getTextureIndex() const;
-    const Texture &getTexture() const;
-    Point<> getGridPosition() const;
-    Point<float> getGLObjectPositionWithMovement() const;
+    const thewarrior::models::Texture &getTexture() const;
+    thewarrior::models::Point<> getGridPosition() const;
+    thewarrior::models::Point<float> getGLObjectPositionWithMovement() const;
     bool isInMovement() const;
     bool isRunning() const;
     bool isFacing(PlayerFacing direction);
     void initialize(const std::string &resourcesPath);
     void generateGLPlayerObject();
     void unloadGLPlayerObject();
-    void setTexture(const TextureInfo &textureInfo);
+    void setTexture(const thewarrior::models::TextureInfo &textureInfo);
     void applyCurrentGLTexture(const GLTextureService &textureService);
-    void setGridPosition(Point<> position);
+    void setGridPosition(thewarrior::models::Point<> position);
     void setGLObjectPosition();
     void draw();
     void moveUp();
@@ -49,13 +51,13 @@ public:
     void enableRunMode();
     void disableRunMode();
     MovingResult processMoving(float delta_time);
-    void onGameWindowSizeChanged(const Size<> &);
+    void onGameWindowSizeChanged(const thewarrior::models::Size<> &);
     void onGameWindowTileSizeChanged(const TileSize &tileSize);
     void onGameWindowUpdate(float delta_time);
 private:
     GLObject glObject;
     unsigned int glTextureId;
-    Point<> m_coord;
+    thewarrior::models::Point<> m_coord;
     float m_xMove;
     float m_yMove;
     TileSize m_tileSize;
@@ -66,8 +68,8 @@ private:
     std::string m_textureName;
     int m_baseTextureIndex;
     int m_currentMovementTextureIndex;
-    std::shared_ptr<Texture> m_texture;
-    GLTextureService m_textureService;    
+    std::shared_ptr<thewarrior::models::Texture> m_texture;
+    GLTextureService m_textureService;
 };
 
-
+} // namespace thewarrior::ui

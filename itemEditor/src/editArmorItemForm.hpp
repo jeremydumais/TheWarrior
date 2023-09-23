@@ -14,14 +14,14 @@ class EditArmorItemForm :  public EditItemFormBase
 Q_OBJECT
 
 public:
-	EditArmorItemForm(QWidget *parent, 
+	EditArmorItemForm(QWidget *parent,
 				const std::string &resourcesPath,
-				std::shared_ptr<ItemStore> itemStore,
+				std::shared_ptr<thewarrior::models::ItemStore> itemStore,
 				std::optional<std::string> itemIdToEdit);
 	void connectUIActions();
 private:
 	Ui::editArmorItemFormClass ui;
-	ManageArmorItemController m_controller;
+    itemeditor::controllers::ManageArmorItemController m_controller;
 	void initializeComboBoxSlotInBodyPart();
 	bool loadExistingItemToForm();
 	void onPushButtonCancelClick();

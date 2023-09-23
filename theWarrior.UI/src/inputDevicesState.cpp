@@ -2,6 +2,8 @@
 #include <SDL2/SDL_timer.h>
 #include <iostream>
 
+namespace thewarrior::ui {
+
 bool InputDevicesState::getUpPressed() const
 {
     return m_upPressed.has_value();
@@ -86,7 +88,7 @@ void InputDevicesState::reset()
 }
 
 void InputDevicesState::processJoystick(SDL_Joystick *joystick)
-{   
+{
     bool buttonAPressed = false;
     bool buttonBPressed = false;
     bool buttonCPressed = false;
@@ -254,3 +256,5 @@ Uint64 InputDevicesState::getTicks() const
 {
     return SDL_GetTicks64();
 }
+
+} // namespace thewarrior::ui

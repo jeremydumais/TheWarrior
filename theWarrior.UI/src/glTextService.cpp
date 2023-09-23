@@ -4,6 +4,9 @@
 #include <fmt/format.h>
 
 using namespace std;
+using namespace thewarrior::models;
+
+namespace thewarrior::ui {
 
 GLTextService::~GLTextService()
 {
@@ -13,7 +16,7 @@ GLTextService::~GLTextService()
 }
 
 bool GLTextService::initShader(const std::string &vertexShaderFileName,
-                         const std::string &fragmentShaderFileName) 
+                         const std::string &fragmentShaderFileName)
 {
     m_shaderProgram = make_shared<GLShaderProgram>(vertexShaderFileName,
                                                  fragmentShaderFileName);
@@ -38,12 +41,12 @@ const string& GLTextService::getLastError() const
     return m_lastError;
 }
 
-void GLTextService::useShader() 
+void GLTextService::useShader()
 {
     m_shaderProgram->use();
 }
 
-bool GLTextService::initFont(const std::string &fontFileName) 
+bool GLTextService::initFont(const std::string &fontFileName)
 {
     FT_Library ft;
     if (FT_Init_FreeType(&ft)) {
@@ -128,7 +131,7 @@ void GLTextService::renderText(std::string text, float x, float y, float scale, 
 
     // iterate through all characters
     std::string::const_iterator c;
-    for (c = text.begin(); c != text.end(); c++) 
+    for (c = text.begin(); c != text.end(); c++)
     {
         Character ch = characters[*c];
 
@@ -139,13 +142,13 @@ void GLTextService::renderText(std::string text, float x, float y, float scale, 
         float h = floor(static_cast<float>(ch.Size.y) * scale);
         // update VBO for each character
         float vertices[6][4] = {
-            { xpos,     ypos + h,   0.0F, 0.0F },            
+            { xpos,     ypos + h,   0.0F, 0.0F },
             { xpos,     ypos,       0.0F, 1.0F },
             { xpos + w, ypos,       1.0F, 1.0F },
 
             { xpos,     ypos + h,   0.0F, 0.0F },
             { xpos + w, ypos,       1.0F, 1.0F },
-            { xpos + w, ypos + h,   1.0F, 0.0F }           
+            { xpos + w, ypos + h,   1.0F, 0.0F }
         };
         // render glyph texture over quad
         glBindTexture(GL_TEXTURE_2D, ch.TextureID);
@@ -178,7 +181,7 @@ Size<float> GLTextService::getTextSize(const std::string &text, float scale) con
             totalSize.setHeight(charHeight);
         }
     }
-    
+
     return totalSize;
 }
 
@@ -192,7 +195,7 @@ ComputedTextForDisplay GLTextService::prepareTextForDisplay(Size<float> screenSi
     boost::split(retval.lines, text, boost::is_any_of("\n"));
     //Ensure each line is not too large
     wrapLinesFromMaxScreenWidth(retval.lines, DISPLAYMAXWIDTH, scale);
-    for(size_t indexLine = 0; indexLine < retval.lines.size(); indexLine++) {   
+    for(size_t indexLine = 0; indexLine < retval.lines.size(); indexLine++) {
         const auto lineSize = getTextSize(retval.lines[indexLine], scale);
         if (lineSize.width() > DISPLAYMINWIDTH && lineSize.width() <= DISPLAYMAXWIDTH && lineSize.width() > retval.textSize.width()) {
             retval.textSize.setWidth(lineSize.width());
@@ -256,3 +259,4 @@ void GLTextService::gameWindowSizeChanged(const Size<> &size)
     glUniformMatrix4fv(projectionUniformLocation, 1, GL_FALSE, glm::value_ptr(projection));
 }
 
+} // namespace thewarrior::ui

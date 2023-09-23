@@ -95,7 +95,8 @@
         "shared_mutex": "cpp",
         "queue": "cpp",
         "*.inc": "cpp",
-        "ranges": "cpp"
+        "ranges": "cpp",
+        "span": "cpp"
     },
     "editor.tokenColorCustomizations": {
         "textMateRules": [

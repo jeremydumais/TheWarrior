@@ -3,6 +3,8 @@
 #include "texture.hpp"
 #include <GL/glew.h>
 
+namespace thewarrior::ui {
+
 struct GLObject
 {
     GLuint vao;
@@ -14,7 +16,7 @@ struct GLObject
 
 struct GenerateGLObjectInfo {
     GLObject *glObject;
-    const Texture *texture;
+    const thewarrior::models::Texture *texture;
     const int textureIndex;
     GLuint *specialVAO = nullptr;
     GLuint *specialVBOTexture = nullptr;
@@ -25,3 +27,5 @@ class GLObjectService
 public:
     static void generateGLObject(GenerateGLObjectInfo &info, const GLfloat tileCoord[4][2], const GLfloat colors[4][3]);
 };
+
+} // namespace thewarrior::ui

@@ -1,19 +1,21 @@
 #include "playerEquipment.hpp"
 #include <gtest/gtest.h>
 
-WeaponItem getWeaponSample1() { return WeaponItem({ "swd001", "Sword1", "tex1", 0, 
+using namespace thewarrior::models;
+
+WeaponItem getWeaponSample1() { return WeaponItem({ "swd001", "Sword1", "tex1", 0,
                                                     "", 5.0F, WeaponBodyPart::MainHand }); };
-ArmorItem getArmorSample1() { return ArmorItem({ "shd001", "Shield1", "tex1", 0, 
+ArmorItem getArmorSample1() { return ArmorItem({ "shd001", "Shield1", "tex1", 0,
                                                 "", 3.0F, ArmorBodyPart::SecondaryHand }); };
-ArmorItem getArmorSample2() { return ArmorItem({ "hel001", "Helmet1", "tex1", 0, 
+ArmorItem getArmorSample2() { return ArmorItem({ "hel001", "Helmet1", "tex1", 0,
                                                 "", 1.2F, ArmorBodyPart::Head }); };
-ArmorItem getArmorSample3() { return ArmorItem({ "chs001", "Chest1", "tex1", 0, 
+ArmorItem getArmorSample3() { return ArmorItem({ "chs001", "Chest1", "tex1", 0,
                                                 "", 1.3F, ArmorBodyPart::UpperBody }); };
-ArmorItem getArmorSample4() { return ArmorItem({ "leg001", "Legs1", "tex1", 0, 
+ArmorItem getArmorSample4() { return ArmorItem({ "leg001", "Legs1", "tex1", 0,
                                                 "", 1.4F, ArmorBodyPart::LowerBody }); };
-ArmorItem getArmorSample5() { return ArmorItem({ "glv001", "Gloves1", "tex1", 0, 
+ArmorItem getArmorSample5() { return ArmorItem({ "glv001", "Gloves1", "tex1", 0,
                                                 "", 1.5F, ArmorBodyPart::Hands }); };
-ArmorItem getArmorSample6() { return ArmorItem({ "boo001", "Boots1", "tex1", 0, 
+ArmorItem getArmorSample6() { return ArmorItem({ "boo001", "Boots1", "tex1", 0,
                                                 "", 1.6F, ArmorBodyPart::Feet }); };
 
 class PlayerEquipmentSample1 : public ::testing::Test

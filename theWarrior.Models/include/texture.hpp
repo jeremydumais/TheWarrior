@@ -6,6 +6,8 @@
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/version.hpp>
 
+namespace thewarrior::models {
+
 class Texture
 {
 public:
@@ -24,7 +26,7 @@ public:
     void setWidth(int value);
     void setHeight(int value);
     void setTileWidth(int value);
-    void setTileHeight(int value);  
+    void setTileHeight(int value);
 private:
     friend class boost::serialization::access;
     std::string m_name;
@@ -33,8 +35,8 @@ private:
     int m_height;
     int m_tileWidth;
     int m_tileHeight;
-    float m_tileWidthGL;    
-    float m_tileHeightGL;    
+    float m_tileWidthGL;
+    float m_tileHeightGL;
     void updateTileWidthGL();
     void updateTileHeightGL();
     Texture() = default; //Needed for deserialization
@@ -52,4 +54,7 @@ private:
         ar & m_tileHeightGL;
     }
 };
-BOOST_CLASS_VERSION(Texture, 0)
+
+} // namespace thewarrior::models
+
+BOOST_CLASS_VERSION(thewarrior::models::Texture, 0)

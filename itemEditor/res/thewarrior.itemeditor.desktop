@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=0.1
+Name=The Warrior - Item Editor
+Comment=The Item Editor for The Warrior game
+Exec=ItemEditor
+Icon=thewarrior_itemeditor
+Terminal=false
+StartupWMClass=ItemEditor
+Type=Application
+Categories=Game;Utility;
+Keywords=warrior;item;editor;

@@ -1,5 +1,7 @@
 #include "statsItem.hpp"
 
+namespace thewarrior::models {
+
 //Used only for Boost Serialization
 StatsItem::StatsItem()
     : Item(),
@@ -19,10 +21,10 @@ StatsItem::StatsItem(const StatsItemCreationInfo &itemInfo)
 {
 }
 
-bool StatsItem::equals(const Item &other) const 
+bool StatsItem::equals(const Item &other) const
 {
     if (typeid(*this).hash_code() != typeid(other).hash_code()) {
-        return false;    
+        return false;
     }
     const StatsItem *otherStatsItem = dynamic_cast<const StatsItem *>(&other);
     if (otherStatsItem == nullptr) {
@@ -80,3 +82,4 @@ void StatsItem::setDurationInSecs(unsigned int value)
     m_durationInSecs = value;
 }
 
+} // namespace thewarrior::models

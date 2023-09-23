@@ -1,6 +1,9 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
+
+namespace thewarrior::ui {
 
 class FPSCalculator
 {
@@ -18,3 +21,5 @@ private:
     std::string m_lastFPSDisplayText;
     void reset();
 };
+
+} // namespace thewarrior::ui

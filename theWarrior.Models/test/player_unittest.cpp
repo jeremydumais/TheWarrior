@@ -1,5 +1,8 @@
 #include "player.hpp"
 #include <gtest/gtest.h>
+#include <limits>
+
+using namespace thewarrior::models;
 
 class PlayerSample : public ::testing::Test
 {
@@ -16,9 +19,11 @@ public:
     FakePlayer() : Player("FakeName")
     {
         m_level = 2;
+        m_health = 5;
         m_bonusAttackFromLevel = 2.0F;
         m_bonusDefenseFromLevel = 2.1F;
         m_bonusHealthFromLevel = 5;
+        m_gold = 24;
         getEquipment().setMainHand(WeaponItem({"swd001",
                                                "Sword1",
                                                "Tex1",
@@ -78,12 +83,12 @@ TEST(Player_Constructor, WithJedName_ReturnSuccess)
     ASSERT_EQ("Jed", actual.getName());
 }
 
-TEST_F(PlayerSample, getName_ReturnPlayer1) 
+TEST_F(PlayerSample, getName_ReturnPlayer1)
 {
     ASSERT_EQ("player1", player.getName());
 }
 
-TEST_F(PlayerSample, getLevel_Return1) 
+TEST_F(PlayerSample, getLevel_Return1)
 {
     ASSERT_EQ(1, player.getLevel());
 }
@@ -97,13 +102,23 @@ TEST_F(PlayerSample, getStats_ReturnLvl1Stats)
     ASSERT_EQ(10, stats.maxHealth);
 }
 
+TEST_F(PlayerSample, getGold_Return0)
+{
+    ASSERT_EQ(0, player.getGold());
+}
+
 TEST_F(PlayerLvl2WithEquipmentsSample, getStats_ReturnLvl2Stats)
 {
     auto stats = player.getStats();
-    ASSERT_FLOAT_EQ(4.1F, stats.attack);
-    ASSERT_FLOAT_EQ(7.3F, stats.defense);
-    ASSERT_EQ(15, stats.health);
-    ASSERT_EQ(15, stats.maxHealth);
+    ASSERT_FLOAT_EQ(3.6F, stats.attack);
+    ASSERT_FLOAT_EQ(6.8F, stats.defense);
+    ASSERT_EQ(5, stats.health);
+    ASSERT_EQ(5, stats.maxHealth);
+}
+
+TEST_F(PlayerLvl2WithEquipmentsSample, getGold_Return24)
+{
+    ASSERT_EQ(24, player.getGold());
 }
 
 TEST_F(PlayerSample, SetName_WithJohn_ReturnSuccess)
@@ -144,4 +159,63 @@ TEST_F(PlayerSample, IncrementLevel_ReturnSuccess)
 {
     player.incrementLevel();
     ASSERT_EQ(2, player.getLevel());
+}
+
+TEST_F(PlayerSample, AddGoldWith15_ReturnSuccess)
+{
+    player.addGold(15);
+    ASSERT_EQ(15, player.getGold());
+}
+
+TEST_F(PlayerSample, AddGoldWithIntMax_ReturnSuccess)
+{
+    int max = std::numeric_limits<int>::max();
+    player.addGold(max);
+    ASSERT_EQ(max, player.getGold());
+}
+
+TEST_F(PlayerSample, AddGoldWithIntMaxAndPlayerHad1Gold_ReturnSuccessAndMaxGold)
+{
+    player.addGold(1);
+    int max = std::numeric_limits<int>::max();
+    player.addGold(max);
+    ASSERT_EQ(max, player.getGold());
+}
+
+TEST_F(PlayerSample, AddGoldWithIntMaxMinus1AndPlayerHad1Gold_ReturnSuccess)
+{
+    int max = std::numeric_limits<int>::max();
+    player.addGold(max - 1);
+    player.addGold(1);
+    ASSERT_EQ(max, player.getGold());
+}
+
+TEST_F(PlayerSample, RemoveGoldWith0_ReturnSuccessAndStay0)
+{
+    player.removeGold(0);
+    ASSERT_EQ(0, player.getGold());
+}
+
+TEST_F(PlayerSample, RemoveGoldWith3_ReturnSuccessAndStay0)
+{
+    player.removeGold(3);
+    ASSERT_EQ(0, player.getGold());
+}
+
+TEST_F(PlayerLvl2WithEquipmentsSample, RemoveGoldWith3_ReturnSuccess)
+{
+    player.removeGold(3);
+    ASSERT_EQ(21, player.getGold());
+}
+
+TEST_F(PlayerLvl2WithEquipmentsSample, RemoveGoldWith24_ReturnSuccess)
+{
+    player.removeGold(24);
+    ASSERT_EQ(0, player.getGold());
+}
+
+TEST_F(PlayerLvl2WithEquipmentsSample, RemoveGoldWith25_ReturnSuccess)
+{
+    player.removeGold(25);
+    ASSERT_EQ(0, player.getGold());
 }

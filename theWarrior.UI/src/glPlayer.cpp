@@ -1,6 +1,9 @@
 #include "glPlayer.hpp"
 
 using namespace std;
+using namespace thewarrior::models;
+
+namespace thewarrior::ui {
 
 GLPlayer::GLPlayer(const std::string &name)
     : Player(name),
@@ -28,7 +31,7 @@ const Texture &GLPlayer::getTexture() const
 {
     return *m_texture;
 }
-    
+
 Point<> GLPlayer::getGridPosition() const
 {
     return m_coord;
@@ -50,12 +53,12 @@ bool GLPlayer::isRunning() const
     return m_isInRunningMode;
 }
 
-bool GLPlayer::isFacing(PlayerFacing direction) 
+bool GLPlayer::isFacing(PlayerFacing direction)
 {
     return m_playerFacing == direction;
 }
 
-void GLPlayer::initialize(const std::string &resourcePath) 
+void GLPlayer::initialize(const std::string &resourcePath)
 {
     m_textureName = "NPC1";
     m_coord = Point(7, 14);
@@ -80,7 +83,7 @@ void GLPlayer::generateGLPlayerObject()
                                 { 1.0F, 1.0F, 1.0F },   /* Blue */
                                 { 1.0F, 1.0F, 1.0F } };
     auto tileHalfWidth = m_tileSize.tileHalfWidth;
-    auto tileHalfHeight = m_tileSize.tileHalfHeight;  
+    auto tileHalfHeight = m_tileSize.tileHalfHeight;
 
     float startPosX { -1.0f + tileHalfWidth };
     float startPosY { 1.0f - tileHalfHeight };
@@ -90,19 +93,19 @@ void GLPlayer::generateGLPlayerObject()
     {  tileHalfWidth + startPosX,  tileHalfHeight + startPosY },     /* Top Right point */
     {  tileHalfWidth + startPosX, -tileHalfHeight + startPosY },     /* Bottom Right point */
     { -tileHalfWidth + startPosX, -tileHalfHeight + startPosY } };   /* Bottom Left point */
-    
+
     GenerateGLObjectInfo infoGenTexture {
             &glObject,
             m_texture.get(),
             m_currentMovementTextureIndex};
     GLObjectService::generateGLObject(infoGenTexture, tileCoord, texColorBuf);
 }
-    
+
 void GLPlayer::unloadGLPlayerObject()
 {
-    glDeleteBuffers(1, &glObject.vboPosition); 
-    glDeleteBuffers(1, &glObject.vboColor); 
-    glDeleteBuffers(1, &glObject.vboTexture); 
+    glDeleteBuffers(1, &glObject.vboPosition);
+    glDeleteBuffers(1, &glObject.vboColor);
+    glDeleteBuffers(1, &glObject.vboTexture);
     glDeleteVertexArrays(1, &glObject.vao);
 }
 
@@ -134,7 +137,7 @@ void GLPlayer::setGridPosition(Point<> position)
 void GLPlayer::setGLObjectPosition()
 {
     glBindVertexArray(glObject.vao);
-    
+
     auto tileWidth = m_tileSize.tileWidth;
     auto tileHalfWidth = m_tileSize.tileHalfWidth;
     auto tileHalfHeight = m_tileSize.tileHalfHeight;
@@ -142,7 +145,7 @@ void GLPlayer::setGLObjectPosition()
     GLfloat m_tileCoordBuf[4][2];
     float startPosX { -1.0f + tileHalfWidth };
     float startPosY {  1.0f - tileHalfHeight };
-    
+
     m_tileCoordBuf[0][0] = -tileHalfWidth + startPosX + tileWidth;
     m_tileCoordBuf[0][1] =  tileHalfHeight + startPosY - tileHalfHeight;
     m_tileCoordBuf[1][0] =  tileHalfWidth + startPosX + tileWidth;
@@ -153,9 +156,9 @@ void GLPlayer::setGLObjectPosition()
     m_tileCoordBuf[3][1] = -tileHalfHeight + startPosY - tileHalfHeight;
 
     for(int i = 0; i < 4; i++) {
-        m_tileCoordBuf[i][0] += ((static_cast<float>(m_coord.x()) - 1.0f) * tileWidth) + 
+        m_tileCoordBuf[i][0] += ((static_cast<float>(m_coord.x()) - 1.0f) * tileWidth) +
                               (m_xMove * tileWidth);
-        m_tileCoordBuf[i][1] -= (((static_cast<float>(m_coord.y()) * (tileHalfHeight * 2.0f)) - tileHalfHeight)) + 
+        m_tileCoordBuf[i][1] -= (((static_cast<float>(m_coord.y()) * (tileHalfHeight * 2.0f)) - tileHalfHeight)) +
                               (m_yMove * (tileHalfHeight * 2.0f));
     }
     glBindBuffer(GL_ARRAY_BUFFER, glObject.vboPosition);
@@ -183,7 +186,7 @@ void GLPlayer::draw()
     glDisableVertexAttribArray(2);
 }
 
-void GLPlayer::moveUp() 
+void GLPlayer::moveUp()
 {
     m_playerMovement = PlayerMovement::MoveUp;
     m_coord.setY(m_coord.y() - 1);
@@ -191,7 +194,7 @@ void GLPlayer::moveUp()
     m_currentMovementTextureIndex = m_baseTextureIndex;
 }
 
-void GLPlayer::moveDown(bool isInClimbingMode) 
+void GLPlayer::moveDown(bool isInClimbingMode)
 {
     m_playerMovement = PlayerMovement::MoveDown;
     this->m_isInClimbingMode = isInClimbingMode;
@@ -206,7 +209,7 @@ void GLPlayer::moveDown(bool isInClimbingMode)
     }
 }
 
-void GLPlayer::moveLeft() 
+void GLPlayer::moveLeft()
 {
     m_playerMovement = PlayerMovement::MoveLeft;
     m_coord.setX(m_coord.x() - 1);
@@ -214,48 +217,48 @@ void GLPlayer::moveLeft()
     m_currentMovementTextureIndex = m_baseTextureIndex + 24;
 }
 
-void GLPlayer::moveRight() 
+void GLPlayer::moveRight()
 {
     m_playerMovement = PlayerMovement::MoveRight;
     m_coord.setX(m_coord.x() + 1);
     m_xMove = -1.0f;
     m_currentMovementTextureIndex = m_baseTextureIndex + 12;
 }
-void GLPlayer::faceUp() 
+void GLPlayer::faceUp()
 {
     m_currentMovementTextureIndex = m_baseTextureIndex + 1;
     m_playerFacing = PlayerFacing::Up;
 }
 
-void GLPlayer::faceDown() 
+void GLPlayer::faceDown()
 {
     m_currentMovementTextureIndex = m_baseTextureIndex + 37;
     m_playerFacing = PlayerFacing::Down;
 }
 
-void GLPlayer::faceLeft() 
+void GLPlayer::faceLeft()
 {
     m_currentMovementTextureIndex = m_baseTextureIndex + 25;
     m_playerFacing = PlayerFacing::Left;
 }
 
-void GLPlayer::faceRight() 
+void GLPlayer::faceRight()
 {
     m_currentMovementTextureIndex = m_baseTextureIndex + 13;
     m_playerFacing = PlayerFacing::Right;
 }
 
-void GLPlayer::enableRunMode() 
+void GLPlayer::enableRunMode()
 {
     m_isInRunningMode = true;
 }
 
-void GLPlayer::disableRunMode() 
+void GLPlayer::disableRunMode()
 {
     m_isInRunningMode = false;
 }
 
-MovingResult GLPlayer::processMoving(float delta_time) 
+MovingResult GLPlayer::processMoving(float delta_time)
 {
     MovingResult result;
     const float SPEED = m_isInRunningMode ? 11.0f : 7.0f;
@@ -334,7 +337,7 @@ MovingResult GLPlayer::processMoving(float delta_time)
                 result.needToRefreshTexture = true;
             }
         }
-    }    
+    }
     else if (m_playerMovement == PlayerMovement::MoveRight) {
         m_xMove += SPEED * delta_time;
         if (m_xMove > 0.0f) {
@@ -380,3 +383,5 @@ void GLPlayer::onGameWindowUpdate(float delta_time)
         setGLObjectPosition();
     }
 }
+
+} // namespace thewarrior::ui

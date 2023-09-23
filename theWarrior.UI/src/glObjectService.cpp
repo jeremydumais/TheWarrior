@@ -1,11 +1,13 @@
 #include "glObjectService.hpp"
 #include "glTextureService.hpp"
 
-void GLObjectService::generateGLObject(GenerateGLObjectInfo &info, const GLfloat tileCoord[4][2], const GLfloat colors[4][3]) 
+namespace thewarrior::ui {
+
+void GLObjectService::generateGLObject(GenerateGLObjectInfo &info, const GLfloat tileCoord[4][2], const GLfloat colors[4][3])
 {
     GLfloat texCoordBuf[4][2] { { 0.0F, 0.0F },
-                                  { 0.0F, 0.0F }, 
-                                  { 0.0F, 0.0F }, 
+                                  { 0.0F, 0.0F },
+                                  { 0.0F, 0.0F },
                                   { 0.0F, 0.0F } };
     GLTextureService textureService;
     if (info.texture != nullptr && info.textureIndex != -1) {
@@ -43,3 +45,5 @@ void GLObjectService::generateGLObject(GenerateGLObjectInfo &info, const GLfloat
     glDisableVertexAttribArray(1);
     glDisableVertexAttribArray(2);
 }
+
+} // namespace thewarrior::ui

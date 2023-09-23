@@ -1,6 +1,8 @@
 # Set project name
 set(PROJECT_NAME    "theWarrior.Models")
 
+find_package(Boost REQUIRED)
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameMap.cpp
@@ -19,15 +21,22 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameMap.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/weaponItem.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/player.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/playerEquipment.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/inventory.cpp)
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/inventory.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/monster.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterStore.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterZone.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterZoneMonsterEncounter.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/rgbItemColor.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   target_compile_definitions(${PROJECT_NAME} PRIVATE SUPPORT_MAYBE_UNUSED)
 endif()
 
-target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${CONAN_INCLUDE_DIRS})
+#target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${CONAN_INCLUDE_DIRS})
 #target_link_libraries(${PROJECT_NAME} Models DataServices Controllers Qt5::Widgets sqlite3)
+message(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
+message(STATUS "CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
@@ -60,7 +69,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     "-Wall" # enables all the warnings about constructions
     "-Wextra" # Print extra warning messages"
     "-Werror" # Make all warnings into errors.
-    "-Wno-unused-lambda-capture" # FIX: It is necessary when building on MSVC
+    "-Wno-unused-lambda-capture" # FIX It is necessary when building on MSVC
     "-pedantic" # Issue all the warnings demanded by strict ISO C and ISO C++
     "-pedantic-errors" # Like -pedantic, except that errors are produced rather than warnings http://stackoverflow.com/questions/30255294/how-to-hide-extra-output-from-pragma-message
     )

@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+namespace thewarrior::models {
+
 enum class MapTileTriggerEvent
 {
     None,
@@ -34,12 +36,12 @@ enum class MapTileTriggerAction
     DenyMove
 };
 
-class MapTileTrigger 
+class MapTileTrigger
 {
 public:
     MapTileTrigger();
-    MapTileTrigger(MapTileTriggerEvent event, 
-                   MapTileTriggerCondition condition, 
+    MapTileTrigger(MapTileTriggerEvent event,
+                   MapTileTriggerCondition condition,
                    MapTileTriggerAction action,
                    const std::map<std::string, std::string> &actionProperties);
     MapTileTriggerEvent getEvent() const;
@@ -68,6 +70,7 @@ private:
         }
     }
 };
-BOOST_CLASS_VERSION(MapTileTrigger, 1)
 
+} // namespace thewarrior::models
 
+BOOST_CLASS_VERSION(thewarrior::models::MapTileTrigger, 1)

@@ -14,6 +14,8 @@
 #include <string>
 #include <vector>
 
+namespace thewarrior::ui {
+
 class GLCharacterWindow : public GLPopupWindow
 {
 public:
@@ -22,19 +24,21 @@ public:
     void initialize(const std::string &resourcePath,
                     std::shared_ptr<GLPlayer> glPlayer,
                     std::shared_ptr<GLTextService> textService,
-                    std::shared_ptr<ItemStore> itemStore,
+                    std::shared_ptr<thewarrior::models::ItemStore> itemStore,
                     const std::map<std::string, unsigned int> *texturesGLItemStore,
                     std::shared_ptr<InputDevicesState> inputDevicesState);
     void update();
     void generateGLElements();
     void render();
-    void gameWindowSizeChanged(const Size<> &size);
+    void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
 protected:
     std::shared_ptr<GLPlayer> m_glPlayer;
-    std::shared_ptr<ItemStore> m_itemStore;
+    std::shared_ptr<thewarrior::models::ItemStore> m_itemStore;
     const std::map<std::string, unsigned int> *m_texturesGLItemStore;
     std::shared_ptr<InputDevicesState> m_inputDevicesState = nullptr;
     GLTexture m_slotsGLTexture;
-    void addSlot(Point<float> location);
-    void addItemToSlot(const Item *item, Point<float> location);
+    void addSlot(thewarrior::models::Point<float> location);
+    void addItemToSlot(const thewarrior::models::Item *item, thewarrior::models::Point<float> location);
 };
+
+} // namespace thewarrior::ui

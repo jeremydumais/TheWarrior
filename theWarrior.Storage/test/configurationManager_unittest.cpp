@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 
 using namespace std;
+using namespace thewarrior::storage;
 using ::testing::Return;
 using ::testing::ReturnRef;
 using ::testing::NiceMock;
@@ -52,7 +53,7 @@ TEST(ConfigurationManager_load, fileExistsIsFalse_ReturnFalse)
 }
 
 TEST(ConfigurationManager_load, readFileIsFalse_ReturnFalse)
-{ 
+{
     const string lastErrorSample { "This is an error" };
     auto stubJFS = make_unique<NiceMock<StubJSONFileStream>>("test");
     ON_CALL(*stubJFS, getLastError()).WillByDefault(ReturnRef(lastErrorSample));
@@ -65,7 +66,7 @@ TEST(ConfigurationManager_load, readFileIsFalse_ReturnFalse)
 }
 
 TEST(ConfigurationManager_load, fileExistAndIsReadable_ReturnTrue)
-{ 
+{
     auto stubJFS = make_unique<NiceMock<StubJSONFileStream>>("test");
     ON_CALL(*stubJFS, fileExists()).WillByDefault(Return(true));
     ON_CALL(*stubJFS, readFile(_)).WillByDefault(Return(true));
@@ -74,10 +75,10 @@ TEST(ConfigurationManager_load, fileExistAndIsReadable_ReturnTrue)
     ASSERT_TRUE(config.load());
 }
 
-TEST(ConfigurationManager_save, writeFileIsFalse_ReturnFalse) 
+TEST(ConfigurationManager_save, writeFileIsFalse_ReturnFalse)
 {
     const string lastErrorSample { "This is an error" };
-    
+
     auto stubJFS = make_unique<NiceMock<StubJSONFileStream>>("test");
     ON_CALL(*stubJFS, getLastError()).WillByDefault(ReturnRef(lastErrorSample));
     ON_CALL(*stubJFS, writeFile(_)).WillByDefault(Return(false));
@@ -86,7 +87,7 @@ TEST(ConfigurationManager_save, writeFileIsFalse_ReturnFalse)
     ASSERT_EQ("This is an error", config.getLastError());
 }
 
-TEST(ConfigurationManager_save, writeFileIsTrue_ReturnTrue) 
+TEST(ConfigurationManager_save, writeFileIsTrue_ReturnTrue)
 {
     auto stubJFS = make_unique<NiceMock<StubJSONFileStream>>("test");
     ON_CALL(*stubJFS, writeFile(_)).WillByDefault(Return(true));
@@ -94,7 +95,7 @@ TEST(ConfigurationManager_save, writeFileIsTrue_ReturnTrue)
     ASSERT_TRUE(config.save());
 }
 
-TEST(ConfigurationManager_fileExists, fileExistsIsTrue_ReturnTrue) 
+TEST(ConfigurationManager_fileExists, fileExistsIsTrue_ReturnTrue)
 {
     auto stubJFS = make_unique<NiceMock<StubJSONFileStream>>("test");
     ON_CALL(*stubJFS, fileExists()).WillByDefault(Return(true));
@@ -102,7 +103,7 @@ TEST(ConfigurationManager_fileExists, fileExistsIsTrue_ReturnTrue)
     ASSERT_TRUE(config.fileExists());
 }
 
-TEST(ConfigurationManager_fileExists, fileExistsIsFalse_ReturnFalse) 
+TEST(ConfigurationManager_fileExists, fileExistsIsFalse_ReturnFalse)
 {
     auto stubJFS = make_unique<NiceMock<StubJSONFileStream>>("test");
     ON_CALL(*stubJFS, fileExists()).WillByDefault(Return(false));

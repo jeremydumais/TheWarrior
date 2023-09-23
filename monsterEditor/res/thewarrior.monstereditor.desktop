@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=0.1
+Name=The Warrior - Monster Editor
+Comment=The Monster Editor for The Warrior game
+Exec=MonsterEditor
+Icon=thewarrior_monstereditor
+Terminal=false
+StartupWMClass=MonsterEditor
+Type=Application
+Categories=Game;Utility;
+Keywords=warrior;monster;editor;

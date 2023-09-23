@@ -14,6 +14,8 @@
 #include <unordered_map>
 #include <vector>
 
+namespace thewarrior::models {
+
 class ItemStore
 {
 public:
@@ -42,5 +44,6 @@ private:
     }
 };
 
-BOOST_CLASS_VERSION(ItemStore, 0)
+} // namespace thewarrior::models
 
+BOOST_CLASS_VERSION(thewarrior::models::ItemStore, 0)

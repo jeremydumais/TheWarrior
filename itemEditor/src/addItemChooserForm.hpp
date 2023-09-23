@@ -11,10 +11,10 @@ Q_OBJECT
 public:
 	AddItemChooserForm(QWidget *parent);
 	void connectUIActions();
-	ItemType getResult() const;
+    thewarrior::models::ItemType getResult() const;
 private:
 	Ui::addItemChooserFormClass ui;
-	ItemType m_result;
+	thewarrior::models::ItemType m_result;
 	void onPushButtonCloseClick();
 	void onPushButtonAddItemClick();
 	void onPushButtonAddWeaponItemClick();

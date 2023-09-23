@@ -1,6 +1,8 @@
 #include "gameMapModeController.hpp"
 #include <gtest/gtest.h>
 
+using namespace thewarrior::ui::controllers;
+
 class GameMapModeControllerFreshNew : public ::testing::Test
 {
 public:

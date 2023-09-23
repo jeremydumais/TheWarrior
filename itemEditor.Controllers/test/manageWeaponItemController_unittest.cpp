@@ -1,6 +1,9 @@
 #include "manageWeaponItemController.hpp"
 #include <gtest/gtest.h>
 
+using namespace itemeditor::controllers;
+using namespace thewarrior::models;
+
 class ManageWeaponItemControllerEmptyStoreSample : public ::testing::Test
 {
 public:

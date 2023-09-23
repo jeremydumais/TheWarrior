@@ -3,18 +3,19 @@
 #include <gtest/gtest.h>
 
 using namespace std;
+using namespace thewarrior::models;
 
 class ItemNotCreated_ValidCreationInfo : public ::testing::Test
 {
 public:
-	ItemNotCreated_ValidCreationInfo() 
+	ItemNotCreated_ValidCreationInfo()
 	  : itemCreationInfo {
 			"shd001",
             "Wooden Shield",
 			"tex1",
             1,
             ""
-		} 
+		}
     {}
 	ItemCreationInfo itemCreationInfo;
 };
@@ -22,7 +23,7 @@ public:
 class ValidItemSample1 : public ::testing::Test
 {
 public:
-	ValidItemSample1() 
+	ValidItemSample1()
 	  : item({
 			"shd001",
             "Wooden Shield",
@@ -164,91 +165,91 @@ TEST_F(ItemNotCreated_ValidCreationInfo, Constructor_ValidInfos_ReturnSuccess)
     Item item(itemCreationInfo);
 }
 
-TEST_F(ValidItemSample1, getType_ReturnItem) 
+TEST_F(ValidItemSample1, getType_ReturnItem)
 {
     ASSERT_EQ(ItemType::Item, item.getType());
 }
 
-TEST_F(ValidItemSample1, getId_ReturnShd001) 
+TEST_F(ValidItemSample1, getId_ReturnShd001)
 {
     ASSERT_EQ("shd001", item.getId());
 }
 
-TEST_F(ValidItemSample1, getName_ReturnWoodenShield) 
+TEST_F(ValidItemSample1, getName_ReturnWoodenShield)
 {
     ASSERT_EQ("Wooden Shield", item.getName());
 }
 
-TEST_F(ValidItemSample1, getTextureName_ReturnTex1) 
+TEST_F(ValidItemSample1, getTextureName_ReturnTex1)
 {
     ASSERT_EQ("tex1", item.getTextureName());
 }
 
-TEST_F(ValidItemSample1, getTextureIndex_Return1) 
+TEST_F(ValidItemSample1, getTextureIndex_Return1)
 {
     ASSERT_EQ(1, item.getTextureIndex());
 }
 
-TEST_F(ValidItemSample1, getOptionalDescription_ReturnAPerfectFirstShield) 
+TEST_F(ValidItemSample1, getOptionalDescription_ReturnAPerfectFirstShield)
 {
     ASSERT_EQ("A perfect first shield", item.getOptionalDescription());
 }
 
-TEST_F(ValidItemSample1, setId_WithEmpty_ThrowInvalidArgument) 
+TEST_F(ValidItemSample1, setId_WithEmpty_ThrowInvalidArgument)
 {
     itemSetIdWithInvalidArgument(item, "", "id cannot be empty.");
 }
 
-TEST_F(ValidItemSample1, setId_WithWhiteSpaces_ThrowInvalidArgument) 
+TEST_F(ValidItemSample1, setId_WithWhiteSpaces_ThrowInvalidArgument)
 {
     itemSetIdWithInvalidArgument(item, "  ", "id cannot be empty.");
 }
 
-TEST_F(ValidItemSample1, setId_WithLengthOfThree_ThrowInvalidArgument) 
+TEST_F(ValidItemSample1, setId_WithLengthOfThree_ThrowInvalidArgument)
 {
     itemSetIdWithInvalidArgument(item, "abc", "id must be 6 characters long.");
 }
 
-TEST_F(ValidItemSample1, setId_WithLengthOfSeven_ThrowInvalidArgument) 
+TEST_F(ValidItemSample1, setId_WithLengthOfSeven_ThrowInvalidArgument)
 {
     itemSetIdWithInvalidArgument(item, "abc1234", "id must be 6 characters long.");
 }
 
-TEST_F(ValidItemSample1, setId_WithLengthOfSix_ReturnSuccess) 
+TEST_F(ValidItemSample1, setId_WithLengthOfSix_ReturnSuccess)
 {
     string expected { "abc123" };
     item.setId(expected);
     ASSERT_EQ(expected, item.getId());
 }
 
-TEST_F(ValidItemSample1, setName_WithEmpty_ThrowInvalidArgument) 
+TEST_F(ValidItemSample1, setName_WithEmpty_ThrowInvalidArgument)
 {
     itemSetNameWithInvalidArgument(item, "", "name cannot be empty.");
 }
 
-TEST_F(ValidItemSample1, setName_WithWhiteSpaces_ThrowInvalidArgument) 
+TEST_F(ValidItemSample1, setName_WithWhiteSpaces_ThrowInvalidArgument)
 {
     itemSetNameWithInvalidArgument(item, "  ", "name cannot be empty.");
 }
 
-TEST_F(ValidItemSample1, setName_WithValid_ReturnSuccess) 
+TEST_F(ValidItemSample1, setName_WithValid_ReturnSuccess)
 {
     string expected { "Iron Shield" };
     item.setName(expected);
     ASSERT_EQ(expected, item.getName());
 }
 
-TEST_F(ValidItemSample1, setTextureName_WithEmpty_ThrowInvalidArgument) 
+TEST_F(ValidItemSample1, setTextureName_WithEmpty_ThrowInvalidArgument)
 {
     itemSetTextureNameWithInvalidArgument(item, "", "textureName cannot be empty.");
 }
 
-TEST_F(ValidItemSample1, setTextureName_WithWhiteSpaces_ThrowInvalidArgument) 
+TEST_F(ValidItemSample1, setTextureName_WithWhiteSpaces_ThrowInvalidArgument)
 {
     itemSetTextureNameWithInvalidArgument(item, "  ", "textureName cannot be empty.");
 }
 
-TEST_F(ValidItemSample1, setTextureName_WithValid_ReturnSuccess) 
+TEST_F(ValidItemSample1, setTextureName_WithValid_ReturnSuccess)
 {
     string expected { "tex456" };
     item.setTextureName(expected);
@@ -260,14 +261,14 @@ TEST_F(ValidItemSample1, setTextureIndex_WithTextureIndexMinus1_ThrowInvalidArgu
     itemSetTextureIndexWithInvalidArgument(item, -1, "textureIndex must be a positive number.");
 }
 
-TEST_F(ValidItemSample1, setTextureIndex_WithZero_ReturnSuccess) 
+TEST_F(ValidItemSample1, setTextureIndex_WithZero_ReturnSuccess)
 {
     int expected { 0 };
     item.setTextureIndex(expected);
     ASSERT_EQ(expected, item.getTextureIndex());
 }
 
-TEST_F(ValidItemSample1, setOptionalDescription_WithTest_ReturnSuccess) 
+TEST_F(ValidItemSample1, setOptionalDescription_WithTest_ReturnSuccess)
 {
     string expected { "test" };
     item.setOptionalDescription(expected);
@@ -280,7 +281,7 @@ TEST_F(ValidItemSample1, equalityOperator_WithIdenticalItem_ReturnTrue)
 			"shd001",
             "Wooden Shield",
 			"tex1",
-            1, 
+            1,
             "A perfect first shield"
 	}));
 }

@@ -3,7 +3,9 @@
 
 using namespace std;
 
-MapTileTrigger::MapTileTrigger() 
+namespace thewarrior::models {
+
+MapTileTrigger::MapTileTrigger()
     : m_event(MapTileTriggerEvent::None),
       m_condition(MapTileTriggerCondition::None),
       m_action(MapTileTriggerAction::None),
@@ -11,10 +13,10 @@ MapTileTrigger::MapTileTrigger()
 {
 }
 
-MapTileTrigger::MapTileTrigger(MapTileTriggerEvent event, 
-                               MapTileTriggerCondition condition, 
+MapTileTrigger::MapTileTrigger(MapTileTriggerEvent event,
+                               MapTileTriggerCondition condition,
                                MapTileTriggerAction action,
-                               const std::map<std::string, std::string> &actionProperties) 
+                               const std::map<std::string, std::string> &actionProperties)
     : m_event(event),
       m_condition(condition),
       m_action(action),
@@ -42,17 +44,17 @@ const std::map<std::string, std::string>& MapTileTrigger::getActionProperties() 
     return m_actionProperties;
 }
 
-void MapTileTrigger::setEvent(MapTileTriggerEvent event) 
+void MapTileTrigger::setEvent(MapTileTriggerEvent event)
 {
     m_event = event;
 }
 
-void MapTileTrigger::setCondition(MapTileTriggerCondition condition) 
+void MapTileTrigger::setCondition(MapTileTriggerCondition condition)
 {
     m_condition = condition;
 }
 
-void MapTileTrigger::setAction(MapTileTriggerAction action) 
+void MapTileTrigger::setAction(MapTileTriggerAction action)
 {
     m_action = action;
 }
@@ -61,3 +63,5 @@ void MapTileTrigger::setActionProperties(const std::map<std::string, std::string
 {
     m_actionProperties = properties;
 }
+
+} // namespace thewarrior::models

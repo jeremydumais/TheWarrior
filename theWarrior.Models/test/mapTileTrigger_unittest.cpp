@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 
 using namespace std;
+using namespace thewarrior::models;
 
 TEST(MapTileTrigger_Constructor, withoutArguments_ReturnSuccess)
 {

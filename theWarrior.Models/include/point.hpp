@@ -1,10 +1,12 @@
 #pragma once
 
+namespace thewarrior::models {
+
 template<typename T = int>
 class Point
 {
 public:
-    Point(T x, T y) 
+    Point(T x, T y)
         : m_x(x), m_y(y) {}
     T x() const { return m_x; };
     T y() const { return m_y; };
@@ -21,3 +23,5 @@ private:
     T m_x;
     T m_y;
 };
+
+} // namespace thewarrior::models

@@ -2,6 +2,8 @@
 #include <gtest/gtest.h>
 #include <stdexcept>
 
+using namespace thewarrior::models;
+
 class WeaponItemCreationInfoSamples
 {
 public:
@@ -106,7 +108,7 @@ TEST(WeaponItem_OperatorEqual, WithDifferentWeaponItemInstanceDifferentBodyPart_
     ASSERT_FALSE(weaponItem1 == weaponItem2);
 }
 
-TEST_F(WeaponItemSample1, getType_ReturnWeapon) 
+TEST_F(WeaponItemSample1, getType_ReturnWeapon)
 {
     ASSERT_EQ(ItemType::Weapon, item.getType());
 }

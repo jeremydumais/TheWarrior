@@ -8,6 +8,8 @@
 #include <optional>
 #include <vector>
 
+namespace thewarrior::models {
+
 class TextureContainer
 {
 public:
@@ -32,4 +34,6 @@ private:
     }
 };
 
-BOOST_CLASS_VERSION(TextureContainer, 0)
+} // namespace thewarrior::models
+
+BOOST_CLASS_VERSION(thewarrior::models::TextureContainer, 0)

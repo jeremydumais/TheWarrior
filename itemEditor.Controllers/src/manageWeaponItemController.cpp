@@ -1,6 +1,10 @@
 #include "manageWeaponItemController.hpp"
 #include "boost/algorithm/string.hpp"
 
+using namespace thewarrior::models;
+
+namespace itemeditor::controllers {
+
 ManageWeaponItemController::ManageWeaponItemController(std::shared_ptr<ItemStore> itemStore)
     : ManageItemController(itemStore)
 {
@@ -8,57 +12,57 @@ ManageWeaponItemController::ManageWeaponItemController(std::shared_ptr<ItemStore
 
 bool ManageWeaponItemController::validateAttackGain(const std::string &attackGainStr)
 {
-	if (boost::trim_copy(attackGainStr).empty()) {
+    if (boost::trim_copy(attackGainStr).empty()) {
         m_lastError = "The attack gain value cannot be empty.";
-		return false;
-	}
-	//Perform the str to float conversion
-	try {
-		std::stof(attackGainStr);
-	}
-	catch(const std::invalid_argument &err) {
-		m_lastError = "Unable to perform the float conversion of the attack gain.";
-		return false;
-	}
-	catch(const std::out_of_range &err) {
-		m_lastError = "The attack gain value is out of range.";
-		return false;
-	}
-	return true;
+        return false;
+    }
+    //Perform the str to float conversion
+    try {
+        std::stof(attackGainStr);
+    }
+    catch(const std::invalid_argument &err) {
+        m_lastError = "Unable to perform the float conversion of the attack gain.";
+        return false;
+    }
+    catch(const std::out_of_range &err) {
+        m_lastError = "The attack gain value is out of range.";
+        return false;
+    }
+    return true;
 }
 
 
-std::unique_ptr<ItemDTO> ManageWeaponItemController::getItem(const std::string &id) const 
+std::unique_ptr<ItemDTO> ManageWeaponItemController::getItem(const std::string &id) const
 {
-	auto item = m_itemStore->findItem(id);
+    auto item = m_itemStore->findItem(id);
     if (item != nullptr) {
-		auto weaponItem = dynamic_cast<const WeaponItem *>(item.get());
-		if (weaponItem != nullptr) {
-			auto retval = std::make_unique<WeaponItemDTO>();
-			retval->id = weaponItem->getId();
-			retval->name = weaponItem->getName();
-			retval->textureName = weaponItem->getTextureName();
-			retval->textureIndex = weaponItem->getTextureIndex();
-			retval->optionalDescription = weaponItem->getOptionalDescription();
-			retval->attackGain = weaponItem->getAttackGain();
-			retval->slotInBodyPartIndex = static_cast<int>(weaponItem->getSlotInBodyPart());
-			return retval;
-		}
+        auto weaponItem = dynamic_cast<const WeaponItem *>(item.get());
+        if (weaponItem != nullptr) {
+            auto retval = std::make_unique<WeaponItemDTO>();
+            retval->id = weaponItem->getId();
+            retval->name = weaponItem->getName();
+            retval->textureName = weaponItem->getTextureName();
+            retval->textureIndex = weaponItem->getTextureIndex();
+            retval->optionalDescription = weaponItem->getOptionalDescription();
+            retval->attackGain = weaponItem->getAttackGain();
+            retval->slotInBodyPartIndex = static_cast<int>(weaponItem->getSlotInBodyPart());
+            return retval;
+        }
     }
     return nullptr;
 }
 
 std::shared_ptr<Item> ManageWeaponItemController::itemDTOToItem(std::unique_ptr<ItemDTO> dto)
 {
-	WeaponItemDTO *weaponDTO = dynamic_cast<WeaponItemDTO *>(dto.get());
-	WeaponItemCreationInfo creationInfo = {
+    WeaponItemDTO *weaponDTO = dynamic_cast<WeaponItemDTO *>(dto.get());
+    WeaponItemCreationInfo creationInfo = {
         weaponDTO->id,
         weaponDTO->name,
         weaponDTO->textureName,
         weaponDTO->textureIndex,
-		weaponDTO->optionalDescription,
-		weaponDTO->attackGain,
-		static_cast<WeaponBodyPart>(weaponDTO->slotInBodyPartIndex)
+        weaponDTO->optionalDescription,
+        weaponDTO->attackGain,
+        static_cast<WeaponBodyPart>(weaponDTO->slotInBodyPartIndex)
     };
     std::shared_ptr<Item> updateItem = nullptr;
     try {
@@ -69,3 +73,5 @@ std::shared_ptr<Item> ManageWeaponItemController::itemDTOToItem(std::unique_ptr<
     }
     return updateItem;
 }
+
+} // namespace itemeditor::controllers

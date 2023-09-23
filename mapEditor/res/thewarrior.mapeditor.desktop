@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.2.0
+Name=The Warrior - Map Editor
+Comment=The Map Editor for The Warrior game
+Exec=MapEditor
+Icon=thewarrior_mapeditor
+Terminal=false
+StartupWMClass=MapEditor
+Type=Application
+Categories=Game;Utility;
+Keywords=warrior;map;editor;

@@ -4,6 +4,8 @@
 #include <gtest/gtest.h>
 #include <memory>
 
+using namespace thewarrior::models;
+
 ItemCreationInfo getItemCreationInfoSample()
 {
     return {
@@ -99,20 +101,20 @@ TEST(Inventory_GetItemCount, WithEmptyInventory_Return0)
     ASSERT_EQ(0, inventory.getItemCount());
 }
 
-TEST_F(InventoryWith3Samples, GetItemWithSlotIndex1_ReturnKey002) 
+TEST_F(InventoryWith3Samples, GetItemWithSlotIndex1_ReturnKey002)
 {
     auto actual = inventory.getItem(1);
     ASSERT_NE(nullptr, actual);
     ASSERT_EQ("key002", actual->getId());
 }
 
-TEST_F(InventoryWith3Samples, GetItemWithSlotIndex5_ReturnNull) 
+TEST_F(InventoryWith3Samples, GetItemWithSlotIndex5_ReturnNull)
 {
     auto actual = inventory.getItem(5);
     ASSERT_EQ(nullptr, actual);
 }
 
-TEST_F(InventoryWith3Samples, GetItemWithOutOfBoundsSlotIndex36_ReturnNull) 
+TEST_F(InventoryWith3Samples, GetItemWithOutOfBoundsSlotIndex36_ReturnNull)
 {
     auto actual = inventory.getItem(35);
     ASSERT_EQ(nullptr, actual);

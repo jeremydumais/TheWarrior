@@ -1,10 +1,12 @@
 #include "glTileService.hpp"
 
 using namespace std;
+using namespace thewarrior::models;
 
+namespace thewarrior::ui {
 
 bool GLTileService::initShader(const std::string &vertexShaderFileName,
-                         const std::string &fragmentShaderFileName) 
+                         const std::string &fragmentShaderFileName)
 {
     m_shaderProgram = make_shared<GLShaderProgram>(vertexShaderFileName,
                                                  fragmentShaderFileName);
@@ -29,12 +31,12 @@ const string& GLTileService::getLastError() const
     return m_lastError;
 }
 
-void GLTileService::useShader() 
+void GLTileService::useShader()
 {
     m_shaderProgram->use();
 }
 
-void GLTileService::setShaderTranslation(unsigned int mapWidth, unsigned int mapHeight, int windowWidth, int windowHeight, Point<float> playerPosition) 
+void GLTileService::setShaderTranslation(unsigned int mapWidth, unsigned int mapHeight, int windowWidth, int windowHeight, Point<float> playerPosition)
 {
     int vertexTranslationLocation = glGetUniformLocation(m_shaderProgram->getShaderProgramID(), "translation");
     float mapMiddleH { 0.0f };
@@ -61,3 +63,5 @@ void GLTileService::setShaderTranslation(unsigned int mapWidth, unsigned int map
     GLint TextureID  = glGetUniformLocation(m_shaderProgram->getShaderProgramID(), "myTextureSampler");
     glUniform1i(TextureID, 0);
 }
+
+} // namespace thewarrior::ui

@@ -3,7 +3,7 @@ set(PROJECT_NAME    "ItemEditor.Controllers")
 
 include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/include
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../commonUI/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../commonEditor.UI/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Storage/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include)
 
@@ -15,7 +15,7 @@ include_directories(${QT_INCLUDE_PATH}
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/manageWeaponItemController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/editTextureFormController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/texturePickerController.cpp)
-                                             
+
 find_package(Qt5 COMPONENTS Gui OpenGL REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
@@ -24,7 +24,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STRE
 endif()
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${CONAN_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} theWarrior.Models theWarrior.Storage commonUI Qt5::Widgets)
+target_link_libraries(${PROJECT_NAME} theWarrior.Models theWarrior.Storage commonEditor.UI Qt5::Widgets)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
 # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
@@ -57,7 +57,7 @@ PRIVATE "-Wfatal-errors" # stops on first error
 "-Wall" # enables all the warnings about constructions
 "-Wextra" # Print extra warning messages"
 "-Werror" # Make all warnings into errors.
-"-Wno-unused-lambda-capture" # FIX: It is necessary when building on MSVC
+"-Wno-unused-lambda-capture" # FIX It is necessary when building on MSVC
 "-pedantic" # Issue all the warnings demanded by strict ISO C and ISO C++
 "-pedantic-errors" # Like -pedantic, except that errors are produced rather than warnings http://stackoverflow.com/questions/30255294/how-to-hide-extra-output-from-pragma-message
 )

@@ -10,14 +10,16 @@
 #include <string>
 #include <vector>
 #include <ft2build.h>
-#include FT_FREETYPE_H  
+#include FT_FREETYPE_H
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+namespace thewarrior::ui {
 
 struct GLTextObject
 {
     std::string text;
-    Point<float> position;
+    thewarrior::models::Point<float> position;
     float scale;
     GLColor color = GLColor::White;
 };
@@ -30,7 +32,7 @@ struct Character {
 };
 
 struct ComputedTextForDisplay{
-    Size<float> textSize;
+    thewarrior::models::Size<float> textSize;
     std::vector<std::string> lines;
 };
 
@@ -45,13 +47,16 @@ public:
     const std::string &getLastError() const;
     void useShader();
     void renderText(std::string text, float x, float y, float scale, glm::vec3 color);
-    Size<float> getTextSize(const std::string &text, float scale) const;
-    ComputedTextForDisplay prepareTextForDisplay(Size<float> screenSize, const std::string &text, float scale) const;
+    thewarrior::models::Size<float> getTextSize(const std::string &text, float scale) const;
+    ComputedTextForDisplay prepareTextForDisplay(thewarrior::models::Size<float> screenSize,
+                                                 const std::string &text, float scale) const;
     void wrapLinesFromMaxScreenWidth(std::vector<std::string> &lines, const float maxWidth, const float scale) const;
-    void gameWindowSizeChanged(const Size<> &size);
+    void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
 private:
     std::string m_lastError;
     std::shared_ptr<GLShaderProgram> m_shaderProgram;
     std::map<GLchar, Character> characters;
     unsigned int VAO, VBO;
 };
+
+} // namespace thewarrior::ui

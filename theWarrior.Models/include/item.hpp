@@ -7,7 +7,9 @@
 #include <boost/serialization/version.hpp>
 #include <string>
 
-struct ItemCreationInfo 
+namespace thewarrior::models {
+
+struct ItemCreationInfo
 {
     std::string id;
     std::string name;
@@ -43,9 +45,9 @@ public:
 protected:
     friend class boost::serialization::access;
     std::string m_id;
-    std::string m_name; 
+    std::string m_name;
     std::string m_textureName;
-    int m_textureIndex; 
+    int m_textureIndex;
     std::string m_optionalDescription;
     //Serialization method
     template<class Archive>
@@ -61,4 +63,6 @@ protected:
     }
 };
 
-BOOST_CLASS_VERSION(Item, 1)
+} // namespace thewarrior::models
+
+BOOST_CLASS_VERSION(thewarrior::models::Item, 1)

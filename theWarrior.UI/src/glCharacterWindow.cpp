@@ -1,6 +1,11 @@
 #include "glCharacterWindow.hpp"
+#include <fmt/core.h>
 #include <fmt/format.h>
 #include <string>
+
+using namespace thewarrior::models;
+
+namespace thewarrior::ui {
 
 const float SLOTSIZE = 80.0F;
 const float ITEMSIZE = 70.0F;
@@ -58,6 +63,7 @@ void GLCharacterWindow::generateGLElements()
     addXCenteredTwoColumnsLabels("Health: ", fmt::format("{0}/{1}", stats.health, stats.maxHealth), 275.0F, 0.4F, 420.0F, 360.0F, GLColor::LightGray, GLColor::Green);
     addXCenteredTwoColumnsLabels("Total attack: ", fmt::format("{0}", stats.attack), 305.0F, 0.4F, 420.0F, 360.0F, GLColor::LightGray, GLColor::Green);
     addXCenteredTwoColumnsLabels("Total defense: ", fmt::format("{0}", stats.defense), 335.0F, 0.4F, 420.0F, 360.0F, GLColor::LightGray, GLColor::Green);
+    addXCenteredTwoColumnsLabels("Gold: ", fmt::format("{0}", m_glPlayer->getGold()), 365.0F, 0.4F, 420.0F, 360.0F, GLColor::LightGray, GLColor::Green);
     //Main hand
     if (!equipment.getMainHand().has_value()) {
         addXCenteredTextObject({"Main\nhand", {0.0F, 225.0F}, 0.3F}, 55.0F, 80.0F);
@@ -122,7 +128,7 @@ void GLCharacterWindow::generateGLElements()
         addItemToSlot(item, {175.0F, 470.0F});
     }
 }
-    
+
 void GLCharacterWindow::addSlot(Point<float> location)
 {
     generateQuad(m_glObjects, location, {SLOTSIZE, SLOTSIZE}, &m_slotsGLTexture.texture, 0, m_slotsGLTexture.glTextureId);
@@ -130,12 +136,12 @@ void GLCharacterWindow::addSlot(Point<float> location)
 
 void GLCharacterWindow::addItemToSlot(const Item *item, Point<float> location)
 {
-    auto iconTexture = &m_itemStore->getTextureContainer().getTextureByName(item->getTextureName()).value().get(); 
-    generateQuad(m_glObjects, 
-                    location, 
-                    {ITEMSIZE, ITEMSIZE}, 
-                    iconTexture, 
-                    item->getTextureIndex(), 
+    auto iconTexture = &m_itemStore->getTextureContainer().getTextureByName(item->getTextureName()).value().get();
+    generateQuad(m_glObjects,
+                    location,
+                    {ITEMSIZE, ITEMSIZE},
+                    iconTexture,
+                    item->getTextureIndex(),
                     m_texturesGLItemStore->at(item->getTextureName()));
 }
 
@@ -149,3 +155,5 @@ void GLCharacterWindow::gameWindowSizeChanged(const Size<> &size)
     GLPopupWindow::gameWindowSizeChanged(size);
     generateGLElements();
 }
+
+} // namespace thewarrior::ui

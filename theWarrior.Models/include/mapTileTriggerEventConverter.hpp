@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+namespace thewarrior::models {
+
 class MapTileTriggerEventConverter
 {
 public:
@@ -13,3 +15,5 @@ public:
     static boost::optional<MapTileTriggerEvent> eventFromString(const std::string &eventStr);
     static std::vector<std::string> allEventsToString();
 };
+
+} // namespace thewarrior::models

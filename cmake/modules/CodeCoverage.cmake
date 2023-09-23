@@ -93,7 +93,7 @@
 #          EXECUTABLE testrunner
 #          EXCLUDE "${PROJECT_SOURCE_DIR}/src/dir1/*" "/path/to/my/src/dir2/*")
 #
-# 4.a NOTE: With CMake 3.4+, COVERAGE_EXCLUDES or EXCLUDE can also be set
+# 4.a NOTE With CMake 3.4+, COVERAGE_EXCLUDES or EXCLUDE can also be set
 #     relative to the BASE_DIRECTORY (default: PROJECT_SOURCE_DIR)
 #     Example:
 #       set(COVERAGE_EXCLUDES "dir1/*")

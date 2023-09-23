@@ -3,6 +3,10 @@
 #include <memory>
 #include <stdexcept>
 
+using namespace thewarrior::models;
+
+namespace itemeditor::controllers {
+
 ManageItemController::ManageItemController(std::shared_ptr<ItemStore> itemStore)
     : m_itemStore(itemStore),
       m_lastError("")
@@ -105,3 +109,5 @@ std::shared_ptr<Item> ManageItemController::itemDTOToItem(std::unique_ptr<ItemDT
     }
     return updateItem;
 }
+
+} // namespace itemeditor::controllers

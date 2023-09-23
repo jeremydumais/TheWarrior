@@ -1,9 +1,11 @@
 #include "message.hpp"
 
+namespace thewarrior::ui::models {
+
 Message::Message(const std::string &message, int maxDurationInMilliseconds)
     : m_message(message),
-      m_maxDurationInMilliseconds(maxDurationInMilliseconds),
-      m_displayStartTime(std::nullopt)
+    m_maxDurationInMilliseconds(maxDurationInMilliseconds),
+    m_displayStartTime(std::nullopt)
 {
 }
 
@@ -11,7 +13,7 @@ MessageType Message::getType() const
 {
     return MessageType::Message;
 }
-    
+
 const std::string &Message::getMessage() const
 {
     return m_message;
@@ -21,7 +23,7 @@ int Message::getMaxDurationInMilliseconds() const
 {
     return m_maxDurationInMilliseconds;
 }
-    
+
 std::optional<std::chrono::_V2::system_clock::time_point> Message::getDisplayStartTime() const
 {
     return m_displayStartTime;
@@ -38,7 +40,7 @@ bool Message::hasMessageExpired(std::chrono::_V2::system_clock::time_point curre
         return false;
     }
     auto expirationTime = m_displayStartTime.value() + std::chrono::milliseconds(m_maxDurationInMilliseconds);
-    return currentTime >= expirationTime;  
+    return currentTime >= expirationTime;
 }
 
 void Message::setMessage(const std::string &message)
@@ -55,3 +57,5 @@ void Message::setDisplayed(std::chrono::_V2::system_clock::time_point startTime)
 {
     m_displayStartTime = startTime;
 }
+
+} // namespace thewarrior::ui::models

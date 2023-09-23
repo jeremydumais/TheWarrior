@@ -1,6 +1,8 @@
 # Set project name
 set(PROJECT_NAME    "theWarrior.Storage")
 
+find_package(Boost REQUIRED serialization filesystem system)
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include)
 
@@ -8,14 +10,16 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/configurationManager.cp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/specialFolders.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/gameMapStorage.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/jsonFileStream.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/itemStoreStorage.cpp)
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/itemStoreStorage.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterStoreStorage.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   target_compile_definitions(${PROJECT_NAME} PRIVATE SUPPORT_MAYBE_UNUSED)
 endif()
 
-target_link_libraries(${PROJECT_NAME} theWarrior.Models ${CONAN_LIBS})
+set_target_properties(${PROJECT_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
+target_link_libraries(${PROJECT_NAME} theWarrior.Models fmt boost_serialization boost_system boost_filesystem)
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${CONAN_INCLUDE_DIRS})
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
@@ -49,7 +53,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     "-Wall" # enables all the warnings about constructions
     "-Wextra" # Print extra warning messages"
     "-Werror" # Make all warnings into errors.
-    "-Wno-unused-lambda-capture" # FIX: It is necessary when building on MSVC
+    "-Wno-unused-lambda-capture" # FIX It is necessary when building on MSVC
     "-pedantic" # Issue all the warnings demanded by strict ISO C and ISO C++
     "-pedantic-errors" # Like -pedantic, except that errors are produced rather than warnings http://stackoverflow.com/questions/30255294/how-to-hide-extra-output-from-pragma-message
     )

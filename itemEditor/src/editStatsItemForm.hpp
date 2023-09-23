@@ -14,19 +14,19 @@ class EditStatsItemForm : public EditItemFormBase
 Q_OBJECT
 
 public:
-	EditStatsItemForm(QWidget *parent, 
-					 const std::string &resourcesPath,
-					 std::shared_ptr<ItemStore> itemStore,
-					 std::optional<std::string> itemIdToEdit);
-	void connectUIActions();
+    EditStatsItemForm(QWidget *parent,
+            const std::string &resourcesPath,
+            std::shared_ptr<thewarrior::models::ItemStore> itemStore,
+            std::optional<std::string> itemIdToEdit);
+    void connectUIActions();
 private:
-	Ui::editStatsItemFormClass ui;
-	ManageStatsItemController m_controller;
-	void initializeComboBoxStatChanging();
-	bool loadExistingItemToForm();
-	void onPushButtonCancelClick();
-	void onPushButtonOKClick();
-	void onPushButtonTexturePickerClick();
+    Ui::editStatsItemFormClass ui;
+    itemeditor::controllers::ManageStatsItemController m_controller;
+    void initializeComboBoxStatChanging();
+    bool loadExistingItemToForm();
+    void onPushButtonCancelClick();
+    void onPushButtonOKClick();
+    void onPushButtonTexturePickerClick();
 };
 
 #endif // EDITSTATSITEMFORM_H

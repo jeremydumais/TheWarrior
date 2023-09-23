@@ -2,6 +2,8 @@
 
 #include <glm/glm.hpp>
 
+namespace thewarrior::ui {
+
 enum GLColor
 {
     White,
@@ -12,3 +14,5 @@ enum GLColor
 };
 
 glm::vec3 getVec3FromGLColor(GLColor color);
+
+} // namespace thewarrior::ui

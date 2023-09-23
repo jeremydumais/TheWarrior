@@ -5,6 +5,8 @@
 #include <string>
 #include <queue>
 
+namespace thewarrior::ui::models {
+
 class MessagePipeline
 {
 public:
@@ -16,3 +18,5 @@ public:
 private:
     std::queue<std::shared_ptr<Message>> m_messages;
 };
+
+} // namespace thewarrior::ui::models

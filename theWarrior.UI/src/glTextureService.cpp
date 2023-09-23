@@ -4,6 +4,10 @@
 #include <stb_image.h>
 #include <stdexcept>
 
+using namespace thewarrior::models;
+
+namespace thewarrior::ui {
+
 GLTextureService::GLTextureService()
     : m_resourcePath("")
 {
@@ -22,7 +26,7 @@ void GLTextureService::loadTexture(GLTexture &glTexture)
 void GLTextureService::loadTexture(const Texture &texture, unsigned int &textureGLId)
 {
     glGenTextures(1, &textureGLId);
-    glBindTexture(GL_TEXTURE_2D, textureGLId); 
+    glBindTexture(GL_TEXTURE_2D, textureGLId);
     // set the texture wrapping parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -49,7 +53,7 @@ void GLTextureService::unloadTexture(unsigned int &textureGLId)
     glDeleteTextures(1, &textureGLId);
 }
 
-void GLTextureService::setTextureUVFromIndex(const Texture *texture, GLfloat uvMap[4][2], int index) const 
+void GLTextureService::setTextureUVFromIndex(const Texture *texture, GLfloat uvMap[4][2], int index) const
 {
     float indexTile { static_cast<float>(index) };
     const int NBTEXTUREPERLINE { texture->getWidth() / texture->getTileWidth() };
@@ -69,3 +73,5 @@ void GLTextureService::setTextureUVFromIndex(const Texture *texture, GLfloat uvM
     uvMap[3][0] = lowerLeftCorner + TEXTUREWIDTHADJUSTMENT;
     uvMap[3][1] = 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTUREHEIGHTADJUSTMENT;
 }
+
+} // namespace thewarrior::ui

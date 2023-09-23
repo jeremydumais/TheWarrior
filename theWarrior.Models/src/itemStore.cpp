@@ -3,7 +3,9 @@
 
 using namespace std;
 
-ItemStore::ItemStore() 
+namespace thewarrior::models {
+
+ItemStore::ItemStore()
     : m_lastError(""),
       m_textureContainer(TextureContainer()),
       m_items(unordered_map<string, std::shared_ptr<Item>>())
@@ -23,8 +25,8 @@ size_t ItemStore::getItemCount() const
 std::vector<std::shared_ptr<Item>> ItemStore::getItems() const
 {
     std::vector<std::shared_ptr<Item>> retval {};
-    std::transform(m_items.begin(), 
-                   m_items.end(), 
+    std::transform(m_items.begin(),
+                   m_items.end(),
                    std::back_inserter(retval),
                    [] (std::pair<const std::string &, std::shared_ptr<Item>>item) {
                        return std::reference_wrapper(item.second);
@@ -53,13 +55,13 @@ bool ItemStore::isItemExists(const std::string &id) const
 }
 
 
-bool ItemStore::addItem(std::shared_ptr<Item> item) 
+bool ItemStore::addItem(std::shared_ptr<Item> item)
 {
     bool wasInserted = m_items.insert({ item->getId(), item }).second;
     return wasInserted;
 }
 
-bool ItemStore::replaceItem(const string oldId, std::shared_ptr<Item> item) 
+bool ItemStore::replaceItem(const string oldId, std::shared_ptr<Item> item)
 {
     //Check if the old item name specified exist
     const auto iter = m_items.find(oldId);
@@ -73,7 +75,7 @@ bool ItemStore::replaceItem(const string oldId, std::shared_ptr<Item> item)
     return wasInserted;
 }
 
-bool ItemStore::removeItem(const std::string &id) 
+bool ItemStore::removeItem(const std::string &id)
 {
     if (m_items.erase(id) == 0) {
         return false;
@@ -90,3 +92,5 @@ TextureContainer &ItemStore::getTextureContainerForEdition()
 {
     return m_textureContainer;
 }
+
+} // namespace thewarrior::models

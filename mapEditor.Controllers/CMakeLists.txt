@@ -3,10 +3,22 @@ set(PROJECT_NAME    "MapEditor.Controllers")
 
 include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/include
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include)
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../commonEditor.UI/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Storage/include)
 
                     set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/mainController.cpp
-                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/glComponentController.cpp)
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/glComponentController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/itemStoreInfoJSONSerializer.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/manageItemStoreController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/manageMonsterStoreController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterStoreInfoJSONSerializer.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterZoneFormController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterEncounterFormController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterPickerFormController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterZoneDTOUtils.cpp)
+
+find_package(Qt5 COMPONENTS Gui OpenGL REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -14,7 +26,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE SUPPORT_MAYBE_UNUSED)
 endif()
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${CONAN_INCLUDE_DIRS})
-#target_link_libraries(${PROJECT_NAME} Models DataServices Controllers Qt5::Widgets sqlite3)
+target_link_libraries(${PROJECT_NAME} commonEditor.UI theWarrior.Models theWarrior.Storage Qt5::Widgets)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
 # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
@@ -47,7 +59,7 @@ PRIVATE "-Wfatal-errors" # stops on first error
 "-Wall" # enables all the warnings about constructions
 "-Wextra" # Print extra warning messages"
 "-Werror" # Make all warnings into errors.
-"-Wno-unused-lambda-capture" # FIX: It is necessary when building on MSVC
+"-Wno-unused-lambda-capture" # FIX It is necessary when building on MSVC
 "-pedantic" # Issue all the warnings demanded by strict ISO C and ISO C++
 "-pedantic-errors" # Like -pedantic, except that errors are produced rather than warnings http://stackoverflow.com/questions/30255294/how-to-hide-extra-output-from-pragma-message
 )

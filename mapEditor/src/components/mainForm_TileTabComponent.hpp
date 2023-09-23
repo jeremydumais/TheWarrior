@@ -49,8 +49,8 @@ private:
 	QPushButton *m_pushButtonAddTileEvent;
 	QPushButton *m_pushButtonEditTileEvent;
 	QPushButton *m_pushButtonDeleteTileEvent;
-	void refreshEventList(MapTile *tile);
-    void onTileSelected(MapTile *tile, Point<> coord);
+	void refreshEventList(thewarrior::models::MapTile *tile);
+    void onTileSelected(thewarrior::models::MapTile *tile, thewarrior::models::Point<> coord);
     void onLineEditTexNameTextChanged(const QString &text);
 	void onSpinBoxTexIndexValueChanged(int value);
 	void onLineEditObjTexNameTextChanged(const QString &text);
@@ -58,7 +58,7 @@ private:
 	void onCheckBoxObjectAbovePlayerChanged(int state);
 	void onCheckBoxTileCanSteppedOnChanged(int state);
 	void onCheckBoxIsWallToClimbChanged(int state);
-	boost::optional<MapTileTrigger &> getSelectedTrigger();
+	boost::optional<thewarrior::models::MapTileTrigger &> getSelectedTrigger();
 	void onPushButtonAddTileEventClick();
 	void onPushButtonEditTileEventClick();
 	void onPushButtonDeleteTileEventClick();

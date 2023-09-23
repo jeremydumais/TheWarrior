@@ -1,5 +1,7 @@
 #include "armorItem.hpp"
 
+namespace thewarrior::models {
+
 //Used only for Boost Serialization
 ArmorItem::ArmorItem()
     : Item(),
@@ -15,10 +17,10 @@ ArmorItem::ArmorItem(const ArmorItemCreationInfo &itemInfo)
 {
 }
 
-bool ArmorItem::equals(const Item &other) const 
+bool ArmorItem::equals(const Item &other) const
 {
     if (typeid(*this).hash_code() != typeid(other).hash_code()) {
-        return false;    
+        return false;
     }
     const ArmorItem *otherArmorItem = dynamic_cast<const ArmorItem *>(&other);
     if (otherArmorItem == nullptr) {
@@ -74,3 +76,5 @@ std::string ArmorItem::getBodyPartAsString(ArmorBodyPart bodyPart)
         return "";
     }
 }
+
+} // namespace thewarrior::models

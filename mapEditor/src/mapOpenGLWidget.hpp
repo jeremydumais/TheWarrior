@@ -14,12 +14,12 @@
 
 class MapOpenGLWidget : public QOpenGLWidget
 {
-    Q_OBJECT
+Q_OBJECT
 public:
     explicit MapOpenGLWidget(QWidget *parent = 0);
-    void setCurrentMap(std::shared_ptr<GameMap> map);
+    void setCurrentMap(std::shared_ptr<thewarrior::models::GameMap> map);
     void setGridEnabled(bool enabled);
-    void resizeGL(int width, int height);
+    void resizeGL(int width, int height) override;
     const std::string &getResourcesPath() const;
     void setResourcesPath(const std::string &path);
     SelectionMode getSelectionMode() const;
@@ -31,30 +31,30 @@ public:
     void stopAutoUpdate();
     void resetMapMovePosition();
 protected:
-    void initializeGL();
-    void paintGL();
-    QSize minimumSizeHint() const;
-    QSize sizeHint() const;
+    void initializeGL() override;
+    void paintGL() override;
+    QSize minimumSizeHint() const override;
+    QSize sizeHint() const override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void leaveEvent(QEvent *event) override;
 private:
-    QTimer m_repaintTimer; 
+    QTimer m_repaintTimer;
     bool m_isGridEnabled;
-	SelectionMode m_selectionMode;
+    SelectionMode m_selectionMode;
     std::string m_resourcesPath;
     bool m_mousePressed;
     float m_translationX;
-    float m_translationDragAndDropX; 
-    float m_translationY;     
+    float m_translationDragAndDropX;
+    float m_translationY;
     float m_translationDragAndDropY;
     int m_selectedTileIndex;
-	GLubyte m_selectedTileColor;
+    GLubyte m_selectedTileColor;
     bool m_selectedTileColorGrowing;
     std::map<std::string, unsigned int> m_texturesGLMap; //Mapping between texture name and OpenGL texture id
-    std::map<std::string, const Texture &> m_texturesObjMap; //Mapping between texture name and texture object
-    std::shared_ptr<GameMap> m_currentMap;
+    std::map<std::string, const thewarrior::models::Texture &> m_texturesObjMap; //Mapping between texture name and texture object
+    std::shared_ptr<thewarrior::models::GameMap> m_currentMap;
     QPoint m_lastCursorPosition;
     QPoint m_currentCursorPosition;
     const float TILESIZE { 0.2F };

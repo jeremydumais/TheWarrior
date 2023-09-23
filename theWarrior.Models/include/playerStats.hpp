@@ -1,5 +1,7 @@
 #pragma once
 
+namespace thewarrior::models {
+
 struct PlayerStats
 {
     float attack;
@@ -7,3 +9,5 @@ struct PlayerStats
     int health;
     int maxHealth;
 };
+
+} // namespace thewarrior::models

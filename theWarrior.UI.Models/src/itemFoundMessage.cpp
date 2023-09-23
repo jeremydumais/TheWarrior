@@ -1,6 +1,8 @@
 #include "itemFoundMessage.hpp"
 
-ItemFoundMessage::ItemFoundMessage(const std::string &message, 
+namespace thewarrior::ui::models {
+
+ItemFoundMessage::ItemFoundMessage(const std::string &message,
                                    int maxDurationInMilliseconds,
                                    const std::string &itemId,
                                    const std::string &textureName)
@@ -35,3 +37,4 @@ void ItemFoundMessage::setTextureName(const std::string &name)
     m_textureName = name;
 }
 
+} // namespace thewarrior::ui::models

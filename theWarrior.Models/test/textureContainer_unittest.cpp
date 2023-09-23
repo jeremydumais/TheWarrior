@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 
 using namespace std;
+using namespace thewarrior::models;
 
 struct DefaultConstructedTextureContainer : public ::testing::Test
 {
@@ -91,7 +92,7 @@ TEST_F(DefaultConstructedTextureContainer, addTexture_FirstTextureUniqueName_Ret
 			512, 512,
 			32, 32
 		};
-	ASSERT_TRUE(container.addTexture(textureInfo));	
+	ASSERT_TRUE(container.addTexture(textureInfo));
 }
 
 TEST_F(DefaultConstructedTextureContainer, addTexture_SameTextureNameTwice_ReturnFalse)
@@ -101,8 +102,8 @@ TEST_F(DefaultConstructedTextureContainer, addTexture_SameTextureNameTwice_Retur
 			512, 512,
 			32, 32
 		};
-	ASSERT_TRUE(container.addTexture(textureInfo));	
-	ASSERT_FALSE(container.addTexture(textureInfo));	
+	ASSERT_TRUE(container.addTexture(textureInfo));
+	ASSERT_FALSE(container.addTexture(textureInfo));
 }
 
 TEST_F(DefaultConstructedTextureContainer, addTexture_EmptyName_ReturnFalse)
@@ -112,7 +113,7 @@ TEST_F(DefaultConstructedTextureContainer, addTexture_EmptyName_ReturnFalse)
 			512, 512,
 			32, 32
 		};
-	ASSERT_FALSE(container.addTexture(textureInfo));	
+	ASSERT_FALSE(container.addTexture(textureInfo));
 	ASSERT_EQ("name cannot be null or empty.", container.getLastError());
 }
 

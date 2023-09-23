@@ -7,10 +7,12 @@
 #include <string>
 #include <vector>
 
+namespace itemeditor::controllers {
+
 class ManageTextureController
 {
 public:
-    ManageTextureController(TextureContainer &textureContainer);
+    ManageTextureController(thewarrior::models::TextureContainer &textureContainer);
     const std::string &getLastError() const;
     std::vector<std::string> getTexturesNames() const;
     std::unique_ptr<TextureDTO> getTextureByName(const std::string &name) const;
@@ -19,6 +21,8 @@ public:
     bool removeTexture(const std::string &name);
 private:
     std::string m_lastError;
-    TextureContainer &m_textureContainer;
-    std::optional<TextureInfo> createTextureInfoFromDTO(std::unique_ptr<TextureDTO> textureDTO);
+    thewarrior::models::TextureContainer &m_textureContainer;
+    std::optional<thewarrior::models::TextureInfo> createTextureInfoFromDTO(std::unique_ptr<TextureDTO> textureDTO);
 };
+
+} // namespace itemeditor::controllers

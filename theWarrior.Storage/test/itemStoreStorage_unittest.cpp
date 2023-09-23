@@ -3,6 +3,8 @@
 #include <gmock/gmock.h>
 
 using namespace std;
+using namespace thewarrior::models;
+using namespace thewarrior::storage;
 using ::testing::_;
 using ::testing::NiceMock;
 using ::testing::Return;

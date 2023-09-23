@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 
+namespace thewarrior::models {
+
 class MapTile
 {
 public:
@@ -67,8 +69,10 @@ private:
         }
         if (version >= 6) {
             ar & m_isWallToClimb;
-        } 
+        }
     }
 };
 
-BOOST_CLASS_VERSION(MapTile, 6)
+} // namespace thewarrior::models
+
+BOOST_CLASS_VERSION(thewarrior::models::MapTile, 6)

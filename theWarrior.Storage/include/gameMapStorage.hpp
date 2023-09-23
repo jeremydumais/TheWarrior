@@ -5,11 +5,15 @@
 #include <memory>
 #include <string>
 
-class GameMapStorage 
+namespace thewarrior::storage {
+
+class GameMapStorage
 {
 public:
-    void loadMap(const std::string &fileName, std::shared_ptr<GameMap> map);
-    void setFileStream(std::unique_ptr<IBinaryFileStream<GameMap>> bfs);
+    void loadMap(const std::string &fileName, std::shared_ptr<thewarrior::models::GameMap> map);
+    void setFileStream(std::unique_ptr<IBinaryFileStream<thewarrior::models::GameMap>> bfs);
 private:
-    std::unique_ptr<IBinaryFileStream<GameMap>> m_bfs;
+    std::unique_ptr<IBinaryFileStream<thewarrior::models::GameMap>> m_bfs;
 };
+
+} // namespace thewarrior::storage

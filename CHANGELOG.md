@@ -37,7 +37,7 @@ All notable changes to this project will be documented in this file.
 ### Item Editor
 - Create the Item Editor to manage items, stats items, weapons and armors.
 
-### Map Editor
+### Map Editor (Version 1.3.0)
 
 #### New features
 - Added the X and Y coordinates of the selected tile.
@@ -48,3 +48,20 @@ All notable changes to this project will be documented in this file.
 
 #### Bug fixes
 - Fix an issue where the initShader method of the GLTextService and GLTileService was not returning any value on success.
+
+## [0.3.0]
+
+### Game
+
+#### New features
+- Add gold stats in the Character window
+
+### Map Editor (Version 1.3.1)
+
+#### New features
+- Added a setting form to manage item stores.
+- Added a setting form to manage monster stores.
+- Added the Monster zones component in the main form
+
+### Monster Editor
+- Create the Monster Editor to manage monsters with their stats

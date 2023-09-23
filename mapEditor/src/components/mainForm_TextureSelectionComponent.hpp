@@ -21,13 +21,13 @@ struct MainForm_TextureSelectionComponent_Objects
 
 class MainForm_TextureSelectionComponent : public QWidget
 {
-    Q_OBJECT
+Q_OBJECT
 public:
     MainForm_TextureSelectionComponent();
     void initializeUIObjects(const MainForm_TextureSelectionComponent_Objects &objects);
     void connectUIActions();
     void refreshTextureList();
-	void displaySelectedTextureImage();
+    void displaySelectedTextureImage();
 signals:
 private:
     MainForm_GLComponent *m_glComponent;
@@ -37,9 +37,9 @@ private:
     QLabel *m_labelSelectedObject;
     QPushButton *m_pushButtonSelectedObjectClear;
     QClickableLabel *m_labelImageTexture;
-	//QPixmap getTextureTileImageFromTexture(int tileIndex, const Texture &texture) const;
+    //QPixmap getTextureTileImageFromTexture(int tileIndex, const Texture &texture) const;
     void onPushButtonSelectedTextureClearClick();
-	void onPushButtonSelectedObjectClearClick();
-	void onLabelImageTextureMouseReleaseEvent(QMouseEvent *event);
+    void onPushButtonSelectedObjectClearClick();
+    void onLabelImageTextureMouseReleaseEvent(QMouseEvent *event);
     void onComboBoxTextureCurrentIndexChanged();
 };

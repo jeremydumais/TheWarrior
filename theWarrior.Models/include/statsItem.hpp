@@ -8,6 +8,8 @@
 #include <boost/serialization/version.hpp>
 
 
+namespace thewarrior::models {
+
 struct StatsItemCreationInfo : public ItemCreationInfo
 {
     Stats statChanging;
@@ -46,11 +48,14 @@ protected:
     template<class Archive>
     void serialize(Archive & ar, const unsigned int)
     {
-        ar & boost::serialization::base_object<Item>(*this);    
+        ar & boost::serialization::base_object<Item>(*this);
         ar & m_statChanging;
         ar & m_gain;
         ar & m_limitOfOneApplied;
         ar & m_durationInSecs;
     }
 };
-BOOST_CLASS_VERSION(StatsItem, 0)
+
+} // namespace thewarrior::models
+
+BOOST_CLASS_VERSION(thewarrior::models::StatsItem, 0)

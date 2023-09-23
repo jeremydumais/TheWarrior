@@ -2,6 +2,8 @@
 #include "uiUtils.hpp"
 #include <GL/glut.h>
 
+using namespace commoneditor::ui;
+
 int main(int argc, char *argv[])
 {
     glutInit(&argc, argv);
@@ -9,6 +11,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName("Jed# Software");
     QCoreApplication::setApplicationName("The Warrior");
     QCoreApplication::setApplicationVersion(QT_VERSION_STR);
+	QGuiApplication::setDesktopFileName("thewarrior.mapeditor.desktop");
     MainForm mainWin;
     UIUtils::centerToScreen(&mainWin);
     mainWin.showMaximized();

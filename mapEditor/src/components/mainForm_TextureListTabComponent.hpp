@@ -23,10 +23,10 @@ public:
     void initializeUIObjects(const MainForm_TextureListTabComponent_Objects &objects);
     void connectUIActions();
     void refreshTextureList();
-    std::optional<std::reference_wrapper<const Texture>> getSelectedTextureInTextureList() const;
+    std::optional<std::reference_wrapper<const thewarrior::models::Texture>> getSelectedTextureInTextureList() const;
 signals:
-    void textureAdded(TextureInfo textureInfo);
-    void textureUpdated(const std::string &name, TextureInfo textureInfo);
+    void textureAdded(thewarrior::models::TextureInfo textureInfo);
+    void textureUpdated(const std::string &name, thewarrior::models::TextureInfo textureInfo);
     void textureDeleted(const std::string &name);
 private:
     MainForm_GLComponent *m_glComponent;
