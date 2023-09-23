@@ -1,7 +1,7 @@
 # TheWarrior
 ## An RPG game developped in C++ with SDL2.
 
-Current version: 0.2.0
+Current version: 0.3.0
 
 **Still in development...**
 
@@ -25,4 +25,4 @@ Current version: 0.2.0
 
 ### How to build source (Linux)
 
-- [Linux](https://github.com/jeremydumais/TheWarrior/wiki/How-to-build-The-Warrior-from-source-in-Linux) 
+- [Linux](https://github.com/jeremydumais/TheWarrior/wiki/How-to-build-The-Warrior-from-source-in-Linux)
