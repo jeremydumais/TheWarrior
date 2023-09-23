@@ -626,3 +626,17 @@ TEST_F(SampleGameMap5x6WithTwoTextures, removeMonsterZone_WithNonExistingMonster
     ASSERT_FALSE(map.removeMonsterZone("Zone3"));
     ASSERT_EQ("Unable to find the zone Zone3 to delete.", map.getLastError());
 }
+
+TEST_F(SampleGameMap5x6WithTwoTextures, removeMonsterZone_WithZone1_ReturnTrue) {
+    ASSERT_TRUE(map.removeMonsterZone("Zone1"));
+    const auto &zones = map.getMonsterZones();
+    ASSERT_EQ(1, zones.size());
+    ASSERT_EQ("Zone2", zones[0].getName());
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, removeMonsterZone_WithZone2_ReturnTrue) {
+    ASSERT_TRUE(map.removeMonsterZone("Zone2"));
+    const auto &zones = map.getMonsterZones();
+    ASSERT_EQ(1, zones.size());
+    ASSERT_EQ("Zone1", zones[0].getName());
+}

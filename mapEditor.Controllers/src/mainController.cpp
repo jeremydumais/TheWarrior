@@ -160,11 +160,10 @@ bool MainController::replaceMonsterZone(const std::string &name, const MonsterZo
 }
 
 bool MainController::removeMonsterZone(const std::string &name) {
-    // TODO: Continue this part
-    //if (!m_map->removeMonsterZone(name)) {
-        //m_lastError = m_map->getLastError();
-        //return false;
-    //}
+    if (!m_map->removeMonsterZone(name)) {
+        m_lastError = m_map->getLastError();
+        return false;
+    }
     return true;
 }
 

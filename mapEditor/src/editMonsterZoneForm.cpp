@@ -56,6 +56,8 @@ void EditMonsterZoneForm::connectUIActions() {
     connect(ui.pushButtonEditMonster, &QPushButton::clicked, this, &EditMonsterZoneForm::onPushButtonEditMonsterClick);
     connect(ui.pushButtonDeleteMonster, &QPushButton::clicked, this, &EditMonsterZoneForm::onPushButtonDeleteMonsterClick);
     connect(ui.tableWidgetMonsters, &QTableWidget::itemDoubleClicked, this, &EditMonsterZoneForm::onPushButtonEditMonsterClick);
+    tableWidgetMonsterKeyWatcher.installOn(ui.tableWidgetMonsters);
+    connect(&tableWidgetMonsterKeyWatcher, &QTableWidgetKeyPressWatcher::keyPressed, this, &EditMonsterZoneForm::onTableWidgetMonstersKeyPressEvent);
 }
 
 void EditMonsterZoneForm::initializeColors() {
@@ -195,6 +197,12 @@ void EditMonsterZoneForm::onPushButtonDeleteMonsterClick() {
             }
             refreshMonsterEncounterList();
         }
+    }
+}
+
+void EditMonsterZoneForm::onTableWidgetMonstersKeyPressEvent(int key, int, int) {
+    if (key == Qt::Key_Delete) {
+        onPushButtonDeleteMonsterClick();
     }
 }
 

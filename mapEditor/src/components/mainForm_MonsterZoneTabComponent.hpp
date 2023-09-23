@@ -11,6 +11,7 @@
 #include "monsterStore.hpp"
 #include "monsterZone.hpp"
 #include "monsterZoneDTO.hpp"
+#include "qTableWidgetKeyPressWatcher.h"
 #include "types.hpp"
 
 struct MainForm_MonsterZoneTabComponent_Objects {
@@ -33,7 +34,6 @@ class MainForm_MonsterZoneTabComponent : public QWidget {
     std::optional<const mapeditor::controllers::MonsterZoneDTO> getSelectedMonsterZoneInMonsterZoneList() const;
     void setMonsterStores(const std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> monsterStores);
     void setResourcesPath(const std::string &resourcesPath);
-    void onPushButtonAddMonsterZoneClick();
  signals:
     void monsterZoneAdded(mapeditor::controllers::MonsterZoneDTO monsterZoneDTO);
     void monsterZoneUpdated(const std::string &name, mapeditor::controllers::MonsterZoneDTO monsterZoneDTO);
@@ -42,11 +42,14 @@ class MainForm_MonsterZoneTabComponent : public QWidget {
  private:
     std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> m_monsterStores = nullptr;
     std::string m_resourcesPath;
+    QTableWidgetKeyPressWatcher tableWidgetMonsterZoneKeyWatcher;
     MainForm_GLComponent *m_glComponent;
     QTableWidget *m_tableWidgetMonsterZone;
     QPushButton *m_pushButtonAddMonsterZone;
     QPushButton *m_pushButtonEditMonsterZone;
     QPushButton *m_pushButtonDeleteMonsterZone;
+    void onPushButtonAddMonsterZoneClick();
     void onPushButtonEditMonsterZoneClick();
     void onPushButtonDeleteMonsterZoneClick();
+    void onTableWidgetMonsterZoneKeyPressEvent(int key, int, int);
 };

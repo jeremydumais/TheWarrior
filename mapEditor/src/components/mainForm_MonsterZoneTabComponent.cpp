@@ -38,6 +38,8 @@ void MainForm_MonsterZoneTabComponent::connectUIActions() {
     connect(m_pushButtonEditMonsterZone, &QPushButton::clicked, this, &MainForm_MonsterZoneTabComponent::onPushButtonEditMonsterZoneClick);
     connect(m_pushButtonDeleteMonsterZone, &QPushButton::clicked, this, &MainForm_MonsterZoneTabComponent::onPushButtonDeleteMonsterZoneClick);
     connect(m_tableWidgetMonsterZone, &QTableWidget::itemDoubleClicked, this, &MainForm_MonsterZoneTabComponent::onPushButtonEditMonsterZoneClick);
+    tableWidgetMonsterZoneKeyWatcher.installOn(m_tableWidgetMonsterZone);
+    connect(&tableWidgetMonsterZoneKeyWatcher, &QTableWidgetKeyPressWatcher::keyPressed, this, &MainForm_MonsterZoneTabComponent::onTableWidgetMonsterZoneKeyPressEvent);
 }
 
 void MainForm_MonsterZoneTabComponent::refreshMonsterZones() {
@@ -127,5 +129,11 @@ void MainForm_MonsterZoneTabComponent::onPushButtonDeleteMonsterZoneClick() {
                 //emit textureDeleted(selectedMonsterZone->get().getName());
             //}
         }
+    }
+}
+
+void MainForm_MonsterZoneTabComponent::onTableWidgetMonsterZoneKeyPressEvent(int key, int, int) {
+    if (key == Qt::Key_Delete) {
+        onPushButtonDeleteMonsterZoneClick();
     }
 }

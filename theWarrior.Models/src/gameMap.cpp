@@ -187,6 +187,7 @@ bool GameMap::removeMonsterZone(const std::string &name) {
         m_lastError = fmt::format("Unable to find the zone {0} to delete.", name);
         return false;
     }
+    m_monsterZones.erase(zoneToRemoveIter);
 
     return true;
 }

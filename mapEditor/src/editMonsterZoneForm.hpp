@@ -11,6 +11,7 @@
 #include "editMonsterZoneFormController.hpp"
 #include "manageMonsterStoreController.hpp"
 #include "monsterZoneDTO.hpp"
+#include "qTableWidgetKeyPressWatcher.h"
 #include "types.hpp"
 
 class EditMonsterZoneForm : public QDialog {
@@ -43,6 +44,7 @@ Q_OBJECT
     mapeditor::controllers::EditMonsterZoneFormController m_controller;
     mapeditor::controllers::MonsterZoneDTO m_result;
     std::vector<std::string> m_alreadyUsedZoneNames;
+    QTableWidgetKeyPressWatcher tableWidgetMonsterKeyWatcher;
     void connectUIActions();
     void initializeColors();
     void initializeMonsterTable();
@@ -52,6 +54,7 @@ Q_OBJECT
     void onPushButtonAddMonsterClick();
     void onPushButtonEditMonsterClick();
     void onPushButtonDeleteMonsterClick();
+    void onTableWidgetMonstersKeyPressEvent(int key, int, int);
     std::optional<std::string> getSelectedItemId() const;
     std::vector<EditMonsterZoneForm::ColorItem>::difference_type findColorIndexByName(std::string_view name) const;
 };

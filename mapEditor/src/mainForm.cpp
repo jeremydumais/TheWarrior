@@ -528,13 +528,11 @@ void MainForm::onMonsterZoneUpdated(const std::string &name, MonsterZoneDTO mons
 }
 
 void MainForm::onMonsterZoneDeleted(const std::string &name) {
-    // TODO: Continu this part
-    //if (!m_controller.removeTexture(name)) {
-        //ErrorMessage::show(m_controller.getLastError());
-    //}
-    //refreshTextureList();
+    if (!m_controller.removeMonsterZone(name)) {
+        ErrorMessage::show(m_controller.getLastError());
+    }
+    refreshMonsterZones();
 }
-
 
 void MainForm::refreshMonsterZones() {
     m_monsterZoneTabComponent.refreshMonsterZones();
