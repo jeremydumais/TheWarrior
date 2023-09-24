@@ -3,12 +3,15 @@
 #include <fmt/format.h>
 #include <memory>
 #include <optional>
+#include <qcheckbox.h>
+#include <qnamespace.h>
 #include "editMonsterZoneForm.hpp"
 #include "errorMessage.hpp"
 #include "monsterZoneDTO.hpp"
 #include "types.hpp"
 #include "uiUtils.hpp"
 
+using commoneditor::ui::ErrorMessage;
 using commoneditor::ui::UIUtils;
 using mapeditor::controllers::ContainerOfMonsterStore;
 using mapeditor::controllers::MonsterZoneDTO;
@@ -18,7 +21,8 @@ MainForm_MonsterZoneTabComponent::MainForm_MonsterZoneTabComponent()
     m_tableWidgetMonsterZone(nullptr),
     m_pushButtonAddMonsterZone(nullptr),
     m_pushButtonEditMonsterZone(nullptr),
-    m_pushButtonDeleteMonsterZone(nullptr) {
+    m_pushButtonDeleteMonsterZone(nullptr),
+    m_checkBoxOneMonsterZoneForAllTheMap(nullptr) {
 }
 
 void MainForm_MonsterZoneTabComponent::initializeUIObjects(const MainForm_MonsterZoneTabComponent_Objects &objects) {
@@ -27,6 +31,7 @@ void MainForm_MonsterZoneTabComponent::initializeUIObjects(const MainForm_Monste
     this->m_pushButtonAddMonsterZone = objects.pushButtonAddMonsterZone;
     this->m_pushButtonEditMonsterZone = objects.pushButtonEditMonsterZone;
     this->m_pushButtonDeleteMonsterZone = objects.pushButtonDeleteMonsterZone;
+    this->m_checkBoxOneMonsterZoneForAllTheMap = objects.checkBoxOneMonsterZoneForAllTheMap;
     this->m_tableWidgetMonsterZone->setHorizontalHeaderItem(0, new QTableWidgetItem("Color"));
     this->m_tableWidgetMonsterZone->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
     this->m_tableWidgetMonsterZone->setColumnWidth(0, 80);
@@ -40,6 +45,7 @@ void MainForm_MonsterZoneTabComponent::connectUIActions() {
     connect(m_tableWidgetMonsterZone, &QTableWidget::itemDoubleClicked, this, &MainForm_MonsterZoneTabComponent::onPushButtonEditMonsterZoneClick);
     tableWidgetMonsterZoneKeyWatcher.installOn(m_tableWidgetMonsterZone);
     connect(&tableWidgetMonsterZoneKeyWatcher, &QTableWidgetKeyPressWatcher::keyPressed, this, &MainForm_MonsterZoneTabComponent::onTableWidgetMonsterZoneKeyPressEvent);
+    connect(m_checkBoxOneMonsterZoneForAllTheMap, &QCheckBox::stateChanged, this, &MainForm_MonsterZoneTabComponent::onCheckBoxOneMonsterZoneForAllTheMapChanged);
 }
 
 void MainForm_MonsterZoneTabComponent::refreshMonsterZones() {
@@ -73,6 +79,14 @@ void MainForm_MonsterZoneTabComponent::setMonsterStores(const std::shared_ptr<Co
 
 void MainForm_MonsterZoneTabComponent::setResourcesPath(const std::string &resourcesPath) {
     m_resourcesPath = resourcesPath;
+}
+
+void MainForm_MonsterZoneTabComponent::confirmValidityOfOneMonsterZoneCheckBox() {
+    const auto &zones = m_glComponent->getMonsterZones();
+    if (zones.size() != 1 &&
+        m_checkBoxOneMonsterZoneForAllTheMap->checkState() == Qt::CheckState::Checked) {
+        m_checkBoxOneMonsterZoneForAllTheMap->setCheckState(Qt::CheckState::Unchecked);
+    }
 }
 
 void MainForm_MonsterZoneTabComponent::onPushButtonAddMonsterZoneClick() {
@@ -135,5 +149,15 @@ void MainForm_MonsterZoneTabComponent::onPushButtonDeleteMonsterZoneClick() {
 void MainForm_MonsterZoneTabComponent::onTableWidgetMonsterZoneKeyPressEvent(int key, int, int) {
     if (key == Qt::Key_Delete) {
         onPushButtonDeleteMonsterZoneClick();
+    }
+}
+
+void MainForm_MonsterZoneTabComponent::onCheckBoxOneMonsterZoneForAllTheMapChanged(int state) {
+    if (state == Qt::CheckState::Checked) {
+        const auto &zones = m_glComponent->getMonsterZones();
+        if (zones.size() != 1) {
+            ErrorMessage::show("To enable this feature you must have exactly one monster zone configured");
+            m_checkBoxOneMonsterZoneForAllTheMap->setCheckState(Qt::CheckState::Unchecked);
+        }
     }
 }

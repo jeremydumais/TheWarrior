@@ -5,8 +5,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <string>
+#include "selectionMode.hpp"
 
-using namespace std;
 using namespace thewarrior::models;
 
 MapOpenGLWidget::MapOpenGLWidget(QWidget *parent)
@@ -22,40 +22,33 @@ MapOpenGLWidget::MapOpenGLWidget(QWidget *parent)
     m_selectedTileIndex(-1),
     m_selectedTileColor(0),
     m_selectedTileColorGrowing(false),
-    m_texturesGLMap(map<string, unsigned int>()),
-    m_texturesObjMap(map<string, const Texture &>()),
+    m_texturesGLMap(std::map<std::string, unsigned int>()),
+    m_texturesObjMap(std::map<std::string, const Texture &>()),
     m_currentMap(nullptr),
     m_lastCursorPosition(QPoint(0, 0)),
-    m_currentCursorPosition(QPoint(0, 0))
-
-{
+    m_currentCursorPosition(QPoint(0, 0)) {
     connect(&m_repaintTimer, SIGNAL(timeout()), this, SLOT(update()));
     setMouseTracking(true);
 }
 
-void MapOpenGLWidget::setCurrentMap(std::shared_ptr<GameMap> map)
-{
+void MapOpenGLWidget::setCurrentMap(std::shared_ptr<GameMap> map) {
     m_currentMap = map;
     m_selectedTileIndex = -1;
 }
 
-void MapOpenGLWidget::setGridEnabled(bool enabled)
-{
+void MapOpenGLWidget::setGridEnabled(bool enabled) {
     this->m_isGridEnabled = enabled;
 }
 
-QSize MapOpenGLWidget::minimumSizeHint() const
-{
+QSize MapOpenGLWidget::minimumSizeHint() const {
     return QSize(50, 50);
 }
 
-QSize MapOpenGLWidget::sizeHint() const
-{
+QSize MapOpenGLWidget::sizeHint() const {
     return QSize(400, 400);
 }
 
-void MapOpenGLWidget::initializeGL()
-{
+void MapOpenGLWidget::initializeGL() {
     reloadTextures();
 
     glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
@@ -63,32 +56,22 @@ void MapOpenGLWidget::initializeGL()
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
-    //glEnable(GL_CULL_FACE);
+    // glEnable(GL_CULL_FACE);
     glShadeModel(GL_SMOOTH);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    /*glEnable(GL_LIGHTING);
-      glEnable(GL_LIGHT0);
-
-
-
-      static GLfloat lightPosition[4] = { 0, 0, 10, 1.0 };
-      glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);*/
-
-    //Configure for 60FPS
+    // Configure for 60FPS
     startAutoUpdate();
 }
 
-void MapOpenGLWidget::paintGL()
-{
+void MapOpenGLWidget::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
     glTranslatef(0.0F, 0.0F, -10.0F);
     draw();
 }
 
-void MapOpenGLWidget::resizeGL(int width, int height)
-{
+void MapOpenGLWidget::resizeGL(int width, int height) {
     glViewport(0, 0, width, height);
 
     glMatrixMode(GL_PROJECTION);
@@ -101,92 +84,81 @@ void MapOpenGLWidget::resizeGL(int width, int height)
     glMatrixMode(GL_MODELVIEW);
 }
 
-const std::string& MapOpenGLWidget::getResourcesPath() const
-{
+const std::string& MapOpenGLWidget::getResourcesPath() const {
     return this->m_resourcesPath;
 }
 
-void MapOpenGLWidget::setResourcesPath(const std::string &path)
-{
+void MapOpenGLWidget::setResourcesPath(const std::string &path) {
     this->m_resourcesPath = path;
 }
 
-SelectionMode MapOpenGLWidget::getSelectionMode() const
-{
+SelectionMode MapOpenGLWidget::getSelectionMode() const {
     return m_selectionMode;
 }
 
-void MapOpenGLWidget::setSelectionMode(SelectionMode mode)
-{
+void MapOpenGLWidget::setSelectionMode(SelectionMode mode) {
     m_selectionMode = mode;
 }
 
-unsigned int MapOpenGLWidget::getMapWidth() const
-{
+unsigned int MapOpenGLWidget::getMapWidth() const {
     return this->m_currentMap->getWidth();
 }
 
-unsigned int MapOpenGLWidget::getMapHeight() const
-{
+unsigned int MapOpenGLWidget::getMapHeight() const {
     return this->m_currentMap->getHeight();
 }
 
-void MapOpenGLWidget::reloadTextures()
-{
-    //Clear existing textures in graphics memory
-    for(auto &glTexture : m_texturesGLMap) {
+void MapOpenGLWidget::reloadTextures() {
+    // Clear existing textures in graphics memory
+    for (auto &glTexture : m_texturesGLMap) {
         glDeleteTextures(1, &glTexture.second);
     }
     m_texturesGLMap.clear();
     m_texturesObjMap.clear();
-    //Load texture in graphics memory
-    for(const auto &texture : m_currentMap->getTextures()) {
+    // Load texture in graphics memory
+    for (const auto &texture : m_currentMap->getTextures()) {
         const auto &textureName { texture.getName() };
         glGenTextures(1, &m_texturesGLMap[textureName]);
         glBindTexture(GL_TEXTURE_2D, m_texturesGLMap[textureName]);
         m_texturesObjMap.emplace(textureName, texture);
         // set the texture wrapping parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+        // set texture wrapping to GL_REPEAT (default wrapping method)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         // set texture filtering parameters
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         int width, height, nrChannels;
-        string texFileName { texture.getFilename() };
-        string fullResourcePath = fmt::format("{0}/textures/{1}", m_resourcesPath, texFileName);
+        std::string texFileName { texture.getFilename() };
+        std::string fullResourcePath = fmt::format("{0}/textures/{1}", m_resourcesPath, texFileName);
         unsigned char *imageBytes = stbi_load(fullResourcePath.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
         if (imageBytes) {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageBytes);
-        }
-        else {
-            throw runtime_error(fmt::format("Failed to load texture {0}", fullResourcePath));
+        } else {
+            throw std::runtime_error(fmt::format("Failed to load texture {0}", fullResourcePath));
         }
         glBindTexture(GL_TEXTURE_2D, 0);
         stbi_image_free(imageBytes);
     }
 }
 
-void MapOpenGLWidget::startAutoUpdate()
-{
+void MapOpenGLWidget::startAutoUpdate() {
     m_repaintTimer.start(static_cast<int>(1000.0F / 60.0F));
 }
 
-void MapOpenGLWidget::stopAutoUpdate()
-{
+void MapOpenGLWidget::stopAutoUpdate() {
     m_repaintTimer.stop();
 }
 
-void MapOpenGLWidget::resetMapMovePosition()
-{
+void MapOpenGLWidget::resetMapMovePosition() {
     m_translationX = 0.0F;
     m_translationY = 0.0F;
     m_translationDragAndDropX = 0.0F;
     m_translationDragAndDropY = 0.0F;
 }
 
-void MapOpenGLWidget::mousePressEvent(QMouseEvent *event)
-{
+void MapOpenGLWidget::mousePressEvent(QMouseEvent *event) {
     if (!m_mousePressed &&
             (m_selectionMode == SelectionMode::MoveMap ||
              m_selectionMode == SelectionMode::ViewBorderMode)) {
@@ -198,21 +170,19 @@ void MapOpenGLWidget::mousePressEvent(QMouseEvent *event)
     m_mousePressed = true;
 }
 
-void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event)
-{
+void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event) {
     m_mousePressed = false;
     m_translationX += m_translationDragAndDropX;
     m_translationDragAndDropX = 0;
     m_translationY += m_translationDragAndDropY;
     m_translationDragAndDropY = 0;
     if (m_selectionMode == SelectionMode::Select) {
-        //Found which tile was clicked
+        // Found which tile was clicked
         m_selectedTileIndex = getTileIndex(m_lastCursorPosition.x(), m_lastCursorPosition.y());
         m_selectedTileColor = 150;
         m_selectedTileColorGrowing = true;
         emit onTileClicked(m_selectedTileIndex);
-    }
-    else if (m_selectionMode == SelectionMode::ApplyTexture ||
+    } else if (m_selectionMode == SelectionMode::ApplyTexture ||
             m_selectionMode == SelectionMode::ApplyObject ||
             m_selectionMode == SelectionMode::EnableCanStep ||
             m_selectionMode == SelectionMode::DisableCanStep ||
@@ -221,15 +191,14 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event)
             m_selectionMode == SelectionMode::BlockBorderRight ||
             m_selectionMode == SelectionMode::BlockBorderBottom ||
             m_selectionMode == SelectionMode::ClearBlockedBorders) {
-        //Calculate the list of index selected
-        vector<int> selectedTileIndexes;
+        // Calculate the list of index selected
+        std::vector<int> selectedTileIndexes;
         QPoint startCoord;
         QPoint endCoord;
         if (m_currentCursorPosition.x() < m_lastCursorPosition.x()) {
             startCoord = m_currentCursorPosition;
             endCoord = m_lastCursorPosition;
-        }
-        else {
+        } else {
             startCoord = m_lastCursorPosition;
             endCoord = m_currentCursorPosition;
         }
@@ -238,7 +207,7 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event)
         if (startCoord.y() > endCoord.y()) {
             yDirection = -1;
         }
-        while(calculatedCoord.x() < endCoord.x() &&
+        while (calculatedCoord.x() < endCoord.x() &&
                 ((yDirection == 1 && calculatedCoord.y() < endCoord.y()) || (yDirection == -1 && calculatedCoord.y() > endCoord.y()))) {
             selectedTileIndexes.emplace_back(getTileIndex(calculatedCoord.x(), calculatedCoord.y()));
             calculatedCoord.setX(calculatedCoord.x() + static_cast<int>(ONSCREENTILESIZE));
@@ -251,17 +220,15 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event)
     }
     auto currentTileIndex { getTileIndex(event->pos().x(), event->pos().y()) };
     if (currentTileIndex != -1) {
-        emit onTileMouseReleaseEvent(vector<int> { currentTileIndex });
+        emit onTileMouseReleaseEvent(std::vector<int> { currentTileIndex });
     }
 }
 
-void MapOpenGLWidget::leaveEvent(QEvent *)
-{
+void MapOpenGLWidget::leaveEvent(QEvent *) {
     setCursor(Qt::ArrowCursor);
 }
 
-void MapOpenGLWidget::mouseMoveEvent(QMouseEvent *event)
-{
+void MapOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
     if (m_mousePressed &&
             (m_selectionMode == SelectionMode::MoveMap  ||
              m_selectionMode == SelectionMode::ViewBorderMode)) {
@@ -273,16 +240,13 @@ void MapOpenGLWidget::mouseMoveEvent(QMouseEvent *event)
     emit onTileMouseMoveEvent(m_mousePressed, getTileIndex(event->pos().x(), event->pos().y()));
 }
 
-void MapOpenGLWidget::updateCursor()
-{
+void MapOpenGLWidget::updateCursor() {
     if (m_selectionMode == SelectionMode::MoveMap ||
             m_selectionMode == SelectionMode::ViewBorderMode) {
         setCursor(m_mousePressed ? Qt::ClosedHandCursor : Qt::OpenHandCursor);
-    }
-    else if (m_selectionMode == SelectionMode::Select) {
+    } else if (m_selectionMode == SelectionMode::Select) {
         setCursor(Qt::PointingHandCursor);
-    }
-    else if (m_selectionMode == SelectionMode::ApplyTexture ||
+    } else if (m_selectionMode == SelectionMode::ApplyTexture ||
             m_selectionMode == SelectionMode::ApplyObject ||
             m_selectionMode == SelectionMode::EnableCanStep ||
             m_selectionMode == SelectionMode::DisableCanStep ||
@@ -290,16 +254,16 @@ void MapOpenGLWidget::updateCursor()
             m_selectionMode == SelectionMode::BlockBorderTop ||
             m_selectionMode == SelectionMode::BlockBorderRight ||
             m_selectionMode == SelectionMode::BlockBorderBottom ||
-            m_selectionMode == SelectionMode::ClearBlockedBorders) {
+            m_selectionMode == SelectionMode::ClearBlockedBorders ||
+            m_selectionMode == SelectionMode::ApplyMonsterZone ||
+            m_selectionMode == SelectionMode::ClearMonsterZone) {
         setCursor(Qt::CrossCursor);
-    }
-    else {
+    } else {
         setCursor(Qt::ArrowCursor);
     }
 }
 
-void MapOpenGLWidget::draw()
-{
+void MapOpenGLWidget::draw() {
     glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
     glEnable(GL_TEXTURE_2D);
 
@@ -309,8 +273,8 @@ void MapOpenGLWidget::draw()
     glPushMatrix();
     glTranslatef(m_translationX + m_translationDragAndDropX, m_translationY + m_translationDragAndDropY, 0.0F);
     int index {0};
-    for(const auto &row : m_currentMap->getTiles()) {
-        for(const auto &tile : row) {
+    for (const auto &row : m_currentMap->getTiles()) {
+        for (const auto &tile : row) {
             bool hasTexture { false };
             if (m_texturesGLMap.find(tile.getTextureName()) != m_texturesGLMap.end()) {
                 hasTexture = true;
@@ -318,26 +282,29 @@ void MapOpenGLWidget::draw()
             }
             if (index == m_selectedTileIndex) {
                 glColor3ub(m_selectedTileColor, m_selectedTileColor, m_selectedTileColor);
-                //qglColor(QColor(m_selectedTileColor, m_selectedTileColor, m_selectedTileColor));
                 updateSelectedTileColor();
-            }
-            else {
+            } else {
                 glColor3f(1.0F, 1.0F, 1.0F);
             }
-            //Filter to enable/disable can step on tile
-            if (m_selectionMode == SelectionMode::EnableCanStep || m_selectionMode == SelectionMode::DisableCanStep) {
+            // Filter to enable/disable can step on tile
+            if (m_selectionMode == SelectionMode::EnableCanStep ||
+                    m_selectionMode == SelectionMode::DisableCanStep) {
                 if (tile.canPlayerSteppedOn()) {
                     glColor3f(0.25F, 1.0F, 0.25F);
-                }
-                else {
+                } else {
                     glColor3f(1.0F, 0.25F, 0.25F);
                 }
+            }
+            // Filter to apply/clear monster zone
+            if (m_selectionMode == SelectionMode::ApplyMonsterZone ||
+                    m_selectionMode == SelectionMode::ClearMonsterZone) {
+                glColor4f(1.0F, 1.0F, 1.0F, 0.2F);
             }
 
             if (hasTexture) {
                 drawTileWithTexture(tile.getTextureName(), tile.getTextureIndex());
-                //Check if it has an optionnal object
-                //TODO create a method and test for bool hasAndObjectDefined() on the mapTile
+                // Check if it has an optionnal object
+                // TODO: create a method and test for bool hasAndObjectDefined() on the mapTile
                 if (tile.getObjectTextureName() != "" && tile.getObjectTextureIndex() != -1) {
                     if (tile.getTextureName() != tile.getObjectTextureName()) {
                         if (m_texturesGLMap.find(tile.getObjectTextureName()) != m_texturesGLMap.end()) {
@@ -347,14 +314,12 @@ void MapOpenGLWidget::draw()
                             glPopMatrix();
                             glBindTexture(GL_TEXTURE_2D, 0);
                         }
-                    }
-                    else {
+                    } else {
                         drawTileWithTexture(tile.getObjectTextureName(), tile.getObjectTextureIndex());
                     }
                 }
-            }
-            else {
-                //not defined tile (no texture)
+            } else {
+                // not defined tile (no texture)
                 glPushMatrix();
                 glColor3f(0.5F, 0.5F, 0.5F);
                 glBegin(GL_QUADS);
@@ -365,7 +330,7 @@ void MapOpenGLWidget::draw()
                 glEnd();
                 glPopMatrix();
             }
-            //If we are in block border mode
+            // If we are in block border mode
             if (m_selectionMode == SelectionMode::ViewBorderMode ||
                     m_selectionMode == SelectionMode::BlockBorderLeft ||
                     m_selectionMode == SelectionMode::BlockBorderTop ||
@@ -373,9 +338,9 @@ void MapOpenGLWidget::draw()
                     m_selectionMode == SelectionMode::BlockBorderBottom ||
                     m_selectionMode == SelectionMode::ClearBlockedBorders) {
                 auto triggers { tile.getTriggers() };
-                for(const auto &trigger : triggers) {
+                for (const auto &trigger : triggers) {
                     if (trigger.getAction() == MapTileTriggerAction::DenyMove) {
-                        switch(trigger.getEvent()) {
+                        switch (trigger.getEvent()) {
                             case MapTileTriggerEvent::MoveLeftPressed:
                                 drawBlockBorderLeft();
                                 break;
@@ -398,12 +363,6 @@ void MapOpenGLWidget::draw()
                 drawGrid();
             }
 
-            /*glColor3f (1.0f, 0.0f, 0.0f);
-              string indexStr { fmt::format("{}", index) };
-              glRasterPos3f(-0.02 * indexStr.size(), 0, 0.1);
-              for(size_t i = 0; i < indexStr.size(); i++) {
-              glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, indexStr[i]);
-              }*/
             x += TILESIZE + TILESPACING;
             glTranslatef(TILESIZE + TILESPACING, 0, 0);
             glBindTexture(GL_TEXTURE_2D, 0);
@@ -423,15 +382,16 @@ void MapOpenGLWidget::draw()
                 m_selectionMode == SelectionMode::BlockBorderTop ||
                 m_selectionMode == SelectionMode::BlockBorderRight ||
                 m_selectionMode == SelectionMode::BlockBorderBottom ||
-                m_selectionMode == SelectionMode::ClearBlockedBorders)) {
+                m_selectionMode == SelectionMode::ClearBlockedBorders ||
+                m_selectionMode == SelectionMode::ApplyMonsterZone ||
+                m_selectionMode == SelectionMode::ClearMonsterZone)) {
         drawSelectionZone();
     }
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
 }
 
-void MapOpenGLWidget::drawTileWithTexture(const std::string &textureName, int textureIndex)
-{
+void MapOpenGLWidget::drawTileWithTexture(const std::string &textureName, int textureIndex) {
     float indexTile { static_cast<float>(textureIndex) };
     const Texture &currentTexture { m_texturesObjMap.find(textureName)->second };
     const int NBTEXTUREPERLINE { currentTexture.getWidth() / currentTexture.getTileWidth() };
@@ -456,12 +416,11 @@ void MapOpenGLWidget::drawTileWithTexture(const std::string &textureName, int te
     glPopMatrix();
 }
 
-void MapOpenGLWidget::drawSelectionZone() const
-{
+void MapOpenGLWidget::drawSelectionZone() const {
     glm::vec2 startCoord = convertScreenCoordToGlCoord(m_lastCursorPosition);
     glm::vec2 endCoord = convertScreenCoordToGlCoord(m_currentCursorPosition - m_lastCursorPosition);
     glTranslatef(startCoord.x, -startCoord.y, 0.0f);
-    glColor4f (1.0f, 1.0f, 1.0f, 0.3f);
+    glColor4f(1.0f, 1.0f, 1.0f, 0.3f);
     glBegin(GL_QUADS);
     glVertex3f(endCoord.x -TILEHALFSIZE, TILEHALFSIZE, 0);
     glVertex3f(endCoord.x -TILEHALFSIZE, -endCoord.y + TILEHALFSIZE, 0);
@@ -470,8 +429,7 @@ void MapOpenGLWidget::drawSelectionZone() const
     glEnd();
 }
 
-void MapOpenGLWidget::drawGrid() const
-{
+void MapOpenGLWidget::drawGrid() const {
     glColor3f(0.0F, 0.0F, 0.0F);
     glBegin(GL_LINES);
     glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
@@ -491,8 +449,7 @@ void MapOpenGLWidget::drawGrid() const
     glEnd();
 }
 
-void MapOpenGLWidget::drawBlockBorderLeft()
-{
+void MapOpenGLWidget::drawBlockBorderLeft() {
     glColor3f(1.0F, 0.0F, 0.0F);
     glBindTexture(GL_TEXTURE_2D, 0);
     glPushMatrix();
@@ -513,8 +470,7 @@ void MapOpenGLWidget::drawBlockBorderLeft()
     glPopMatrix();
 }
 
-void MapOpenGLWidget::drawBlockBorderTop()
-{
+void MapOpenGLWidget::drawBlockBorderTop() {
     glColor3f(1.0F, 0.0F, 0.0F);
     glBindTexture(GL_TEXTURE_2D, 0);
     glPushMatrix();
@@ -535,8 +491,7 @@ void MapOpenGLWidget::drawBlockBorderTop()
     glPopMatrix();
 }
 
-void MapOpenGLWidget::drawBlockBorderRight()
-{
+void MapOpenGLWidget::drawBlockBorderRight() {
     glColor3f(1.0F, 0.0F, 0.0F);
     glBindTexture(GL_TEXTURE_2D, 0);
     glPushMatrix();
@@ -557,8 +512,7 @@ void MapOpenGLWidget::drawBlockBorderRight()
     glPopMatrix();
 }
 
-void MapOpenGLWidget::drawBlockBorderBottom()
-{
+void MapOpenGLWidget::drawBlockBorderBottom() {
     glColor3f(1.0F, 0.0F, 0.0F);
     glBindTexture(GL_TEXTURE_2D, 0);
     glPushMatrix();
@@ -578,8 +532,7 @@ void MapOpenGLWidget::drawBlockBorderBottom()
     glEnd();
     glPopMatrix();
 }
-int MapOpenGLWidget::getTileIndex(int onScreenX, int onScreenY)
-{
+int MapOpenGLWidget::getTileIndex(int onScreenX, int onScreenY) {
     if (onScreenX / static_cast<int>(ONSCREENTILESIZE) > static_cast<int>(m_currentMap->getWidth()) - 1) {
         return -1;
     }
@@ -597,8 +550,7 @@ int MapOpenGLWidget::getTileIndex(int onScreenX, int onScreenY)
     return tileIndex;
 }
 
-glm::vec2 MapOpenGLWidget::convertScreenCoordToGlCoord(QPoint coord) const
-{
+glm::vec2 MapOpenGLWidget::convertScreenCoordToGlCoord(QPoint coord) const {
     float x = static_cast<float>(coord.x()) - ((m_translationX / TRANSLATIONTOPIXEL / static_cast<float>(ONSCREENTILESIZE)) * static_cast<float>(ONSCREENTILESIZE));
     float y = static_cast<float>(coord.y()) + ((m_translationY / TRANSLATIONTOPIXEL / static_cast<float>(ONSCREENTILESIZE)) * static_cast<float>(ONSCREENTILESIZE));
     glm::vec2 retVal;
@@ -607,21 +559,17 @@ glm::vec2 MapOpenGLWidget::convertScreenCoordToGlCoord(QPoint coord) const
     return retVal;
 }
 
-void MapOpenGLWidget::updateSelectedTileColor()
-{
+void MapOpenGLWidget::updateSelectedTileColor() {
     if (m_selectedTileColorGrowing) {
         m_selectedTileColor++;
-    }
-    else {
+    } else {
         m_selectedTileColor--;
     }
 
     if (m_selectedTileColor == 255) {
         m_selectedTileColorGrowing = false;
         m_selectedTileColor--;
-
-    }
-    else if (m_selectedTileColor == 150) {
+    } else if (m_selectedTileColor == 150) {
         m_selectedTileColorGrowing = true;
     }
 }

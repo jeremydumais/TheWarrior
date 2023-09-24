@@ -1,7 +1,6 @@
 #pragma once
 
-enum class SelectionMode
-{
+enum class SelectionMode {
     Select,
     MoveMap,
     ApplyTexture,
@@ -13,5 +12,7 @@ enum class SelectionMode
     BlockBorderTop,
     BlockBorderRight,
     BlockBorderBottom,
-    ClearBlockedBorders
+    ClearBlockedBorders,
+    ApplyMonsterZone,
+    ClearMonsterZone
 };

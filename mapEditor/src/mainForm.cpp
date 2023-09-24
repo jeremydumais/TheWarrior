@@ -106,6 +106,7 @@ MainForm::MainForm(QWidget *parent)
     monsterZoneUIObjects.pushButtonAddMonsterZone = ui.pushButtonAddMonsterZone;
     monsterZoneUIObjects.pushButtonEditMonsterZone = ui.pushButtonEditMonsterZone;
     monsterZoneUIObjects.pushButtonDeleteMonsterZone = ui.pushButtonDeleteMonsterZone;
+    monsterZoneUIObjects.checkBoxOneMonsterZoneForAllTheMap = ui.checkBoxOneMonsterZoneForAllTheMap;
     m_monsterZoneTabComponent.initializeUIObjects(monsterZoneUIObjects);
     m_monsterZoneTabComponent.setMonsterStores(m_controller.getMonsterStores());
     m_monsterZoneTabComponent.setResourcesPath(m_controller.getResourcesPath());
@@ -186,6 +187,8 @@ void MainForm::connectUIActions() {
     connect(ui.action_BlockRightBorder, &QAction::triggered, this, &MainForm::action_BlockRightBorderClick);
     connect(ui.action_BlockBottomBorder, &QAction::triggered, this, &MainForm::action_BlockBottomBorderClick);
     connect(ui.action_ClearBlockedBorders, &QAction::triggered, this, &MainForm::action_ClearBlockedBordersClick);
+    connect(ui.action_ApplyMonsterZone, &QAction::triggered, this, &MainForm::action_ApplyMonsterZone);
+    connect(ui.action_ClearMonsterZone, &QAction::triggered, this, &MainForm::action_ClearMonsterZone);
     m_glComponent.connectUIActions();
     m_mapTabComponent.connectUIActions();
     m_tileTabComponent.connectUIActions();
@@ -360,6 +363,14 @@ void MainForm::action_ClearBlockedBordersClick() {
     m_glComponent.setSelectionMode(SelectionMode::ClearBlockedBorders);
 }
 
+void MainForm::action_ApplyMonsterZone() {
+    m_glComponent.setSelectionMode(SelectionMode::ApplyMonsterZone);
+}
+
+void MainForm::action_ClearMonsterZone() {
+    m_glComponent.setSelectionMode(SelectionMode::ClearMonsterZone);
+}
+
 void MainForm::openMap(const std::string &filePath) {
     GameMapStorage mapStorage;
     try {
@@ -514,7 +525,9 @@ void MainForm::refreshTextureList() {
 }
 
 void MainForm::onMonsterZoneAdded(MonsterZoneDTO monsterZoneDTO) {
-    if (!m_controller.addMonsterZone(monsterZoneDTO)) {
+    if (m_controller.addMonsterZone(monsterZoneDTO)) {
+        m_monsterZoneTabComponent.confirmValidityOfOneMonsterZoneCheckBox();
+    } else {
         ErrorMessage::show(m_controller.getLastError());
     }
     refreshMonsterZones();
@@ -528,7 +541,9 @@ void MainForm::onMonsterZoneUpdated(const std::string &name, MonsterZoneDTO mons
 }
 
 void MainForm::onMonsterZoneDeleted(const std::string &name) {
-    if (!m_controller.removeMonsterZone(name)) {
+    if (m_controller.removeMonsterZone(name)) {
+        m_monsterZoneTabComponent.confirmValidityOfOneMonsterZoneCheckBox();
+    } else {
         ErrorMessage::show(m_controller.getLastError());
     }
     refreshMonsterZones();

@@ -35,8 +35,14 @@ void MainForm_GLComponent::initializeUIObjects(MapOpenGLWidget *glWidget) {
 }
 
 void MainForm_GLComponent::connectUIActions() {
-    connect(this->m_glWidget, &MapOpenGLWidget::onTileClicked, this, &MainForm_GLComponent::onTileClicked);
-    connect(this->m_glWidget, &MapOpenGLWidget::onTileMouseReleaseEvent, this, &MainForm_GLComponent::onTileMouseReleaseEvent);
+    connect(this->m_glWidget,
+            &MapOpenGLWidget::onTileClicked,
+            this,
+            &MainForm_GLComponent::onTileClicked);
+    connect(this->m_glWidget,
+            &MapOpenGLWidget::onTileMouseReleaseEvent,
+            this,
+            &MainForm_GLComponent::onTileMouseReleaseEvent);
 }
 
 const std::string &MainForm_GLComponent::getResourcesPath() const {
@@ -75,12 +81,14 @@ MapTile* MainForm_GLComponent::getCurrentMapTile() {
     return m_currentMapTile;
 }
 
-void MainForm_GLComponent::setLastSelectedTexture(const std::string &name, int index) {
+void MainForm_GLComponent::setLastSelectedTexture(const std::string &name,
+        int index) {
     this->m_lastSelectedTextureName = name;
     this->m_lastSelectedTextureIndex = index;
 }
 
-void MainForm_GLComponent::setLastSelectedObject(const std::string &name, int index) {
+void MainForm_GLComponent::setLastSelectedObject(const std::string &name,
+        int index) {
     this->m_lastSelectedObjectName = name;
     this->m_lastSelectedObjectIndex = index;
 }

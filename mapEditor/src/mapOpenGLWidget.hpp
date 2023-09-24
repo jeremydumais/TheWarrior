@@ -1,22 +1,22 @@
-#ifndef MAPOPENGLWIDGET_H
-#define MAPOPENGLWIDGET_H
+#ifndef MAPEDITOR_SRC_MAPOPENGLWIDGET_HPP_
+#define MAPEDITOR_SRC_MAPOPENGLWIDGET_HPP_
 
-#include "gameMap.hpp"
-#include "selectionMode.hpp"
 #include <QTimer>
 #include <QtOpenGL/QGLWidget>
 #include <QtOpenGL/QtOpenGL>
-#include <glm/glm.hpp>
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
+#include <glm/glm.hpp>
+#include "gameMap.hpp"
+#include "selectionMode.hpp"
 
-class MapOpenGLWidget : public QOpenGLWidget
-{
-Q_OBJECT
-public:
-    explicit MapOpenGLWidget(QWidget *parent = 0);
+class MapOpenGLWidget : public QOpenGLWidget {
+    Q_OBJECT
+
+ public:
+    explicit MapOpenGLWidget(QWidget *parent = nullptr);
     void setCurrentMap(std::shared_ptr<thewarrior::models::GameMap> map);
     void setGridEnabled(bool enabled);
     void resizeGL(int width, int height) override;
@@ -30,7 +30,8 @@ public:
     void startAutoUpdate();
     void stopAutoUpdate();
     void resetMapMovePosition();
-protected:
+
+ protected:
     void initializeGL() override;
     void paintGL() override;
     QSize minimumSizeHint() const override;
@@ -39,7 +40,8 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void leaveEvent(QEvent *event) override;
-private:
+
+ private:
     QTimer m_repaintTimer;
     bool m_isGridEnabled;
     SelectionMode m_selectionMode;
@@ -52,8 +54,8 @@ private:
     int m_selectedTileIndex;
     GLubyte m_selectedTileColor;
     bool m_selectedTileColorGrowing;
-    std::map<std::string, unsigned int> m_texturesGLMap; //Mapping between texture name and OpenGL texture id
-    std::map<std::string, const thewarrior::models::Texture &> m_texturesObjMap; //Mapping between texture name and texture object
+    std::map<std::string, unsigned int> m_texturesGLMap;  // Mapping between texture name and OpenGL texture id
+    std::map<std::string, const thewarrior::models::Texture &> m_texturesObjMap;  // Mapping between texture name and texture object
     std::shared_ptr<thewarrior::models::GameMap> m_currentMap;
     QPoint m_lastCursorPosition;
     QPoint m_currentCursorPosition;
@@ -74,10 +76,11 @@ private:
     int getTileIndex(int onScreenX, int onScreenY);
     glm::vec2 convertScreenCoordToGlCoord(QPoint coord) const;
     void updateSelectedTileColor();
-signals:
+
+ signals:
     void onTileClicked(int tileIndex);
     void onTileMouseReleaseEvent(std::vector<int> tileIndex);
     void onTileMouseMoveEvent(bool mousePressed, int tileIndex);
 };
 
-#endif // MAPOPENGLWIDGET_H
+#endif  // MAPEDITOR_SRC_MAPOPENGLWIDGET_HPP_

@@ -65,3 +65,11 @@ All notable changes to this project will be documented in this file.
 
 ### Monster Editor
 - Create the Monster Editor to manage monsters with their stats
+
+## [0.3.1]
+
+### Map Editor (Version 1.3.2)
+
+#### New features
+- Added the one monster zone for all the map feature.
+

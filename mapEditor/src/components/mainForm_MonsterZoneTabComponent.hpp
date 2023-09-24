@@ -5,6 +5,7 @@
 #include <QtWidgets/QWidget>
 #include <memory>
 #include <optional>
+#include <qcheckbox.h>
 #include <string>
 #include <vector>
 #include "mainForm_GLComponent.hpp"
@@ -20,6 +21,7 @@ struct MainForm_MonsterZoneTabComponent_Objects {
     QPushButton *pushButtonAddMonsterZone = nullptr;
     QPushButton *pushButtonEditMonsterZone = nullptr;
     QPushButton *pushButtonDeleteMonsterZone = nullptr;
+    QCheckBox *checkBoxOneMonsterZoneForAllTheMap = nullptr;
 };
 
 class MainForm_MonsterZoneTabComponent : public QWidget {
@@ -34,6 +36,7 @@ class MainForm_MonsterZoneTabComponent : public QWidget {
     std::optional<const mapeditor::controllers::MonsterZoneDTO> getSelectedMonsterZoneInMonsterZoneList() const;
     void setMonsterStores(const std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> monsterStores);
     void setResourcesPath(const std::string &resourcesPath);
+    void confirmValidityOfOneMonsterZoneCheckBox();
  signals:
     void monsterZoneAdded(mapeditor::controllers::MonsterZoneDTO monsterZoneDTO);
     void monsterZoneUpdated(const std::string &name, mapeditor::controllers::MonsterZoneDTO monsterZoneDTO);
@@ -48,8 +51,10 @@ class MainForm_MonsterZoneTabComponent : public QWidget {
     QPushButton *m_pushButtonAddMonsterZone;
     QPushButton *m_pushButtonEditMonsterZone;
     QPushButton *m_pushButtonDeleteMonsterZone;
+    QCheckBox *m_checkBoxOneMonsterZoneForAllTheMap;
     void onPushButtonAddMonsterZoneClick();
     void onPushButtonEditMonsterZoneClick();
     void onPushButtonDeleteMonsterZoneClick();
     void onTableWidgetMonsterZoneKeyPressEvent(int key, int, int);
+	void onCheckBoxOneMonsterZoneForAllTheMapChanged(int state);
 };

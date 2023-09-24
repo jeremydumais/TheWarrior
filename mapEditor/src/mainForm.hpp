@@ -65,6 +65,8 @@ Q_OBJECT
     void action_BlockRightBorderClick();
     void action_BlockBottomBorderClick();
     void action_ClearBlockedBordersClick();
+    void action_ApplyMonsterZone();
+    void action_ClearMonsterZone();
     void openMap(const std::string &filePath);
     void saveMap(const std::string &filePath);
     void refreshWindowTitle();
