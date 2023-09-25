@@ -215,6 +215,13 @@ void MainForm_GLComponent::onTileMouseReleaseEvent(vector<int> selectedTileIndex
                 }
             }
         }
+    } else if (m_glWidget->getSelectionMode() == SelectionMode::ApplyMonsterZone) {
+        for (const int index : selectedTileIndexes) {
+            m_currentMapTile = &m_controller.getMap()->getTileForEditing(index);
+            // TODO: Assign the tile a monster zone
+            // m_currentMapTile->setCanPlayerSteppedOn(true);
+        }
+    } else if (m_glWidget->getSelectionMode() == SelectionMode::ClearMonsterZone) {
     }
 }
 

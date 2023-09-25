@@ -190,7 +190,9 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event) {
             m_selectionMode == SelectionMode::BlockBorderTop ||
             m_selectionMode == SelectionMode::BlockBorderRight ||
             m_selectionMode == SelectionMode::BlockBorderBottom ||
-            m_selectionMode == SelectionMode::ClearBlockedBorders) {
+            m_selectionMode == SelectionMode::ClearBlockedBorders ||
+            m_selectionMode == SelectionMode::ApplyMonsterZone ||
+            m_selectionMode == SelectionMode::ClearMonsterZone) {
         // Calculate the list of index selected
         std::vector<int> selectedTileIndexes;
         QPoint startCoord;

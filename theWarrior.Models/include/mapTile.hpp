@@ -1,20 +1,19 @@
 #pragma once
 
+#include <map>
+#include <string>
+#include <vector>
 #include "mapTileTrigger.hpp"
 #include <boost/optional.hpp>
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/version.hpp>
-#include <map>
-#include <string>
-#include <vector>
 
 namespace thewarrior::models {
 
-class MapTile
-{
-public:
+class MapTile {
+ public:
     MapTile();
     const std::string &getTextureName() const;
     int getTextureIndex() const;
@@ -39,32 +38,32 @@ public:
     void addTrigger(const MapTileTrigger &trigger);
     bool updateTrigger(const MapTileTrigger &triggerToUpdate, const MapTileTrigger &updatedTrigger);
     bool deleteTrigger(const MapTileTrigger &triggerToDelete);
-private:
+
+ private:
     friend class boost::serialization::access;
     std::string m_textureName;
     int m_textureIndex;
-    //Optional object on the tile
+    // Optional object on the tile
     std::string m_objectTextureName;
     int m_objectTextureIndex;
     bool m_canSteppedOn;
     bool m_objectAbovePlayer;
     bool m_isWallToClimb;
     std::vector<MapTileTrigger> m_triggers;
-    //Serialization method
+    // Serialization method
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version)
-    {
+    void serialize(Archive & ar, const unsigned int version) {
         ar & m_textureName;
         ar & m_textureIndex;
         ar & m_objectTextureName;
         ar & m_objectTextureIndex;
-        if(version > 0) {
+        if (version > 0) {
             ar & m_canSteppedOn;
         }
-        if(version > 1) {
+        if (version > 1) {
             ar & m_objectAbovePlayer;
         }
-        if(version >= 5) {
+        if (version >= 5) {
             ar & m_triggers;
         }
         if (version >= 6) {
@@ -73,6 +72,6 @@ private:
     }
 };
 
-} // namespace thewarrior::models
+}  // namespace thewarrior::models
 
 BOOST_CLASS_VERSION(thewarrior::models::MapTile, 6)
