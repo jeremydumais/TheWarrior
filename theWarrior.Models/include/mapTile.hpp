@@ -25,6 +25,7 @@ class MapTile {
     bool canPlayerSteppedOn() const;
     bool getObjectAbovePlayer() const;
     bool getIsWallToClimb() const;
+    int getMonsterZoneIndex() const;
     const std::vector<MapTileTrigger> &getTriggers() const;
     boost::optional<const MapTileTrigger &> findConstTrigger(MapTileTriggerEvent event) const;
     boost::optional<MapTileTrigger &> findTrigger(MapTileTriggerEvent event);
@@ -35,6 +36,7 @@ class MapTile {
     void setCanPlayerSteppedOn(bool value);
     void setObjectAbovePlayer(bool value);
     void setIsWallToClimb(bool value);
+    void setMonsterZoneIndex(int index);
     void addTrigger(const MapTileTrigger &trigger);
     bool updateTrigger(const MapTileTrigger &triggerToUpdate, const MapTileTrigger &updatedTrigger);
     bool deleteTrigger(const MapTileTrigger &triggerToDelete);
@@ -49,6 +51,7 @@ class MapTile {
     bool m_canSteppedOn;
     bool m_objectAbovePlayer;
     bool m_isWallToClimb;
+    int m_monsterZoneIndex;
     std::vector<MapTileTrigger> m_triggers;
     // Serialization method
     template<class Archive>
@@ -69,9 +72,12 @@ class MapTile {
         if (version >= 6) {
             ar & m_isWallToClimb;
         }
+        if (version >= 7) {
+            ar & m_monsterZoneIndex;
+        }
     }
 };
 
 }  // namespace thewarrior::models
 
-BOOST_CLASS_VERSION(thewarrior::models::MapTile, 6)
+BOOST_CLASS_VERSION(thewarrior::models::MapTile, 7)

@@ -11,6 +11,7 @@ MapTile::MapTile()
       m_canSteppedOn(true),
       m_objectAbovePlayer(false),
       m_isWallToClimb(false),
+      m_monsterZoneIndex(-1),
       m_triggers(std::vector<MapTileTrigger>()) {
 }
 
@@ -55,6 +56,10 @@ bool MapTile::getObjectAbovePlayer() const {
 
 bool MapTile::getIsWallToClimb() const {
     return m_isWallToClimb;
+}
+
+int MapTile::getMonsterZoneIndex() const {
+    return m_monsterZoneIndex;
 }
 
 const std::vector<MapTileTrigger> &MapTile::getTriggers() const {
@@ -105,6 +110,10 @@ void MapTile::setObjectAbovePlayer(bool value) {
 
 void MapTile::setIsWallToClimb(bool value) {
     m_isWallToClimb = value;
+}
+
+void MapTile::setMonsterZoneIndex(int index) {
+    m_monsterZoneIndex = index;
 }
 
 void MapTile::addTrigger(const MapTileTrigger &trigger) {
