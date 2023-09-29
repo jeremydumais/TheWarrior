@@ -73,6 +73,14 @@ class SampleGameMapWithTilesAssigned : public ::testing::Test {
     GameMap map;
 };
 
+class SampleGameMap5x6WithOneMonsterZone : public ::testing::Test {
+ public:
+    SampleGameMap5x6WithOneMonsterZone()
+        : map(5, 6) {
+        map.addMonsterZone(MonsterZone("Zone1", RGBItemColor("Green", "#00FF00")));
+    }
+    GameMap map;
+};
 
 TEST(GameMap_Constructor, ZeroWidth_ThrowInvalidArgument) {
     try {
@@ -590,6 +598,13 @@ TEST_F(SampleGameMap5x6WithTwoTextures, addMonsterZone_WithExistingMonsterZone_R
     ASSERT_EQ("The zone Zone1 already exist.", map.getLastError());
 }
 
+TEST_F(SampleGameMap5x6WithOneMonsterZone, addMonsterZone_WithOnlyOneMSToTrue_ReturnTrueAndSetOnlyOneMSToFalse) {
+    const MonsterZone zoneSameName("Zone3", RGBItemColor("Green", "#00FF00"));
+    map.setUseOnlyOneMonsterZone(true);
+    ASSERT_TRUE(map.addMonsterZone(zoneSameName));
+    ASSERT_FALSE(map.useOnlyOneMonsterZone());
+}
+
 TEST_F(SampleGameMap5x6WithTwoTextures, replaceMonsterZone_WithNonExistingOldZone_ReturnFalse) {
     const MonsterZone zoneSameName("Zone1", RGBItemColor("Green", "#00FF00"));
     ASSERT_FALSE(map.replaceMonsterZone("Zone99", zoneSameName));
@@ -640,3 +655,33 @@ TEST_F(SampleGameMap5x6WithTwoTextures, removeMonsterZone_WithZone2_ReturnTrue) 
     ASSERT_EQ(1, zones.size());
     ASSERT_EQ("Zone1", zones[0].getName());
 }
+
+TEST_F(SampleGameMap5x6WithOneMonsterZone, removeMonsterZone_WithOnlyOneMSToTrue_ReturnTrueAndSetOnlyOneMSToFalse) {
+    map.setUseOnlyOneMonsterZone(true);
+    ASSERT_TRUE(map.removeMonsterZone("Zone1"));
+    ASSERT_FALSE(map.useOnlyOneMonsterZone());
+}
+
+TEST(GameMap_useOnlyOneMonsterZone, withDefaultConstructor_ReturnFalse) {
+    GameMap map(5, 6);
+    ASSERT_FALSE(map.useOnlyOneMonsterZone());
+}
+
+TEST_F(SampleGameMap5x6WithOneMonsterZone, setUseOnlyOneMonsterZone_withTrueOnOneMonsterZone_ReturnTrue) {
+    ASSERT_TRUE(map.setUseOnlyOneMonsterZone(true));
+    ASSERT_TRUE(map.useOnlyOneMonsterZone());
+}
+
+TEST(GameMap_setUseOnlyOneMonsterZone, withTrueOnNoMonsterZone_ReturnFalse) {
+    GameMap map(5, 6);
+    ASSERT_FALSE(map.setUseOnlyOneMonsterZone(true));
+    ASSERT_EQ("You must have exactly one monster zone.", map.getLastError());
+    ASSERT_FALSE(map.useOnlyOneMonsterZone());
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, withTrueOnTwoMonsterZones_ReturnFalse) {
+    ASSERT_FALSE(map.setUseOnlyOneMonsterZone(true));
+    ASSERT_EQ("You must have exactly one monster zone.", map.getLastError());
+    ASSERT_FALSE(map.useOnlyOneMonsterZone());
+}
+
