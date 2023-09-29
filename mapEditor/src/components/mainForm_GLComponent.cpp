@@ -25,7 +25,8 @@ MainForm_GLComponent::MainForm_GLComponent()
     m_lastSelectedTextureName(""),
     m_lastSelectedObjectName(""),
     m_lastSelectedTextureIndex(-1),
-    m_lastSelectedObjectIndex(-1) {
+    m_lastSelectedObjectIndex(-1),
+    m_lastSelectedMonsterZoneIndex(-1) {
 }
 
 void MainForm_GLComponent::initializeUIObjects(MapOpenGLWidget *glWidget) {
@@ -101,6 +102,14 @@ void MainForm_GLComponent::clearLastSelectedTexture() {
 void MainForm_GLComponent::clearLastSelectedObject() {
     m_lastSelectedObjectName = "";
     m_lastSelectedObjectIndex = -1;
+}
+
+void MainForm_GLComponent::setLastSelectedMonsterZone(int index) {
+    m_lastSelectedMonsterZoneIndex = index;
+}
+
+void MainForm_GLComponent::clearLastSelectedMonsterZone() {
+    m_lastSelectedMonsterZoneIndex = -1;
 }
 
 void MainForm_GLComponent::stopAutoUpdate() {
@@ -218,10 +227,13 @@ void MainForm_GLComponent::onTileMouseReleaseEvent(vector<int> selectedTileIndex
     } else if (m_glWidget->getSelectionMode() == SelectionMode::ApplyMonsterZone) {
         for (const int index : selectedTileIndexes) {
             m_currentMapTile = &m_controller.getMap()->getTileForEditing(index);
-            // TODO: Assign the tile a monster zone
-            // m_currentMapTile->setCanPlayerSteppedOn(true);
+            m_currentMapTile->setMonsterZoneIndex(m_lastSelectedMonsterZoneIndex);
         }
     } else if (m_glWidget->getSelectionMode() == SelectionMode::ClearMonsterZone) {
+        for (const int index : selectedTileIndexes) {
+            m_currentMapTile = &m_controller.getMap()->getTileForEditing(index);
+            m_currentMapTile->setMonsterZoneIndex(-1);
+        }
     }
 }
 

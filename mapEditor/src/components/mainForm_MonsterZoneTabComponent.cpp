@@ -89,6 +89,18 @@ void MainForm_MonsterZoneTabComponent::confirmValidityOfOneMonsterZoneCheckBox()
     }
 }
 
+std::string MainForm_MonsterZoneTabComponent::getMonsterZoneColor(const std::string &zoneName) const {
+    const auto &zone = m_glComponent->getMonsterZoneByName(zoneName);
+    if (zone.has_value()) {
+        return zone->m_colorValue;
+    }
+    return "";
+}
+
+bool MainForm_MonsterZoneTabComponent::isMonsterZonesEmpty() const {
+    return m_glComponent->getMonsterZones().empty();
+}
+
 void MainForm_MonsterZoneTabComponent::onPushButtonAddMonsterZoneClick() {
     m_glComponent->stopAutoUpdate();
     const auto alreadyUsedMonsterZoneNames = m_glComponent->getAlreadyUsedMonsterZoneNames();
@@ -121,6 +133,7 @@ void MainForm_MonsterZoneTabComponent::onPushButtonEditMonsterZoneClick() {
                 alreadyUsedMonsterZoneNames);
         if (formEditMonsterZone.exec() == QDialog::Accepted) {
              emit monsterZoneUpdated(selectedMonsterZone->m_name, formEditMonsterZone.getResult());
+            // TODO: Check if the monster zone is used in the map
         }
     }
     m_glComponent->startAutoUpdate();
@@ -158,6 +171,11 @@ void MainForm_MonsterZoneTabComponent::onCheckBoxOneMonsterZoneForAllTheMapChang
         if (zones.size() != 1) {
             ErrorMessage::show("To enable this feature you must have exactly one monster zone configured");
             m_checkBoxOneMonsterZoneForAllTheMap->setCheckState(Qt::CheckState::Unchecked);
+            return;
+        } else {
+            emit useOnlyOneMonsterZoneChanged(true);
         }
+    } else {
+        emit useOnlyOneMonsterZoneChanged(false);
     }
 }

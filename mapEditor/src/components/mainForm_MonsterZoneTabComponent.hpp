@@ -37,10 +37,13 @@ class MainForm_MonsterZoneTabComponent : public QWidget {
     void setMonsterStores(const std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> monsterStores);
     void setResourcesPath(const std::string &resourcesPath);
     void confirmValidityOfOneMonsterZoneCheckBox();
+    std::string getMonsterZoneColor(const std::string &zoneName) const;
+    bool isMonsterZonesEmpty() const;
  signals:
     void monsterZoneAdded(mapeditor::controllers::MonsterZoneDTO monsterZoneDTO);
     void monsterZoneUpdated(const std::string &name, mapeditor::controllers::MonsterZoneDTO monsterZoneDTO);
     void monsterZoneDeleted(const std::string &name);
+    void useOnlyOneMonsterZoneChanged(bool value);
 
  private:
     std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> m_monsterStores = nullptr;

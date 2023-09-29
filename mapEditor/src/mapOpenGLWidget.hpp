@@ -67,6 +67,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
     void updateCursor();
     void draw();
     void drawTileWithTexture(const std::string &textureName, int textureIndex);
+    void drawColoredTile() const;
     void drawSelectionZone() const;
     void drawGrid() const;
     void drawBlockBorderLeft();

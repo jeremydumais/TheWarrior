@@ -1,10 +1,13 @@
 #include "mapOpenGLWidget.hpp"
+#include "monsterZone.hpp"
 #include <GL/glut.h>
 #include <QtWidgets>
 #include <fmt/format.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#include <algorithm>
 #include <string>
+#include <vector>
 #include "selectionMode.hpp"
 
 using namespace thewarrior::models;
@@ -275,6 +278,13 @@ void MapOpenGLWidget::draw() {
     glPushMatrix();
     glTranslatef(m_translationX + m_translationDragAndDropX, m_translationY + m_translationDragAndDropY, 0.0F);
     int index {0};
+    const auto &monsterZones = m_currentMap->getMonsterZones();
+    std::vector<std::string> zoneColors = {};
+    std::transform(monsterZones.begin(),
+                   monsterZones.end(),
+                   std::back_inserter(zoneColors),
+                   [](const MonsterZone &zone) -> std::string { return zone.getColor().getValue(); });
+
     for (const auto &row : m_currentMap->getTiles()) {
         for (const auto &tile : row) {
             bool hasTexture { false };
@@ -297,6 +307,7 @@ void MapOpenGLWidget::draw() {
                     glColor3f(1.0F, 0.25F, 0.25F);
                 }
             }
+
             // Filter to apply/clear monster zone
             if (m_selectionMode == SelectionMode::ApplyMonsterZone ||
                     m_selectionMode == SelectionMode::ClearMonsterZone) {
@@ -332,6 +343,17 @@ void MapOpenGLWidget::draw() {
                 glEnd();
                 glPopMatrix();
             }
+
+            // Filter to apply/clear monster zone
+            if (m_selectionMode == SelectionMode::ApplyMonsterZone ||
+                    m_selectionMode == SelectionMode::ClearMonsterZone) {
+                if (tile.getMonsterZoneIndex() != -1) {
+                    glColor4f(1.0F, 1.0F, 0.0F, 0.5F);
+                    drawColoredTile();
+                }
+                // TODO: Get the color from the zone index
+            }
+
             // If we are in block border mode
             if (m_selectionMode == SelectionMode::ViewBorderMode ||
                     m_selectionMode == SelectionMode::BlockBorderLeft ||
@@ -413,6 +435,18 @@ void MapOpenGLWidget::drawTileWithTexture(const std::string &textureName, int te
     glTexCoord2f((TEXTURETILEWIDTH * TEXTUREX)  + TEXTUREWIDTHADJUSTMENT, 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTUREHEIGHTADJUSTMENT);
     glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
     glTexCoord2f((TEXTURETILEWIDTH * TEXTUREX)  + TEXTUREWIDTHADJUSTMENT, 1.0f-(TEXTURETILEHEIGHT * (lineIndex + 1.0f)) + TEXTUREHEIGHTADJUSTMENT);
+    glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
+    glEnd();
+    glPopMatrix();
+}
+
+void MapOpenGLWidget::drawColoredTile() const {
+    glPushMatrix();
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glBegin(GL_QUADS);
+    glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
+    glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
+    glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
     glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
     glEnd();
     glPopMatrix();
