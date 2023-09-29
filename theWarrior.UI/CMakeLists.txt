@@ -79,7 +79,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 endif()
 
 if (NOT DEFINED BUILD_TESTING OR BUILD_TESTING)
-    #add_subdirectory("test")
+    add_subdirectory("test")
 endif()
 
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)

@@ -1,16 +1,18 @@
 #include "mapOpenGLWidget.hpp"
-#include "monsterZone.hpp"
+#define STB_IMAGE_IMPLEMENTATION
 #include <GL/glut.h>
 #include <QtWidgets>
 #include <fmt/format.h>
-#define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <algorithm>
 #include <string>
 #include <vector>
+#include "monsterZone.hpp"
+#include "glColor.hpp"
 #include "selectionMode.hpp"
 
 using namespace thewarrior::models;
+using thewarrior::ui::getVec3FromRGBString;
 
 MapOpenGLWidget::MapOpenGLWidget(QWidget *parent)
     : QOpenGLWidget(parent),
@@ -348,10 +350,10 @@ void MapOpenGLWidget::draw() {
             if (m_selectionMode == SelectionMode::ApplyMonsterZone ||
                     m_selectionMode == SelectionMode::ClearMonsterZone) {
                 if (tile.getMonsterZoneIndex() != -1) {
-                    glColor4f(1.0F, 1.0F, 0.0F, 0.5F);
+                    const auto zoneColor = getVec3FromRGBString(zoneColors[static_cast<size_t>(tile.getMonsterZoneIndex())]);
+                    glColor4f(zoneColor.r, zoneColor.g, zoneColor.b, 0.4F);
                     drawColoredTile();
                 }
-                // TODO: Get the color from the zone index
             }
 
             // If we are in block border mode

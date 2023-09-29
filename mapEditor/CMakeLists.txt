@@ -7,6 +7,7 @@ include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/../commonEditor.UI/src
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Storage/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.UI/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../mapEditor.Controllers/include)
 
 find_package(Qt5 COMPONENTS Widgets OpenGL REQUIRED)
@@ -51,7 +52,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STRE
 endif()
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${CONAN_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} MapEditor.Controllers theWarrior.Models theWarrior.Storage commonEditor.UI Qt5::Widgets Qt5::OpenGL glut GLU GL ${CONAN_LIBS})
+target_link_libraries(${PROJECT_NAME} MapEditor.Controllers theWarrior.Models theWarrior.Storage theWarrior.UI commonEditor.UI Qt5::Widgets Qt5::OpenGL glut GLU GL ${CONAN_LIBS})
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html

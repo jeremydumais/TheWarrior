@@ -155,7 +155,7 @@ MainForm::MainForm(QWidget *parent)
                 3,
                 { thewarrior::models::MonsterZoneMonsterEncounter("DRA001", thewarrior::models::MonsterEncounterRatio::Rare)}));
     map->addMonsterZone(thewarrior::models::MonsterZone("Zone2",
-                thewarrior::models::RGBItemColor("Green", "#00FF00"),
+                thewarrior::models::RGBItemColor("Pink", "#FF00FF"),
                 2,
                 4,
                 { thewarrior::models::MonsterZoneMonsterEncounter("DRA001", thewarrior::models::MonsterEncounterRatio::Normal)}));
@@ -384,6 +384,7 @@ void MainForm::onComboBoxToolbarMonsterZoneCurrentIndexChanged() {
     } else {
         labelToolbarMonsterZoneColor->setStyleSheet(defaultStyle);
     }
+    m_glComponent.setLastSelectedMonsterZone(comboBoxToolbarMonsterZone->currentIndex());
 }
 
 void MainForm::action_ApplyMonsterZone() {
@@ -579,12 +580,16 @@ void MainForm::onMonsterZoneDeleted(const std::string &name) {
 
 void MainForm::refreshMonsterZones() {
     m_monsterZoneTabComponent.refreshMonsterZones();
+    int selectedComboBoxIndex = comboBoxToolbarMonsterZone->currentIndex();
     // Refresh Monster Zones toolbar combobox
     comboBoxToolbarMonsterZone->model()->removeRows(0, comboBoxToolbarMonsterZone->count());
     int i = 0;
     for (const auto &zone : m_monsterZoneTabComponent.getMonsterZones()) {
         comboBoxToolbarMonsterZone->insertItem(i, zone.m_name.c_str());
         i++;
+    }
+    if (selectedComboBoxIndex != -1 && selectedComboBoxIndex < comboBoxToolbarMonsterZone->count()) {
+        comboBoxToolbarMonsterZone->setCurrentIndex(selectedComboBoxIndex);
     }
     const int selectedMonsterZoneIndex = comboBoxToolbarMonsterZone->currentIndex();
     if (selectedMonsterZoneIndex != -1) {

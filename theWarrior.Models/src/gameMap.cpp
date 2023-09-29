@@ -3,6 +3,7 @@
 #include <fmt/format.h>
 #include <algorithm>
 #include <cstdint>
+#include <iterator>
 #include <limits>
 #include <optional>
 #include <stdexcept>
@@ -191,11 +192,25 @@ bool GameMap::removeMonsterZone(const std::string &name) {
         m_lastError = fmt::format("Unable to find the zone {0} to delete.", name);
         return false;
     }
+    const auto index = std::distance(m_monsterZones.begin(), zoneToRemoveIter);
+    // Remove all the monster zone index assignation on tiles
+    unassignMonsterZoneOnAllTiles(static_cast<int>(index));
     m_monsterZones.erase(zoneToRemoveIter);
     if (m_useOnlyOneMonsterZone) {
         m_useOnlyOneMonsterZone = false;
     }
     return true;
+}
+
+void GameMap::unassignMonsterZoneOnAllTiles(int zoneIndex) {
+    for (unsigned int i = 0; i < m_tiles.size() ; i++) {
+        for (unsigned int j = 0; j < m_tiles[i].size(); j++) {
+            auto &tile = m_tiles.at(i).at(j);
+            if (tile.getMonsterZoneIndex() == zoneIndex) {
+                tile.setMonsterZoneIndex(-1);
+            }
+        }
+    }
 }
 
 bool GameMap::isShrinkMapImpactAssignedTiles(int offsetLeft,

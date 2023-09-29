@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <gtest/gtest.h>
 #include "gameMap.hpp"
 #include "monsterZone.hpp"
@@ -35,16 +36,16 @@ class SampleGameMap5x6WithTwoTextures : public ::testing::Test {
     GameMap map;
 };
 
-
+// Texture assignation                    MonsterZone Indexes
 // N = Not assigned, A = Assigned
-//      0 1 2 3 4 5
-//      -----------
-//   0  N N N N N N
-//   6  N N A N N N
-//  12  N A A A N N
-//  18  N N A N N N
-//  24  N N N N A N
-//  30  N N N N N N
+//      0 1 2 3 4 5                          0  1  2  3  4  5
+//      -----------                          ----------------
+//   0  N N N N N N                       0 -1 -1 -1 -1 -1 -1
+//   6  N N A N N N                       6 -1 -1  0 -1 -1 -1
+//  12  N A A A N N                      12 -1  1  1  0 -1 -1
+//  18  N N A N N N                      18 -1 -1  0 -1 -1 -1
+//  24  N N N N A N                      24 -1 -1 -1 -1  1 -1
+//  30  N N N N N N                      30 -1 -1 -1 -1 -1 -1
 class SampleGameMapWithTilesAssigned : public ::testing::Test {
  public:
     SampleGameMapWithTilesAssigned()
@@ -55,20 +56,28 @@ class SampleGameMapWithTilesAssigned : public ::testing::Test {
                     512, 256,
                     32, 32
                     });
+            map.addMonsterZone(MonsterZone("Zone1", RGBItemColor("Green", "#00FF00")));
+            map.addMonsterZone(MonsterZone("Zone2", RGBItemColor("Blue", "#0000FF")));
             auto &tile8 { map.getTileForEditing(8) };
             tile8.setTextureName("tex1");
             tile8.setTextureIndex(0);
             tile8.setCanPlayerSteppedOn(false);
+            tile8.setMonsterZoneIndex(0);
             auto &tile13 { map.getTileForEditing(13) };
             tile13.setTextureIndex(0);
+            tile13.setMonsterZoneIndex(1);
             auto &tile14 { map.getTileForEditing(14) };
             tile14.setTextureIndex(0);
+            tile14.setMonsterZoneIndex(1);
             auto &tile15 { map.getTileForEditing(15) };
             tile15.setTextureIndex(1);
+            tile15.setMonsterZoneIndex(0);
             auto &tile20 { map.getTileForEditing(20) };
             tile20.setObjectTextureIndex(1);
+            tile20.setMonsterZoneIndex(0);
             auto &tile28 { map.getTileForEditing(28) };
             tile28.setObjectTextureName("tex1");
+            tile28.setMonsterZoneIndex(1);
         }
     GameMap map;
 };
@@ -685,3 +694,34 @@ TEST_F(SampleGameMap5x6WithTwoTextures, withTrueOnTwoMonsterZones_ReturnFalse) {
     ASSERT_FALSE(map.useOnlyOneMonsterZone());
 }
 
+TEST_F(SampleGameMapWithTilesAssigned, unassignMonsterZoneOnAllTiles_withZone0_ReturnSuccess) {
+    map.unassignMonsterZoneOnAllTiles(0);
+    ASSERT_EQ(-1, map.getTileForEditing(8).getMonsterZoneIndex());
+    ASSERT_EQ(-1, map.getTileForEditing(15).getMonsterZoneIndex());
+    ASSERT_EQ(-1, map.getTileForEditing(20).getMonsterZoneIndex());
+    // Check that the others did not changed
+    ASSERT_EQ(1, map.getTileForEditing(13).getMonsterZoneIndex());
+    ASSERT_EQ(1, map.getTileForEditing(14).getMonsterZoneIndex());
+    ASSERT_EQ(1, map.getTileForEditing(28).getMonsterZoneIndex());
+}
+
+TEST_F(SampleGameMapWithTilesAssigned, unassignMonsterZoneOnAllTiles_withZone1_ReturnSuccess) {
+    map.unassignMonsterZoneOnAllTiles(1);
+    ASSERT_EQ(-1, map.getTileForEditing(13).getMonsterZoneIndex());
+    ASSERT_EQ(-1, map.getTileForEditing(14).getMonsterZoneIndex());
+    ASSERT_EQ(-1, map.getTileForEditing(28).getMonsterZoneIndex());
+    // Check that the others did not changed
+    ASSERT_EQ(0, map.getTileForEditing(8).getMonsterZoneIndex());
+    ASSERT_EQ(0, map.getTileForEditing(15).getMonsterZoneIndex());
+    ASSERT_EQ(0, map.getTileForEditing(20).getMonsterZoneIndex());
+}
+
+TEST_F(SampleGameMapWithTilesAssigned, unassignMonsterZoneOnAllTiles_withZone2_ReturnSuccess) {
+    map.unassignMonsterZoneOnAllTiles(2);
+    ASSERT_EQ(0, map.getTileForEditing(8).getMonsterZoneIndex());
+    ASSERT_EQ(0, map.getTileForEditing(15).getMonsterZoneIndex());
+    ASSERT_EQ(0, map.getTileForEditing(20).getMonsterZoneIndex());
+    ASSERT_EQ(1, map.getTileForEditing(13).getMonsterZoneIndex());
+    ASSERT_EQ(1, map.getTileForEditing(14).getMonsterZoneIndex());
+    ASSERT_EQ(1, map.getTileForEditing(28).getMonsterZoneIndex());
+}

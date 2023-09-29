@@ -51,6 +51,7 @@ class GameMap {
                    int offsetRight,
                    int offsetBottom);
     bool setUseOnlyOneMonsterZone(bool value);
+    void unassignMonsterZoneOnAllTiles(int zoneIndex);
 
  private:
     friend class boost::serialization::access;
