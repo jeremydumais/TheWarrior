@@ -3,9 +3,9 @@
 #include <QtWidgets/QTableWidget>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QWidget>
+#include <qcheckbox.h>
 #include <memory>
 #include <optional>
-#include <qcheckbox.h>
 #include <string>
 #include <vector>
 #include "mainForm_GLComponent.hpp"
@@ -39,6 +39,7 @@ class MainForm_MonsterZoneTabComponent : public QWidget {
     void confirmValidityOfOneMonsterZoneCheckBox();
     std::string getMonsterZoneColor(const std::string &zoneName) const;
     bool isMonsterZonesEmpty() const;
+    bool isOnlyOneMonsterZoneChecked() const;
  signals:
     void monsterZoneAdded(mapeditor::controllers::MonsterZoneDTO monsterZoneDTO);
     void monsterZoneUpdated(const std::string &name, mapeditor::controllers::MonsterZoneDTO monsterZoneDTO);
@@ -59,5 +60,5 @@ class MainForm_MonsterZoneTabComponent : public QWidget {
     void onPushButtonEditMonsterZoneClick();
     void onPushButtonDeleteMonsterZoneClick();
     void onTableWidgetMonsterZoneKeyPressEvent(int key, int, int);
-	void onCheckBoxOneMonsterZoneForAllTheMapChanged(int state);
+    void onCheckBoxOneMonsterZoneForAllTheMapChanged(int state);
 };

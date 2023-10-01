@@ -611,4 +611,9 @@ void MainForm::toggleMonsterZoneAssignationControls() {
 
 void MainForm::useOnlyOneMonsterZoneChanged(bool) {
     toggleMonsterZoneAssignationControls();
+    if (m_monsterZoneTabComponent.isOnlyOneMonsterZoneChecked() &&
+            (m_glComponent.getSelectionMode() == SelectionMode::ApplyMonsterZone ||
+             m_glComponent.getSelectionMode() == SelectionMode::ClearMonsterZone)) {
+        m_glComponent.setSelectionMode(SelectionMode::Select);
+    }
 }

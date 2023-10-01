@@ -5,6 +5,7 @@
 #include <fmt/format.h>
 #include <stb_image.h>
 #include <algorithm>
+#include <set>
 #include <string>
 #include <vector>
 #include "monsterZone.hpp"
@@ -187,21 +188,12 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event) {
         m_selectedTileColor = 150;
         m_selectedTileColorGrowing = true;
         emit onTileClicked(m_selectedTileIndex);
-    } else if (m_selectionMode == SelectionMode::ApplyTexture ||
-            m_selectionMode == SelectionMode::ApplyObject ||
-            m_selectionMode == SelectionMode::EnableCanStep ||
-            m_selectionMode == SelectionMode::DisableCanStep ||
-            m_selectionMode == SelectionMode::BlockBorderLeft ||
-            m_selectionMode == SelectionMode::BlockBorderTop ||
-            m_selectionMode == SelectionMode::BlockBorderRight ||
-            m_selectionMode == SelectionMode::BlockBorderBottom ||
-            m_selectionMode == SelectionMode::ClearBlockedBorders ||
-            m_selectionMode == SelectionMode::ApplyMonsterZone ||
-            m_selectionMode == SelectionMode::ClearMonsterZone) {
+    } else if (isMultiTileSelectionMode()) {
         // Calculate the list of index selected
-        std::vector<int> selectedTileIndexes;
+        std::set<int> selectedTileIndexes;
         QPoint startCoord;
         QPoint endCoord;
+        // We are always managing selection from top left to bottom right
         if (m_currentCursorPosition.x() < m_lastCursorPosition.x()) {
             startCoord = m_currentCursorPosition;
             endCoord = m_lastCursorPosition;
@@ -209,25 +201,37 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event) {
             startCoord = m_lastCursorPosition;
             endCoord = m_currentCursorPosition;
         }
-        QPoint calculatedCoord { startCoord };
-        int yDirection { 1 };
-        if (startCoord.y() > endCoord.y()) {
-            yDirection = -1;
+        if (endCoord.y() < startCoord.y()) {
+            int tempY = startCoord.y();
+            startCoord.setY(endCoord.y());
+            endCoord.setY(tempY);
         }
-        while (calculatedCoord.x() < endCoord.x() &&
-                ((yDirection == 1 && calculatedCoord.y() < endCoord.y()) || (yDirection == -1 && calculatedCoord.y() > endCoord.y()))) {
-            selectedTileIndexes.emplace_back(getTileIndex(calculatedCoord.x(), calculatedCoord.y()));
-            calculatedCoord.setX(calculatedCoord.x() + static_cast<int>(ONSCREENTILESIZE));
+        //----------------------------------------------------------------
+        QPoint calculatedCoord { startCoord };
+        QPoint endCoordToTileBorder(endCoord.x() + (static_cast<int>(ONSCREENTILESIZE) - (endCoord.x() % static_cast<int>(ONSCREENTILESIZE))),
+                endCoord.y() + (static_cast<int>(ONSCREENTILESIZE) - (endCoord.y() % static_cast<int>(ONSCREENTILESIZE))));
+        while (calculatedCoord.x() < endCoordToTileBorder.x() &&
+               calculatedCoord.y() < endCoordToTileBorder.y()) {
+            QPoint realCoord(calculatedCoord);
+            // Ensure that we don't go one tile after the selection
             if (calculatedCoord.x() > endCoord.x()) {
+                realCoord.setX(endCoord.x());
+            }
+            if (calculatedCoord.y() > endCoord.y()) {
+                realCoord.setY(endCoord.y());
+            }
+            selectedTileIndexes.insert(getTileIndex(realCoord.x(), realCoord.y()));
+            calculatedCoord.setX(calculatedCoord.x() + static_cast<int>(ONSCREENTILESIZE));
+            if (calculatedCoord.x() > endCoordToTileBorder.x()) {
                 calculatedCoord.setX(startCoord.x());
-                calculatedCoord.setY(calculatedCoord.y() + (static_cast<int>(ONSCREENTILESIZE) * yDirection));
+                calculatedCoord.setY(calculatedCoord.y() + static_cast<int>(ONSCREENTILESIZE));
             }
         }
         emit onTileMouseReleaseEvent(selectedTileIndexes);
     }
     auto currentTileIndex { getTileIndex(event->pos().x(), event->pos().y()) };
     if (currentTileIndex != -1) {
-        emit onTileMouseReleaseEvent(std::vector<int> { currentTileIndex });
+        emit onTileMouseReleaseEvent(std::set<int> { currentTileIndex });
     }
 }
 
@@ -247,23 +251,27 @@ void MapOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
     emit onTileMouseMoveEvent(m_mousePressed, getTileIndex(event->pos().x(), event->pos().y()));
 }
 
+bool MapOpenGLWidget::isMultiTileSelectionMode() const {
+    return m_selectionMode == SelectionMode::ApplyTexture ||
+        m_selectionMode == SelectionMode::ApplyObject ||
+        m_selectionMode == SelectionMode::EnableCanStep ||
+        m_selectionMode == SelectionMode::DisableCanStep ||
+        m_selectionMode == SelectionMode::BlockBorderLeft ||
+        m_selectionMode == SelectionMode::BlockBorderTop ||
+        m_selectionMode == SelectionMode::BlockBorderRight ||
+        m_selectionMode == SelectionMode::BlockBorderBottom ||
+        m_selectionMode == SelectionMode::ClearBlockedBorders ||
+        m_selectionMode == SelectionMode::ApplyMonsterZone ||
+        m_selectionMode == SelectionMode::ClearMonsterZone;
+}
+
 void MapOpenGLWidget::updateCursor() {
     if (m_selectionMode == SelectionMode::MoveMap ||
             m_selectionMode == SelectionMode::ViewBorderMode) {
         setCursor(m_mousePressed ? Qt::ClosedHandCursor : Qt::OpenHandCursor);
     } else if (m_selectionMode == SelectionMode::Select) {
         setCursor(Qt::PointingHandCursor);
-    } else if (m_selectionMode == SelectionMode::ApplyTexture ||
-            m_selectionMode == SelectionMode::ApplyObject ||
-            m_selectionMode == SelectionMode::EnableCanStep ||
-            m_selectionMode == SelectionMode::DisableCanStep ||
-            m_selectionMode == SelectionMode::BlockBorderLeft ||
-            m_selectionMode == SelectionMode::BlockBorderTop ||
-            m_selectionMode == SelectionMode::BlockBorderRight ||
-            m_selectionMode == SelectionMode::BlockBorderBottom ||
-            m_selectionMode == SelectionMode::ClearBlockedBorders ||
-            m_selectionMode == SelectionMode::ApplyMonsterZone ||
-            m_selectionMode == SelectionMode::ClearMonsterZone) {
+    } else if (isMultiTileSelectionMode()) {
         setCursor(Qt::CrossCursor);
     } else {
         setCursor(Qt::ArrowCursor);
@@ -400,17 +408,7 @@ void MapOpenGLWidget::draw() {
     }
     glPopMatrix();
     glPushMatrix();
-    if (m_mousePressed && (m_selectionMode == SelectionMode::ApplyTexture ||
-                m_selectionMode == SelectionMode::ApplyObject ||
-                m_selectionMode == SelectionMode::EnableCanStep ||
-                m_selectionMode == SelectionMode::DisableCanStep ||
-                m_selectionMode == SelectionMode::BlockBorderLeft ||
-                m_selectionMode == SelectionMode::BlockBorderTop ||
-                m_selectionMode == SelectionMode::BlockBorderRight ||
-                m_selectionMode == SelectionMode::BlockBorderBottom ||
-                m_selectionMode == SelectionMode::ClearBlockedBorders ||
-                m_selectionMode == SelectionMode::ApplyMonsterZone ||
-                m_selectionMode == SelectionMode::ClearMonsterZone)) {
+    if (m_mousePressed && isMultiTileSelectionMode()) {
         drawSelectionZone();
     }
     glPopMatrix();

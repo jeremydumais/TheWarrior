@@ -1,10 +1,10 @@
 #include "mainForm_MonsterZoneTabComponent.hpp"
 #include <QStyle>
+#include <qcheckbox.h>
+#include <qnamespace.h>
 #include <fmt/format.h>
 #include <memory>
 #include <optional>
-#include <qcheckbox.h>
-#include <qnamespace.h>
 #include "editMonsterZoneForm.hpp"
 #include "errorMessage.hpp"
 #include "monsterZoneDTO.hpp"
@@ -101,6 +101,10 @@ bool MainForm_MonsterZoneTabComponent::isMonsterZonesEmpty() const {
     return m_glComponent->getMonsterZones().empty();
 }
 
+bool MainForm_MonsterZoneTabComponent::isOnlyOneMonsterZoneChecked() const {
+    return m_checkBoxOneMonsterZoneForAllTheMap->checkState() == Qt::CheckState::Checked;
+}
+
 void MainForm_MonsterZoneTabComponent::onPushButtonAddMonsterZoneClick() {
     m_glComponent->stopAutoUpdate();
     const auto alreadyUsedMonsterZoneNames = m_glComponent->getAlreadyUsedMonsterZoneNames();
@@ -133,7 +137,6 @@ void MainForm_MonsterZoneTabComponent::onPushButtonEditMonsterZoneClick() {
                 alreadyUsedMonsterZoneNames);
         if (formEditMonsterZone.exec() == QDialog::Accepted) {
              emit monsterZoneUpdated(selectedMonsterZone->m_name, formEditMonsterZone.getResult());
-            // TODO: Check if the monster zone is used in the map
         }
     }
     m_glComponent->startAutoUpdate();

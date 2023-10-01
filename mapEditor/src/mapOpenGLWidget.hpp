@@ -6,6 +6,7 @@
 #include <QtOpenGL/QtOpenGL>
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
 #include <glm/glm.hpp>
@@ -64,6 +65,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
     const unsigned int ONSCREENTILESIZE { 40 };
     const float TRANSLATIONTOPIXEL { 5.0F };
     const float TILESPACING { 0.0F };
+    bool isMultiTileSelectionMode() const;
     void updateCursor();
     void draw();
     void drawTileWithTexture(const std::string &textureName, int textureIndex);
@@ -80,7 +82,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
 
  signals:
     void onTileClicked(int tileIndex);
-    void onTileMouseReleaseEvent(std::vector<int> tileIndex);
+    void onTileMouseReleaseEvent(std::set<int> tileIndex);
     void onTileMouseMoveEvent(bool mousePressed, int tileIndex);
 };
 

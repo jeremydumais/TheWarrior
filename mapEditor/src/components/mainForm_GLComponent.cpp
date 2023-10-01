@@ -16,6 +16,7 @@ using mapeditor::controllers::MonsterZoneDTO;
 using mapeditor::controllers::OptMonsterZoneDTOConst;
 using std::map;
 using std::optional;
+using std::set;
 using std::string;
 using std::vector;
 
@@ -180,7 +181,7 @@ void MainForm_GLComponent::onTileClicked(int tileIndex) {
     }
 }
 
-void MainForm_GLComponent::onTileMouseReleaseEvent(vector<int> selectedTileIndexes) {
+void MainForm_GLComponent::onTileMouseReleaseEvent(set<int> selectedTileIndexes) {
     if (m_glWidget->getSelectionMode() == SelectionMode::ApplyTexture) {
         for (const int index : selectedTileIndexes) {
             m_currentMapTile = &m_controller.getMap()->getTileForEditing(index);
@@ -237,7 +238,7 @@ void MainForm_GLComponent::onTileMouseReleaseEvent(vector<int> selectedTileIndex
     }
 }
 
-void MainForm_GLComponent::addMoveDenyTrigger(const std::vector<int> &selectedTileIndexes, MapTileTriggerEvent event) {
+void MainForm_GLComponent::addMoveDenyTrigger(const std::set<int> &selectedTileIndexes, MapTileTriggerEvent event) {
     for (const int index : selectedTileIndexes) {
         m_currentMapTile = &m_controller.getMap()->getTileForEditing(index);
         if (!m_currentMapTile->findTrigger(event).has_value())
