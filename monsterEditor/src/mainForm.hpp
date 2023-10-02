@@ -1,22 +1,23 @@
-#ifndef MAINFORM_H
-#define MAINFORM_H
+#ifndef MONSTEREDITOR_SRC_MAINFORM_HPP_
+#define MONSTEREDITOR_SRC_MAINFORM_HPP_
 
+#include <string>
 #include "mainController.hpp"
 #include "ui_mainForm.h"
 #include "qTableWidgetKeyPressWatcher.h"
-#include <string>
 
-class MainForm : public QMainWindow
-{
+class MainForm : public QMainWindow {
 Q_OBJECT
 
-public:
-    explicit MainForm(QWidget *parent = 0);
-    ~MainForm() = default;
+ public:
+    explicit MainForm(QWidget *parent = nullptr,
+            const std::string &currentFilePath = "");
+    ~MainForm() override = default;
     void connectUIActions();
     bool event(QEvent *event) override;
     void functionAfterShown();
-private:
+
+ private:
     Ui::MainForm ui;
     bool m_functionAfterShownCalled;
     std::string m_userConfigFolder;
@@ -53,5 +54,5 @@ private:
     std::optional<std::string> getSelectedItemId() const;
 };
 
-#endif // MAINFORM_H
+#endif  // MONSTEREDITOR_SRC_MAINFORM_HPP_
 

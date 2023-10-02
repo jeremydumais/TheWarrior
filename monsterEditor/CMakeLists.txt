@@ -1,5 +1,6 @@
 # Set project name
 set(PROJECT_NAME    "MonsterEditor")
+project(${PROJECT_NAME} VERSION 1.0)
 
 include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/../commonEditor.UI/include
@@ -33,11 +34,11 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  target_compile_definitions(${PROJECT_NAME} PRIVATE SUPPORT_MAYBE_UNUSED)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE SUPPORT_MAYBE_UNUSED PROJECT_VERSION="${PROJECT_VERSION}")
 endif()
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${CONAN_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} MonsterEditor.Controllers theWarrior.Models theWarrior.Storage commonEditor.UI Qt5::Widgets ${CONAN_LIBS})
+target_link_libraries(${PROJECT_NAME} MonsterEditor.Controllers theWarrior.Models theWarrior.Storage commonEditor.UI Qt5::Widgets boost_program_options)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html

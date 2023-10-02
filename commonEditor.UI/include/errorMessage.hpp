@@ -4,12 +4,11 @@
 
 namespace commoneditor::ui {
 
-class ErrorMessage
-{
-public:
+class ErrorMessage {
+ public:
     ErrorMessage() = delete;
     static void show(const std::string &message,
-					 const std::string &internalError = "");
+            const std::string &internalError = "");
 };
 
-} // namespace commoneditor::ui
+}  // namespace commoneditor::ui

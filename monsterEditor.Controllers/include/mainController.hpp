@@ -1,18 +1,17 @@
 #pragma once
 
-#include "monsterStore.hpp"
-#include "textureContainer.hpp"
 #include <qicon.h>
 #include <map>
 #include <memory>
 #include <set>
 #include <string>
 #include <vector>
+#include "monsterStore.hpp"
+#include "textureContainer.hpp"
 
 namespace monstereditor::controllers {
 
-struct MonsterListDisplay
-{
+struct MonsterListDisplay {
     std::string id;
     std::string name;
     int health;
@@ -22,9 +21,8 @@ struct MonsterListDisplay
     int goldMaximum;
 };
 
-class MainController
-{
-public:
+class MainController {
+ public:
     MainController();
     thewarrior::models::TextureContainer &getTextureContainerForEdition();
     std::shared_ptr<thewarrior::models::MonsterStore> getMonsterStore();
@@ -33,11 +31,11 @@ public:
     bool saveMonsterStore(const std::string &fileName);
     std::vector<MonsterListDisplay> getMonsters() const;
     std::map<std::string, QIcon> getIconsFromMonsterIds(std::vector<std::string> monsterIds,
-                                                     const std::string &resourcesPath) const;
+            const std::string &resourcesPath) const;
     bool deleteMonster(const std::string &id);
-private:
+ private:
     std::shared_ptr<thewarrior::models::MonsterStore> m_monsterStore;
     std::string m_lastError;
 };
 
-} //namespace monstereditor::controllers
+}  // namespace monstereditor::controllers

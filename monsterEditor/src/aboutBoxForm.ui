@@ -51,7 +51,7 @@
     <string>Monster Editor</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_2">
+  <widget class="QLabel" name="labelVersion">
    <property name="geometry">
     <rect>
      <x>150</x>

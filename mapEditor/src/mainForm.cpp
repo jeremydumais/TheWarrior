@@ -142,23 +142,22 @@ MainForm::MainForm(QWidget *parent)
     connectUIActions();
 
     // Generate a test map
-    // HACK: To remove (test only)
     if (!m_controller.createMap(20, 20)) {
         ErrorMessage::show(m_controller.getLastError());
         exit(1);
     }
     auto map { m_controller.getMap() };
-    openMap("bin/resources/maps/krikruVillage.map");
-    map->addMonsterZone(thewarrior::models::MonsterZone("Zone1",
-                thewarrior::models::RGBItemColor("Yellow", "#FFFF00"),
-                1,
-                3,
-                { thewarrior::models::MonsterZoneMonsterEncounter("DRA001", thewarrior::models::MonsterEncounterRatio::Rare)}));
-    map->addMonsterZone(thewarrior::models::MonsterZone("Zone2",
-                thewarrior::models::RGBItemColor("Pink", "#FF00FF"),
-                2,
-                4,
-                { thewarrior::models::MonsterZoneMonsterEncounter("DRA001", thewarrior::models::MonsterEncounterRatio::Normal)}));
+    //openMap("bin/resources/maps/krikruVillage.map");
+    //map->addMonsterZone(thewarrior::models::MonsterZone("Zone1",
+                //thewarrior::models::RGBItemColor("Yellow", "#FFFF00"),
+                //1,
+                //3,
+                //{ thewarrior::models::MonsterZoneMonsterEncounter("DRA001", thewarrior::models::MonsterEncounterRatio::Rare)}));
+    //map->addMonsterZone(thewarrior::models::MonsterZone("Zone2",
+                //thewarrior::models::RGBItemColor("Pink", "#FF00FF"),
+                //2,
+                //4,
+                //{ thewarrior::models::MonsterZoneMonsterEncounter("DRA001", thewarrior::models::MonsterEncounterRatio::Normal)}));
     // ----------------------------------
     m_glComponent.setCurrentMap(map);
     refreshRecentMapsMenu();
