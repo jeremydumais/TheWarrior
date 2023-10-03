@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
     desc.add_options()
         ("help,h", "produce help message")
         ("version,v", "display the version")
-        ("input-file", po::value<std::string>(), "input file");
+        ("file,f", po::value<std::string>(), "monster store file (*.mon)");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -36,8 +36,8 @@ int main(int argc, char *argv[]) {
         return 0;
     }
     std::string inputFile = "";
-    if (vm.count("input-file")) {
-       inputFile = vm["input-file"].as<std::string>();
+    if (vm.count("file")) {
+       inputFile = vm["file"].as<std::string>();
     }
     QApplication app(argc, argv);
     QCoreApplication::setOrganizationName("Jed# Software");
