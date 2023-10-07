@@ -40,8 +40,8 @@ int main(int argc, char *argv[]) {
        inputFile = vm["file"].as<std::string>();
     }
     QApplication app(argc, argv);
-    QCoreApplication::setOrganizationName("Jed# Software");
-    QCoreApplication::setApplicationName("The Warrior - Monster Editor");
+    QCoreApplication::setOrganizationName(ORGANIZATIONNAME);
+    QCoreApplication::setApplicationName(APPLICATIONNAME);
     QCoreApplication::setApplicationVersion(QT_VERSION_STR);
     QGuiApplication::setDesktopFileName("thewarrior.monstereditor.desktop");
     MainForm mainWin(nullptr, inputFile);

@@ -1,16 +1,15 @@
 #pragma once
 
+#include <string>
 #include "itemType.hpp"
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/version.hpp>
-#include <string>
 
 namespace thewarrior::models {
 
-struct ItemCreationInfo
-{
+struct ItemCreationInfo {
     std::string id;
     std::string name;
     std::string textureName;
@@ -18,10 +17,9 @@ struct ItemCreationInfo
     std::string optionalDescription = "";
 };
 
-class Item
-{
-public:
-    Item(); //Used only for Boost Serialization
+class Item {
+ public:
+    Item();  // Used only for Boost Serialization
     explicit Item(const ItemCreationInfo &itemInfo);
     virtual ~Item() = default;
     Item(const Item &) = default;
@@ -42,17 +40,17 @@ public:
     void setTextureName(const std::string &name);
     void setTextureIndex(int index);
     void setOptionalDescription(const std::string &description);
-protected:
+
+ protected:
     friend class boost::serialization::access;
     std::string m_id;
     std::string m_name;
     std::string m_textureName;
     int m_textureIndex;
     std::string m_optionalDescription;
-    //Serialization method
+    // Serialization method
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version)
-    {
+    void serialize(Archive & ar, const unsigned int version) {
         ar & m_id;
         ar & m_name;
         ar & m_textureName;
@@ -63,6 +61,6 @@ protected:
     }
 };
 
-} // namespace thewarrior::models
+}  // namespace thewarrior::models
 
 BOOST_CLASS_VERSION(thewarrior::models::Item, 1)
