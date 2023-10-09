@@ -1,17 +1,12 @@
 #include "editTextureForm.hpp"
 #include <QFileDialog>
-#include <QImageReader>
 #include <QMessageBox>
 #include <fmt/format.h>
-#include <qnamespace.h>
-#include <qpainter.h>
-#include <qpixmap.h>
 #include <qslider.h>
 #include <memory>
 #include <utility>
 #include "editTextureFormController.hpp"
 #include "errorMessage.hpp"
-#include "textureDTO.hpp"
 
 using commoneditor::ui::ErrorMessage;
 using monstereditor::controllers::EditTextureFormController;
@@ -24,14 +19,20 @@ EditTextureForm::EditTextureForm(QWidget *parent,
     : QDialog(parent),
     ui(Ui::editTextureFormClass()),
     m_isEditMode(originalTexture != nullptr),
-    m_controller(EditTextureFormController(std::move(originalTexture), allTextureNames)),
-    m_resourcesPath(resourcesPath) {
+    m_controller(EditTextureFormController(std::move(originalTexture),
+                allTextureNames,
+                resourcesPath)) {
     ui.setupUi(this);
     setWindowIcon(QIcon(":/ItemEditor Icon.png"));
     connect(ui.pushButtonOK, &QPushButton::clicked, this, &EditTextureForm::onPushButtonOK);
     connect(ui.pushButtonCancel, &QPushButton::clicked, this, &EditTextureForm::reject);
+    connect(ui.lineEditName, &QLineEdit::textChanged, this, &EditTextureForm::onLineEditNameTextChanged);
     connect(ui.pushButtonOpenFilename, &QPushButton::clicked, this, &EditTextureForm::onPushButtonOpenFilenameClick);
+    connect(ui.spinBoxTileWidth, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &EditTextureForm::onSpinBoxTileWidthValueChanged);
+    connect(ui.spinBoxTileHeight, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &EditTextureForm::onSpinBoxTileHeightValueChanged);
     connect(ui.horizontalSliderZoom, &QSlider::valueChanged, this, &EditTextureForm::onHorizontalSliderZoomChanged);
+    connect(ui.pushButtonGridBlack, &QPushButton::clicked, this, &EditTextureForm::onPushButtonGridBlackClick);
+    connect(ui.pushButtonGridWhite, &QPushButton::clicked, this, &EditTextureForm::onPushButtonGridWhiteClick);
 
     if (!m_isEditMode) {
         this->setWindowTitle("Add texture");
@@ -43,39 +44,30 @@ EditTextureForm::EditTextureForm(QWidget *parent,
 }
 
 std::unique_ptr<TextureDTO> EditTextureForm::getTextureInfo() const {
-    return createTextureDTOFromFields();
+    return m_controller.createTextureDTOFromFields();
 }
 
 void EditTextureForm::loadExistingItemToForm() {
     const auto &texture = m_controller.getOriginalTexture();
     ui.lineEditName->setText(texture.name.c_str());
     ui.lineEditFilename->setText(texture.filename.c_str());
-    ui.spinBoxWidth->setValue(texture.width);
-    ui.spinBoxHeight->setValue(texture.height);
+    ui.labelImageWidth->setText(QString::number(texture.width));
+    ui.labelImageHeight->setText(QString::number(texture.height));
     ui.spinBoxTileWidth->setValue(texture.tileWidth);
     ui.spinBoxTileHeight->setValue(texture.tileHeight);
-    loadTextureImage(texture.filename);
+    m_controller.loadTextureImage(texture.filename);
+    refreshTextureImage();
 }
 
-MonsterEditorTextureLoadResult EditTextureForm::loadTextureImage(const std::string &filename) {
-    QImage image;
-    std::string imageFullPath { fmt::format("{0}/textures/{1}", m_resourcesPath, filename) };
-    if (!image.load(imageFullPath.c_str())) {
-        ErrorMessage::show(fmt::format("Unable to load the image {0}", imageFullPath));
-        ui.lineEditFilename->clear();
-        return { false, 0, 0 };
+void EditTextureForm::refreshTextureImage() {
+    const auto pixmap = m_controller.getTextureToDisplay();
+    if (pixmap != nullptr) {
+    ui.labelImage->setPixmap(*pixmap);
+    ui.labelImage->setFixedSize(pixmap->width(), pixmap->height());
+    } else {
+        ui.labelImage->clear();
+        ui.labelImage->setFixedSize(0, 0);
     }
-    m_loadedTexture = std::make_shared<QPixmap>(QPixmap::fromImage(image));
-    m_loadedTextureWithTiles = std::make_shared<QPixmap>(*m_loadedTexture);
-    drawTilesOnImage();
-    ui.labelImage->setFixedSize(image.width(), image.height());
-    ui.labelImage->setPixmap(*m_loadedTextureWithTiles.get());
-    return { true, image.width(), image.height() };
-}
-
-void EditTextureForm::drawTilesOnImage() {
-    //QPainter painter(m_loadedTextureWithTiles.get());
-    //painter.drawRect(5, 5, 30, 30);
 }
 
 void EditTextureForm::refreshZoomDisplayValue() {
@@ -83,7 +75,7 @@ void EditTextureForm::refreshZoomDisplayValue() {
 }
 
 void EditTextureForm::onPushButtonOK() {
-    auto textureInfo = createTextureDTOFromFields();
+    auto textureInfo = m_controller.createTextureDTOFromFields();
 
     if (!m_controller.validateTextureOperation(std::move(textureInfo))) {
         ErrorMessage::show(m_controller.getLastError());
@@ -92,40 +84,50 @@ void EditTextureForm::onPushButtonOK() {
     accept();
 }
 
+void EditTextureForm::onLineEditNameTextChanged(const QString &text) {
+    m_controller.setName(text.toStdString());
+}
+
 void EditTextureForm::onPushButtonOpenFilenameClick() {
     QString fullFilePath { QFileDialog::getOpenFileName(this,
             tr("Open Texture"),
-            m_resourcesPath.c_str(),
+            m_controller.getResourcesPath().c_str(),
             tr("Images (*.png)")) };
     QFileInfo fileInfo(fullFilePath);
     std::string filename { fileInfo.fileName().toStdString() };
     ui.lineEditFilename->setText(filename.c_str());
-    if (auto result = loadTextureImage(filename); result.Success) {
-        ui.spinBoxWidth->setValue(result.TextureWidth);
-        ui.spinBoxHeight->setValue(result.TextureHeight);
+    if (auto result = m_controller.loadTextureImage(filename); result.Success) {
+        ui.labelImageWidth->setText(QString::number(result.TextureWidth));
+        ui.labelImageHeight->setText(QString::number(result.TextureHeight));
+        refreshTextureImage();
+    } else {
+        ErrorMessage::show(m_controller.getLastError());
+        ui.lineEditFilename->clear();
     }
 }
 
+void EditTextureForm::onSpinBoxTileWidthValueChanged(int value) {
+    m_controller.setTileWidth(value);
+    refreshTextureImage();
+}
+
+void EditTextureForm::onSpinBoxTileHeightValueChanged(int value) {
+    m_controller.setTileHeight(value);
+    refreshTextureImage();
+}
 
 void EditTextureForm::onHorizontalSliderZoomChanged(int value) {
-    if (m_loadedTexture != nullptr) {
-        auto scaledImage = m_loadedTextureWithTiles->scaled(m_loadedTexture->width() * value / 100,
-                                                   m_loadedTexture->height() * value / 100,
-                                                   Qt::KeepAspectRatio,
-                                                   Qt::FastTransformation);
-        ui.labelImage->setPixmap(scaledImage);
-        ui.labelImage->setFixedSize(scaledImage.width(), scaledImage.height());
-    }
+    m_controller.setZoom(value);
     refreshZoomDisplayValue();
+    refreshTextureImage();
 }
 
-std::unique_ptr<TextureDTO> EditTextureForm::createTextureDTOFromFields() const {
-    return std::unique_ptr<TextureDTO>(new TextureDTO {
-            ui.lineEditName->text().toStdString(),
-            ui.lineEditFilename->text().toStdString(),
-            ui.spinBoxWidth->value(),
-            ui.spinBoxHeight->value(),
-            ui.spinBoxTileWidth->value(),
-            ui.spinBoxTileHeight->value()
-            });
+void EditTextureForm::onPushButtonGridBlackClick() {
+    m_controller.setGridColor(QColor::fromRgb(0, 0, 0));
+    refreshTextureImage();
+}
+
+void EditTextureForm::onPushButtonGridWhiteClick() {
+    m_controller.setGridColor(QColor::fromRgb(255, 255, 255));
+    refreshTextureImage();
 }

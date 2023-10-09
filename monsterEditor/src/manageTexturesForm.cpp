@@ -26,9 +26,6 @@ ManageTexturesForm::ManageTexturesForm(QWidget *parent,
     setWindowIcon(QIcon(":/ItemEditor Icon.png"));
     connectUIActions();
     refreshTextureList();
-    // HACK: To remove
-    ui.tableWidgetTextures->setCurrentIndex(ui.tableWidgetTextures->model()->index(0, 0));
-    onPushButtonEditClick();
 }
 
 void ManageTexturesForm::connectUIActions() {

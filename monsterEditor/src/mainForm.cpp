@@ -71,8 +71,6 @@ MainForm::MainForm(QWidget *parent,
     if (!currentFilePath.empty()) {
         openMonsterStore(currentFilePath);
     }
-    // HACK: To remove
-    action_ManageTextures_Click();
 }
 
 void MainForm::initializeMonstersTableControl() {
