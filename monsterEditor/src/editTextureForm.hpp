@@ -13,14 +13,14 @@ Q_OBJECT
  public:
     explicit EditTextureForm(QWidget *parent,
             const std::string &resourcesPath,
-            std::unique_ptr<monstereditor::controllers::TextureDTO> originalTexture,
+            std::unique_ptr<commoneditor::ui::TextureDTO> originalTexture,
             const std::vector<std::string> &allTextureNames);
-    std::unique_ptr<monstereditor::controllers::TextureDTO> getTextureInfo() const;
+    std::unique_ptr<commoneditor::ui::TextureDTO> getTextureInfo() const;
 
  private:
     Ui::editTextureFormClass ui;
     bool m_isEditMode;
-    monstereditor::controllers::EditTextureFormController m_controller;
+    commoneditor::ui::EditTextureFormController m_controller;
     void loadExistingItemToForm();
     void refreshTextureImage();
     void refreshZoomDisplayValue();

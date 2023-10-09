@@ -9,8 +9,8 @@
 #include "errorMessage.hpp"
 
 using commoneditor::ui::ErrorMessage;
-using monstereditor::controllers::EditTextureFormController;
-using monstereditor::controllers::TextureDTO;
+using commoneditor::ui::EditTextureFormController;
+using commoneditor::ui::TextureDTO;
 
 EditTextureForm::EditTextureForm(QWidget *parent,
         const std::string &resourcesPath,

@@ -6,7 +6,7 @@
 #include <vector>
 #include "textureDTO.hpp"
 
-namespace monstereditor::controllers {
+namespace commoneditor::ui {
 
 struct MonsterEditorTextureLoadResult {
     bool Success;
@@ -47,4 +47,4 @@ class EditTextureFormController {
     bool isNameAvailable(const std::string &name) const;
 };
 
-}  // namespace monstereditor::controllers
+}  // namespace commoneditor::ui

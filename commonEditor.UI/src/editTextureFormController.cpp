@@ -14,7 +14,7 @@
 using thewarrior::models::Texture;
 using thewarrior::models::TextureInfo;
 
-namespace monstereditor::controllers {
+namespace commoneditor::ui {
 
 EditTextureFormController::EditTextureFormController(std::unique_ptr<TextureDTO> originalTexture,
                                                      const std::vector<std::string> &allTextureNames,
@@ -164,4 +164,4 @@ std::unique_ptr<TextureDTO> EditTextureFormController::createTextureDTOFromField
     return std::make_unique<TextureDTO>(m_currentTexture);
 }
 
-}  // namespace monstereditor::controllers
+}  // namespace commoneditor::ui

@@ -5,8 +5,8 @@
 #include "editTextureFormController.hpp"
 #include "textureDTO.hpp"
 
-using monstereditor::controllers::EditTextureFormController;
-using monstereditor::controllers::TextureDTO;
+using commoneditor::ui::EditTextureFormController;
+using commoneditor::ui::TextureDTO;
 
 std::vector<std::string> getAllTextureNamesSample() { return { "tex1", "tex2"}; }
 TextureDTO getTextureDTOSample1() { return { "tex1", "tex1.png", 256, 512, 16, 32}; }

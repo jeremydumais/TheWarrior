@@ -11,8 +11,8 @@
 #include "textureDTO.hpp"
 
 using commoneditor::ui::ErrorMessage;
-using monstereditor::controllers::ManageTextureController;
-using monstereditor::controllers::TextureDTO;
+using commoneditor::ui::ManageTextureController;
+using commoneditor::ui::TextureDTO;
 using thewarrior::models::TextureContainer;
 
 ManageTexturesForm::ManageTexturesForm(QWidget *parent,
