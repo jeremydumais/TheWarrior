@@ -1,29 +1,29 @@
-#ifndef MANAGETEXTURESFORM_H
-#define MANAGETEXTURESFORM_H
+#ifndef ITEMEDITOR_SRC_MANAGETEXTURESFORM_HPP_
+#define ITEMEDITOR_SRC_MANAGETEXTURESFORM_HPP_
 
+#include <memory>
+#include <string>
 #include "manageTexturesController.hpp"
 #include "qTableWidgetKeyPressWatcher.h"
 #include "ui_manageTexturesForm.h"
-#include <memory>
-#include <string>
 
-class ManageTexturesForm : public QDialog
-{
+class ManageTexturesForm : public QDialog {
 Q_OBJECT
 
-public:
+ public:
     ManageTexturesForm(QWidget *parent,
             const std::string &resourcesPath,
             thewarrior::models::TextureContainer &textureContainer);
     void connectUIActions();
-private:
+
+ private:
     Ui::manageTexturesFormClass ui;
     const std::string m_resourcesPath;
-    itemeditor::controllers::ManageTextureController m_controller;
+    commoneditor::ui::ManageTextureController m_controller;
     QTableWidgetKeyPressWatcher tableWidgetTexturesKeyWatcher;
     void refreshTextureList();
     void onPushButtonCloseClick();
-    std::unique_ptr<itemeditor::controllers::TextureDTO> getSelectedTextureInTextureList();
+    std::unique_ptr<commoneditor::ui::TextureDTO> getSelectedTextureInTextureList();
     void onPushButtonAddClick();
     void onPushButtonEditClick();
     void onPushButtonDeleteClick();
@@ -31,4 +31,4 @@ private:
     void onTableWidgetTexturesKeyPressEvent(int key, int, int);
 };
 
-#endif // MANAGETEXTURESFORM_H
+#endif  // ITEMEDITOR_SRC_MANAGETEXTURESFORM_HPP_

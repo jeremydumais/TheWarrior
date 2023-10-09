@@ -8,12 +8,10 @@ include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include)
 
                     set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/mainController.cpp
-                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/manageTexturesController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/manageItemController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/manageArmorItemController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/manageStatsItemController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/manageWeaponItemController.cpp
-                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/editTextureFormController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/texturePickerController.cpp)
 
 find_package(Qt5 COMPONENTS Gui OpenGL REQUIRED)

@@ -1,33 +1,38 @@
 
-#ifndef EDITTEXTUREFORM_H
-#define EDITTEXTUREFORM_H
+#ifndef ITEMEDITOR_SRC_EDITTEXTUREFORM_HPP_
+#define ITEMEDITOR_SRC_EDITTEXTUREFORM_HPP_
 
-#include "editTextureFormController.hpp"
-#include "textureDTO.hpp"
-#include "ui_editTextureForm.h"
 #include <memory>
 #include <string>
 #include <vector>
+#include "editTextureFormController.hpp"
+#include "ui_editTextureForm.h"
 
-class EditTextureForm : public QDialog
-{
+class EditTextureForm : public QDialog {
 Q_OBJECT
 
-public:
-	explicit EditTextureForm(QWidget *parent,
-							 const std::string &resourcesPath,
-							 std::unique_ptr<itemeditor::controllers::TextureDTO> originalTexture,
-							 const std::vector<std::string> &allTextureNames);
-	std::unique_ptr<itemeditor::controllers::TextureDTO> getTextureInfo() const;
-private:
-	Ui::editTextureFormClass ui;
-	bool m_isEditMode;
-    itemeditor::controllers::EditTextureFormController m_controller;
-	std::string m_resourcesPath;
-	void loadExistingItemToForm();
-	void onPushButtonOK();
-	void onPushButtonOpenFilenameClick();
-	std::unique_ptr<itemeditor::controllers::TextureDTO> createTextureDTOFromFields() const;
+ public:
+    explicit EditTextureForm(QWidget *parent,
+            const std::string &resourcesPath,
+            std::unique_ptr<commoneditor::ui::TextureDTO> originalTexture,
+            const std::vector<std::string> &allTextureNames);
+    std::unique_ptr<commoneditor::ui::TextureDTO> getTextureInfo() const;
+
+ private:
+    Ui::editTextureFormClass ui;
+    bool m_isEditMode;
+    commoneditor::ui::EditTextureFormController m_controller;
+    void loadExistingItemToForm();
+    void refreshTextureImage();
+    void refreshZoomDisplayValue();
+    void onPushButtonOK();
+    void onLineEditNameTextChanged(const QString &text);
+    void onPushButtonOpenFilenameClick();
+    void onSpinBoxTileWidthValueChanged(int value);
+    void onSpinBoxTileHeightValueChanged(int value);
+    void onHorizontalSliderZoomChanged(int value);
+    void onPushButtonGridBlackClick();
+    void onPushButtonGridWhiteClick();
 };
 
-#endif // EDITTEXTUREFORM_H
+#endif  // ITEMEDITOR_SRC_EDITTEXTUREFORM_HPP_

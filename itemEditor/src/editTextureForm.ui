@@ -72,9 +72,9 @@
      <item row="2" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
-        <widget class="QSpinBox" name="spinBoxWidth">
-         <property name="maximum">
-          <number>16777215</number>
+        <widget class="QLabel" name="labelImageWidth">
+         <property name="text">
+          <string/>
          </property>
         </widget>
        </item>
@@ -89,9 +89,9 @@
         </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="spinBoxHeight">
-         <property name="maximum">
-          <number>16777215</number>
+        <widget class="QLabel" name="labelImageHeight">
+         <property name="text">
+          <string/>
          </property>
         </widget>
        </item>
@@ -142,6 +142,53 @@
     </layout>
    </item>
    <item>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string>Zoom</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSlider" name="horizontalSliderZoom">
+       <property name="minimum">
+        <number>10</number>
+       </property>
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="singleStep">
+        <number>10</number>
+       </property>
+       <property name="value">
+        <number>100</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="tickInterval">
+        <number>0</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="labelZoomValue">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
     <widget class="QScrollArea" name="scrollArea">
      <property name="widgetResizable">
       <bool>true</bool>
@@ -152,7 +199,7 @@
         <x>0</x>
         <y>0</y>
         <width>600</width>
-        <height>475</height>
+        <height>442</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout">
@@ -169,6 +216,51 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="label_8">
+       <property name="text">
+        <string>Grid color :</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButtonGridBlack">
+       <property name="maximumSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(0, 0, 0);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButtonGridWhite">
+       <property name="maximumSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
@@ -191,6 +283,9 @@
         <iconset resource="../res/global.qrc">
          <normaloff>:/commonEditor.UI/res/dialog-ok.svg</normaloff>:/commonEditor.UI/res/dialog-ok.svg</iconset>
        </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item>
@@ -208,6 +303,19 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEditName</tabstop>
+  <tabstop>lineEditFilename</tabstop>
+  <tabstop>pushButtonOpenFilename</tabstop>
+  <tabstop>spinBoxTileWidth</tabstop>
+  <tabstop>spinBoxTileHeight</tabstop>
+  <tabstop>horizontalSliderZoom</tabstop>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>pushButtonGridBlack</tabstop>
+  <tabstop>pushButtonGridWhite</tabstop>
+  <tabstop>pushButtonOK</tabstop>
+  <tabstop>pushButtonCancel</tabstop>
+ </tabstops>
  <resources>
   <include location="../res/global.qrc"/>
  </resources>
