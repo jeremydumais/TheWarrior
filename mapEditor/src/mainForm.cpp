@@ -36,7 +36,8 @@ using thewarrior::storage::GameMapStorage;
 const std::string MainForm::THEME_PATH { "Display.Theme" };
 const std::string MainForm::RECENT_MAPS { "Map.Recents" };
 
-MainForm::MainForm(QWidget *parent)
+MainForm::MainForm(QWidget *parent,
+        const std::string &currentFilePath)
     : QMainWindow(parent),
     ui(Ui::MainForm()) {
     ui.setupUi(this);
@@ -141,25 +142,19 @@ MainForm::MainForm(QWidget *parent)
 
     connectUIActions();
 
-    // Generate a test map
     if (!m_controller.createMap(20, 20)) {
         ErrorMessage::show(m_controller.getLastError());
         exit(1);
     }
-    auto map { m_controller.getMap() };
-    //openMap("bin/resources/maps/krikruVillage.map");
-    //map->addMonsterZone(thewarrior::models::MonsterZone("Zone1",
-                //thewarrior::models::RGBItemColor("Yellow", "#FFFF00"),
-                //1,
-                //3,
-                //{ thewarrior::models::MonsterZoneMonsterEncounter("DRA001", thewarrior::models::MonsterEncounterRatio::Rare)}));
-    //map->addMonsterZone(thewarrior::models::MonsterZone("Zone2",
-                //thewarrior::models::RGBItemColor("Pink", "#FF00FF"),
-                //2,
-                //4,
-                //{ thewarrior::models::MonsterZoneMonsterEncounter("DRA001", thewarrior::models::MonsterEncounterRatio::Normal)}));
-    // ----------------------------------
-    m_glComponent.setCurrentMap(map);
+    if (!currentFilePath.empty()) {
+        ui.mapOpenGLWidget->stopAutoUpdate();
+        openMap(currentFilePath);
+        refreshWindowTitle();
+        ui.mapOpenGLWidget->startAutoUpdate();
+    } else {
+        auto map { m_controller.getMap() };
+        m_glComponent.setCurrentMap(map);
+    }
     refreshRecentMapsMenu();
     refreshTextureList();
     refreshMonsterZones();

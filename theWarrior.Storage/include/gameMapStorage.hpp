@@ -1,19 +1,19 @@
 #pragma once
 
-#include "gameMap.hpp"
-#include "iBinaryFileStream.hpp"
 #include <memory>
 #include <string>
+#include "gameMap.hpp"
+#include "iBinaryFileStream.hpp"
 
 namespace thewarrior::storage {
 
-class GameMapStorage
-{
-public:
+class GameMapStorage {
+ public:
     void loadMap(const std::string &fileName, std::shared_ptr<thewarrior::models::GameMap> map);
     void setFileStream(std::unique_ptr<IBinaryFileStream<thewarrior::models::GameMap>> bfs);
-private:
+
+ private:
     std::unique_ptr<IBinaryFileStream<thewarrior::models::GameMap>> m_bfs;
 };
 
-} // namespace thewarrior::storage
+}  // namespace thewarrior::storage

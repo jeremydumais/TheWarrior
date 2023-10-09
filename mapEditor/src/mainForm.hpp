@@ -2,8 +2,8 @@
 #define MAPEDITOR_SRC_MAINFORM_HPP_
 
 #include <qcombobox.h>
-#include <memory>
 #include <qlabel.h>
+#include <memory>
 #include <string>
 #include <vector>
 #include "gameMap.hpp"
@@ -23,8 +23,9 @@ class MainForm : public QMainWindow {
 Q_OBJECT
 
  public:
-    explicit MainForm(QWidget *parent = 0);
-    ~MainForm();
+    MainForm(QWidget *parent = nullptr,
+            const std::string &currentFilePath = "");
+    ~MainForm() override;
     bool event(QEvent *event) override;
     void functionAfterShown();
     void setAppStylesheet(const std::string &style);
