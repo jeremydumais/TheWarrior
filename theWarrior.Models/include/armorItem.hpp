@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include "item.hpp"
 #include "itemType.hpp"
 #include <boost/serialization/access.hpp>
@@ -8,8 +9,7 @@
 
 namespace thewarrior::models {
 
-enum class ArmorBodyPart
-{
+enum class ArmorBodyPart {
     Head,
     UpperBody,
     LowerBody,
@@ -18,43 +18,41 @@ enum class ArmorBodyPart
     SecondaryHand
 };
 
-struct ArmorItemCreationInfo : public ItemCreationInfo
-{
+struct ArmorItemCreationInfo : public ItemCreationInfo {
     float defenseGain;
     ArmorBodyPart slotInBodyPart;
 };
 
-class ArmorItem : public Item
-{
-public:
-    ArmorItem(); //Used only for Boost Serialization
+class ArmorItem : public Item {
+ public:
+    ArmorItem();  // Used only for Boost Serialization
     explicit ArmorItem(const ArmorItemCreationInfo &itemInfo);
-    virtual ~ArmorItem() = default;
+    ~ArmorItem() override = default;
     ArmorItem(const ArmorItem &) = default;
     ArmorItem(ArmorItem &&) = default;
     ArmorItem &operator=(const ArmorItem &) = default;
     ArmorItem &operator=(ArmorItem &&) = default;
-    virtual bool equals(const Item &other) const override;
-    virtual ItemType getType() const override;
+    bool equals(const Item &other) const override;
+    ItemType getType() const override;
     float getDefenseGain() const;
     ArmorBodyPart getSlotInBodyPart() const;
     void setDefenseGain(float value);
     void setSlotInBodyPart(ArmorBodyPart value);
     static std::string getBodyPartAsString(ArmorBodyPart bodyPart);
-protected:
+
+ protected:
     friend class boost::serialization::access;
     float m_defenseGain;
     ArmorBodyPart m_slotInBodyPart;
-    //Serialization method
+    // Serialization method
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int)
-    {
+    void serialize(Archive & ar, const unsigned int) {
         ar & boost::serialization::base_object<Item>(*this);
         ar & m_defenseGain;
         ar & m_slotInBodyPart;
     }
 };
 
-} // namespace thewarrior::models
+}  // namespace thewarrior::models
 
 BOOST_CLASS_VERSION(thewarrior::models::ArmorItem, 0)

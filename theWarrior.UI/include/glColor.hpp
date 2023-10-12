@@ -1,11 +1,11 @@
 #pragma once
 
+#include <string>
 #include <glm/glm.hpp>
 
 namespace thewarrior::ui {
 
-enum GLColor
-{
+enum GLColor {
     White,
     Gray,
     LightGray,
@@ -14,5 +14,6 @@ enum GLColor
 };
 
 glm::vec3 getVec3FromGLColor(GLColor color);
+glm::vec3 getVec3FromRGBString(const std::string &value);
 
-} // namespace thewarrior::ui
+}  // namespace thewarrior::ui

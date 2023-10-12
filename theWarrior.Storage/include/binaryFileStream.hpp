@@ -1,17 +1,19 @@
 #pragma once
 
+#include <fstream>
+#include <iostream>
+#include <string>
 #include "iBinaryFileStream.hpp"
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
-#include <fstream>
+#include <boost/archive/archive_exception.hpp>
 
 namespace thewarrior::storage {
 
 template<class T>
-class BinaryFileStream : public IBinaryFileStream<T>
-{
-public:
-    BinaryFileStream(const std::string &fileName)
+class BinaryFileStream : public IBinaryFileStream<T> {
+ public:
+    explicit BinaryFileStream(const std::string &fileName)
         : IBinaryFileStream<T>(fileName) {}
 
     bool open(FileOpenMode mode) override {
@@ -43,9 +45,14 @@ public:
         try {
             boost::archive::binary_iarchive oa(m_fs);
             oa >> obj;
-        }
-        catch(const std::ios_base::failure &fail) {
+        } catch (const boost::archive::archive_exception& e) {
+            this->setLastError(e.what());
+            return false;
+        } catch(const std::ios_base::failure &fail) {
             this->setLastError(fail.what());
+            return false;
+        } catch (const std::exception& e) {
+            this->setLastError(e.what());
             return false;
         }
         return true;
@@ -59,12 +66,15 @@ public:
         catch(const std::ios_base::failure &fail) {
             this->setLastError(fail.what());
             return false;
+        } catch (const std::exception& e) {
+            this->setLastError(e.what());
+            return false;
         }
         return true;
     }
 
-private:
+ private:
     std::fstream m_fs;
 };
 
-} // namespace thewarrior::storage
+}  // namespace thewarrior::storage

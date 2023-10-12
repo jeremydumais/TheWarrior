@@ -2,10 +2,9 @@
 
 #include <string>
 
-namespace monstereditor::controllers {
+namespace commoneditor::ui {
 
-struct TextureDTO
-{
+struct TextureDTO {
     std::string name;
     std::string filename;
     int width;
@@ -14,4 +13,4 @@ struct TextureDTO
     int tileHeight;
 };
 
-} // namespace monstereditor::controllers
+}  // namespace commoneditor::ui

@@ -1,5 +1,6 @@
 # Set project name
 set(PROJECT_NAME    "MapEditor")
+project(${PROJECT_NAME} VERSION 1.3.2)
 
 include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/src
@@ -7,6 +8,7 @@ include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/../commonEditor.UI/src
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Storage/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.UI/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../mapEditor.Controllers/include)
 
 find_package(Qt5 COMPONENTS Widgets OpenGL REQUIRED)
@@ -47,11 +49,11 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  target_compile_definitions(${PROJECT_NAME} PRIVATE SUPPORT_MAYBE_UNUSED)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE SUPPORT_MAYBE_UNUSED PROJECT_VERSION="${PROJECT_VERSION}")
 endif()
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${CONAN_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} MapEditor.Controllers theWarrior.Models theWarrior.Storage commonEditor.UI Qt5::Widgets Qt5::OpenGL glut GLU GL ${CONAN_LIBS})
+target_link_libraries(${PROJECT_NAME} MapEditor.Controllers theWarrior.Models theWarrior.Storage theWarrior.UI commonEditor.UI Qt5::Widgets Qt5::OpenGL glut GLU GL boost_program_options)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html

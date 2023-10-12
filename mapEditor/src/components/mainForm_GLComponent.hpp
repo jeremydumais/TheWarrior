@@ -3,6 +3,7 @@
 #include <QtWidgets/QWidget>
 #include <memory>
 #include <optional>
+#include <set>
 #include <string>
 #include <vector>
 #include "gameMap.hpp"
@@ -33,6 +34,8 @@ class MainForm_GLComponent : public QWidget {
     void setLastSelectedObject(const std::string &name, int index);
     void clearLastSelectedTexture();
     void clearLastSelectedObject();
+    void setLastSelectedMonsterZone(int index);
+    void clearLastSelectedMonsterZone();
     void stopAutoUpdate();
     void startAutoUpdate();
     void resetMapMovePosition();
@@ -64,8 +67,9 @@ class MainForm_GLComponent : public QWidget {
     std::string m_lastSelectedObjectName;
     int m_lastSelectedTextureIndex;
     int m_lastSelectedObjectIndex;
+    int m_lastSelectedMonsterZoneIndex;
     void onTileClicked(int tileIndex);
-    void onTileMouseReleaseEvent(std::vector<int> selectedTileIndexes);
-    void addMoveDenyTrigger(const std::vector<int> &selectedTileIndexes,
+    void onTileMouseReleaseEvent(std::set<int> selectedTileIndexes);
+    void addMoveDenyTrigger(const std::set<int> &selectedTileIndexes,
             thewarrior::models::MapTileTriggerEvent event);
 };

@@ -1,29 +1,35 @@
 #include "mainForm.hpp"
+#include <fmt/format.h>
+#include <QtCore/qfile.h>
+#include <libgen.h>  // dirname
+#include <linux/limits.h>  // PATH_MAX
+#include <unistd.h>  // readlink
+#include <QtWidgets/QFileDialog>
+#include <QtWidgets/QMessageBox>
+#include <algorithm>
+#include <optional>
+#include <string>
+#include <vector>
+#include <boost/filesystem.hpp>
 #include "aboutBoxForm.hpp"
 #include "configurationManager.hpp"
 #include "editMonsterForm.hpp"
 #include "errorMessage.hpp"
+#include "mainController.hpp"
 #include "manageTexturesForm.hpp"
 #include "specialFolders.hpp"
-#include <fmt/format.h>
-#include <QtCore/qfile.h>
-#include <QtWidgets/QFileDialog>
-#include <QtWidgets/QMessageBox>
-#include <boost/filesystem.hpp>
-#include <libgen.h>		  // dirname
-#include <linux/limits.h> // PATH_MAX
-#include <optional>
-#include <string>
-#include <unistd.h> // readlink
 
-using namespace commoneditor::ui;
-using namespace monstereditor::controllers;
-using namespace thewarrior::storage;
+using commoneditor::ui::ErrorMessage;
+using monstereditor::controllers::MainController;
+using monstereditor::controllers::MonsterListDisplay;
+using thewarrior::storage::ConfigurationManager;
+using thewarrior::storage::SpecialFolders;
 
 const std::string MainForm::THEME_PATH{"Display.Theme"};
 const std::string MainForm::RECENT_DB{"MonsterDB.Recents"};
 
-MainForm::MainForm(QWidget *parent)
+MainForm::MainForm(QWidget *parent,
+        const std::string &currentFilePath)
     : QMainWindow(parent),
     ui(Ui::MainForm()),
     m_functionAfterShownCalled(false),
@@ -31,8 +37,7 @@ MainForm::MainForm(QWidget *parent)
     m_executablePath(""),
     m_resourcesPath(""),
     m_currentFilePath(""),
-    m_controller(MainController())
-{
+    m_controller(MainController()) {
     ui.setupUi(this);
 
     // Check if the user configuration folder exist
@@ -55,8 +60,7 @@ MainForm::MainForm(QWidget *parent)
     // Load the config file
     if (configManager.load()) {
         setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
-    }
-    else {
+    } else {
         ErrorMessage::show("An error occurred while loading the configuration file.",
                 configManager.getLastError());
     }
@@ -64,10 +68,12 @@ MainForm::MainForm(QWidget *parent)
     initializeMonstersTableControl();
     refreshRecentMapsMenu();
     connectUIActions();
+    if (!currentFilePath.empty()) {
+        openMonsterStore(currentFilePath);
+    }
 }
 
-void MainForm::initializeMonstersTableControl()
-{
+void MainForm::initializeMonstersTableControl() {
     ui.tableWidgetMonsters->setHorizontalHeaderItem(0, new QTableWidgetItem("Id"));
     ui.tableWidgetMonsters->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
     ui.tableWidgetMonsters->setHorizontalHeaderItem(2, new QTableWidgetItem("Health"));
@@ -82,8 +88,7 @@ void MainForm::initializeMonstersTableControl()
     ui.tableWidgetMonsters->setColumnWidth(5, 120);
 }
 
-void MainForm::connectUIActions()
-{
+void MainForm::connectUIActions() {
     connect(ui.action_Quit, &QAction::triggered, this, &MainForm::close);
     connect(ui.action_LightTheme, &QAction::triggered, this, &MainForm::action_LightTheme_Click);
     connect(ui.action_DarkTheme, &QAction::triggered, this, &MainForm::action_DarkTheme_Click);
@@ -108,13 +113,11 @@ void MainForm::connectUIActions()
     connect(&tableWidgetMonstersKeyWatcher, &QTableWidgetKeyPressWatcher::keyPressed, this, &MainForm::onTableWidgetMonstersKeyPressEvent);
 }
 
-void MainForm::functionAfterShown()
-{
+void MainForm::functionAfterShown() {
     setWindowIcon(QIcon(":/MonsterEditor Icon.png"));
 }
 
-bool MainForm::event(QEvent *event)
-{
+bool MainForm::event(QEvent *event) {
     const bool ret_val = QMainWindow::event(event);
     if (!m_functionAfterShownCalled && event->type() == QEvent::Paint) {
         m_functionAfterShownCalled = true;
@@ -123,14 +126,12 @@ bool MainForm::event(QEvent *event)
     return ret_val;
 }
 
-void MainForm::action_About_Click()
-{
+void MainForm::action_About_Click() {
     AboutBoxForm aboutBoxForm(this);
     aboutBoxForm.exec();
 }
 
-void MainForm::action_LightTheme_Click()
-{
+void MainForm::action_LightTheme_Click() {
     ConfigurationManager configManager(m_userConfigFolder + "config.json");
     if (configManager.load()) {
         configManager.setStringValue(MainForm::THEME_PATH, "");
@@ -139,15 +140,13 @@ void MainForm::action_LightTheme_Click()
             ErrorMessage::show("An error occurred while saving the configuration file.",
                     configManager.getLastError());
         }
-    }
-    else {
+    } else {
         ErrorMessage::show("An error occurred while loading the configuration file.",
                 configManager.getLastError());
     }
 }
 
-void MainForm::action_DarkTheme_Click()
-{
+void MainForm::action_DarkTheme_Click() {
     ConfigurationManager configManager(m_userConfigFolder + "config.json");
     if (configManager.load()) {
         configManager.setStringValue(MainForm::THEME_PATH, "Dark");
@@ -156,15 +155,13 @@ void MainForm::action_DarkTheme_Click()
             ErrorMessage::show("An error occurred while saving the configuration file.",
                     configManager.getLastError());
         }
-    }
-    else {
+    } else {
         ErrorMessage::show("An error occurred while loading the configuration file.",
                 configManager.getLastError());
     }
 }
 
-void MainForm::action_OpenMonsterStore_Click()
-{
+void MainForm::action_OpenMonsterStore_Click() {
     QString fullFilePath{QFileDialog::getOpenFileName(this,
             tr("Open the monster store"),
             "",
@@ -177,25 +174,21 @@ void MainForm::action_OpenMonsterStore_Click()
     refreshWindowTitle();
 }
 
-void MainForm::action_OpenRecentMonstersDB_Click()
-{
+void MainForm::action_OpenRecentMonstersDB_Click() {
     QAction *recentAction = qobject_cast<QAction *>(sender());
     std::string filename = recentAction->text().toStdString();
     openMonsterStore(filename);
 }
 
-void MainForm::action_SaveMonsterStore_Click()
-{
+void MainForm::action_SaveMonsterStore_Click() {
     if (m_currentFilePath == "") {
         action_SaveAsMonsterStore_Click();
-    }
-    else {
+    } else {
         saveMonsterStore(m_currentFilePath);
     }
 }
 
-void MainForm::action_SaveAsMonsterStore_Click()
-{
+void MainForm::action_SaveAsMonsterStore_Click() {
     QString filter = "Monster store file (*.mon)";
     QString fullFilePath{QFileDialog::getSaveFileName(this,
             tr("Save the monster store"),
@@ -209,14 +202,12 @@ void MainForm::action_SaveAsMonsterStore_Click()
     refreshWindowTitle();
 }
 
-void MainForm::refreshRecentMapsMenu()
-{
+void MainForm::refreshRecentMapsMenu() {
     auto recents = std::vector<std::string>{};
     ConfigurationManager configManager(m_userConfigFolder + "config.json");
     if (configManager.load()) {
         recents = configManager.getVectorOfStringValue(MainForm::RECENT_DB);
-    }
-    else {
+    } else {
         ErrorMessage::show("An error occurred while loading the configuration file.",
                 configManager.getLastError());
         return;
@@ -238,15 +229,13 @@ void MainForm::refreshRecentMapsMenu()
     }
 }
 
-void MainForm::addNewRecentMonstersDB(const std::string &filePath)
-{
+void MainForm::addNewRecentMonstersDB(const std::string &filePath) {
     auto recents = std::vector<std::string>{};
     // Load existing recent maps
     ConfigurationManager configManager(m_userConfigFolder + "config.json");
     if (configManager.load()) {
         recents = configManager.getVectorOfStringValue(MainForm::RECENT_DB);
-    }
-    else {
+    } else {
         ErrorMessage::show("An error occurred while loading the configuration file.",
                 configManager.getLastError());
         return;
@@ -270,8 +259,7 @@ void MainForm::addNewRecentMonstersDB(const std::string &filePath)
     refreshRecentMapsMenu();
 }
 
-void MainForm::refreshMonstersTable()
-{
+void MainForm::refreshMonstersTable() {
     ui.tableWidgetMonsters->model()->removeRows(0, ui.tableWidgetMonsters->rowCount());
     auto monstersToDisplay = m_controller.getMonsters();
     std::vector<std::string> monsterIds;
@@ -300,16 +288,14 @@ void MainForm::refreshMonstersTable()
     }
 }
 
-void MainForm::action_ManageTextures_Click()
-{
+void MainForm::action_ManageTextures_Click() {
     ManageTexturesForm manageTexturesForm(this,
             getResourcesPath(),
             m_controller.getTextureContainerForEdition());
     manageTexturesForm.exec();
 }
 
-const std::string &MainForm::getExecutablePath()
-{
+const std::string &MainForm::getExecutablePath() {
     if (m_executablePath.empty()) {
         char result[PATH_MAX] = {};
         ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
@@ -320,16 +306,14 @@ const std::string &MainForm::getExecutablePath()
     return m_executablePath;
 }
 
-const std::string &MainForm::getResourcesPath()
-{
+const std::string &MainForm::getResourcesPath() {
     if (m_resourcesPath.empty()) {
         m_resourcesPath = fmt::format("{0}/resources/", getExecutablePath());
     }
     return m_resourcesPath;
 }
 
-void MainForm::setAppStylesheet(const std::string &style)
-{
+void MainForm::setAppStylesheet(const std::string &style) {
     /****
       The Dark theme comes has been built by Colin Duquesnoy
       Github page : https://github.com/ColinDuquesnoy
@@ -343,15 +327,13 @@ void MainForm::setAppStylesheet(const std::string &style)
         const QString styleSheet = QLatin1String(file.readAll());
         this->setStyleSheet(styleSheet);
         ui.action_DarkTheme->setChecked(true);
-    }
-    else {
+    } else {
         this->setStyleSheet("");
         ui.action_LightTheme->setChecked(true);
     }
 }
 
-void MainForm::openMonsterStore(const std::string &filePath)
-{
+void MainForm::openMonsterStore(const std::string &filePath) {
     if (!m_controller.openMonsterStore(filePath)) {
         ErrorMessage::show("An error occurred while loading the monster store.",
                 m_controller.getLastError());
@@ -362,37 +344,32 @@ void MainForm::openMonsterStore(const std::string &filePath)
     refreshMonstersTable();
 }
 
-void MainForm::saveMonsterStore(const std::string &filePath)
-{
+void MainForm::saveMonsterStore(const std::string &filePath) {
     if (!m_controller.saveMonsterStore(filePath)) {
         ErrorMessage::show("An error occurred while saving the monster store.",
                 m_controller.getLastError());
     }
 }
 
-void MainForm::refreshWindowTitle()
-{
+void MainForm::refreshWindowTitle() {
     setWindowTitle(m_currentFilePath.empty() ?
             "MonsterEditor" :
             fmt::format("MonsterEditor - {0}", m_currentFilePath).c_str());
 }
 
-void MainForm::onTableWidgetMonstersDoubleClicked(QTableWidgetItem *item)
-{
+void MainForm::onTableWidgetMonstersDoubleClicked(QTableWidgetItem *item) {
     if (item) {
         onPushButtonEditMonsterClick();
     }
 }
 
-void MainForm::onTableWidgetMonstersKeyPressEvent(int key, int, int)
-{
+void MainForm::onTableWidgetMonstersKeyPressEvent(int key, int, int) {
     if (key == Qt::Key_Delete) {
         onPushButtonDeleteMonsterClick();
     }
 }
 
-void MainForm::onPushButtonAddMonsterClick()
-{
+void MainForm::onPushButtonAddMonsterClick() {
     EditMonsterForm editMonsterForm(this,
             m_resourcesPath,
             m_controller.getMonsterStore(),
@@ -402,8 +379,7 @@ void MainForm::onPushButtonAddMonsterClick()
     }
 }
 
-void MainForm::onPushButtonEditMonsterClick()
-{
+void MainForm::onPushButtonEditMonsterClick() {
     if (auto itemId = getSelectedItemId(); itemId.has_value()) {
         EditMonsterForm editMonsterForm(this,
                 m_resourcesPath,
@@ -415,8 +391,7 @@ void MainForm::onPushButtonEditMonsterClick()
     }
 }
 
-void MainForm::onPushButtonDeleteMonsterClick()
-{
+void MainForm::onPushButtonDeleteMonsterClick() {
     if (auto itemId = getSelectedItemId(); itemId.has_value()) {
         QMessageBox msgBox;
         msgBox.setText(fmt::format("Are you sure you want to delete the monster {0}?", itemId.value()).c_str());
@@ -432,8 +407,7 @@ void MainForm::onPushButtonDeleteMonsterClick()
     }
 }
 
-std::optional<std::string> MainForm::getSelectedItemId() const
-{
+std::optional<std::string> MainForm::getSelectedItemId() const {
     auto selectedRows = ui.tableWidgetMonsters->selectionModel()->selectedRows();
     if (selectedRows.count() == 1) {
         return selectedRows[0].data().toString().toStdString();

@@ -16,6 +16,7 @@ using mapeditor::controllers::MonsterZoneDTO;
 using mapeditor::controllers::OptMonsterZoneDTOConst;
 using std::map;
 using std::optional;
+using std::set;
 using std::string;
 using std::vector;
 
@@ -25,7 +26,8 @@ MainForm_GLComponent::MainForm_GLComponent()
     m_lastSelectedTextureName(""),
     m_lastSelectedObjectName(""),
     m_lastSelectedTextureIndex(-1),
-    m_lastSelectedObjectIndex(-1) {
+    m_lastSelectedObjectIndex(-1),
+    m_lastSelectedMonsterZoneIndex(-1) {
 }
 
 void MainForm_GLComponent::initializeUIObjects(MapOpenGLWidget *glWidget) {
@@ -35,8 +37,14 @@ void MainForm_GLComponent::initializeUIObjects(MapOpenGLWidget *glWidget) {
 }
 
 void MainForm_GLComponent::connectUIActions() {
-    connect(this->m_glWidget, &MapOpenGLWidget::onTileClicked, this, &MainForm_GLComponent::onTileClicked);
-    connect(this->m_glWidget, &MapOpenGLWidget::onTileMouseReleaseEvent, this, &MainForm_GLComponent::onTileMouseReleaseEvent);
+    connect(this->m_glWidget,
+            &MapOpenGLWidget::onTileClicked,
+            this,
+            &MainForm_GLComponent::onTileClicked);
+    connect(this->m_glWidget,
+            &MapOpenGLWidget::onTileMouseReleaseEvent,
+            this,
+            &MainForm_GLComponent::onTileMouseReleaseEvent);
 }
 
 const std::string &MainForm_GLComponent::getResourcesPath() const {
@@ -75,12 +83,14 @@ MapTile* MainForm_GLComponent::getCurrentMapTile() {
     return m_currentMapTile;
 }
 
-void MainForm_GLComponent::setLastSelectedTexture(const std::string &name, int index) {
+void MainForm_GLComponent::setLastSelectedTexture(const std::string &name,
+        int index) {
     this->m_lastSelectedTextureName = name;
     this->m_lastSelectedTextureIndex = index;
 }
 
-void MainForm_GLComponent::setLastSelectedObject(const std::string &name, int index) {
+void MainForm_GLComponent::setLastSelectedObject(const std::string &name,
+        int index) {
     this->m_lastSelectedObjectName = name;
     this->m_lastSelectedObjectIndex = index;
 }
@@ -93,6 +103,14 @@ void MainForm_GLComponent::clearLastSelectedTexture() {
 void MainForm_GLComponent::clearLastSelectedObject() {
     m_lastSelectedObjectName = "";
     m_lastSelectedObjectIndex = -1;
+}
+
+void MainForm_GLComponent::setLastSelectedMonsterZone(int index) {
+    m_lastSelectedMonsterZoneIndex = index;
+}
+
+void MainForm_GLComponent::clearLastSelectedMonsterZone() {
+    m_lastSelectedMonsterZoneIndex = -1;
 }
 
 void MainForm_GLComponent::stopAutoUpdate() {
@@ -163,7 +181,7 @@ void MainForm_GLComponent::onTileClicked(int tileIndex) {
     }
 }
 
-void MainForm_GLComponent::onTileMouseReleaseEvent(vector<int> selectedTileIndexes) {
+void MainForm_GLComponent::onTileMouseReleaseEvent(set<int> selectedTileIndexes) {
     if (m_glWidget->getSelectionMode() == SelectionMode::ApplyTexture) {
         for (const int index : selectedTileIndexes) {
             m_currentMapTile = &m_controller.getMap()->getTileForEditing(index);
@@ -207,10 +225,20 @@ void MainForm_GLComponent::onTileMouseReleaseEvent(vector<int> selectedTileIndex
                 }
             }
         }
+    } else if (m_glWidget->getSelectionMode() == SelectionMode::ApplyMonsterZone) {
+        for (const int index : selectedTileIndexes) {
+            m_currentMapTile = &m_controller.getMap()->getTileForEditing(index);
+            m_currentMapTile->setMonsterZoneIndex(m_lastSelectedMonsterZoneIndex);
+        }
+    } else if (m_glWidget->getSelectionMode() == SelectionMode::ClearMonsterZone) {
+        for (const int index : selectedTileIndexes) {
+            m_currentMapTile = &m_controller.getMap()->getTileForEditing(index);
+            m_currentMapTile->setMonsterZoneIndex(-1);
+        }
     }
 }
 
-void MainForm_GLComponent::addMoveDenyTrigger(const std::vector<int> &selectedTileIndexes, MapTileTriggerEvent event) {
+void MainForm_GLComponent::addMoveDenyTrigger(const std::set<int> &selectedTileIndexes, MapTileTriggerEvent event) {
     for (const int index : selectedTileIndexes) {
         m_currentMapTile = &m_controller.getMap()->getTileForEditing(index);
         if (!m_currentMapTile->findTrigger(event).has_value())

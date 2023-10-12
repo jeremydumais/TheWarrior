@@ -2,23 +2,20 @@
 
 namespace thewarrior::models {
 
-//Used only for Boost Serialization
+// Used only for Boost Serialization
 WeaponItem::WeaponItem()
     : Item(),
       m_attackGain(0.0F),
-      m_slotInBodyPart(WeaponBodyPart::MainHand)
-{
+      m_slotInBodyPart(WeaponBodyPart::MainHand) {
 }
 
 WeaponItem::WeaponItem(const WeaponItemCreationInfo &itemInfo)
     : Item(itemInfo),
       m_attackGain(itemInfo.attackGain),
-      m_slotInBodyPart(itemInfo.slotInBodyPart)
-{
+      m_slotInBodyPart(itemInfo.slotInBodyPart) {
 }
 
-bool WeaponItem::equals(const Item &other) const
-{
+bool WeaponItem::equals(const Item &other) const {
     if (typeid(*this).hash_code() != typeid(other).hash_code()) {
         return false;
     }
@@ -31,42 +28,34 @@ bool WeaponItem::equals(const Item &other) const
            Item::equals(other);
 }
 
-ItemType WeaponItem::getType() const
-{
+ItemType WeaponItem::getType() const {
     return ItemType::Weapon;
 }
 
-float WeaponItem::getAttackGain() const
-{
+float WeaponItem::getAttackGain() const {
     return m_attackGain;
 }
 
-WeaponBodyPart WeaponItem::getSlotInBodyPart() const
-{
+WeaponBodyPart WeaponItem::getSlotInBodyPart() const {
     return m_slotInBodyPart;
 }
 
-void WeaponItem::setAttackGain(float value)
-{
+void WeaponItem::setAttackGain(float value) {
     m_attackGain = value;
 }
 
-void WeaponItem::setSlotInBodyPart(WeaponBodyPart value)
-{
+void WeaponItem::setSlotInBodyPart(WeaponBodyPart value) {
     m_slotInBodyPart = value;
 }
 
-std::string WeaponItem::getBodyPartAsString(WeaponBodyPart bodyPart)
-{
-    switch (bodyPart)
-    {
+std::string WeaponItem::getBodyPartAsString(WeaponBodyPart bodyPart) {
+    switch (bodyPart) {
     case WeaponBodyPart::MainHand:
         return "Main hand";
     case WeaponBodyPart::SecondaryHand:
         return "Secondary hand";
-    default:
-        return "";
     }
+    return "";
 }
 
-} // namespace thewarrior::models
+}  // namespace thewarrior::models

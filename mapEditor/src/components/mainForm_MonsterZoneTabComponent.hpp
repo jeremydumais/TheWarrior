@@ -3,6 +3,7 @@
 #include <QtWidgets/QTableWidget>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QWidget>
+#include <qcheckbox.h>
 #include <memory>
 #include <optional>
 #include <string>
@@ -20,6 +21,7 @@ struct MainForm_MonsterZoneTabComponent_Objects {
     QPushButton *pushButtonAddMonsterZone = nullptr;
     QPushButton *pushButtonEditMonsterZone = nullptr;
     QPushButton *pushButtonDeleteMonsterZone = nullptr;
+    QCheckBox *checkBoxOneMonsterZoneForAllTheMap = nullptr;
 };
 
 class MainForm_MonsterZoneTabComponent : public QWidget {
@@ -34,10 +36,15 @@ class MainForm_MonsterZoneTabComponent : public QWidget {
     std::optional<const mapeditor::controllers::MonsterZoneDTO> getSelectedMonsterZoneInMonsterZoneList() const;
     void setMonsterStores(const std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> monsterStores);
     void setResourcesPath(const std::string &resourcesPath);
+    void confirmValidityOfOneMonsterZoneCheckBox();
+    std::string getMonsterZoneColor(const std::string &zoneName) const;
+    bool isMonsterZonesEmpty() const;
+    bool isOnlyOneMonsterZoneChecked() const;
  signals:
     void monsterZoneAdded(mapeditor::controllers::MonsterZoneDTO monsterZoneDTO);
     void monsterZoneUpdated(const std::string &name, mapeditor::controllers::MonsterZoneDTO monsterZoneDTO);
     void monsterZoneDeleted(const std::string &name);
+    void useOnlyOneMonsterZoneChanged(bool value);
 
  private:
     std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> m_monsterStores = nullptr;
@@ -48,8 +55,10 @@ class MainForm_MonsterZoneTabComponent : public QWidget {
     QPushButton *m_pushButtonAddMonsterZone;
     QPushButton *m_pushButtonEditMonsterZone;
     QPushButton *m_pushButtonDeleteMonsterZone;
+    QCheckBox *m_checkBoxOneMonsterZoneForAllTheMap;
     void onPushButtonAddMonsterZoneClick();
     void onPushButtonEditMonsterZoneClick();
     void onPushButtonDeleteMonsterZoneClick();
     void onTableWidgetMonsterZoneKeyPressEvent(int key, int, int);
+    void onCheckBoxOneMonsterZoneForAllTheMapChanged(int state);
 };

@@ -32,23 +32,26 @@ class GameMap {
     int getTileIndexFromCoord(Point<> coord);
     const std::vector<Texture> &getTextures() const;
     std::optional<std::reference_wrapper<const Texture>> getTextureByName(const std::string &name) const;
+    bool canSteppedOnTile(Point<> playerCoord);
+    bool useOnlyOneMonsterZone() const;
+    const std::vector<MonsterZone> &getMonsterZones() const;
+    OptMonsterZoneConstRef getMonsterZoneByName(const std::string &zoneName) const;
+    bool isShrinkMapImpactAssignedTiles(int offsetLeft,
+            int offsetTop,
+            int offsetRight,
+            int offsetBottom) const;
     bool addTexture(const TextureInfo &textureInfo);
     bool replaceTexture(const std::string &name, const TextureInfo &textureInfo);
     bool removeTexture(const std::string &name);
-    const std::vector<MonsterZone> &getMonsterZones() const;
-    OptMonsterZoneConstRef getMonsterZoneByName(const std::string &zoneName) const;
     bool addMonsterZone(const MonsterZone &zone);
     bool replaceMonsterZone(const std::string &name, const MonsterZone &zone);
     bool removeMonsterZone(const std::string &name);
-    bool isShrinkMapImpactAssignedTiles(int offsetLeft,
-                                        int offsetTop,
-                                        int offsetRight,
-                                        int offsetBottom) const;
     void resizeMap(int offsetLeft,
                    int offsetTop,
                    int offsetRight,
                    int offsetBottom);
-    bool canSteppedOnTile(Point<> playerCoord);
+    bool setUseOnlyOneMonsterZone(bool value);
+    void unassignMonsterZoneOnAllTiles(int zoneIndex);
 
  private:
     friend class boost::serialization::access;
@@ -56,6 +59,7 @@ class GameMap {
     std::vector<std::vector<MapTile>> m_tiles;
     std::vector<MonsterZone> m_monsterZones;
     TextureContainer m_textureContainer;
+    bool m_useOnlyOneMonsterZone;
     bool _isShrinkMapFromLeftImpactAssignedTiles(int offset) const;
     bool _isShrinkMapFromTopImpactAssignedTiles(int offset) const;
     bool _isShrinkMapFromRightImpactAssignedTiles(int offset) const;

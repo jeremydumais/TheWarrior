@@ -1,7 +1,7 @@
 # TheWarrior
 ## An RPG game developped in C++ with SDL2.
 
-Current version: 0.3.0
+Current version: 0.3.1
 
 **Still in development...**
 

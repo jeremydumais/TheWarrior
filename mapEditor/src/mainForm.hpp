@@ -2,6 +2,7 @@
 #define MAPEDITOR_SRC_MAINFORM_HPP_
 
 #include <qcombobox.h>
+#include <qlabel.h>
 #include <memory>
 #include <string>
 #include <vector>
@@ -22,8 +23,9 @@ class MainForm : public QMainWindow {
 Q_OBJECT
 
  public:
-    explicit MainForm(QWidget *parent = 0);
-    ~MainForm();
+    MainForm(QWidget *parent = nullptr,
+            const std::string &currentFilePath = "");
+    ~MainForm() override;
     bool event(QEvent *event) override;
     void functionAfterShown();
     void setAppStylesheet(const std::string &style);
@@ -38,6 +40,7 @@ Q_OBJECT
     MainForm_TextureSelectionComponent m_textureSelectionComponent;
     mapeditor::controllers::MainController m_controller;
     std::shared_ptr<QComboBox> comboBoxToolbarMonsterZone = nullptr;
+    std::shared_ptr<QLabel> labelToolbarMonsterZoneColor = nullptr;
     std::string m_currentFilePath = "";
     bool m_functionAfterShownCalled = false;
     static const std::string THEME_PATH;
@@ -65,6 +68,9 @@ Q_OBJECT
     void action_BlockRightBorderClick();
     void action_BlockBottomBorderClick();
     void action_ClearBlockedBordersClick();
+    void onComboBoxToolbarMonsterZoneCurrentIndexChanged();
+    void action_ApplyMonsterZone();
+    void action_ClearMonsterZone();
     void openMap(const std::string &filePath);
     void saveMap(const std::string &filePath);
     void refreshWindowTitle();
@@ -81,6 +87,8 @@ Q_OBJECT
     void onMonsterZoneUpdated(const std::string &name, mapeditor::controllers::MonsterZoneDTO monsterZoneDTO);
     void onMonsterZoneDeleted(const std::string &name);
     void refreshMonsterZones();
+    void toggleMonsterZoneAssignationControls();
+    void useOnlyOneMonsterZoneChanged(bool value);
 };
 
 #endif  // MAPEDITOR_SRC_MAINFORM_HPP_

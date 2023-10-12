@@ -3,6 +3,7 @@
 #include <fmt/format.h>
 #include <algorithm>
 #include <cstdint>
+#include <iterator>
 #include <limits>
 #include <optional>
 #include <stdexcept>
@@ -15,7 +16,8 @@ using boost::algorithm::to_upper_copy;
 namespace thewarrior::models {
 
 GameMap::GameMap(unsigned int width, unsigned int height)
-    : m_lastError("") {
+    : m_lastError(""),
+      m_useOnlyOneMonsterZone(false) {
         if (width == 0) {
             throw std::invalid_argument("width must be greater than zero.");
         }
@@ -159,6 +161,9 @@ bool GameMap::addMonsterZone(const MonsterZone &zone) {
     const auto iter = getMonsterZoneIterator(zone.getName());
     if (iter == m_monsterZones.end()) {
         m_monsterZones.push_back(zone);
+        if (m_useOnlyOneMonsterZone) {
+            m_useOnlyOneMonsterZone = false;
+        }
         return true;
     }
 
@@ -187,9 +192,25 @@ bool GameMap::removeMonsterZone(const std::string &name) {
         m_lastError = fmt::format("Unable to find the zone {0} to delete.", name);
         return false;
     }
+    const auto index = std::distance(m_monsterZones.begin(), zoneToRemoveIter);
+    // Remove all the monster zone index assignation on tiles
+    unassignMonsterZoneOnAllTiles(static_cast<int>(index));
     m_monsterZones.erase(zoneToRemoveIter);
-
+    if (m_useOnlyOneMonsterZone) {
+        m_useOnlyOneMonsterZone = false;
+    }
     return true;
+}
+
+void GameMap::unassignMonsterZoneOnAllTiles(int zoneIndex) {
+    for (unsigned int i = 0; i < m_tiles.size() ; i++) {
+        for (unsigned int j = 0; j < m_tiles[i].size(); j++) {
+            auto &tile = m_tiles.at(i).at(j);
+            if (tile.getMonsterZoneIndex() == zoneIndex) {
+                tile.setMonsterZoneIndex(-1);
+            }
+        }
+    }
 }
 
 bool GameMap::isShrinkMapImpactAssignedTiles(int offsetLeft,
@@ -358,6 +379,21 @@ std::vector<MonsterZone>::iterator GameMap::getMonsterZoneIterator(const std::st
     return std::find_if(m_monsterZones.begin(), m_monsterZones.end(), [&name](const auto &zone) {
         return to_upper_copy(zone.getName()) == to_upper_copy(name);
         });
+}
+
+bool GameMap::useOnlyOneMonsterZone() const {
+    return m_useOnlyOneMonsterZone;
+}
+
+bool GameMap::setUseOnlyOneMonsterZone(bool value) {
+    if (value) {
+        if (m_monsterZones.size() != 1) {
+            m_lastError = "You must have exactly one monster zone.";
+            return false;
+        }
+    }
+    m_useOnlyOneMonsterZone = value;
+    return true;
 }
 
 }  // namespace thewarrior::models
