@@ -71,5 +71,19 @@ All notable changes to this project will be documented in this file.
 ### Map Editor (Version 1.3.2)
 
 #### New features
-- Added the one monster zone for all the map feature.
+- Add the assign/clear monster zones to the map feature.
 
+#### Bug fixes
+- When selecting multiple tiles (e.g. with a texture assigned), the resulting selection could be incorrect if you stop on the edge of a tile.
+
+### Monster Editor (Version 1.0.0)
+
+#### New features
+- Implement the CLI program options to be able to load a monster store directly from the CLI.
+- Draw the tiles zones in the Add & Edit Texture form
+
+### Item Editor (Version 1.0.0)
+
+#### New features
+- Implement the CLI program options to be able to load a monster store directly from the CLI.
+- Draw the tiles zones in the Add & Edit Texture form
