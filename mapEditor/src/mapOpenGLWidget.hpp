@@ -60,10 +60,13 @@ class MapOpenGLWidget : public QOpenGLWidget {
     std::shared_ptr<thewarrior::models::GameMap> m_currentMap;
     QPoint m_lastCursorPosition;
     QPoint m_currentCursorPosition;
-    const float TILESIZE { 0.2F };
-    const float TILEHALFSIZE { TILESIZE / 2.0F };
+    float m_glTileWidth { 0.1739F };
+    float m_glTileHeight { 0.1739F };
+    float m_glTileHalfWidth { m_glTileWidth / 2.0F };
+    float m_glTileHalfHeight { m_glTileHeight / 2.0F };
     const unsigned int ONSCREENTILESIZE { 40 };
-    const float TRANSLATIONTOPIXEL { 5.0F };
+    float m_translationXToPixel { 5.75F };
+    float m_translationYToPixel { 5.75F };
     const float TILESPACING { 0.0F };
     bool isMultiTileSelectionMode() const;
     void updateCursor();

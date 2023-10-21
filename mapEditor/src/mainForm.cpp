@@ -364,7 +364,16 @@ void MainForm::action_BlockBottomBorderClick() {
 }
 
 void MainForm::action_ClearBlockedBordersClick() {
-    m_glComponent.setSelectionMode(SelectionMode::ClearBlockedBorders);
+    // HACK: To remove before commit code
+    // m_glComponent.setSelectionMode(SelectionMode::ClearBlockedBorders);
+    if (ui.mapOpenGLWidget->height() == 800) {
+        ui.mapOpenGLWidget->setMaximumSize(920, 920);
+        ui.mapOpenGLWidget->setMinimumSize(920, 920);
+
+    } else {
+        ui.mapOpenGLWidget->setMaximumSize(920, 800);
+        ui.mapOpenGLWidget->setMinimumSize(920, 800);
+    }
 }
 
 void MainForm::onComboBoxToolbarMonsterZoneCurrentIndexChanged() {

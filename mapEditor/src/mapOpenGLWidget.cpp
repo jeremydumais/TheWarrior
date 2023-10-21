@@ -88,6 +88,15 @@ void MapOpenGLWidget::resizeGL(int width, int height) {
     glOrtho(-2, +2, -2, +2, 1.0, 15.0);
 #endif
     glMatrixMode(GL_MODELVIEW);
+
+    float nbOfTilesForWidth = static_cast<float>(width) / static_cast<float>(ONSCREENTILESIZE);
+    float nbOfTilesForHeight = static_cast<float>(height) / static_cast<float>(ONSCREENTILESIZE);
+    m_glTileWidth = static_cast<float>(width) / 10.0F / nbOfTilesForWidth / nbOfTilesForWidth;
+    m_glTileHeight = static_cast<float>(height) / 10.0F / nbOfTilesForHeight / nbOfTilesForHeight;
+    m_glTileHalfWidth = m_glTileWidth / 2.0F;
+    m_glTileHalfHeight = m_glTileHeight / 2.0F;
+    m_translationXToPixel = static_cast<float>(width) / static_cast<float>(ONSCREENTILESIZE) / 4.0F;
+    m_translationYToPixel = static_cast<float>(height) / static_cast<float>(ONSCREENTILESIZE) / 4.0F;
 }
 
 const std::string& MapOpenGLWidget::getResourcesPath() const {
@@ -243,8 +252,8 @@ void MapOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
     if (m_mousePressed &&
             (m_selectionMode == SelectionMode::MoveMap  ||
              m_selectionMode == SelectionMode::ViewBorderMode)) {
-        m_translationDragAndDropX = static_cast<float>(event->pos().x() - m_lastCursorPosition.x()) / (static_cast<float>(ONSCREENTILESIZE) * TRANSLATIONTOPIXEL);
-        m_translationDragAndDropY = static_cast<float>(m_lastCursorPosition.y() - event->pos().y()) / (static_cast<float>(ONSCREENTILESIZE) * TRANSLATIONTOPIXEL);
+        m_translationDragAndDropX = static_cast<float>(event->pos().x() - m_lastCursorPosition.x()) / (static_cast<float>(ONSCREENTILESIZE) * m_translationXToPixel);
+        m_translationDragAndDropY = static_cast<float>(m_lastCursorPosition.y() - event->pos().y()) / (static_cast<float>(ONSCREENTILESIZE) * m_translationYToPixel);
     }
     m_currentCursorPosition = event->pos();
     updateCursor();
@@ -346,10 +355,10 @@ void MapOpenGLWidget::draw() {
                 glPushMatrix();
                 glColor3f(0.5F, 0.5F, 0.5F);
                 glBegin(GL_QUADS);
-                glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
-                glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
-                glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
-                glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
+                glVertex3f(m_glTileHalfWidth, m_glTileHalfHeight, 0);
+                glVertex3f(m_glTileHalfWidth, -m_glTileHalfHeight, 0);
+                glVertex3f(-m_glTileHalfWidth, -m_glTileHalfHeight, 0);
+                glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight, 0);
                 glEnd();
                 glPopMatrix();
             }
@@ -397,14 +406,14 @@ void MapOpenGLWidget::draw() {
                 drawGrid();
             }
 
-            x += TILESIZE + TILESPACING;
-            glTranslatef(TILESIZE + TILESPACING, 0, 0);
+            x += m_glTileWidth + TILESPACING;
+            glTranslatef(m_glTileWidth + TILESPACING, 0, 0);
             glBindTexture(GL_TEXTURE_2D, 0);
             index++;
         }
-        x += static_cast<float>(row.size()) * -(TILESIZE + TILESPACING);
-        y += -(TILESIZE + TILESPACING);
-        glTranslatef(static_cast<float>(row.size()) * -(TILESIZE + TILESPACING), -(TILESIZE + TILESPACING), 0.0f);
+        x += static_cast<float>(row.size()) * -(m_glTileWidth + TILESPACING);
+        y += -(m_glTileHeight + TILESPACING);
+        glTranslatef(static_cast<float>(row.size()) * -(m_glTileWidth + TILESPACING), -(m_glTileHeight + TILESPACING), 0.0f);
     }
     glPopMatrix();
     glPushMatrix();
@@ -429,13 +438,13 @@ void MapOpenGLWidget::drawTileWithTexture(const std::string &textureName, int te
     glPushMatrix();
     glBegin(GL_QUADS);
     glTexCoord2f((TEXTURETILEWIDTH * TEXTUREX) + TEXTURETILEWIDTH - TEXTUREWIDTHADJUSTMENT, 1.0f-(TEXTURETILEHEIGHT * (lineIndex + 1.0f)) + TEXTUREHEIGHTADJUSTMENT);
-    glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
+    glVertex3f(m_glTileHalfWidth, m_glTileHalfHeight, 0);
     glTexCoord2f((TEXTURETILEWIDTH * TEXTUREX) + TEXTURETILEWIDTH - TEXTUREWIDTHADJUSTMENT, 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTUREHEIGHTADJUSTMENT);
-    glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
+    glVertex3f(m_glTileHalfWidth, -m_glTileHalfHeight, 0);
     glTexCoord2f((TEXTURETILEWIDTH * TEXTUREX)  + TEXTUREWIDTHADJUSTMENT, 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTUREHEIGHTADJUSTMENT);
-    glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
+    glVertex3f(-m_glTileHalfWidth, -m_glTileHalfHeight, 0);
     glTexCoord2f((TEXTURETILEWIDTH * TEXTUREX)  + TEXTUREWIDTHADJUSTMENT, 1.0f-(TEXTURETILEHEIGHT * (lineIndex + 1.0f)) + TEXTUREHEIGHTADJUSTMENT);
-    glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
+    glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight, 0);
     glEnd();
     glPopMatrix();
 }
@@ -444,10 +453,10 @@ void MapOpenGLWidget::drawColoredTile() const {
     glPushMatrix();
     glBindTexture(GL_TEXTURE_2D, 0);
     glBegin(GL_QUADS);
-    glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
-    glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
+    glVertex3f(m_glTileHalfWidth, m_glTileHalfHeight, 0);
+    glVertex3f(m_glTileHalfWidth, -m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, -m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight, 0);
     glEnd();
     glPopMatrix();
 }
@@ -458,30 +467,30 @@ void MapOpenGLWidget::drawSelectionZone() const {
     glTranslatef(startCoord.x, -startCoord.y, 0.0f);
     glColor4f(1.0f, 1.0f, 1.0f, 0.3f);
     glBegin(GL_QUADS);
-    glVertex3f(endCoord.x -TILEHALFSIZE, TILEHALFSIZE, 0);
-    glVertex3f(endCoord.x -TILEHALFSIZE, -endCoord.y + TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE, -endCoord.y + TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
+    glVertex3f(endCoord.x -m_glTileHalfWidth, m_glTileHalfHeight, 0);
+    glVertex3f(endCoord.x -m_glTileHalfWidth, -endCoord.y + m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, -endCoord.y + m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight, 0);
     glEnd();
 }
 
 void MapOpenGLWidget::drawGrid() const {
     glColor3f(0.0F, 0.0F, 0.0F);
     glBegin(GL_LINES);
-    glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
-    glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
+    glVertex3f(m_glTileHalfWidth, m_glTileHalfHeight, 0);
+    glVertex3f(m_glTileHalfWidth, -m_glTileHalfHeight, 0);
     glEnd();
     glBegin(GL_LINES);
-    glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
+    glVertex3f(m_glTileHalfWidth, -m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, -m_glTileHalfHeight, 0);
     glEnd();
     glBegin(GL_LINES);
-    glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
+    glVertex3f(-m_glTileHalfWidth, -m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight, 0);
     glEnd();
     glBegin(GL_LINES);
-    glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
-    glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
+    glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight, 0);
+    glVertex3f(m_glTileHalfWidth, m_glTileHalfHeight, 0);
     glEnd();
 }
 
@@ -490,18 +499,18 @@ void MapOpenGLWidget::drawBlockBorderLeft() {
     glBindTexture(GL_TEXTURE_2D, 0);
     glPushMatrix();
     glBegin(GL_QUADS);
-    glVertex3f(-TILEHALFSIZE + (TILEHALFSIZE/6.0f), -TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE + (TILEHALFSIZE/6.0f), TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
+    glVertex3f(-m_glTileHalfWidth + (m_glTileHalfWidth/6.0f), -m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth + (m_glTileHalfWidth/6.0f), m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, -m_glTileHalfHeight, 0);
     glEnd();
     glPopMatrix();
     glPushMatrix();
     glBegin(GL_QUADS);
-    glVertex3f(-TILEHALFSIZE + (TILEHALFSIZE/3.0f), -TILEHALFSIZE/8.0f, 0);
-    glVertex3f(-TILEHALFSIZE + (TILEHALFSIZE/3.0f), TILEHALFSIZE/8.0f, 0);
-    glVertex3f(-TILEHALFSIZE, TILEHALFSIZE/8.0f, 0);
-    glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE/8.0f, 0);
+    glVertex3f(-m_glTileHalfWidth + (m_glTileHalfWidth/3.0f), -m_glTileHalfHeight/8.0f, 0);
+    glVertex3f(-m_glTileHalfWidth + (m_glTileHalfWidth/3.0f), m_glTileHalfHeight/8.0f, 0);
+    glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight/8.0f, 0);
+    glVertex3f(-m_glTileHalfWidth, -m_glTileHalfHeight/8.0f, 0);
     glEnd();
     glPopMatrix();
 }
@@ -511,18 +520,18 @@ void MapOpenGLWidget::drawBlockBorderTop() {
     glBindTexture(GL_TEXTURE_2D, 0);
     glPushMatrix();
     glBegin(GL_QUADS);
-    glVertex3f(TILEHALFSIZE, TILEHALFSIZE - (TILEHALFSIZE /6.0f), 0);
-    glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE, TILEHALFSIZE - (TILEHALFSIZE/6.0f), 0);
+    glVertex3f(m_glTileHalfWidth, m_glTileHalfHeight - (m_glTileHalfHeight /6.0f), 0);
+    glVertex3f(m_glTileHalfWidth, m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight - (m_glTileHalfHeight/6.0f), 0);
     glEnd();
     glPopMatrix();
     glPushMatrix();
     glBegin(GL_QUADS);
-    glVertex3f(TILEHALFSIZE/8.0f, TILEHALFSIZE - (TILEHALFSIZE /3.0f), 0);
-    glVertex3f(TILEHALFSIZE/8.0f, TILEHALFSIZE, 0);
-    glVertex3f(-(TILEHALFSIZE/8.0f), TILEHALFSIZE, 0);
-    glVertex3f(-(TILEHALFSIZE/8.0f), TILEHALFSIZE - (TILEHALFSIZE/3.0f), 0);
+    glVertex3f(m_glTileHalfWidth/8.0f, m_glTileHalfHeight - (m_glTileHalfHeight /3.0f), 0);
+    glVertex3f(m_glTileHalfWidth/8.0f, m_glTileHalfHeight, 0);
+    glVertex3f(-(m_glTileHalfWidth/8.0f), m_glTileHalfHeight, 0);
+    glVertex3f(-(m_glTileHalfWidth/8.0f), m_glTileHalfHeight - (m_glTileHalfHeight/3.0f), 0);
     glEnd();
     glPopMatrix();
 }
@@ -532,18 +541,18 @@ void MapOpenGLWidget::drawBlockBorderRight() {
     glBindTexture(GL_TEXTURE_2D, 0);
     glPushMatrix();
     glBegin(GL_QUADS);
-    glVertex3f(TILEHALFSIZE - (TILEHALFSIZE/6.0f), -TILEHALFSIZE, 0);
-    glVertex3f(TILEHALFSIZE - (TILEHALFSIZE/6.0f), TILEHALFSIZE, 0);
-    glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
-    glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
+    glVertex3f(m_glTileHalfWidth - (m_glTileHalfWidth/6.0f), -m_glTileHalfHeight, 0);
+    glVertex3f(m_glTileHalfWidth - (m_glTileHalfWidth/6.0f), m_glTileHalfHeight, 0);
+    glVertex3f(m_glTileHalfWidth, m_glTileHalfHeight, 0);
+    glVertex3f(m_glTileHalfWidth, -m_glTileHalfHeight, 0);
     glEnd();
     glPopMatrix();
     glPushMatrix();
     glBegin(GL_QUADS);
-    glVertex3f(TILEHALFSIZE - (TILEHALFSIZE/3.0f), -TILEHALFSIZE/8.0f, 0);
-    glVertex3f(TILEHALFSIZE - (TILEHALFSIZE/3.0f), TILEHALFSIZE/8.0f, 0);
-    glVertex3f(TILEHALFSIZE, TILEHALFSIZE/8.0f, 0);
-    glVertex3f(TILEHALFSIZE, -TILEHALFSIZE/8.0f, 0);
+    glVertex3f(m_glTileHalfWidth - (m_glTileHalfWidth/3.0f), -m_glTileHalfHeight/8.0f, 0);
+    glVertex3f(m_glTileHalfWidth - (m_glTileHalfWidth/3.0f), m_glTileHalfHeight/8.0f, 0);
+    glVertex3f(m_glTileHalfWidth, m_glTileHalfHeight/8.0f, 0);
+    glVertex3f(m_glTileHalfWidth, -m_glTileHalfHeight/8.0f, 0);
     glEnd();
     glPopMatrix();
 }
@@ -553,18 +562,18 @@ void MapOpenGLWidget::drawBlockBorderBottom() {
     glBindTexture(GL_TEXTURE_2D, 0);
     glPushMatrix();
     glBegin(GL_QUADS);
-    glVertex3f(TILEHALFSIZE, -TILEHALFSIZE + (TILEHALFSIZE /6.0f), 0);
-    glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE + (TILEHALFSIZE/6.0f), 0);
+    glVertex3f(m_glTileHalfWidth, -m_glTileHalfHeight + (m_glTileHalfHeight /6.0f), 0);
+    glVertex3f(m_glTileHalfWidth, -m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, -m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, -m_glTileHalfHeight + (m_glTileHalfHeight/6.0f), 0);
     glEnd();
     glPopMatrix();
     glPushMatrix();
     glBegin(GL_QUADS);
-    glVertex3f(TILEHALFSIZE/8.0f, -TILEHALFSIZE + (TILEHALFSIZE /3.0f), 0);
-    glVertex3f(TILEHALFSIZE/8.0f, -TILEHALFSIZE, 0);
-    glVertex3f(-(TILEHALFSIZE/8.0f), -TILEHALFSIZE, 0);
-    glVertex3f(-(TILEHALFSIZE/8.0f), -TILEHALFSIZE + (TILEHALFSIZE/3.0f), 0);
+    glVertex3f(m_glTileHalfWidth/8.0f, -m_glTileHalfHeight + (m_glTileHalfHeight /3.0f), 0);
+    glVertex3f(m_glTileHalfWidth/8.0f, -m_glTileHalfHeight, 0);
+    glVertex3f(-(m_glTileHalfWidth/8.0f), -m_glTileHalfHeight, 0);
+    glVertex3f(-(m_glTileHalfWidth/8.0f), -m_glTileHalfHeight + (m_glTileHalfHeight/3.0f), 0);
     glEnd();
     glPopMatrix();
 }
@@ -575,8 +584,8 @@ int MapOpenGLWidget::getTileIndex(int onScreenX, int onScreenY) {
     if (onScreenY / static_cast<int>(ONSCREENTILESIZE) > static_cast<int>(m_currentMap->getHeight()) - 1) {
         return -1;
     }
-    int x = onScreenX - static_cast<int>(m_translationX * TRANSLATIONTOPIXEL * static_cast<float>(ONSCREENTILESIZE));
-    int y = onScreenY + static_cast<int>(m_translationY * TRANSLATIONTOPIXEL * static_cast<float>(ONSCREENTILESIZE));
+    int x = onScreenX - static_cast<int>(m_translationX * m_translationXToPixel * static_cast<float>(ONSCREENTILESIZE));
+    int y = onScreenY + static_cast<int>(m_translationY * m_translationYToPixel * static_cast<float>(ONSCREENTILESIZE));
     int indexX = x / static_cast<int>(ONSCREENTILESIZE);
     int indexY = y / static_cast<int>(ONSCREENTILESIZE);
     int tileIndex { indexX + (indexY * static_cast<int>(m_currentMap->getWidth())) };
@@ -587,11 +596,11 @@ int MapOpenGLWidget::getTileIndex(int onScreenX, int onScreenY) {
 }
 
 glm::vec2 MapOpenGLWidget::convertScreenCoordToGlCoord(QPoint coord) const {
-    float x = static_cast<float>(coord.x()) - ((m_translationX / TRANSLATIONTOPIXEL / static_cast<float>(ONSCREENTILESIZE)) * static_cast<float>(ONSCREENTILESIZE));
-    float y = static_cast<float>(coord.y()) + ((m_translationY / TRANSLATIONTOPIXEL / static_cast<float>(ONSCREENTILESIZE)) * static_cast<float>(ONSCREENTILESIZE));
+    float x = static_cast<float>(coord.x()) - ((m_translationX / m_translationXToPixel / static_cast<float>(ONSCREENTILESIZE)) * static_cast<float>(ONSCREENTILESIZE));
+    float y = static_cast<float>(coord.y()) + ((m_translationY / m_translationYToPixel / static_cast<float>(ONSCREENTILESIZE)) * static_cast<float>(ONSCREENTILESIZE));
     glm::vec2 retVal;
-    retVal.x = x / TRANSLATIONTOPIXEL / static_cast<float>(ONSCREENTILESIZE);
-    retVal.y = y / TRANSLATIONTOPIXEL / static_cast<float>(ONSCREENTILESIZE);
+    retVal.x = x / m_translationXToPixel / static_cast<float>(ONSCREENTILESIZE);
+    retVal.y = y / m_translationYToPixel / static_cast<float>(ONSCREENTILESIZE);
     return retVal;
 }
 
