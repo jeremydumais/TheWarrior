@@ -169,7 +169,7 @@ void MainForm_GLComponent::resizeMap(int offsetLeft,
             offsetBottom);
 }
 
-void MainForm_GLComponent::onTileClicked(int tileIndex) {
+void MainForm_GLComponent::onTileClicked(int tileIndex, int, int) {
     if (m_glWidget->getSelectionMode() == SelectionMode::Select && tileIndex != -1) {
         m_currentMapTile = nullptr;
         auto tempTile { &m_controller.getMap()->getTileForEditing(tileIndex) };

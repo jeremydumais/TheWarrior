@@ -78,6 +78,8 @@ void MapOpenGLWidget::paintGL() {
 }
 
 void MapOpenGLWidget::resizeGL(int width, int height) {
+    m_width = width;
+    m_height = height;
     glViewport(0, 0, width, height);
 
     glMatrixMode(GL_PROJECTION);
@@ -97,6 +99,17 @@ void MapOpenGLWidget::resizeGL(int width, int height) {
     m_glTileHalfHeight = m_glTileHeight / 2.0F;
     m_translationXToPixel = static_cast<float>(width) / static_cast<float>(ONSCREENTILESIZE) / 4.0F;
     m_translationYToPixel = static_cast<float>(height) / static_cast<float>(ONSCREENTILESIZE) / 4.0F;
+    m_translationX = m_translationXGL / m_translationXToPixel;
+    m_translationY = m_translationYGL / m_translationYToPixel;
+    ResizeGLComponentInfo info {
+        .componentWidth = width,
+        .componentHeight = height,
+        .glTileWidth = m_glTileWidth,
+        .glTileHeight = m_glTileHeight,
+        .translationXToPixel = m_translationXToPixel,
+        .translationYToPixel = m_translationYToPixel
+    };
+    emit onResize(info);
 }
 
 const std::string& MapOpenGLWidget::getResourcesPath() const {
@@ -191,12 +204,15 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event) {
     m_translationDragAndDropX = 0;
     m_translationY += m_translationDragAndDropY;
     m_translationDragAndDropY = 0;
+    m_translationXGL = m_translationX * m_translationXToPixel;
+    m_translationYGL = m_translationY * m_translationYToPixel;
+    emit onMapMoved(m_translationX, m_translationY);
     if (m_selectionMode == SelectionMode::Select) {
         // Found which tile was clicked
         m_selectedTileIndex = getTileIndex(m_lastCursorPosition.x(), m_lastCursorPosition.y());
         m_selectedTileColor = 150;
         m_selectedTileColorGrowing = true;
-        emit onTileClicked(m_selectedTileIndex);
+        emit onTileClicked(m_selectedTileIndex, event->x(), event->y());
     } else if (isMultiTileSelectionMode()) {
         // Calculate the list of index selected
         std::set<int> selectedTileIndexes;
@@ -279,7 +295,7 @@ void MapOpenGLWidget::updateCursor() {
             m_selectionMode == SelectionMode::ViewBorderMode) {
         setCursor(m_mousePressed ? Qt::ClosedHandCursor : Qt::OpenHandCursor);
     } else if (m_selectionMode == SelectionMode::Select) {
-        setCursor(Qt::PointingHandCursor);
+        setCursor(Qt::ArrowCursor);
     } else if (isMultiTileSelectionMode()) {
         setCursor(Qt::CrossCursor);
     } else {
@@ -291,8 +307,8 @@ void MapOpenGLWidget::draw() {
     glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
     glEnable(GL_TEXTURE_2D);
 
-    float x { -1.9F };
-    float y { 1.9F };
+    float x { -2.0F + m_glTileHalfWidth };
+    float y { 2.0F - m_glTileHalfHeight  };
     glTranslatef(x, y, 0.0F);
     glPushMatrix();
     glTranslatef(m_translationX + m_translationDragAndDropX, m_translationY + m_translationDragAndDropY, 0.0F);

@@ -8,6 +8,7 @@
 #include <vector>
 #include "gameMap.hpp"
 #include "mainController.hpp"
+#include "components/mainForm_DebugInfoComponent.hpp"
 #include "components/mainForm_GLComponent.hpp"
 #include "components/mainForm_MapTabComponent.hpp"
 #include "components/mainForm_MonsterZoneTabComponent.hpp"
@@ -38,6 +39,7 @@ Q_OBJECT
     MainForm_MonsterZoneTabComponent m_monsterZoneTabComponent;
     MainForm_TextureListTabComponent m_textureListTabComponent;
     MainForm_TextureSelectionComponent m_textureSelectionComponent;
+    MainForm_DebugInfoComponent m_debugInfoComponent;
     mapeditor::controllers::MainController m_controller;
     std::shared_ptr<QComboBox> comboBoxToolbarMonsterZone = nullptr;
     std::shared_ptr<QLabel> labelToolbarMonsterZoneColor = nullptr;

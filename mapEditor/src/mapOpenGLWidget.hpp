@@ -13,6 +13,15 @@
 #include "gameMap.hpp"
 #include "selectionMode.hpp"
 
+struct ResizeGLComponentInfo {
+    int componentWidth;
+    int componentHeight;
+    float glTileWidth;
+    float glTileHeight;
+    float translationXToPixel;
+    float translationYToPixel;
+};
+
 class MapOpenGLWidget : public QOpenGLWidget {
     Q_OBJECT
 
@@ -44,6 +53,8 @@ class MapOpenGLWidget : public QOpenGLWidget {
 
  private:
     QTimer m_repaintTimer;
+    int m_width = 0;
+    int m_height = 0;
     bool m_isGridEnabled;
     SelectionMode m_selectionMode;
     std::string m_resourcesPath;
@@ -67,6 +78,8 @@ class MapOpenGLWidget : public QOpenGLWidget {
     const unsigned int ONSCREENTILESIZE { 40 };
     float m_translationXToPixel { 5.75F };
     float m_translationYToPixel { 5.75F };
+    float m_translationXGL { 0.0F };
+    float m_translationYGL { 0.0F };
     const float TILESPACING { 0.0F };
     bool isMultiTileSelectionMode() const;
     void updateCursor();
@@ -84,9 +97,11 @@ class MapOpenGLWidget : public QOpenGLWidget {
     void updateSelectedTileColor();
 
  signals:
-    void onTileClicked(int tileIndex);
+    void onResize(ResizeGLComponentInfo info);
+    void onTileClicked(int tileIndex, int screenX, int screenY);
     void onTileMouseReleaseEvent(std::set<int> tileIndex);
     void onTileMouseMoveEvent(bool mousePressed, int tileIndex);
+    void onMapMoved(float translationX, float translationY);
 };
 
 #endif  // MAPEDITOR_SRC_MAPOPENGLWIDGET_HPP_

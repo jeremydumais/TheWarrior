@@ -1,8 +1,7 @@
 #include "mainForm_MapTabComponent.hpp"
 #include "errorMessage.hpp"
 
-using namespace std;
-using namespace commoneditor::ui;
+using commoneditor::ui::ErrorMessage;
 
 MainForm_MapTabComponent::MainForm_MapTabComponent()
     : m_glComponent(nullptr),
@@ -12,12 +11,10 @@ MainForm_MapTabComponent::MainForm_MapTabComponent()
     m_spinBoxMapSizeLeft(nullptr),
     m_spinBoxMapSizeRight(nullptr),
     m_spinBoxMapSizeBottom(nullptr),
-    m_pushButtonApplySizeChange(nullptr)
-{
+    m_pushButtonApplySizeChange(nullptr) {
 }
 
-void MainForm_MapTabComponent::initializeUIObjects(const MainForm_MapTabComponent_Objects &objects)
-{
+void MainForm_MapTabComponent::initializeUIObjects(const MainForm_MapTabComponent_Objects &objects) {
     this->m_glComponent = objects.glComponent;
     this->m_lineEditMapWidth = objects.lineEditMapWidth;
     this->m_lineEditMapHeight = objects.lineEditMapHeight;
@@ -28,23 +25,20 @@ void MainForm_MapTabComponent::initializeUIObjects(const MainForm_MapTabComponen
     this->m_pushButtonApplySizeChange = objects.pushButtonApplySizeChange;
 }
 
-void MainForm_MapTabComponent::connectUIActions()
-{
+void MainForm_MapTabComponent::connectUIActions() {
     connect(m_pushButtonApplySizeChange, &QPushButton::clicked, this, &MainForm_MapTabComponent::onPushButtonApplySizeChangeClick);
 }
 
-void MainForm_MapTabComponent::reset()
-{
-    this->m_lineEditMapWidth->setText(to_string(m_glComponent->getMapWidth()).c_str());
-    this->m_lineEditMapHeight->setText(to_string(m_glComponent->getMapHeight()).c_str());
+void MainForm_MapTabComponent::reset() {
+    this->m_lineEditMapWidth->setText(std::to_string(m_glComponent->getMapWidth()).c_str());
+    this->m_lineEditMapHeight->setText(std::to_string(m_glComponent->getMapHeight()).c_str());
     this->m_spinBoxMapSizeLeft->setValue(0);
     this->m_spinBoxMapSizeTop->setValue(0);
     this->m_spinBoxMapSizeRight->setValue(0);
     this->m_spinBoxMapSizeBottom->setValue(0);
 }
 
-void MainForm_MapTabComponent::onPushButtonApplySizeChangeClick()
-{
+void MainForm_MapTabComponent::onPushButtonApplySizeChangeClick() {
     int offsetLeft { m_spinBoxMapSizeLeft->value() };
     int offsetTop { m_spinBoxMapSizeTop->value() };
     int offsetRight { m_spinBoxMapSizeRight->value() };
@@ -53,7 +47,7 @@ void MainForm_MapTabComponent::onPushButtonApplySizeChangeClick()
             offsetTop < 0 ||
             offsetRight < 0 ||
             offsetBottom < 0) {
-        //Check if there's tiles that are already assigned in the ones we will remove
+        // Check if there's tiles that are already assigned in the ones we will remove
         if (m_glComponent->isShrinkMapImpactAssignedTiles(offsetLeft,
                     offsetTop,
                     offsetRight,
@@ -63,16 +57,14 @@ void MainForm_MapTabComponent::onPushButtonApplySizeChangeClick()
             return;
         }
     }
-    //Apply new size
+    // Apply new size
     try {
         m_glComponent->resizeMap(offsetLeft,
                 offsetTop,
                 offsetRight,
                 offsetBottom);
         reset();
-
-    }
-    catch(invalid_argument &err) {
+    } catch(std::invalid_argument &err) {
         ErrorMessage::show(err.what());
     }
 }

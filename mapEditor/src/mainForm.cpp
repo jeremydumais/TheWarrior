@@ -12,6 +12,7 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/filesystem.hpp>
 #include "aboutBoxForm.hpp"
+#include "components/mainForm_DebugInfoComponent.hpp"
 #include "components/mainForm_MonsterZoneTabComponent.hpp"
 #include "configurationManager.hpp"
 #include "errorMessage.hpp"
@@ -132,6 +133,11 @@ MainForm::MainForm(QWidget *parent,
     textureSelectionUIObjects.pushButtonSelectedObjectClear = ui.pushButtonSelectedObjectClear;
     textureSelectionUIObjects.labelImageTexture = ui.labelImageTexture;
     m_textureSelectionComponent.initializeUIObjects(textureSelectionUIObjects);
+    // DebugInfo Component initialization
+    MainForm_DebugInfoComponent_Objects debugInfoUIObjects;
+    debugInfoUIObjects.tableWidgetDebugInfo = ui.tableWidgetDebugInfo;
+    debugInfoUIObjects.mapOpenGLWidget = ui.mapOpenGLWidget;
+    m_debugInfoComponent.initializeUIObjects(debugInfoUIObjects);
 
     labelToolbarMonsterZoneColor = std::make_shared<QLabel>(this);
     labelToolbarMonsterZoneColor->setFixedWidth(40);
@@ -198,6 +204,7 @@ void MainForm::connectUIActions() {
     m_monsterZoneTabComponent.connectUIActions();
     m_textureListTabComponent.connectUIActions();
     m_textureSelectionComponent.connectUIActions();
+    m_debugInfoComponent.connectUIActions();
     connect(&m_glComponent, &MainForm_GLComponent::tileSelected, this, &MainForm::onTileSelected);
     connect(&m_textureListTabComponent, &MainForm_TextureListTabComponent::textureAdded, this, &MainForm::onTextureAdded);
     connect(&m_textureListTabComponent, &MainForm_TextureListTabComponent::textureUpdated, this, &MainForm::onTextureUpdated);
@@ -364,16 +371,7 @@ void MainForm::action_BlockBottomBorderClick() {
 }
 
 void MainForm::action_ClearBlockedBordersClick() {
-    // HACK: To remove before commit code
-    // m_glComponent.setSelectionMode(SelectionMode::ClearBlockedBorders);
-    if (ui.mapOpenGLWidget->height() == 800) {
-        ui.mapOpenGLWidget->setMaximumSize(920, 920);
-        ui.mapOpenGLWidget->setMinimumSize(920, 920);
-
-    } else {
-        ui.mapOpenGLWidget->setMaximumSize(920, 800);
-        ui.mapOpenGLWidget->setMinimumSize(920, 800);
-    }
+     m_glComponent.setSelectionMode(SelectionMode::ClearBlockedBorders);
 }
 
 void MainForm::onComboBoxToolbarMonsterZoneCurrentIndexChanged() {

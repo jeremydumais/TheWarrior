@@ -6,8 +6,7 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QWidget>
 
-struct MainForm_MapTabComponent_Objects
-{
+struct MainForm_MapTabComponent_Objects {
     MainForm_GLComponent *glComponent = nullptr;
     QLineEdit *lineEditMapWidth = nullptr;
     QLineEdit *lineEditMapHeight = nullptr;
@@ -18,16 +17,15 @@ struct MainForm_MapTabComponent_Objects
     QPushButton *pushButtonApplySizeChange = nullptr;
 };
 
-class MainForm_MapTabComponent : public QWidget
-{
-    Q_OBJECT
-public:
+class MainForm_MapTabComponent : public QWidget {
+Q_OBJECT
+ public:
     MainForm_MapTabComponent();
     void initializeUIObjects(const MainForm_MapTabComponent_Objects &objects);
     void connectUIActions();
     void reset();
-signals:
-private:
+
+ private:
     MainForm_GLComponent *m_glComponent;
     QLineEdit *m_lineEditMapWidth;
     QLineEdit *m_lineEditMapHeight;
@@ -36,5 +34,5 @@ private:
     QSpinBox *m_spinBoxMapSizeRight;
     QSpinBox *m_spinBoxMapSizeBottom;
     QPushButton *m_pushButtonApplySizeChange;
-	void onPushButtonApplySizeChangeClick();
+    void onPushButtonApplySizeChangeClick();
 };
