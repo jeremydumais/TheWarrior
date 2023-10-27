@@ -165,6 +165,8 @@ MainForm::MainForm(QWidget *parent,
     refreshTextureList();
     refreshMonsterZones();
     m_mapTabComponent.reset();
+    ui.dockWidgetDebugInfo->hide();
+    action_SelectClick();
 }
 
 void MainForm::connectUIActions() {
@@ -178,6 +180,9 @@ void MainForm::connectUIActions() {
     connect(ui.action_RecentMap5, &QAction::triggered, this, &MainForm::action_OpenRecentMap_Click);
     connect(ui.action_Save, &QAction::triggered, this, &MainForm::action_Save_Click);
     connect(ui.action_SaveAs, &QAction::triggered, this, &MainForm::action_SaveAs_Click);
+    connect(ui.actionView_MapConfiguration, &QAction::triggered, this, &MainForm::toggleViewMapConfiguration);
+    connect(ui.actionView_TextureSelection, &QAction::triggered, this, &MainForm::toggleViewTextureSelection);
+    connect(ui.actionView_DebuggingInfo, &QAction::triggered, this, &MainForm::toggleViewDebuggingInfo);
     connect(ui.action_LightTheme, &QAction::triggered, this, &MainForm::action_LightTheme_Click);
     connect(ui.action_DarkTheme, &QAction::triggered, this, &MainForm::action_DarkTheme_Click);
     connect(ui.action_DisplayGrid, &QAction::triggered, this, &MainForm::action_DisplayGrid_Click);
@@ -198,6 +203,9 @@ void MainForm::connectUIActions() {
     connect(comboBoxToolbarMonsterZone.get(), static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm::onComboBoxToolbarMonsterZoneCurrentIndexChanged);
     connect(ui.action_ApplyMonsterZone, &QAction::triggered, this, &MainForm::action_ApplyMonsterZone);
     connect(ui.action_ClearMonsterZone, &QAction::triggered, this, &MainForm::action_ClearMonsterZone);
+    connect(ui.dockWidgetMapConfig, &QDockWidget::visibilityChanged, this, &MainForm::widgetMapConfigVisibilityChanged);
+    connect(ui.dockWidgetTextureSelection, &QDockWidget::visibilityChanged, this, &MainForm::widgetTextureSelectionVisibilityChanged);
+    connect(ui.dockWidgetDebugInfo, &QDockWidget::visibilityChanged, this, &MainForm::widgetDebugInfoVisibilityChanged);
     m_glComponent.connectUIActions();
     m_mapTabComponent.connectUIActions();
     m_tileTabComponent.connectUIActions();
@@ -282,6 +290,18 @@ void MainForm::action_About_Click() {
     aboutBoxForm.exec();
 }
 
+void MainForm::toggleViewMapConfiguration() {
+    ui.dockWidgetMapConfig->setVisible(!ui.dockWidgetMapConfig->isVisible());
+}
+
+void MainForm::toggleViewTextureSelection() {
+    ui.dockWidgetTextureSelection->setVisible(!ui.dockWidgetTextureSelection->isVisible());
+}
+
+void MainForm::toggleViewDebuggingInfo() {
+    ui.dockWidgetDebugInfo->setVisible(!ui.dockWidgetDebugInfo->isVisible());
+}
+
 void MainForm::action_LightTheme_Click() {
     ConfigurationManager configManager(m_controller.getUserConfigFolder() + "config.json");
     if (configManager.load()) {
@@ -327,51 +347,80 @@ void MainForm::action_ManageMonsterStore_Click() {
     m_controller.loadConfiguredMonsterStores();
 }
 
+void MainForm::setActiveToolbarActionChecked(SelectionMode mode) {
+    ui.action_Select->setChecked(mode == SelectionMode::Select);
+    ui.action_MoveMap->setChecked(mode == SelectionMode::MoveMap);
+    ui.action_ApplyTexture->setChecked(mode == SelectionMode::ApplyTexture);
+    ui.action_ApplyObject->setChecked(mode == SelectionMode::ApplyObject);
+    ui.action_EnableCanStep->setChecked(mode == SelectionMode::EnableCanStep);
+    ui.action_DisableCanStep->setChecked(mode == SelectionMode::DisableCanStep);
+    ui.action_ViewBorderMode->setChecked(mode == SelectionMode::ViewBorderMode);
+    ui.action_BlockLeftBorder->setChecked(mode == SelectionMode::BlockBorderLeft);
+    ui.action_BlockTopBorder->setChecked(mode == SelectionMode::BlockBorderTop);
+    ui.action_BlockRightBorder->setChecked(mode == SelectionMode::BlockBorderRight);
+    ui.action_BlockBottomBorder->setChecked(mode == SelectionMode::BlockBorderBottom);
+    ui.action_ClearBlockedBorders->setChecked(mode == SelectionMode::ClearBlockedBorders);
+    ui.action_ApplyMonsterZone->setChecked(mode == SelectionMode::ApplyMonsterZone);
+    ui.action_ClearMonsterZone->setChecked(mode == SelectionMode::ClearMonsterZone);
+}
+
 void MainForm::action_SelectClick() {
     m_glComponent.setSelectionMode(SelectionMode::Select);
+    setActiveToolbarActionChecked(SelectionMode::Select);
 }
 
 void MainForm::action_MoveMapClick() {
     m_glComponent.setSelectionMode(SelectionMode::MoveMap);
+    setActiveToolbarActionChecked(SelectionMode::MoveMap);
 }
 
 void MainForm::action_ApplyTextureClick() {
     m_glComponent.setSelectionMode(SelectionMode::ApplyTexture);
+    setActiveToolbarActionChecked(SelectionMode::ApplyTexture);
 }
 
 void MainForm::action_ApplyObjectClick() {
     m_glComponent.setSelectionMode(SelectionMode::ApplyObject);
+    setActiveToolbarActionChecked(SelectionMode::ApplyObject);
 }
 
 void MainForm::action_EnableCanStepClick() {
     m_glComponent.setSelectionMode(SelectionMode::EnableCanStep);
+    setActiveToolbarActionChecked(SelectionMode::EnableCanStep);
 }
 
 void MainForm::action_DisableCanStepClick() {
     m_glComponent.setSelectionMode(SelectionMode::DisableCanStep);
+    setActiveToolbarActionChecked(SelectionMode::DisableCanStep);
 }
 
 void MainForm::action_ViewBorderModeClick() {
     m_glComponent.setSelectionMode(SelectionMode::ViewBorderMode);
+    setActiveToolbarActionChecked(SelectionMode::ViewBorderMode);
 }
 
 void MainForm::action_BlockLeftBorderClick() {
     m_glComponent.setSelectionMode(SelectionMode::BlockBorderLeft);
+    setActiveToolbarActionChecked(SelectionMode::BlockBorderLeft);
 }
 
 void MainForm::action_BlockTopBorderClick() {
     m_glComponent.setSelectionMode(SelectionMode::BlockBorderTop);
+    setActiveToolbarActionChecked(SelectionMode::BlockBorderTop);
 }
 
 void MainForm::action_BlockRightBorderClick() {
     m_glComponent.setSelectionMode(SelectionMode::BlockBorderRight);
+    setActiveToolbarActionChecked(SelectionMode::BlockBorderRight);
 }
 void MainForm::action_BlockBottomBorderClick() {
     m_glComponent.setSelectionMode(SelectionMode::BlockBorderBottom);
+    setActiveToolbarActionChecked(SelectionMode::BlockBorderBottom);
 }
 
 void MainForm::action_ClearBlockedBordersClick() {
-     m_glComponent.setSelectionMode(SelectionMode::ClearBlockedBorders);
+    m_glComponent.setSelectionMode(SelectionMode::ClearBlockedBorders);
+    setActiveToolbarActionChecked(SelectionMode::ClearBlockedBorders);
 }
 
 void MainForm::onComboBoxToolbarMonsterZoneCurrentIndexChanged() {
@@ -390,10 +439,12 @@ void MainForm::onComboBoxToolbarMonsterZoneCurrentIndexChanged() {
 
 void MainForm::action_ApplyMonsterZone() {
     m_glComponent.setSelectionMode(SelectionMode::ApplyMonsterZone);
+    setActiveToolbarActionChecked(SelectionMode::ApplyMonsterZone);
 }
 
 void MainForm::action_ClearMonsterZone() {
     m_glComponent.setSelectionMode(SelectionMode::ClearMonsterZone);
+    setActiveToolbarActionChecked(SelectionMode::ClearMonsterZone);
 }
 
 void MainForm::openMap(const std::string &filePath) {
@@ -518,6 +569,18 @@ void MainForm::resizeEvent(QResizeEvent *) {
     ui.mapOpenGLWidget->resizeGL(ui.mapOpenGLWidget->width(), ui.mapOpenGLWidget->height());
 }
 
+void MainForm::widgetMapConfigVisibilityChanged(bool visible) {
+    ui.actionView_MapConfiguration->setChecked(visible);
+}
+
+void MainForm::widgetTextureSelectionVisibilityChanged(bool visible) {
+    ui.actionView_TextureSelection->setChecked(visible);
+}
+
+void MainForm::widgetDebugInfoVisibilityChanged(bool visible) {
+    ui.actionView_DebuggingInfo->setChecked(visible);
+}
+
 void MainForm::onTileSelected(MapTile *, Point<>) {
     ui.toolBox->setCurrentWidget(ui.page_TileProperties);
 }
@@ -618,3 +681,4 @@ void MainForm::useOnlyOneMonsterZoneChanged(bool) {
         m_glComponent.setSelectionMode(SelectionMode::Select);
     }
 }
+

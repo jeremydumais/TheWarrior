@@ -84,10 +84,11 @@ void MapOpenGLWidget::resizeGL(int width, int height) {
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
+    const float HALFGLORTHOSIZE = GLORTHOSIZE / 2.0F;
 #ifdef QT_OPENGL_ES_1
-    glOrthof(-2, +2, -2, +2, 1.0, 15.0);
+    glOrthof(-HALFGLORTHOSIZE, HALFGLORTHOSIZE, -HALFGLORTHOSIZE, HALFGLORTHOSIZE, 1.0, 15.0);
 #else
-    glOrtho(-2, +2, -2, +2, 1.0, 15.0);
+    glOrtho(-HALFGLORTHOSIZE, HALFGLORTHOSIZE, -HALFGLORTHOSIZE, HALFGLORTHOSIZE, 1.0, 15.0);
 #endif
     glMatrixMode(GL_MODELVIEW);
 
@@ -97,8 +98,8 @@ void MapOpenGLWidget::resizeGL(int width, int height) {
     m_glTileHeight = static_cast<float>(height) / 10.0F / nbOfTilesForHeight / nbOfTilesForHeight;
     m_glTileHalfWidth = m_glTileWidth / 2.0F;
     m_glTileHalfHeight = m_glTileHeight / 2.0F;
-    m_translationXToPixel = static_cast<float>(width) / static_cast<float>(ONSCREENTILESIZE) / 4.0F;
-    m_translationYToPixel = static_cast<float>(height) / static_cast<float>(ONSCREENTILESIZE) / 4.0F;
+    m_translationXToPixel = static_cast<float>(width) / static_cast<float>(ONSCREENTILESIZE) / GLORTHOSIZE;
+    m_translationYToPixel = static_cast<float>(height) / static_cast<float>(ONSCREENTILESIZE) / GLORTHOSIZE;
     m_translationX = m_translationXGL / m_translationXToPixel;
     m_translationY = m_translationYGL / m_translationYToPixel;
     ResizeGLComponentInfo info {
@@ -184,6 +185,8 @@ void MapOpenGLWidget::resetMapMovePosition() {
     m_translationY = 0.0F;
     m_translationDragAndDropX = 0.0F;
     m_translationDragAndDropY = 0.0F;
+    m_translationXGL = 0.0F;
+    m_translationYGL = 0.0F;
 }
 
 void MapOpenGLWidget::mousePressEvent(QMouseEvent *event) {
@@ -307,8 +310,8 @@ void MapOpenGLWidget::draw() {
     glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
     glEnable(GL_TEXTURE_2D);
 
-    float x { -2.0F + m_glTileHalfWidth };
-    float y { 2.0F - m_glTileHalfHeight  };
+    float x { -(GLORTHOSIZE / 2.0F) + m_glTileHalfWidth };
+    float y { (GLORTHOSIZE / 2.0F) - m_glTileHalfHeight  };
     glTranslatef(x, y, 0.0F);
     glPushMatrix();
     glTranslatef(m_translationX + m_translationDragAndDropX, m_translationY + m_translationDragAndDropY, 0.0F);

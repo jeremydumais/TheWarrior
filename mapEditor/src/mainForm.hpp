@@ -2,6 +2,7 @@
 #define MAPEDITOR_SRC_MAINFORM_HPP_
 
 #include <qcombobox.h>
+#include <qevent.h>
 #include <qlabel.h>
 #include <memory>
 #include <string>
@@ -53,11 +54,15 @@ Q_OBJECT
     void action_Save_Click();
     void action_SaveAs_Click();
     void action_About_Click();
+    void toggleViewMapConfiguration();
+    void toggleViewTextureSelection();
+    void toggleViewDebuggingInfo();
     void action_LightTheme_Click();
     void action_DarkTheme_Click();
     void action_DisplayGrid_Click();
     void action_ManageItemStore_Click();
     void action_ManageMonsterStore_Click();
+    void setActiveToolbarActionChecked(SelectionMode mode);
     void action_SelectClick();
     void action_MoveMapClick();
     void action_ApplyTextureClick();
@@ -80,6 +85,9 @@ Q_OBJECT
     void addNewRecentMap(const std::string &filePath);
     void mapPaint(QPaintEvent *e);
     void resizeEvent(QResizeEvent *) override;
+    void widgetMapConfigVisibilityChanged(bool visible);
+    void widgetTextureSelectionVisibilityChanged(bool visible);
+    void widgetDebugInfoVisibilityChanged(bool visible);
     void onTileSelected(thewarrior::models::MapTile *tile, thewarrior::models::Point<> coord);
     void onTextureAdded(thewarrior::models::TextureInfo textureInfo);
     void onTextureUpdated(const std::string &name, thewarrior::models::TextureInfo textureInfo);

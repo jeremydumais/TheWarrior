@@ -352,7 +352,7 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>555</width>
+          <width>300</width>
           <height>708</height>
          </rect>
         </property>
@@ -556,7 +556,7 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>555</width>
+          <width>300</width>
           <height>708</height>
          </rect>
         </property>
@@ -611,7 +611,7 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>555</width>
+          <width>300</width>
           <height>708</height>
          </rect>
         </property>
@@ -666,7 +666,7 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>555</width>
+          <width>300</width>
           <height>708</height>
          </rect>
         </property>
@@ -921,8 +921,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>243</width>
-            <height>560</height>
+            <width>283</width>
+            <height>298</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_2">
@@ -1042,6 +1042,9 @@
    </property>
   </action>
   <action name="action_Select">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/selection.png</normaloff>:/selection.png</iconset>
@@ -1054,6 +1057,9 @@
    </property>
   </action>
   <action name="action_MoveMap">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/move.png</normaloff>:/move.png</iconset>
@@ -1063,6 +1069,9 @@
    </property>
   </action>
   <action name="action_ApplyTexture">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/texture.png</normaloff>:/texture.png</iconset>
@@ -1072,6 +1081,9 @@
    </property>
   </action>
   <action name="action_ApplyObject">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/object.png</normaloff>:/object.png</iconset>
@@ -1156,6 +1168,9 @@
    </property>
   </action>
   <action name="action_EnableCanStep">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/canStepOn.png</normaloff>:/canStepOn.png</iconset>
@@ -1168,6 +1183,12 @@
    </property>
   </action>
   <action name="action_DisableCanStep">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/cannotStepOn.png</normaloff>:/cannotStepOn.png</iconset>
@@ -1180,6 +1201,9 @@
    </property>
   </action>
   <action name="action_BlockLeftBorder">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/blockLeftBorder.png</normaloff>:/blockLeftBorder.png</iconset>
@@ -1192,6 +1216,9 @@
    </property>
   </action>
   <action name="action_BlockTopBorder">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/blockTopBorder.png</normaloff>:/blockTopBorder.png</iconset>
@@ -1204,6 +1231,9 @@
    </property>
   </action>
   <action name="action_BlockRightBorder">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/blockRightBorder.png</normaloff>:/blockRightBorder.png</iconset>
@@ -1216,6 +1246,9 @@
    </property>
   </action>
   <action name="action_BlockBottomBorder">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/blockBottomBorder.png</normaloff>:/blockBottomBorder.png</iconset>
@@ -1228,6 +1261,9 @@
    </property>
   </action>
   <action name="action_ViewBorderMode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/viewBorderMode.png</normaloff>:/viewBorderMode.png</iconset>
@@ -1240,6 +1276,9 @@
    </property>
   </action>
   <action name="action_ClearBlockedBorders">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/clearBlockBorder.png</normaloff>:/clearBlockBorder.png</iconset>
@@ -1252,6 +1291,9 @@
    </property>
   </action>
   <action name="action_ApplyMonsterZone">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/applyMonsterZone.png</normaloff>:/applyMonsterZone.png</iconset>
@@ -1264,6 +1306,9 @@
    </property>
   </action>
   <action name="action_ClearMonsterZone">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/clearMonsterZone.png</normaloff>:/clearMonsterZone.png</iconset>
@@ -1312,7 +1357,7 @@
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Debugging info</string>

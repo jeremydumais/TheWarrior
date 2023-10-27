@@ -71,6 +71,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
     std::shared_ptr<thewarrior::models::GameMap> m_currentMap;
     QPoint m_lastCursorPosition;
     QPoint m_currentCursorPosition;
+    const float GLORTHOSIZE { 4.0F };
     float m_glTileWidth { 0.1739F };
     float m_glTileHeight { 0.1739F };
     float m_glTileHalfWidth { m_glTileWidth / 2.0F };
