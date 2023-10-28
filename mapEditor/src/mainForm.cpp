@@ -8,13 +8,13 @@
 #include <fmt/format.h>
 #include <algorithm>
 #include <fstream>
+#include <memory>
 #include <boost/algorithm/string.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/filesystem.hpp>
 #include "aboutBoxForm.hpp"
 #include "components/mainForm_DebugInfoComponent.hpp"
-#include "components/mainForm_MonsterZoneTabComponent.hpp"
 #include "configurationManager.hpp"
 #include "errorMessage.hpp"
 #include "gameMapStorage.hpp"
@@ -106,16 +106,11 @@ MainForm::MainForm(QWidget *parent,
     tileUIObjects.pushButtonDeleteTileEvent = ui.pushButtonDeleteTileEvent;
     m_tileTabComponent.initializeUIObjects(tileUIObjects);
     // MonsterZoneTab Component initialization
-    MainForm_MonsterZoneTabComponent_Objects monsterZoneUIObjects;
-    monsterZoneUIObjects.glComponent = &m_glComponent;
-    monsterZoneUIObjects.tableWidgetMonsterZone = ui.tableWidgetMonsterZone;
-    monsterZoneUIObjects.pushButtonAddMonsterZone = ui.pushButtonAddMonsterZone;
-    monsterZoneUIObjects.pushButtonEditMonsterZone = ui.pushButtonEditMonsterZone;
-    monsterZoneUIObjects.pushButtonDeleteMonsterZone = ui.pushButtonDeleteMonsterZone;
-    monsterZoneUIObjects.checkBoxOneMonsterZoneForAllTheMap = ui.checkBoxOneMonsterZoneForAllTheMap;
-    m_monsterZoneTabComponent.initializeUIObjects(monsterZoneUIObjects);
-    m_monsterZoneTabComponent.setMonsterStores(m_controller.getMonsterStores());
-    m_monsterZoneTabComponent.setResourcesPath(m_controller.getResourcesPath());
+    m_monsterZoneListComponent = std::make_shared<MonsterZoneListComponent>(this,
+            &m_glComponent);
+    m_monsterZoneListComponent->setMonsterStores(m_controller.getMonsterStores());
+    m_monsterZoneListComponent->setResourcesPath(m_controller.getResourcesPath());
+    ui.toolBox->addItem(m_monsterZoneListComponent.get(), "Monster zones");
     // TextureListTab Component initialization
     MainForm_TextureListTabComponent_Objects textureListUIObjects;
     textureListUIObjects.glComponent = &m_glComponent;
@@ -224,7 +219,6 @@ void MainForm::connectUIActions() {
     m_glComponent.connectUIActions();
     m_mapTabComponent.connectUIActions();
     m_tileTabComponent.connectUIActions();
-    m_monsterZoneTabComponent.connectUIActions();
     m_textureListTabComponent.connectUIActions();
     m_textureSelectionComponent.connectUIActions();
     m_debugInfoComponent.connectUIActions();
@@ -232,10 +226,10 @@ void MainForm::connectUIActions() {
     connect(&m_textureListTabComponent, &MainForm_TextureListTabComponent::textureAdded, this, &MainForm::onTextureAdded);
     connect(&m_textureListTabComponent, &MainForm_TextureListTabComponent::textureUpdated, this, &MainForm::onTextureUpdated);
     connect(&m_textureListTabComponent, &MainForm_TextureListTabComponent::textureDeleted, this, &MainForm::onTextureDeleted);
-    connect(&m_monsterZoneTabComponent, &MainForm_MonsterZoneTabComponent::monsterZoneAdded, this, &MainForm::onMonsterZoneAdded);
-    connect(&m_monsterZoneTabComponent, &MainForm_MonsterZoneTabComponent::monsterZoneUpdated, this, &MainForm::onMonsterZoneUpdated);
-    connect(&m_monsterZoneTabComponent, &MainForm_MonsterZoneTabComponent::monsterZoneDeleted, this, &MainForm::onMonsterZoneDeleted);
-    connect(&m_monsterZoneTabComponent, &MainForm_MonsterZoneTabComponent::useOnlyOneMonsterZoneChanged, this, &MainForm::useOnlyOneMonsterZoneChanged);
+    connect(m_monsterZoneListComponent.get(), &MonsterZoneListComponent::monsterZoneAdded, this, &MainForm::onMonsterZoneAdded);
+    connect(m_monsterZoneListComponent.get(), &MonsterZoneListComponent::monsterZoneUpdated, this, &MainForm::onMonsterZoneUpdated);
+    connect(m_monsterZoneListComponent.get(), &MonsterZoneListComponent::monsterZoneDeleted, this, &MainForm::onMonsterZoneDeleted);
+    connect(m_monsterZoneListComponent.get(), &MonsterZoneListComponent::useOnlyOneMonsterZoneChanged, this, &MainForm::useOnlyOneMonsterZoneChanged);
 }
 
 void MainForm::action_Open_Click() {
@@ -440,7 +434,7 @@ void MainForm::action_ClearBlockedBordersClick() {
 
 void MainForm::onComboBoxToolbarMonsterZoneCurrentIndexChanged() {
     const auto zoneName = comboBoxToolbarMonsterZone->currentText().toStdString();
-    const auto colorValue = m_monsterZoneTabComponent.getMonsterZoneColor(zoneName);
+    const auto colorValue = m_monsterZoneListComponent->getMonsterZoneColor(zoneName);
     const auto defaultStyle = "margin-right: 8px; border-radius: 5px; border: 1px solid black";
     if (!colorValue.empty()) {
         labelToolbarMonsterZoneColor->setStyleSheet(fmt::format("background-color: {0}; {1}",
@@ -634,7 +628,7 @@ void MainForm::refreshTextureList() {
 
 void MainForm::onMonsterZoneAdded(MonsterZoneDTO monsterZoneDTO) {
     if (m_controller.addMonsterZone(monsterZoneDTO)) {
-        m_monsterZoneTabComponent.confirmValidityOfOneMonsterZoneCheckBox();
+        m_monsterZoneListComponent->confirmValidityOfOneMonsterZoneCheckBox();
     } else {
         ErrorMessage::show(m_controller.getLastError());
     }
@@ -650,11 +644,11 @@ void MainForm::onMonsterZoneUpdated(const std::string &name, MonsterZoneDTO mons
 
 void MainForm::onMonsterZoneDeleted(const std::string &name) {
     if (m_controller.removeMonsterZone(name)) {
-        m_monsterZoneTabComponent.confirmValidityOfOneMonsterZoneCheckBox();
+        m_monsterZoneListComponent->confirmValidityOfOneMonsterZoneCheckBox();
     } else {
         ErrorMessage::show(m_controller.getLastError());
     }
-    if (m_monsterZoneTabComponent.isMonsterZonesEmpty() &&
+    if (m_monsterZoneListComponent->isMonsterZonesEmpty() &&
             (m_glComponent.getSelectionMode() == SelectionMode::ApplyMonsterZone ||
              m_glComponent.getSelectionMode() == SelectionMode::ClearMonsterZone)) {
         m_glComponent.setSelectionMode(SelectionMode::Select);
@@ -663,12 +657,12 @@ void MainForm::onMonsterZoneDeleted(const std::string &name) {
 }
 
 void MainForm::refreshMonsterZones() {
-    m_monsterZoneTabComponent.refreshMonsterZones();
+    m_monsterZoneListComponent->refreshMonsterZones();
     int selectedComboBoxIndex = comboBoxToolbarMonsterZone->currentIndex();
     // Refresh Monster Zones toolbar combobox
     comboBoxToolbarMonsterZone->model()->removeRows(0, comboBoxToolbarMonsterZone->count());
     int i = 0;
-    for (const auto &zone : m_monsterZoneTabComponent.getMonsterZones()) {
+    for (const auto &zone : m_monsterZoneListComponent->getMonsterZones()) {
         comboBoxToolbarMonsterZone->insertItem(i, zone.m_name.c_str());
         i++;
     }
@@ -685,20 +679,19 @@ void MainForm::refreshMonsterZones() {
 }
 
 void MainForm::toggleMonsterZoneAssignationControls() {
-    const auto &zones = m_monsterZoneTabComponent.getMonsterZones();
-    bool active = zones.size() > 0 && ui.checkBoxOneMonsterZoneForAllTheMap->checkState() != Qt::CheckState::Checked;
+    bool active = !m_monsterZoneListComponent->isMonsterZonesEmpty() &&
+        m_monsterZoneListComponent->isOnlyOneMonsterZoneChecked();
     comboBoxToolbarMonsterZone->setEnabled(active);
     ui.action_ApplyMonsterZone->setEnabled(active);
     ui.action_ClearMonsterZone->setEnabled(active);
-    ui.checkBoxOneMonsterZoneForAllTheMap->setEnabled(zones.size() == 1);
 }
 
 void MainForm::useOnlyOneMonsterZoneChanged(bool) {
     toggleMonsterZoneAssignationControls();
-    if (m_monsterZoneTabComponent.isOnlyOneMonsterZoneChecked() &&
+    if (!m_monsterZoneListComponent->isOnlyOneMonsterZoneChecked() &&
             (m_glComponent.getSelectionMode() == SelectionMode::ApplyMonsterZone ||
              m_glComponent.getSelectionMode() == SelectionMode::ClearMonsterZone)) {
-        m_glComponent.setSelectionMode(SelectionMode::Select);
+        action_SelectClick();
     }
 }
 

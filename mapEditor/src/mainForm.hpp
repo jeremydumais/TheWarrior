@@ -13,7 +13,7 @@
 #include "components/mainForm_DebugInfoComponent.hpp"
 #include "components/mainForm_GLComponent.hpp"
 #include "components/mainForm_MapTabComponent.hpp"
-#include "components/mainForm_MonsterZoneTabComponent.hpp"
+#include "components/monsterZoneListComponent.hpp"
 #include "components/mainForm_TextureListTabComponent.hpp"
 #include "components/mainForm_TextureSelectionComponent.hpp"
 #include "components/mainForm_TileTabComponent.hpp"
@@ -38,7 +38,7 @@ Q_OBJECT
     MainForm_GLComponent m_glComponent;
     MainForm_MapTabComponent m_mapTabComponent;
     MainForm_TileTabComponent m_tileTabComponent;
-    MainForm_MonsterZoneTabComponent m_monsterZoneTabComponent;
+    std::shared_ptr<MonsterZoneListComponent> m_monsterZoneListComponent = nullptr;
     MainForm_TextureListTabComponent m_textureListTabComponent;
     MainForm_TextureSelectionComponent m_textureSelectionComponent;
     MainForm_DebugInfoComponent m_debugInfoComponent;
