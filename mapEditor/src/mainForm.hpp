@@ -5,6 +5,7 @@
 #include <qevent.h>
 #include <qlabel.h>
 #include <memory>
+#include <qslider.h>
 #include <string>
 #include <vector>
 #include "gameMap.hpp"
@@ -44,6 +45,9 @@ Q_OBJECT
     mapeditor::controllers::MainController m_controller;
     std::shared_ptr<QComboBox> comboBoxToolbarMonsterZone = nullptr;
     std::shared_ptr<QLabel> labelToolbarMonsterZoneColor = nullptr;
+    std::shared_ptr<QLabel> labelToolbarZoom = nullptr;
+    std::shared_ptr<QSlider> sliderZoom = nullptr;
+    std::shared_ptr<QLabel> labelToolbarZoomValue = nullptr;
     std::string m_currentFilePath = "";
     bool m_functionAfterShownCalled = false;
     static const std::string THEME_PATH;
@@ -78,6 +82,7 @@ Q_OBJECT
     void onComboBoxToolbarMonsterZoneCurrentIndexChanged();
     void action_ApplyMonsterZone();
     void action_ClearMonsterZone();
+    void sliderZoomValueChanged(int value);
     void openMap(const std::string &filePath);
     void saveMap(const std::string &filePath);
     void refreshWindowTitle();

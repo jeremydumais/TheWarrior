@@ -46,6 +46,11 @@ void MapOpenGLWidget::setGridEnabled(bool enabled) {
     this->m_isGridEnabled = enabled;
 }
 
+void MapOpenGLWidget::setZoom(int zoomPercentage) {
+    m_zoomPercentage = zoomPercentage;
+    recalculateTileSize();
+}
+
 QSize MapOpenGLWidget::minimumSizeHint() const {
     return QSize(50, 50);
 }
@@ -91,26 +96,17 @@ void MapOpenGLWidget::resizeGL(int width, int height) {
     glOrtho(-HALFGLORTHOSIZE, HALFGLORTHOSIZE, -HALFGLORTHOSIZE, HALFGLORTHOSIZE, 1.0, 15.0);
 #endif
     glMatrixMode(GL_MODELVIEW);
-
-    float nbOfTilesForWidth = static_cast<float>(width) / static_cast<float>(ONSCREENTILESIZE);
-    float nbOfTilesForHeight = static_cast<float>(height) / static_cast<float>(ONSCREENTILESIZE);
-    m_glTileWidth = static_cast<float>(width) / 10.0F / nbOfTilesForWidth / nbOfTilesForWidth;
-    m_glTileHeight = static_cast<float>(height) / 10.0F / nbOfTilesForHeight / nbOfTilesForHeight;
-    m_glTileHalfWidth = m_glTileWidth / 2.0F;
-    m_glTileHalfHeight = m_glTileHeight / 2.0F;
-    m_translationXToPixel = static_cast<float>(width) / static_cast<float>(ONSCREENTILESIZE) / GLORTHOSIZE;
-    m_translationYToPixel = static_cast<float>(height) / static_cast<float>(ONSCREENTILESIZE) / GLORTHOSIZE;
-    m_translationX = m_translationXGL / m_translationXToPixel;
-    m_translationY = m_translationYGL / m_translationYToPixel;
-    ResizeGLComponentInfo info {
-        .componentWidth = width,
-        .componentHeight = height,
-        .glTileWidth = m_glTileWidth,
-        .glTileHeight = m_glTileHeight,
-        .translationXToPixel = m_translationXToPixel,
-        .translationYToPixel = m_translationYToPixel
-    };
-    emit onResize(info);
+    recalculateTileSize();
+    //float nbOfTilesForWidth = static_cast<float>(width) / static_cast<float>(ONSCREENTILESIZE);
+    //float nbOfTilesForHeight = static_cast<float>(height) / static_cast<float>(ONSCREENTILESIZE);
+    //m_glTileWidth = static_cast<float>(width) / 10.0F / nbOfTilesForWidth / nbOfTilesForWidth;
+    //m_glTileHeight = static_cast<float>(height) / 10.0F / nbOfTilesForHeight / nbOfTilesForHeight;
+    //m_glTileHalfWidth = m_glTileWidth / 2.0F;
+    //m_glTileHalfHeight = m_glTileHeight / 2.0F;
+    //m_translationXToPixel = static_cast<float>(width) / static_cast<float>(ONSCREENTILESIZE) / GLORTHOSIZE;
+    //m_translationYToPixel = static_cast<float>(height) / static_cast<float>(ONSCREENTILESIZE) / GLORTHOSIZE;
+    //m_translationX = m_translationXGL / m_translationXToPixel;
+    //m_translationY = m_translationYGL / m_translationYToPixel;
 }
 
 const std::string& MapOpenGLWidget::getResourcesPath() const {
@@ -293,6 +289,32 @@ bool MapOpenGLWidget::isMultiTileSelectionMode() const {
         m_selectionMode == SelectionMode::ClearMonsterZone;
 }
 
+void MapOpenGLWidget::recalculateTileSize() {
+    const float NOZOOMSCREENTILESIZE = 40.0F;
+    const float ZOOMFLOATVALUE = static_cast<float>(m_zoomPercentage) / 100.0F;
+    ONSCREENTILESIZE = static_cast<unsigned int>(40.0F * ZOOMFLOATVALUE);
+    float nbOfTilesForWidth = static_cast<float>(m_width) / static_cast<float>(NOZOOMSCREENTILESIZE);
+    float nbOfTilesForHeight = static_cast<float>(m_height) / static_cast<float>(NOZOOMSCREENTILESIZE);
+    m_glTileWidth = (static_cast<float>(m_width) / 10.0F / nbOfTilesForWidth / nbOfTilesForWidth) * ZOOMFLOATVALUE;
+    m_glTileHeight = (static_cast<float>(m_height) / 10.0F / nbOfTilesForHeight / nbOfTilesForHeight) * ZOOMFLOATVALUE;
+    m_glTileHalfWidth = m_glTileWidth / 2.0F;
+    m_glTileHalfHeight = m_glTileHeight / 2.0F;
+    m_translationXToPixel = static_cast<float>(m_width) / static_cast<float>(ONSCREENTILESIZE) / GLORTHOSIZE;
+    m_translationYToPixel = static_cast<float>(m_height) / static_cast<float>(ONSCREENTILESIZE) / GLORTHOSIZE;
+    m_translationX = m_translationXGL / m_translationXToPixel;
+    m_translationY = m_translationYGL / m_translationYToPixel;
+    ResizeGLComponentInfo info {
+        .componentWidth = m_width,
+        .componentHeight = m_height,
+        .glTileWidth = m_glTileWidth,
+        .glTileHeight = m_glTileHeight,
+        .translationXToPixel = m_translationXToPixel,
+        .translationYToPixel = m_translationYToPixel,
+        .tileSizeInPx = ONSCREENTILESIZE
+    };
+    emit onRecalculateTileSize(info);
+}
+
 void MapOpenGLWidget::updateCursor() {
     if (m_selectionMode == SelectionMode::MoveMap ||
             m_selectionMode == SelectionMode::ViewBorderMode) {
@@ -450,8 +472,8 @@ void MapOpenGLWidget::drawTileWithTexture(const std::string &textureName, int te
     float lineIndex = floor(indexTile / static_cast<float>(NBTEXTUREPERLINE));
     const float TEXTURETILEWIDTH { currentTexture.getTileWidthGL() };
     const float TEXTURETILEHEIGHT { currentTexture.getTileHeightGL() };
-    const float TEXTUREWIDTHADJUSTMENT { TEXTURETILEWIDTH / 40.0F };
-    const float TEXTUREHEIGHTADJUSTMENT { TEXTURETILEHEIGHT / 40.0F };
+    const float TEXTUREWIDTHADJUSTMENT { TEXTURETILEWIDTH / static_cast<float>(ONSCREENTILESIZE) };
+    const float TEXTUREHEIGHTADJUSTMENT { TEXTURETILEHEIGHT / static_cast<float>(ONSCREENTILESIZE) };
 
     const float TEXTUREX { static_cast<float>((static_cast<int>(indexTile) % NBTEXTUREPERLINE)) };
     glPushMatrix();

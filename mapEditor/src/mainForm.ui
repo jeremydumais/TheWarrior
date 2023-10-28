@@ -162,6 +162,7 @@
    <addaction name="separator"/>
    <addaction name="action_ApplyMonsterZone"/>
    <addaction name="action_ClearMonsterZone"/>
+   <addaction name="separator"/>
   </widget>
   <widget class="QDockWidget" name="dockWidgetMapConfig">
    <property name="allowedAreas">

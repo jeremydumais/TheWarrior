@@ -2,6 +2,7 @@
 #include <qcombobox.h>
 #include <qlabel.h>
 #include <qnamespace.h>
+#include <qslider.h>
 #include <qtimer.h>
 #include <QtCore/qfile.h>
 #include <fmt/format.h>
@@ -145,6 +146,19 @@ MainForm::MainForm(QWidget *parent,
     ui.toolBar->insertWidget(ui.action_ApplyMonsterZone, labelToolbarMonsterZoneColor.get());
     comboBoxToolbarMonsterZone = std::make_shared<QComboBox>(this);
     ui.toolBar->insertWidget(ui.action_ApplyMonsterZone, comboBoxToolbarMonsterZone.get());
+    labelToolbarZoom = std::make_shared<QLabel>(this);
+    labelToolbarZoom->setText("Zoom: ");
+    labelToolbarZoom->setMargin(10);
+    ui.toolBar->insertWidget(nullptr, labelToolbarZoom.get());
+    sliderZoom = std::make_shared<QSlider>(Qt::Horizontal, this);
+    sliderZoom->setFixedWidth(160);
+    sliderZoom->setMinimum(30);
+    sliderZoom->setMaximum(150);
+    sliderZoom->setValue(100);
+    ui.toolBar->insertWidget(nullptr, sliderZoom.get());
+    labelToolbarZoomValue = std::make_shared<QLabel>(this);
+    labelToolbarZoomValue->setText("100%");
+    ui.toolBar->insertWidget(nullptr, labelToolbarZoomValue.get());
 
     connectUIActions();
 
@@ -203,6 +217,7 @@ void MainForm::connectUIActions() {
     connect(comboBoxToolbarMonsterZone.get(), static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm::onComboBoxToolbarMonsterZoneCurrentIndexChanged);
     connect(ui.action_ApplyMonsterZone, &QAction::triggered, this, &MainForm::action_ApplyMonsterZone);
     connect(ui.action_ClearMonsterZone, &QAction::triggered, this, &MainForm::action_ClearMonsterZone);
+    connect(sliderZoom.get(), &QSlider::valueChanged, this, &MainForm::sliderZoomValueChanged);
     connect(ui.dockWidgetMapConfig, &QDockWidget::visibilityChanged, this, &MainForm::widgetMapConfigVisibilityChanged);
     connect(ui.dockWidgetTextureSelection, &QDockWidget::visibilityChanged, this, &MainForm::widgetTextureSelectionVisibilityChanged);
     connect(ui.dockWidgetDebugInfo, &QDockWidget::visibilityChanged, this, &MainForm::widgetDebugInfoVisibilityChanged);
@@ -445,6 +460,11 @@ void MainForm::action_ApplyMonsterZone() {
 void MainForm::action_ClearMonsterZone() {
     m_glComponent.setSelectionMode(SelectionMode::ClearMonsterZone);
     setActiveToolbarActionChecked(SelectionMode::ClearMonsterZone);
+}
+
+void MainForm::sliderZoomValueChanged(int value) {
+    labelToolbarZoomValue->setText(fmt::format("{0}%", value).c_str());
+    ui.mapOpenGLWidget->setZoom(value);
 }
 
 void MainForm::openMap(const std::string &filePath) {

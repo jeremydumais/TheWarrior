@@ -14,7 +14,7 @@ void MainForm_DebugInfoComponent::initializeUIObjects(const MainForm_DebugInfoCo
 }
 
 void MainForm_DebugInfoComponent::connectUIActions() {
-    connect(m_mapOpenGLWidget, &MapOpenGLWidget::onResize, this, &MainForm_DebugInfoComponent::onMapResized);
+    connect(m_mapOpenGLWidget, &MapOpenGLWidget::onRecalculateTileSize, this, &MainForm_DebugInfoComponent::onMapResized);
     connect(m_mapOpenGLWidget, &MapOpenGLWidget::onMapMoved, this, &MainForm_DebugInfoComponent::onMapMoved);
     connect(m_mapOpenGLWidget, &MapOpenGLWidget::onTileClicked, this, &MainForm_DebugInfoComponent::onTileClicked);
 }
@@ -25,6 +25,7 @@ void MainForm_DebugInfoComponent::refreshTable() {
     addItem("Map height (px)", QString::number(m_ComponentSizeInfo.componentHeight));
     addItem("Tile width", QString::number(m_ComponentSizeInfo.glTileWidth));
     addItem("Tile height", QString::number(m_ComponentSizeInfo.glTileHeight));
+    addItem("Tile size (px)", QString::number(m_ComponentSizeInfo.tileSizeInPx));
     addItem("Trans. X to px", QString::number(m_ComponentSizeInfo.translationXToPixel));
     addItem("Trans. Y to px", QString::number(m_ComponentSizeInfo.translationYToPixel));
     addItem("Translation X", QString::number(m_translationX));
