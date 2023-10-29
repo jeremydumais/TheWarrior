@@ -35,8 +35,8 @@ using thewarrior::models::TextureInfo;
 using thewarrior::storage::ConfigurationManager;
 using thewarrior::storage::GameMapStorage;
 
-const std::string MainForm::THEME_PATH { "Display.Theme" };
-const std::string MainForm::RECENT_MAPS { "Map.Recents" };
+const char MainForm::THEME_PATH[] { "Display.Theme" };
+const char MainForm::RECENT_MAPS[] { "Map.Recents" };
 
 MainForm::MainForm(QWidget *parent,
         const std::string &currentFilePath)
@@ -78,39 +78,8 @@ MainForm::MainForm(QWidget *parent,
     m_glComponent.initializeUIObjects(ui.mapOpenGLWidget);
     m_glComponent.setResourcesPath(m_controller.getResourcesPath());
     m_glComponent.setSelectionMode(SelectionMode::Select);
-    // MapTab Component initialization
-    MainForm_MapTabComponent_Objects mapUIObjects;
-    mapUIObjects.glComponent = &m_glComponent;
-    mapUIObjects.lineEditMapWidth = ui.lineEditMapWidth;
-    mapUIObjects.lineEditMapHeight = ui.lineEditMapHeight;
-    mapUIObjects.spinBoxMapSizeTop = ui.spinBoxMapSizeTop;
-    mapUIObjects.spinBoxMapSizeLeft = ui.spinBoxMapSizeLeft;
-    mapUIObjects.spinBoxMapSizeRight = ui.spinBoxMapSizeRight;
-    mapUIObjects.spinBoxMapSizeBottom = ui.spinBoxMapSizeBottom;
-    mapUIObjects.pushButtonApplySizeChange = ui.pushButtonApplySizeChange;
-    m_mapTabComponent.initializeUIObjects(mapUIObjects);
-    // TileTab Component initialization
-    MainForm_TileTabComponent_Objects tileUIObjects;
-    tileUIObjects.glComponent = &m_glComponent;
-    tileUIObjects.labelTileCoordXY = ui.labelTileCoordXY;
-    tileUIObjects.lineEditTexName = ui.lineEditTexName;
-    tileUIObjects.spinBoxTexIndex = ui.spinBoxTexIndex;
-    tileUIObjects.lineEditObjTexName = ui.lineEditObjTexName;
-    tileUIObjects.spinBoxObjTexIndex = ui.spinBoxObjTexIndex;
-    tileUIObjects.checkBoxObjectAbovePlayer = ui.checkBoxObjectAbovePlayer;
-    tileUIObjects.checkBoxTileCanSteppedOn = ui.checkBoxTileCanSteppedOn;
-    tileUIObjects.checkBoxIsWallToClimb = ui.checkBoxIsWallToClimb;
-    tileUIObjects.listWidgetMapTileTriggers = ui.listWidgetMapTileTriggers;
-    tileUIObjects.pushButtonAddTileEvent = ui.pushButtonAddTileEvent;
-    tileUIObjects.pushButtonEditTileEvent = ui.pushButtonEditTileEvent;
-    tileUIObjects.pushButtonDeleteTileEvent = ui.pushButtonDeleteTileEvent;
-    m_tileTabComponent.initializeUIObjects(tileUIObjects);
-    // MonsterZoneTab Component initialization
-    m_monsterZoneListComponent = std::make_shared<MonsterZoneListComponent>(this,
-            &m_glComponent);
-    m_monsterZoneListComponent->setMonsterStores(m_controller.getMonsterStores());
-    m_monsterZoneListComponent->setResourcesPath(m_controller.getResourcesPath());
-    ui.toolBox->addItem(m_monsterZoneListComponent.get(), "Monster zones");
+
+    componentInitialization();
     // TextureListTab Component initialization
     MainForm_TextureListTabComponent_Objects textureListUIObjects;
     textureListUIObjects.glComponent = &m_glComponent;
@@ -173,9 +142,25 @@ MainForm::MainForm(QWidget *parent,
     refreshRecentMapsMenu();
     refreshTextureList();
     refreshMonsterZones();
-    m_mapTabComponent.reset();
+    m_mapPropsComponent->reset();
     ui.dockWidgetDebugInfo->hide();
     action_SelectClick();
+}
+
+void MainForm::componentInitialization() {
+    m_mapPropsComponent = std::make_shared<MapPropsComponent>(this,
+            &m_glComponent);
+    ui.toolBox->addItem(m_mapPropsComponent.get(), "Map properties");
+
+    m_tilePropsComponent = std::make_shared<TilePropsComponent>(this,
+            &m_glComponent);
+    ui.toolBox->addItem(m_tilePropsComponent.get(), "Tile properties");
+
+    m_monsterZoneListComponent = std::make_shared<MonsterZoneListComponent>(this,
+            &m_glComponent);
+    m_monsterZoneListComponent->setMonsterStores(m_controller.getMonsterStores());
+    m_monsterZoneListComponent->setResourcesPath(m_controller.getResourcesPath());
+    ui.toolBox->addItem(m_monsterZoneListComponent.get(), "Monster zones");
 }
 
 void MainForm::connectUIActions() {
@@ -217,8 +202,6 @@ void MainForm::connectUIActions() {
     connect(ui.dockWidgetTextureSelection, &QDockWidget::visibilityChanged, this, &MainForm::widgetTextureSelectionVisibilityChanged);
     connect(ui.dockWidgetDebugInfo, &QDockWidget::visibilityChanged, this, &MainForm::widgetDebugInfoVisibilityChanged);
     m_glComponent.connectUIActions();
-    m_mapTabComponent.connectUIActions();
-    m_tileTabComponent.connectUIActions();
     m_textureListTabComponent.connectUIActions();
     m_textureSelectionComponent.connectUIActions();
     m_debugInfoComponent.connectUIActions();
@@ -481,8 +464,8 @@ void MainForm::openMap(const std::string &filePath) {
     m_glComponent.resetMapMovePosition();
     refreshTextureList();
     refreshMonsterZones();
-    m_tileTabComponent.reset();
-    m_mapTabComponent.reset();
+    m_tilePropsComponent->reset();
+    m_mapPropsComponent->reset();
 }
 
 void MainForm::saveMap(const std::string &filePath) {
@@ -575,8 +558,6 @@ void MainForm::setAppStylesheet(const std::string &style) {
         ui.action_LightTheme->setChecked(true);
     }
     this->setStyleSheet(styleSheet);
-    m_textureListTabComponent.setStyleSheet(styleSheet);
-    m_tileTabComponent.setStyleSheet(styleSheet);
 }
 
 void MainForm::resizeEvent(QResizeEvent *) {
@@ -596,7 +577,7 @@ void MainForm::widgetDebugInfoVisibilityChanged(bool visible) {
 }
 
 void MainForm::onTileSelected(MapTile *, Point<>) {
-    ui.toolBox->setCurrentWidget(ui.page_TileProperties);
+    ui.toolBox->setCurrentWidget(m_tilePropsComponent.get());
 }
 
 void MainForm::onTextureAdded(TextureInfo textureInfo) {

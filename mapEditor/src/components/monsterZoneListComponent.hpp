@@ -16,15 +16,6 @@
 #include "types.hpp"
 #include "ui_monsterZoneListComponent.h"
 
-struct MainForm_MonsterZoneTabComponent_Objects {
-    MainForm_GLComponent *glComponent = nullptr;
-    QTableWidget *tableWidgetMonsterZone = nullptr;
-    QPushButton *pushButtonAddMonsterZone = nullptr;
-    QPushButton *pushButtonEditMonsterZone = nullptr;
-    QPushButton *pushButtonDeleteMonsterZone = nullptr;
-    QCheckBox *checkBoxOneMonsterZoneForAllTheMap = nullptr;
-};
-
 class MonsterZoneListComponent : public QWidget {
     Q_OBJECT
 
