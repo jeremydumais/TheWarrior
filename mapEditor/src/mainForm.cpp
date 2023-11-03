@@ -80,16 +80,6 @@ MainForm::MainForm(QWidget *parent,
     m_glComponent.setSelectionMode(SelectionMode::Select);
 
     componentInitialization();
-    // TextureSelection Component initialization
-    MainForm_TextureSelectionComponent_Objects textureSelectionUIObjects;
-    textureSelectionUIObjects.glComponent = &m_glComponent;
-    textureSelectionUIObjects.comboBoxTexture = ui.comboBoxTexture;
-    textureSelectionUIObjects.labelSelectedTexture = ui.labelSelectedTexture;
-    textureSelectionUIObjects.pushButtonSelectedTextureClear = ui.pushButtonSelectedTextureClear;
-    textureSelectionUIObjects.labelSelectedObject = ui.labelSelectedObject;
-    textureSelectionUIObjects.pushButtonSelectedObjectClear = ui.pushButtonSelectedObjectClear;
-    textureSelectionUIObjects.labelImageTexture = ui.labelImageTexture;
-    m_textureSelectionComponent.initializeUIObjects(textureSelectionUIObjects);
     // DebugInfo Component initialization
     MainForm_DebugInfoComponent_Objects debugInfoUIObjects;
     debugInfoUIObjects.tableWidgetDebugInfo = ui.tableWidgetDebugInfo;
@@ -157,6 +147,12 @@ void MainForm::componentInitialization() {
     m_monsterZoneListComponent->setMonsterStores(m_controller.getMonsterStores());
     m_monsterZoneListComponent->setResourcesPath(m_controller.getResourcesPath());
     ui.toolBox->addItem(m_monsterZoneListComponent.get(), "Monster zones");
+    ui.toolBox->removeItem(0);
+
+    m_textureSelectionDockWidget = std::make_shared<TextureSelectionDockWidget>(this,
+            &m_glComponent);
+    this->addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea,
+            m_textureSelectionDockWidget.get());
 }
 
 void MainForm::connectUIActions() {
@@ -195,10 +191,9 @@ void MainForm::connectUIActions() {
     connect(ui.action_ClearMonsterZone, &QAction::triggered, this, &MainForm::action_ClearMonsterZone);
     connect(sliderZoom.get(), &QSlider::valueChanged, this, &MainForm::sliderZoomValueChanged);
     connect(ui.dockWidgetMapConfig, &QDockWidget::visibilityChanged, this, &MainForm::widgetMapConfigVisibilityChanged);
-    connect(ui.dockWidgetTextureSelection, &QDockWidget::visibilityChanged, this, &MainForm::widgetTextureSelectionVisibilityChanged);
+    connect(m_textureSelectionDockWidget.get(), &QDockWidget::visibilityChanged, this, &MainForm::widgetTextureSelectionVisibilityChanged);
     connect(ui.dockWidgetDebugInfo, &QDockWidget::visibilityChanged, this, &MainForm::widgetDebugInfoVisibilityChanged);
     m_glComponent.connectUIActions();
-    m_textureSelectionComponent.connectUIActions();
     m_debugInfoComponent.connectUIActions();
     connect(&m_glComponent, &MainForm_GLComponent::tileSelected, this, &MainForm::onTileSelected);
     connect(m_textureListComponent.get(), &TextureListComponent::textureAdded, this, &MainForm::onTextureAdded);
@@ -282,7 +277,7 @@ void MainForm::toggleViewMapConfiguration() {
 }
 
 void MainForm::toggleViewTextureSelection() {
-    ui.dockWidgetTextureSelection->setVisible(!ui.dockWidgetTextureSelection->isVisible());
+    m_textureSelectionDockWidget->setVisible(!m_textureSelectionDockWidget->isVisible());
 }
 
 void MainForm::toggleViewDebuggingInfo() {
@@ -598,7 +593,7 @@ void MainForm::onTextureDeleted(const std::string &name) {
 
 void MainForm::refreshTextureList() {
     m_textureListComponent->refreshTextureList();
-    m_textureSelectionComponent.refreshTextureList();
+    m_textureSelectionDockWidget->refreshTextureList();
     m_glComponent.reloadTextures();
 }
 
@@ -656,7 +651,7 @@ void MainForm::refreshMonsterZones() {
 
 void MainForm::toggleMonsterZoneAssignationControls() {
     bool active = !m_monsterZoneListComponent->isMonsterZonesEmpty() &&
-        m_monsterZoneListComponent->isOnlyOneMonsterZoneChecked();
+        !m_monsterZoneListComponent->isOnlyOneMonsterZoneChecked();
     comboBoxToolbarMonsterZone->setEnabled(active);
     ui.action_ApplyMonsterZone->setEnabled(active);
     ui.action_ClearMonsterZone->setEnabled(active);

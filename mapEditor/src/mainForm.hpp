@@ -15,7 +15,7 @@
 #include "components/mapPropsComponent.hpp"
 #include "components/monsterZoneListComponent.hpp"
 #include "components/textureListComponent.hpp"
-#include "components/mainForm_TextureSelectionComponent.hpp"
+#include "components/textureSelectionDockWidget.hpp"
 #include "components/tilePropsComponent.hpp"
 #include "monsterZoneDTO.hpp"
 #include "point.hpp"
@@ -40,7 +40,7 @@ Q_OBJECT
     std::shared_ptr<TilePropsComponent> m_tilePropsComponent = nullptr;
     std::shared_ptr<MonsterZoneListComponent> m_monsterZoneListComponent = nullptr;
     std::shared_ptr<TextureListComponent> m_textureListComponent = nullptr;
-    MainForm_TextureSelectionComponent m_textureSelectionComponent;
+    std::shared_ptr<TextureSelectionDockWidget> m_textureSelectionDockWidget = nullptr;
     MainForm_DebugInfoComponent m_debugInfoComponent;
     mapeditor::controllers::MainController m_controller;
     std::shared_ptr<QComboBox> comboBoxToolbarMonsterZone = nullptr;
