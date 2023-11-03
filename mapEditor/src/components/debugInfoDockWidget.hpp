@@ -1,24 +1,19 @@
 #pragma once
 
-#include <QtWidgets/QWidget>
+#include <qdockwidget.h>
 #include <qtablewidget.h>
 #include "mapOpenGLWidget.hpp"
+#include "ui_debugInfoDockWidget.h"
 
-struct MainForm_DebugInfoComponent_Objects {
-    QTableWidget *tableWidgetDebugInfo = nullptr;
-    MapOpenGLWidget *mapOpenGLWidget = nullptr;
-};
-
-class MainForm_DebugInfoComponent : public QWidget {
+class DebugInfoDockWidget : public QDockWidget {
 Q_OBJECT
  public:
-    MainForm_DebugInfoComponent();
-    void initializeUIObjects(const MainForm_DebugInfoComponent_Objects &objects);
+    DebugInfoDockWidget(QWidget *parent, MapOpenGLWidget *mapOpenGLWidget);
     void connectUIActions();
  private:
-    QTableWidget *m_tableWidgetDebugInfo;
+    Ui::DebugInfoDockWidget ui;
     MapOpenGLWidget *m_mapOpenGLWidget;
-    ResizeGLComponentInfo m_ComponentSizeInfo;
+    ResizeGLComponentInfo m_componentSizeInfo;
     float m_translationX = 0;
     float m_translationY = 0;
     int m_lastSelectedTileIndex = 0;

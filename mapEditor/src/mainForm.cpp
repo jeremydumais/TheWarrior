@@ -14,7 +14,7 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/filesystem.hpp>
 #include "aboutBoxForm.hpp"
-#include "components/mainForm_DebugInfoComponent.hpp"
+#include "components/debugInfoDockWidget.hpp"
 #include "configurationManager.hpp"
 #include "errorMessage.hpp"
 #include "gameMapStorage.hpp"
@@ -80,12 +80,6 @@ MainForm::MainForm(QWidget *parent,
     m_glComponent.setSelectionMode(SelectionMode::Select);
 
     componentInitialization();
-    // DebugInfo Component initialization
-    MainForm_DebugInfoComponent_Objects debugInfoUIObjects;
-    debugInfoUIObjects.tableWidgetDebugInfo = ui.tableWidgetDebugInfo;
-    debugInfoUIObjects.mapOpenGLWidget = ui.mapOpenGLWidget;
-    m_debugInfoComponent.initializeUIObjects(debugInfoUIObjects);
-
     labelToolbarMonsterZoneColor = std::make_shared<QLabel>(this);
     labelToolbarMonsterZoneColor->setFixedWidth(40);
     labelToolbarMonsterZoneColor->setFixedHeight(32);
@@ -125,7 +119,7 @@ MainForm::MainForm(QWidget *parent,
     refreshTextureList();
     refreshMonsterZones();
     m_mapPropsComponent->reset();
-    ui.dockWidgetDebugInfo->hide();
+    m_debugInfoDockWidget->hide();
     action_SelectClick();
 }
 
@@ -153,6 +147,12 @@ void MainForm::componentInitialization() {
             &m_glComponent);
     this->addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea,
             m_textureSelectionDockWidget.get());
+
+    m_debugInfoDockWidget = std::make_shared<DebugInfoDockWidget>(this,
+            ui.mapOpenGLWidget);
+    this->addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea,
+            m_debugInfoDockWidget.get());
+    m_debugInfoDockWidget->hide();
 }
 
 void MainForm::connectUIActions() {
@@ -192,9 +192,8 @@ void MainForm::connectUIActions() {
     connect(sliderZoom.get(), &QSlider::valueChanged, this, &MainForm::sliderZoomValueChanged);
     connect(ui.dockWidgetMapConfig, &QDockWidget::visibilityChanged, this, &MainForm::widgetMapConfigVisibilityChanged);
     connect(m_textureSelectionDockWidget.get(), &QDockWidget::visibilityChanged, this, &MainForm::widgetTextureSelectionVisibilityChanged);
-    connect(ui.dockWidgetDebugInfo, &QDockWidget::visibilityChanged, this, &MainForm::widgetDebugInfoVisibilityChanged);
+    connect(m_debugInfoDockWidget.get(), &QDockWidget::visibilityChanged, this, &MainForm::widgetDebugInfoVisibilityChanged);
     m_glComponent.connectUIActions();
-    m_debugInfoComponent.connectUIActions();
     connect(&m_glComponent, &MainForm_GLComponent::tileSelected, this, &MainForm::onTileSelected);
     connect(m_textureListComponent.get(), &TextureListComponent::textureAdded, this, &MainForm::onTextureAdded);
     connect(m_textureListComponent.get(), &TextureListComponent::textureUpdated, this, &MainForm::onTextureUpdated);
@@ -281,7 +280,7 @@ void MainForm::toggleViewTextureSelection() {
 }
 
 void MainForm::toggleViewDebuggingInfo() {
-    ui.dockWidgetDebugInfo->setVisible(!ui.dockWidgetDebugInfo->isVisible());
+    m_debugInfoDockWidget->setVisible(!m_debugInfoDockWidget->isVisible());
 }
 
 void MainForm::action_LightTheme_Click() {
@@ -659,7 +658,7 @@ void MainForm::toggleMonsterZoneAssignationControls() {
 
 void MainForm::useOnlyOneMonsterZoneChanged(bool) {
     toggleMonsterZoneAssignationControls();
-    if (!m_monsterZoneListComponent->isOnlyOneMonsterZoneChecked() &&
+    if (m_monsterZoneListComponent->isOnlyOneMonsterZoneChecked() &&
             (m_glComponent.getSelectionMode() == SelectionMode::ApplyMonsterZone ||
              m_glComponent.getSelectionMode() == SelectionMode::ClearMonsterZone)) {
         action_SelectClick();

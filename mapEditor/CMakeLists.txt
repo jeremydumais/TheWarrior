@@ -24,7 +24,7 @@ set (RESOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/../commonEditor.UI/res/darkstyle
 
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mainForm.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_DebugInfoComponent.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/debugInfoDockWidget.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_GLComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/tilePropsComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/textureListComponent.cpp

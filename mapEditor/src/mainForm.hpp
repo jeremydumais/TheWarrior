@@ -10,7 +10,7 @@
 #include <vector>
 #include "gameMap.hpp"
 #include "mainController.hpp"
-#include "components/mainForm_DebugInfoComponent.hpp"
+#include "components/debugInfoDockWidget.hpp"
 #include "components/mainForm_GLComponent.hpp"
 #include "components/mapPropsComponent.hpp"
 #include "components/monsterZoneListComponent.hpp"
@@ -41,7 +41,7 @@ Q_OBJECT
     std::shared_ptr<MonsterZoneListComponent> m_monsterZoneListComponent = nullptr;
     std::shared_ptr<TextureListComponent> m_textureListComponent = nullptr;
     std::shared_ptr<TextureSelectionDockWidget> m_textureSelectionDockWidget = nullptr;
-    MainForm_DebugInfoComponent m_debugInfoComponent;
+    std::shared_ptr<DebugInfoDockWidget> m_debugInfoDockWidget = nullptr;
     mapeditor::controllers::MainController m_controller;
     std::shared_ptr<QComboBox> comboBoxToolbarMonsterZone = nullptr;
     std::shared_ptr<QLabel> labelToolbarMonsterZoneColor = nullptr;
