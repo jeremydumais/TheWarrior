@@ -6,6 +6,7 @@
 #include <optional>
 #include <string>
 #include "mainForm_GLComponent.hpp"
+#include "qTableWidgetKeyPressWatcher.h"
 #include "ui_textureListComponent.h"
 
 class TextureListComponent : public QWidget {
@@ -23,8 +24,10 @@ Q_OBJECT
 
  private:
     Ui::TextureListComponent ui;
+    QTableWidgetKeyPressWatcher tableWidgetTextureKeyWatcher;
     MainForm_GLComponent *m_glComponent;
     void onPushButtonAddTextureClick();
     void onPushButtonEditTextureClick();
     void onPushButtonDeleteTextureClick();
+    void onTableWidgetTexturesKeyPressEvent(int key, int, int);
 };
