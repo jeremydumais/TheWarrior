@@ -1,4 +1,5 @@
 #include <fmt/format.h>
+#include <qtablewidget.h>
 #include "mapTile.hpp"
 #include "tilePropsComponent.hpp"
 #include "editMapTileTriggerForm.hpp"
@@ -13,6 +14,9 @@ using thewarrior::models::MapTileTrigger;
 using thewarrior::models::MapTileTriggerEventConverter;
 using thewarrior::models::Point;
 
+void setEnabledWidgetsInLayout(QLayout *layout, bool enabled);
+bool isChildWidgetOfAnyLayout(QLayout *layout, QWidget *widget);
+
 TilePropsComponent::TilePropsComponent(QWidget *parent,
         MainForm_GLComponent *glComponent)
     : QWidget(parent),
@@ -20,20 +24,67 @@ TilePropsComponent::TilePropsComponent(QWidget *parent,
       m_glComponent(glComponent) {
       ui.setupUi(this);
       connectUIActions();
+      onTileUnselected();
 }
 
 void TilePropsComponent::connectUIActions() {
-    connect(m_glComponent, &MainForm_GLComponent::tileSelected, this, &TilePropsComponent::onTileSelected);
-    connect(ui.lineEditTexName, &QLineEdit::textChanged, this, &TilePropsComponent::onLineEditTexNameTextChanged);
-    connect(ui.spinBoxTexIndex, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &TilePropsComponent::onSpinBoxTexIndexValueChanged);
-    connect(ui.lineEditObjTexName, &QLineEdit::textChanged, this, &TilePropsComponent::onLineEditObjTexNameTextChanged);
-    connect(ui.spinBoxObjTexIndex, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &TilePropsComponent::onSpinBoxObjTexIndexValueChanged);
-    connect(ui.checkBoxTileCanSteppedOn, &QCheckBox::stateChanged, this, &TilePropsComponent::onCheckBoxTileCanSteppedOnChanged);
-    connect(ui.checkBoxObjectAbovePlayer, &QCheckBox::stateChanged, this, &TilePropsComponent::onCheckBoxObjectAbovePlayerChanged);
-    connect(ui.checkBoxIsWallToClimb, &QCheckBox::stateChanged, this, &TilePropsComponent::onCheckBoxIsWallToClimbChanged);
-    connect(ui.pushButtonAddTileEvent, &QPushButton::clicked, this, &TilePropsComponent::onPushButtonAddTileEventClick);
-    connect(ui.pushButtonEditTileEvent, &QPushButton::clicked, this, &TilePropsComponent::onPushButtonEditTileEventClick);
-    connect(ui.pushButtonDeleteTileEvent, &QPushButton::clicked, this, &TilePropsComponent::onPushButtonDeleteTileEventClick);
+    connect(m_glComponent,
+            &MainForm_GLComponent::tileSelected,
+            this,
+            &TilePropsComponent::onTileSelected);
+    connect(m_glComponent,
+            &MainForm_GLComponent::tileUnselected,
+            this,
+            &TilePropsComponent::onTileUnselected);
+    connect(ui.lineEditTexName,
+            &QLineEdit::textChanged,
+            this,
+            &TilePropsComponent::onLineEditTexNameTextChanged);
+    connect(ui.spinBoxTexIndex,
+            static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this,
+            &TilePropsComponent::onSpinBoxTexIndexValueChanged);
+    connect(ui.lineEditObjTexName,
+            &QLineEdit::textChanged,
+            this,
+            &TilePropsComponent::onLineEditObjTexNameTextChanged);
+    connect(ui.spinBoxObjTexIndex,
+            static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this,
+            &TilePropsComponent::onSpinBoxObjTexIndexValueChanged);
+    connect(ui.checkBoxTileCanSteppedOn,
+            &QCheckBox::stateChanged,
+            this,
+            &TilePropsComponent::onCheckBoxTileCanSteppedOnChanged);
+    connect(ui.checkBoxObjectAbovePlayer,
+            &QCheckBox::stateChanged,
+            this,
+            &TilePropsComponent::onCheckBoxObjectAbovePlayerChanged);
+    connect(ui.checkBoxIsWallToClimb,
+            &QCheckBox::stateChanged,
+            this,
+            &TilePropsComponent::onCheckBoxIsWallToClimbChanged);
+    connect(ui.pushButtonAddTileEvent,
+            &QPushButton::clicked,
+            this,
+            &TilePropsComponent::onPushButtonAddTileEventClick);
+    connect(ui.pushButtonEditTileEvent,
+            &QPushButton::clicked,
+            this,
+            &TilePropsComponent::onPushButtonEditTileEventClick);
+    connect(ui.pushButtonDeleteTileEvent,
+            &QPushButton::clicked,
+            this,
+            &TilePropsComponent::onPushButtonDeleteTileEventClick);
+    connect(ui.tableWidgetMapTileTriggers,
+            &QTableWidget::itemDoubleClicked,
+            this,
+            &TilePropsComponent::onPushButtonEditTileEventClick);
+    tableWidgetMapTileTriggersKeyWatcher.installOn(ui.tableWidgetMapTileTriggers);
+    connect(&tableWidgetMapTileTriggersKeyWatcher,
+            &QTableWidgetKeyPressWatcher::keyPressed,
+            this,
+            &TilePropsComponent::onTableWidgetMapTileTriggersKeyPressEvent);
 }
 
 void TilePropsComponent::reset() {
@@ -49,11 +100,13 @@ void TilePropsComponent::reset() {
 }
 
 void TilePropsComponent::refreshEventList(MapTile *tile) {
-    ui.listWidgetMapTileTriggers->model()->removeRows(0, ui.listWidgetMapTileTriggers->count());
+    ui.tableWidgetMapTileTriggers->model()->removeRows(0, ui.tableWidgetMapTileTriggers->rowCount());
     if (tile != nullptr) {
         int indexTrigger {0};
         for (const auto &trigger : tile->getTriggers()) {
-            ui.listWidgetMapTileTriggers->insertItem(indexTrigger, MapTileTriggerEventConverter::eventToString(trigger.getEvent()).c_str());
+            ui.tableWidgetMapTileTriggers->insertRow(indexTrigger);
+            ui.tableWidgetMapTileTriggers->setItem(indexTrigger, 0,
+                    new QTableWidgetItem(MapTileTriggerEventConverter::eventToString(trigger.getEvent()).c_str()));
             indexTrigger++;
         }
     }
@@ -69,8 +122,50 @@ void TilePropsComponent::onTileSelected(MapTile *tile, Point<> coord) {
     ui.checkBoxObjectAbovePlayer->setChecked(tile->getObjectAbovePlayer());
     ui.checkBoxIsWallToClimb->setChecked(tile->getIsWallToClimb());
     refreshEventList(tile);
+    setEnabledWidgetsInLayout(ui.verticalLayout_4, true);
 }
 
+void TilePropsComponent::onTileUnselected() {
+    ui.labelTileCoordXY->clear();
+    ui.lineEditTexName->clear();
+    ui.spinBoxTexIndex->clear();
+    ui.lineEditObjTexName->clear();
+    ui.spinBoxObjTexIndex->clear();
+    ui.checkBoxTileCanSteppedOn->setChecked(false);
+    ui.checkBoxObjectAbovePlayer->setChecked(false);
+    ui.checkBoxIsWallToClimb->setChecked(false);
+    refreshEventList(nullptr);
+    setEnabledWidgetsInLayout(ui.verticalLayout_4, false);
+}
+
+void setEnabledWidgetsInLayout(QLayout *layout, bool enabled) {
+    if (layout == nullptr)
+        return;
+
+    QWidget *pw = layout->parentWidget();
+    if (pw == nullptr)
+        return;
+
+    foreach(QWidget *w, pw->findChildren<QWidget*>()) {
+        if (isChildWidgetOfAnyLayout(layout, w))
+            w->setEnabled(enabled);
+    }
+}
+
+bool isChildWidgetOfAnyLayout(QLayout *layout, QWidget *widget) {
+    if (layout == nullptr || widget == nullptr)
+        return false;
+
+    if (layout->indexOf(widget) >= 0)
+        return true;
+
+    foreach(QObject *o, layout->children()) {
+        if (isChildWidgetOfAnyLayout(qobject_cast<QLayout *>(o), widget))
+            return true;
+    }
+
+    return false;
+}
 
 void TilePropsComponent::onLineEditTexNameTextChanged(const QString &text) {
     auto currentMapTile = m_glComponent->getCurrentMapTile();
@@ -130,9 +225,9 @@ void TilePropsComponent::onCheckBoxIsWallToClimbChanged(int state) {
 
 boost::optional<MapTileTrigger &> TilePropsComponent::getSelectedTrigger() {
     auto currentMapTile = m_glComponent->getCurrentMapTile();
-    if (ui.listWidgetMapTileTriggers->selectionModel()->hasSelection()) {
+    if (ui.tableWidgetMapTileTriggers->selectionModel()->hasSelection()) {
         // Find the selected trigger
-        auto selectedItemName { ui.listWidgetMapTileTriggers->selectionModel()->selectedRows()[0].data().toString().toStdString() };
+        auto selectedItemName { ui.tableWidgetMapTileTriggers->selectionModel()->selectedRows()[0].data().toString().toStdString() };
         auto parsedEvent { MapTileTriggerEventConverter::eventFromString(selectedItemName) };
         if (parsedEvent.has_value()) {
             return currentMapTile->findTrigger(parsedEvent.get());
@@ -204,4 +299,10 @@ void TilePropsComponent::onPushButtonDeleteTileEventClick() {
         }
     }
     m_glComponent->startAutoUpdate();
+}
+
+void TilePropsComponent::onTableWidgetMapTileTriggersKeyPressEvent(int key, int, int) {
+    if (key == Qt::Key_Delete) {
+        onPushButtonDeleteTileEventClick();
+    }
 }

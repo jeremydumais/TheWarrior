@@ -58,6 +58,7 @@ class MainForm_GLComponent : public QWidget {
     std::vector<std::string> getAlreadyUsedMonsterZoneNames() const;
  signals:
         void tileSelected(thewarrior::models::MapTile *tile, thewarrior::models::Point<> coord);
+        void tileUnselected();
 
  private:
     MapOpenGLWidget *m_glWidget;

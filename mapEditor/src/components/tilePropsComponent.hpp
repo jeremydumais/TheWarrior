@@ -9,10 +9,12 @@
 #include "mainForm_GLComponent.hpp"
 #include "mapTile.hpp"
 #include "point.hpp"
+#include "qTableWidgetKeyPressWatcher.h"
 #include "ui_tilePropsComponent.h"
 
 class TilePropsComponent : public QWidget {
 Q_OBJECT
+
  public:
     TilePropsComponent(QWidget *parent,
             MainForm_GLComponent *glComponent);
@@ -21,9 +23,11 @@ Q_OBJECT
 
  private:
     Ui::TilePropsComponent ui;
+    QTableWidgetKeyPressWatcher tableWidgetMapTileTriggersKeyWatcher;
     MainForm_GLComponent *m_glComponent;
     void refreshEventList(thewarrior::models::MapTile *tile);
     void onTileSelected(thewarrior::models::MapTile *tile, thewarrior::models::Point<> coord);
+    void onTileUnselected();
     void onLineEditTexNameTextChanged(const QString &text);
     void onSpinBoxTexIndexValueChanged(int value);
     void onLineEditObjTexNameTextChanged(const QString &text);
@@ -35,4 +39,5 @@ Q_OBJECT
     void onPushButtonAddTileEventClick();
     void onPushButtonEditTileEventClick();
     void onPushButtonDeleteTileEventClick();
+    void onTableWidgetMapTileTriggersKeyPressEvent(int key, int, int);
 };

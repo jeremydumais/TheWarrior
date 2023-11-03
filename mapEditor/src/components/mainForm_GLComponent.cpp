@@ -173,10 +173,11 @@ void MainForm_GLComponent::onTileClicked(int tileIndex, int, int) {
         m_currentMapTile = nullptr;
         auto tempTile { &m_controller.getMap()->getTileForEditing(tileIndex) };
         auto coord { m_controller.getMap()->getCoordFromTileIndex(tileIndex) };
-        emit tileSelected(tempTile, coord);
         m_currentMapTile = tempTile;
+        emit tileSelected(m_currentMapTile, coord);
     } else {
         m_currentMapTile = nullptr;
+        emit tileUnselected();
     }
 }
 
