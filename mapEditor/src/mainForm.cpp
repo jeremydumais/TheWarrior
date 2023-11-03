@@ -80,14 +80,6 @@ MainForm::MainForm(QWidget *parent,
     m_glComponent.setSelectionMode(SelectionMode::Select);
 
     componentInitialization();
-    // TextureListTab Component initialization
-    MainForm_TextureListTabComponent_Objects textureListUIObjects;
-    textureListUIObjects.glComponent = &m_glComponent;
-    textureListUIObjects.listWidgetTextures = ui.listWidgetTextures;
-    textureListUIObjects.pushButtonAddTexture = ui.pushButtonAddTexture;
-    textureListUIObjects.pushButtonEditTexture = ui.pushButtonEditTexture;
-    textureListUIObjects.pushButtonDeleteTexture = ui.pushButtonDeleteTexture;
-    m_textureListTabComponent.initializeUIObjects(textureListUIObjects);
     // TextureSelection Component initialization
     MainForm_TextureSelectionComponent_Objects textureSelectionUIObjects;
     textureSelectionUIObjects.glComponent = &m_glComponent;
@@ -156,6 +148,10 @@ void MainForm::componentInitialization() {
             &m_glComponent);
     ui.toolBox->addItem(m_tilePropsComponent.get(), "Tile properties");
 
+    m_textureListComponent = std::make_shared<TextureListComponent>(this,
+            &m_glComponent);
+    ui.toolBox->addItem(m_textureListComponent.get(), "Texture list");
+
     m_monsterZoneListComponent = std::make_shared<MonsterZoneListComponent>(this,
             &m_glComponent);
     m_monsterZoneListComponent->setMonsterStores(m_controller.getMonsterStores());
@@ -202,13 +198,12 @@ void MainForm::connectUIActions() {
     connect(ui.dockWidgetTextureSelection, &QDockWidget::visibilityChanged, this, &MainForm::widgetTextureSelectionVisibilityChanged);
     connect(ui.dockWidgetDebugInfo, &QDockWidget::visibilityChanged, this, &MainForm::widgetDebugInfoVisibilityChanged);
     m_glComponent.connectUIActions();
-    m_textureListTabComponent.connectUIActions();
     m_textureSelectionComponent.connectUIActions();
     m_debugInfoComponent.connectUIActions();
     connect(&m_glComponent, &MainForm_GLComponent::tileSelected, this, &MainForm::onTileSelected);
-    connect(&m_textureListTabComponent, &MainForm_TextureListTabComponent::textureAdded, this, &MainForm::onTextureAdded);
-    connect(&m_textureListTabComponent, &MainForm_TextureListTabComponent::textureUpdated, this, &MainForm::onTextureUpdated);
-    connect(&m_textureListTabComponent, &MainForm_TextureListTabComponent::textureDeleted, this, &MainForm::onTextureDeleted);
+    connect(m_textureListComponent.get(), &TextureListComponent::textureAdded, this, &MainForm::onTextureAdded);
+    connect(m_textureListComponent.get(), &TextureListComponent::textureUpdated, this, &MainForm::onTextureUpdated);
+    connect(m_textureListComponent.get(), &TextureListComponent::textureDeleted, this, &MainForm::onTextureDeleted);
     connect(m_monsterZoneListComponent.get(), &MonsterZoneListComponent::monsterZoneAdded, this, &MainForm::onMonsterZoneAdded);
     connect(m_monsterZoneListComponent.get(), &MonsterZoneListComponent::monsterZoneUpdated, this, &MainForm::onMonsterZoneUpdated);
     connect(m_monsterZoneListComponent.get(), &MonsterZoneListComponent::monsterZoneDeleted, this, &MainForm::onMonsterZoneDeleted);
@@ -602,7 +597,7 @@ void MainForm::onTextureDeleted(const std::string &name) {
 }
 
 void MainForm::refreshTextureList() {
-    m_textureListTabComponent.refreshTextureList();
+    m_textureListComponent->refreshTextureList();
     m_textureSelectionComponent.refreshTextureList();
     m_glComponent.reloadTextures();
 }

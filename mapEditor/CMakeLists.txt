@@ -27,7 +27,7 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_DebugInfoComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_GLComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/tilePropsComponent.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_TextureListTabComponent.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/textureListComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/monsterZoneListComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_TextureSelectionComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mapPropsComponent.cpp

@@ -14,7 +14,7 @@
 #include "components/mainForm_GLComponent.hpp"
 #include "components/mapPropsComponent.hpp"
 #include "components/monsterZoneListComponent.hpp"
-#include "components/mainForm_TextureListTabComponent.hpp"
+#include "components/textureListComponent.hpp"
 #include "components/mainForm_TextureSelectionComponent.hpp"
 #include "components/tilePropsComponent.hpp"
 #include "monsterZoneDTO.hpp"
@@ -39,7 +39,7 @@ Q_OBJECT
     std::shared_ptr<MapPropsComponent> m_mapPropsComponent = nullptr;
     std::shared_ptr<TilePropsComponent> m_tilePropsComponent = nullptr;
     std::shared_ptr<MonsterZoneListComponent> m_monsterZoneListComponent = nullptr;
-    MainForm_TextureListTabComponent m_textureListTabComponent;
+    std::shared_ptr<TextureListComponent> m_textureListComponent = nullptr;
     MainForm_TextureSelectionComponent m_textureSelectionComponent;
     MainForm_DebugInfoComponent m_debugInfoComponent;
     mapeditor::controllers::MainController m_controller;

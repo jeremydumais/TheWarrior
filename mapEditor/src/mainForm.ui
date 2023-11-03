@@ -193,68 +193,13 @@
        <property name="currentIndex">
         <number>0</number>
        </property>
-       <widget class="QWidget" name="page_TextureList">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>300</width>
-          <height>804</height>
-         </rect>
-        </property>
-        <attribute name="label">
-         <string>Texture list</string>
-        </attribute>
-        <layout class="QVBoxLayout" name="verticalLayout_3">
-         <item>
-          <widget class="QListWidget" name="listWidgetTextures"/>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_5">
-           <item>
-            <widget class="QPushButton" name="pushButtonAddTexture">
-             <property name="text">
-              <string>&amp;Add...</string>
-             </property>
-             <property name="icon">
-              <iconset resource="../res/global.qrc">
-               <normaloff>:/commonEditor.UI/res/gtk-add.svg</normaloff>:/commonEditor.UI/res/gtk-add.svg</iconset>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="pushButtonEditTexture">
-             <property name="text">
-              <string>&amp;Edit...</string>
-             </property>
-             <property name="icon">
-              <iconset resource="../res/global.qrc">
-               <normaloff>:/commonEditor.UI/res/gtk-edit.svg</normaloff>:/commonEditor.UI/res/gtk-edit.svg</iconset>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="pushButtonDeleteTexture">
-             <property name="text">
-              <string>&amp;Delete</string>
-             </property>
-             <property name="icon">
-              <iconset resource="../res/global.qrc">
-               <normaloff>:/commonEditor.UI/res/gtk-delete.svg</normaloff>:/commonEditor.UI/res/gtk-delete.svg</iconset>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
        <widget class="QWidget" name="page_NPCList">
         <property name="geometry">
          <rect>
           <x>0</x>
           <y>0</y>
           <width>300</width>
-          <height>772</height>
+          <height>836</height>
          </rect>
         </property>
         <attribute name="label">
