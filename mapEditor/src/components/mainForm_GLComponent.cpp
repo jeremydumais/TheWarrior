@@ -1,7 +1,6 @@
 #include "mainForm_GLComponent.hpp"
 #include <algorithm>
 #include <optional>
-#include "components/mainForm_MonsterZoneTabComponent.hpp"
 #include "monsterZoneDTO.hpp"
 #include "monsterZoneDTOUtils.hpp"
 
@@ -169,15 +168,16 @@ void MainForm_GLComponent::resizeMap(int offsetLeft,
             offsetBottom);
 }
 
-void MainForm_GLComponent::onTileClicked(int tileIndex) {
+void MainForm_GLComponent::onTileClicked(int tileIndex, int, int) {
     if (m_glWidget->getSelectionMode() == SelectionMode::Select && tileIndex != -1) {
         m_currentMapTile = nullptr;
         auto tempTile { &m_controller.getMap()->getTileForEditing(tileIndex) };
         auto coord { m_controller.getMap()->getCoordFromTileIndex(tileIndex) };
-        emit tileSelected(tempTile, coord);
         m_currentMapTile = tempTile;
+        emit tileSelected(m_currentMapTile, coord);
     } else {
         m_currentMapTile = nullptr;
+        emit tileUnselected();
     }
 }
 

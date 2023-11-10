@@ -13,6 +13,16 @@
 #include "gameMap.hpp"
 #include "selectionMode.hpp"
 
+struct ResizeGLComponentInfo {
+    int componentWidth;
+    int componentHeight;
+    float glTileWidth;
+    float glTileHeight;
+    float translationXToPixel;
+    float translationYToPixel;
+    unsigned int tileSizeInPx;
+};
+
 class MapOpenGLWidget : public QOpenGLWidget {
     Q_OBJECT
 
@@ -20,6 +30,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
     explicit MapOpenGLWidget(QWidget *parent = nullptr);
     void setCurrentMap(std::shared_ptr<thewarrior::models::GameMap> map);
     void setGridEnabled(bool enabled);
+    void setZoom(int zoomPercentage);
     void resizeGL(int width, int height) override;
     const std::string &getResourcesPath() const;
     void setResourcesPath(const std::string &path);
@@ -44,7 +55,10 @@ class MapOpenGLWidget : public QOpenGLWidget {
 
  private:
     QTimer m_repaintTimer;
+    int m_width = 0;
+    int m_height = 0;
     bool m_isGridEnabled;
+    int m_zoomPercentage = 100;
     SelectionMode m_selectionMode;
     std::string m_resourcesPath;
     bool m_mousePressed;
@@ -60,12 +74,19 @@ class MapOpenGLWidget : public QOpenGLWidget {
     std::shared_ptr<thewarrior::models::GameMap> m_currentMap;
     QPoint m_lastCursorPosition;
     QPoint m_currentCursorPosition;
-    const float TILESIZE { 0.2F };
-    const float TILEHALFSIZE { TILESIZE / 2.0F };
-    const unsigned int ONSCREENTILESIZE { 40 };
-    const float TRANSLATIONTOPIXEL { 5.0F };
+    const float GLORTHOSIZE { 4.0F };
+    float m_glTileWidth { 0.0F };
+    float m_glTileHeight { 0.0F };
+    float m_glTileHalfWidth { m_glTileWidth / 2.0F };
+    float m_glTileHalfHeight { m_glTileHeight / 2.0F };
+    unsigned int ONSCREENTILESIZE { 40 };
+    float m_translationXToPixel { 0.0F };
+    float m_translationYToPixel { 0.0F };
+    float m_translationXGL { 0.0F };
+    float m_translationYGL { 0.0F };
     const float TILESPACING { 0.0F };
     bool isMultiTileSelectionMode() const;
+    void recalculateTileSize();
     void updateCursor();
     void draw();
     void drawTileWithTexture(const std::string &textureName, int textureIndex);
@@ -81,9 +102,11 @@ class MapOpenGLWidget : public QOpenGLWidget {
     void updateSelectedTileColor();
 
  signals:
-    void onTileClicked(int tileIndex);
+    void onRecalculateTileSize(ResizeGLComponentInfo info);
+    void onTileClicked(int tileIndex, int screenX, int screenY);
     void onTileMouseReleaseEvent(std::set<int> tileIndex);
     void onTileMouseMoveEvent(bool mousePressed, int tileIndex);
+    void onMapMoved(float translationX, float translationY);
 };
 
 #endif  // MAPEDITOR_SRC_MAPOPENGLWIDGET_HPP_

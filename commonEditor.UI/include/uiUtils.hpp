@@ -4,10 +4,9 @@
 
 namespace commoneditor::ui {
 
-class UIUtils
-{
-public:
+class UIUtils {
+ public:
     static void centerToScreen(QWidget* widget);
 };
 
-} // namespace commoneditor::ui
+}  // namespace commoneditor::ui

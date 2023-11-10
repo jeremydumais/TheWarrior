@@ -1,6 +1,6 @@
 # Set project name
 set(PROJECT_NAME    "MapEditor")
-project(${PROJECT_NAME} VERSION 1.3.2)
+project(${PROJECT_NAME} VERSION 1.3.3)
 
 include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/src
@@ -24,12 +24,13 @@ set (RESOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/../commonEditor.UI/res/darkstyle
 
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mainForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/debugInfoDockWidget.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_GLComponent.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_TileTabComponent.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_TextureListTabComponent.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_MonsterZoneTabComponent.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_TextureSelectionComponent.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_MapTabComponent.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/tilePropsComponent.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/textureListComponent.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/monsterZoneListComponent.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/textureSelectionDockWidget.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mapPropsComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editItemStoreForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterEncounterForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterStoreForm.cpp

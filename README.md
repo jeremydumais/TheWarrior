@@ -1,11 +1,11 @@
 # TheWarrior
 
 [![build](https://github.com/jeremydumais/TheWarrior/actions/workflows/cmake.yml/badge.svg)](https://github.com/jeremydumais/TheWarrior/actions/workflows/cmake.yml)
-![Latest version](https://img.shields.io/badge/latest_version-0.3.1-brightgreen)
+![Latest version](https://img.shields.io/badge/latest_version-0.3.2-brightgreen)
 
 ## An RPG game developped in C++ with SDL2.
 
-Current version: 0.3.1
+Current version: 0.3.2
 
 **Still in development...**
 

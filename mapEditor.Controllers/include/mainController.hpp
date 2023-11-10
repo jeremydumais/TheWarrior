@@ -8,6 +8,7 @@
 #include "monsterStore.hpp"
 #include "monsterZoneDTO.hpp"
 #include "point.hpp"
+#include "textureDTO.hpp"
 #include "types.hpp"
 
 namespace mapeditor::controllers {
@@ -28,8 +29,8 @@ class MainController {
     void initializeExecutablePath();
     void initializeResourcesPath();
     void initializeUserConfigFolder();
-    bool addTexture(const thewarrior::models::TextureInfo &textureInfo);
-    bool replaceTexture(const std::string &name, const thewarrior::models::TextureInfo &textureInfo);
+    bool addTexture(const commoneditor::ui::TextureDTO &textureDTO);
+    bool replaceTexture(const std::string &name, const commoneditor::ui::TextureDTO &textureInfo);
     bool removeTexture(const std::string &name);
     void replaceTilesTextureName(const std::string &oldName, const std::string &newName);
     bool addMonsterZone(const MonsterZoneDTO &monsterZoneDTO);

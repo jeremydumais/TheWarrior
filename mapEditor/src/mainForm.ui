@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>2063</width>
-    <height>1021</height>
+    <width>1013</width>
+    <height>676</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,762 +20,13 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QToolBox" name="toolBox">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>16777215</height>
-        </size>
-       </property>
+      <widget class="MapOpenGLWidget" name="mapOpenGLWidget">
        <property name="baseSize">
         <size>
          <width>0</width>
          <height>0</height>
         </size>
        </property>
-       <property name="currentIndex">
-        <number>0</number>
-       </property>
-       <widget class="QWidget" name="pageMapProperties">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>326</width>
-          <height>640</height>
-         </rect>
-        </property>
-        <attribute name="label">
-         <string>Map Properties</string>
-        </attribute>
-        <widget class="QWidget" name="formLayoutWidget">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>0</y>
-           <width>301</width>
-           <height>72</height>
-          </rect>
-         </property>
-         <layout class="QFormLayout" name="formLayout">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>Width</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="lineEditMapWidth">
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>Height</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="lineEditMapHeight">
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QSpinBox" name="spinBoxMapSizeLeft">
-         <property name="geometry">
-          <rect>
-           <x>80</x>
-           <y>140</y>
-           <width>48</width>
-           <height>26</height>
-          </rect>
-         </property>
-         <property name="minimum">
-          <number>-100</number>
-         </property>
-         <property name="maximum">
-          <number>100</number>
-         </property>
-        </widget>
-        <widget class="QSpinBox" name="spinBoxMapSizeRight">
-         <property name="geometry">
-          <rect>
-           <x>180</x>
-           <y>140</y>
-           <width>48</width>
-           <height>26</height>
-          </rect>
-         </property>
-         <property name="minimum">
-          <number>-100</number>
-         </property>
-         <property name="maximum">
-          <number>100</number>
-         </property>
-        </widget>
-        <widget class="QSpinBox" name="spinBoxMapSizeBottom">
-         <property name="geometry">
-          <rect>
-           <x>130</x>
-           <y>170</y>
-           <width>48</width>
-           <height>26</height>
-          </rect>
-         </property>
-         <property name="minimum">
-          <number>-100</number>
-         </property>
-         <property name="maximum">
-          <number>100</number>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_9">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>80</y>
-           <width>101</width>
-           <height>17</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Change size :</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="pushButtonApplySizeChange">
-         <property name="geometry">
-          <rect>
-           <x>110</x>
-           <y>210</y>
-           <width>89</width>
-           <height>25</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Apply</string>
-         </property>
-        </widget>
-        <widget class="QSpinBox" name="spinBoxMapSizeTop">
-         <property name="geometry">
-          <rect>
-           <x>130</x>
-           <y>110</y>
-           <width>48</width>
-           <height>26</height>
-          </rect>
-         </property>
-         <property name="minimum">
-          <number>-100</number>
-         </property>
-         <property name="maximum">
-          <number>100</number>
-         </property>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="page_TileProperties">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>162</width>
-          <height>740</height>
-         </rect>
-        </property>
-        <attribute name="label">
-         <string>Tile Properties</string>
-        </attribute>
-        <widget class="QWidget" name="verticalLayoutWidget">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>0</y>
-           <width>387</width>
-           <height>588</height>
-          </rect>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_4">
-          <item>
-           <layout class="QFormLayout" name="formLayout_2">
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_17">
-              <property name="text">
-               <string>Position :</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QLabel" name="labelTileCoordXY">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_3">
-              <property name="text">
-               <string>Texure Name :</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QLineEdit" name="lineEditTexName"/>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_4">
-              <property name="text">
-               <string>Texture Index :</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QSpinBox" name="spinBoxTexIndex">
-              <property name="minimum">
-               <number>-1</number>
-              </property>
-              <property name="maximum">
-               <number>16777215</number>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_5">
-              <property name="text">
-               <string>Object Texture Name :</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <widget class="QLineEdit" name="lineEditObjTexName"/>
-            </item>
-            <item row="4" column="0">
-             <widget class="QLabel" name="label_6">
-              <property name="text">
-               <string>Object Texture Index :</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1">
-             <widget class="QSpinBox" name="spinBoxObjTexIndex">
-              <property name="minimum">
-               <number>-1</number>
-              </property>
-              <property name="maximum">
-               <number>16777215</number>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="0">
-             <widget class="QLabel" name="label_12">
-              <property name="text">
-               <string>Object above player?</string>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="1">
-             <widget class="QCheckBox" name="checkBoxObjectAbovePlayer">
-              <property name="text">
-               <string/>
-              </property>
-              <property name="tristate">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="0">
-             <widget class="QLabel" name="label_11">
-              <property name="text">
-               <string>Can player stepped on?</string>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="1">
-             <widget class="QCheckBox" name="checkBoxTileCanSteppedOn">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="0">
-             <widget class="QLabel" name="label_13">
-              <property name="text">
-               <string>Is a wall to climb?</string>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="1">
-             <widget class="QCheckBox" name="checkBoxIsWallToClimb">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QVBoxLayout" name="verticalLayout_5">
-            <item>
-             <widget class="QLabel" name="label_18">
-              <property name="text">
-               <string>Events</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QListWidget" name="listWidgetMapTileTriggers"/>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_7">
-              <item>
-               <widget class="QPushButton" name="pushButtonAddTileEvent">
-                <property name="text">
-                 <string>&amp;Add...</string>
-                </property>
-                <property name="icon">
-                 <iconset resource="../res/global.qrc">
-                  <normaloff>:/commonEditor.UI/res/gtk-add.svg</normaloff>:/commonEditor.UI/res/gtk-add.svg</iconset>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pushButtonEditTileEvent">
-                <property name="text">
-                 <string>&amp;Edit...</string>
-                </property>
-                <property name="icon">
-                 <iconset resource="../res/global.qrc">
-                  <normaloff>:/commonEditor.UI/res/gtk-edit.svg</normaloff>:/commonEditor.UI/res/gtk-edit.svg</iconset>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pushButtonDeleteTileEvent">
-                <property name="text">
-                 <string>&amp;Delete</string>
-                </property>
-                <property name="icon">
-                 <iconset resource="../res/global.qrc">
-                  <normaloff>:/commonEditor.UI/res/gtk-delete.svg</normaloff>:/commonEditor.UI/res/gtk-delete.svg</iconset>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="page_TextureList">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>278</width>
-          <height>719</height>
-         </rect>
-        </property>
-        <attribute name="label">
-         <string>Texture list</string>
-        </attribute>
-        <layout class="QVBoxLayout" name="verticalLayout_3">
-         <item>
-          <widget class="QListWidget" name="listWidgetTextures"/>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_5">
-           <item>
-            <widget class="QPushButton" name="pushButtonAddTexture">
-             <property name="text">
-              <string>&amp;Add...</string>
-             </property>
-             <property name="icon">
-              <iconset resource="../res/global.qrc">
-               <normaloff>:/commonEditor.UI/res/gtk-add.svg</normaloff>:/commonEditor.UI/res/gtk-add.svg</iconset>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="pushButtonEditTexture">
-             <property name="text">
-              <string>&amp;Edit...</string>
-             </property>
-             <property name="icon">
-              <iconset resource="../res/global.qrc">
-               <normaloff>:/commonEditor.UI/res/gtk-edit.svg</normaloff>:/commonEditor.UI/res/gtk-edit.svg</iconset>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="pushButtonDeleteTexture">
-             <property name="text">
-              <string>&amp;Delete</string>
-             </property>
-             <property name="icon">
-              <iconset resource="../res/global.qrc">
-               <normaloff>:/commonEditor.UI/res/gtk-delete.svg</normaloff>:/commonEditor.UI/res/gtk-delete.svg</iconset>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="page_NPCList">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>278</width>
-          <height>719</height>
-         </rect>
-        </property>
-        <attribute name="label">
-         <string>NPC list</string>
-        </attribute>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
-         <item>
-          <widget class="QListWidget" name="listWidgetTextures_2"/>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_4">
-           <item>
-            <widget class="QPushButton" name="pushButtonAddTexture_2">
-             <property name="text">
-              <string>&amp;Add...</string>
-             </property>
-             <property name="icon">
-              <iconset resource="../res/global.qrc">
-               <normaloff>:/commonEditor.UI/res/gtk-add.svg</normaloff>:/commonEditor.UI/res/gtk-add.svg</iconset>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="pushButtonEditTexture_2">
-             <property name="text">
-              <string>&amp;Edit...</string>
-             </property>
-             <property name="icon">
-              <iconset resource="../res/global.qrc">
-               <normaloff>:/commonEditor.UI/res/gtk-edit.svg</normaloff>:/commonEditor.UI/res/gtk-edit.svg</iconset>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="pushButtonDeleteTexture_2">
-             <property name="text">
-              <string>&amp;Delete</string>
-             </property>
-             <property name="icon">
-              <iconset resource="../res/global.qrc">
-               <normaloff>:/commonEditor.UI/res/gtk-delete.svg</normaloff>:/commonEditor.UI/res/gtk-delete.svg</iconset>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="page_MonsterZone">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>300</width>
-          <height>719</height>
-         </rect>
-        </property>
-        <attribute name="label">
-         <string>Monster zones</string>
-        </attribute>
-        <layout class="QVBoxLayout" name="verticalLayoutMonsterZone">
-         <item>
-          <widget class="QCheckBox" name="checkBoxOneMonsterZoneForAllTheMap">
-           <property name="text">
-            <string>Use only one monster zone for all the map</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QTableWidget" name="tableWidgetMonsterZone">
-           <property name="editTriggers">
-            <set>QAbstractItemView::NoEditTriggers</set>
-           </property>
-           <property name="selectionMode">
-            <enum>QAbstractItemView::SingleSelection</enum>
-           </property>
-           <property name="selectionBehavior">
-            <enum>QAbstractItemView::SelectRows</enum>
-           </property>
-           <property name="columnCount">
-            <number>2</number>
-           </property>
-           <attribute name="horizontalHeaderStretchLastSection">
-            <bool>true</bool>
-           </attribute>
-           <attribute name="verticalHeaderVisible">
-            <bool>false</bool>
-           </attribute>
-           <column/>
-           <column/>
-          </widget>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayoutMonsterZoneActions">
-           <item>
-            <widget class="QPushButton" name="pushButtonAddMonsterZone">
-             <property name="text">
-              <string>&amp;Add...</string>
-             </property>
-             <property name="icon">
-              <iconset resource="../res/global.qrc">
-               <normaloff>:/commonEditor.UI/res/gtk-add.svg</normaloff>:/commonEditor.UI/res/gtk-add.svg</iconset>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="pushButtonEditMonsterZone">
-             <property name="text">
-              <string>&amp;Edit...</string>
-             </property>
-             <property name="icon">
-              <iconset resource="../res/global.qrc">
-               <normaloff>:/commonEditor.UI/res/gtk-edit.svg</normaloff>:/commonEditor.UI/res/gtk-edit.svg</iconset>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="pushButtonDeleteMonsterZone">
-             <property name="text">
-              <string>&amp;Delete</string>
-             </property>
-             <property name="icon">
-              <iconset resource="../res/global.qrc">
-               <normaloff>:/commonEditor.UI/res/gtk-delete.svg</normaloff>:/commonEditor.UI/res/gtk-delete.svg</iconset>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-      <widget class="MapOpenGLWidget" name="mapOpenGLWidget">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>800</width>
-         <height>800</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>800</width>
-         <height>800</height>
-        </size>
-       </property>
-      </widget>
-      <widget class="QWidget" name="layoutWidget">
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <widget class="QLabel" name="label_7">
-          <property name="text">
-           <string>Texture : </string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="comboBoxTexture"/>
-        </item>
-        <item>
-         <widget class="QWidget" name="widget" native="true">
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>100</height>
-           </size>
-          </property>
-          <layout class="QFormLayout" name="formLayout_3">
-           <property name="formAlignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-           </property>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_8">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>32</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Selected texture</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
-             <item>
-              <widget class="QLabel" name="labelSelectedTexture">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                 <horstretch>32</horstretch>
-                 <verstretch>32</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>32</width>
-                 <height>32</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>32</width>
-                 <height>32</height>
-                </size>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButtonSelectedTextureClear">
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Clear</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="5" column="0">
-            <widget class="QLabel" name="label_10">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>32</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Selected object</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_3">
-             <item>
-              <widget class="QLabel" name="labelSelectedObject">
-               <property name="minimumSize">
-                <size>
-                 <width>32</width>
-                 <height>32</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>32</width>
-                 <height>32</height>
-                </size>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_2">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButtonSelectedObjectClear">
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Clear</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QScrollArea" name="scrollArea">
-          <property name="widgetResizable">
-           <bool>true</bool>
-          </property>
-          <widget class="QWidget" name="scrollAreaWidgetContents">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>917</width>
-             <height>626</height>
-            </rect>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_2">
-            <item row="0" column="0">
-             <widget class="QClickableLabel" name="labelImageTexture">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </widget>
-        </item>
-       </layout>
       </widget>
      </widget>
     </item>
@@ -786,7 +37,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>2063</width>
+     <width>1013</width>
      <height>30</height>
     </rect>
    </property>
@@ -850,6 +101,15 @@
      <addaction name="action_LightTheme"/>
      <addaction name="action_DarkTheme"/>
     </widget>
+    <widget class="QMenu" name="menuToolbars">
+     <property name="title">
+      <string>Toolbars</string>
+     </property>
+     <addaction name="actionView_MapConfiguration"/>
+     <addaction name="actionView_TextureSelection"/>
+     <addaction name="actionView_DebuggingInfo"/>
+    </widget>
+    <addaction name="menuToolbars"/>
     <addaction name="menu_Color_theme"/>
     <addaction name="action_DisplayGrid"/>
    </widget>
@@ -902,6 +162,55 @@
    <addaction name="separator"/>
    <addaction name="action_ApplyMonsterZone"/>
    <addaction name="action_ClearMonsterZone"/>
+   <addaction name="separator"/>
+  </widget>
+  <widget class="QDockWidget" name="dockWidgetMapConfig">
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>Map configuration</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetToolBox">
+    <layout class="QVBoxLayout" name="verticalLayout_7">
+     <item>
+      <widget class="QToolBox" name="toolBox">
+       <property name="minimumSize">
+        <size>
+         <width>300</width>
+         <height>300</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="page_dummy">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>300</width>
+          <height>491</height>
+         </rect>
+        </property>
+        <attribute name="label">
+         <string>Page</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_2"/>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </widget>
   </widget>
   <action name="action_Quit">
    <property name="icon">
@@ -958,6 +267,9 @@
    </property>
   </action>
   <action name="action_Select">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/selection.png</normaloff>:/selection.png</iconset>
@@ -970,6 +282,9 @@
    </property>
   </action>
   <action name="action_MoveMap">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/move.png</normaloff>:/move.png</iconset>
@@ -979,6 +294,9 @@
    </property>
   </action>
   <action name="action_ApplyTexture">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/texture.png</normaloff>:/texture.png</iconset>
@@ -988,6 +306,9 @@
    </property>
   </action>
   <action name="action_ApplyObject">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/object.png</normaloff>:/object.png</iconset>
@@ -1072,6 +393,9 @@
    </property>
   </action>
   <action name="action_EnableCanStep">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/canStepOn.png</normaloff>:/canStepOn.png</iconset>
@@ -1084,6 +408,12 @@
    </property>
   </action>
   <action name="action_DisableCanStep">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/cannotStepOn.png</normaloff>:/cannotStepOn.png</iconset>
@@ -1096,6 +426,9 @@
    </property>
   </action>
   <action name="action_BlockLeftBorder">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/blockLeftBorder.png</normaloff>:/blockLeftBorder.png</iconset>
@@ -1108,6 +441,9 @@
    </property>
   </action>
   <action name="action_BlockTopBorder">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/blockTopBorder.png</normaloff>:/blockTopBorder.png</iconset>
@@ -1120,6 +456,9 @@
    </property>
   </action>
   <action name="action_BlockRightBorder">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/blockRightBorder.png</normaloff>:/blockRightBorder.png</iconset>
@@ -1132,6 +471,9 @@
    </property>
   </action>
   <action name="action_BlockBottomBorder">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/blockBottomBorder.png</normaloff>:/blockBottomBorder.png</iconset>
@@ -1144,6 +486,9 @@
    </property>
   </action>
   <action name="action_ViewBorderMode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/viewBorderMode.png</normaloff>:/viewBorderMode.png</iconset>
@@ -1156,6 +501,9 @@
    </property>
   </action>
   <action name="action_ClearBlockedBorders">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/clearBlockBorder.png</normaloff>:/clearBlockBorder.png</iconset>
@@ -1168,6 +516,9 @@
    </property>
   </action>
   <action name="action_ApplyMonsterZone">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/applyMonsterZone.png</normaloff>:/applyMonsterZone.png</iconset>
@@ -1180,6 +531,9 @@
    </property>
   </action>
   <action name="action_ClearMonsterZone">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/clearMonsterZone.png</normaloff>:/clearMonsterZone.png</iconset>
@@ -1201,17 +555,45 @@
     <string>&amp;Monster store...</string>
    </property>
   </action>
+  <action name="actionView_MapConfiguration">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Map configuration</string>
+   </property>
+  </action>
+  <action name="actionView_TextureSelection">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Texture selection</string>
+   </property>
+  </action>
+  <action name="actionView_DebuggingInfo">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Debugging info</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
    <class>MapOpenGLWidget</class>
    <extends>QOpenGLWidget</extends>
    <header>mapOpenGLWidget.hpp</header>
-  </customwidget>
-  <customwidget>
-   <class>QClickableLabel</class>
-   <extends>QLabel</extends>
-   <header>qClickableLabel.hpp</header>
   </customwidget>
  </customwidgets>
  <resources>

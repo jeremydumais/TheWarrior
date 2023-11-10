@@ -46,6 +46,11 @@ void MapOpenGLWidget::setGridEnabled(bool enabled) {
     this->m_isGridEnabled = enabled;
 }
 
+void MapOpenGLWidget::setZoom(int zoomPercentage) {
+    m_zoomPercentage = zoomPercentage;
+    recalculateTileSize();
+}
+
 QSize MapOpenGLWidget::minimumSizeHint() const {
     return QSize(50, 50);
 }
@@ -78,16 +83,30 @@ void MapOpenGLWidget::paintGL() {
 }
 
 void MapOpenGLWidget::resizeGL(int width, int height) {
+    m_width = width;
+    m_height = height;
     glViewport(0, 0, width, height);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
+    const float HALFGLORTHOSIZE = GLORTHOSIZE / 2.0F;
 #ifdef QT_OPENGL_ES_1
-    glOrthof(-2, +2, -2, +2, 1.0, 15.0);
+    glOrthof(-HALFGLORTHOSIZE, HALFGLORTHOSIZE, -HALFGLORTHOSIZE, HALFGLORTHOSIZE, 1.0, 15.0);
 #else
-    glOrtho(-2, +2, -2, +2, 1.0, 15.0);
+    glOrtho(-HALFGLORTHOSIZE, HALFGLORTHOSIZE, -HALFGLORTHOSIZE, HALFGLORTHOSIZE, 1.0, 15.0);
 #endif
     glMatrixMode(GL_MODELVIEW);
+    recalculateTileSize();
+    //float nbOfTilesForWidth = static_cast<float>(width) / static_cast<float>(ONSCREENTILESIZE);
+    //float nbOfTilesForHeight = static_cast<float>(height) / static_cast<float>(ONSCREENTILESIZE);
+    //m_glTileWidth = static_cast<float>(width) / 10.0F / nbOfTilesForWidth / nbOfTilesForWidth;
+    //m_glTileHeight = static_cast<float>(height) / 10.0F / nbOfTilesForHeight / nbOfTilesForHeight;
+    //m_glTileHalfWidth = m_glTileWidth / 2.0F;
+    //m_glTileHalfHeight = m_glTileHeight / 2.0F;
+    //m_translationXToPixel = static_cast<float>(width) / static_cast<float>(ONSCREENTILESIZE) / GLORTHOSIZE;
+    //m_translationYToPixel = static_cast<float>(height) / static_cast<float>(ONSCREENTILESIZE) / GLORTHOSIZE;
+    //m_translationX = m_translationXGL / m_translationXToPixel;
+    //m_translationY = m_translationYGL / m_translationYToPixel;
 }
 
 const std::string& MapOpenGLWidget::getResourcesPath() const {
@@ -162,6 +181,8 @@ void MapOpenGLWidget::resetMapMovePosition() {
     m_translationY = 0.0F;
     m_translationDragAndDropX = 0.0F;
     m_translationDragAndDropY = 0.0F;
+    m_translationXGL = 0.0F;
+    m_translationYGL = 0.0F;
 }
 
 void MapOpenGLWidget::mousePressEvent(QMouseEvent *event) {
@@ -182,12 +203,15 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event) {
     m_translationDragAndDropX = 0;
     m_translationY += m_translationDragAndDropY;
     m_translationDragAndDropY = 0;
+    m_translationXGL = m_translationX * m_translationXToPixel;
+    m_translationYGL = m_translationY * m_translationYToPixel;
+    emit onMapMoved(m_translationX, m_translationY);
     if (m_selectionMode == SelectionMode::Select) {
         // Found which tile was clicked
         m_selectedTileIndex = getTileIndex(m_lastCursorPosition.x(), m_lastCursorPosition.y());
         m_selectedTileColor = 150;
         m_selectedTileColorGrowing = true;
-        emit onTileClicked(m_selectedTileIndex);
+        emit onTileClicked(m_selectedTileIndex, event->x(), event->y());
     } else if (isMultiTileSelectionMode()) {
         // Calculate the list of index selected
         std::set<int> selectedTileIndexes;
@@ -243,8 +267,8 @@ void MapOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
     if (m_mousePressed &&
             (m_selectionMode == SelectionMode::MoveMap  ||
              m_selectionMode == SelectionMode::ViewBorderMode)) {
-        m_translationDragAndDropX = static_cast<float>(event->pos().x() - m_lastCursorPosition.x()) / (static_cast<float>(ONSCREENTILESIZE) * TRANSLATIONTOPIXEL);
-        m_translationDragAndDropY = static_cast<float>(m_lastCursorPosition.y() - event->pos().y()) / (static_cast<float>(ONSCREENTILESIZE) * TRANSLATIONTOPIXEL);
+        m_translationDragAndDropX = static_cast<float>(event->pos().x() - m_lastCursorPosition.x()) / (static_cast<float>(ONSCREENTILESIZE) * m_translationXToPixel);
+        m_translationDragAndDropY = static_cast<float>(m_lastCursorPosition.y() - event->pos().y()) / (static_cast<float>(ONSCREENTILESIZE) * m_translationYToPixel);
     }
     m_currentCursorPosition = event->pos();
     updateCursor();
@@ -265,12 +289,38 @@ bool MapOpenGLWidget::isMultiTileSelectionMode() const {
         m_selectionMode == SelectionMode::ClearMonsterZone;
 }
 
+void MapOpenGLWidget::recalculateTileSize() {
+    const float NOZOOMSCREENTILESIZE = 40.0F;
+    const float ZOOMFLOATVALUE = static_cast<float>(m_zoomPercentage) / 100.0F;
+    ONSCREENTILESIZE = static_cast<unsigned int>(40.0F * ZOOMFLOATVALUE);
+    float nbOfTilesForWidth = static_cast<float>(m_width) / static_cast<float>(NOZOOMSCREENTILESIZE);
+    float nbOfTilesForHeight = static_cast<float>(m_height) / static_cast<float>(NOZOOMSCREENTILESIZE);
+    m_glTileWidth = (static_cast<float>(m_width) / 10.0F / nbOfTilesForWidth / nbOfTilesForWidth) * ZOOMFLOATVALUE;
+    m_glTileHeight = (static_cast<float>(m_height) / 10.0F / nbOfTilesForHeight / nbOfTilesForHeight) * ZOOMFLOATVALUE;
+    m_glTileHalfWidth = m_glTileWidth / 2.0F;
+    m_glTileHalfHeight = m_glTileHeight / 2.0F;
+    m_translationXToPixel = static_cast<float>(m_width) / static_cast<float>(ONSCREENTILESIZE) / GLORTHOSIZE;
+    m_translationYToPixel = static_cast<float>(m_height) / static_cast<float>(ONSCREENTILESIZE) / GLORTHOSIZE;
+    m_translationX = m_translationXGL / m_translationXToPixel;
+    m_translationY = m_translationYGL / m_translationYToPixel;
+    ResizeGLComponentInfo info {
+        .componentWidth = m_width,
+        .componentHeight = m_height,
+        .glTileWidth = m_glTileWidth,
+        .glTileHeight = m_glTileHeight,
+        .translationXToPixel = m_translationXToPixel,
+        .translationYToPixel = m_translationYToPixel,
+        .tileSizeInPx = ONSCREENTILESIZE
+    };
+    emit onRecalculateTileSize(info);
+}
+
 void MapOpenGLWidget::updateCursor() {
     if (m_selectionMode == SelectionMode::MoveMap ||
             m_selectionMode == SelectionMode::ViewBorderMode) {
         setCursor(m_mousePressed ? Qt::ClosedHandCursor : Qt::OpenHandCursor);
     } else if (m_selectionMode == SelectionMode::Select) {
-        setCursor(Qt::PointingHandCursor);
+        setCursor(Qt::ArrowCursor);
     } else if (isMultiTileSelectionMode()) {
         setCursor(Qt::CrossCursor);
     } else {
@@ -282,8 +332,8 @@ void MapOpenGLWidget::draw() {
     glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
     glEnable(GL_TEXTURE_2D);
 
-    float x { -1.9F };
-    float y { 1.9F };
+    float x { -(GLORTHOSIZE / 2.0F) + m_glTileHalfWidth };
+    float y { (GLORTHOSIZE / 2.0F) - m_glTileHalfHeight  };
     glTranslatef(x, y, 0.0F);
     glPushMatrix();
     glTranslatef(m_translationX + m_translationDragAndDropX, m_translationY + m_translationDragAndDropY, 0.0F);
@@ -346,10 +396,10 @@ void MapOpenGLWidget::draw() {
                 glPushMatrix();
                 glColor3f(0.5F, 0.5F, 0.5F);
                 glBegin(GL_QUADS);
-                glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
-                glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
-                glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
-                glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
+                glVertex3f(m_glTileHalfWidth, m_glTileHalfHeight, 0);
+                glVertex3f(m_glTileHalfWidth, -m_glTileHalfHeight, 0);
+                glVertex3f(-m_glTileHalfWidth, -m_glTileHalfHeight, 0);
+                glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight, 0);
                 glEnd();
                 glPopMatrix();
             }
@@ -397,14 +447,14 @@ void MapOpenGLWidget::draw() {
                 drawGrid();
             }
 
-            x += TILESIZE + TILESPACING;
-            glTranslatef(TILESIZE + TILESPACING, 0, 0);
+            x += m_glTileWidth + TILESPACING;
+            glTranslatef(m_glTileWidth + TILESPACING, 0, 0);
             glBindTexture(GL_TEXTURE_2D, 0);
             index++;
         }
-        x += static_cast<float>(row.size()) * -(TILESIZE + TILESPACING);
-        y += -(TILESIZE + TILESPACING);
-        glTranslatef(static_cast<float>(row.size()) * -(TILESIZE + TILESPACING), -(TILESIZE + TILESPACING), 0.0f);
+        x += static_cast<float>(row.size()) * -(m_glTileWidth + TILESPACING);
+        y += -(m_glTileHeight + TILESPACING);
+        glTranslatef(static_cast<float>(row.size()) * -(m_glTileWidth + TILESPACING), -(m_glTileHeight + TILESPACING), 0.0f);
     }
     glPopMatrix();
     glPushMatrix();
@@ -422,20 +472,20 @@ void MapOpenGLWidget::drawTileWithTexture(const std::string &textureName, int te
     float lineIndex = floor(indexTile / static_cast<float>(NBTEXTUREPERLINE));
     const float TEXTURETILEWIDTH { currentTexture.getTileWidthGL() };
     const float TEXTURETILEHEIGHT { currentTexture.getTileHeightGL() };
-    const float TEXTUREWIDTHADJUSTMENT { TEXTURETILEWIDTH / 40.0F };
-    const float TEXTUREHEIGHTADJUSTMENT { TEXTURETILEHEIGHT / 40.0F };
+    const float TEXTUREWIDTHADJUSTMENT { TEXTURETILEWIDTH / static_cast<float>(ONSCREENTILESIZE) };
+    const float TEXTUREHEIGHTADJUSTMENT { TEXTURETILEHEIGHT / static_cast<float>(ONSCREENTILESIZE) };
 
     const float TEXTUREX { static_cast<float>((static_cast<int>(indexTile) % NBTEXTUREPERLINE)) };
     glPushMatrix();
     glBegin(GL_QUADS);
     glTexCoord2f((TEXTURETILEWIDTH * TEXTUREX) + TEXTURETILEWIDTH - TEXTUREWIDTHADJUSTMENT, 1.0f-(TEXTURETILEHEIGHT * (lineIndex + 1.0f)) + TEXTUREHEIGHTADJUSTMENT);
-    glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
+    glVertex3f(m_glTileHalfWidth, m_glTileHalfHeight, 0);
     glTexCoord2f((TEXTURETILEWIDTH * TEXTUREX) + TEXTURETILEWIDTH - TEXTUREWIDTHADJUSTMENT, 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTUREHEIGHTADJUSTMENT);
-    glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
+    glVertex3f(m_glTileHalfWidth, -m_glTileHalfHeight, 0);
     glTexCoord2f((TEXTURETILEWIDTH * TEXTUREX)  + TEXTUREWIDTHADJUSTMENT, 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTUREHEIGHTADJUSTMENT);
-    glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
+    glVertex3f(-m_glTileHalfWidth, -m_glTileHalfHeight, 0);
     glTexCoord2f((TEXTURETILEWIDTH * TEXTUREX)  + TEXTUREWIDTHADJUSTMENT, 1.0f-(TEXTURETILEHEIGHT * (lineIndex + 1.0f)) + TEXTUREHEIGHTADJUSTMENT);
-    glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
+    glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight, 0);
     glEnd();
     glPopMatrix();
 }
@@ -444,10 +494,10 @@ void MapOpenGLWidget::drawColoredTile() const {
     glPushMatrix();
     glBindTexture(GL_TEXTURE_2D, 0);
     glBegin(GL_QUADS);
-    glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
-    glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
+    glVertex3f(m_glTileHalfWidth, m_glTileHalfHeight, 0);
+    glVertex3f(m_glTileHalfWidth, -m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, -m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight, 0);
     glEnd();
     glPopMatrix();
 }
@@ -458,30 +508,30 @@ void MapOpenGLWidget::drawSelectionZone() const {
     glTranslatef(startCoord.x, -startCoord.y, 0.0f);
     glColor4f(1.0f, 1.0f, 1.0f, 0.3f);
     glBegin(GL_QUADS);
-    glVertex3f(endCoord.x -TILEHALFSIZE, TILEHALFSIZE, 0);
-    glVertex3f(endCoord.x -TILEHALFSIZE, -endCoord.y + TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE, -endCoord.y + TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
+    glVertex3f(endCoord.x -m_glTileHalfWidth, m_glTileHalfHeight, 0);
+    glVertex3f(endCoord.x -m_glTileHalfWidth, -endCoord.y + m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, -endCoord.y + m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight, 0);
     glEnd();
 }
 
 void MapOpenGLWidget::drawGrid() const {
     glColor3f(0.0F, 0.0F, 0.0F);
     glBegin(GL_LINES);
-    glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
-    glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
+    glVertex3f(m_glTileHalfWidth, m_glTileHalfHeight, 0);
+    glVertex3f(m_glTileHalfWidth, -m_glTileHalfHeight, 0);
     glEnd();
     glBegin(GL_LINES);
-    glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
+    glVertex3f(m_glTileHalfWidth, -m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, -m_glTileHalfHeight, 0);
     glEnd();
     glBegin(GL_LINES);
-    glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
+    glVertex3f(-m_glTileHalfWidth, -m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight, 0);
     glEnd();
     glBegin(GL_LINES);
-    glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
-    glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
+    glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight, 0);
+    glVertex3f(m_glTileHalfWidth, m_glTileHalfHeight, 0);
     glEnd();
 }
 
@@ -490,18 +540,18 @@ void MapOpenGLWidget::drawBlockBorderLeft() {
     glBindTexture(GL_TEXTURE_2D, 0);
     glPushMatrix();
     glBegin(GL_QUADS);
-    glVertex3f(-TILEHALFSIZE + (TILEHALFSIZE/6.0f), -TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE + (TILEHALFSIZE/6.0f), TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
+    glVertex3f(-m_glTileHalfWidth + (m_glTileHalfWidth/6.0f), -m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth + (m_glTileHalfWidth/6.0f), m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, -m_glTileHalfHeight, 0);
     glEnd();
     glPopMatrix();
     glPushMatrix();
     glBegin(GL_QUADS);
-    glVertex3f(-TILEHALFSIZE + (TILEHALFSIZE/3.0f), -TILEHALFSIZE/8.0f, 0);
-    glVertex3f(-TILEHALFSIZE + (TILEHALFSIZE/3.0f), TILEHALFSIZE/8.0f, 0);
-    glVertex3f(-TILEHALFSIZE, TILEHALFSIZE/8.0f, 0);
-    glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE/8.0f, 0);
+    glVertex3f(-m_glTileHalfWidth + (m_glTileHalfWidth/3.0f), -m_glTileHalfHeight/8.0f, 0);
+    glVertex3f(-m_glTileHalfWidth + (m_glTileHalfWidth/3.0f), m_glTileHalfHeight/8.0f, 0);
+    glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight/8.0f, 0);
+    glVertex3f(-m_glTileHalfWidth, -m_glTileHalfHeight/8.0f, 0);
     glEnd();
     glPopMatrix();
 }
@@ -511,18 +561,18 @@ void MapOpenGLWidget::drawBlockBorderTop() {
     glBindTexture(GL_TEXTURE_2D, 0);
     glPushMatrix();
     glBegin(GL_QUADS);
-    glVertex3f(TILEHALFSIZE, TILEHALFSIZE - (TILEHALFSIZE /6.0f), 0);
-    glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE, TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE, TILEHALFSIZE - (TILEHALFSIZE/6.0f), 0);
+    glVertex3f(m_glTileHalfWidth, m_glTileHalfHeight - (m_glTileHalfHeight /6.0f), 0);
+    glVertex3f(m_glTileHalfWidth, m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight - (m_glTileHalfHeight/6.0f), 0);
     glEnd();
     glPopMatrix();
     glPushMatrix();
     glBegin(GL_QUADS);
-    glVertex3f(TILEHALFSIZE/8.0f, TILEHALFSIZE - (TILEHALFSIZE /3.0f), 0);
-    glVertex3f(TILEHALFSIZE/8.0f, TILEHALFSIZE, 0);
-    glVertex3f(-(TILEHALFSIZE/8.0f), TILEHALFSIZE, 0);
-    glVertex3f(-(TILEHALFSIZE/8.0f), TILEHALFSIZE - (TILEHALFSIZE/3.0f), 0);
+    glVertex3f(m_glTileHalfWidth/8.0f, m_glTileHalfHeight - (m_glTileHalfHeight /3.0f), 0);
+    glVertex3f(m_glTileHalfWidth/8.0f, m_glTileHalfHeight, 0);
+    glVertex3f(-(m_glTileHalfWidth/8.0f), m_glTileHalfHeight, 0);
+    glVertex3f(-(m_glTileHalfWidth/8.0f), m_glTileHalfHeight - (m_glTileHalfHeight/3.0f), 0);
     glEnd();
     glPopMatrix();
 }
@@ -532,18 +582,18 @@ void MapOpenGLWidget::drawBlockBorderRight() {
     glBindTexture(GL_TEXTURE_2D, 0);
     glPushMatrix();
     glBegin(GL_QUADS);
-    glVertex3f(TILEHALFSIZE - (TILEHALFSIZE/6.0f), -TILEHALFSIZE, 0);
-    glVertex3f(TILEHALFSIZE - (TILEHALFSIZE/6.0f), TILEHALFSIZE, 0);
-    glVertex3f(TILEHALFSIZE, TILEHALFSIZE, 0);
-    glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
+    glVertex3f(m_glTileHalfWidth - (m_glTileHalfWidth/6.0f), -m_glTileHalfHeight, 0);
+    glVertex3f(m_glTileHalfWidth - (m_glTileHalfWidth/6.0f), m_glTileHalfHeight, 0);
+    glVertex3f(m_glTileHalfWidth, m_glTileHalfHeight, 0);
+    glVertex3f(m_glTileHalfWidth, -m_glTileHalfHeight, 0);
     glEnd();
     glPopMatrix();
     glPushMatrix();
     glBegin(GL_QUADS);
-    glVertex3f(TILEHALFSIZE - (TILEHALFSIZE/3.0f), -TILEHALFSIZE/8.0f, 0);
-    glVertex3f(TILEHALFSIZE - (TILEHALFSIZE/3.0f), TILEHALFSIZE/8.0f, 0);
-    glVertex3f(TILEHALFSIZE, TILEHALFSIZE/8.0f, 0);
-    glVertex3f(TILEHALFSIZE, -TILEHALFSIZE/8.0f, 0);
+    glVertex3f(m_glTileHalfWidth - (m_glTileHalfWidth/3.0f), -m_glTileHalfHeight/8.0f, 0);
+    glVertex3f(m_glTileHalfWidth - (m_glTileHalfWidth/3.0f), m_glTileHalfHeight/8.0f, 0);
+    glVertex3f(m_glTileHalfWidth, m_glTileHalfHeight/8.0f, 0);
+    glVertex3f(m_glTileHalfWidth, -m_glTileHalfHeight/8.0f, 0);
     glEnd();
     glPopMatrix();
 }
@@ -553,18 +603,18 @@ void MapOpenGLWidget::drawBlockBorderBottom() {
     glBindTexture(GL_TEXTURE_2D, 0);
     glPushMatrix();
     glBegin(GL_QUADS);
-    glVertex3f(TILEHALFSIZE, -TILEHALFSIZE + (TILEHALFSIZE /6.0f), 0);
-    glVertex3f(TILEHALFSIZE, -TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE, 0);
-    glVertex3f(-TILEHALFSIZE, -TILEHALFSIZE + (TILEHALFSIZE/6.0f), 0);
+    glVertex3f(m_glTileHalfWidth, -m_glTileHalfHeight + (m_glTileHalfHeight /6.0f), 0);
+    glVertex3f(m_glTileHalfWidth, -m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, -m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, -m_glTileHalfHeight + (m_glTileHalfHeight/6.0f), 0);
     glEnd();
     glPopMatrix();
     glPushMatrix();
     glBegin(GL_QUADS);
-    glVertex3f(TILEHALFSIZE/8.0f, -TILEHALFSIZE + (TILEHALFSIZE /3.0f), 0);
-    glVertex3f(TILEHALFSIZE/8.0f, -TILEHALFSIZE, 0);
-    glVertex3f(-(TILEHALFSIZE/8.0f), -TILEHALFSIZE, 0);
-    glVertex3f(-(TILEHALFSIZE/8.0f), -TILEHALFSIZE + (TILEHALFSIZE/3.0f), 0);
+    glVertex3f(m_glTileHalfWidth/8.0f, -m_glTileHalfHeight + (m_glTileHalfHeight /3.0f), 0);
+    glVertex3f(m_glTileHalfWidth/8.0f, -m_glTileHalfHeight, 0);
+    glVertex3f(-(m_glTileHalfWidth/8.0f), -m_glTileHalfHeight, 0);
+    glVertex3f(-(m_glTileHalfWidth/8.0f), -m_glTileHalfHeight + (m_glTileHalfHeight/3.0f), 0);
     glEnd();
     glPopMatrix();
 }
@@ -575,8 +625,8 @@ int MapOpenGLWidget::getTileIndex(int onScreenX, int onScreenY) {
     if (onScreenY / static_cast<int>(ONSCREENTILESIZE) > static_cast<int>(m_currentMap->getHeight()) - 1) {
         return -1;
     }
-    int x = onScreenX - static_cast<int>(m_translationX * TRANSLATIONTOPIXEL * static_cast<float>(ONSCREENTILESIZE));
-    int y = onScreenY + static_cast<int>(m_translationY * TRANSLATIONTOPIXEL * static_cast<float>(ONSCREENTILESIZE));
+    int x = onScreenX - static_cast<int>(m_translationX * m_translationXToPixel * static_cast<float>(ONSCREENTILESIZE));
+    int y = onScreenY + static_cast<int>(m_translationY * m_translationYToPixel * static_cast<float>(ONSCREENTILESIZE));
     int indexX = x / static_cast<int>(ONSCREENTILESIZE);
     int indexY = y / static_cast<int>(ONSCREENTILESIZE);
     int tileIndex { indexX + (indexY * static_cast<int>(m_currentMap->getWidth())) };
@@ -587,11 +637,11 @@ int MapOpenGLWidget::getTileIndex(int onScreenX, int onScreenY) {
 }
 
 glm::vec2 MapOpenGLWidget::convertScreenCoordToGlCoord(QPoint coord) const {
-    float x = static_cast<float>(coord.x()) - ((m_translationX / TRANSLATIONTOPIXEL / static_cast<float>(ONSCREENTILESIZE)) * static_cast<float>(ONSCREENTILESIZE));
-    float y = static_cast<float>(coord.y()) + ((m_translationY / TRANSLATIONTOPIXEL / static_cast<float>(ONSCREENTILESIZE)) * static_cast<float>(ONSCREENTILESIZE));
+    float x = static_cast<float>(coord.x()) - ((m_translationX / m_translationXToPixel / static_cast<float>(ONSCREENTILESIZE)) * static_cast<float>(ONSCREENTILESIZE));
+    float y = static_cast<float>(coord.y()) + ((m_translationY / m_translationYToPixel / static_cast<float>(ONSCREENTILESIZE)) * static_cast<float>(ONSCREENTILESIZE));
     glm::vec2 retVal;
-    retVal.x = x / TRANSLATIONTOPIXEL / static_cast<float>(ONSCREENTILESIZE);
-    retVal.y = y / TRANSLATIONTOPIXEL / static_cast<float>(ONSCREENTILESIZE);
+    retVal.x = x / m_translationXToPixel / static_cast<float>(ONSCREENTILESIZE);
+    retVal.y = y / m_translationYToPixel / static_cast<float>(ONSCREENTILESIZE);
     return retVal;
 }
 
