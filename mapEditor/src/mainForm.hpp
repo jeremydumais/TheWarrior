@@ -95,8 +95,8 @@ Q_OBJECT
     void widgetTextureSelectionVisibilityChanged(bool visible);
     void widgetDebugInfoVisibilityChanged(bool visible);
     void onTileSelected(thewarrior::models::MapTile *tile, thewarrior::models::Point<> coord);
-    void onTextureAdded(thewarrior::models::TextureInfo textureInfo);
-    void onTextureUpdated(const std::string &name, thewarrior::models::TextureInfo textureInfo);
+    void onTextureAdded(commoneditor::ui::TextureDTO textureDTO);
+    void onTextureUpdated(const std::string &name, commoneditor::ui::TextureDTO textureDTO);
     void onTextureDeleted(const std::string &name);
     void refreshTextureList();
     void onMonsterZoneAdded(mapeditor::controllers::MonsterZoneDTO monsterZoneDTO);

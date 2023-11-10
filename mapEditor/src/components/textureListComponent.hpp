@@ -3,10 +3,12 @@
 #include <QtWidgets/QListWidget>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QWidget>
+#include <memory>
 #include <optional>
 #include <string>
 #include "mainForm_GLComponent.hpp"
 #include "qTableWidgetKeyPressWatcher.h"
+#include "textureDTO.hpp"
 #include "ui_textureListComponent.h"
 
 class TextureListComponent : public QWidget {
@@ -18,8 +20,8 @@ Q_OBJECT
     std::optional<std::reference_wrapper<const thewarrior::models::Texture>> getSelectedTextureInTextureList() const;
 
  signals:
-    void textureAdded(thewarrior::models::TextureInfo textureInfo);
-    void textureUpdated(const std::string &name, thewarrior::models::TextureInfo textureInfo);
+    void textureAdded(commoneditor::ui::TextureDTO textureDTO);
+    void textureUpdated(const std::string &name, commoneditor::ui::TextureDTO textureDTO);
     void textureDeleted(const std::string &name);
 
  private:

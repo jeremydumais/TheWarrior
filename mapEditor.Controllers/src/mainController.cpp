@@ -11,14 +11,17 @@
 #include "monsterStoreStorage.hpp"
 #include "monsterZoneDTOUtils.hpp"
 #include "specialFolders.hpp"
+#include "textureDTO.hpp"
+#include "textureUtils.hpp"
 #include "types.hpp"
 
+using commoneditor::ui::TextureDTO;
+using commoneditor::ui::TextureUtils;
 using thewarrior::models::GameMap;
 using thewarrior::models::MapTile;
 using thewarrior::models::MonsterStore;
 using thewarrior::models::Point;
 using thewarrior::models::Texture;
-using thewarrior::models::TextureInfo;
 using thewarrior::storage::MonsterStoreStorage;
 using thewarrior::storage::SpecialFolders;
 
@@ -92,23 +95,23 @@ void MainController::initializeUserConfigFolder() {
     m_userConfigFolder = SpecialFolders::getAppConfigDirectory("TheWarrior_MapEditor");
 }
 
-bool MainController::addTexture(const TextureInfo &textureInfo) {
-    if (!m_map->addTexture(textureInfo)) {
+bool MainController::addTexture(const TextureDTO &textureDTO) {
+    if (!m_map->addTexture(TextureUtils::TextureDTOToTextureInfo(textureDTO))) {
         this->m_lastError = m_map->getLastError();
         return false;
     }
     return true;
 }
 
-bool MainController::replaceTexture(const std::string &name, const TextureInfo &textureInfo) {
+bool MainController::replaceTexture(const std::string &name, const TextureDTO &textureDTO) {
     std::string oldTextureName { name };
-    if (!m_map->replaceTexture(name, textureInfo)) {
+    if (!m_map->replaceTexture(name, TextureUtils::TextureDTOToTextureInfo(textureDTO))) {
         m_lastError = m_map->getLastError();
         return false;
     }
     // If the texture name has changed, update all tiles that was using the old texture name
-    if (oldTextureName != textureInfo.name) {
-        replaceTilesTextureName(oldTextureName, textureInfo.name);
+    if (oldTextureName != textureDTO.name) {
+        replaceTilesTextureName(oldTextureName, textureDTO.name);
     }
     return true;
 }

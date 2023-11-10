@@ -25,9 +25,11 @@
 #include "monsterZoneMonsterEncounter.hpp"
 #include "selectionMode.hpp"
 #include "specialFolders.hpp"
+#include "textureDTO.hpp"
 #include "textureInfo.hpp"
 
 using commoneditor::ui::ErrorMessage;
+using commoneditor::ui::TextureDTO;
 using mapeditor::controllers::MonsterZoneDTO;
 using thewarrior::models::MapTile;
 using thewarrior::models::Point;
@@ -569,15 +571,15 @@ void MainForm::onTileSelected(MapTile *, Point<>) {
     ui.toolBox->setCurrentWidget(m_tilePropsComponent.get());
 }
 
-void MainForm::onTextureAdded(TextureInfo textureInfo) {
-    if (!m_controller.addTexture(textureInfo)) {
+void MainForm::onTextureAdded(TextureDTO textureDTO) {
+    if (!m_controller.addTexture(textureDTO)) {
         ErrorMessage::show(m_controller.getLastError());
     }
     refreshTextureList();
 }
 
-void MainForm::onTextureUpdated(const std::string &name, TextureInfo textureInfo) {
-    if (!m_controller.replaceTexture(name, textureInfo)) {
+void MainForm::onTextureUpdated(const std::string &name, TextureDTO textureDTO) {
+    if (!m_controller.replaceTexture(name, textureDTO)) {
         ErrorMessage::show(m_controller.getLastError());
     }
     refreshTextureList();
