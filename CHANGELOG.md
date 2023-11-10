@@ -61,17 +61,17 @@ All notable changes to this project will be documented in this file.
 #### New features
 - Added a setting form to manage item stores.
 - Added a setting form to manage monster stores.
-- Added the Monster zones component in the main form
+- Added the Monster zones component in the main form.
 
 ### Monster Editor
-- Create the Monster Editor to manage monsters with their stats
+- Create the Monster Editor to manage monsters with their stats.
 
 ## [0.3.1]
 
 ### Map Editor (Version 1.3.2)
 
 #### New features
-- Add the assign/clear monster zones to the map feature.
+- Added the assign/clear monster zones to the map feature.
 
 #### Bug fixes
 - When selecting multiple tiles (e.g. with a texture assigned), the resulting selection could be incorrect if you stop on the edge of a tile.
@@ -79,11 +79,33 @@ All notable changes to this project will be documented in this file.
 ### Monster Editor (Version 1.0.0)
 
 #### New features
-- Implement the CLI program options to be able to load a monster store directly from the CLI.
-- Draw the tiles zones in the Add & Edit Texture form
+- Implemented the CLI program options to be able to load a monster store directly from the CLI.
+- Draw the tiles zones in the Add & Edit Texture form.
 
 ### Item Editor (Version 1.0.0)
 
 #### New features
-- Implement the CLI program options to be able to load a monster store directly from the CLI.
-- Draw the tiles zones in the Add & Edit Texture form
+- Implemented the CLI program options to be able to load a monster store directly from the CLI.
+- Draw the tiles zones in the Add & Edit Texture form.
+
+## [0.3.2]
+
+### Map Editor (Version 1.3.3)
+
+#### New features
+- Updated the upper toolbar to make the selected action visually marked as selected.
+- It is now possible to move the differents toolbar to the left and the right of the screen.
+You can also close them and made them floatable. The menu View > Toolbar has been added
+to toggle toolbars visibility.
+- Added a debugging info toolbar that is hidden by default. You can open it through the
+View > Toolbar menu.
+- The map section of the editor is supporting dynamic size.
+- Added the zoom feature to the map.
+- Removed the NPC component that was unused for now.
+- Relocated MainForm components as real QWidget independant components.
+- Implemented the Double click and Del key press in the Texture List Component.
+- Implemented the Double click and Del key press in the Tile Properties Component for the Event list.
+- Enhanced the current texture edit form by using the common ui texture edit form controller.
+
+#### Bug fixes
+- Solved Issue # 10: When you unselect a tile the tiles details stays in the Tile Properties Component.
