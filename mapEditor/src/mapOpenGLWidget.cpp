@@ -8,6 +8,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include "mapView.hpp"
 #include "monsterZone.hpp"
 #include "glColor.hpp"
 #include "selectionMode.hpp"
@@ -19,13 +20,14 @@ MapOpenGLWidget::MapOpenGLWidget(QWidget *parent)
     : QOpenGLWidget(parent),
     m_isGridEnabled(true),
     m_selectionMode(SelectionMode::Select),
+    m_mapView(MapView::Standard),
     m_resourcesPath(""),
     m_mousePressed(false),
     m_translationX(0.0F),
     m_translationDragAndDropX(0.0F),
     m_translationY(0.0F),
     m_translationDragAndDropY(0.0F),
-    m_selectedTileIndex(-1),
+    m_selectedTileIndices({}),
     m_selectedTileColor(0),
     m_selectedTileColorGrowing(false),
     m_texturesGLMap(std::map<std::string, unsigned int>()),
@@ -39,7 +41,7 @@ MapOpenGLWidget::MapOpenGLWidget(QWidget *parent)
 
 void MapOpenGLWidget::setCurrentMap(std::shared_ptr<GameMap> map) {
     m_currentMap = map;
-    m_selectedTileIndex = -1;
+    m_selectedTileIndices = {};
 }
 
 void MapOpenGLWidget::setGridEnabled(bool enabled) {
@@ -97,16 +99,6 @@ void MapOpenGLWidget::resizeGL(int width, int height) {
 #endif
     glMatrixMode(GL_MODELVIEW);
     recalculateTileSize();
-    //float nbOfTilesForWidth = static_cast<float>(width) / static_cast<float>(ONSCREENTILESIZE);
-    //float nbOfTilesForHeight = static_cast<float>(height) / static_cast<float>(ONSCREENTILESIZE);
-    //m_glTileWidth = static_cast<float>(width) / 10.0F / nbOfTilesForWidth / nbOfTilesForWidth;
-    //m_glTileHeight = static_cast<float>(height) / 10.0F / nbOfTilesForHeight / nbOfTilesForHeight;
-    //m_glTileHalfWidth = m_glTileWidth / 2.0F;
-    //m_glTileHalfHeight = m_glTileHeight / 2.0F;
-    //m_translationXToPixel = static_cast<float>(width) / static_cast<float>(ONSCREENTILESIZE) / GLORTHOSIZE;
-    //m_translationYToPixel = static_cast<float>(height) / static_cast<float>(ONSCREENTILESIZE) / GLORTHOSIZE;
-    //m_translationX = m_translationXGL / m_translationXToPixel;
-    //m_translationY = m_translationYGL / m_translationYToPixel;
 }
 
 const std::string& MapOpenGLWidget::getResourcesPath() const {
@@ -123,6 +115,10 @@ SelectionMode MapOpenGLWidget::getSelectionMode() const {
 
 void MapOpenGLWidget::setSelectionMode(SelectionMode mode) {
     m_selectionMode = mode;
+}
+
+void MapOpenGLWidget::setMapView(MapView view) {
+    m_mapView = view;
 }
 
 unsigned int MapOpenGLWidget::getMapWidth() const {
@@ -187,8 +183,7 @@ void MapOpenGLWidget::resetMapMovePosition() {
 
 void MapOpenGLWidget::mousePressEvent(QMouseEvent *event) {
     if (!m_mousePressed &&
-            (m_selectionMode == SelectionMode::MoveMap ||
-             m_selectionMode == SelectionMode::ViewBorderMode)) {
+         m_selectionMode == SelectionMode::MoveMap) {
         m_translationDragAndDropX = 0.0f;
         m_translationDragAndDropY = 0.0f;
     }
@@ -206,15 +201,11 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event) {
     m_translationXGL = m_translationX * m_translationXToPixel;
     m_translationYGL = m_translationY * m_translationYToPixel;
     emit onMapMoved(m_translationX, m_translationY);
-    if (m_selectionMode == SelectionMode::Select) {
-        // Found which tile was clicked
-        m_selectedTileIndex = getTileIndex(m_lastCursorPosition.x(), m_lastCursorPosition.y());
-        m_selectedTileColor = 150;
-        m_selectedTileColorGrowing = true;
-        emit onTileClicked(m_selectedTileIndex, event->x(), event->y());
-    } else if (isMultiTileSelectionMode()) {
+    if (isMultiTileSelectionMode()) {
+        if(!QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
+            m_selectedTileIndices.clear();
+        }
         // Calculate the list of index selected
-        std::set<int> selectedTileIndexes;
         QPoint startCoord;
         QPoint endCoord;
         // We are always managing selection from top left to bottom right
@@ -230,6 +221,12 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event) {
             startCoord.setY(endCoord.y());
             endCoord.setY(tempY);
         }
+        if (startCoord.x() < 0) {
+            startCoord.setX(0);
+        }
+        if (startCoord.y() < 0) {
+            startCoord.setY(0);
+        }
         //----------------------------------------------------------------
         QPoint calculatedCoord { startCoord };
         QPoint endCoordToTileBorder(endCoord.x() + (static_cast<int>(ONSCREENTILESIZE) - (endCoord.x() % static_cast<int>(ONSCREENTILESIZE))),
@@ -244,14 +241,16 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event) {
             if (calculatedCoord.y() > endCoord.y()) {
                 realCoord.setY(endCoord.y());
             }
-            selectedTileIndexes.insert(getTileIndex(realCoord.x(), realCoord.y()));
+            m_selectedTileIndices.insert(getTileIndex(realCoord.x(), realCoord.y()));
             calculatedCoord.setX(calculatedCoord.x() + static_cast<int>(ONSCREENTILESIZE));
-            if (calculatedCoord.x() > endCoordToTileBorder.x()) {
+            if (calculatedCoord.x() >= endCoordToTileBorder.x()) {
                 calculatedCoord.setX(startCoord.x());
                 calculatedCoord.setY(calculatedCoord.y() + static_cast<int>(ONSCREENTILESIZE));
             }
         }
-        emit onTileMouseReleaseEvent(selectedTileIndexes);
+        m_selectedTileColor = 100;
+        m_selectedTileColorGrowing = true;
+        emit onTileClicked(m_selectedTileIndices, event->x(), event->y());
     }
     auto currentTileIndex { getTileIndex(event->pos().x(), event->pos().y()) };
     if (currentTileIndex != -1) {
@@ -265,8 +264,7 @@ void MapOpenGLWidget::leaveEvent(QEvent *) {
 
 void MapOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
     if (m_mousePressed &&
-            (m_selectionMode == SelectionMode::MoveMap  ||
-             m_selectionMode == SelectionMode::ViewBorderMode)) {
+            m_selectionMode == SelectionMode::MoveMap) {
         m_translationDragAndDropX = static_cast<float>(event->pos().x() - m_lastCursorPosition.x()) / (static_cast<float>(ONSCREENTILESIZE) * m_translationXToPixel);
         m_translationDragAndDropY = static_cast<float>(m_lastCursorPosition.y() - event->pos().y()) / (static_cast<float>(ONSCREENTILESIZE) * m_translationYToPixel);
     }
@@ -276,17 +274,7 @@ void MapOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
 }
 
 bool MapOpenGLWidget::isMultiTileSelectionMode() const {
-    return m_selectionMode == SelectionMode::ApplyTexture ||
-        m_selectionMode == SelectionMode::ApplyObject ||
-        m_selectionMode == SelectionMode::EnableCanStep ||
-        m_selectionMode == SelectionMode::DisableCanStep ||
-        m_selectionMode == SelectionMode::BlockBorderLeft ||
-        m_selectionMode == SelectionMode::BlockBorderTop ||
-        m_selectionMode == SelectionMode::BlockBorderRight ||
-        m_selectionMode == SelectionMode::BlockBorderBottom ||
-        m_selectionMode == SelectionMode::ClearBlockedBorders ||
-        m_selectionMode == SelectionMode::ApplyMonsterZone ||
-        m_selectionMode == SelectionMode::ClearMonsterZone;
+    return m_selectionMode == SelectionMode::Select;
 }
 
 void MapOpenGLWidget::recalculateTileSize() {
@@ -316,8 +304,7 @@ void MapOpenGLWidget::recalculateTileSize() {
 }
 
 void MapOpenGLWidget::updateCursor() {
-    if (m_selectionMode == SelectionMode::MoveMap ||
-            m_selectionMode == SelectionMode::ViewBorderMode) {
+    if (m_selectionMode == SelectionMode::MoveMap) {
         setCursor(m_mousePressed ? Qt::ClosedHandCursor : Qt::OpenHandCursor);
     } else if (m_selectionMode == SelectionMode::Select) {
         setCursor(Qt::ArrowCursor);
@@ -345,6 +332,9 @@ void MapOpenGLWidget::draw() {
                    std::back_inserter(zoneColors),
                    [](const MonsterZone &zone) -> std::string { return zone.getColor().getValue(); });
 
+    if (m_selectedTileIndices.size() > 0) {
+        updateSelectedTileColor();
+    }
     for (const auto &row : m_currentMap->getTiles()) {
         for (const auto &tile : row) {
             bool hasTexture { false };
@@ -352,26 +342,22 @@ void MapOpenGLWidget::draw() {
                 hasTexture = true;
                 glBindTexture(GL_TEXTURE_2D, m_texturesGLMap[tile.getTextureName()]);
             }
-            if (index == m_selectedTileIndex) {
-                glColor3ub(m_selectedTileColor, m_selectedTileColor, m_selectedTileColor);
-                updateSelectedTileColor();
-            } else {
-                glColor3f(1.0F, 1.0F, 1.0F);
+
+            float transparency = 1.0F;
+            // Filter to apply/clear monster zone
+            if (m_mapView == MapView::MonsterZones) {
+                transparency = 0.2F;
+                glColor4f(1.0F, 1.0F, 1.0F, 0.2F);
             }
-            // Filter to enable/disable can step on tile
-            if (m_selectionMode == SelectionMode::EnableCanStep ||
-                    m_selectionMode == SelectionMode::DisableCanStep) {
-                if (tile.canPlayerSteppedOn()) {
-                    glColor3f(0.25F, 1.0F, 0.25F);
-                } else {
-                    glColor3f(1.0F, 0.25F, 0.25F);
-                }
+            if (m_mapView == MapView::CanStep) {
+                transparency = 0.5F;
+                glColor4f(1.0F, 1.0F, 1.0F, 0.5F);
             }
 
-            // Filter to apply/clear monster zone
-            if (m_selectionMode == SelectionMode::ApplyMonsterZone ||
-                    m_selectionMode == SelectionMode::ClearMonsterZone) {
-                glColor4f(1.0F, 1.0F, 1.0F, 0.2F);
+            if (m_selectedTileIndices.contains(index)) {
+                glColor4ub(m_selectedTileColor, m_selectedTileColor, m_selectedTileColor, static_cast<GLubyte>(transparency * 255.0F));
+            } else {
+                glColor4f(1.0F, 1.0F, 1.0F, transparency);
             }
 
             if (hasTexture) {
@@ -405,22 +391,25 @@ void MapOpenGLWidget::draw() {
             }
 
             // Filter to apply/clear monster zone
-            if (m_selectionMode == SelectionMode::ApplyMonsterZone ||
-                    m_selectionMode == SelectionMode::ClearMonsterZone) {
+            if (m_mapView == MapView::MonsterZones) {
                 if (tile.getMonsterZoneIndex() != -1) {
                     const auto zoneColor = getVec3FromRGBString(zoneColors[static_cast<size_t>(tile.getMonsterZoneIndex())]);
                     glColor4f(zoneColor.r, zoneColor.g, zoneColor.b, 0.4F);
                     drawColoredTile();
                 }
             }
+            // Filter to enable/disable can step on tile
+            if (m_mapView == MapView::CanStep) {
+                if (tile.canPlayerSteppedOn()) {
+                    glColor4f(0.25F, 1.0F, 0.25F, 0.4F);
+                } else {
+                    glColor4f(1.0F, 0.25F, 0.25F, 0.4F);
+                }
+                drawColoredTile();
+            }
 
             // If we are in block border mode
-            if (m_selectionMode == SelectionMode::ViewBorderMode ||
-                    m_selectionMode == SelectionMode::BlockBorderLeft ||
-                    m_selectionMode == SelectionMode::BlockBorderTop ||
-                    m_selectionMode == SelectionMode::BlockBorderRight ||
-                    m_selectionMode == SelectionMode::BlockBorderBottom ||
-                    m_selectionMode == SelectionMode::ClearBlockedBorders) {
+            if (m_mapView == MapView::BlockedBorders) {
                 auto triggers { tile.getTriggers() };
                 for (const auto &trigger : triggers) {
                     if (trigger.getAction() == MapTileTriggerAction::DenyMove) {
@@ -652,10 +641,10 @@ void MapOpenGLWidget::updateSelectedTileColor() {
         m_selectedTileColor--;
     }
 
-    if (m_selectedTileColor == 255) {
+    if (m_selectedTileColor == 200) {
         m_selectedTileColorGrowing = false;
         m_selectedTileColor--;
-    } else if (m_selectedTileColor == 150) {
+    } else if (m_selectedTileColor == 100) {
         m_selectedTileColorGrowing = true;
     }
 }

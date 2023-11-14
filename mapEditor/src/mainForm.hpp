@@ -74,7 +74,6 @@ Q_OBJECT
     void action_ApplyObjectClick();
     void action_EnableCanStepClick();
     void action_DisableCanStepClick();
-    void action_ViewBorderModeClick();
     void action_BlockLeftBorderClick();
     void action_BlockTopBorderClick();
     void action_BlockRightBorderClick();
@@ -84,6 +83,7 @@ Q_OBJECT
     void action_ApplyMonsterZone();
     void action_ClearMonsterZone();
     void sliderZoomValueChanged(int value);
+    void tabWidgetMapViewChanged(int index);
     void openMap(const std::string &filePath);
     void saveMap(const std::string &filePath);
     void refreshWindowTitle();
@@ -94,7 +94,7 @@ Q_OBJECT
     void widgetMapConfigVisibilityChanged(bool visible);
     void widgetTextureSelectionVisibilityChanged(bool visible);
     void widgetDebugInfoVisibilityChanged(bool visible);
-    void onTileSelected(thewarrior::models::MapTile *tile, thewarrior::models::Point<> coord);
+    void onTileSelected(const std::vector<thewarrior::models::MapTile *> &tiles, thewarrior::models::Point<> coord);
     void onTextureAdded(commoneditor::ui::TextureDTO textureDTO);
     void onTextureUpdated(const std::string &name, commoneditor::ui::TextureDTO textureDTO);
     void onTextureDeleted(const std::string &name);

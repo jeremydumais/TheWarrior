@@ -14,21 +14,78 @@
    <string>MapEditor</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_5">
     <item>
-     <widget class="QSplitter" name="splitter">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <widget class="MapOpenGLWidget" name="mapOpenGLWidget">
-       <property name="baseSize">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
-       </property>
-      </widget>
-     </widget>
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <item>
+       <widget class="MapOpenGLWidget" name="mapOpenGLWidget">
+        <property name="baseSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTabWidget" name="tabWidgetMapView">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="tabPosition">
+         <enum>QTabWidget::South</enum>
+        </property>
+        <property name="tabShape">
+         <enum>QTabWidget::Rounded</enum>
+        </property>
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <property name="documentMode">
+         <bool>true</bool>
+        </property>
+        <widget class="QWidget" name="tabViewStandard">
+         <attribute name="icon">
+          <iconset resource="../res/global.qrc">
+           <normaloff>:/MapEditor Icon.png</normaloff>:/MapEditor Icon.png</iconset>
+         </attribute>
+         <attribute name="title">
+          <string>Standard</string>
+         </attribute>
+        </widget>
+        <widget class="QWidget" name="tabMapViewCanStep">
+         <attribute name="icon">
+          <iconset resource="../res/global.qrc">
+           <normaloff>:/canStepOn.png</normaloff>:/canStepOn.png</iconset>
+         </attribute>
+         <attribute name="title">
+          <string>Can Step?</string>
+         </attribute>
+        </widget>
+        <widget class="QWidget" name="tabMapViewBlockedBorder">
+         <attribute name="icon">
+          <iconset resource="../res/global.qrc">
+           <normaloff>:/viewBorderMode.png</normaloff>:/viewBorderMode.png</iconset>
+         </attribute>
+         <attribute name="title">
+          <string>Blocked Borders</string>
+         </attribute>
+        </widget>
+        <widget class="QWidget" name="tabMapViewMonsterZones">
+         <attribute name="icon">
+          <iconset resource="../res/global.qrc">
+           <normaloff>:/applyMonsterZone.png</normaloff>:/applyMonsterZone.png</iconset>
+         </attribute>
+         <attribute name="title">
+          <string>Monster zones</string>
+         </attribute>
+        </widget>
+       </widget>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
@@ -153,7 +210,6 @@
    <addaction name="action_EnableCanStep"/>
    <addaction name="action_DisableCanStep"/>
    <addaction name="separator"/>
-   <addaction name="action_ViewBorderMode"/>
    <addaction name="action_BlockLeftBorder"/>
    <addaction name="action_BlockTopBorder"/>
    <addaction name="action_BlockRightBorder"/>
@@ -483,21 +539,6 @@
    </property>
    <property name="toolTip">
     <string>Block Bottom Border</string>
-   </property>
-  </action>
-  <action name="action_ViewBorderMode">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="../res/global.qrc">
-     <normaloff>:/viewBorderMode.png</normaloff>:/viewBorderMode.png</iconset>
-   </property>
-   <property name="text">
-    <string>View Border Mode</string>
-   </property>
-   <property name="toolTip">
-    <string>View Border Mode</string>
    </property>
   </action>
   <action name="action_ClearBlockedBorders">

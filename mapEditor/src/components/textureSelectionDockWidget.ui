@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>349</height>
    </rect>
   </property>
   <property name="allowedAreas">
@@ -44,7 +44,7 @@
             </size>
            </property>
            <property name="text">
-            <string>Selected texture</string>
+            <string>Selected texture :</string>
            </property>
           </widget>
          </item>
@@ -112,7 +112,7 @@
             </size>
            </property>
            <property name="text">
-            <string>Selected object</string>
+            <string>Selected object :</string>
            </property>
           </widget>
          </item>
@@ -169,6 +169,38 @@
        </widget>
       </item>
       <item>
+       <widget class="QGroupBox" name="groupBox">
+        <property name="title">
+         <string>Selection mode :</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QRadioButton" name="radioButtonTexture">
+           <property name="text">
+            <string>Texture</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioButtonObject">
+           <property name="text">
+            <string>Object</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
        <widget class="QScrollArea" name="scrollArea">
         <property name="widgetResizable">
          <bool>true</bool>
@@ -179,7 +211,7 @@
            <x>0</x>
            <y>0</y>
            <width>378</width>
-           <height>106</height>
+           <height>85</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
@@ -206,6 +238,14 @@
    <header>qClickableLabel.hpp</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>comboBoxTexture</tabstop>
+  <tabstop>pushButtonSelectedTextureClear</tabstop>
+  <tabstop>pushButtonSelectedObjectClear</tabstop>
+  <tabstop>radioButtonTexture</tabstop>
+  <tabstop>radioButtonObject</tabstop>
+  <tabstop>scrollArea</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

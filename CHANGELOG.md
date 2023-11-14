@@ -109,3 +109,10 @@ View > Toolbar menu.
 
 #### Bug fixes
 - Solved Issue # 10: When you unselect a tile the tiles details stays in the Tile Properties Component.
+
+## [0.3.3]
+
+### Map Editor (Version 1.3.4)
+
+#### New features
+-

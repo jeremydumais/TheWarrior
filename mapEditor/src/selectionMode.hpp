@@ -7,7 +7,6 @@ enum class SelectionMode {
     ApplyObject,
     EnableCanStep,
     DisableCanStep,
-    ViewBorderMode,
     BlockBorderLeft,
     BlockBorderTop,
     BlockBorderRight,

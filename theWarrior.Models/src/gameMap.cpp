@@ -61,6 +61,21 @@ MapTile& GameMap::getTileForEditing(Point<> coord) {
         .at(static_cast<size_t>(coord.x()));
 }
 
+const std::vector<MapTile *> GameMap::getTilesForEditing(const std::set<int> &indices) {
+    std::vector<MapTile *> retval = {};
+    std::for_each(indices.cbegin(), indices.cend(), [&retval, this](const int index) {
+        if (index < 0) {
+            return;
+        }
+        auto indexConverted { static_cast<size_t>(index) };
+        if (indexConverted >= getWidth() * getHeight()) {
+            return;
+        }
+        retval.push_back(&m_tiles.at(indexConverted / getWidth()).at(indexConverted % getWidth()));
+    });
+    return retval;
+}
+
 const MapTile& GameMap::getTileFromCoord(Point<> coord) const {
     if (coord.x() < 0) {
         throw std::invalid_argument("x must be a positive number");

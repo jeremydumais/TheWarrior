@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <set>
 #include <string>
 #include <vector>
 #include "mapTile.hpp"
@@ -25,6 +26,7 @@ class GameMap {
     const std::vector<std::vector<MapTile>> &getTiles() const;
     MapTile &getTileForEditing(int index);
     MapTile &getTileForEditing(Point<> coord);
+    const std::vector<MapTile *> getTilesForEditing(const std::set<int> &indices);
     const MapTile &getTileFromCoord(Point<> coord) const;
     unsigned int getWidth() const;
     unsigned int getHeight() const;

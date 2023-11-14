@@ -3,6 +3,7 @@
 #include <qlabel.h>
 #include <qnamespace.h>
 #include <qslider.h>
+#include <qtabwidget.h>
 #include <qtimer.h>
 #include <QtCore/qfile.h>
 #include <fmt/format.h>
@@ -21,6 +22,7 @@
 #include "manageItemStoreForm.hpp"
 #include "manageMonsterStoreForm.hpp"
 #include "mapTile.hpp"
+#include "mapView.hpp"
 #include "monsterZoneDTO.hpp"
 #include "monsterZoneMonsterEncounter.hpp"
 #include "selectionMode.hpp"
@@ -123,6 +125,7 @@ MainForm::MainForm(QWidget *parent,
     m_mapPropsComponent->reset();
     m_debugInfoDockWidget->hide();
     action_SelectClick();
+    tabWidgetMapViewChanged(static_cast<int>(MapView::Standard));
 }
 
 void MainForm::componentInitialization() {
@@ -182,7 +185,6 @@ void MainForm::connectUIActions() {
     connect(ui.action_ApplyObject, &QAction::triggered, this, &MainForm::action_ApplyObjectClick);
     connect(ui.action_EnableCanStep, &QAction::triggered, this, &MainForm::action_EnableCanStepClick);
     connect(ui.action_DisableCanStep, &QAction::triggered, this, &MainForm::action_DisableCanStepClick);
-    connect(ui.action_ViewBorderMode, &QAction::triggered, this, &MainForm::action_ViewBorderModeClick);
     connect(ui.action_BlockLeftBorder, &QAction::triggered, this, &MainForm::action_BlockLeftBorderClick);
     connect(ui.action_BlockTopBorder, &QAction::triggered, this, &MainForm::action_BlockTopBorderClick);
     connect(ui.action_BlockRightBorder, &QAction::triggered, this, &MainForm::action_BlockRightBorderClick);
@@ -192,6 +194,7 @@ void MainForm::connectUIActions() {
     connect(ui.action_ApplyMonsterZone, &QAction::triggered, this, &MainForm::action_ApplyMonsterZone);
     connect(ui.action_ClearMonsterZone, &QAction::triggered, this, &MainForm::action_ClearMonsterZone);
     connect(sliderZoom.get(), &QSlider::valueChanged, this, &MainForm::sliderZoomValueChanged);
+    connect(ui.tabWidgetMapView, &QTabWidget::currentChanged, this, &MainForm::tabWidgetMapViewChanged);
     connect(ui.dockWidgetMapConfig, &QDockWidget::visibilityChanged, this, &MainForm::widgetMapConfigVisibilityChanged);
     connect(m_textureSelectionDockWidget.get(), &QDockWidget::visibilityChanged, this, &MainForm::widgetTextureSelectionVisibilityChanged);
     connect(m_debugInfoDockWidget.get(), &QDockWidget::visibilityChanged, this, &MainForm::widgetDebugInfoVisibilityChanged);
@@ -337,7 +340,6 @@ void MainForm::setActiveToolbarActionChecked(SelectionMode mode) {
     ui.action_ApplyObject->setChecked(mode == SelectionMode::ApplyObject);
     ui.action_EnableCanStep->setChecked(mode == SelectionMode::EnableCanStep);
     ui.action_DisableCanStep->setChecked(mode == SelectionMode::DisableCanStep);
-    ui.action_ViewBorderMode->setChecked(mode == SelectionMode::ViewBorderMode);
     ui.action_BlockLeftBorder->setChecked(mode == SelectionMode::BlockBorderLeft);
     ui.action_BlockTopBorder->setChecked(mode == SelectionMode::BlockBorderTop);
     ui.action_BlockRightBorder->setChecked(mode == SelectionMode::BlockBorderRight);
@@ -375,11 +377,6 @@ void MainForm::action_EnableCanStepClick() {
 void MainForm::action_DisableCanStepClick() {
     m_glComponent.setSelectionMode(SelectionMode::DisableCanStep);
     setActiveToolbarActionChecked(SelectionMode::DisableCanStep);
-}
-
-void MainForm::action_ViewBorderModeClick() {
-    m_glComponent.setSelectionMode(SelectionMode::ViewBorderMode);
-    setActiveToolbarActionChecked(SelectionMode::ViewBorderMode);
 }
 
 void MainForm::action_BlockLeftBorderClick() {
@@ -433,6 +430,23 @@ void MainForm::action_ClearMonsterZone() {
 void MainForm::sliderZoomValueChanged(int value) {
     labelToolbarZoomValue->setText(fmt::format("{0}%", value).c_str());
     ui.mapOpenGLWidget->setZoom(value);
+}
+
+void MainForm::tabWidgetMapViewChanged(int index) {
+    switch (index) {
+        case 0:
+            m_glComponent.setMapView(MapView::Standard);
+            break;
+        case 1:
+            m_glComponent.setMapView(MapView::CanStep);
+            break;
+        case 2:
+            m_glComponent.setMapView(MapView::BlockedBorders);
+            break;
+        case 3:
+            m_glComponent.setMapView(MapView::MonsterZones);
+            break;
+    }
 }
 
 void MainForm::openMap(const std::string &filePath) {
@@ -567,7 +581,7 @@ void MainForm::widgetDebugInfoVisibilityChanged(bool visible) {
     ui.actionView_DebuggingInfo->setChecked(visible);
 }
 
-void MainForm::onTileSelected(MapTile *, Point<>) {
+void MainForm::onTileSelected(const std::vector<MapTile *> &, Point<>) {
     ui.toolBox->setCurrentWidget(m_tilePropsComponent.get());
 }
 

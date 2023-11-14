@@ -10,6 +10,7 @@
 #include "../mapOpenGLWidget.hpp"
 #include "glComponentController.hpp"
 #include "mapTile.hpp"
+#include "mapView.hpp"
 #include "monsterZoneDTO.hpp"
 #include "point.hpp"
 #include "selectionMode.hpp"
@@ -29,7 +30,8 @@ class MainForm_GLComponent : public QWidget {
     void setCurrentMap(std::shared_ptr<thewarrior::models::GameMap> map);
     void setResourcesPath(const std::string &path);
     void setSelectionMode(SelectionMode mode);
-    thewarrior::models::MapTile *getCurrentMapTile();
+    void setMapView(MapView view);
+    std::vector<thewarrior::models::MapTile *> getCurrentMapTiles();
     void setLastSelectedTexture(const std::string &name, int index);
     void setLastSelectedObject(const std::string &name, int index);
     void clearLastSelectedTexture();
@@ -57,19 +59,19 @@ class MainForm_GLComponent : public QWidget {
     mapeditor::controllers::OptMonsterZoneDTOConst getMonsterZoneByName(const std::string &name) const;
     std::vector<std::string> getAlreadyUsedMonsterZoneNames() const;
  signals:
-        void tileSelected(thewarrior::models::MapTile *tile, thewarrior::models::Point<> coord);
+        void tileSelected(const std::vector<thewarrior::models::MapTile *> &tiles, thewarrior::models::Point<> coord);
         void tileUnselected();
 
  private:
     MapOpenGLWidget *m_glWidget;
     mapeditor::controllers::GLComponentController m_controller;
-    thewarrior::models::MapTile *m_currentMapTile;
+    std::vector<thewarrior::models::MapTile *> m_currentMapTiles;
     std::string m_lastSelectedTextureName;
     std::string m_lastSelectedObjectName;
     int m_lastSelectedTextureIndex;
     int m_lastSelectedObjectIndex;
     int m_lastSelectedMonsterZoneIndex;
-    void onTileClicked(int tileIndex, int, int);
+    void onTileClicked(const std::set<int> &tileIndices, int, int);
     void onTileMouseReleaseEvent(std::set<int> selectedTileIndexes);
     void addMoveDenyTrigger(const std::set<int> &selectedTileIndexes,
             thewarrior::models::MapTileTriggerEvent event);

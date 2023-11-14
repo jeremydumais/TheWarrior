@@ -72,11 +72,10 @@ void TextureSelectionDockWidget::onLabelImageTextureMouseReleaseEvent(QMouseEven
         // Display the selected texture or object on the selected image
         auto qpixmap = TextureUtils::getTexturePixmapFromLabel(ui.labelImageTexture);
         auto imagePart { TextureUtils::getTextureTileImageFromTexture(&qpixmap, index, texture->get()) };
-        auto selectionMode { m_glComponent->getSelectionMode() };
-        if (selectionMode == SelectionMode::ApplyTexture) {
+        if (ui.radioButtonTexture->isChecked()) {
             m_glComponent->setLastSelectedTexture(name, index);
             ui.labelSelectedTexture->setPixmap(imagePart);
-        } else if (selectionMode == SelectionMode::ApplyObject) {
+        } else {
             m_glComponent->setLastSelectedObject(name, index);
             ui.labelSelectedObject->setPixmap(imagePart);
         }

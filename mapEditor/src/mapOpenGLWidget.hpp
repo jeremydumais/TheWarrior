@@ -11,6 +11,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include "gameMap.hpp"
+#include "mapView.hpp"
 #include "selectionMode.hpp"
 
 struct ResizeGLComponentInfo {
@@ -36,6 +37,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
     void setResourcesPath(const std::string &path);
     SelectionMode getSelectionMode() const;
     void setSelectionMode(SelectionMode mode);
+    void setMapView(MapView view);
     unsigned int getMapWidth() const;
     unsigned int getMapHeight() const;
     void reloadTextures();
@@ -60,13 +62,14 @@ class MapOpenGLWidget : public QOpenGLWidget {
     bool m_isGridEnabled;
     int m_zoomPercentage = 100;
     SelectionMode m_selectionMode;
+    MapView m_mapView;
     std::string m_resourcesPath;
     bool m_mousePressed;
     float m_translationX;
     float m_translationDragAndDropX;
     float m_translationY;
     float m_translationDragAndDropY;
-    int m_selectedTileIndex;
+    std::set<int> m_selectedTileIndices;
     GLubyte m_selectedTileColor;
     bool m_selectedTileColorGrowing;
     std::map<std::string, unsigned int> m_texturesGLMap;  // Mapping between texture name and OpenGL texture id
@@ -103,7 +106,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
 
  signals:
     void onRecalculateTileSize(ResizeGLComponentInfo info);
-    void onTileClicked(int tileIndex, int screenX, int screenY);
+    void onTileClicked(const std::set<int> &tileIndex, int screenX, int screenY);
     void onTileMouseReleaseEvent(std::set<int> tileIndex);
     void onTileMouseMoveEvent(bool mousePressed, int tileIndex);
     void onMapMoved(float translationX, float translationY);
