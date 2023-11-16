@@ -29,9 +29,10 @@ class GLComponentController {
                    int offsetBottom);
     std::vector<mapeditor::controllers::MonsterZoneDTO> getMonsterZones() const;
     OptMonsterZoneDTOConst getMonsterZoneByName(const std::string &name) const;
-
+    void unselectMapTiles();
  private:
     std::shared_ptr<thewarrior::models::GameMap> m_map;
+    std::vector<thewarrior::models::MapTile *> m_currentMapTiles;
 };
 
 }  // namespace mapeditor::controllers

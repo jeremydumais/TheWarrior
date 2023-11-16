@@ -32,10 +32,9 @@
 
 using commoneditor::ui::ErrorMessage;
 using commoneditor::ui::TextureDTO;
+using mapeditor::controllers::MapTileDTO;
 using mapeditor::controllers::MonsterZoneDTO;
-using thewarrior::models::MapTile;
 using thewarrior::models::Point;
-using thewarrior::models::TextureInfo;
 using thewarrior::storage::ConfigurationManager;
 using thewarrior::storage::GameMapStorage;
 
@@ -581,7 +580,7 @@ void MainForm::widgetDebugInfoVisibilityChanged(bool visible) {
     ui.actionView_DebuggingInfo->setChecked(visible);
 }
 
-void MainForm::onTileSelected(const std::vector<MapTile *> &, Point<>) {
+void MainForm::onTileSelected(std::vector<MapTileDTO>, Point<>) {
     ui.toolBox->setCurrentWidget(m_tilePropsComponent.get());
 }
 

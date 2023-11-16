@@ -16,15 +16,17 @@ using mapeditor::controllers::MonsterZoneDTO;
 namespace mapeditor::controllers {
 
 GLComponentController::GLComponentController()
-    : m_map(nullptr) {
+    : m_map(nullptr),
+      m_currentMapTiles({}) {
     }
 
 const std::shared_ptr<GameMap> GLComponentController::getMap() const {
-    return this->m_map;
+    return m_map;
 }
 
 void GLComponentController::setCurrentMap(std::shared_ptr<GameMap> map) {
-    this->m_map = map;
+    m_map = map;
+    m_currentMapTiles.clear();
 }
 
 std::vector<std::string> GLComponentController::getAlreadyUsedTextureNames() const {
@@ -99,6 +101,10 @@ OptMonsterZoneDTOConst GLComponentController::getMonsterZoneByName(const std::st
         return OptMonsterZoneDTOConst { zoneDTO };
     }
     return std::nullopt;
+}
+
+void GLComponentController::unselectMapTiles() {
+    m_currentMapTiles.clear();
 }
 
 }  // namespace mapeditor::controllers

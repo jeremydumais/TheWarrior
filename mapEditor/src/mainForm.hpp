@@ -17,6 +17,7 @@
 #include "components/textureListComponent.hpp"
 #include "components/textureSelectionDockWidget.hpp"
 #include "components/tilePropsComponent.hpp"
+#include "mapTileDTO.hpp"
 #include "monsterZoneDTO.hpp"
 #include "point.hpp"
 #include "selectionMode.hpp"
@@ -94,7 +95,7 @@ Q_OBJECT
     void widgetMapConfigVisibilityChanged(bool visible);
     void widgetTextureSelectionVisibilityChanged(bool visible);
     void widgetDebugInfoVisibilityChanged(bool visible);
-    void onTileSelected(const std::vector<thewarrior::models::MapTile *> &tiles, thewarrior::models::Point<> coord);
+    void onTileSelected(std::vector<mapeditor::controllers::MapTileDTO>, thewarrior::models::Point<> coord);
     void onTextureAdded(commoneditor::ui::TextureDTO textureDTO);
     void onTextureUpdated(const std::string &name, commoneditor::ui::TextureDTO textureDTO);
     void onTextureDeleted(const std::string &name);

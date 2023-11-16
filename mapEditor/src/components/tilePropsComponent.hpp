@@ -9,6 +9,7 @@
 #include <boost/optional.hpp>
 #include "mainForm_GLComponent.hpp"
 #include "mapTile.hpp"
+#include "mapTileDTO.hpp"
 #include "point.hpp"
 #include "qTableWidgetKeyPressWatcher.h"
 #include "ui_tilePropsComponent.h"
@@ -26,9 +27,11 @@ Q_OBJECT
     Ui::TilePropsComponent ui;
     QTableWidgetKeyPressWatcher tableWidgetMapTileTriggersKeyWatcher;
     MainForm_GLComponent *m_glComponent;
+    // TODO: 0.3.3 Implement the controllers
+    // TODO: 0.3.3 Get an instance of the glComponentController
     bool m_disableFieldsChangedEvent;
     void refreshEventList(thewarrior::models::MapTile *tile);
-    void onTileSelected(const std::vector<thewarrior::models::MapTile *> &tiles, thewarrior::models::Point<> coord);
+    void onTileSelected(std::vector<mapeditor::controllers::MapTileDTO> tiles, thewarrior::models::Point<> coord);
     void onTileUnselected();
     void onLineEditTexNameTextChanged(const QString &text);
     void onSpinBoxTexIndexValueChanged(int value);

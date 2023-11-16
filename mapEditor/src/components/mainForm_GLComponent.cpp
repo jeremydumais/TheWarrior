@@ -3,6 +3,7 @@
 #include <optional>
 #include <stdexcept>
 #include "errorMessage.hpp"
+#include "mapTileDTO.hpp"
 #include "monsterZoneDTO.hpp"
 #include "monsterZoneDTOUtils.hpp"
 #include "point.hpp"
@@ -16,9 +17,9 @@ using thewarrior::models::MapTileTriggerEvent;
 using thewarrior::models::MapTileTrigger;
 using thewarrior::models::Point;
 using thewarrior::models::Texture;
+using mapeditor::controllers::MapTileDTO;
 using mapeditor::controllers::MonsterZoneDTO;
 using mapeditor::controllers::OptMonsterZoneDTOConst;
-using std::map;
 using std::optional;
 using std::set;
 using std::string;
@@ -26,7 +27,6 @@ using std::vector;
 
 MainForm_GLComponent::MainForm_GLComponent()
     : m_glWidget(nullptr),
-    m_currentMapTiles({}),
     m_lastSelectedTextureName(""),
     m_lastSelectedObjectName(""),
     m_lastSelectedTextureIndex(-1),
@@ -70,7 +70,6 @@ unsigned int MainForm_GLComponent::getMapHeight() const {
 void MainForm_GLComponent::setCurrentMap(std::shared_ptr<GameMap> map) {
     this->m_controller.setCurrentMap(map);
     this->m_glWidget->setCurrentMap(map);
-    m_currentMapTiles.clear();
     clearLastSelectedTexture();
     clearLastSelectedObject();
 }
@@ -87,8 +86,10 @@ void MainForm_GLComponent::setMapView(MapView view) {
     this->m_glWidget->setMapView(view);
 }
 
-std::vector<MapTile *> MainForm_GLComponent::getCurrentMapTiles() {
-    return m_currentMapTiles;
+std::vector<MapTileDTO> MainForm_GLComponent::getCurrentMapTiles() {
+    // TODO: 0.3.3 To solve
+    return {};
+    //return m_currentMapTiles;
 }
 
 void MainForm_GLComponent::setLastSelectedTexture(const std::string &name,
@@ -179,16 +180,14 @@ void MainForm_GLComponent::resizeMap(int offsetLeft,
 
 void MainForm_GLComponent::onTileClicked(const std::set<int> &tileIndices, int, int) {
     if (m_glWidget->getSelectionMode() == SelectionMode::Select && tileIndices.size() != 0) {
-        m_currentMapTiles.clear();
-        m_currentMapTiles = m_controller.getMap()->getTilesForEditing(tileIndices);
         auto coord = [&tileIndices, this]() {
             return tileIndices.size() > 0 ?
                 m_controller.getMap()->getCoordFromTileIndex(*tileIndices.begin()) :
                 Point(0, 0);
         }();
-        emit tileSelected(m_currentMapTiles, coord);
+        emit tileSelected({}, coord);
     } else {
-        m_currentMapTiles.clear();
+        m_controller.unselectMapTiles();
         emit tileUnselected();
     }
 }
@@ -252,7 +251,7 @@ void MainForm_GLComponent::onTileMouseReleaseEvent(set<int> selectedTileIndexes)
 }
 
 void MainForm_GLComponent::addMoveDenyTrigger(const std::set<int> &selectedTileIndexes, MapTileTriggerEvent event) {
-    // TODO: To solve
+    // TODO: 0.3.3 To solve
     //for (const int index : selectedTileIndexes) {
         //m_currentMapTile = &m_controller.getMap()->getTileForEditing(index);
         //if (!m_currentMapTile->findTrigger(event).has_value())

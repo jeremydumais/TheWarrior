@@ -15,8 +15,10 @@ include_directories(${QT_INCLUDE_PATH}
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterStoreInfoJSONSerializer.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterZoneFormController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterEncounterFormController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/mapTileDTOUtils.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterPickerFormController.cpp
-                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterZoneDTOUtils.cpp)
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterZoneDTOUtils.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/tilePropsComponentController.cpp)
 
 find_package(Qt5 COMPONENTS Gui OpenGL REQUIRED)
 

@@ -142,7 +142,7 @@ TEST_F(MonsterZoneWithTwoMonstersSample, OperatorNotEqual_WithSame_ReturnFalse) 
     ASSERT_FALSE(zone != zone2);
 }
 
-TEST_F(MonsterZoneWithTwoMonstersSample, OperatorNotNotEqual_WithDiffName_ReturnTrue) {
+TEST_F(MonsterZoneWithTwoMonstersSample, OperatorNotEqual_WithDiffName_ReturnTrue) {
     const MonsterZone zone2("Test2", getWhiteColor(), 2, 5, getTwoMonsterSample());
     ASSERT_NE(zone, zone2);
 }

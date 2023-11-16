@@ -15,10 +15,12 @@ add_executable(${PROJECT_UNITTEST_NAME} ${INCLUDE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}/mainController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/manageItemStoreController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/manageMonsterStoreController_unittest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/mapTileDTOUtils_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/monsterPickerFormController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/monsterStoreInfoJSONSerializer_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/monsterZoneDTOUtils_unittest.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/glComponentController_unittest.cpp)
+  ${CMAKE_CURRENT_SOURCE_DIR}/glComponentController_unittest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/tilePropsComponentController_unittest.cpp)
 
 target_link_libraries(${PROJECT_UNITTEST_NAME} PRIVATE MapEditor.Controllers theWarrior.Models gtest)
 gtest_discover_tests(${PROJECT_UNITTEST_NAME})

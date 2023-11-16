@@ -26,6 +26,11 @@ class MapTileWith2Triggers : public ::testing::Test {
     MapTileTrigger secondTrigger;
 };
 
+MapTile getMapTileSample1() {
+    MapTile tile;
+    return tile;
+}
+
 TEST(MapTile_Constructor, DefaultConstructor_ReturnEmptyTile) {
     MapTile tile;
     ASSERT_EQ("", tile.getTextureName());
@@ -37,6 +42,10 @@ TEST(MapTile_Constructor, DefaultConstructor_ReturnEmptyTile) {
     ASSERT_FALSE(tile.getIsWallToClimb());
     ASSERT_EQ(-1, tile.getMonsterZoneIndex());
     ASSERT_EQ(0, tile.getTriggers().size());
+}
+
+TEST(MapTile_operatorEqual, WithAllFieldEqual_ReturnTrue) {
+    ASSERT_EQ(getMapTileSample1(), getMapTileSample1());
 }
 
 TEST(MapTile_getTextureName, DefaultConstructor_ReturnEmptyString) {

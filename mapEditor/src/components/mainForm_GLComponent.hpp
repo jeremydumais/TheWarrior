@@ -11,6 +11,7 @@
 #include "glComponentController.hpp"
 #include "mapTile.hpp"
 #include "mapView.hpp"
+#include "mapTileDTO.hpp"
 #include "monsterZoneDTO.hpp"
 #include "point.hpp"
 #include "selectionMode.hpp"
@@ -31,7 +32,7 @@ class MainForm_GLComponent : public QWidget {
     void setResourcesPath(const std::string &path);
     void setSelectionMode(SelectionMode mode);
     void setMapView(MapView view);
-    std::vector<thewarrior::models::MapTile *> getCurrentMapTiles();
+    std::vector<mapeditor::controllers::MapTileDTO> getCurrentMapTiles();
     void setLastSelectedTexture(const std::string &name, int index);
     void setLastSelectedObject(const std::string &name, int index);
     void clearLastSelectedTexture();
@@ -59,13 +60,12 @@ class MainForm_GLComponent : public QWidget {
     mapeditor::controllers::OptMonsterZoneDTOConst getMonsterZoneByName(const std::string &name) const;
     std::vector<std::string> getAlreadyUsedMonsterZoneNames() const;
  signals:
-        void tileSelected(const std::vector<thewarrior::models::MapTile *> &tiles, thewarrior::models::Point<> coord);
+        void tileSelected(std::vector<mapeditor::controllers::MapTileDTO> tiles, thewarrior::models::Point<> coord);
         void tileUnselected();
 
  private:
     MapOpenGLWidget *m_glWidget;
     mapeditor::controllers::GLComponentController m_controller;
-    std::vector<thewarrior::models::MapTile *> m_currentMapTiles;
     std::string m_lastSelectedTextureName;
     std::string m_lastSelectedObjectName;
     int m_lastSelectedTextureIndex;
