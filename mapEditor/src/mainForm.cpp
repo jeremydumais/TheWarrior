@@ -133,7 +133,8 @@ void MainForm::componentInitialization() {
     ui.toolBox->addItem(m_mapPropsComponent.get(), "Map properties");
 
     m_tilePropsComponent = std::make_shared<TilePropsComponent>(this,
-            &m_glComponent);
+            &m_glComponent,
+            m_glComponent.getControllerPtr());
     ui.toolBox->addItem(m_tilePropsComponent.get(), "Tile properties");
 
     m_textureListComponent = std::make_shared<TextureListComponent>(this,

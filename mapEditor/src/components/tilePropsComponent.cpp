@@ -2,6 +2,7 @@
 #include <qtablewidget.h>
 #include <algorithm>
 #include <string>
+#include "glComponentController.hpp"
 #include "mapTile.hpp"
 #include "mapTileDTO.hpp"
 #include "tilePropsComponent.hpp"
@@ -12,6 +13,7 @@
 
 using commoneditor::ui::ErrorMessage;
 using commoneditor::ui::UIUtils;
+using mapeditor::controllers::GLComponentController;
 using mapeditor::controllers::MapTileDTO;
 using thewarrior::models::MapTile;
 using thewarrior::models::MapTileTrigger;
@@ -22,9 +24,11 @@ void setEnabledWidgetsInLayout(QLayout *layout, bool enabled);
 bool isChildWidgetOfAnyLayout(QLayout *layout, QWidget *widget);
 
 TilePropsComponent::TilePropsComponent(QWidget *parent,
-        MainForm_GLComponent *glComponent)
+        MainForm_GLComponent *glComponent,
+        GLComponentController *glComponentController)
     : QWidget(parent),
       ui(Ui::TilePropsComponent()),
+      m_controller(glComponentController),
       m_glComponent(glComponent),
       m_disableFieldsChangedEvent(false) {
       ui.setupUi(this);
@@ -122,7 +126,7 @@ void updateUIField(const std::vector<MapTileDTO> &tiles,
         T *uiField,
         const Getter& getter,
         const Setter& setter) {
-    if (std::all_of(tiles.begin(), tiles.end(), [&](MapTile* tile) {
+    if (std::all_of(tiles.begin(), tiles.end(), [&](const MapTileDTO &tile) {
         return getter(tile) == getter(tiles.at(0));
     })) {
         setter(uiField, getter(tiles.at(0)), false);
@@ -143,26 +147,26 @@ void TilePropsComponent::onTileSelected(std::vector<MapTileDTO> tiles, Point<> c
 
     m_disableFieldsChangedEvent = true;
 
-    //updateUIField(tiles, ui.lineEditTexName, [](MapTile* tile) { return tile->getTextureName(); },
-    //[](QLineEdit *field, const std::string& value, bool) { field->setText(value.c_str()); });
+    updateUIField(tiles, ui.lineEditTexName, [](const MapTileDTO &tile) { return tile.textureName; },
+    [](QLineEdit *field, const std::string& value, bool) { field->setText(value.c_str()); });
 
-    //updateUIField(tiles, ui.spinBoxTexIndex, [](MapTile* tile) { return tile->getTextureIndex(); },
-    //[](QSpinBox *field, int value, bool empty) { empty ? field->clear() : field->setValue(value); });
+    updateUIField(tiles, ui.spinBoxTexIndex, [](const MapTileDTO &tile) { return tile.textureIndex; },
+    [](QSpinBox *field, int value, bool empty) { empty ? field->clear() : field->setValue(value); });
 
-    //updateUIField(tiles, ui.lineEditObjTexName, [](MapTile* tile) { return tile->getObjectTextureName(); },
-    //[](QLineEdit *field, const std::string& value, bool) { field->setText(value.c_str()); });
+    updateUIField(tiles, ui.lineEditObjTexName, [](const MapTileDTO &tile) { return tile.objectTextureName; },
+    [](QLineEdit *field, const std::string& value, bool) { field->setText(value.c_str()); });
 
-    //updateUIField(tiles, ui.spinBoxObjTexIndex, [](MapTile* tile) { return tile->getObjectTextureIndex(); },
-    //[](QSpinBox *field, int value, bool empty) { empty ? field->clear() : field->setValue(value); });
+    updateUIField(tiles, ui.spinBoxObjTexIndex, [](const MapTileDTO &tile) { return tile.objectTextureIndex; },
+    [](QSpinBox *field, int value, bool empty) { empty ? field->clear() : field->setValue(value); });
 
-    //updateUIField(tiles, ui.checkBoxObjectAbovePlayer, [](MapTile* tile) { return tile->getObjectAbovePlayer(); },
-    //[](QCheckBox *field, bool value, bool empty) { empty ? field->setChecked(false) : field->setChecked(value); });
+    updateUIField(tiles, ui.checkBoxObjectAbovePlayer, [](const MapTileDTO &tile) { return tile.objectAbovePlayer; },
+    [](QCheckBox *field, bool value, bool empty) { empty ? field->setChecked(false) : field->setChecked(value); });
 
-    //updateUIField(tiles, ui.checkBoxTileCanSteppedOn, [](MapTile* tile) { return tile->canPlayerSteppedOn(); },
-    //[](QCheckBox *field, bool value, bool empty) { empty ? field->setChecked(false) : field->setChecked(value); });
+    updateUIField(tiles, ui.checkBoxTileCanSteppedOn, [](const MapTileDTO &tile) { return tile.canSteppedOn; },
+    [](QCheckBox *field, bool value, bool empty) { empty ? field->setChecked(false) : field->setChecked(value); });
 
-    //updateUIField(tiles, ui.checkBoxIsWallToClimb, [](MapTile* tile) { return tile->getIsWallToClimb(); },
-    //[](QCheckBox *field, bool value, bool empty) { empty ? field->setChecked(false) : field->setChecked(value); });
+    updateUIField(tiles, ui.checkBoxIsWallToClimb, [](const MapTileDTO &tile) { return tile.isWallToClimb; },
+    [](QCheckBox *field, bool value, bool empty) { empty ? field->setChecked(false) : field->setChecked(value); });
 
     //refreshEventList(tile);
     m_disableFieldsChangedEvent = false;

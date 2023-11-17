@@ -2,6 +2,7 @@
 #include <algorithm>
 #include "gameMap.hpp"
 #include "mapTile.hpp"
+#include "mapTileDTOUtils.hpp"
 #include "monsterZone.hpp"
 #include "monsterZoneDTOUtils.hpp"
 #include "texture.hpp"
@@ -27,6 +28,20 @@ const std::shared_ptr<GameMap> GLComponentController::getMap() const {
 void GLComponentController::setCurrentMap(std::shared_ptr<GameMap> map) {
     m_map = map;
     m_currentMapTiles.clear();
+}
+
+void GLComponentController::selectTilesForEditing(const std::set<int> &indices) {
+    m_currentMapTiles = m_map->getTilesForEditing(indices);
+}
+
+std::vector<MapTileDTO> GLComponentController::getSelectedMapTiles() const {
+    std::vector<MapTileDTO> retval = {};
+    std::for_each(m_currentMapTiles.begin(),
+            m_currentMapTiles.end(),
+            [&retval](const MapTile *tile) {
+        retval.push_back(MapTileDTOUtils::fromMapTile(*tile));
+    });
+    return retval;
 }
 
 std::vector<std::string> GLComponentController::getAlreadyUsedTextureNames() const {

@@ -23,8 +23,8 @@ bool operator==(const MapTile &lhs, const MapTile &rhs) {
         lhs.canPlayerSteppedOn() == rhs.canPlayerSteppedOn() &&
         lhs.getObjectAbovePlayer() == rhs.getObjectAbovePlayer() &&
         lhs.getIsWallToClimb() == rhs.getIsWallToClimb() &&
-        lhs.getMonsterZoneIndex() == rhs.getMonsterZoneIndex();
-        // TODO: 0.3.3 Implement the Trigger == operator
+        lhs.getMonsterZoneIndex() == rhs.getMonsterZoneIndex() &&
+        lhs.getTriggers() == rhs.getTriggers();
 }
 
 bool operator!=(const MapTile &lhs, const MapTile &rhs) {

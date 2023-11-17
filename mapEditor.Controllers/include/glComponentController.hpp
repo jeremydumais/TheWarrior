@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "gameMap.hpp"
+#include "mapTileDTO.hpp"
 #include "monsterZone.hpp"
 #include "monsterZoneDTO.hpp"
 
@@ -16,6 +17,8 @@ class GLComponentController {
     GLComponentController();
     const std::shared_ptr<thewarrior::models::GameMap> getMap() const;
     void setCurrentMap(std::shared_ptr<thewarrior::models::GameMap> map);
+    void selectTilesForEditing(const std::set<int> &indices);
+    std::vector<MapTileDTO> getSelectedMapTiles() const;
     std::vector<std::string> getAlreadyUsedTextureNames() const;
     std::vector<std::string> getAlreadyUsedMonsterZoneNames() const;
     bool isTextureUsedInMap(const std::string &name);

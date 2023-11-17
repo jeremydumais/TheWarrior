@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include "mapTileTriggerDTO.hpp"
 
 namespace mapeditor::controllers {
 
@@ -14,7 +15,7 @@ struct MapTileDTO {
     bool objectAbovePlayer = false;
     bool isWallToClimb = false;
     int monsterZoneIndex = -1;
-    std::vector<std::string> triggers = {};
+    std::vector<MapTileTriggerDTO> triggers = {};
 };
 
 }  // namespace mapeditor::controllers

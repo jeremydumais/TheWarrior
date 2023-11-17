@@ -1,5 +1,6 @@
 #include "mapTileTrigger.hpp"
 #include <gtest/gtest.h>
+#include <map>
 
 using thewarrior::models::MapTileTrigger;
 using thewarrior::models::MapTileTriggerEvent;
@@ -112,4 +113,54 @@ TEST(MapTileTrigger_OperatorNotEqual, WithActionPropsDifferent_ReturnTrue) {
                 ASSERT_NE(getTriggerSample1(), val2);
 }
 
-// TODO: 0.3.3 Unit test all the other methods
+TEST(MapTileTrigger_GetEvent, WithSample1_ReturnSteppedOn) {
+    auto actual = getTriggerSample1();
+    ASSERT_EQ(MapTileTriggerEvent::SteppedOn, actual.getEvent());
+}
+
+TEST(MapTileTrigger_GetCondition, WithSample1_ReturnMustBeFacing) {
+    auto actual = getTriggerSample1();
+    ASSERT_EQ(MapTileTriggerCondition::MustBeFacing, actual.getCondition());
+}
+
+TEST(MapTileTrigger_GetAction, WithSample1_ReturnDenyMove) {
+    auto actual = getTriggerSample1();
+    ASSERT_EQ(MapTileTriggerAction::DenyMove, actual.getAction());
+}
+
+TEST(MapTileTrigger_GetActionProperties, WithSample1_Return2KeyValue) {
+    auto sample = getTriggerSample1();
+    const auto &props = sample.getActionProperties();
+    std::map<std::string, std::string> expected = {
+        {"Test1", "Test2" }, { "Test3", "Test4" }
+    };
+    ASSERT_EQ(expected, props);
+}
+
+TEST(MapTileTrigger_SetEvent, WithSample1AndMoveUp_ReturnSuccess) {
+    auto actual = getTriggerSample1();
+    actual.setEvent(MapTileTriggerEvent::MoveUpPressed);
+    ASSERT_EQ(MapTileTriggerEvent::MoveUpPressed, actual.getEvent());
+}
+
+TEST(MapTileTrigger_SetCondition, WithSample1AndMustHaveItem_ReturnSuccess) {
+    auto actual = getTriggerSample1();
+    actual.setCondition(MapTileTriggerCondition::MustHaveItem);
+    ASSERT_EQ(MapTileTriggerCondition::MustHaveItem, actual.getCondition());
+}
+
+TEST(MapTileTrigger_SetAction, WithSample1AndChangeMap_ReturnSuccess) {
+    auto actual = getTriggerSample1();
+    actual.setAction(MapTileTriggerAction::ChangeMap);
+    ASSERT_EQ(MapTileTriggerAction::ChangeMap, actual.getAction());
+}
+
+TEST(MapTileTrigger_SetActionProperties, WithSample1AndOneKey_ReturnSuccess) {
+    auto sample = getTriggerSample1();
+    sample.setActionProperties({ {"Test98", "Test99"} });
+    const auto &props = sample.getActionProperties();
+    std::map<std::string, std::string> expected = {
+        {"Test98", "Test99" }
+    };
+    ASSERT_EQ(expected, props);
+}

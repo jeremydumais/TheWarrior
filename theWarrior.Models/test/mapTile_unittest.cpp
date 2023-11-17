@@ -1,4 +1,5 @@
 #include "mapTile.hpp"
+#include "mapTileTrigger.hpp"
 #include <gtest/gtest.h>
 
 using thewarrior::models::MapTile;
@@ -28,6 +29,18 @@ class MapTileWith2Triggers : public ::testing::Test {
 
 MapTile getMapTileSample1() {
     MapTile tile;
+    tile.setTextureName("Tex1");
+    tile.setTextureIndex(1);
+    tile.setObjectTextureName("Tex2");
+    tile.setObjectTextureIndex(2);
+    tile.setCanPlayerSteppedOn(true);
+    tile.setObjectAbovePlayer(false);
+    tile.setIsWallToClimb(false);
+    tile.setMonsterZoneIndex(3);
+    tile.addTrigger(MapTileTrigger(MapTileTriggerEvent::SteppedOn,
+                MapTileTriggerCondition::MustBeFacing,
+                MapTileTriggerAction::DenyMove,
+                { { "Test1", "Test2" }}));
     return tile;
 }
 
@@ -44,9 +57,119 @@ TEST(MapTile_Constructor, DefaultConstructor_ReturnEmptyTile) {
     ASSERT_EQ(0, tile.getTriggers().size());
 }
 
+TEST(MapTile_operatorEqual, WithDefaultMapTile_ReturnTrue) {
+    ASSERT_EQ(MapTile(), MapTile());
+}
+
 TEST(MapTile_operatorEqual, WithAllFieldEqual_ReturnTrue) {
     ASSERT_EQ(getMapTileSample1(), getMapTileSample1());
 }
+
+TEST(MapTile_operatorEqual, WithDiffTextureName_ReturnFalse) {
+    auto actual = getMapTileSample1();
+    actual.setTextureName("Tex9");
+    ASSERT_FALSE(getMapTileSample1() == actual);
+}
+
+TEST(MapTile_operatorEqual, WithDiffTextureIndex_ReturnFalse) {
+    auto actual = getMapTileSample1();
+    actual.setTextureIndex(9);
+    ASSERT_FALSE(getMapTileSample1() == actual);
+}
+
+TEST(MapTile_operatorEqual, WithDiffObjectTextureName_ReturnFalse) {
+    auto actual = getMapTileSample1();
+    actual.setObjectTextureName("Tex9");
+    ASSERT_FALSE(getMapTileSample1() == actual);
+}
+
+TEST(MapTile_operatorEqual, WithDiffObjectTextureIndex_ReturnFalse) {
+    auto actual = getMapTileSample1();
+    actual.setObjectTextureIndex(9);
+    ASSERT_FALSE(getMapTileSample1() == actual);
+}
+
+TEST(MapTile_operatorEqual, WithDiffCanSteppedOn_ReturnFalse) {
+    auto actual = getMapTileSample1();
+    actual.setCanPlayerSteppedOn(false);
+    ASSERT_FALSE(getMapTileSample1() == actual);
+}
+
+TEST(MapTile_operatorEqual, WithDiffObjectAbovePlayer_ReturnFalse) {
+    auto actual = getMapTileSample1();
+    actual.setObjectAbovePlayer(true);
+    ASSERT_FALSE(getMapTileSample1() == actual);
+}
+
+TEST(MapTile_operatorEqual, WithDiffIsWallToClimb_ReturnFalse) {
+    auto actual = getMapTileSample1();
+    actual.setIsWallToClimb(true);
+    ASSERT_FALSE(getMapTileSample1() == actual);
+}
+
+TEST(MapTile_operatorEqual, WithDiffTrigger_ReturnFalse) {
+    auto actual = getMapTileSample1();
+    actual.deleteTrigger(actual.getTriggers()[0]);
+    ASSERT_FALSE(getMapTileSample1() == actual);
+}
+
+TEST(MapTile_operatorNotEqual, WithDefaultMapTile_ReturnFalse) {
+    ASSERT_FALSE(MapTile() != MapTile());
+}
+
+TEST(MapTile_operatorNotEqual, WithAllFieldEqual_ReturnFalse) {
+    ASSERT_FALSE(getMapTileSample1() != getMapTileSample1());
+}
+
+TEST(MapTile_operatorNotEqual, WithDiffTextureName_ReturnTrue) {
+    auto actual = getMapTileSample1();
+    actual.setTextureName("Tex9");
+    ASSERT_NE(getMapTileSample1(), actual);
+}
+
+TEST(MapTile_operatorNotEqual, WithDiffTextureIndex_ReturnTrue) {
+    auto actual = getMapTileSample1();
+    actual.setTextureIndex(9);
+    ASSERT_NE(getMapTileSample1(), actual);
+}
+
+TEST(MapTile_operatorNotEqual, WithDiffObjectTextureName_ReturnTrue) {
+    auto actual = getMapTileSample1();
+    actual.setObjectTextureName("Tex9");
+    ASSERT_NE(getMapTileSample1(), actual);
+}
+
+TEST(MapTile_operatorNotEqual, WithDiffObjectTextureIndex_ReturnTrue) {
+    auto actual = getMapTileSample1();
+    actual.setObjectTextureIndex(9);
+    ASSERT_NE(getMapTileSample1(), actual);
+}
+
+TEST(MapTile_operatorNotEqual, WithDiffCanSteppedOn_ReturnTrue) {
+    auto actual = getMapTileSample1();
+    actual.setCanPlayerSteppedOn(false);
+    ASSERT_NE(getMapTileSample1(), actual);
+}
+
+TEST(MapTile_operatorNotEqual, WithDiffObjectAbovePlayer_ReturnTrue) {
+    auto actual = getMapTileSample1();
+    actual.setObjectAbovePlayer(true);
+    ASSERT_NE(getMapTileSample1(), actual);
+}
+
+TEST(MapTile_operatorNotEqual, WithDiffIsWallToClimb_ReturnTrue) {
+    auto actual = getMapTileSample1();
+    actual.setIsWallToClimb(true);
+    ASSERT_NE(getMapTileSample1(), actual);
+}
+
+TEST(MapTile_operatorNotEqual, WithDiffTrigger_ReturnTrue) {
+    auto actual = getMapTileSample1();
+    actual.deleteTrigger(actual.getTriggers()[0]);
+    ASSERT_NE(getMapTileSample1(), actual);
+}
+
+
 
 TEST(MapTile_getTextureName, DefaultConstructor_ReturnEmptyString) {
     MapTile tile;

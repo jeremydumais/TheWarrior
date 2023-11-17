@@ -3,7 +3,9 @@
 #include <optional>
 #include <stdexcept>
 #include "errorMessage.hpp"
+#include "glComponentController.hpp"
 #include "mapTileDTO.hpp"
+#include "mapTileDTOUtils.hpp"
 #include "monsterZoneDTO.hpp"
 #include "monsterZoneDTOUtils.hpp"
 #include "point.hpp"
@@ -17,7 +19,9 @@ using thewarrior::models::MapTileTriggerEvent;
 using thewarrior::models::MapTileTrigger;
 using thewarrior::models::Point;
 using thewarrior::models::Texture;
+using mapeditor::controllers::GLComponentController;
 using mapeditor::controllers::MapTileDTO;
+using mapeditor::controllers::MapTileDTOUtils;
 using mapeditor::controllers::MonsterZoneDTO;
 using mapeditor::controllers::OptMonsterZoneDTOConst;
 using std::optional;
@@ -32,6 +36,10 @@ MainForm_GLComponent::MainForm_GLComponent()
     m_lastSelectedTextureIndex(-1),
     m_lastSelectedObjectIndex(-1),
     m_lastSelectedMonsterZoneIndex(-1) {
+}
+
+GLComponentController *MainForm_GLComponent::getControllerPtr() {
+    return &m_controller;
 }
 
 void MainForm_GLComponent::initializeUIObjects(MapOpenGLWidget *glWidget) {
@@ -87,9 +95,7 @@ void MainForm_GLComponent::setMapView(MapView view) {
 }
 
 std::vector<MapTileDTO> MainForm_GLComponent::getCurrentMapTiles() {
-    // TODO: 0.3.3 To solve
-    return {};
-    //return m_currentMapTiles;
+    return m_controller.getSelectedMapTiles();
 }
 
 void MainForm_GLComponent::setLastSelectedTexture(const std::string &name,
@@ -180,12 +186,13 @@ void MainForm_GLComponent::resizeMap(int offsetLeft,
 
 void MainForm_GLComponent::onTileClicked(const std::set<int> &tileIndices, int, int) {
     if (m_glWidget->getSelectionMode() == SelectionMode::Select && tileIndices.size() != 0) {
+        m_controller.selectTilesForEditing(tileIndices);
         auto coord = [&tileIndices, this]() {
             return tileIndices.size() > 0 ?
                 m_controller.getMap()->getCoordFromTileIndex(*tileIndices.begin()) :
                 Point(0, 0);
         }();
-        emit tileSelected({}, coord);
+        emit tileSelected(m_controller.getSelectedMapTiles(), coord);
     } else {
         m_controller.unselectMapTiles();
         emit tileUnselected();

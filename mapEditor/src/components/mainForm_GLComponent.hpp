@@ -22,6 +22,7 @@ class MainForm_GLComponent : public QWidget {
 
  public:
     MainForm_GLComponent();
+    mapeditor::controllers::GLComponentController *getControllerPtr();
     void initializeUIObjects(MapOpenGLWidget *glWidget);
     void connectUIActions();
     const std::string &getResourcesPath() const;
