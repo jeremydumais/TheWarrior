@@ -1,13 +1,12 @@
 #include "editTileActionChangeMapPropertiesForm.hpp"
-#include "errorMessage.hpp"
-#include <algorithm>
 #include <fmt/format.h>
 #include <QFileDialog>
 #include <QImageReader>
 #include <QMessageBox>
+#include <algorithm>
+#include "errorMessage.hpp"
 
-using namespace std;
-using namespace commoneditor::ui;
+using commoneditor::ui::ErrorMessage;
 
 EditTileActionChangeMapPropertiesForm::EditTileActionChangeMapPropertiesForm(QWidget *parent,
         const std::string &resourcesPath,
@@ -15,8 +14,7 @@ EditTileActionChangeMapPropertiesForm::EditTileActionChangeMapPropertiesForm(QWi
     : QDialog(parent),
     ui(Ui::editTileActionChangeMapPropertiesFormClass()),
     m_resourcesPath(resourcesPath),
-    m_properties(properties)
-{
+    m_properties(properties) {
     ui.setupUi(this);
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
     connect(ui.pushButtonOK, &QPushButton::clicked, this, &EditTileActionChangeMapPropertiesForm::onPushButtonOK);
@@ -46,13 +44,11 @@ EditTileActionChangeMapPropertiesForm::EditTileActionChangeMapPropertiesForm(QWi
     }
 }
 
-const std::map<std::string, std::string> &EditTileActionChangeMapPropertiesForm::getUpdatedProperties() const
-{
+const std::map<std::string, std::string> &EditTileActionChangeMapPropertiesForm::getUpdatedProperties() const {
     return m_properties;
 }
 
-void EditTileActionChangeMapPropertiesForm::onPushButtonOK()
-{
+void EditTileActionChangeMapPropertiesForm::onPushButtonOK() {
     if (ui.lineEditMapFileName->text().isEmpty()) {
         ErrorMessage::show("The map file cannot be empty.");
         return;
@@ -60,19 +56,18 @@ void EditTileActionChangeMapPropertiesForm::onPushButtonOK()
 
     m_properties.clear();
     m_properties["mapFileName"] = ui.lineEditMapFileName->text().toStdString();
-    m_properties["playerX"] = to_string(ui.spinBoxPlayerX->value());
-    m_properties["playerY"] = to_string(ui.spinBoxPlayerY->value());
-    m_properties["playerFacing"] = to_string(ui.comboBoxPlayerFacing->currentIndex());
+    m_properties["playerX"] = std::to_string(ui.spinBoxPlayerX->value());
+    m_properties["playerY"] = std::to_string(ui.spinBoxPlayerY->value());
+    m_properties["playerFacing"] = std::to_string(ui.comboBoxPlayerFacing->currentIndex());
     accept();
 }
 
-void EditTileActionChangeMapPropertiesForm::onPushButtonOpenMapFileClick()
-{
+void EditTileActionChangeMapPropertiesForm::onPushButtonOpenMapFileClick() {
     QString fullFilePath { QFileDialog::getOpenFileName(this,
             tr("Open Map"),
             m_resourcesPath.c_str(),
             tr("Map file (*.map)")) };
     QFileInfo fileInfo(fullFilePath);
-    string filename { fileInfo.fileName().toStdString() };
+    std::string filename { fileInfo.fileName().toStdString() };
     ui.lineEditMapFileName->setText(filename.c_str());
 }

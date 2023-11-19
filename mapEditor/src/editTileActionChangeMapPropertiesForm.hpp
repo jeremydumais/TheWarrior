@@ -1,21 +1,20 @@
-#ifndef EDITTILEACTIONCHANGEMAPPROPERTIESFORM_H
-#define EDITTILEACTIONCHANGEMAPPROPERTIESFORM_H
+#ifndef MAPEDITOR_SRC_EDITTILEACTIONCHANGEMAPPROPERTIESFORM_HPP_
+#define MAPEDITOR_SRC_EDITTILEACTIONCHANGEMAPPROPERTIESFORM_HPP_
 
 #include "ui_editTileActionChangeMapPropertiesForm.h"
 #include <map>
 #include <string>
 
-class EditTileActionChangeMapPropertiesForm : public QDialog
-{
+class EditTileActionChangeMapPropertiesForm : public QDialog {
 Q_OBJECT
 
-public:
+ public:
     explicit EditTileActionChangeMapPropertiesForm(QWidget *parent,
             const std::string &resourcesPath,
             const std::map<std::string, std::string> &properties);
-    ~EditTileActionChangeMapPropertiesForm() = default;
+    ~EditTileActionChangeMapPropertiesForm() override = default;
     const std::map<std::string, std::string> &getUpdatedProperties() const;
-private:
+ private:
     Ui::editTileActionChangeMapPropertiesFormClass ui;
     std::string m_resourcesPath;
     std::map<std::string, std::string> m_properties;
@@ -23,4 +22,4 @@ private:
     void onPushButtonOpenMapFileClick();
 };
 
-#endif // EDITTILEACTIONCHANGEMAPPROPERTIESFORM_H
+#endif  // MAPEDITOR_SRC_EDITTILEACTIONCHANGEMAPPROPERTIESFORM_HPP_

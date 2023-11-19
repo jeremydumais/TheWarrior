@@ -34,6 +34,10 @@ void GLComponentController::selectTilesForEditing(const std::set<int> &indices) 
     m_currentMapTiles = m_map->getTilesForEditing(indices);
 }
 
+std::vector<thewarrior::models::MapTile *> GLComponentController::getCurrentMapTiles() {
+    return m_currentMapTiles;
+}
+
 std::vector<MapTileDTO> GLComponentController::getSelectedMapTiles() const {
     std::vector<MapTileDTO> retval = {};
     std::for_each(m_currentMapTiles.begin(),

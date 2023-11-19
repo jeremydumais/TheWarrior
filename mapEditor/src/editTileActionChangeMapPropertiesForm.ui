@@ -130,6 +130,9 @@
         <iconset resource="../res/global.qrc">
          <normaloff>:/commonEditor.UI/res/dialog-ok.svg</normaloff>:/commonEditor.UI/res/dialog-ok.svg</iconset>
        </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item>
@@ -147,6 +150,15 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEditMapFileName</tabstop>
+  <tabstop>pushButtonOpenMapFile</tabstop>
+  <tabstop>spinBoxPlayerX</tabstop>
+  <tabstop>spinBoxPlayerY</tabstop>
+  <tabstop>comboBoxPlayerFacing</tabstop>
+  <tabstop>pushButtonOK</tabstop>
+  <tabstop>pushButtonCancel</tabstop>
+ </tabstops>
  <resources>
   <include location="../res/global.qrc"/>
  </resources>

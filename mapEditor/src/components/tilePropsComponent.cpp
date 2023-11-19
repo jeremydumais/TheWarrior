@@ -2,9 +2,11 @@
 #include <qtablewidget.h>
 #include <algorithm>
 #include <string>
+#include <vector>
 #include "glComponentController.hpp"
 #include "mapTile.hpp"
 #include "mapTileDTO.hpp"
+#include "mapTileTriggerDTO.hpp"
 #include "tilePropsComponent.hpp"
 #include "editMapTileTriggerForm.hpp"
 #include "errorMessage.hpp"
@@ -15,6 +17,7 @@ using commoneditor::ui::ErrorMessage;
 using commoneditor::ui::UIUtils;
 using mapeditor::controllers::GLComponentController;
 using mapeditor::controllers::MapTileDTO;
+using mapeditor::controllers::MapTileTriggerDTO;
 using thewarrior::models::MapTile;
 using thewarrior::models::MapTileTrigger;
 using thewarrior::models::MapTileTriggerEventConverter;
@@ -105,17 +108,17 @@ void TilePropsComponent::reset() {
     ui.checkBoxTileCanSteppedOn->setChecked(false);
     ui.checkBoxObjectAbovePlayer->setChecked(false);
     ui.checkBoxIsWallToClimb->setChecked(false);
-    refreshEventList(nullptr);
+    refreshEventList({});
 }
 
-void TilePropsComponent::refreshEventList(MapTile *tile) {
+void TilePropsComponent::refreshEventList(std::set<mapeditor::controllers::MapTileTriggerDTO> triggers) {
     ui.tableWidgetMapTileTriggers->model()->removeRows(0, ui.tableWidgetMapTileTriggers->rowCount());
-    if (tile != nullptr) {
+    if (triggers.size() > 0) {
         int indexTrigger {0};
-        for (const auto &trigger : tile->getTriggers()) {
+        for (const auto &trigger : triggers) {
             ui.tableWidgetMapTileTriggers->insertRow(indexTrigger);
             ui.tableWidgetMapTileTriggers->setItem(indexTrigger, 0,
-                    new QTableWidgetItem(MapTileTriggerEventConverter::eventToString(trigger.getEvent()).c_str()));
+                    new QTableWidgetItem(trigger.event.c_str()));
             indexTrigger++;
         }
     }
@@ -135,7 +138,6 @@ void updateUIField(const std::vector<MapTileDTO> &tiles,
     }
 }
 void TilePropsComponent::onTileSelected(std::vector<MapTileDTO> tiles, Point<> coord) {
-    // TODO: 0.3.3 To solve
     if (tiles.size() == 0) {
         onTileUnselected();
         return;
@@ -168,7 +170,7 @@ void TilePropsComponent::onTileSelected(std::vector<MapTileDTO> tiles, Point<> c
     updateUIField(tiles, ui.checkBoxIsWallToClimb, [](const MapTileDTO &tile) { return tile.isWallToClimb; },
     [](QCheckBox *field, bool value, bool empty) { empty ? field->setChecked(false) : field->setChecked(value); });
 
-    //refreshEventList(tile);
+    refreshEventList(m_controller.getSelectedTilesCommonTriggers());
     m_disableFieldsChangedEvent = false;
     setEnabledWidgetsInLayout(ui.verticalLayout_4, true);
 }
@@ -182,7 +184,7 @@ void TilePropsComponent::onTileUnselected() {
     ui.checkBoxTileCanSteppedOn->setChecked(false);
     ui.checkBoxObjectAbovePlayer->setChecked(false);
     ui.checkBoxIsWallToClimb->setChecked(false);
-    refreshEventList(nullptr);
+    refreshEventList({});
     setEnabledWidgetsInLayout(ui.verticalLayout_4, false);
 }
 
@@ -217,70 +219,49 @@ bool isChildWidgetOfAnyLayout(QLayout *layout, QWidget *widget) {
 
 void TilePropsComponent::onLineEditTexNameTextChanged(const QString &text) {
     if (!m_disableFieldsChangedEvent) {
-        auto tiles = m_glComponent->getCurrentMapTiles();
-        std::for_each(tiles.begin(), tiles.end(), [&text](const MapTileDTO &tile) {
-                //tile->setTextureName(text.toStdString());
-                });
+        m_controller.setSelectedTilesTextureName(text.toStdString());
         m_glComponent->updateGL();
     }
 }
 
 void TilePropsComponent::onSpinBoxTexIndexValueChanged(int value) {
     if (!m_disableFieldsChangedEvent) {
-        auto tiles = m_glComponent->getCurrentMapTiles();
-        std::for_each(tiles.begin(), tiles.end(), [&value](const MapTileDTO tile) {
-                //tile->setTextureIndex(value);
-                });
+        m_controller.setSelectedTilesTextureIndex(value);
         m_glComponent->updateGL();
     }
 }
 
 void TilePropsComponent::onLineEditObjTexNameTextChanged(const QString &text) {
     if (!m_disableFieldsChangedEvent) {
-        auto tiles = m_glComponent->getCurrentMapTiles();
-        std::for_each(tiles.begin(), tiles.end(), [&text](const MapTileDTO &tile) {
-                //tile->setObjectTextureName(text.toStdString());
-                });
-    m_glComponent->updateGL();
+        m_controller.setSelectedTilesObjectTextureName(text.toStdString());
+        m_glComponent->updateGL();
     }
 }
 
 void TilePropsComponent::onSpinBoxObjTexIndexValueChanged(int value) {
     if (!m_disableFieldsChangedEvent) {
-        auto tiles = m_glComponent->getCurrentMapTiles();
-        std::for_each(tiles.begin(), tiles.end(), [&value](const MapTileDTO &tile) {
-                //tile->setObjectTextureIndex(value);
-                });
+        m_controller.setSelectedTilesObjectTextureIndex(value);
         m_glComponent->updateGL();
     }
 }
 
 void TilePropsComponent::onCheckBoxObjectAbovePlayerChanged(int state) {
     if (!m_disableFieldsChangedEvent) {
-        auto tiles = m_glComponent->getCurrentMapTiles();
-        std::for_each(tiles.begin(), tiles.end(), [&state](const MapTileDTO &tile) {
-                //tile->setObjectAbovePlayer(state == Qt::Checked);
-                });
+        m_controller.setSelectedTilesObjectAbovePlayer(state == Qt::Checked);
         m_glComponent->updateGL();
     }
 }
 
 void TilePropsComponent::onCheckBoxTileCanSteppedOnChanged(int state) {
     if (!m_disableFieldsChangedEvent) {
-        auto tiles = m_glComponent->getCurrentMapTiles();
-        std::for_each(tiles.begin(), tiles.end(), [&state](const MapTileDTO &tile) {
-                //tile->setCanPlayerSteppedOn(state == Qt::Checked);
-                });
+        m_controller.setSelectedTilesCanSteppedOn(state == Qt::Checked);
         m_glComponent->updateGL();
     }
 }
 
 void TilePropsComponent::onCheckBoxIsWallToClimbChanged(int state) {
     if (!m_disableFieldsChangedEvent) {
-        auto tiles = m_glComponent->getCurrentMapTiles();
-        std::for_each(tiles.begin(), tiles.end(), [&state](const MapTileDTO &tile) {
-                //tile->setIsWallToClimb(state == Qt::Checked);
-        });
+        m_controller.setSelectedTilesIsWallToClimb(state == Qt::Checked);
         m_glComponent->updateGL();
     }
 }
@@ -304,20 +285,27 @@ boost::optional<MapTileTrigger &> TilePropsComponent::getSelectedTrigger() {
 
 void TilePropsComponent::onPushButtonAddTileEventClick() {
     // TODO: 0.3.3 To solve
-    //m_glComponent->stopAutoUpdate();
-    //auto currentMapTile = m_glComponent->getCurrentMapTile();
-    //if (currentMapTile != nullptr) {
-        //EditMapTileTriggerForm formEditMapTileTrigger(this,
-                //m_glComponent->getResourcesPath(),
-                //nullptr,
-                //currentMapTile->getTriggers());
-        //UIUtils::centerToScreen(&formEditMapTileTrigger);
-        //if (formEditMapTileTrigger.exec() == QDialog::Accepted) {
-            //currentMapTile->addTrigger(formEditMapTileTrigger.getUpdatedTrigger());
+    m_glComponent->stopAutoUpdate();
+    auto selectedMapTiles = m_controller.getSelectedTiles();
+    if (selectedMapTiles.size() > 0) {
+        // Create a flat list of all tiles triggers
+        std::vector<MapTileTriggerDTO> combinedTriggers = {};
+        for(const auto &tile : selectedMapTiles) {
+            combinedTriggers.insert(combinedTriggers.end(),
+                    tile.triggers.begin(),
+                    tile.triggers.end());
+        }
+        EditMapTileTriggerForm formEditMapTileTrigger(this,
+                m_glComponent->getResourcesPath(),
+                {},
+                combinedTriggers);
+        UIUtils::centerToScreen(&formEditMapTileTrigger);
+        if (formEditMapTileTrigger.exec() == QDialog::Accepted) {
+            //selectedMapTiles->addTrigger(formEditMapTileTrigger.getUpdatedTrigger());
             //refreshEventList(m_glComponent->getCurrentMapTile());
-        //}
-    //}
-    //m_glComponent->startAutoUpdate();
+        }
+    }
+    m_glComponent->startAutoUpdate();
 }
 
 void TilePropsComponent::onPushButtonEditTileEventClick() {

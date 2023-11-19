@@ -18,6 +18,7 @@ struct MapTileDTO {
     std::vector<MapTileTriggerDTO> triggers = {};
 };
 
+
 }  // namespace mapeditor::controllers
 
 

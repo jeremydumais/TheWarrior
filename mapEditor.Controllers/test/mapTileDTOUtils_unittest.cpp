@@ -47,7 +47,11 @@ TEST(MapTileDTOUtils_FromMapTile, WithFilledTile_ReturnFilledDTO) {
     MapTileTrigger trigger4; trigger4.setEvent(MapTileTriggerEvent::MoveDownPressed);
     MapTileTrigger trigger5; trigger5.setEvent(MapTileTriggerEvent::MoveLeftPressed);
     MapTileTrigger trigger6; trigger6.setEvent(MapTileTriggerEvent::MoveRightPressed);
-    MapTileTrigger trigger7; trigger7.setEvent(MapTileTriggerEvent::ActionButtonPressed);
+    MapTileTrigger trigger7;
+    trigger7.setEvent(MapTileTriggerEvent::ActionButtonPressed);
+    trigger7.setCondition(MapTileTriggerCondition::MustHaveItem);
+    trigger7.setAction(MapTileTriggerAction::ChangeMap);
+    trigger7.setActionProperties({ { "Test1", "Test2" }});
     tile.setTextureName("Tex1");
     tile.setTextureIndex(1);
     tile.setObjectTextureName("Obj1");
@@ -71,7 +75,7 @@ TEST(MapTileDTOUtils_FromMapTile, WithFilledTile_ReturnFilledDTO) {
             MapTileTriggerDTO { "MoveDownPressed", "None", "None", {}},
             MapTileTriggerDTO { "MoveLeftPressed", "None", "None", {}},
             MapTileTriggerDTO { "MoveRightPressed", "None", "None", {}},
-            MapTileTriggerDTO { "ActionButtonPressed", "None", "None", {}}
+            MapTileTriggerDTO { "ActionButtonPressed", "MustHaveItem", "ChangeMap", { {"Test1", "Test2"}}}
         }
     };
     MapTileDTOComparer(expected, MapTileDTOUtils::fromMapTile(tile));

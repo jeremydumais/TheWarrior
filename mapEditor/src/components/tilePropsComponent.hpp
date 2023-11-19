@@ -5,12 +5,14 @@
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QSpinBox>
 #include <QtWidgets/QWidget>
+#include <set>
 #include <vector>
 #include <boost/optional.hpp>
 #include "glComponentController.hpp"
 #include "mainForm_GLComponent.hpp"
 #include "mapTile.hpp"
 #include "mapTileDTO.hpp"
+#include "mapTileTriggerDTO.hpp"
 #include "point.hpp"
 #include "qTableWidgetKeyPressWatcher.h"
 #include "tilePropsComponentController.hpp"
@@ -31,9 +33,8 @@ Q_OBJECT
     mapeditor::controllers::TilePropsComponentController m_controller;
     QTableWidgetKeyPressWatcher tableWidgetMapTileTriggersKeyWatcher;
     MainForm_GLComponent *m_glComponent;
-    // TODO: 0.3.3 Implement the controllers
     bool m_disableFieldsChangedEvent;
-    void refreshEventList(thewarrior::models::MapTile *tile);
+    void refreshEventList(std::set<mapeditor::controllers::MapTileTriggerDTO> triggers);
     void onTileSelected(std::vector<mapeditor::controllers::MapTileDTO> tiles, thewarrior::models::Point<> coord);
     void onTileUnselected();
     void onLineEditTexNameTextChanged(const QString &text);

@@ -1,35 +1,39 @@
 
-#ifndef EDITMAPTILETRIGGERFORM_H
-#define EDITMAPTILETRIGGERFORM_H
+#ifndef MAPEDITOR_SRC_EDITMAPTILETRIGGERFORM_HPP_
+#define MAPEDITOR_SRC_EDITMAPTILETRIGGERFORM_HPP_
 
+#include <string>
+#include <vector>
+#include <boost/optional/optional.hpp>
+#include "editMapTileTriggerFormController.hpp"
+#include "mapTileTriggerDTO.hpp"
 #include "ui_editMapTileTriggerForm.h"
-#include "mapTileTrigger.hpp"
 
-class EditMapTileTriggerForm : public QDialog
-{
-Q_OBJECT
+class EditMapTileTriggerForm : public QDialog {
+    Q_OBJECT
 
-public:
-	explicit EditMapTileTriggerForm(QWidget *parent,
-									const std::string &resourcesPath,
-									const thewarrior::models::MapTileTrigger * const currentTrigger,
-									const std::vector<thewarrior::models::MapTileTrigger> &allTriggers);
-	~EditMapTileTriggerForm() = default;
-	const thewarrior::models::MapTileTrigger &getUpdatedTrigger() const;
-private:
-	Ui::editMapTileTriggerFormClass ui;
-	std::string m_resourcesPath;
-	const thewarrior::models::MapTileTrigger * const m_currentTrigger;
-	const std::vector<thewarrior::models::MapTileTrigger> &m_allTriggers;
-	thewarrior::models::MapTileTrigger m_updatedTrigger;
-	bool m_isEditMode;
-	void generateComboxItems();
-	void refreshComboBoxEvent();
+ public:
+    explicit EditMapTileTriggerForm(QWidget *parent,
+            const std::string &resourcesPath,
+            const boost::optional<mapeditor::controllers::MapTileTriggerDTO> currentTrigger,
+            const std::vector<mapeditor::controllers::MapTileTriggerDTO> &allTriggers);
+    ~EditMapTileTriggerForm() override = default;
+    const mapeditor::controllers::MapTileTriggerDTO &getUpdatedTrigger() const;
+
+ private:
+    Ui::editMapTileTriggerFormClass ui;
+    mapeditor::controllers::EditMapTileTriggerFormController m_controller;
+    std::string m_resourcesPath;
+    bool m_isEditMode;
+    void generateComboxItems();
+    void refreshComboBoxEvent();
     void refreshComboBoxCondition();
     void refreshComboBoxAction();
-	void onPushButtonTileActionPropertiesClick();
-	void onPushButtonOK();
-
+    void onPushButtonTileActionPropertiesClick();
+    void onPushButtonOK();
+    void onComboBoxEventIndexChanged();
+    void onComboBoxConditionIndexChanged();
+    void onComboBoxActionIndexChanged();
 };
 
-#endif // EDITMAPTILETRIGGERFORM_H
+#endif  // MAPEDITOR_SRC_EDITMAPTILETRIGGERFORM_HPP_
