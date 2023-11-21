@@ -1,4 +1,6 @@
 #include "editMapTileTriggerFormController.hpp"
+#include <algorithm>
+#include <fmt/core.h>
 #include <fmt/format.h>
 #include <stdexcept>
 #include "mapTileTrigger.hpp"
@@ -7,6 +9,7 @@
 #include "mapTileTriggerEventConverter.hpp"
 #include "mapTileTriggerDTOUtils.hpp"
 
+using thewarrior::models::MapTileTrigger;
 using thewarrior::models::MapTileTriggerAction;
 using thewarrior::models::MapTileTriggerActionConverter;
 using thewarrior::models::MapTileTriggerConditionConverter;
@@ -69,18 +72,30 @@ const std::string &EditMapTileTriggerFormController::getLastError() const {
 }
 
 bool EditMapTileTriggerFormController::isUpdatedTriggerValid() {
+    MapTileTrigger trigger;
     try {
-        auto trigger =  MapTileTriggerDTOUtils::toMapTileTrigger(m_updatedTrigger);
-        if (trigger.getEvent() == MapTileTriggerEvent::None) {
-            m_lastError = "You must select an event!";
-            return false;
-        }
-        if (trigger.getAction() == MapTileTriggerAction::None) {
-            m_lastError = "You must select an action!";
-            return false;
-        }
+        trigger =  MapTileTriggerDTOUtils::toMapTileTrigger(m_updatedTrigger);
     } catch (std::invalid_argument &err) {
         m_lastError = fmt::format("Invalid values for MapTileTriggerDTO. Error : {0}", err.what());
+        return false;
+    }
+    if (trigger.getEvent() == MapTileTriggerEvent::None) {
+        m_lastError = "You must select an event!";
+        return false;
+    }
+    if (trigger.getAction() == MapTileTriggerAction::None) {
+        m_lastError = "You must select an action!";
+        return false;
+    }
+    // Check if the event is available (not already used by another trigger)
+    auto eventTriggerIter = std::find_if(m_allTriggers.begin(),
+            m_allTriggers.end(),
+            [this](const auto &triggerDTO) {
+                return triggerDTO.event == m_updatedTrigger.event;
+            });
+    if (eventTriggerIter != m_allTriggers.end() &&
+            (!m_currentTrigger.has_value() || m_currentTrigger->event != m_updatedTrigger.event)) {
+        m_lastError = fmt::format("The event {0} already in used", m_updatedTrigger.event);
         return false;
     }
     return true;

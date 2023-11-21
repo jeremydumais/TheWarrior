@@ -44,7 +44,7 @@ Q_OBJECT
     void onCheckBoxObjectAbovePlayerChanged(int state);
     void onCheckBoxTileCanSteppedOnChanged(int state);
     void onCheckBoxIsWallToClimbChanged(int state);
-    boost::optional<thewarrior::models::MapTileTrigger &> getSelectedTrigger();
+    boost::optional<mapeditor::controllers::MapTileTriggerDTO> getSelectedTrigger();
     void onPushButtonAddTileEventClick();
     void onPushButtonEditTileEventClick();
     void onPushButtonDeleteTileEventClick();

@@ -1,11 +1,15 @@
 #include "tilePropsComponentController.hpp"
 #include <algorithm>
 #include <iterator>
+#include <stdexcept>
 #include <vector>
 #include "mapTile.hpp"
+#include "mapTileTrigger.hpp"
 #include "mapTileTriggerDTO.hpp"
+#include "mapTileTriggerDTOUtils.hpp"
 
 using thewarrior::models::MapTile;
+using thewarrior::models::MapTileTrigger;
 
 namespace mapeditor::controllers {
 
@@ -13,10 +17,14 @@ TilePropsComponentController::TilePropsComponentController(GLComponentController
     : m_glComponentController(glComponentController) {
 }
 
+const std::string &TilePropsComponentController::getLastError() const {
+    return m_lastError;
+}
+
 std::vector<MapTileDTO> TilePropsComponentController::getSelectedTiles() const {
     return m_glComponentController->getSelectedMapTiles();
 }
-std::set<MapTileTriggerDTO> TilePropsComponentController::getSelectedTilesCommonTriggers() const {
+std::set<MapTileTriggerDTO> TilePropsComponentController::getTilesCommonTriggers() const {
     auto tiles = m_glComponentController->getSelectedMapTiles();
     std::set<MapTileTriggerDTO> commonTriggers = {};
     if (tiles.size() == 0) {
@@ -34,68 +42,86 @@ std::set<MapTileTriggerDTO> TilePropsComponentController::getSelectedTilesCommon
     return commonTriggers;
 }
 
-void TilePropsComponentController::setSelectedTilesTextureName(const std::string &name) {
+boost::optional<MapTileTriggerDTO> TilePropsComponentController::findMapTileTriggerByEvent(const std::string &event) {
+    auto commonTriggers = getTilesCommonTriggers();
+    const auto iter = std::find_if(commonTriggers.begin(), commonTriggers.end(), [&event](const auto &trigDTO){
+            return trigDTO.event == event;
+            });
+    if (iter != commonTriggers.end()) {
+        return *iter;
+    }
+    return {};
+}
+
+void TilePropsComponentController::setTilesTextureName(const std::string &name) {
     auto tiles = m_glComponentController->getCurrentMapTiles();
     std::for_each(tiles.begin(), tiles.end(), [&name](MapTile *tile) {
         tile->setTextureName(name);
     });
 }
 
-void TilePropsComponentController::setSelectedTilesTextureIndex(int index) {
+void TilePropsComponentController::setTilesTextureIndex(int index) {
     auto tiles = m_glComponentController->getCurrentMapTiles();
     std::for_each(tiles.begin(), tiles.end(), [&index](MapTile *tile) {
         tile->setTextureIndex(index);
     });
 }
 
-void TilePropsComponentController::setSelectedTilesObjectTextureName(const std::string &name) {
+void TilePropsComponentController::setTilesObjectTextureName(const std::string &name) {
     auto tiles = m_glComponentController->getCurrentMapTiles();
     std::for_each(tiles.begin(), tiles.end(), [&name](MapTile *tile) {
         tile->setObjectTextureName(name);
     });
 }
 
-void TilePropsComponentController::setSelectedTilesObjectTextureIndex(int index) {
+void TilePropsComponentController::setTilesObjectTextureIndex(int index) {
     auto tiles = m_glComponentController->getCurrentMapTiles();
     std::for_each(tiles.begin(), tiles.end(), [&index](MapTile *tile) {
         tile->setObjectTextureIndex(index);
     });
 }
 
-void TilePropsComponentController::setSelectedTilesObjectAbovePlayer(bool value) {
+void TilePropsComponentController::setTilesObjectAbovePlayer(bool value) {
     auto tiles = m_glComponentController->getCurrentMapTiles();
     std::for_each(tiles.begin(), tiles.end(), [&value](MapTile *tile) {
         tile->setObjectAbovePlayer(value);
     });
 }
 
-void TilePropsComponentController::setSelectedTilesCanSteppedOn(bool value) {
+void TilePropsComponentController::setTilesCanSteppedOn(bool value) {
     auto tiles = m_glComponentController->getCurrentMapTiles();
     std::for_each(tiles.begin(), tiles.end(), [&value](MapTile *tile) {
         tile->setCanPlayerSteppedOn(value);
     });
 }
 
-void TilePropsComponentController::setSelectedTilesIsWallToClimb(bool value) {
+void TilePropsComponentController::setTilesIsWallToClimb(bool value) {
     auto tiles = m_glComponentController->getCurrentMapTiles();
     std::for_each(tiles.begin(), tiles.end(), [&value](MapTile *tile) {
         tile->setIsWallToClimb(value);
     });
 }
 
-void TilePropsComponentController::setSelectedTilesMonsterZoneIndex(int index) {
+void TilePropsComponentController::setTilesMonsterZoneIndex(int index) {
     auto tiles = m_glComponentController->getCurrentMapTiles();
     std::for_each(tiles.begin(), tiles.end(), [&index](MapTile *tile) {
         tile->setMonsterZoneIndex(index);
     });
 }
 
-void addSelectedTilesTrigger(const MapTileTriggerDTO &trigger) {
-    // TODO: 0.3.3 To Complete
-    //auto tiles = m_glComponentController->getCurrentMapTiles();
-    //std::for_each(tiles.begin(), tiles.end(), [&index](MapTile *tile) {
-        //tile->addTrigger(index);
-    //});
+bool TilePropsComponentController::addTilesTrigger(const MapTileTriggerDTO &triggerDTO) {
+    MapTileTrigger trigger;
+    try {
+        trigger = MapTileTriggerDTOUtils::toMapTileTrigger(triggerDTO);
+    } catch(const std::invalid_argument &err) {
+        m_lastError = err.what();
+        return false;
+    }
+    auto tiles = m_glComponentController->getCurrentMapTiles();
+    std::for_each(tiles.begin(), tiles.end(), [&trigger](MapTile *tile) {
+        tile->addTrigger(trigger);
+    });
+    return true;
 }
 
 }  // namespace mapeditor::controllers

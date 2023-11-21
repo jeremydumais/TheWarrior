@@ -122,3 +122,34 @@ TEST_F(EditMapTileTriggerFormControllerAddSample, isUpdatedTriggerValid_WithInva
     ASSERT_EQ("Invalid values for MapTileTriggerDTO. Error : Unknown trigger action value : hh", controller.getLastError());
 }
 
+TEST_F(EditMapTileTriggerFormControllerAddSample, isUpdatedTriggerValid_WithAlreadyUsedEvent_ReturnFalse) {
+    controller.setEvent("SteppedOn");
+    controller.setAction("OpenChest");
+    ASSERT_FALSE(controller.isUpdatedTriggerValid());
+    ASSERT_EQ("The event SteppedOn already in used", controller.getLastError());
+}
+
+TEST_F(EditMapTileTriggerFormControllerAddSample, isUpdatedTriggerValid_WithNotUsedEvent_ReturnTrue) {
+    controller.setEvent("MoveUpPressed");
+    controller.setAction("OpenChest");
+    ASSERT_TRUE(controller.isUpdatedTriggerValid());
+}
+
+TEST_F(EditMapTileTriggerFormControllerUpdateSample, isUpdatedTriggerValid_WithAlreadyUsedEvent_ReturnFalse) {
+    controller.setEvent("MoveUpPressed");
+    controller.setAction("OpenChest");
+    ASSERT_FALSE(controller.isUpdatedTriggerValid());
+    ASSERT_EQ("The event MoveUpPressed already in used", controller.getLastError());
+}
+
+TEST_F(EditMapTileTriggerFormControllerUpdateSample, isUpdatedTriggerValid_WithSameEvent_ReturnTrue) {
+    controller.setEvent("SteppedOn");
+    controller.setAction("OpenChest");
+    ASSERT_TRUE(controller.isUpdatedTriggerValid());
+}
+
+TEST_F(EditMapTileTriggerFormControllerUpdateSample, isUpdatedTriggerValid_WithNotUsedEvent_ReturnTrue) {
+    controller.setEvent("MoveDownPressed");
+    controller.setAction("OpenChest");
+    ASSERT_TRUE(controller.isUpdatedTriggerValid());
+}

@@ -26,7 +26,7 @@ class EditMapTileTriggerFormController {
 
  private:
     const boost::optional<mapeditor::controllers::MapTileTriggerDTO> m_currentTrigger;
-    const std::vector<MapTileTriggerDTO> &m_allTriggers;
+    const std::vector<MapTileTriggerDTO> m_allTriggers;
     mapeditor::controllers::MapTileTriggerDTO m_updatedTrigger;
     std::string m_lastError;
 };

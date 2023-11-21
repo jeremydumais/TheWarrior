@@ -126,16 +126,7 @@ void EditMapTileTriggerForm::onPushButtonOK() {
         ErrorMessage::show(m_controller.getLastError());
         return;
     }
-    //auto selectedEvent = m_updatedTrigger.getEvent();
-    //// Check if the event is available (not already used by another trigger)
-    //if (std::find_if(m_allTriggers.begin(), m_allTriggers.end(), [&selectedEvent](const MapTileTrigger &trigger) {
-                //return trigger.getEvent() == selectedEvent; }) != m_allTriggers.end() &&
-            //(!m_isEditMode || (m_currentTrigger->getEvent() != m_updatedTrigger.getEvent()))) {
-        //ErrorMessage::show(fmt::format("The event {0} is already used.",
-                    //MapTileTriggerEventConverter::eventToString(m_updatedTrigger.getEvent())));
-        //return;
-    //}
-    //accept();
+    accept();
 }
 
 void EditMapTileTriggerForm::onComboBoxEventIndexChanged() {
