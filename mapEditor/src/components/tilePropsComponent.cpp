@@ -301,7 +301,6 @@ void TilePropsComponent::onPushButtonAddTileEventClick() {
 }
 
 void TilePropsComponent::onPushButtonEditTileEventClick() {
-    // TODO: 0.3.3 To solve
     m_glComponent->stopAutoUpdate();
     auto selectedMapTiles = m_controller.getSelectedTiles();
     if (selectedMapTiles.size() > 0) {
@@ -321,9 +320,11 @@ void TilePropsComponent::onPushButtonEditTileEventClick() {
                     combinedTriggers);
             UIUtils::centerToScreen(&formEditMapTileTrigger);
             if (formEditMapTileTrigger.exec() == QDialog::Accepted) {
-                //if (!currentMapTile->updateTrigger(selectedMapTileTrigger.get(), formEditMapTileTrigger.getUpdatedTrigger())) {
-                    //ErrorMessage::show("An error occurred while trying to update the selected trigger.");
-                //}
+                if (!m_controller.updateTilesTrigger(selectedMapTileTrigger.value(),
+                        formEditMapTileTrigger.getUpdatedTrigger())) {
+                    ErrorMessage::show("An error occurred while trying to update the selected trigger.\n"
+                            "Some selected tiles may have been updated.");
+                }
                 refreshEventList(m_controller.getTilesCommonTriggers());
             }
         }
@@ -332,25 +333,34 @@ void TilePropsComponent::onPushButtonEditTileEventClick() {
 }
 
 void TilePropsComponent::onPushButtonDeleteTileEventClick() {
-    // TODO: 0.3.3 To solve
     m_glComponent->stopAutoUpdate();
-    //auto currentMapTile = m_glComponent->getCurrentMapTile();
-    //if (currentMapTile != nullptr) {
+    auto selectedMapTiles = m_controller.getSelectedTiles();
+    if (selectedMapTiles.size() > 0) {
+        // Create a flat list of all tiles triggers
+        std::vector<MapTileTriggerDTO> combinedTriggers = {};
+        for (const auto &tile : selectedMapTiles) {
+            combinedTriggers.insert(combinedTriggers.end(),
+                    tile.triggers.begin(),
+                    tile.triggers.end());
+        }
         //// Find the selected event
-        //auto selectedMapTileTrigger { getSelectedTrigger() };
-        //if (selectedMapTileTrigger.has_value()) {
-            //QMessageBox msgBox;
-            //msgBox.setText(fmt::format("Are you sure you want to delete the trigger {0}?",
-                        //MapTileTriggerEventConverter::eventToString(selectedMapTileTrigger->getEvent())).c_str());
-            //msgBox.setWindowTitle("Confirmation");
-            //msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
-            //msgBox.setDefaultButton(QMessageBox::Cancel);
-            //if (msgBox.exec() == QMessageBox::Yes) {
-                //currentMapTile->deleteTrigger(selectedMapTileTrigger.get());
-                //refreshEventList(m_glComponent->getCurrentMapTile());
-            //}
-        //}
-    //}
+        auto selectedMapTileTrigger { getSelectedTrigger() };
+        if (selectedMapTileTrigger.has_value()) {
+            QMessageBox msgBox;
+            msgBox.setText(fmt::format("Are you sure you want to delete the trigger {0}?",
+                        selectedMapTileTrigger->event).c_str());
+            msgBox.setWindowTitle("Confirmation");
+            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+            msgBox.setDefaultButton(QMessageBox::Cancel);
+            if (msgBox.exec() == QMessageBox::Yes) {
+                if (!m_controller.deleteTilesTrigger(selectedMapTileTrigger.value())) {
+                    ErrorMessage::show("An error occurred while trying to delete the selected trigger.\n"
+                            "Some selected tiles may have been updated.");
+                }
+                refreshEventList(m_controller.getTilesCommonTriggers());
+            }
+        }
+    }
     m_glComponent->startAutoUpdate();
 }
 

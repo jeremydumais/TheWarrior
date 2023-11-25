@@ -124,4 +124,43 @@ bool TilePropsComponentController::addTilesTrigger(const MapTileTriggerDTO &trig
     return true;
 }
 
+bool TilePropsComponentController::updateTilesTrigger(const MapTileTriggerDTO &initialTriggerDTO,
+        const MapTileTriggerDTO &updatedTriggerDTO) {
+    MapTileTrigger initialTrigger;
+    MapTileTrigger updatedTrigger;
+    try {
+        initialTrigger = MapTileTriggerDTOUtils::toMapTileTrigger(initialTriggerDTO);
+        updatedTrigger = MapTileTriggerDTOUtils::toMapTileTrigger(updatedTriggerDTO);
+    } catch(const std::invalid_argument &err) {
+        m_lastError = err.what();
+        return false;
+    }
+    auto tiles = m_glComponentController->getCurrentMapTiles();
+    bool allTilesResult = true;
+    std::for_each(tiles.begin(), tiles.end(), [&allTilesResult, &initialTrigger, &updatedTrigger](MapTile *tile) {
+        if (!tile->updateTrigger(initialTrigger, updatedTrigger)) {
+            allTilesResult = false;
+        }
+    });
+    return allTilesResult;
+}
+
+bool TilePropsComponentController::deleteTilesTrigger(const MapTileTriggerDTO &triggerDTO) {
+    MapTileTrigger trigger;
+    try {
+        trigger = MapTileTriggerDTOUtils::toMapTileTrigger(triggerDTO);
+    } catch(const std::invalid_argument &err) {
+        m_lastError = err.what();
+        return false;
+    }
+    auto tiles = m_glComponentController->getCurrentMapTiles();
+    bool allTilesResult = true;
+    std::for_each(tiles.begin(), tiles.end(), [&allTilesResult, &trigger](MapTile *tile) {
+        if (!tile->deleteTrigger(trigger)) {
+            allTilesResult = false;
+        }
+    });
+    return allTilesResult;
+}
+
 }  // namespace mapeditor::controllers

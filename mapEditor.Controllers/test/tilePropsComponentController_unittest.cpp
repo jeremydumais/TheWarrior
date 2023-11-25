@@ -207,7 +207,7 @@ TEST_F(TilesPropsControllerSample1, AddTilesTrigger_WithTwoSelectedTiles_ReturnS
     ASSERT_EQ(expectedActionProps, commonTriggers.begin()->actionProperties);
 }
 
-TEST_F(TilesPropsControllerSample1, AddTilesTrigger_WithTwoSelectedTilesAndInvalidDTO_ThrowInvalidArgument) {
+TEST_F(TilesPropsControllerSample1, AddTilesTrigger_WithTwoSelectedTilesAndInvalidDTO_ReturnFalse) {
     std::map<std::string, std::string> expectedActionProps { { "Test1", "Test2" }, { "Test3", "Test4" } };
     glController.selectTilesForEditing({2, 4});
     ASSERT_FALSE(tilesController.addTilesTrigger(MapTileTriggerDTO { "M",
@@ -215,3 +215,82 @@ TEST_F(TilesPropsControllerSample1, AddTilesTrigger_WithTwoSelectedTilesAndInval
             "DenyMove",
             expectedActionProps }));
 }
+
+TEST_F(TilesPropsControllerSample1, UpdateTilesTrigger_WithInvalidOldDTO_ReturnFalse) {
+    glController.selectTilesForEditing({1, 3});
+    ASSERT_FALSE(tilesController.updateTilesTrigger(MapTileTriggerDTO { "M",
+            "MustBeFacing",
+            "DenyMove",
+            {} },
+            MapTileTriggerDTO { "MoveRightPressed",
+            "MustBeFacing",
+            "DenyMove",
+            {} }));
+}
+
+TEST_F(TilesPropsControllerSample1, UpdateTilesTrigger_WithInvalidNewDTO_ReturnFalse) {
+    glController.selectTilesForEditing({1, 3});
+    ASSERT_FALSE(tilesController.updateTilesTrigger(
+            MapTileTriggerDTO { "SteppedOn",
+            "MustBeFacing",
+            "DenyMove",
+            { { "Test1", "Test2" }, { "Test3", "Test4" } }},
+            MapTileTriggerDTO { "M",
+            "MustBeFacing",
+            "DenyMove",
+            {} }));
+}
+
+TEST_F(TilesPropsControllerSample1, UpdateTilesTrigger_WithTriggerUpdateAllTilesUpdated_ReturnTrue) {
+    glController.selectTilesForEditing({1, 3});
+    ASSERT_TRUE(tilesController.updateTilesTrigger(
+            MapTileTriggerDTO { "SteppedOn",
+            "MustBeFacing",
+            "DenyMove",
+            { { "Test1", "Test2" }, { "Test3", "Test4" } }},
+            MapTileTriggerDTO { "MoveDownPressed",
+            "MustBeFacing",
+            "DenyMove",
+            { { "Test1", "Test2" }, { "Test3", "Test4" } }}));
+}
+
+TEST_F(TilesPropsControllerSample1, UpdateTilesTrigger_WithTriggerUpdateInitialNotCommon_ReturnFalse) {
+    glController.selectTilesForEditing({2, 4});
+    ASSERT_FALSE(tilesController.updateTilesTrigger(
+            MapTileTriggerDTO { "SteppedOn",
+            "MustBeFacing",
+            "DenyMove",
+            { { "Test1", "Test2" }, { "Test3", "Test4" } }},
+            MapTileTriggerDTO { "MoveDownPressed",
+            "MustBeFacing",
+            "DenyMove",
+            { { "Test1", "Test2" }, { "Test3", "Test4" } }}));
+}
+
+TEST_F(TilesPropsControllerSample1, DeleteTilesTrigger_WithInvalidDTO_ReturnFalse) {
+    glController.selectTilesForEditing({1, 3});
+    ASSERT_FALSE(tilesController.deleteTilesTrigger(
+            MapTileTriggerDTO { "S",
+            "MustBeFacing",
+            "DenyMove",
+            { { "Test1", "Test2" }, { "Test3", "Test4" } }}));
+}
+
+TEST_F(TilesPropsControllerSample1, DeleteTilesTrigger_WithTriggerUpdateAllTilesUpdated_ReturnTrue) {
+    glController.selectTilesForEditing({1, 3});
+    ASSERT_TRUE(tilesController.deleteTilesTrigger(
+            MapTileTriggerDTO { "SteppedOn",
+            "MustBeFacing",
+            "DenyMove",
+            { { "Test1", "Test2" }, { "Test3", "Test4" } }}));
+}
+
+TEST_F(TilesPropsControllerSample1, DeleteTilesTrigger_WithTriggerUpdateInitialNotCommon_ReturnFalse) {
+    glController.selectTilesForEditing({2, 4});
+    ASSERT_FALSE(tilesController.deleteTilesTrigger(
+            MapTileTriggerDTO { "SteppedOn",
+            "MustBeFacing",
+            "DenyMove",
+            { { "Test1", "Test2" }, { "Test3", "Test4" } }}));
+}
+

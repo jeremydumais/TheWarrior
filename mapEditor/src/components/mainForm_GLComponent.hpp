@@ -60,8 +60,11 @@ class MainForm_GLComponent : public QWidget {
     std::vector<mapeditor::controllers::MonsterZoneDTO> getMonsterZones() const;
     mapeditor::controllers::OptMonsterZoneDTOConst getMonsterZoneByName(const std::string &name) const;
     std::vector<std::string> getAlreadyUsedMonsterZoneNames() const;
+    void addMoveDenyTrigger(const std::string &event);
+
  signals:
-        void tileSelected(std::vector<mapeditor::controllers::MapTileDTO> tiles, thewarrior::models::Point<> coord);
+        void tileSelected(std::vector<mapeditor::controllers::MapTileDTO> tiles,
+                thewarrior::models::Point<> coord);
         void tileUnselected();
 
  private:
@@ -74,6 +77,4 @@ class MainForm_GLComponent : public QWidget {
     int m_lastSelectedMonsterZoneIndex;
     void onTileClicked(const std::set<int> &tileIndices, int, int);
     void onTileMouseReleaseEvent(std::set<int> selectedTileIndexes);
-    void addMoveDenyTrigger(const std::set<int> &selectedTileIndexes,
-            thewarrior::models::MapTileTriggerEvent event);
 };

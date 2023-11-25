@@ -18,11 +18,16 @@ namespace mapeditor::controllers {
 
 GLComponentController::GLComponentController()
     : m_map(nullptr),
-      m_currentMapTiles({}) {
+      m_currentMapTiles({}),
+      m_lastError("") {
     }
 
 const std::shared_ptr<GameMap> GLComponentController::getMap() const {
     return m_map;
+}
+
+const std::string &GLComponentController::getLastError() const {
+    return m_lastError;
 }
 
 void GLComponentController::setCurrentMap(std::shared_ptr<GameMap> map) {
@@ -124,6 +129,10 @@ OptMonsterZoneDTOConst GLComponentController::getMonsterZoneByName(const std::st
 
 void GLComponentController::unselectMapTiles() {
     m_currentMapTiles.clear();
+}
+
+bool GLComponentController::applyDenyZone(const std::string &event) {
+    return true;
 }
 
 }  // namespace mapeditor::controllers

@@ -26,6 +26,9 @@ class TilePropsComponentController {
     void setTilesIsWallToClimb(bool value);
     void setTilesMonsterZoneIndex(int index);
     bool addTilesTrigger(const MapTileTriggerDTO &triggerDTO);
+    bool updateTilesTrigger(const MapTileTriggerDTO &initialTriggerDTO,
+            const MapTileTriggerDTO &updatedTriggerDTO);
+    bool deleteTilesTrigger(const MapTileTriggerDTO &triggerDTO);
  private:
     GLComponentController *m_glComponentController = nullptr;
     std::string m_lastError = "";

@@ -18,6 +18,7 @@ class GLComponentController {
  public:
     GLComponentController();
     const std::shared_ptr<thewarrior::models::GameMap> getMap() const;
+    const std::string &getLastError() const;
     void setCurrentMap(std::shared_ptr<thewarrior::models::GameMap> map);
     void selectTilesForEditing(const std::set<int> &indices);
     std::vector<thewarrior::models::MapTile *> getCurrentMapTiles();
@@ -36,10 +37,12 @@ class GLComponentController {
     std::vector<mapeditor::controllers::MonsterZoneDTO> getMonsterZones() const;
     OptMonsterZoneDTOConst getMonsterZoneByName(const std::string &name) const;
     void unselectMapTiles();
+    bool applyDenyZone(const std::string &event);
 
  private:
     std::shared_ptr<thewarrior::models::GameMap> m_map;
     std::vector<thewarrior::models::MapTile *> m_currentMapTiles;
+    std::string m_lastError;
 };
 
 }  // namespace mapeditor::controllers

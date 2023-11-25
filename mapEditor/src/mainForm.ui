@@ -204,6 +204,7 @@
    </attribute>
    <addaction name="action_Select"/>
    <addaction name="action_MoveMap"/>
+   <addaction name="separator"/>
    <addaction name="action_ApplyTexture"/>
    <addaction name="action_ApplyObject"/>
    <addaction name="separator"/>
@@ -350,9 +351,6 @@
    </property>
   </action>
   <action name="action_ApplyTexture">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/texture.png</normaloff>:/texture.png</iconset>
@@ -362,9 +360,6 @@
    </property>
   </action>
   <action name="action_ApplyObject">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/object.png</normaloff>:/object.png</iconset>
@@ -449,9 +444,6 @@
    </property>
   </action>
   <action name="action_EnableCanStep">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/canStepOn.png</normaloff>:/canStepOn.png</iconset>
@@ -464,9 +456,6 @@
    </property>
   </action>
   <action name="action_DisableCanStep">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="checked">
     <bool>false</bool>
    </property>
@@ -482,9 +471,6 @@
    </property>
   </action>
   <action name="action_BlockLeftBorder">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/blockLeftBorder.png</normaloff>:/blockLeftBorder.png</iconset>
@@ -497,9 +483,6 @@
    </property>
   </action>
   <action name="action_BlockTopBorder">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/blockTopBorder.png</normaloff>:/blockTopBorder.png</iconset>
@@ -512,9 +495,6 @@
    </property>
   </action>
   <action name="action_BlockRightBorder">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/blockRightBorder.png</normaloff>:/blockRightBorder.png</iconset>
@@ -527,9 +507,6 @@
    </property>
   </action>
   <action name="action_BlockBottomBorder">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/blockBottomBorder.png</normaloff>:/blockBottomBorder.png</iconset>
@@ -542,9 +519,6 @@
    </property>
   </action>
   <action name="action_ClearBlockedBorders">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/clearBlockBorder.png</normaloff>:/clearBlockBorder.png</iconset>
@@ -557,9 +531,6 @@
    </property>
   </action>
   <action name="action_ApplyMonsterZone">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/applyMonsterZone.png</normaloff>:/applyMonsterZone.png</iconset>
@@ -572,9 +543,6 @@
    </property>
   </action>
   <action name="action_ClearMonsterZone">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/clearMonsterZone.png</normaloff>:/clearMonsterZone.png</iconset>

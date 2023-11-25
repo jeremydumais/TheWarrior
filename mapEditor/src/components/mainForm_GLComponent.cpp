@@ -257,16 +257,10 @@ void MainForm_GLComponent::onTileMouseReleaseEvent(set<int> selectedTileIndexes)
     //}
 }
 
-void MainForm_GLComponent::addMoveDenyTrigger(const std::set<int> &selectedTileIndexes, MapTileTriggerEvent event) {
-    // TODO: 0.3.3 To solve
-    //for (const int index : selectedTileIndexes) {
-        //m_currentMapTile = &m_controller.getMap()->getTileForEditing(index);
-        //if (!m_currentMapTile->findTrigger(event).has_value())
-            //m_currentMapTile->addTrigger(MapTileTrigger(event,
-                        //MapTileTriggerCondition::None,
-                        //MapTileTriggerAction::DenyMove,
-                        //map<string, string>()));
-    //}
+void MainForm_GLComponent::addMoveDenyTrigger(const std::string &event) {
+    if (!m_controller.applyDenyZone(event)) {
+        ErrorMessage::show(m_controller.getLastError());
+    }
 }
 
 std::vector<MonsterZoneDTO> MainForm_GLComponent::getMonsterZones() const {

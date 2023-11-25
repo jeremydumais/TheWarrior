@@ -336,17 +336,6 @@ void MainForm::action_ManageMonsterStore_Click() {
 void MainForm::setActiveToolbarActionChecked(SelectionMode mode) {
     ui.action_Select->setChecked(mode == SelectionMode::Select);
     ui.action_MoveMap->setChecked(mode == SelectionMode::MoveMap);
-    ui.action_ApplyTexture->setChecked(mode == SelectionMode::ApplyTexture);
-    ui.action_ApplyObject->setChecked(mode == SelectionMode::ApplyObject);
-    ui.action_EnableCanStep->setChecked(mode == SelectionMode::EnableCanStep);
-    ui.action_DisableCanStep->setChecked(mode == SelectionMode::DisableCanStep);
-    ui.action_BlockLeftBorder->setChecked(mode == SelectionMode::BlockBorderLeft);
-    ui.action_BlockTopBorder->setChecked(mode == SelectionMode::BlockBorderTop);
-    ui.action_BlockRightBorder->setChecked(mode == SelectionMode::BlockBorderRight);
-    ui.action_BlockBottomBorder->setChecked(mode == SelectionMode::BlockBorderBottom);
-    ui.action_ClearBlockedBorders->setChecked(mode == SelectionMode::ClearBlockedBorders);
-    ui.action_ApplyMonsterZone->setChecked(mode == SelectionMode::ApplyMonsterZone);
-    ui.action_ClearMonsterZone->setChecked(mode == SelectionMode::ClearMonsterZone);
 }
 
 void MainForm::action_SelectClick() {
@@ -361,46 +350,37 @@ void MainForm::action_MoveMapClick() {
 
 void MainForm::action_ApplyTextureClick() {
     m_glComponent.setSelectionMode(SelectionMode::ApplyTexture);
-    setActiveToolbarActionChecked(SelectionMode::ApplyTexture);
 }
 
 void MainForm::action_ApplyObjectClick() {
     m_glComponent.setSelectionMode(SelectionMode::ApplyObject);
-    setActiveToolbarActionChecked(SelectionMode::ApplyObject);
 }
 
 void MainForm::action_EnableCanStepClick() {
     m_glComponent.setSelectionMode(SelectionMode::EnableCanStep);
-    setActiveToolbarActionChecked(SelectionMode::EnableCanStep);
 }
 
 void MainForm::action_DisableCanStepClick() {
     m_glComponent.setSelectionMode(SelectionMode::DisableCanStep);
-    setActiveToolbarActionChecked(SelectionMode::DisableCanStep);
 }
 
 void MainForm::action_BlockLeftBorderClick() {
-    m_glComponent.setSelectionMode(SelectionMode::BlockBorderLeft);
-    setActiveToolbarActionChecked(SelectionMode::BlockBorderLeft);
+    m_glComponent.addMoveDenyTrigger("MoveLeftPressed");
 }
 
 void MainForm::action_BlockTopBorderClick() {
-    m_glComponent.setSelectionMode(SelectionMode::BlockBorderTop);
-    setActiveToolbarActionChecked(SelectionMode::BlockBorderTop);
+    m_glComponent.addMoveDenyTrigger("MoveUpPressed");
 }
 
 void MainForm::action_BlockRightBorderClick() {
-    m_glComponent.setSelectionMode(SelectionMode::BlockBorderRight);
-    setActiveToolbarActionChecked(SelectionMode::BlockBorderRight);
+    m_glComponent.addMoveDenyTrigger("MoveRightPressed");
 }
+
 void MainForm::action_BlockBottomBorderClick() {
-    m_glComponent.setSelectionMode(SelectionMode::BlockBorderBottom);
-    setActiveToolbarActionChecked(SelectionMode::BlockBorderBottom);
+    m_glComponent.addMoveDenyTrigger("MoveDownPressed");
 }
 
 void MainForm::action_ClearBlockedBordersClick() {
-    m_glComponent.setSelectionMode(SelectionMode::ClearBlockedBorders);
-    setActiveToolbarActionChecked(SelectionMode::ClearBlockedBorders);
 }
 
 void MainForm::onComboBoxToolbarMonsterZoneCurrentIndexChanged() {
