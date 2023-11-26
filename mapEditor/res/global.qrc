@@ -1,5 +1,6 @@
 <RCC>
   <qresource>
+    <file>pickerTool.png</file>
     <file>clearMonsterZone.png</file>
     <file>applyMonsterZone.png</file>
     <file>../../commonEditor.UI/res/gtk-edit.svg</file>

@@ -4,7 +4,9 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>
 #include <qdockwidget.h>
+#include <string>
 #include "mainForm_GLComponent.hpp"
+#include "pickerToolSelection.hpp"
 #include "point.hpp"
 #include "qClickableLabel.hpp"
 #include "ui_textureSelectionDockWidget.h"
@@ -26,4 +28,5 @@ Q_OBJECT
     void onPushButtonSelectedObjectClearClick();
     void onLabelImageTextureMouseReleaseEvent(QMouseEvent *event);
     void onComboBoxTextureCurrentIndexChanged();
+    void onPickerToolTileSelected(const PickerToolSelection &selection);
 };

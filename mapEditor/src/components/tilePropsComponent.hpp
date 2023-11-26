@@ -35,7 +35,7 @@ Q_OBJECT
     MainForm_GLComponent *m_glComponent;
     bool m_disableFieldsChangedEvent;
     void refreshEventList(std::set<mapeditor::controllers::MapTileTriggerDTO> triggers);
-    void onTileSelected(std::vector<mapeditor::controllers::MapTileDTO> tiles, thewarrior::models::Point<> coord);
+    void onTileSelected(std::vector<mapeditor::controllers::MapTileDTO> tiles);
     void onTileUnselected();
     void onTilePropsChanged();
     void onTileTriggerChanged();

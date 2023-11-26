@@ -181,6 +181,7 @@ void MainForm::connectUIActions() {
     connect(ui.action_MonsterStore, &QAction::triggered, this, &MainForm::action_ManageMonsterStore_Click);
     connect(ui.action_Select, &QAction::triggered, this, &MainForm::action_SelectClick);
     connect(ui.action_MoveMap, &QAction::triggered, this, &MainForm::action_MoveMapClick);
+    connect(ui.action_PickerTool, &QAction::triggered, this, &MainForm::action_PickerToolClick);
     connect(ui.action_ApplyTexture, &QAction::triggered, this, &MainForm::action_ApplyTextureClick);
     connect(ui.action_ApplyObject, &QAction::triggered, this, &MainForm::action_ApplyObjectClick);
     connect(ui.action_EnableCanStep, &QAction::triggered, this, &MainForm::action_EnableCanStepClick);
@@ -336,6 +337,7 @@ void MainForm::action_ManageMonsterStore_Click() {
 void MainForm::setActiveToolbarActionChecked(SelectionMode mode) {
     ui.action_Select->setChecked(mode == SelectionMode::Select);
     ui.action_MoveMap->setChecked(mode == SelectionMode::MoveMap);
+    ui.action_PickerTool->setChecked(mode == SelectionMode::PickerTool);
 }
 
 void MainForm::action_SelectClick() {
@@ -346,6 +348,11 @@ void MainForm::action_SelectClick() {
 void MainForm::action_MoveMapClick() {
     m_glComponent.setSelectionMode(SelectionMode::MoveMap);
     setActiveToolbarActionChecked(SelectionMode::MoveMap);
+}
+
+void MainForm::action_PickerToolClick() {
+    m_glComponent.setSelectionMode(SelectionMode::PickerTool);
+    setActiveToolbarActionChecked(SelectionMode::PickerTool);
 }
 
 void MainForm::action_ApplyTextureClick() {
@@ -569,7 +576,7 @@ void MainForm::widgetDebugInfoVisibilityChanged(bool visible) {
     ui.actionView_DebuggingInfo->setChecked(visible);
 }
 
-void MainForm::onTileSelected(std::vector<MapTileDTO>, Point<>) {
+void MainForm::onTileSelected(std::vector<MapTileDTO>) {
     ui.toolBox->setCurrentWidget(m_tilePropsComponent.get());
 }
 

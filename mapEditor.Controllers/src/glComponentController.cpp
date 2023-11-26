@@ -1,6 +1,7 @@
 #include "glComponentController.hpp"
 #include <fmt/format.h>
 #include <algorithm>
+#include <boost/optional/optional.hpp>
 #include "gameMap.hpp"
 #include "mapTile.hpp"
 #include "mapTileDTOUtils.hpp"
@@ -8,6 +9,7 @@
 #include "mapTileTriggerEventConverter.hpp"
 #include "monsterZone.hpp"
 #include "monsterZoneDTOUtils.hpp"
+#include "point.hpp"
 #include "texture.hpp"
 
 using thewarrior::models::MonsterZone;
@@ -20,6 +22,7 @@ using thewarrior::models::MapTileTriggerCondition;
 using thewarrior::models::MapTileTriggerEvent;
 using thewarrior::models::MapTileTriggerEventConverter;
 using thewarrior::models::MapTileTriggerAction;
+using thewarrior::models::Point;
 using mapeditor::controllers::MonsterZoneDTO;
 
 namespace mapeditor::controllers {
@@ -27,6 +30,7 @@ namespace mapeditor::controllers {
 GLComponentController::GLComponentController()
     : m_map(nullptr),
       m_currentMapTiles({}),
+      m_selectedIndices({}),
       m_lastError(""),
       m_lastSelectedTextureName(""),
       m_lastSelectedObjectName(""),
@@ -46,10 +50,12 @@ const std::string &GLComponentController::getLastError() const {
 void GLComponentController::setCurrentMap(std::shared_ptr<GameMap> map) {
     m_map = map;
     m_currentMapTiles.clear();
+    m_selectedIndices.clear();
 }
 
 void GLComponentController::selectTilesForEditing(const std::set<int> &indices) {
     m_currentMapTiles = m_map->getTilesForEditing(indices);
+    m_selectedIndices = indices;
 }
 
 std::vector<thewarrior::models::MapTile *> GLComponentController::getCurrentMapTiles() {
@@ -140,6 +146,15 @@ OptMonsterZoneDTOConst GLComponentController::getMonsterZoneByName(const std::st
     return std::nullopt;
 }
 
+boost::optional<Point<int>> GLComponentController::getCoordFromSingleSelectedTile() const {
+    const auto tiles = getSelectedMapTiles();
+    if (tiles.size() == 1) {
+        return m_map->getCoordFromTileIndex(*m_selectedIndices.begin());
+    } else {
+        return {};
+    }
+}
+
 void GLComponentController::setLastSelectedTexture(const std::string &name,
         int index) {
     this->m_lastSelectedTextureName = name;
@@ -172,6 +187,7 @@ void GLComponentController::clearLastSelectedMonsterZone() {
 
 void GLComponentController::unselectMapTiles() {
     m_currentMapTiles.clear();
+    m_selectedIndices.clear();
 }
 
 void GLComponentController::applyTexture() {

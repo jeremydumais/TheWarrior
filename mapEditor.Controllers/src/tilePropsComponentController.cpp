@@ -61,6 +61,11 @@ boost::optional<MapTileTriggerDTO> TilePropsComponentController::findMapTileTrig
     return {};
 }
 
+
+boost::optional<thewarrior::models::Point<int>> TilePropsComponentController::getCoordFromSingleSelectedTile() const {
+    return m_glComponentController->getCoordFromSingleSelectedTile();
+}
+
 void TilePropsComponentController::setTilesTextureName(const std::string &name) {
     auto tiles = m_glComponentController->getCurrentMapTiles();
     std::for_each(tiles.begin(), tiles.end(), [&name](MapTile *tile) {

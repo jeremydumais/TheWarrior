@@ -71,6 +71,7 @@ Q_OBJECT
     void setActiveToolbarActionChecked(SelectionMode mode);
     void action_SelectClick();
     void action_MoveMapClick();
+    void action_PickerToolClick();
     void action_ApplyTextureClick();
     void action_ApplyObjectClick();
     void action_EnableCanStepClick();
@@ -95,7 +96,7 @@ Q_OBJECT
     void widgetMapConfigVisibilityChanged(bool visible);
     void widgetTextureSelectionVisibilityChanged(bool visible);
     void widgetDebugInfoVisibilityChanged(bool visible);
-    void onTileSelected(std::vector<mapeditor::controllers::MapTileDTO>, thewarrior::models::Point<> coord);
+    void onTileSelected(std::vector<mapeditor::controllers::MapTileDTO>);
     void onTextureAdded(commoneditor::ui::TextureDTO textureDTO);
     void onTextureUpdated(const std::string &name, commoneditor::ui::TextureDTO textureDTO);
     void onTextureDeleted(const std::string &name);

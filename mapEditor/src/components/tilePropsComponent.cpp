@@ -140,14 +140,17 @@ void updateUIField(const std::vector<MapTileDTO> &tiles,
         setter(uiField, {}, true);
     }
 }
-void TilePropsComponent::onTileSelected(std::vector<MapTileDTO> tiles, Point<> coord) {
+void TilePropsComponent::onTileSelected(std::vector<MapTileDTO> tiles) {
     if (tiles.size() == 0) {
         onTileUnselected();
         return;
-    } else if (tiles.size() > 1) {
-        ui.labelTileCoordXY->setText("X: <multi>, Y: <multi>");
     } else {
-        ui.labelTileCoordXY->setText(fmt::format("X: {0}, Y: {1}", coord.x(), coord.y()).c_str());
+        auto coord = m_controller.getCoordFromSingleSelectedTile();
+        if (!coord.has_value()) {
+            ui.labelTileCoordXY->setText("X: <multi>, Y: <multi>");
+        } else {
+            ui.labelTileCoordXY->setText(fmt::format("X: {0}, Y: {1}", coord->x(), coord->y()).c_str());
+        }
     }
 
     m_disableFieldsChangedEvent = true;
@@ -192,8 +195,7 @@ void TilePropsComponent::onTileUnselected() {
 }
 
 void TilePropsComponent::onTilePropsChanged() {
-    // TODO: 0.3.3 solve the 0, 0 point
-    onTileSelected(m_controller.getSelectedTiles(), Point(0, 0));
+    onTileSelected(m_controller.getSelectedTiles());
 }
 
 void TilePropsComponent::onTileTriggerChanged() {

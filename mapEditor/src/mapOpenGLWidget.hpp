@@ -12,6 +12,7 @@
 #include <glm/glm.hpp>
 #include "gameMap.hpp"
 #include "mapView.hpp"
+#include "pickerToolSelection.hpp"
 #include "selectionMode.hpp"
 
 struct ResizeGLComponentInfo {
@@ -109,6 +110,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
     void onTileClicked(const std::set<int> &tileIndex, int screenX, int screenY);
     void onTileMouseMoveEvent(bool mousePressed, int tileIndex);
     void onMapMoved(float translationX, float translationY);
+    void onPickerToolTileSelected(PickerToolSelection selection);
 };
 
 #endif  // MAPEDITOR_SRC_MAPOPENGLWIDGET_HPP_

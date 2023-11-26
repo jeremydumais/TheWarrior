@@ -3,6 +3,8 @@
 #include <fmt/format.h>
 #include <qnamespace.h>
 #include <string>
+#include "components/tilePropsComponent.hpp"
+#include "pickerToolSelection.hpp"
 #include "point.hpp"
 #include "textureUtils.hpp"
 
@@ -23,6 +25,7 @@ void TextureSelectionDockWidget::connectUIActions() {
     connect(ui.pushButtonSelectedObjectClear, &QPushButton::clicked, this, &TextureSelectionDockWidget::onPushButtonSelectedObjectClearClick);
     connect(ui.labelImageTexture, &QClickableLabel::onMouseReleaseEvent, this, &TextureSelectionDockWidget::onLabelImageTextureMouseReleaseEvent);
     connect(ui.comboBoxTexture, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &TextureSelectionDockWidget::onComboBoxTextureCurrentIndexChanged);
+    connect(m_glComponent, &MainForm_GLComponent::pickerToolTileSelected, this, &TextureSelectionDockWidget::onPickerToolTileSelected);
 }
 
 void TextureSelectionDockWidget::refreshTextureList() {
@@ -84,4 +87,28 @@ void TextureSelectionDockWidget::onLabelImageTextureMouseReleaseEvent(QMouseEven
 
 void TextureSelectionDockWidget::onComboBoxTextureCurrentIndexChanged() {
     displaySelectedTextureImage();
+}
+
+void TextureSelectionDockWidget::onPickerToolTileSelected(const PickerToolSelection &selection) {
+    // Find the texture in the texture comboBox
+    auto texture { m_glComponent->getTextureByName(selection.textureName) };
+    if (texture.has_value()) {
+        ui.comboBoxTexture->setCurrentText(selection.textureName.c_str());
+        auto qpixmap = TextureUtils::getTexturePixmapFromLabel(ui.labelImageTexture);
+        auto imagePart { TextureUtils::getTextureTileImageFromTexture(&qpixmap,
+                selection.textureIndex,
+                texture->get()) };
+        m_glComponent->setLastSelectedTexture(selection.textureName, selection.textureIndex);
+        ui.labelSelectedTexture->setPixmap(imagePart);
+    }
+    auto textureObj { m_glComponent->getTextureByName(selection.objectTextureName) };
+    if (textureObj.has_value()) {
+        ui.comboBoxTexture->setCurrentText(selection.objectTextureName.c_str());
+        auto qpixmapObj = TextureUtils::getTexturePixmapFromLabel(ui.labelImageTexture);
+        auto imagePartObj { TextureUtils::getTextureTileImageFromTexture(&qpixmapObj,
+                selection.objectTextureIndex,
+                textureObj->get()) };
+        m_glComponent->setLastSelectedObject(selection.objectTextureName, selection.objectTextureIndex);
+        ui.labelSelectedObject->setPixmap(imagePartObj);
+    }
 }

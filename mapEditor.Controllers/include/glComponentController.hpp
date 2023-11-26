@@ -4,11 +4,13 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <boost/optional/optional.hpp>
 #include "gameMap.hpp"
 #include "mapTile.hpp"
 #include "mapTileDTO.hpp"
 #include "monsterZone.hpp"
 #include "monsterZoneDTO.hpp"
+#include "point.hpp"
 
 namespace mapeditor::controllers {
 
@@ -30,6 +32,7 @@ class GLComponentController {
                                         int offsetBottom) const;
     std::vector<mapeditor::controllers::MonsterZoneDTO> getMonsterZones() const;
     OptMonsterZoneDTOConst getMonsterZoneByName(const std::string &name) const;
+    boost::optional<thewarrior::models::Point<int>> getCoordFromSingleSelectedTile() const;
     void setCurrentMap(std::shared_ptr<thewarrior::models::GameMap> map);
     void selectTilesForEditing(const std::set<int> &indices);
     void resizeMap(int offsetLeft,
@@ -54,6 +57,7 @@ class GLComponentController {
  private:
     std::shared_ptr<thewarrior::models::GameMap> m_map;
     std::vector<thewarrior::models::MapTile *> m_currentMapTiles;
+    std::set<int> m_selectedIndices;
     std::string m_lastError;
     std::string m_lastSelectedTextureName;
     std::string m_lastSelectedObjectName;

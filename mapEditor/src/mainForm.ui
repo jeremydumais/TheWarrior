@@ -204,6 +204,7 @@
    </attribute>
    <addaction name="action_Select"/>
    <addaction name="action_MoveMap"/>
+   <addaction name="action_PickerTool"/>
    <addaction name="separator"/>
    <addaction name="action_ApplyTexture"/>
    <addaction name="action_ApplyObject"/>
@@ -595,6 +596,21 @@
    </property>
    <property name="text">
     <string>Debugging info</string>
+   </property>
+  </action>
+  <action name="action_PickerTool">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/pickerTool.png</normaloff>:/pickerTool.png</iconset>
+   </property>
+   <property name="text">
+    <string>Picker tool</string>
+   </property>
+   <property name="toolTip">
+    <string>Picker tool</string>
    </property>
   </action>
  </widget>

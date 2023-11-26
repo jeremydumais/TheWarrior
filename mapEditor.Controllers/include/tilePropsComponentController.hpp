@@ -7,6 +7,7 @@
 #include "glComponentController.hpp"
 #include "mapTileDTO.hpp"
 #include "mapTileTriggerDTO.hpp"
+#include "point.hpp"
 
 namespace mapeditor::controllers {
 
@@ -17,6 +18,7 @@ class TilePropsComponentController {
     std::vector<MapTileDTO> getSelectedTiles() const;
     std::set<MapTileTriggerDTO> getTilesCommonTriggers() const;
     boost::optional<MapTileTriggerDTO> findMapTileTriggerByEvent(const std::string &event);
+    boost::optional<thewarrior::models::Point<int>> getCoordFromSingleSelectedTile() const;
     void setTilesTextureName(const std::string &name);
     void setTilesTextureIndex(int index);
     void setTilesObjectTextureName(const std::string &name);

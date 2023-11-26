@@ -1,5 +1,5 @@
-#include <algorithm>
 #include <gtest/gtest.h>
+#include <algorithm>
 #include <memory>
 #include <stdexcept>
 #include "gameMap.hpp"
@@ -111,10 +111,6 @@ TEST_F(TilesPropsControllerSample1, findMapTileTriggerByEvent_WithNotUsedEvent_R
 
 TEST_F(TilesPropsControllerSample1, findMapTileTriggerByEvent_WithCommonEvent_ReturnTriggerDTO) {
     glController.selectTilesForEditing({1, 3});
-    auto expected = MapTileTrigger(MapTileTriggerEvent::SteppedOn,
-            MapTileTriggerCondition::MustBeFacing,
-            MapTileTriggerAction::DenyMove,
-            { { "Test1", "Test2" }, { "Test3", "Test4" } });
     auto triggerDTO = tilesController.findMapTileTriggerByEvent("SteppedOn");
     ASSERT_TRUE(triggerDTO.has_value());
     ASSERT_EQ("SteppedOn", triggerDTO->event);

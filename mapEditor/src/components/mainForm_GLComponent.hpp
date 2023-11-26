@@ -12,6 +12,7 @@
 #include "mapView.hpp"
 #include "mapTileDTO.hpp"
 #include "monsterZoneDTO.hpp"
+#include "pickerToolSelection.hpp"
 #include "point.hpp"
 #include "selectionMode.hpp"
 
@@ -68,15 +69,15 @@ class MainForm_GLComponent : public QWidget {
     void clearMonsterZone();
 
  signals:
-        void tileSelected(std::vector<mapeditor::controllers::MapTileDTO> tiles,
-                thewarrior::models::Point<> coord);
-        void tileUnselected();
-        void tilePropsChanged();
-        void tileTriggerChanged();
+    void tileSelected(std::vector<mapeditor::controllers::MapTileDTO> tiles);
+    void tileUnselected();
+    void tilePropsChanged();
+    void tileTriggerChanged();
+    void pickerToolTileSelected(const PickerToolSelection &selection);
 
  private:
     MapOpenGLWidget *m_glWidget;
     mapeditor::controllers::GLComponentController m_controller;
     void onTileClicked(const std::set<int> &tileIndices, int, int);
-    void onTileMouseReleaseEvent(std::set<int> selectedTileIndexes);
+    void onPickerToolTileSelected(const PickerToolSelection &selection);
 };

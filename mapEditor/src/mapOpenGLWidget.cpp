@@ -8,9 +8,10 @@
 #include <set>
 #include <string>
 #include <vector>
+#include "glColor.hpp"
 #include "mapView.hpp"
 #include "monsterZone.hpp"
-#include "glColor.hpp"
+#include "pickerToolSelection.hpp"
 #include "selectionMode.hpp"
 
 using namespace thewarrior::models;
@@ -202,7 +203,7 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event) {
     m_translationYGL = m_translationY * m_translationYToPixel;
     emit onMapMoved(m_translationX, m_translationY);
     if (isMultiTileSelectionMode()) {
-        if(!QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
+        if (!QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
             m_selectedTileIndices.clear();
         }
         // Calculate the list of index selected
@@ -243,7 +244,7 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event) {
             }
             auto tileIndex = getTileIndex(realCoord.x(), realCoord.y());
             if (tileIndex != -1) {
-                m_selectedTileIndices.insert(getTileIndex(realCoord.x(), realCoord.y()));
+                m_selectedTileIndices.insert(tileIndex);
             }
             calculatedCoord.setX(calculatedCoord.x() + static_cast<int>(ONSCREENTILESIZE));
             if (calculatedCoord.x() >= endCoordToTileBorder.x()) {
@@ -254,6 +255,17 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event) {
         m_selectedTileColor = 100;
         m_selectedTileColorGrowing = true;
         emit onTileClicked(m_selectedTileIndices, event->x(), event->y());
+    } else if (m_selectionMode == SelectionMode::PickerTool) {
+        auto currentTileIndex = getTileIndex(event->pos().x(), event->pos().y());
+        if (currentTileIndex != -1) {
+            const auto &tile = m_currentMap->getTileForEditing(currentTileIndex);
+            emit onPickerToolTileSelected(PickerToolSelection {
+                tile.getTextureName(),
+                tile.getTextureIndex(),
+                tile.getObjectTextureName(),
+                tile.getObjectTextureIndex()
+            });
+        }
     }
 }
 
@@ -635,9 +647,9 @@ glm::vec2 MapOpenGLWidget::convertScreenCoordToGlCoord(QPoint coord) const {
 
 void MapOpenGLWidget::updateSelectedTileColor() {
     if (m_selectedTileColorGrowing) {
-        m_selectedTileColor+=3;
+        m_selectedTileColor += 3;
     } else {
-        m_selectedTileColor-=3;
+        m_selectedTileColor -= 3;
     }
 
     if (m_selectedTileColor >= 200) {

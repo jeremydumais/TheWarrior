@@ -7,6 +7,7 @@
 #include "mapTileDTO.hpp"
 #include "monsterZoneDTO.hpp"
 #include "monsterZoneDTOUtils.hpp"
+#include "pickerToolSelection.hpp"
 #include "point.hpp"
 
 using commoneditor::ui::ErrorMessage;
@@ -41,6 +42,10 @@ void MainForm_GLComponent::connectUIActions() {
             &MapOpenGLWidget::onTileClicked,
             this,
             &MainForm_GLComponent::onTileClicked);
+    connect(this->m_glWidget,
+            &MapOpenGLWidget::onPickerToolTileSelected,
+            this,
+            &MainForm_GLComponent::onPickerToolTileSelected);
 }
 
 const std::string &MainForm_GLComponent::getResourcesPath() const {
@@ -167,16 +172,15 @@ void MainForm_GLComponent::resizeMap(int offsetLeft,
 void MainForm_GLComponent::onTileClicked(const std::set<int> &tileIndices, int, int) {
     if (m_glWidget->getSelectionMode() == SelectionMode::Select && tileIndices.size() != 0) {
         m_controller.selectTilesForEditing(tileIndices);
-        auto coord = [&tileIndices, this]() {
-            return tileIndices.size() > 0 ?
-                m_controller.getMap()->getCoordFromTileIndex(*tileIndices.begin()) :
-                Point(0, 0);
-        }();
-        emit tileSelected(m_controller.getSelectedMapTiles(), coord);
+        emit tileSelected(m_controller.getSelectedMapTiles());
     } else {
         m_controller.unselectMapTiles();
         emit tileUnselected();
     }
+}
+
+void MainForm_GLComponent::onPickerToolTileSelected(const PickerToolSelection &selection) {
+    emit pickerToolTileSelected(selection);
 }
 
 void MainForm_GLComponent::applyTexture() {
