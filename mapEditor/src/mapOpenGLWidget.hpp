@@ -107,7 +107,6 @@ class MapOpenGLWidget : public QOpenGLWidget {
  signals:
     void onRecalculateTileSize(ResizeGLComponentInfo info);
     void onTileClicked(const std::set<int> &tileIndex, int screenX, int screenY);
-    void onTileMouseReleaseEvent(std::set<int> tileIndex);
     void onTileMouseMoveEvent(bool mousePressed, int tileIndex);
     void onMapMoved(float translationX, float translationY);
 };

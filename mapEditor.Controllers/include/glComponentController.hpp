@@ -19,8 +19,6 @@ class GLComponentController {
     GLComponentController();
     const std::shared_ptr<thewarrior::models::GameMap> getMap() const;
     const std::string &getLastError() const;
-    void setCurrentMap(std::shared_ptr<thewarrior::models::GameMap> map);
-    void selectTilesForEditing(const std::set<int> &indices);
     std::vector<thewarrior::models::MapTile *> getCurrentMapTiles();
     std::vector<MapTileDTO> getSelectedMapTiles() const;
     std::vector<std::string> getAlreadyUsedTextureNames() const;
@@ -30,19 +28,38 @@ class GLComponentController {
                                         int offsetTop,
                                         int offsetRight,
                                         int offsetBottom) const;
-    void resizeMap(int offsetLeft,
-                   int offsetTop,
-                   int offsetRight,
-                   int offsetBottom);
     std::vector<mapeditor::controllers::MonsterZoneDTO> getMonsterZones() const;
     OptMonsterZoneDTOConst getMonsterZoneByName(const std::string &name) const;
+    void setCurrentMap(std::shared_ptr<thewarrior::models::GameMap> map);
+    void selectTilesForEditing(const std::set<int> &indices);
+    void resizeMap(int offsetLeft,
+            int offsetTop,
+            int offsetRight,
+            int offsetBottom);
+    void setLastSelectedTexture(const std::string &name, int index);
+    void setLastSelectedObject(const std::string &name, int index);
+    void clearLastSelectedTexture();
+    void clearLastSelectedObject();
+    void setLastSelectedMonsterZone(int index);
+    void clearLastSelectedMonsterZone();
     void unselectMapTiles();
-    bool applyDenyZone(const std::string &event);
+    void applyTexture();
+    void applyObject();
+    void applyCanStep(bool value);
+    bool applyDenyZone(const std::string &eventStr);
+    void clearDenyZones();
+    void applyMonsterZone();
+    void clearMonsterZone();
 
  private:
     std::shared_ptr<thewarrior::models::GameMap> m_map;
     std::vector<thewarrior::models::MapTile *> m_currentMapTiles;
     std::string m_lastError;
+    std::string m_lastSelectedTextureName;
+    std::string m_lastSelectedObjectName;
+    int m_lastSelectedTextureIndex;
+    int m_lastSelectedObjectIndex;
+    int m_lastSelectedMonsterZoneIndex;
 };
 
 }  // namespace mapeditor::controllers

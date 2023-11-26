@@ -10,8 +10,15 @@ struct MapTileTriggerDTO {
     std::string condition = "None";
     std::string action = "None";
     std::map<std::string, std::string> actionProperties = {};
-    bool operator==(const MapTileTriggerDTO &other) const = default;
-    bool operator!=(const MapTileTriggerDTO &other) const = default;
+    bool operator==(const MapTileTriggerDTO &other) const {
+        return event == other.event &&
+            condition == other.condition &&
+            action == other.action &&
+            actionProperties == other.actionProperties;
+    }
+    bool operator!=(const MapTileTriggerDTO &other) const {
+        return !(*this == other);
+    }
     bool operator<(const MapTileTriggerDTO &other) const {
         // Compare fields in a specific order
         if (event != other.event) {

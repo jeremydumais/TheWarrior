@@ -37,6 +37,8 @@ Q_OBJECT
     void refreshEventList(std::set<mapeditor::controllers::MapTileTriggerDTO> triggers);
     void onTileSelected(std::vector<mapeditor::controllers::MapTileDTO> tiles, thewarrior::models::Point<> coord);
     void onTileUnselected();
+    void onTilePropsChanged();
+    void onTileTriggerChanged();
     void onLineEditTexNameTextChanged(const QString &text);
     void onSpinBoxTexIndexValueChanged(int value);
     void onLineEditObjTexNameTextChanged(const QString &text);

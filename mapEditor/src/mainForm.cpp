@@ -349,38 +349,46 @@ void MainForm::action_MoveMapClick() {
 }
 
 void MainForm::action_ApplyTextureClick() {
-    m_glComponent.setSelectionMode(SelectionMode::ApplyTexture);
+    m_glComponent.applyTexture();
 }
 
 void MainForm::action_ApplyObjectClick() {
-    m_glComponent.setSelectionMode(SelectionMode::ApplyObject);
+    m_glComponent.applyObject();
 }
 
 void MainForm::action_EnableCanStepClick() {
-    m_glComponent.setSelectionMode(SelectionMode::EnableCanStep);
+    m_glComponent.applyCanStep(true);
+    ui.tabWidgetMapView->setCurrentIndex(1);
 }
 
 void MainForm::action_DisableCanStepClick() {
-    m_glComponent.setSelectionMode(SelectionMode::DisableCanStep);
+    m_glComponent.applyCanStep(false);
+    ui.tabWidgetMapView->setCurrentIndex(1);
 }
 
 void MainForm::action_BlockLeftBorderClick() {
     m_glComponent.addMoveDenyTrigger("MoveLeftPressed");
+    ui.tabWidgetMapView->setCurrentIndex(2);
 }
 
 void MainForm::action_BlockTopBorderClick() {
     m_glComponent.addMoveDenyTrigger("MoveUpPressed");
+    ui.tabWidgetMapView->setCurrentIndex(2);
 }
 
 void MainForm::action_BlockRightBorderClick() {
     m_glComponent.addMoveDenyTrigger("MoveRightPressed");
+    ui.tabWidgetMapView->setCurrentIndex(2);
 }
 
 void MainForm::action_BlockBottomBorderClick() {
     m_glComponent.addMoveDenyTrigger("MoveDownPressed");
+    ui.tabWidgetMapView->setCurrentIndex(2);
 }
 
 void MainForm::action_ClearBlockedBordersClick() {
+    m_glComponent.clearMoveDenyTriggers();
+    ui.tabWidgetMapView->setCurrentIndex(2);
 }
 
 void MainForm::onComboBoxToolbarMonsterZoneCurrentIndexChanged() {
@@ -398,13 +406,13 @@ void MainForm::onComboBoxToolbarMonsterZoneCurrentIndexChanged() {
 }
 
 void MainForm::action_ApplyMonsterZone() {
-    m_glComponent.setSelectionMode(SelectionMode::ApplyMonsterZone);
-    setActiveToolbarActionChecked(SelectionMode::ApplyMonsterZone);
+    m_glComponent.applyMonsterZone();
+    ui.tabWidgetMapView->setCurrentIndex(3);
 }
 
 void MainForm::action_ClearMonsterZone() {
-    m_glComponent.setSelectionMode(SelectionMode::ClearMonsterZone);
-    setActiveToolbarActionChecked(SelectionMode::ClearMonsterZone);
+    m_glComponent.clearMonsterZone();
+    ui.tabWidgetMapView->setCurrentIndex(3);
 }
 
 void MainForm::sliderZoomValueChanged(int value) {
@@ -614,11 +622,6 @@ void MainForm::onMonsterZoneDeleted(const std::string &name) {
     } else {
         ErrorMessage::show(m_controller.getLastError());
     }
-    if (m_monsterZoneListComponent->isMonsterZonesEmpty() &&
-            (m_glComponent.getSelectionMode() == SelectionMode::ApplyMonsterZone ||
-             m_glComponent.getSelectionMode() == SelectionMode::ClearMonsterZone)) {
-        m_glComponent.setSelectionMode(SelectionMode::Select);
-    }
     refreshMonsterZones();
 }
 
@@ -654,10 +657,5 @@ void MainForm::toggleMonsterZoneAssignationControls() {
 
 void MainForm::useOnlyOneMonsterZoneChanged(bool) {
     toggleMonsterZoneAssignationControls();
-    if (m_monsterZoneListComponent->isOnlyOneMonsterZoneChecked() &&
-            (m_glComponent.getSelectionMode() == SelectionMode::ApplyMonsterZone ||
-             m_glComponent.getSelectionMode() == SelectionMode::ClearMonsterZone)) {
-        action_SelectClick();
-    }
 }
 

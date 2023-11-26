@@ -5,23 +5,16 @@
 #include "errorMessage.hpp"
 #include "glComponentController.hpp"
 #include "mapTileDTO.hpp"
-#include "mapTileDTOUtils.hpp"
 #include "monsterZoneDTO.hpp"
 #include "monsterZoneDTOUtils.hpp"
 #include "point.hpp"
 
 using commoneditor::ui::ErrorMessage;
 using thewarrior::models::GameMap;
-using thewarrior::models::MapTile;
-using thewarrior::models::MapTileTriggerAction;
-using thewarrior::models::MapTileTriggerCondition;
-using thewarrior::models::MapTileTriggerEvent;
-using thewarrior::models::MapTileTrigger;
 using thewarrior::models::Point;
 using thewarrior::models::Texture;
 using mapeditor::controllers::GLComponentController;
 using mapeditor::controllers::MapTileDTO;
-using mapeditor::controllers::MapTileDTOUtils;
 using mapeditor::controllers::MonsterZoneDTO;
 using mapeditor::controllers::OptMonsterZoneDTOConst;
 using std::optional;
@@ -30,12 +23,7 @@ using std::string;
 using std::vector;
 
 MainForm_GLComponent::MainForm_GLComponent()
-    : m_glWidget(nullptr),
-    m_lastSelectedTextureName(""),
-    m_lastSelectedObjectName(""),
-    m_lastSelectedTextureIndex(-1),
-    m_lastSelectedObjectIndex(-1),
-    m_lastSelectedMonsterZoneIndex(-1) {
+    : m_glWidget(nullptr) {
 }
 
 GLComponentController *MainForm_GLComponent::getControllerPtr() {
@@ -53,10 +41,6 @@ void MainForm_GLComponent::connectUIActions() {
             &MapOpenGLWidget::onTileClicked,
             this,
             &MainForm_GLComponent::onTileClicked);
-    connect(this->m_glWidget,
-            &MapOpenGLWidget::onTileMouseReleaseEvent,
-            this,
-            &MainForm_GLComponent::onTileMouseReleaseEvent);
 }
 
 const std::string &MainForm_GLComponent::getResourcesPath() const {
@@ -100,32 +84,28 @@ std::vector<MapTileDTO> MainForm_GLComponent::getCurrentMapTiles() {
 
 void MainForm_GLComponent::setLastSelectedTexture(const std::string &name,
         int index) {
-    this->m_lastSelectedTextureName = name;
-    this->m_lastSelectedTextureIndex = index;
+    m_controller.setLastSelectedTexture(name, index);
 }
 
 void MainForm_GLComponent::setLastSelectedObject(const std::string &name,
         int index) {
-    this->m_lastSelectedObjectName = name;
-    this->m_lastSelectedObjectIndex = index;
+    m_controller.setLastSelectedObject(name, index);
 }
 
 void MainForm_GLComponent::clearLastSelectedTexture() {
-    m_lastSelectedTextureName = "";
-    m_lastSelectedTextureIndex = -1;
+    m_controller.clearLastSelectedTexture();
 }
 
 void MainForm_GLComponent::clearLastSelectedObject() {
-    m_lastSelectedObjectName = "";
-    m_lastSelectedObjectIndex = -1;
+    m_controller.clearLastSelectedObject();
 }
 
 void MainForm_GLComponent::setLastSelectedMonsterZone(int index) {
-    m_lastSelectedMonsterZoneIndex = index;
+    m_controller.setLastSelectedMonsterZone(index);
 }
 
 void MainForm_GLComponent::clearLastSelectedMonsterZone() {
-    m_lastSelectedMonsterZoneIndex = -1;
+    m_controller.clearLastSelectedMonsterZone();
 }
 
 void MainForm_GLComponent::stopAutoUpdate() {
@@ -199,68 +179,41 @@ void MainForm_GLComponent::onTileClicked(const std::set<int> &tileIndices, int, 
     }
 }
 
-void MainForm_GLComponent::onTileMouseReleaseEvent(set<int> selectedTileIndexes) {
-    // TODO: 0.3.3 To solve
-    //if (m_glWidget->getSelectionMode() == SelectionMode::ApplyTexture) {
-        //for (const int index : selectedTileIndexes) {
-            //m_currentMapTile = &m_controller.getMap()->getTileForEditing(index);
-            //m_currentMapTile->setTextureName(m_lastSelectedTextureName);
-            //m_currentMapTile->setTextureIndex(m_lastSelectedTextureIndex);
-        //}
-    //} else if (m_glWidget->getSelectionMode() == SelectionMode::ApplyObject) {
-        //for (const int index : selectedTileIndexes) {
-            //m_currentMapTile = &m_controller.getMap()->getTileForEditing(index);
-            //m_currentMapTile->setObjectTextureName(m_lastSelectedObjectName);
-            //m_currentMapTile->setObjectTextureIndex(m_lastSelectedObjectIndex);
-        //}
-    //} else if (m_glWidget->getSelectionMode() == SelectionMode::EnableCanStep) {
-        //for (const int index : selectedTileIndexes) {
-            //m_currentMapTile = &m_controller.getMap()->getTileForEditing(index);
-            //m_currentMapTile->setCanPlayerSteppedOn(true);
-        //}
-    //} else if (m_glWidget->getSelectionMode() == SelectionMode::DisableCanStep) {
-        //for (const int index : selectedTileIndexes) {
-            //m_currentMapTile = &m_controller.getMap()->getTileForEditing(index);
-            //m_currentMapTile->setCanPlayerSteppedOn(false);
-        //}
-    //} else if (m_glWidget->getSelectionMode() == SelectionMode::BlockBorderLeft) {
-        //addMoveDenyTrigger(selectedTileIndexes, MapTileTriggerEvent::MoveLeftPressed);
-    //} else if (m_glWidget->getSelectionMode() == SelectionMode::BlockBorderTop) {
-        //addMoveDenyTrigger(selectedTileIndexes, MapTileTriggerEvent::MoveUpPressed);
-    //} else if (m_glWidget->getSelectionMode() == SelectionMode::BlockBorderRight) {
-        //addMoveDenyTrigger(selectedTileIndexes, MapTileTriggerEvent::MoveRightPressed);
-    //} else if (m_glWidget->getSelectionMode() == SelectionMode::BlockBorderBottom) {
-        //addMoveDenyTrigger(selectedTileIndexes, MapTileTriggerEvent::MoveDownPressed);
-    //} else if (m_glWidget->getSelectionMode() == SelectionMode::ClearBlockedBorders) {
-        //for (const int index : selectedTileIndexes) {
-            //m_currentMapTile = &m_controller.getMap()->getTileForEditing(index);
-            //for (const auto &trigger : m_currentMapTile->getTriggers()) {
-                //if (trigger.getAction() == MapTileTriggerAction::DenyMove &&
-                        //(trigger.getEvent() == MapTileTriggerEvent::MoveLeftPressed ||
-                         //trigger.getEvent() == MapTileTriggerEvent::MoveUpPressed ||
-                         //trigger.getEvent() == MapTileTriggerEvent::MoveRightPressed ||
-                         //trigger.getEvent() == MapTileTriggerEvent::MoveDownPressed)) {
-                    //m_currentMapTile->deleteTrigger(trigger);
-                //}
-            //}
-        //}
-    //} else if (m_glWidget->getSelectionMode() == SelectionMode::ApplyMonsterZone) {
-        //for (const int index : selectedTileIndexes) {
-            //m_currentMapTile = &m_controller.getMap()->getTileForEditing(index);
-            //m_currentMapTile->setMonsterZoneIndex(m_lastSelectedMonsterZoneIndex);
-        //}
-    //} else if (m_glWidget->getSelectionMode() == SelectionMode::ClearMonsterZone) {
-        //for (const int index : selectedTileIndexes) {
-            //m_currentMapTile = &m_controller.getMap()->getTileForEditing(index);
-            //m_currentMapTile->setMonsterZoneIndex(-1);
-        //}
-    //}
+void MainForm_GLComponent::applyTexture() {
+    m_controller.applyTexture();
+    emit tilePropsChanged();
+}
+
+void MainForm_GLComponent::applyObject() {
+    m_controller.applyObject();
+    emit tilePropsChanged();
+}
+
+void MainForm_GLComponent::applyCanStep(bool value) {
+    m_controller.applyCanStep(value);
+    emit tilePropsChanged();
 }
 
 void MainForm_GLComponent::addMoveDenyTrigger(const std::string &event) {
     if (!m_controller.applyDenyZone(event)) {
         ErrorMessage::show(m_controller.getLastError());
     }
+    emit tileTriggerChanged();
+}
+
+void MainForm_GLComponent::clearMoveDenyTriggers() {
+    m_controller.clearDenyZones();
+    emit tileTriggerChanged();
+}
+
+void MainForm_GLComponent::applyMonsterZone() {
+    m_controller.applyMonsterZone();
+    emit tileTriggerChanged();
+}
+
+void MainForm_GLComponent::clearMonsterZone() {
+    m_controller.clearMonsterZone();
+    emit tileTriggerChanged();
 }
 
 std::vector<MonsterZoneDTO> MainForm_GLComponent::getMonsterZones() const {

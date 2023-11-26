@@ -4,13 +4,11 @@
 #include <string>
 #include <vector>
 #include "glComponentController.hpp"
-#include "mapTile.hpp"
 #include "mapTileDTO.hpp"
 #include "mapTileTriggerDTO.hpp"
 #include "tilePropsComponent.hpp"
 #include "editMapTileTriggerForm.hpp"
 #include "errorMessage.hpp"
-#include "mapTileTriggerEventConverter.hpp"
 #include "uiUtils.hpp"
 
 using commoneditor::ui::ErrorMessage;
@@ -18,9 +16,6 @@ using commoneditor::ui::UIUtils;
 using mapeditor::controllers::GLComponentController;
 using mapeditor::controllers::MapTileDTO;
 using mapeditor::controllers::MapTileTriggerDTO;
-using thewarrior::models::MapTile;
-using thewarrior::models::MapTileTrigger;
-using thewarrior::models::MapTileTriggerEventConverter;
 using thewarrior::models::Point;
 
 void setEnabledWidgetsInLayout(QLayout *layout, bool enabled);
@@ -48,6 +43,14 @@ void TilePropsComponent::connectUIActions() {
             &MainForm_GLComponent::tileUnselected,
             this,
             &TilePropsComponent::onTileUnselected);
+    connect(m_glComponent,
+            &MainForm_GLComponent::tileTriggerChanged,
+            this,
+            &TilePropsComponent::onTileTriggerChanged);
+    connect(m_glComponent,
+            &MainForm_GLComponent::tilePropsChanged,
+            this,
+            &TilePropsComponent::onTilePropsChanged);
     connect(ui.lineEditTexName,
             &QLineEdit::textChanged,
             this,
@@ -186,6 +189,15 @@ void TilePropsComponent::onTileUnselected() {
     ui.checkBoxIsWallToClimb->setChecked(false);
     refreshEventList({});
     setEnabledWidgetsInLayout(ui.verticalLayout_4, false);
+}
+
+void TilePropsComponent::onTilePropsChanged() {
+    // TODO: 0.3.3 solve the 0, 0 point
+    onTileSelected(m_controller.getSelectedTiles(), Point(0, 0));
+}
+
+void TilePropsComponent::onTileTriggerChanged() {
+    refreshEventList(m_controller.getTilesCommonTriggers());
 }
 
 void setEnabledWidgetsInLayout(QLayout *layout, bool enabled) {

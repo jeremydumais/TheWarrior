@@ -74,6 +74,31 @@ TEST_F(TilesPropsControllerSample1, GetTilesCommonTriggers_WithTwoTilesOneCommon
     ASSERT_EQ(0, triggers.size());
 }
 
+TEST_F(TilesPropsControllerSample1, GetTilesCommonTriggers_With6Tiles4CommonTrig_Return4Triggers) {
+    auto tilesToAdjust = map->getTilesForEditing({4, 5, 6, 7, 8, 9});
+    for (auto *tile : tilesToAdjust) {
+        tile->addTrigger(MapTileTrigger(MapTileTriggerEvent::MoveUpPressed,
+                    MapTileTriggerCondition::None,
+                    MapTileTriggerAction::DenyMove,
+                    {}));
+        tile->addTrigger(MapTileTrigger(MapTileTriggerEvent::MoveLeftPressed,
+                    MapTileTriggerCondition::None,
+                    MapTileTriggerAction::DenyMove,
+                    {}));
+        tile->addTrigger(MapTileTrigger(MapTileTriggerEvent::MoveRightPressed,
+                    MapTileTriggerCondition::None,
+                    MapTileTriggerAction::DenyMove,
+                    {}));
+        tile->addTrigger(MapTileTrigger(MapTileTriggerEvent::MoveDownPressed,
+                    MapTileTriggerCondition::None,
+                    MapTileTriggerAction::DenyMove,
+                    {}));
+    }
+    glController.selectTilesForEditing({4, 5, 6, 7, 8, 9});
+    auto triggers = tilesController.getTilesCommonTriggers();
+    ASSERT_EQ(4, triggers.size());
+}
+
 TEST_F(TilesPropsControllerSample1, findMapTileTriggerByEvent_WithUnknownEvent_ReturnEmpty) {
     glController.selectTilesForEditing({1, 3});
     ASSERT_FALSE(tilesController.findMapTileTriggerByEvent("M").has_value());

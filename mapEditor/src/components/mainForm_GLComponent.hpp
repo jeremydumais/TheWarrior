@@ -9,7 +9,6 @@
 #include "gameMap.hpp"
 #include "../mapOpenGLWidget.hpp"
 #include "glComponentController.hpp"
-#include "mapTile.hpp"
 #include "mapView.hpp"
 #include "mapTileDTO.hpp"
 #include "monsterZoneDTO.hpp"
@@ -60,21 +59,24 @@ class MainForm_GLComponent : public QWidget {
     std::vector<mapeditor::controllers::MonsterZoneDTO> getMonsterZones() const;
     mapeditor::controllers::OptMonsterZoneDTOConst getMonsterZoneByName(const std::string &name) const;
     std::vector<std::string> getAlreadyUsedMonsterZoneNames() const;
+    void applyTexture();
+    void applyObject();
+    void applyCanStep(bool value);
     void addMoveDenyTrigger(const std::string &event);
+    void clearMoveDenyTriggers();
+    void applyMonsterZone();
+    void clearMonsterZone();
 
  signals:
         void tileSelected(std::vector<mapeditor::controllers::MapTileDTO> tiles,
                 thewarrior::models::Point<> coord);
         void tileUnselected();
+        void tilePropsChanged();
+        void tileTriggerChanged();
 
  private:
     MapOpenGLWidget *m_glWidget;
     mapeditor::controllers::GLComponentController m_controller;
-    std::string m_lastSelectedTextureName;
-    std::string m_lastSelectedObjectName;
-    int m_lastSelectedTextureIndex;
-    int m_lastSelectedObjectIndex;
-    int m_lastSelectedMonsterZoneIndex;
     void onTileClicked(const std::set<int> &tileIndices, int, int);
     void onTileMouseReleaseEvent(std::set<int> selectedTileIndexes);
 };

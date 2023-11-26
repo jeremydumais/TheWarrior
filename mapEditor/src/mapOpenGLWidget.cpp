@@ -241,7 +241,10 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event) {
             if (calculatedCoord.y() > endCoord.y()) {
                 realCoord.setY(endCoord.y());
             }
-            m_selectedTileIndices.insert(getTileIndex(realCoord.x(), realCoord.y()));
+            auto tileIndex = getTileIndex(realCoord.x(), realCoord.y());
+            if (tileIndex != -1) {
+                m_selectedTileIndices.insert(getTileIndex(realCoord.x(), realCoord.y()));
+            }
             calculatedCoord.setX(calculatedCoord.x() + static_cast<int>(ONSCREENTILESIZE));
             if (calculatedCoord.x() >= endCoordToTileBorder.x()) {
                 calculatedCoord.setX(startCoord.x());
@@ -251,10 +254,6 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event) {
         m_selectedTileColor = 100;
         m_selectedTileColorGrowing = true;
         emit onTileClicked(m_selectedTileIndices, event->x(), event->y());
-    }
-    auto currentTileIndex { getTileIndex(event->pos().x(), event->pos().y()) };
-    if (currentTileIndex != -1) {
-        emit onTileMouseReleaseEvent(std::set<int> { currentTileIndex });
     }
 }
 
@@ -636,15 +635,15 @@ glm::vec2 MapOpenGLWidget::convertScreenCoordToGlCoord(QPoint coord) const {
 
 void MapOpenGLWidget::updateSelectedTileColor() {
     if (m_selectedTileColorGrowing) {
-        m_selectedTileColor++;
+        m_selectedTileColor+=3;
     } else {
-        m_selectedTileColor--;
+        m_selectedTileColor-=3;
     }
 
-    if (m_selectedTileColor == 200) {
+    if (m_selectedTileColor >= 200) {
         m_selectedTileColorGrowing = false;
         m_selectedTileColor--;
-    } else if (m_selectedTileColor == 100) {
+    } else if (m_selectedTileColor <= 100) {
         m_selectedTileColorGrowing = true;
     }
 }

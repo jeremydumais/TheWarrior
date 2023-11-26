@@ -32,13 +32,21 @@ std::set<MapTileTriggerDTO> TilePropsComponentController::getTilesCommonTriggers
     }
     commonTriggers = std::set<MapTileTriggerDTO>(tiles[0].triggers.begin(),
             tiles[0].triggers.end());
-    std::for_each(tiles.begin() + 1, tiles.end(), [&commonTriggers](const auto &tileDTO) {
-        std::set<MapTileTriggerDTO> intersectTriggers = {};
-        std::set_intersection(commonTriggers.begin(), commonTriggers.end(),
-                tileDTO.triggers.begin(), tileDTO.triggers.end(),
-                std::inserter(intersectTriggers, intersectTriggers.begin()));
-        commonTriggers = intersectTriggers;
-    });
+    if (tiles.size() > 1) {
+        // Copy elements from the set to a vector
+        std::vector<MapTileTriggerDTO> vecCommonTriggers(commonTriggers.begin(), commonTriggers.end());
+        std::sort(vecCommonTriggers.begin(), vecCommonTriggers.end());
+        std::for_each(tiles.begin() + 1, tiles.end(), [&commonTriggers, &vecCommonTriggers](const auto &tileDTO) {
+            std::set<MapTileTriggerDTO> intersectTriggers = {};
+            std::vector<MapTileTriggerDTO> vecTileTriggers(tileDTO.triggers.begin(),
+                    tileDTO.triggers.end());
+            std::sort(vecTileTriggers.begin(), vecTileTriggers.end());
+            std::set_intersection(vecCommonTriggers.begin(), vecCommonTriggers.end(),
+                    vecTileTriggers.begin(), vecTileTriggers.end(),
+                    std::inserter(intersectTriggers, intersectTriggers.begin()));
+            commonTriggers = intersectTriggers;
+        });
+    }
     return commonTriggers;
 }
 

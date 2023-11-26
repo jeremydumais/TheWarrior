@@ -1,8 +1,11 @@
 #include "glComponentController.hpp"
+#include <fmt/format.h>
 #include <algorithm>
 #include "gameMap.hpp"
 #include "mapTile.hpp"
 #include "mapTileDTOUtils.hpp"
+#include "mapTileTrigger.hpp"
+#include "mapTileTriggerEventConverter.hpp"
 #include "monsterZone.hpp"
 #include "monsterZoneDTOUtils.hpp"
 #include "texture.hpp"
@@ -11,15 +14,25 @@ using thewarrior::models::MonsterZone;
 using thewarrior::models::Texture;
 using thewarrior::models::GameMap;
 using thewarrior::models::MapTile;
+using thewarrior::models::MapTileTrigger;
+using thewarrior::models::MapTileTriggerAction;
+using thewarrior::models::MapTileTriggerCondition;
+using thewarrior::models::MapTileTriggerEvent;
+using thewarrior::models::MapTileTriggerEventConverter;
+using thewarrior::models::MapTileTriggerAction;
 using mapeditor::controllers::MonsterZoneDTO;
-
 
 namespace mapeditor::controllers {
 
 GLComponentController::GLComponentController()
     : m_map(nullptr),
       m_currentMapTiles({}),
-      m_lastError("") {
+      m_lastError(""),
+      m_lastSelectedTextureName(""),
+      m_lastSelectedObjectName(""),
+      m_lastSelectedTextureIndex(-1),
+      m_lastSelectedObjectIndex(-1),
+      m_lastSelectedMonsterZoneIndex(-1) {
     }
 
 const std::shared_ptr<GameMap> GLComponentController::getMap() const {
@@ -127,12 +140,128 @@ OptMonsterZoneDTOConst GLComponentController::getMonsterZoneByName(const std::st
     return std::nullopt;
 }
 
+void GLComponentController::setLastSelectedTexture(const std::string &name,
+        int index) {
+    this->m_lastSelectedTextureName = name;
+    this->m_lastSelectedTextureIndex = index;
+}
+
+void GLComponentController::setLastSelectedObject(const std::string &name,
+        int index) {
+    this->m_lastSelectedObjectName = name;
+    this->m_lastSelectedObjectIndex = index;
+}
+
+void GLComponentController::clearLastSelectedTexture() {
+    m_lastSelectedTextureName = "";
+    m_lastSelectedTextureIndex = -1;
+}
+
+void GLComponentController::clearLastSelectedObject() {
+    m_lastSelectedObjectName = "";
+    m_lastSelectedObjectIndex = -1;
+}
+
+void GLComponentController::setLastSelectedMonsterZone(int index) {
+    m_lastSelectedMonsterZoneIndex = index;
+}
+
+void GLComponentController::clearLastSelectedMonsterZone() {
+    m_lastSelectedMonsterZoneIndex = -1;
+}
+
 void GLComponentController::unselectMapTiles() {
     m_currentMapTiles.clear();
 }
 
-bool GLComponentController::applyDenyZone(const std::string &event) {
+void GLComponentController::applyTexture() {
+    auto tiles = getCurrentMapTiles();
+    for (auto *tile : tiles) {
+        tile->setTextureName(m_lastSelectedTextureName);
+        tile->setTextureIndex(m_lastSelectedTextureIndex);
+    }
+}
+
+void GLComponentController::applyObject() {
+    auto tiles = getCurrentMapTiles();
+    for (auto *tile : tiles) {
+        tile->setObjectTextureName(m_lastSelectedObjectName);
+        tile->setObjectTextureIndex(m_lastSelectedObjectIndex);
+    }
+}
+
+void GLComponentController::applyCanStep(bool value) {
+    auto tiles = getCurrentMapTiles();
+    for (auto *tile : tiles) {
+        tile->setCanPlayerSteppedOn(value);
+    }
+}
+
+bool GLComponentController::applyDenyZone(const std::string &eventStr) {
+    auto event = MapTileTriggerEventConverter::eventFromString(eventStr);
+    if (!event.has_value()) {
+        m_lastError = fmt::format("Unrecognized trigger event string {0}", eventStr);
+        return false;
+    }
+    // Check if the event not already used for another purpose on some tiles
+    bool alreadyUsedForAnotherPurpose = false;
+    auto tiles = getCurrentMapTiles();
+    for (const auto *tile : tiles) {
+        const auto foundTrigger = tile->findConstTrigger(event.value());
+        if (foundTrigger.has_value()) {
+            if (foundTrigger->getAction() != MapTileTriggerAction::DenyMove) {
+                alreadyUsedForAnotherPurpose = true;
+                break;
+            }
+        }
+    }
+    if (alreadyUsedForAnotherPurpose) {
+        m_lastError = fmt::format("Trigger {0} is already used for another purpose", eventStr);
+        return false;
+    }
+    for (auto *tile : tiles) {
+        const auto foundTrigger = tile->findConstTrigger(event.value());
+        if (!foundTrigger.has_value()) {
+            tile->addTrigger(MapTileTrigger(event.value(),
+                        MapTileTriggerCondition::None,
+                        MapTileTriggerAction::DenyMove,
+                        {}));
+        }
+    }
+
     return true;
+}
+
+void GLComponentController::clearDenyZones() {
+    auto tiles = getCurrentMapTiles();
+    for (auto *tile : tiles) {
+        std::vector<MapTileTriggerEvent> events = {
+            MapTileTriggerEvent::MoveUpPressed,
+            MapTileTriggerEvent::MoveDownPressed,
+            MapTileTriggerEvent::MoveLeftPressed,
+            MapTileTriggerEvent::MoveRightPressed
+        };
+        for (auto event : events) {
+            auto trigger = tile->findTrigger(event);
+            if (trigger.has_value() && trigger->getAction() == MapTileTriggerAction::DenyMove) {
+                tile->deleteTrigger(trigger.value());
+            }
+        }
+    }
+}
+
+void GLComponentController::applyMonsterZone() {
+    auto tiles = getCurrentMapTiles();
+    for (auto *tile : tiles) {
+        tile->setMonsterZoneIndex(m_lastSelectedMonsterZoneIndex);
+    }
+}
+
+void GLComponentController::clearMonsterZone() {
+    auto tiles = getCurrentMapTiles();
+    for (auto *tile : tiles) {
+        tile->setMonsterZoneIndex(-1);
+    }
 }
 
 }  // namespace mapeditor::controllers
