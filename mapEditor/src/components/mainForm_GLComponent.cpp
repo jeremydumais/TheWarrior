@@ -44,6 +44,10 @@ void MainForm_GLComponent::connectUIActions() {
             &MapOpenGLWidget::onPickerToolTileSelected,
             this,
             &MainForm_GLComponent::onPickerToolTileSelected);
+    connect(this->m_glWidget,
+            &MapOpenGLWidget::onZoomChanged,
+            this,
+            &MainForm_GLComponent::onZoomChanged);
 }
 
 const std::string &MainForm_GLComponent::getResourcesPath() const {
@@ -187,6 +191,10 @@ void MainForm_GLComponent::onTileClicked(const std::set<int> &tileIndices, int, 
 
 void MainForm_GLComponent::onPickerToolTileSelected(const PickerToolSelection &selection) {
     emit pickerToolTileSelected(selection);
+}
+
+void MainForm_GLComponent::onZoomChanged(int zoomPercentage) {
+    emit zoomChanged(zoomPercentage);
 }
 
 void MainForm_GLComponent::undo() {

@@ -95,9 +95,10 @@ MainForm::MainForm(QWidget *parent,
     ui.toolBar->insertWidget(nullptr, labelToolbarZoom.get());
     sliderZoom = std::make_shared<QSlider>(Qt::Horizontal, this);
     sliderZoom->setFixedWidth(160);
-    sliderZoom->setMinimum(30);
-    sliderZoom->setMaximum(150);
+    sliderZoom->setMinimum(20);
+    sliderZoom->setMaximum(250);
     sliderZoom->setValue(100);
+    ui.mapOpenGLWidget->setZoomLimit(sliderZoom->minimum(), sliderZoom->maximum());
     ui.toolBar->insertWidget(nullptr, sliderZoom.get());
     labelToolbarZoomValue = std::make_shared<QLabel>(this);
     labelToolbarZoomValue->setText("100%");
@@ -205,6 +206,7 @@ void MainForm::connectUIActions() {
     m_glComponent.connectUIActions();
     connect(&m_glComponent, &MainForm_GLComponent::tileSelected, this, &MainForm::onTileSelected);
     connect(&m_glComponent, &MainForm_GLComponent::editHistoryChanged, this, &MainForm::onEditHistoryChanged);
+    connect(&m_glComponent, &MainForm_GLComponent::zoomChanged, this, &MainForm::onZoomChanged);
     connect(m_textureListComponent.get(), &TextureListComponent::textureAdded, this, &MainForm::onTextureAdded);
     connect(m_textureListComponent.get(), &TextureListComponent::textureUpdated, this, &MainForm::onTextureUpdated);
     connect(m_textureListComponent.get(), &TextureListComponent::textureDeleted, this, &MainForm::onTextureDeleted);
@@ -605,6 +607,10 @@ void MainForm::onTileSelected(std::vector<MapTileDTO>) {
 
 void MainForm::onEditHistoryChanged() {
     refreshUndoControls();
+}
+
+void MainForm::onZoomChanged(int zoomPercentage) {
+    sliderZoom->setValue(zoomPercentage);
 }
 
 void MainForm::onTextureAdded(TextureDTO textureDTO) {

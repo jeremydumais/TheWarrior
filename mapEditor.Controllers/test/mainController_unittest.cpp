@@ -48,7 +48,6 @@ class SampleMainController : public ::testing::Test {
     GLComponentController glController;
 };
 
-// TODO: Transfert tests in GLComponentController
 TEST(MainController_Constructor, Default_ReturnSuccess) {
     MainController mainController;
     GLComponentController glController;

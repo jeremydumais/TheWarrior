@@ -79,10 +79,12 @@ class MainForm_GLComponent : public QWidget {
     void tileTriggerChanged();
     void pickerToolTileSelected(const PickerToolSelection &selection);
     void editHistoryChanged();
+    void zoomChanged(int zoomPercentage);
 
  private:
     MapOpenGLWidget *m_glWidget;
     mapeditor::controllers::GLComponentController m_controller;
     void onTileClicked(const std::set<int> &tileIndices, int, int);
     void onPickerToolTileSelected(const PickerToolSelection &selection);
+    void onZoomChanged(int zoomPercentage);
 };

@@ -6,9 +6,11 @@
 #include <QtOpenGL/QtOpenGL>
 #include <map>
 #include <memory>
+#include <qevent.h>
 #include <set>
 #include <string>
 #include <vector>
+#include <boost/optional/optional.hpp>
 #include <glm/glm.hpp>
 #include "gameMap.hpp"
 #include "mapView.hpp"
@@ -33,6 +35,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
     void setCurrentMap(std::shared_ptr<thewarrior::models::GameMap> map);
     void setGridEnabled(bool enabled);
     void setZoom(int zoomPercentage);
+    void setZoomLimit(int min, int max);
     void resizeGL(int width, int height) override;
     const std::string &getResourcesPath() const;
     void setResourcesPath(const std::string &path);
@@ -45,6 +48,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
     void startAutoUpdate();
     void stopAutoUpdate();
     void resetMapMovePosition();
+    void wheelEvent(QWheelEvent *event) override;
 
  protected:
     void initializeGL() override;
@@ -62,7 +66,10 @@ class MapOpenGLWidget : public QOpenGLWidget {
     int m_height = 0;
     bool m_isGridEnabled;
     int m_zoomPercentage = 100;
+    int m_zoomPercentageMin;
+    int m_zoomPercentageMax;
     SelectionMode m_selectionMode;
+    boost::optional<SelectionMode> m_oldSelectionMode = {}; //Used when using alt key to move the map
     MapView m_mapView;
     std::string m_resourcesPath;
     bool m_mousePressed;
@@ -111,6 +118,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
     void onTileMouseMoveEvent(bool mousePressed, int tileIndex);
     void onMapMoved(float translationX, float translationY);
     void onPickerToolTileSelected(PickerToolSelection selection);
+    void onZoomChanged(int zoomPercentage);
 };
 
 #endif  // MAPEDITOR_SRC_MAPOPENGLWIDGET_HPP_

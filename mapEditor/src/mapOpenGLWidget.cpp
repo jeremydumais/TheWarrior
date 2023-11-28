@@ -54,6 +54,11 @@ void MapOpenGLWidget::setZoom(int zoomPercentage) {
     recalculateTileSize();
 }
 
+void MapOpenGLWidget::setZoomLimit(int min, int max) {
+    m_zoomPercentageMin = min;
+    m_zoomPercentageMax = max;
+}
+
 QSize MapOpenGLWidget::minimumSizeHint() const {
     return QSize(50, 50);
 }
@@ -182,7 +187,23 @@ void MapOpenGLWidget::resetMapMovePosition() {
     m_translationYGL = 0.0F;
 }
 
+void MapOpenGLWidget::wheelEvent(QWheelEvent *event) {
+    m_zoomPercentage += event->angleDelta().y() / 40;
+    if (m_zoomPercentage < m_zoomPercentageMin) {
+        m_zoomPercentage = m_zoomPercentageMin;
+    } else if (m_zoomPercentage > m_zoomPercentageMax) {
+        m_zoomPercentage = m_zoomPercentageMax;
+    }
+    emit onZoomChanged(m_zoomPercentage);
+    recalculateTileSize();
+}
+
 void MapOpenGLWidget::mousePressEvent(QMouseEvent *event) {
+    bool altPressed = QGuiApplication::keyboardModifiers().testFlag(Qt::AltModifier);
+    if (altPressed) {
+        m_oldSelectionMode = m_selectionMode;
+        m_selectionMode = SelectionMode::MoveMap;
+    }
     if (!m_mousePressed &&
          m_selectionMode == SelectionMode::MoveMap) {
         m_translationDragAndDropX = 0.0f;
@@ -266,6 +287,10 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event) {
                 tile.getObjectTextureIndex()
             });
         }
+    }
+    if (m_oldSelectionMode.has_value()) {
+        m_selectionMode = m_oldSelectionMode.value();
+        m_oldSelectionMode = {};
     }
 }
 

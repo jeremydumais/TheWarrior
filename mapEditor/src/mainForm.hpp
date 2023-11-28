@@ -101,6 +101,7 @@ Q_OBJECT
     void widgetDebugInfoVisibilityChanged(bool visible);
     void onTileSelected(std::vector<mapeditor::controllers::MapTileDTO>);
     void onEditHistoryChanged();
+    void onZoomChanged(int zoomPercentage);
     void onTextureAdded(commoneditor::ui::TextureDTO textureDTO);
     void onTextureUpdated(const std::string &name, commoneditor::ui::TextureDTO textureDTO);
     void onTextureDeleted(const std::string &name);
