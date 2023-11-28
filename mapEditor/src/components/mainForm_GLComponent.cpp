@@ -8,11 +8,9 @@
 #include "monsterZoneDTO.hpp"
 #include "monsterZoneDTOUtils.hpp"
 #include "pickerToolSelection.hpp"
-#include "point.hpp"
 
 using commoneditor::ui::ErrorMessage;
 using thewarrior::models::GameMap;
-using thewarrior::models::Point;
 using thewarrior::models::Texture;
 using mapeditor::controllers::GLComponentController;
 using mapeditor::controllers::MapTileDTO;
@@ -62,6 +60,14 @@ unsigned int MainForm_GLComponent::getMapWidth() const {
 
 unsigned int MainForm_GLComponent::getMapHeight() const {
     return this->m_glWidget->getMapHeight();
+}
+
+size_t MainForm_GLComponent::getHistoryCurrentIndex() const {
+    return m_controller.getHistoryCurrentIndex();
+}
+
+size_t MainForm_GLComponent::getHistoryCount() const {
+    return m_controller.getHistoryCount();
 }
 
 void MainForm_GLComponent::setCurrentMap(std::shared_ptr<GameMap> map) {
@@ -183,41 +189,65 @@ void MainForm_GLComponent::onPickerToolTileSelected(const PickerToolSelection &s
     emit pickerToolTileSelected(selection);
 }
 
+void MainForm_GLComponent::undo() {
+    m_controller.undo();
+    emit editHistoryChanged();
+}
+
+void MainForm_GLComponent::redo() {
+    m_controller.redo();
+    emit editHistoryChanged();
+}
+
 void MainForm_GLComponent::applyTexture() {
+    m_controller.pushCurrentStateToHistory();
     m_controller.applyTexture();
     emit tilePropsChanged();
+    emit editHistoryChanged();
 }
 
 void MainForm_GLComponent::applyObject() {
+    m_controller.pushCurrentStateToHistory();
     m_controller.applyObject();
     emit tilePropsChanged();
+    emit editHistoryChanged();
 }
 
 void MainForm_GLComponent::applyCanStep(bool value) {
+    m_controller.pushCurrentStateToHistory();
     m_controller.applyCanStep(value);
     emit tilePropsChanged();
+    emit editHistoryChanged();
 }
 
 void MainForm_GLComponent::addMoveDenyTrigger(const std::string &event) {
+    m_controller.pushCurrentStateToHistory();
     if (!m_controller.applyDenyZone(event)) {
         ErrorMessage::show(m_controller.getLastError());
     }
     emit tileTriggerChanged();
+    emit editHistoryChanged();
 }
 
 void MainForm_GLComponent::clearMoveDenyTriggers() {
+    m_controller.pushCurrentStateToHistory();
     m_controller.clearDenyZones();
     emit tileTriggerChanged();
+    emit editHistoryChanged();
 }
 
 void MainForm_GLComponent::applyMonsterZone() {
+    m_controller.pushCurrentStateToHistory();
     m_controller.applyMonsterZone();
     emit tileTriggerChanged();
+    emit editHistoryChanged();
 }
 
 void MainForm_GLComponent::clearMonsterZone() {
+    m_controller.pushCurrentStateToHistory();
     m_controller.clearMonsterZone();
     emit tileTriggerChanged();
+    emit editHistoryChanged();
 }
 
 std::vector<MonsterZoneDTO> MainForm_GLComponent::getMonsterZones() const {

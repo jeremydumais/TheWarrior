@@ -29,6 +29,8 @@ class MainForm_GLComponent : public QWidget {
     SelectionMode getSelectionMode() const;
     unsigned int getMapWidth() const;
     unsigned int getMapHeight() const;
+    size_t getHistoryCurrentIndex() const;
+    size_t getHistoryCount() const;
     void setCurrentMap(std::shared_ptr<thewarrior::models::GameMap> map);
     void setResourcesPath(const std::string &path);
     void setSelectionMode(SelectionMode mode);
@@ -60,6 +62,8 @@ class MainForm_GLComponent : public QWidget {
     std::vector<mapeditor::controllers::MonsterZoneDTO> getMonsterZones() const;
     mapeditor::controllers::OptMonsterZoneDTOConst getMonsterZoneByName(const std::string &name) const;
     std::vector<std::string> getAlreadyUsedMonsterZoneNames() const;
+    void undo();
+    void redo();
     void applyTexture();
     void applyObject();
     void applyCanStep(bool value);
@@ -74,6 +78,7 @@ class MainForm_GLComponent : public QWidget {
     void tilePropsChanged();
     void tileTriggerChanged();
     void pickerToolTileSelected(const PickerToolSelection &selection);
+    void editHistoryChanged();
 
  private:
     MapOpenGLWidget *m_glWidget;

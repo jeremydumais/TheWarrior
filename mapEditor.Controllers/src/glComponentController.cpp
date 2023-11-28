@@ -1,6 +1,8 @@
 #include "glComponentController.hpp"
 #include <fmt/format.h>
 #include <algorithm>
+#include <iterator>
+#include <memory>
 #include <boost/optional/optional.hpp>
 #include "gameMap.hpp"
 #include "mapTile.hpp"
@@ -11,7 +13,11 @@
 #include "monsterZoneDTOUtils.hpp"
 #include "point.hpp"
 #include "texture.hpp"
+#include "textureDTO.hpp"
+#include "textureUtils.hpp"
 
+using commoneditor::ui::TextureDTO;
+using commoneditor::ui::TextureUtils;
 using thewarrior::models::MonsterZone;
 using thewarrior::models::Texture;
 using thewarrior::models::GameMap;
@@ -31,6 +37,7 @@ GLComponentController::GLComponentController()
     : m_map(nullptr),
       m_currentMapTiles({}),
       m_selectedIndices({}),
+      m_editHistory(),
       m_lastError(""),
       m_lastSelectedTextureName(""),
       m_lastSelectedObjectName(""),
@@ -155,6 +162,14 @@ boost::optional<Point<int>> GLComponentController::getCoordFromSingleSelectedTil
     }
 }
 
+size_t GLComponentController::getHistoryCurrentIndex() const {
+    return m_historyCurrentIndex;
+}
+
+size_t GLComponentController::getHistoryCount() const {
+    return m_editHistory.size();
+}
+
 void GLComponentController::setLastSelectedTexture(const std::string &name,
         int index) {
     this->m_lastSelectedTextureName = name;
@@ -188,6 +203,35 @@ void GLComponentController::clearLastSelectedMonsterZone() {
 void GLComponentController::unselectMapTiles() {
     m_currentMapTiles.clear();
     m_selectedIndices.clear();
+}
+
+void GLComponentController::undo() {
+    if (m_historyCurrentIndex > 0) {
+        if (m_historyCurrentIndex == m_editHistory.size()) {
+            m_editHistory.push_back(std::make_shared<GameMap>(*m_map.get()));
+        }
+        auto mapToRestore = m_editHistory.at(m_historyCurrentIndex - 1);
+        *m_map = *mapToRestore;
+        m_historyCurrentIndex--;
+    }
+}
+
+void GLComponentController::redo() {
+    if (m_historyCurrentIndex <= m_editHistory.size()) {
+        m_historyCurrentIndex++;
+        auto mapToRestore = m_editHistory.at(m_historyCurrentIndex);
+        *m_map = *mapToRestore;
+    }
+}
+
+void GLComponentController::pushCurrentStateToHistory() {
+    if (m_historyCurrentIndex != m_editHistory.size()) {
+        auto iter = m_editHistory.begin();
+        std::advance(iter, m_historyCurrentIndex);
+        m_editHistory.erase(iter, m_editHistory.end());
+    }
+    m_editHistory.push_back(std::make_shared<GameMap>(*m_map.get()));
+    m_historyCurrentIndex++;
 }
 
 void GLComponentController::applyTexture() {
@@ -278,6 +322,82 @@ void GLComponentController::clearMonsterZone() {
     for (auto *tile : tiles) {
         tile->setMonsterZoneIndex(-1);
     }
+}
+
+bool GLComponentController::addTexture(const TextureDTO &textureDTO) {
+    if (!m_map->addTexture(TextureUtils::TextureDTOToTextureInfo(textureDTO))) {
+        this->m_lastError = m_map->getLastError();
+        return false;
+    }
+    return true;
+}
+
+bool GLComponentController::replaceTexture(const std::string &name,
+        const TextureDTO &textureDTO) {
+    std::string oldTextureName { name };
+    if (!m_map->replaceTexture(name, TextureUtils::TextureDTOToTextureInfo(textureDTO))) {
+        m_lastError = m_map->getLastError();
+        return false;
+    }
+    // If the texture name has changed, update all tiles that was using the old texture name
+    if (oldTextureName != textureDTO.name) {
+        replaceTilesTextureName(oldTextureName, textureDTO.name);
+    }
+    return true;
+}
+
+void GLComponentController::replaceTilesTextureName(const std::string &oldName, const std::string &newName) {
+    for (int index = 0; index < static_cast<int>(m_map->getWidth() * m_map->getHeight()) - 1; index++) {
+        auto &tile = m_map->getTileForEditing(index);
+        if (tile.getTextureName() == oldName) {
+            tile.setTextureName(newName);
+        }
+        if (tile.getObjectTextureName() == oldName) {
+            tile.setObjectTextureName(newName);
+        }
+    }
+}
+
+bool GLComponentController::removeTexture(const std::string &name) {
+    if (!m_map->removeTexture(name)) {
+        m_lastError = m_map->getLastError();
+        return false;
+    }
+    return true;
+}
+
+bool GLComponentController::addMonsterZone(const MonsterZoneDTO &monsterZoneDTO) {
+    try {
+        if (!m_map->addMonsterZone(MonsterZoneDTOUtils::toMonsterZone(monsterZoneDTO))) {
+            this->m_lastError = m_map->getLastError();
+            return false;
+        }
+    } catch(const std::invalid_argument &err) {
+        this->m_lastError = err.what();
+        return false;
+    }
+    return true;
+}
+
+bool GLComponentController::replaceMonsterZone(const std::string &name, const MonsterZoneDTO &monsterZoneDTO) {
+    try {
+        if (!m_map->replaceMonsterZone(name, MonsterZoneDTOUtils::toMonsterZone(monsterZoneDTO))) {
+            this->m_lastError = m_map->getLastError();
+            return false;
+        }
+    } catch(const std::invalid_argument &err) {
+        this->m_lastError = err.what();
+        return false;
+    }
+    return true;
+}
+
+bool GLComponentController::removeMonsterZone(const std::string &name) {
+    if (!m_map->removeMonsterZone(name)) {
+        m_lastError = m_map->getLastError();
+        return false;
+    }
+    return true;
 }
 
 }  // namespace mapeditor::controllers

@@ -101,8 +101,8 @@
    <widget class="QMenu" name="menu_File">
     <property name="geometry">
      <rect>
-      <x>2193</x>
-      <y>146</y>
+      <x>267</x>
+      <y>187</y>
       <width>260</width>
       <height>222</height>
      </rect>
@@ -177,7 +177,15 @@
     <addaction name="action_ItemStore"/>
     <addaction name="action_MonsterStore"/>
    </widget>
+   <widget class="QMenu" name="menu_Edit">
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="action_Undo"/>
+    <addaction name="action_Redo"/>
+   </widget>
    <addaction name="menu_File"/>
+   <addaction name="menu_Edit"/>
    <addaction name="menu_View"/>
    <addaction name="menu_Settings"/>
    <addaction name="menuHelp"/>
@@ -205,6 +213,9 @@
    <addaction name="action_Select"/>
    <addaction name="action_MoveMap"/>
    <addaction name="action_PickerTool"/>
+   <addaction name="separator"/>
+   <addaction name="action_Undo"/>
+   <addaction name="action_Redo"/>
    <addaction name="separator"/>
    <addaction name="action_ApplyTexture"/>
    <addaction name="action_ApplyObject"/>
@@ -611,6 +622,34 @@
    </property>
    <property name="toolTip">
     <string>Picker tool</string>
+   </property>
+  </action>
+  <action name="action_Undo">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/undo.png</normaloff>
+     <disabledoff>:/undoDisabled.png</disabledoff>
+     <disabledon>:/undoDisabled.png</disabledon>:/undo.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Undo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="action_Redo">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/redo.png</normaloff>
+     <disabledoff>:/redoDisabled.png</disabledoff>
+     <disabledon>:/redoDisabled.png</disabledon>:/redo.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Redo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+Z</string>
    </property>
   </action>
  </widget>

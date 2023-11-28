@@ -5,6 +5,7 @@
 #include <vector>
 #include <boost/serialization/access.hpp>
 #include "gameMap.hpp"
+#include "glComponentController.hpp"
 #include "monsterStore.hpp"
 #include "monsterZoneDTO.hpp"
 #include "point.hpp"
@@ -17,14 +18,13 @@ class MainController {
  public:
     MainController();
     const std::string &getLastError() const;
-    std::shared_ptr<thewarrior::models::GameMap> getMap();
-    thewarrior::models::MapTile &getTileForEditing(int index);
-    thewarrior::models::Point<> getCoordFromTileIndex(int index);
-    const std::vector<thewarrior::models::Texture> &getTextures() const;
+    std::shared_ptr<thewarrior::models::GameMap> getMap() const;
     const std::string &getExecutablePath() const;
     const std::string &getResourcesPath() const;
     const std::string &getUserConfigFolder() const;
+    const std::vector<thewarrior::models::Texture>& getTextures() const;
     const std::shared_ptr<ContainerOfMonsterStore> &getMonsterStores() const;
+    void setGLComponentController(GLComponentController *controller);
     bool createMap(unsigned int width, unsigned int height);
     void initializeExecutablePath();
     void initializeResourcesPath();
@@ -44,6 +44,7 @@ class MainController {
     std::string m_executablePath = "";
     std::string m_resourcesPath = "";
     std::string m_userConfigFolder = "";
+    GLComponentController *m_glComponentController = nullptr;
     std::shared_ptr<thewarrior::models::GameMap> m_map = nullptr;
     std::shared_ptr<ContainerOfMonsterStore> m_monsterStores = nullptr;
 };

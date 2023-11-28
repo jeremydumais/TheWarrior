@@ -34,20 +34,8 @@ const std::string &MainController::getLastError() const {
     return this->m_lastError;
 }
 
-std::shared_ptr<GameMap> MainController::getMap() {
-    return m_map;
-}
-
-MapTile& MainController::getTileForEditing(int index) {
-    return m_map->getTileForEditing(index);
-}
-
-Point<> MainController::getCoordFromTileIndex(int index) {
-    return m_map->getCoordFromTileIndex(index);
-}
-
-const std::vector<Texture>& MainController::getTextures() const {
-    return m_map->getTextures();
+std::shared_ptr<GameMap> MainController::getMap() const {
+    return m_glComponentController->getMap();
 }
 
 const std::string &MainController::getExecutablePath() const {
@@ -62,13 +50,22 @@ const std::string &MainController::getUserConfigFolder() const {
     return m_userConfigFolder;
 }
 
+const std::vector<Texture>& MainController::getTextures() const {
+    return m_glComponentController->getMap()->getTextures();
+}
+
 const std::shared_ptr<ContainerOfMonsterStore> &MainController::getMonsterStores() const {
     return m_monsterStores;
 }
 
+void MainController::setGLComponentController(GLComponentController *controller) {
+    m_glComponentController = controller;
+}
+
 bool MainController::createMap(unsigned int width, unsigned int height) {
     try {
-        m_map = std::make_shared<GameMap>(width, height);
+        auto map = std::make_shared<GameMap>(width, height);
+        m_glComponentController->setCurrentMap(map);
     }
     catch(std::invalid_argument &err) {
         m_lastError = err.what();
@@ -96,75 +93,54 @@ void MainController::initializeUserConfigFolder() {
 }
 
 bool MainController::addTexture(const TextureDTO &textureDTO) {
-    if (!m_map->addTexture(TextureUtils::TextureDTOToTextureInfo(textureDTO))) {
-        this->m_lastError = m_map->getLastError();
+    m_glComponentController->pushCurrentStateToHistory();
+    if (!m_glComponentController->addTexture(textureDTO)) {
+        this->m_lastError = m_glComponentController->getLastError();
         return false;
     }
     return true;
 }
 
 bool MainController::replaceTexture(const std::string &name, const TextureDTO &textureDTO) {
-    std::string oldTextureName { name };
-    if (!m_map->replaceTexture(name, TextureUtils::TextureDTOToTextureInfo(textureDTO))) {
-        m_lastError = m_map->getLastError();
+    m_glComponentController->pushCurrentStateToHistory();
+    if (!m_glComponentController->replaceTexture(name, textureDTO)) {
+        m_lastError = m_glComponentController->getLastError();
         return false;
-    }
-    // If the texture name has changed, update all tiles that was using the old texture name
-    if (oldTextureName != textureDTO.name) {
-        replaceTilesTextureName(oldTextureName, textureDTO.name);
     }
     return true;
 }
 
 bool MainController::removeTexture(const std::string &name) {
-    if (!m_map->removeTexture(name)) {
-        m_lastError = m_map->getLastError();
+    m_glComponentController->pushCurrentStateToHistory();
+    if (!m_glComponentController->removeTexture(name)) {
+        m_lastError = m_glComponentController->getLastError();
         return false;
     }
     return true;
 }
 
-void MainController::replaceTilesTextureName(const std::string &oldName, const std::string &newName) {
-    for (int index = 0; index < static_cast<int>(m_map->getWidth() * m_map->getHeight()) - 1; index++) {
-        auto &tile = m_map->getTileForEditing(index);
-        if (tile.getTextureName() == oldName) {
-            tile.setTextureName(newName);
-        }
-        if (tile.getObjectTextureName() == oldName) {
-            tile.setObjectTextureName(newName);
-        }
-    }
-}
-
 bool MainController::addMonsterZone(const MonsterZoneDTO &monsterZoneDTO) {
-    try {
-        if (!m_map->addMonsterZone(MonsterZoneDTOUtils::toMonsterZone(monsterZoneDTO))) {
-            this->m_lastError = m_map->getLastError();
-            return false;
-        }
-    } catch(const std::invalid_argument &err) {
-        this->m_lastError = err.what();
+    m_glComponentController->pushCurrentStateToHistory();
+    if (!m_glComponentController->addMonsterZone(monsterZoneDTO)) {
+        this->m_lastError = m_glComponentController->getLastError();
         return false;
     }
     return true;
 }
 
 bool MainController::replaceMonsterZone(const std::string &name, const MonsterZoneDTO &monsterZoneDTO) {
-    try {
-        if (!m_map->replaceMonsterZone(name, MonsterZoneDTOUtils::toMonsterZone(monsterZoneDTO))) {
-            this->m_lastError = m_map->getLastError();
-            return false;
-        }
-    } catch(const std::invalid_argument &err) {
-        this->m_lastError = err.what();
+    m_glComponentController->pushCurrentStateToHistory();
+    if (!m_glComponentController->replaceMonsterZone(name, monsterZoneDTO)) {
+        this->m_lastError = m_glComponentController->getLastError();
         return false;
     }
     return true;
 }
 
 bool MainController::removeMonsterZone(const std::string &name) {
-    if (!m_map->removeMonsterZone(name)) {
-        m_lastError = m_map->getLastError();
+    m_glComponentController->pushCurrentStateToHistory();
+    if (!m_glComponentController->removeMonsterZone(name)) {
+        m_lastError = m_glComponentController->getLastError();
         return false;
     }
     return true;

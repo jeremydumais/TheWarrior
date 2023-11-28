@@ -34,7 +34,6 @@ using commoneditor::ui::ErrorMessage;
 using commoneditor::ui::TextureDTO;
 using mapeditor::controllers::MapTileDTO;
 using mapeditor::controllers::MonsterZoneDTO;
-using thewarrior::models::Point;
 using thewarrior::storage::ConfigurationManager;
 using thewarrior::storage::GameMapStorage;
 
@@ -82,6 +81,7 @@ MainForm::MainForm(QWidget *parent,
     m_glComponent.setResourcesPath(m_controller.getResourcesPath());
     m_glComponent.setSelectionMode(SelectionMode::Select);
 
+    m_controller.setGLComponentController(m_glComponent.getControllerPtr());
     componentInitialization();
     labelToolbarMonsterZoneColor = std::make_shared<QLabel>(this);
     labelToolbarMonsterZoneColor->setFixedWidth(40);
@@ -119,6 +119,7 @@ MainForm::MainForm(QWidget *parent,
         m_glComponent.setCurrentMap(map);
     }
     refreshRecentMapsMenu();
+    refreshUndoControls();
     refreshTextureList();
     refreshMonsterZones();
     m_mapPropsComponent->reset();
@@ -182,6 +183,8 @@ void MainForm::connectUIActions() {
     connect(ui.action_Select, &QAction::triggered, this, &MainForm::action_SelectClick);
     connect(ui.action_MoveMap, &QAction::triggered, this, &MainForm::action_MoveMapClick);
     connect(ui.action_PickerTool, &QAction::triggered, this, &MainForm::action_PickerToolClick);
+    connect(ui.action_Undo, &QAction::triggered, this, &MainForm::action_UndoClick);
+    connect(ui.action_Redo, &QAction::triggered, this, &MainForm::action_RedoClick);
     connect(ui.action_ApplyTexture, &QAction::triggered, this, &MainForm::action_ApplyTextureClick);
     connect(ui.action_ApplyObject, &QAction::triggered, this, &MainForm::action_ApplyObjectClick);
     connect(ui.action_EnableCanStep, &QAction::triggered, this, &MainForm::action_EnableCanStepClick);
@@ -201,6 +204,7 @@ void MainForm::connectUIActions() {
     connect(m_debugInfoDockWidget.get(), &QDockWidget::visibilityChanged, this, &MainForm::widgetDebugInfoVisibilityChanged);
     m_glComponent.connectUIActions();
     connect(&m_glComponent, &MainForm_GLComponent::tileSelected, this, &MainForm::onTileSelected);
+    connect(&m_glComponent, &MainForm_GLComponent::editHistoryChanged, this, &MainForm::onEditHistoryChanged);
     connect(m_textureListComponent.get(), &TextureListComponent::textureAdded, this, &MainForm::onTextureAdded);
     connect(m_textureListComponent.get(), &TextureListComponent::textureUpdated, this, &MainForm::onTextureUpdated);
     connect(m_textureListComponent.get(), &TextureListComponent::textureDeleted, this, &MainForm::onTextureDeleted);
@@ -355,6 +359,18 @@ void MainForm::action_PickerToolClick() {
     setActiveToolbarActionChecked(SelectionMode::PickerTool);
 }
 
+void MainForm::action_UndoClick() {
+    m_glComponent.undo();
+    refreshTextureList();
+    refreshMonsterZones();
+}
+
+void MainForm::action_RedoClick() {
+    m_glComponent.redo();
+    refreshTextureList();
+    refreshMonsterZones();
+}
+
 void MainForm::action_ApplyTextureClick() {
     m_glComponent.applyTexture();
 }
@@ -482,6 +498,13 @@ void MainForm::refreshWindowTitle() {
     }
 }
 
+void MainForm::refreshUndoControls() {
+    size_t total = m_glComponent.getHistoryCount();
+    size_t index = m_glComponent.getHistoryCurrentIndex();
+    ui.action_Undo->setEnabled(total > 0 && index > 0);
+    ui.action_Redo->setEnabled(total > 0 && index < total-1);
+}
+
 void MainForm::refreshRecentMapsMenu() {
     auto recents = std::vector<std::string> {};
     ConfigurationManager configManager(m_controller.getUserConfigFolder() + "config.json");
@@ -580,11 +603,16 @@ void MainForm::onTileSelected(std::vector<MapTileDTO>) {
     ui.toolBox->setCurrentWidget(m_tilePropsComponent.get());
 }
 
+void MainForm::onEditHistoryChanged() {
+    refreshUndoControls();
+}
+
 void MainForm::onTextureAdded(TextureDTO textureDTO) {
     if (!m_controller.addTexture(textureDTO)) {
         ErrorMessage::show(m_controller.getLastError());
     }
     refreshTextureList();
+    refreshUndoControls();
 }
 
 void MainForm::onTextureUpdated(const std::string &name, TextureDTO textureDTO) {
@@ -592,6 +620,7 @@ void MainForm::onTextureUpdated(const std::string &name, TextureDTO textureDTO) 
         ErrorMessage::show(m_controller.getLastError());
     }
     refreshTextureList();
+    refreshUndoControls();
 }
 
 void MainForm::onTextureDeleted(const std::string &name) {
@@ -599,6 +628,7 @@ void MainForm::onTextureDeleted(const std::string &name) {
         ErrorMessage::show(m_controller.getLastError());
     }
     refreshTextureList();
+    refreshUndoControls();
 }
 
 void MainForm::refreshTextureList() {
@@ -614,6 +644,7 @@ void MainForm::onMonsterZoneAdded(MonsterZoneDTO monsterZoneDTO) {
         ErrorMessage::show(m_controller.getLastError());
     }
     refreshMonsterZones();
+    refreshUndoControls();
 }
 
 void MainForm::onMonsterZoneUpdated(const std::string &name, MonsterZoneDTO monsterZoneDTO) {
@@ -621,6 +652,7 @@ void MainForm::onMonsterZoneUpdated(const std::string &name, MonsterZoneDTO mons
         ErrorMessage::show(m_controller.getLastError());
     }
     refreshMonsterZones();
+    refreshUndoControls();
 }
 
 void MainForm::onMonsterZoneDeleted(const std::string &name) {
@@ -630,6 +662,7 @@ void MainForm::onMonsterZoneDeleted(const std::string &name) {
         ErrorMessage::show(m_controller.getLastError());
     }
     refreshMonsterZones();
+    refreshUndoControls();
 }
 
 void MainForm::refreshMonsterZones() {

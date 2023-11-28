@@ -72,6 +72,8 @@ Q_OBJECT
     void action_SelectClick();
     void action_MoveMapClick();
     void action_PickerToolClick();
+    void action_UndoClick();
+    void action_RedoClick();
     void action_ApplyTextureClick();
     void action_ApplyObjectClick();
     void action_EnableCanStepClick();
@@ -89,6 +91,7 @@ Q_OBJECT
     void openMap(const std::string &filePath);
     void saveMap(const std::string &filePath);
     void refreshWindowTitle();
+    void refreshUndoControls();
     void refreshRecentMapsMenu();
     void addNewRecentMap(const std::string &filePath);
     void mapPaint(QPaintEvent *e);
@@ -97,6 +100,7 @@ Q_OBJECT
     void widgetTextureSelectionVisibilityChanged(bool visible);
     void widgetDebugInfoVisibilityChanged(bool visible);
     void onTileSelected(std::vector<mapeditor::controllers::MapTileDTO>);
+    void onEditHistoryChanged();
     void onTextureAdded(commoneditor::ui::TextureDTO textureDTO);
     void onTextureUpdated(const std::string &name, commoneditor::ui::TextureDTO textureDTO);
     void onTextureDeleted(const std::string &name);

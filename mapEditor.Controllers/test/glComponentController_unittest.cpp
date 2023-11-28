@@ -18,6 +18,7 @@ namespace mapeditor::controllers::glcomponentcontroller::unittest {
 class SampleGLComponentController : public ::testing::Test {
  public:
     SampleGLComponentController() {
+        mainController.setGLComponentController(&glComponentController);
         mainController.createMap(6, 6);
         auto map { mainController.getMap() };
         map->addTexture({
@@ -71,6 +72,7 @@ class SampleGLComponentController : public ::testing::Test {
 class SampleGLComponentControllerWithTilesAssigned : public ::testing::Test {
  public:
     SampleGLComponentControllerWithTilesAssigned() {
+        mainController.setGLComponentController(&glComponentController);
         mainController.createMap(6, 6);
         auto map { mainController.getMap() };
         map->addTexture({

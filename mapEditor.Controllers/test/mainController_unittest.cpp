@@ -1,11 +1,13 @@
 #include <gtest/gtest.h>
 #include <stdexcept>
+#include "glComponentController.hpp"
 #include "mainController.hpp"
 #include "monsterZone.hpp"
 #include "monsterZoneDTO.hpp"
 #include "monsterZoneMonsterEncounter.hpp"
 #include "rgbItemColor.hpp"
 
+using mapeditor::controllers::GLComponentController;
 using mapeditor::controllers::MainController;
 using thewarrior::models::MonsterEncounterRatio;
 using thewarrior::models::MonsterZone;
@@ -15,6 +17,7 @@ using thewarrior::models::RGBItemColor;
 class SampleMainController : public ::testing::Test {
  public:
     SampleMainController() {
+        mainController.setGLComponentController(&glController);
         mainController.createMap(6, 6);
         auto map { mainController.getMap() };
         map->addTexture({
@@ -42,15 +45,21 @@ class SampleMainController : public ::testing::Test {
                 { MonsterZoneMonsterEncounter("DRA002", MonsterEncounterRatio::Rare) }));
     }
     MainController mainController;
+    GLComponentController glController;
 };
 
+// TODO: Transfert tests in GLComponentController
 TEST(MainController_Constructor, Default_ReturnSuccess) {
     MainController mainController;
+    GLComponentController glController;
+    mainController.setGLComponentController(&glController);
     ASSERT_EQ(nullptr, mainController.getMap());
 }
 
 TEST(MainController_createMap, WithInvalidWidth_ReturnFalse) {
     MainController mainController;
+    GLComponentController glController;
+    mainController.setGLComponentController(&glController);
     ASSERT_FALSE(mainController.createMap(0, 10));
     ASSERT_EQ("width must be greater than zero.", mainController.getLastError());
 }
@@ -94,17 +103,13 @@ TEST_F(SampleMainController, replaceTexture_WithValidArgs_ReturnTrue) {
         }));
 }
 
-TEST_F(SampleMainController, removeTexture_WithNonExistantName_ReturnFalse) {
-    ASSERT_FALSE(mainController.removeTexture("x"));
-    ASSERT_EQ("Unable to find the texture x in the texture list.", mainController.getLastError());
-}
-
-TEST_F(SampleMainController, removeTexture_WithExistingName_ReturnTrue) {
-    ASSERT_TRUE(mainController.removeTexture("tex1"));
-}
-
-TEST_F(SampleMainController, replaceTilesTextureName_WithOneTileAffected_ReturnSuccess) {
-    mainController.replaceTilesTextureName("tex1", "newTex1");
+TEST_F(SampleMainController, replaceTiles_WithDiffNameOneTileAffected_ReturnSuccess) {
+    mainController.replaceTexture("tex1", {
+            "newTex1",
+            "tex1.png",
+            512, 256,
+            32, 32
+        });
     auto map { mainController.getMap() };
     const auto &tileIndex0 = map->getTiles()[0][0];
     ASSERT_EQ("newTex1", tileIndex0.getTextureName());
@@ -117,6 +122,15 @@ TEST_F(SampleMainController, replaceTilesTextureName_WithOneTileAffected_ReturnS
     ASSERT_EQ(-1, tileIndex1.getTextureIndex());
     ASSERT_EQ("", tileIndex1.getObjectTextureName());
     ASSERT_EQ(-1, tileIndex1.getObjectTextureIndex());
+}
+
+TEST_F(SampleMainController, removeTexture_WithNonExistantName_ReturnFalse) {
+    ASSERT_FALSE(mainController.removeTexture("x"));
+    ASSERT_EQ("Unable to find the texture x in the texture list.", mainController.getLastError());
+}
+
+TEST_F(SampleMainController, removeTexture_WithExistingName_ReturnTrue) {
+    ASSERT_TRUE(mainController.removeTexture("tex1"));
 }
 
 TEST_F(SampleMainController, addMonsterZone_WithInvalidArg_ReturnFalse) {
