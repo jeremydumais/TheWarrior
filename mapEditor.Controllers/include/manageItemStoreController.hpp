@@ -1,24 +1,23 @@
 #pragma once
 
-#include "itemStoreInfo.hpp"
 #include <optional>
 #include <string>
 #include <vector>
+#include "itemStoreInfo.hpp"
 
 namespace mapeditor::controllers {
 
-struct CompareItemStoreName
-{
-public:
+struct CompareItemStoreName {
+ public:
     CompareItemStoreName(const std::string &name);
     bool operator() (const ItemStoreInfo &itemStore);
-private:
+
+ private:
     std::string m_name;
 };
 
-class ManageItemStoreController
-{
-public:
+class ManageItemStoreController {
+ public:
     ManageItemStoreController(const std::string &resourcesPath,
                               const std::string &userConfigFolder,
                               const std::vector<ItemStoreInfo> &itemStores = {});
@@ -32,7 +31,8 @@ public:
     bool deleteItemStore(const std::string &itemNameToDelete);
     bool loadItemStore();
     bool saveItemStore();
-private:
+
+ private:
     std::string m_lastError = "";
     std::string m_resourcesPath = "";
     std::string m_userConfigFolder = "";
@@ -45,4 +45,4 @@ private:
     bool isNameAlreadyExists(const std::string &name) const;
 };
 
-} // namespace mapeditor::controllers
+}  // namespace mapeditor::controllers

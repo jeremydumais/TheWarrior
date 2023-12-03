@@ -21,14 +21,10 @@
 #include "gameMapStorage.hpp"
 #include "manageItemStoreForm.hpp"
 #include "manageMonsterStoreForm.hpp"
-#include "mapTile.hpp"
 #include "mapView.hpp"
 #include "monsterZoneDTO.hpp"
-#include "monsterZoneMonsterEncounter.hpp"
 #include "selectionMode.hpp"
-#include "specialFolders.hpp"
 #include "textureDTO.hpp"
-#include "textureInfo.hpp"
 
 using commoneditor::ui::ErrorMessage;
 using commoneditor::ui::TextureDTO;
@@ -480,6 +476,7 @@ void MainForm::openMap(const std::string &filePath) {
     addNewRecentMap(m_currentFilePath);
     m_glComponent.setCurrentMap(m_controller.getMap());
     m_glComponent.resetMapMovePosition();
+    m_glComponent.clearEditHistory();
     refreshTextureList();
     refreshMonsterZones();
     m_tilePropsComponent->reset();

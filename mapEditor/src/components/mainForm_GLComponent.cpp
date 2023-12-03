@@ -197,6 +197,11 @@ void MainForm_GLComponent::onZoomChanged(int zoomPercentage) {
     emit zoomChanged(zoomPercentage);
 }
 
+void MainForm_GLComponent::clearEditHistory() {
+    m_controller.clearEditHistory();
+    emit editHistoryChanged();
+}
+
 void MainForm_GLComponent::undo() {
     m_controller.undo();
     emit editHistoryChanged();

@@ -50,6 +50,7 @@ class GLComponentController {
     void setLastSelectedMonsterZone(int index);
     void clearLastSelectedMonsterZone();
     void unselectMapTiles();
+    void clearEditHistory();
     void undo();
     void redo();
     void pushCurrentStateToHistory();

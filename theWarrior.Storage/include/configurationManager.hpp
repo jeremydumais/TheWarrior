@@ -1,16 +1,15 @@
 #pragma once
 
-#include "iJSONFileStream.hpp"
-#include <boost/property_tree/ptree.hpp>
 #include <memory>
 #include <string>
 #include <vector>
+#include "iJSONFileStream.hpp"
+#include <boost/property_tree/ptree.hpp>
 
 namespace thewarrior::storage {
 
-class ConfigurationManager
-{
-public:
+class ConfigurationManager {
+ public:
     explicit ConfigurationManager(const std::string &fileName,
                                   std::unique_ptr<IJSONFileStream> jfs = nullptr);
     const std::string &getLastError() const;
@@ -23,10 +22,11 @@ public:
     bool fileExists() const;
     bool load();
     bool save();
-private:
+
+ private:
     std::string m_lastError;
     boost::property_tree::ptree m_config;
     std::unique_ptr<IJSONFileStream> m_jfs;
 };
 
-} // namespace thewarrior::storage
+}  // namespace thewarrior::storage

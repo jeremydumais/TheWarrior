@@ -205,6 +205,10 @@ void GLComponentController::unselectMapTiles() {
     m_selectedIndices.clear();
 }
 
+void GLComponentController::clearEditHistory() {
+    m_editHistory.clear();
+}
+
 void GLComponentController::undo() {
     if (m_historyCurrentIndex > 0) {
         if (m_historyCurrentIndex == m_editHistory.size()) {
