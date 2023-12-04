@@ -8,7 +8,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "gameMap.hpp"
 #include "mainController.hpp"
 #include "components/debugInfoDockWidget.hpp"
 #include "components/mainForm_GLComponent.hpp"
@@ -19,7 +18,6 @@
 #include "components/tilePropsComponent.hpp"
 #include "mapTileDTO.hpp"
 #include "monsterZoneDTO.hpp"
-#include "point.hpp"
 #include "selectionMode.hpp"
 #include "ui_mainForm.h"
 
