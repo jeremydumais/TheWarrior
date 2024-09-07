@@ -8,6 +8,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "configurationManager.hpp"
 #include "mainController.hpp"
 #include "components/debugInfoDockWidget.hpp"
 #include "components/mainForm_GLComponent.hpp"
@@ -30,7 +31,6 @@ Q_OBJECT
     ~MainForm() override;
     bool event(QEvent *event) override;
     void functionAfterShown();
-    void setAppStylesheet(const std::string &style);
 
  private:
     Ui::MainForm ui;
@@ -88,6 +88,8 @@ Q_OBJECT
     void tabWidgetMapViewChanged(int index);
     void openMap(const std::string &filePath);
     void saveMap(const std::string &filePath);
+    void restorePersistedMenuState(const thewarrior::storage::ConfigurationManager &configManager);
+    void setAppStylesheet(const std::string &style);
     void refreshWindowTitle();
     void refreshUndoControls();
     void refreshRecentMapsMenu();

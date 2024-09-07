@@ -1,5 +1,6 @@
 #include "configurationManager.hpp"
 #include <fmt/format.h>
+#include <sys/ucontext.h>
 #include <utility>
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
@@ -46,11 +47,19 @@ std::string ConfigurationManager::getStringValue(const std::string &path) const 
     return m_config.get<std::string>(path, "");
 }
 
+bool ConfigurationManager::getBoolValue(const std::string &path) const {
+    return m_config.get<bool>(path, false);
+}
+
 boost::property_tree::ptree ConfigurationManager::getPTreeNode(const std::string &path) const {
     return m_config.get_child(path, ptree());
 }
 
 void ConfigurationManager::setStringValue(const std::string &path, const std::string &value) {
+    m_config.put(path, value);
+}
+
+void ConfigurationManager::setBoolValue(const std::string &path, bool value) {
     m_config.put(path, value);
 }
 

@@ -65,7 +65,7 @@ MainForm::MainForm(QWidget *parent,
         }
     }
     if (configManager.load()) {
-        setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
+        restorePersistedMenuState(configManager);
     } else {
         ErrorMessage::show("An error occurred while loading the configuration file.",
                 configManager.getLastError());
@@ -560,6 +560,13 @@ void MainForm::addNewRecentMap(const std::string &filePath) {
         return;
     }
     refreshRecentMapsMenu();
+}
+
+void MainForm::restorePersistedMenuState(const thewarrior::storage::ConfigurationManager &configManager) {
+    //TODO: Complete persisted display grid
+    //ui.action_DisplayGrid->setChecked(configManager.ge)
+    action_DisplayGrid_Click();
+    setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
 }
 
 void MainForm::setAppStylesheet(const std::string &style) {
