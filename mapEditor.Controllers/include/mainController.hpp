@@ -4,11 +4,10 @@
 #include <string>
 #include <vector>
 #include <boost/serialization/access.hpp>
+#include "configurationManager.hpp"
 #include "gameMap.hpp"
 #include "glComponentController.hpp"
-#include "monsterStore.hpp"
 #include "monsterZoneDTO.hpp"
-#include "point.hpp"
 #include "textureDTO.hpp"
 #include "types.hpp"
 
@@ -29,6 +28,8 @@ class MainController {
     void initializeExecutablePath();
     void initializeResourcesPath();
     void initializeUserConfigFolder();
+    bool loadConfigurationFile();
+    bool saveConfigurationFile();
     bool addTexture(const commoneditor::ui::TextureDTO &textureDTO);
     bool replaceTexture(const std::string &name, const commoneditor::ui::TextureDTO &textureInfo);
     bool removeTexture(const std::string &name);
@@ -37,6 +38,9 @@ class MainController {
     bool replaceMonsterZone(const std::string &name, const MonsterZoneDTO &monsterZoneDTO);
     bool removeMonsterZone(const std::string &name);
     bool loadConfiguredMonsterStores();
+    bool getDisplayGridConfigState() const;
+    bool setDisplayGridConfigState(bool value);
+    std::string getThemeConfigValue() const;
 
  private:
     friend class boost::serialization::access;
@@ -44,6 +48,8 @@ class MainController {
     std::string m_executablePath = "";
     std::string m_resourcesPath = "";
     std::string m_userConfigFolder = "";
+    std::string m_configFilename = "";
+    std::unique_ptr<thewarrior::storage::ConfigurationManager> m_configManager = nullptr;
     GLComponentController *m_glComponentController = nullptr;
     std::shared_ptr<thewarrior::models::GameMap> m_map = nullptr;
     std::shared_ptr<ContainerOfMonsterStore> m_monsterStores = nullptr;

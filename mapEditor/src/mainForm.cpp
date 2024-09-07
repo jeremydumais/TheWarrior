@@ -45,32 +45,10 @@ MainForm::MainForm(QWidget *parent,
     m_controller.initializeExecutablePath();
     m_controller.initializeResourcesPath();
     m_controller.initializeUserConfigFolder();
-
-    // Check if the user configuration folder exist
-    const auto &userConfigFolder = m_controller.getUserConfigFolder();
-    if (!boost::filesystem::exists(userConfigFolder)) {
-        if (!boost::filesystem::create_directory(userConfigFolder)) {
-            ErrorMessage::show(fmt::format("Unable to create the folder {0}", userConfigFolder), "");
-            exit(1);
-        }
+    if (!m_controller.loadConfigurationFile()) {
+        ErrorMessage::show(m_controller.getLastError());
     }
-
-    // Check if the configuration file exist
-    ConfigurationManager configManager(userConfigFolder + "config.json");
-    if (!configManager.fileExists()) {
-        // Try to create a default configuration
-        if (!configManager.save()) {
-            ErrorMessage::show("An error occurred while creation a default the configuration file.",
-                    configManager.getLastError());
-        }
-    }
-    if (configManager.load()) {
-        restorePersistedMenuState(configManager);
-    } else {
-        ErrorMessage::show("An error occurred while loading the configuration file.",
-                configManager.getLastError());
-    }
-
+    restorePersistedMenuState();
     m_controller.loadConfiguredMonsterStores();
 
     m_glComponent.initializeUIObjects(ui.mapOpenGLWidget);
@@ -322,7 +300,11 @@ void MainForm::action_DarkTheme_Click() {
 }
 
 void MainForm::action_DisplayGrid_Click() {
-    ui.mapOpenGLWidget->setGridEnabled(ui.action_DisplayGrid->isChecked());
+    bool isGridDisplayed = ui.action_DisplayGrid->isChecked();
+    ui.mapOpenGLWidget->setGridEnabled(isGridDisplayed);
+    if (!m_controller.setDisplayGridConfigState(isGridDisplayed)) {
+        ErrorMessage::show(m_controller.getLastError());
+    }
 }
 
 void MainForm::action_ManageItemStore_Click() {
@@ -455,6 +437,8 @@ void MainForm::tabWidgetMapViewChanged(int index) {
         case 3:
             m_glComponent.setMapView(MapView::MonsterZones);
             break;
+        default:
+            break;
     }
 }
 
@@ -562,11 +546,10 @@ void MainForm::addNewRecentMap(const std::string &filePath) {
     refreshRecentMapsMenu();
 }
 
-void MainForm::restorePersistedMenuState(const thewarrior::storage::ConfigurationManager &configManager) {
-    //TODO: Complete persisted display grid
-    //ui.action_DisplayGrid->setChecked(configManager.ge)
-    action_DisplayGrid_Click();
-    setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
+void MainForm::restorePersistedMenuState() {
+    ui.action_DisplayGrid->setChecked(m_controller.getDisplayGridConfigState());
+    ui.mapOpenGLWidget->setGridEnabled(ui.action_DisplayGrid->isChecked());
+    setAppStylesheet(m_controller.getThemeConfigValue());
 }
 
 void MainForm::setAppStylesheet(const std::string &style) {

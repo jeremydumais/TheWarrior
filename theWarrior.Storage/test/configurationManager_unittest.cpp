@@ -140,6 +140,15 @@ TEST(ConfigurationManager_getBoolValue, WithInexistingKeyBool1_ReturnFalse) {
     ASSERT_FALSE(config.getBoolValue("bool1"));
 }
 
+TEST(ConfigurationManager_getBoolValue, WithInexistingKeyBool1WithDefaultTrue_ReturnTrue) {
+    auto stubJFS = std::make_unique<NiceMock<StubJSONFileStream>>("test");
+    ptree expectedPTree;
+    setupStubJSONFileStreamExpectations(*stubJFS, expectedPTree);
+    ConfigurationManager config("test", std::move(stubJFS));
+    ASSERT_TRUE(config.load());
+    ASSERT_TRUE(config.getBoolValue("bool1", true));
+}
+
 TEST(ConfigurationManager_getBoolValue, WithExistingKeyBool1And1_ReturnTrue) {
     auto stubJFS = std::make_unique<NiceMock<StubJSONFileStream>>("test");
     ptree expectedPTree;

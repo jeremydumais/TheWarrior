@@ -88,7 +88,7 @@ Q_OBJECT
     void tabWidgetMapViewChanged(int index);
     void openMap(const std::string &filePath);
     void saveMap(const std::string &filePath);
-    void restorePersistedMenuState(const thewarrior::storage::ConfigurationManager &configManager);
+    void restorePersistedMenuState();
     void setAppStylesheet(const std::string &style);
     void refreshWindowTitle();
     void refreshUndoControls();

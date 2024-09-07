@@ -47,8 +47,8 @@ std::string ConfigurationManager::getStringValue(const std::string &path) const 
     return m_config.get<std::string>(path, "");
 }
 
-bool ConfigurationManager::getBoolValue(const std::string &path) const {
-    return m_config.get<bool>(path, false);
+bool ConfigurationManager::getBoolValue(const std::string &path, bool defaultValue) const {
+    return m_config.get<bool>(path, defaultValue);
 }
 
 boost::property_tree::ptree ConfigurationManager::getPTreeNode(const std::string &path) const {
@@ -56,11 +56,11 @@ boost::property_tree::ptree ConfigurationManager::getPTreeNode(const std::string
 }
 
 void ConfigurationManager::setStringValue(const std::string &path, const std::string &value) {
-    m_config.put(path, value);
+    m_config.put<std::string>(path, value);
 }
 
 void ConfigurationManager::setBoolValue(const std::string &path, bool value) {
-    m_config.put(path, value);
+    m_config.put<bool>(path, value);
 }
 
 void ConfigurationManager::setVectorOfStringValue(const std::string &path,

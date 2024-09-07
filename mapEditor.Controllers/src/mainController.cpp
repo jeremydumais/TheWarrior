@@ -2,32 +2,30 @@
 #include <fmt/format.h>
 #include <linux/limits.h>   // PATH_MAX
 #include <libgen.h>         // dirname
+#include <stdexcept>
 #include <unistd.h>         // readlink
-#include <algorithm>
-#include <exception>
 #include <memory>
+#include <boost/filesystem.hpp>
+#include "configurationManager.hpp"
 #include "manageMonsterStoreController.hpp"
 #include "monsterStore.hpp"
 #include "monsterStoreStorage.hpp"
-#include "monsterZoneDTOUtils.hpp"
 #include "specialFolders.hpp"
 #include "textureDTO.hpp"
-#include "textureUtils.hpp"
 #include "types.hpp"
 
 using commoneditor::ui::TextureDTO;
-using commoneditor::ui::TextureUtils;
 using thewarrior::models::GameMap;
-using thewarrior::models::MapTile;
 using thewarrior::models::MonsterStore;
-using thewarrior::models::Point;
 using thewarrior::models::Texture;
+using thewarrior::storage::ConfigurationManager;
 using thewarrior::storage::MonsterStoreStorage;
 using thewarrior::storage::SpecialFolders;
 
 namespace mapeditor::controllers {
 
-MainController::MainController() {
+MainController::MainController()
+    : m_configFilename("config.json") {
 }
 
 const std::string &MainController::getLastError() const {
@@ -90,6 +88,48 @@ void MainController::initializeResourcesPath() {
 
 void MainController::initializeUserConfigFolder() {
     m_userConfigFolder = SpecialFolders::getAppConfigDirectory("TheWarrior_MapEditor");
+}
+
+bool MainController::loadConfigurationFile() {
+    // Check if the user configuration folder exist
+    if (!boost::filesystem::exists(m_userConfigFolder)) {
+        if (!boost::filesystem::create_directory(m_userConfigFolder)) {
+            m_lastError = fmt::format("Unable to create the folder {0}", m_userConfigFolder);
+            return false;
+        }
+    }
+    auto fullConfigFilePath = m_userConfigFolder + m_configFilename;
+    try {
+        m_configManager = std::make_unique<ConfigurationManager>(fullConfigFilePath);
+    }
+    catch (std::invalid_argument &err) {
+        m_lastError = fmt::format("Config file {0} error: {1}",
+                                  fullConfigFilePath,
+                                  err.what());
+        return false;
+    }
+    if (!m_configManager->fileExists()) {
+        // Try to create a default configuration
+        if (!m_configManager->save()) {
+            m_lastError = fmt::format("An error occurred while creation a default the configuration file. {0}",
+                                      m_configManager->getLastError());
+            return false;
+        }
+    }
+    if (!m_configManager->load()) {
+        m_lastError = m_configManager->getLastError();
+        return false;
+    }
+    return true;
+}
+
+bool MainController::saveConfigurationFile() {
+    if (!m_configManager->save()) {
+        m_lastError = fmt::format("An error occurred while saving the configuration file : {0}",
+                                  m_configManager->getLastError());
+        return false;
+    }
+    return true;
 }
 
 bool MainController::addTexture(const TextureDTO &textureDTO) {
@@ -170,6 +210,19 @@ bool MainController::loadConfiguredMonsterStores() {
         }
     }
     return true;
+}
+
+bool MainController::getDisplayGridConfigState() const {
+    return m_configManager->getBoolValue("Display.Grid", true);
+}
+
+bool MainController::setDisplayGridConfigState(bool value) {
+    m_configManager->setBoolValue("Display.Grid", value);
+    return saveConfigurationFile();
+}
+
+std::string MainController::getThemeConfigValue() const {
+    return m_configManager->getStringValue("Display.Theme");
 }
 
 }  // namespace mapeditor::controllers

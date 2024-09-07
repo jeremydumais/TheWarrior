@@ -15,7 +15,7 @@ class ConfigurationManager {
     const std::string &getLastError() const;
     std::vector<std::string> getVectorOfStringValue(const std::string &path) const;
     std::string getStringValue(const std::string &path) const;
-    bool getBoolValue(const std::string &path) const;
+    bool getBoolValue(const std::string &path, bool defaultValue = false) const;
     boost::property_tree::ptree getPTreeNode(const std::string &path) const;
     void setStringValue(const std::string &path, const std::string &value);
     void setBoolValue(const std::string &path, bool value);
