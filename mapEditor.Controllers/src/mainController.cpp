@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <unistd.h>         // readlink
 #include <memory>
+#include <boost/archive/binary_oarchive.hpp>
 #include <boost/filesystem.hpp>
 #include "configurationManager.hpp"
 #include "manageMonsterStoreController.hpp"
@@ -70,6 +71,12 @@ bool MainController::createMap(unsigned int width, unsigned int height) {
         return false;
     }
     return true;
+}
+
+void MainController::saveMap(const std::string &filePath) {
+    std::ofstream ofs(filePath, std::ofstream::binary);
+    boost::archive::binary_oarchive oa(ofs);
+    oa << *m_glComponentController->getMap();
 }
 
 void MainController::initializeExecutablePath() {
@@ -212,17 +219,42 @@ bool MainController::loadConfiguredMonsterStores() {
     return true;
 }
 
+std::vector<std::string> MainController::getRecentMapsFromConfig() const {
+    return m_configManager->getVectorOfStringValue(RecentMapsConfigItem);
+}
+
+bool MainController::addNewRecentMap(const std::string &filePath) {
+    auto recents = m_configManager->getVectorOfStringValue(RecentMapsConfigItem);
+    // Scan to find the currentMap, if found remove it from the list
+    auto iter = std::find(recents.begin(), recents.end(), filePath);
+    if (iter != recents.end()) {
+        recents.erase(iter);
+    }
+    // Add it at the beginning of the vector
+    recents.insert(recents.begin(), filePath);
+    if (recents.size() > 5) {
+        recents.resize(5);
+    }
+    m_configManager->setVectorOfStringValue(RecentMapsConfigItem, recents);
+    return saveConfigurationFile();
+}
+
 bool MainController::getDisplayGridConfigState() const {
-    return m_configManager->getBoolValue("Display.Grid", true);
+    return m_configManager->getBoolValue(DisplayGridConfigItem, true);
 }
 
 bool MainController::setDisplayGridConfigState(bool value) {
-    m_configManager->setBoolValue("Display.Grid", value);
+    m_configManager->setBoolValue(DisplayGridConfigItem, value);
     return saveConfigurationFile();
 }
 
 std::string MainController::getThemeConfigValue() const {
-    return m_configManager->getStringValue("Display.Theme");
+    return m_configManager->getStringValue(DisplayThemeConfigItem);
+}
+
+bool MainController::setThemeConfigValue(const std::string &theme) {
+    m_configManager->setStringValue(DisplayThemeConfigItem, theme);
+    return saveConfigurationFile();
 }
 
 }  // namespace mapeditor::controllers

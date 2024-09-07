@@ -8,7 +8,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "configurationManager.hpp"
 #include "mainController.hpp"
 #include "components/debugInfoDockWidget.hpp"
 #include "components/mainForm_GLComponent.hpp"
@@ -26,7 +25,7 @@ class MainForm : public QMainWindow {
 Q_OBJECT
 
  public:
-    MainForm(QWidget *parent = nullptr,
+    explicit MainForm(QWidget *parent = nullptr,
             const std::string &currentFilePath = "");
     ~MainForm() override;
     bool event(QEvent *event) override;
@@ -49,8 +48,6 @@ Q_OBJECT
     std::shared_ptr<QLabel> labelToolbarZoomValue = nullptr;
     std::string m_currentFilePath = "";
     bool m_functionAfterShownCalled = false;
-    static const char THEME_PATH[];
-    static const char RECENT_MAPS[];
     void componentInitialization();
     void connectUIActions();
     void action_Open_Click();
@@ -87,7 +84,6 @@ Q_OBJECT
     void sliderZoomValueChanged(int value);
     void tabWidgetMapViewChanged(int index);
     void openMap(const std::string &filePath);
-    void saveMap(const std::string &filePath);
     void restorePersistedMenuState();
     void setAppStylesheet(const std::string &style);
     void refreshWindowTitle();

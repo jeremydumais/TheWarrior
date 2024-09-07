@@ -7,16 +7,9 @@
 #include <qtimer.h>
 #include <QtCore/qfile.h>
 #include <fmt/format.h>
-#include <algorithm>
-#include <fstream>
 #include <memory>
-#include <boost/algorithm/string.hpp>
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/filesystem.hpp>
 #include "aboutBoxForm.hpp"
 #include "components/debugInfoDockWidget.hpp"
-#include "configurationManager.hpp"
 #include "errorMessage.hpp"
 #include "gameMapStorage.hpp"
 #include "manageItemStoreForm.hpp"
@@ -30,11 +23,7 @@ using commoneditor::ui::ErrorMessage;
 using commoneditor::ui::TextureDTO;
 using mapeditor::controllers::MapTileDTO;
 using mapeditor::controllers::MonsterZoneDTO;
-using thewarrior::storage::ConfigurationManager;
 using thewarrior::storage::GameMapStorage;
-
-const char MainForm::THEME_PATH[] { "Display.Theme" };
-const char MainForm::RECENT_MAPS[] { "Map.Recents" };
 
 MainForm::MainForm(QWidget *parent,
         const std::string &currentFilePath)
@@ -216,7 +205,7 @@ void MainForm::action_Save_Click() {
     if (m_currentFilePath == "") {
         action_SaveAs_Click();
     } else {
-        saveMap(m_currentFilePath);
+        m_controller.saveMap(m_currentFilePath);
     }
 }
 
@@ -229,7 +218,7 @@ void MainForm::action_SaveAs_Click() {
             filter, &filter) };
     if (fullFilePath != "") {
         m_currentFilePath = fullFilePath.toStdString();
-        saveMap(m_currentFilePath);
+        m_controller.saveMap(m_currentFilePath);
         addNewRecentMap(m_currentFilePath);
     }
     refreshWindowTitle();
@@ -270,33 +259,19 @@ void MainForm::toggleViewDebuggingInfo() {
 }
 
 void MainForm::action_LightTheme_Click() {
-    ConfigurationManager configManager(m_controller.getUserConfigFolder() + "config.json");
-    if (configManager.load()) {
-        configManager.setStringValue(MainForm::THEME_PATH, "");
-        setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
-        if (!configManager.save()) {
-            ErrorMessage::show("An error occurred while saving the configuration file.",
-                    configManager.getLastError());
-        }
-    } else {
-        ErrorMessage::show("An error occurred while loading the configuration file.",
-                configManager.getLastError());
+    std::string theme = "";
+    if (!m_controller.setThemeConfigValue(theme)) {
+        ErrorMessage::show(m_controller.getLastError());
     }
+    setAppStylesheet(theme);
 }
 
 void MainForm::action_DarkTheme_Click() {
-    ConfigurationManager configManager(m_controller.getUserConfigFolder() + "config.json");
-    if (configManager.load()) {
-        configManager.setStringValue(MainForm::THEME_PATH, "Dark");
-        setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
-        if (!configManager.save()) {
-            ErrorMessage::show("An error occurred while saving the configuration file.",
-                    configManager.getLastError());
-        }
-    } else {
-        ErrorMessage::show("An error occurred while loading the configuration file.",
-                configManager.getLastError());
+    std::string theme = "Dark";
+    if (!m_controller.setThemeConfigValue(theme)) {
+        ErrorMessage::show(m_controller.getLastError());
     }
+    setAppStylesheet(theme);
 }
 
 void MainForm::action_DisplayGrid_Click() {
@@ -467,12 +442,6 @@ void MainForm::openMap(const std::string &filePath) {
     m_mapPropsComponent->reset();
 }
 
-void MainForm::saveMap(const std::string &filePath) {
-    std::ofstream ofs(filePath, std::ofstream::binary);
-    boost::archive::binary_oarchive oa(ofs);
-    oa << *m_controller.getMap();
-}
-
 void MainForm::refreshWindowTitle() {
     if (m_currentFilePath == "") {
         setWindowTitle("MapEditor");
@@ -489,16 +458,7 @@ void MainForm::refreshUndoControls() {
 }
 
 void MainForm::refreshRecentMapsMenu() {
-    auto recents = std::vector<std::string> {};
-    ConfigurationManager configManager(m_controller.getUserConfigFolder() + "config.json");
-    if (configManager.load()) {
-        recents = configManager.getVectorOfStringValue(MainForm::RECENT_MAPS);
-    } else {
-        ErrorMessage::show("An error occurred while loading the configuration file.",
-                configManager.getLastError());
-        return;
-    }
-
+    auto recents = m_controller.getRecentMapsFromConfig();
     if (recents.size() > 5) {
         recents.resize(5);
     }
@@ -517,31 +477,9 @@ void MainForm::refreshRecentMapsMenu() {
 }
 
 void MainForm::addNewRecentMap(const std::string &filePath) {
-    auto recents = std::vector<std::string> {};
-    // Load existing recent maps
-    ConfigurationManager configManager(m_controller.getUserConfigFolder() + "config.json");
-    if (configManager.load()) {
-        recents = configManager.getVectorOfStringValue(MainForm::RECENT_MAPS);
-    } else {
-        ErrorMessage::show("An error occurred while loading the configuration file.",
-                configManager.getLastError());
-        return;
-    }
-    // Scan to find the currentMap, if found remove it from the list
-    auto iter = std::find(recents.begin(), recents.end(), filePath);
-    if (iter != recents.end()) {
-        recents.erase(iter);
-    }
-    // Add it at the beginning of the vector
-    recents.insert(recents.begin(), filePath);
-    if (recents.size() > 5) {
-        recents.resize(5);
-    }
-    configManager.setVectorOfStringValue(MainForm::RECENT_MAPS, recents);
-    if (!configManager.save()) {
-        ErrorMessage::show("An error occurred while saving the configuration file.",
-                configManager.getLastError());
-        return;
+    if (!m_controller.addNewRecentMap(filePath)) {
+        ErrorMessage::show("An error occurred while adding the map to the recents in the configuration file.",
+                m_controller.getLastError());
     }
     refreshRecentMapsMenu();
 }

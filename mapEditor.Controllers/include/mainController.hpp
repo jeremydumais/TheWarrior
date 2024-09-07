@@ -25,6 +25,7 @@ class MainController {
     const std::shared_ptr<ContainerOfMonsterStore> &getMonsterStores() const;
     void setGLComponentController(GLComponentController *controller);
     bool createMap(unsigned int width, unsigned int height);
+    void saveMap(const std::string &filePath);
     void initializeExecutablePath();
     void initializeResourcesPath();
     void initializeUserConfigFolder();
@@ -38,12 +39,18 @@ class MainController {
     bool replaceMonsterZone(const std::string &name, const MonsterZoneDTO &monsterZoneDTO);
     bool removeMonsterZone(const std::string &name);
     bool loadConfiguredMonsterStores();
+    std::vector<std::string> getRecentMapsFromConfig() const;
+    bool addNewRecentMap(const std::string &filePath);
     bool getDisplayGridConfigState() const;
     bool setDisplayGridConfigState(bool value);
     std::string getThemeConfigValue() const;
+    bool setThemeConfigValue(const std::string &theme);
 
  private:
     friend class boost::serialization::access;
+    static constexpr std::string DisplayGridConfigItem = "Display.Grid";
+    static constexpr std::string DisplayThemeConfigItem = "Display.Theme";
+    static constexpr std::string RecentMapsConfigItem = "Map.Recents";
     std::string m_lastError = "";
     std::string m_executablePath = "";
     std::string m_resourcesPath = "";
