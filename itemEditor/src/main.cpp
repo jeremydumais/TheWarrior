@@ -2,6 +2,7 @@
 #include <string>
 #include <boost/program_options.hpp>
 #include <boost/program_options/options_description.hpp>
+#include "constants.hpp"
 #include "mainForm.hpp"
 #include "uiUtils.hpp"
 
@@ -12,8 +13,6 @@ void printAppHeader(const std::string &orgName,
         const std::string &appName);
 
 int main(int argc, char *argv[]) {
-    const auto ORGANIZATIONNAME = "Jed# Software";
-    const auto APPLICATIONNAME = "The Warrior - Item Editor";
     po::options_description desc("Usage : ItemEditor [options]");
     desc.add_options()
         ("help,h", "produce help message")

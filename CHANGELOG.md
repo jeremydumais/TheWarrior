@@ -114,5 +114,21 @@ View > Toolbar menu.
 
 ### Map Editor (Version 1.3.4)
 
+#### Change
+- Move the editor configuration file into the folder "Jed# Software/The Warrior - Map Editor"
+instead of "The Warrior - Map Editor"
+
 #### New features
 -
+
+### Item Editor (Version 1.0.1)
+
+#### Change
+- Move the editor configuration file into the folder "Jed# Software/The Warrior - Item Editor"
+instead of "The Warrior - Item Editor"
+
+### Monster Editor (Version 1.0.1)
+
+#### Change
+- Move the editor configuration file into the folder "Jed# Software/The Warrior - Monster Editor"
+instead of "The Warrior - Monster Editor"
