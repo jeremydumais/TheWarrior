@@ -37,7 +37,6 @@ MainForm::MainForm(QWidget *parent,
     if (!m_controller.loadConfigurationFile()) {
         ErrorMessage::show(m_controller.getLastError());
     }
-    restorePersistedMenuState();
     m_controller.loadConfiguredMonsterStores();
 
     m_glComponent.initializeUIObjects(ui.mapOpenGLWidget);
@@ -46,6 +45,7 @@ MainForm::MainForm(QWidget *parent,
 
     m_controller.setGLComponentController(m_glComponent.getControllerPtr());
     componentInitialization();
+    restorePersistedMenuState();
     labelToolbarMonsterZoneColor = std::make_shared<QLabel>(this);
     labelToolbarMonsterZoneColor->setFixedWidth(40);
     labelToolbarMonsterZoneColor->setFixedHeight(32);
@@ -87,7 +87,6 @@ MainForm::MainForm(QWidget *parent,
     refreshTextureList();
     refreshMonsterZones();
     m_mapPropsComponent->reset();
-    m_debugInfoDockWidget->hide();
     action_SelectClick();
     tabWidgetMapViewChanged(static_cast<int>(MapView::Standard));
 }
@@ -136,7 +135,7 @@ void MainForm::connectUIActions() {
     connect(ui.action_RecentMap5, &QAction::triggered, this, &MainForm::action_OpenRecentMap_Click);
     connect(ui.action_Save, &QAction::triggered, this, &MainForm::action_Save_Click);
     connect(ui.action_SaveAs, &QAction::triggered, this, &MainForm::action_SaveAs_Click);
-    connect(ui.actionView_MapConfiguration, &QAction::triggered, this, &MainForm::toggleViewMapConfiguration);
+    connect(ui.actionView_MapConfig, &QAction::triggered, this, &MainForm::toggleViewMapConfiguration);
     connect(ui.actionView_TextureSelection, &QAction::triggered, this, &MainForm::toggleViewTextureSelection);
     connect(ui.actionView_DebuggingInfo, &QAction::triggered, this, &MainForm::toggleViewDebuggingInfo);
     connect(ui.action_LightTheme, &QAction::triggered, this, &MainForm::action_LightTheme_Click);
@@ -241,21 +240,56 @@ bool MainForm::event(QEvent *event) {
     return ret_val;
 }
 
+void MainForm::closeEvent(QCloseEvent *event) {
+    m_closeFormRequested = true;
+    event->accept();
+}
+
 void MainForm::action_About_Click() {
     AboutBoxForm aboutBoxForm(this);
     aboutBoxForm.exec();
 }
 
 void MainForm::toggleViewMapConfiguration() {
-    ui.dockWidgetMapConfig->setVisible(!ui.dockWidgetMapConfig->isVisible());
+    bool newVisibleState = !ui.dockWidgetMapConfig->isVisible();
+    changeViewMapConfigurationVisibility(newVisibleState);
+}
+
+void MainForm::changeViewMapConfigurationVisibility(bool visible) {
+    if (!m_closeFormRequested) {
+        ui.dockWidgetMapConfig->setVisible(visible);
+        if (!m_controller.setDisplayToolbarsMapConfigState(visible)) {
+            ErrorMessage::show(m_controller.getLastError());
+        }
+    }
 }
 
 void MainForm::toggleViewTextureSelection() {
-    m_textureSelectionDockWidget->setVisible(!m_textureSelectionDockWidget->isVisible());
+    bool newVisibleState = !m_textureSelectionDockWidget->isVisible();
+    changeViewTextureSelectionVisibility(newVisibleState);
+}
+
+void MainForm::changeViewTextureSelectionVisibility(bool visible) {
+    if (!m_closeFormRequested) {
+        m_textureSelectionDockWidget->setVisible(visible);
+        if (!m_controller.setDisplayToolbarsTextureSelectionState(visible)) {
+            ErrorMessage::show(m_controller.getLastError());
+        }
+    }
 }
 
 void MainForm::toggleViewDebuggingInfo() {
-    m_debugInfoDockWidget->setVisible(!m_debugInfoDockWidget->isVisible());
+    bool newVisibleState = !m_debugInfoDockWidget->isVisible();
+    changeViewDebuggingInfoVisibility(newVisibleState);
+}
+
+void MainForm::changeViewDebuggingInfoVisibility(bool visible) {
+    if (!m_closeFormRequested) {
+        m_debugInfoDockWidget->setVisible(visible);
+        if (!m_controller.setDisplayToolbarsDebuggingInfoState(visible)) {
+            ErrorMessage::show(m_controller.getLastError());
+        }
+    }
 }
 
 void MainForm::action_LightTheme_Click() {
@@ -486,6 +520,12 @@ void MainForm::addNewRecentMap(const std::string &filePath) {
 
 void MainForm::restorePersistedMenuState() {
     ui.action_DisplayGrid->setChecked(m_controller.getDisplayGridConfigState());
+    ui.actionView_MapConfig->setChecked(m_controller.getDisplayToolbarsMapConfigState());
+    ui.dockWidgetMapConfig->setVisible(m_controller.getDisplayToolbarsMapConfigState());
+    ui.actionView_TextureSelection->setChecked(m_controller.getDisplayToolbarsTextureSelectionState());
+    m_textureSelectionDockWidget->setVisible(m_controller.getDisplayToolbarsTextureSelectionState());
+    ui.actionView_DebuggingInfo->setChecked(m_controller.getDisplayToolbarsDebuggingInfoState());
+    m_debugInfoDockWidget->setVisible(m_controller.getDisplayToolbarsDebuggingInfoState());
     ui.mapOpenGLWidget->setGridEnabled(ui.action_DisplayGrid->isChecked());
     setAppStylesheet(m_controller.getThemeConfigValue());
 }
@@ -515,15 +555,18 @@ void MainForm::resizeEvent(QResizeEvent *) {
 }
 
 void MainForm::widgetMapConfigVisibilityChanged(bool visible) {
-    ui.actionView_MapConfiguration->setChecked(visible);
+    ui.actionView_MapConfig->setChecked(visible);
+    changeViewMapConfigurationVisibility(visible);
 }
 
 void MainForm::widgetTextureSelectionVisibilityChanged(bool visible) {
     ui.actionView_TextureSelection->setChecked(visible);
+    changeViewTextureSelectionVisibility(visible);
 }
 
 void MainForm::widgetDebugInfoVisibilityChanged(bool visible) {
     ui.actionView_DebuggingInfo->setChecked(visible);
+    changeViewDebuggingInfoVisibility(visible);
 }
 
 void MainForm::onTileSelected(std::vector<MapTileDTO>) {

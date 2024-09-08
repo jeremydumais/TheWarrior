@@ -104,7 +104,7 @@
       <x>267</x>
       <y>187</y>
       <width>260</width>
-      <height>222</height>
+      <height>230</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -162,7 +162,7 @@
      <property name="title">
       <string>Toolbars</string>
      </property>
-     <addaction name="actionView_MapConfiguration"/>
+     <addaction name="actionView_MapConfig"/>
      <addaction name="actionView_TextureSelection"/>
      <addaction name="actionView_DebuggingInfo"/>
     </widget>
@@ -576,17 +576,6 @@
     <string>&amp;Monster store...</string>
    </property>
   </action>
-  <action name="actionView_MapConfiguration">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Map configuration</string>
-   </property>
-  </action>
   <action name="actionView_TextureSelection">
    <property name="checkable">
     <bool>true</bool>
@@ -650,6 +639,17 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+Z</string>
+   </property>
+  </action>
+  <action name="actionView_MapConfig">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Map configuration</string>
    </property>
   </action>
  </widget>

@@ -3,6 +3,7 @@
 #include <linux/limits.h>   // PATH_MAX
 #include <libgen.h>         // dirname
 #include <stdexcept>
+#include <string_view>
 #include <unistd.h>         // readlink
 #include <memory>
 #include <boost/archive/binary_oarchive.hpp>
@@ -24,6 +25,13 @@ using thewarrior::storage::MonsterStoreStorage;
 using thewarrior::storage::SpecialFolders;
 
 namespace mapeditor::controllers {
+
+static constexpr std::string DisplayThemeConfigItem = "Display.Theme";
+static constexpr std::string DisplayGridConfigItem = "Display.Grid";
+static constexpr std::string_view DisplayToolbarsMapConfigItem = "Display.Toolbars.MapConfiguration";
+static constexpr std::string_view DisplayToolbarsTextureSelectionItem = "Display.Toolbars.TextureSelection";
+static constexpr std::string_view DisplayToolbarsDebuggingInfoItem = "Display.Toolbars.DebuggingInfo";
+static constexpr std::string RecentMapsConfigItem = "Map.Recents";
 
 MainController::MainController()
     : m_configFilename("config.json") {
@@ -254,6 +262,39 @@ std::string MainController::getThemeConfigValue() const {
 
 bool MainController::setThemeConfigValue(const std::string &theme) {
     m_configManager->setStringValue(DisplayThemeConfigItem, theme);
+    return saveConfigurationFile();
+}
+
+bool MainController::getDisplayToolbarsMapConfigState() const {
+    auto mapConfigItem = std::string(DisplayToolbarsMapConfigItem);
+    return m_configManager->getBoolValue(mapConfigItem, true);
+}
+
+bool MainController::setDisplayToolbarsMapConfigState(bool value) {
+auto mapConfigItem = std::string(DisplayToolbarsMapConfigItem);
+m_configManager->setBoolValue(mapConfigItem, value);
+return saveConfigurationFile();
+}
+
+bool MainController::getDisplayToolbarsTextureSelectionState() const {
+    auto textureSelectionItem = std::string(DisplayToolbarsTextureSelectionItem);
+    return m_configManager->getBoolValue(textureSelectionItem, true);
+}
+
+bool MainController::setDisplayToolbarsTextureSelectionState(bool value) {
+    auto textureSelectionItem = std::string(DisplayToolbarsTextureSelectionItem);
+    m_configManager->setBoolValue(textureSelectionItem, value);
+    return saveConfigurationFile();
+}
+
+bool MainController::getDisplayToolbarsDebuggingInfoState() const {
+    auto debuggingInfoItem = std::string(DisplayToolbarsDebuggingInfoItem);
+    return m_configManager->getBoolValue(debuggingInfoItem, false);
+}
+
+bool MainController::setDisplayToolbarsDebuggingInfoState(bool value) {
+    auto debuggingInfoItem = std::string(DisplayToolbarsDebuggingInfoItem);
+    m_configManager->setBoolValue(debuggingInfoItem, value);
     return saveConfigurationFile();
 }
 

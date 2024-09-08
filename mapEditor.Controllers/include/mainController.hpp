@@ -45,12 +45,15 @@ class MainController {
     bool setDisplayGridConfigState(bool value);
     std::string getThemeConfigValue() const;
     bool setThemeConfigValue(const std::string &theme);
+    bool getDisplayToolbarsMapConfigState() const;
+    bool setDisplayToolbarsMapConfigState(bool value);
+    bool getDisplayToolbarsTextureSelectionState() const;
+    bool setDisplayToolbarsTextureSelectionState(bool value);
+    bool getDisplayToolbarsDebuggingInfoState() const;
+    bool setDisplayToolbarsDebuggingInfoState(bool value);
 
  private:
     friend class boost::serialization::access;
-    static constexpr std::string DisplayGridConfigItem = "Display.Grid";
-    static constexpr std::string DisplayThemeConfigItem = "Display.Theme";
-    static constexpr std::string RecentMapsConfigItem = "Map.Recents";
     std::string m_lastError = "";
     std::string m_executablePath = "";
     std::string m_resourcesPath = "";

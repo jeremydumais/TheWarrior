@@ -29,6 +29,7 @@ Q_OBJECT
             const std::string &currentFilePath = "");
     ~MainForm() override;
     bool event(QEvent *event) override;
+    void closeEvent(QCloseEvent *event) override;
     void functionAfterShown();
 
  private:
@@ -48,6 +49,7 @@ Q_OBJECT
     std::shared_ptr<QLabel> labelToolbarZoomValue = nullptr;
     std::string m_currentFilePath = "";
     bool m_functionAfterShownCalled = false;
+    bool m_closeFormRequested = false;
     void componentInitialization();
     void connectUIActions();
     void action_Open_Click();
@@ -56,8 +58,11 @@ Q_OBJECT
     void action_SaveAs_Click();
     void action_About_Click();
     void toggleViewMapConfiguration();
+    void changeViewMapConfigurationVisibility(bool visible);
     void toggleViewTextureSelection();
+    void changeViewTextureSelectionVisibility(bool visible);
     void toggleViewDebuggingInfo();
+    void changeViewDebuggingInfoVisibility(bool visible);
     void action_LightTheme_Click();
     void action_DarkTheme_Click();
     void action_DisplayGrid_Click();
