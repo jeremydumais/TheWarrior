@@ -4,9 +4,10 @@
 #include <qtablewidget.h>
 #include <set>
 #include "mapOpenGLWidget.hpp"
+#include "qClosableDockWidget.hpp"
 #include "ui_debugInfoDockWidget.h"
 
-class DebugInfoDockWidget : public QDockWidget {
+class DebugInfoDockWidget : public QClosableDockWidget {
 Q_OBJECT
  public:
     DebugInfoDockWidget(QWidget *parent, MapOpenGLWidget *mapOpenGLWidget);

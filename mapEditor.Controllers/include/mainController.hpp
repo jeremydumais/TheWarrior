@@ -28,7 +28,8 @@ class MainController {
     void saveMap(const std::string &filePath);
     void initializeExecutablePath();
     void initializeResourcesPath();
-    void initializeUserConfigFolder();
+    void initializeUserConfigFolder(const std::string &organizationName,
+                                    const std::string &applicationName);
     bool loadConfigurationFile();
     bool saveConfigurationFile();
     bool addTexture(const commoneditor::ui::TextureDTO &textureDTO);
@@ -51,6 +52,7 @@ class MainController {
     bool setDisplayToolbarsTextureSelectionState(bool value);
     bool getDisplayToolbarsDebuggingInfoState() const;
     bool setDisplayToolbarsDebuggingInfoState(bool value);
+    bool setCustomKey(const std::string &path, const std::string &s);
 
  private:
     friend class boost::serialization::access;

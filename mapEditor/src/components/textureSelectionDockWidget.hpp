@@ -4,14 +4,13 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>
 #include <qdockwidget.h>
-#include <string>
 #include "mainForm_GLComponent.hpp"
 #include "pickerToolSelection.hpp"
-#include "point.hpp"
 #include "qClickableLabel.hpp"
+#include "qClosableDockWidget.hpp"
 #include "ui_textureSelectionDockWidget.h"
 
-class TextureSelectionDockWidget : public QDockWidget {
+class TextureSelectionDockWidget : public QClosableDockWidget {
 Q_OBJECT
  public:
     TextureSelectionDockWidget(QWidget *parent, MainForm_GLComponent *glComponent);

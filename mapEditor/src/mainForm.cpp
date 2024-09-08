@@ -2,6 +2,7 @@
 #include <qcombobox.h>
 #include <qlabel.h>
 #include <qnamespace.h>
+#include <qsettings.h>
 #include <qslider.h>
 #include <qtabwidget.h>
 #include <qtimer.h>
@@ -10,6 +11,7 @@
 #include <memory>
 #include "aboutBoxForm.hpp"
 #include "components/debugInfoDockWidget.hpp"
+#include "constants.hpp"
 #include "errorMessage.hpp"
 #include "gameMapStorage.hpp"
 #include "manageItemStoreForm.hpp"
@@ -33,7 +35,10 @@ MainForm::MainForm(QWidget *parent,
 
     m_controller.initializeExecutablePath();
     m_controller.initializeResourcesPath();
-    m_controller.initializeUserConfigFolder();
+    m_controller.initializeUserConfigFolder(ORGANIZATIONNAME, APPLICATIONNAME);
+    QSettings::setPath(QSettings::defaultFormat(),
+            QSettings::UserScope,
+            QString::fromStdString(m_controller.getUserConfigFolder()));
     if (!m_controller.loadConfigurationFile()) {
         ErrorMessage::show(m_controller.getLastError());
     }
@@ -45,7 +50,11 @@ MainForm::MainForm(QWidget *parent,
 
     m_controller.setGLComponentController(m_glComponent.getControllerPtr());
     componentInitialization();
+
     restorePersistedMenuState();
+    QSettings settings(WINDOWSTATECONFIGFILE, "", this);
+    restoreGeometry(settings.value(WINDOWSTATEGEOMETRY).toByteArray());
+    restoreState(settings.value(WINDOWSTATESTATE).toByteArray());
     labelToolbarMonsterZoneColor = std::make_shared<QLabel>(this);
     labelToolbarMonsterZoneColor->setFixedWidth(40);
     labelToolbarMonsterZoneColor->setFixedHeight(32);
@@ -162,9 +171,9 @@ void MainForm::connectUIActions() {
     connect(ui.action_ClearMonsterZone, &QAction::triggered, this, &MainForm::action_ClearMonsterZone);
     connect(sliderZoom.get(), &QSlider::valueChanged, this, &MainForm::sliderZoomValueChanged);
     connect(ui.tabWidgetMapView, &QTabWidget::currentChanged, this, &MainForm::tabWidgetMapViewChanged);
-    connect(ui.dockWidgetMapConfig, &QDockWidget::visibilityChanged, this, &MainForm::widgetMapConfigVisibilityChanged);
-    connect(m_textureSelectionDockWidget.get(), &QDockWidget::visibilityChanged, this, &MainForm::widgetTextureSelectionVisibilityChanged);
-    connect(m_debugInfoDockWidget.get(), &QDockWidget::visibilityChanged, this, &MainForm::widgetDebugInfoVisibilityChanged);
+    connect(ui.dockWidgetMapConfig, &QClosableDockWidget::onCloseEvent, this, &MainForm::widgetMapConfigClosed);
+    connect(m_textureSelectionDockWidget.get(), &QClosableDockWidget::onCloseEvent, this, &MainForm::widgetTextureSelectionClosed);
+    connect(m_debugInfoDockWidget.get(), &QClosableDockWidget::onCloseEvent, this, &MainForm::widgetDebugInfoClosed);
     m_glComponent.connectUIActions();
     connect(&m_glComponent, &MainForm_GLComponent::tileSelected, this, &MainForm::onTileSelected);
     connect(&m_glComponent, &MainForm_GLComponent::editHistoryChanged, this, &MainForm::onEditHistoryChanged);
@@ -242,7 +251,11 @@ bool MainForm::event(QEvent *event) {
 
 void MainForm::closeEvent(QCloseEvent *event) {
     m_closeFormRequested = true;
+    QSettings settings(WINDOWSTATECONFIGFILE, "", this);
+    settings.setValue(WINDOWSTATEGEOMETRY, saveGeometry());
+    settings.setValue(WINDOWSTATESTATE, saveState());
     event->accept();
+
 }
 
 void MainForm::action_About_Click() {
@@ -554,19 +567,22 @@ void MainForm::resizeEvent(QResizeEvent *) {
     ui.mapOpenGLWidget->resizeGL(ui.mapOpenGLWidget->width(), ui.mapOpenGLWidget->height());
 }
 
-void MainForm::widgetMapConfigVisibilityChanged(bool visible) {
-    ui.actionView_MapConfig->setChecked(visible);
-    changeViewMapConfigurationVisibility(visible);
+void MainForm::widgetMapConfigClosed(QEvent *event) {
+    ui.actionView_MapConfig->setChecked(false);
+    changeViewMapConfigurationVisibility(false);
+    event->accept();
 }
 
-void MainForm::widgetTextureSelectionVisibilityChanged(bool visible) {
-    ui.actionView_TextureSelection->setChecked(visible);
-    changeViewTextureSelectionVisibility(visible);
+void MainForm::widgetTextureSelectionClosed(QEvent *event) {
+    ui.actionView_TextureSelection->setChecked(false);
+    changeViewTextureSelectionVisibility(false);
+    event->accept();
 }
 
-void MainForm::widgetDebugInfoVisibilityChanged(bool visible) {
-    ui.actionView_DebuggingInfo->setChecked(visible);
-    changeViewDebuggingInfoVisibility(visible);
+void MainForm::widgetDebugInfoClosed(QEvent *event) {
+    ui.actionView_DebuggingInfo->setChecked(false);
+    changeViewDebuggingInfoVisibility(false);
+    event->accept();
 }
 
 void MainForm::onTileSelected(std::vector<MapTileDTO>) {

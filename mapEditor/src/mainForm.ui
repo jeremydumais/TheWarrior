@@ -13,6 +13,12 @@
   <property name="windowTitle">
    <string>MapEditor</string>
   </property>
+  <property name="dockNestingEnabled">
+   <bool>true</bool>
+  </property>
+  <property name="dockOptions">
+   <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::VerticalTabs</set>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_5">
     <item>
@@ -233,7 +239,13 @@
    <addaction name="action_ClearMonsterZone"/>
    <addaction name="separator"/>
   </widget>
-  <widget class="QDockWidget" name="dockWidgetMapConfig">
+  <widget class="QClosableDockWidget" name="dockWidgetMapConfig">
+   <property name="floating">
+    <bool>false</bool>
+   </property>
+   <property name="features">
+    <set>QDockWidget::AllDockWidgetFeatures</set>
+   </property>
    <property name="allowedAreas">
     <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
@@ -658,6 +670,12 @@
    <class>MapOpenGLWidget</class>
    <extends>QOpenGLWidget</extends>
    <header>mapOpenGLWidget.hpp</header>
+  </customwidget>
+  <customwidget>
+   <class>QClosableDockWidget</class>
+   <extends>QDockWidget</extends>
+   <header>qClosableDockWidget.hpp</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>

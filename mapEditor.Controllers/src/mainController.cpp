@@ -101,14 +101,17 @@ void MainController::initializeResourcesPath() {
     m_resourcesPath = fmt::format("{0}/resources/", m_executablePath);
 }
 
-void MainController::initializeUserConfigFolder() {
-    m_userConfigFolder = SpecialFolders::getAppConfigDirectory("TheWarrior_MapEditor");
+void MainController::initializeUserConfigFolder(const std::string &organizationName,
+                                                const std::string &applicationName) {
+    m_userConfigFolder = SpecialFolders::getAppConfigDirectory(fmt::format("{0}/{1}",
+                                                               organizationName,
+                                                               applicationName));
 }
 
 bool MainController::loadConfigurationFile() {
     // Check if the user configuration folder exist
     if (!boost::filesystem::exists(m_userConfigFolder)) {
-        if (!boost::filesystem::create_directory(m_userConfigFolder)) {
+        if (!boost::filesystem::create_directories(m_userConfigFolder)) {
             m_lastError = fmt::format("Unable to create the folder {0}", m_userConfigFolder);
             return false;
         }
@@ -295,6 +298,11 @@ bool MainController::getDisplayToolbarsDebuggingInfoState() const {
 bool MainController::setDisplayToolbarsDebuggingInfoState(bool value) {
     auto debuggingInfoItem = std::string(DisplayToolbarsDebuggingInfoItem);
     m_configManager->setBoolValue(debuggingInfoItem, value);
+    return saveConfigurationFile();
+}
+
+bool MainController::setCustomKey(const std::string &path, const std::string &s) {
+    m_configManager->setStringValue(path, s);
     return saveConfigurationFile();
 }
 

@@ -18,6 +18,7 @@
 #include "components/tilePropsComponent.hpp"
 #include "mapTileDTO.hpp"
 #include "monsterZoneDTO.hpp"
+#include "qClosableDockWidget.hpp"
 #include "selectionMode.hpp"
 #include "ui_mainForm.h"
 
@@ -97,9 +98,9 @@ Q_OBJECT
     void addNewRecentMap(const std::string &filePath);
     void mapPaint(QPaintEvent *e);
     void resizeEvent(QResizeEvent *) override;
-    void widgetMapConfigVisibilityChanged(bool visible);
-    void widgetTextureSelectionVisibilityChanged(bool visible);
-    void widgetDebugInfoVisibilityChanged(bool visible);
+    void widgetMapConfigClosed(QEvent *event);
+    void widgetTextureSelectionClosed(QEvent *event);
+    void widgetDebugInfoClosed(QEvent *event);
     void onTileSelected(std::vector<mapeditor::controllers::MapTileDTO>);
     void onEditHistoryChanged();
     void onZoomChanged(int zoomPercentage);

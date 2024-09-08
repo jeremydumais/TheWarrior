@@ -1,11 +1,9 @@
 #include "debugInfoDockWidget.hpp"
-#include <algorithm>
-#include <string>
 #include "mapOpenGLWidget.hpp"
 
 DebugInfoDockWidget::DebugInfoDockWidget(QWidget *parent,
         MapOpenGLWidget *mapOpenGLWidget)
-    : QDockWidget(parent),
+    : QClosableDockWidget(parent),
       ui(Ui::DebugInfoDockWidget()),
       m_mapOpenGLWidget(mapOpenGLWidget) {
     ui.setupUi(this);

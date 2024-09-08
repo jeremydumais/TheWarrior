@@ -20,6 +20,7 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/errorMessage.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterUtils.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/uiUtils.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/qClickableLabel.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/qClosableDockWidget.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/qTableWidgetKeyPressWatcher.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/textureUtils.cpp)
 

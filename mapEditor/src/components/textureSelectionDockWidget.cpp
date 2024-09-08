@@ -13,7 +13,7 @@ using thewarrior::models::Point;
 
 TextureSelectionDockWidget::TextureSelectionDockWidget(QWidget *parent,
         MainForm_GLComponent *glComponent)
-    : QDockWidget(parent),
+    : QClosableDockWidget(parent),
       ui(Ui::TextureSelectionDockWidget()),
       m_glComponent(glComponent) {
       ui.setupUi(this);
