@@ -3,7 +3,6 @@
 #include <linux/limits.h>   // PATH_MAX
 #include <libgen.h>         // dirname
 #include <stdexcept>
-#include <string_view>
 #include <unistd.h>         // readlink
 #include <memory>
 #include <boost/archive/binary_oarchive.hpp>

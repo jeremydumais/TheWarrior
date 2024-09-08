@@ -171,7 +171,7 @@ void MapOpenGLWidget::reloadTextures() {
 }
 
 void MapOpenGLWidget::startAutoUpdate() {
-    m_repaintTimer.start(static_cast<int>(1000.0F / 60.0F));
+    m_repaintTimer.start(static_cast<int>(1000.0F / 10.0F));
 }
 
 void MapOpenGLWidget::stopAutoUpdate() {
@@ -672,9 +672,9 @@ glm::vec2 MapOpenGLWidget::convertScreenCoordToGlCoord(QPoint coord) const {
 
 void MapOpenGLWidget::updateSelectedTileColor() {
     if (m_selectedTileColorGrowing) {
-        m_selectedTileColor += 3;
+        m_selectedTileColor += 10;
     } else {
-        m_selectedTileColor -= 3;
+        m_selectedTileColor -= 10;
     }
 
     if (m_selectedTileColor >= 200) {
