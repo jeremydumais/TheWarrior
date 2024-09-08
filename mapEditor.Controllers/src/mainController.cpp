@@ -26,12 +26,12 @@ using thewarrior::storage::SpecialFolders;
 
 namespace mapeditor::controllers {
 
-static constexpr std::string DisplayThemeConfigItem = "Display.Theme";
-static constexpr std::string DisplayGridConfigItem = "Display.Grid";
-static constexpr std::string_view DisplayToolbarsMapConfigItem = "Display.Toolbars.MapConfiguration";
-static constexpr std::string_view DisplayToolbarsTextureSelectionItem = "Display.Toolbars.TextureSelection";
-static constexpr std::string_view DisplayToolbarsDebuggingInfoItem = "Display.Toolbars.DebuggingInfo";
-static constexpr std::string RecentMapsConfigItem = "Map.Recents";
+static constexpr const char DisplayThemeConfigItem[] = "Display.Theme";
+static constexpr const char DisplayGridConfigItem[] = "Display.Grid";
+static constexpr const char DisplayToolbarsMapConfigItem[] = "Display.Toolbars.MapConfiguration";
+static constexpr const char DisplayToolbarsTextureSelectionItem[] = "Display.Toolbars.TextureSelection";
+static constexpr const char DisplayToolbarsDebuggingInfoItem[] = "Display.Toolbars.DebuggingInfo";
+static constexpr const char RecentMapsConfigItem[] = "Map.Recents";
 
 MainController::MainController()
     : m_configFilename("config.json") {
