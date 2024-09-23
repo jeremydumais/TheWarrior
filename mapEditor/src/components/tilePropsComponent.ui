@@ -148,6 +148,16 @@
          </property>
         </widget>
        </item>
+       <item row="8" column="0">
+        <widget class="QLabel" name="labelMonsterZone">
+         <property name="text">
+          <string>Monster zone applied :</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1">
+        <widget class="QComboBox" name="comboBoxMonsterZoneApplied"/>
+       </item>
       </layout>
      </item>
      <item>
@@ -233,9 +243,10 @@
   <tabstop>spinBoxTexIndex</tabstop>
   <tabstop>lineEditObjTexName</tabstop>
   <tabstop>spinBoxObjTexIndex</tabstop>
-  <tabstop>checkBoxObjectAbovePlayer</tabstop>
   <tabstop>checkBoxTileCanSteppedOn</tabstop>
+  <tabstop>checkBoxObjectAbovePlayer</tabstop>
   <tabstop>checkBoxIsWallToClimb</tabstop>
+  <tabstop>comboBoxMonsterZoneApplied</tabstop>
   <tabstop>tableWidgetMapTileTriggers</tabstop>
   <tabstop>pushButtonAddTileEvent</tabstop>
   <tabstop>pushButtonEditTileEvent</tabstop>

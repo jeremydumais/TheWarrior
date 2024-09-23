@@ -115,7 +115,8 @@ void MainForm::componentInitialization() {
     ui.toolBox->addItem(m_textureListComponent.get(), "Texture list");
 
     m_monsterZoneListComponent = std::make_shared<MonsterZoneListComponent>(this,
-            &m_glComponent);
+            &m_glComponent,
+            m_glComponent.getControllerPtr());
     m_monsterZoneListComponent->setMonsterStores(m_controller.getMonsterStores());
     m_monsterZoneListComponent->setResourcesPath(m_controller.getResourcesPath());
     ui.toolBox->addItem(m_monsterZoneListComponent.get(), "Monster zones");
@@ -657,11 +658,12 @@ void MainForm::onMonsterZoneDeleted(const std::string &name) {
 
 void MainForm::refreshMonsterZones() {
     m_monsterZoneListComponent->refreshMonsterZones();
-    int selectedComboBoxIndex = comboBoxToolbarMonsterZone->currentIndex();
+    auto zones = m_monsterZoneListComponent->getMonsterZones();
     // Refresh Monster Zones toolbar combobox
+    int selectedComboBoxIndex = comboBoxToolbarMonsterZone->currentIndex();
     comboBoxToolbarMonsterZone->model()->removeRows(0, comboBoxToolbarMonsterZone->count());
     int i = 0;
-    for (const auto &zone : m_monsterZoneListComponent->getMonsterZones()) {
+    for (const auto &zone : zones) {
         comboBoxToolbarMonsterZone->insertItem(i, zone.m_name.c_str());
         i++;
     }
@@ -675,14 +677,18 @@ void MainForm::refreshMonsterZones() {
         m_glComponent.clearLastSelectedMonsterZone();
     }
     toggleMonsterZoneAssignationControls();
+    // Refresh Monster Zones in the tile props component
+    m_tilePropsComponent->refreshMonsterZones(zones);
 }
 
 void MainForm::toggleMonsterZoneAssignationControls() {
+
     bool active = !m_monsterZoneListComponent->isMonsterZonesEmpty() &&
         !m_monsterZoneListComponent->isOnlyOneMonsterZoneChecked();
     comboBoxToolbarMonsterZone->setEnabled(active);
     ui.action_ApplyMonsterZone->setEnabled(active);
     ui.action_ClearMonsterZone->setEnabled(active);
+    // TODO: send message to the tile props component
 }
 
 void MainForm::useOnlyOneMonsterZoneChanged(bool) {

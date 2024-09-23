@@ -13,6 +13,7 @@
 #include "mapTile.hpp"
 #include "mapTileDTO.hpp"
 #include "mapTileTriggerDTO.hpp"
+#include "monsterZoneDTO.hpp"
 #include "point.hpp"
 #include "qTableWidgetKeyPressWatcher.h"
 #include "tilePropsComponentController.hpp"
@@ -27,6 +28,8 @@ Q_OBJECT
             mapeditor::controllers::GLComponentController *glComponentController);
     void connectUIActions();
     void reset();
+    void refreshMonsterZones(const std::vector<mapeditor::controllers::MonsterZoneDTO> &zones);
+    void setOnlyOneMonsterZoneForMap(bool value);
 
  private:
     Ui::TilePropsComponent ui;
@@ -46,6 +49,7 @@ Q_OBJECT
     void onCheckBoxObjectAbovePlayerChanged(int state);
     void onCheckBoxTileCanSteppedOnChanged(int state);
     void onCheckBoxIsWallToClimbChanged(int state);
+    void onComboBoxMonsterZoneCurrentIndexChanged(int index);
     boost::optional<mapeditor::controllers::MapTileTriggerDTO> getSelectedTrigger();
     void onPushButtonAddTileEventClick();
     void onPushButtonEditTileEventClick();

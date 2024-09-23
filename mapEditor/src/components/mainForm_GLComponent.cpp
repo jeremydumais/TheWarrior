@@ -252,14 +252,14 @@ void MainForm_GLComponent::clearMoveDenyTriggers() {
 void MainForm_GLComponent::applyMonsterZone() {
     m_controller.pushCurrentStateToHistory();
     m_controller.applyMonsterZone();
-    emit tileTriggerChanged();
+    emit tilePropsChanged();
     emit editHistoryChanged();
 }
 
 void MainForm_GLComponent::clearMonsterZone() {
     m_controller.pushCurrentStateToHistory();
     m_controller.clearMonsterZone();
-    emit tileTriggerChanged();
+    emit tilePropsChanged();
     emit editHistoryChanged();
 }
 

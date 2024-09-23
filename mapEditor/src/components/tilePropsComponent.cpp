@@ -1,4 +1,5 @@
 #include <fmt/format.h>
+#include <qcombobox.h>
 #include <qtablewidget.h>
 #include <algorithm>
 #include <string>
@@ -79,6 +80,10 @@ void TilePropsComponent::connectUIActions() {
             &QCheckBox::stateChanged,
             this,
             &TilePropsComponent::onCheckBoxIsWallToClimbChanged);
+    connect(ui.comboBoxMonsterZoneApplied,
+            static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this,
+            &TilePropsComponent::onComboBoxMonsterZoneCurrentIndexChanged);
     connect(ui.pushButtonAddTileEvent,
             &QPushButton::clicked,
             this,
@@ -111,7 +116,25 @@ void TilePropsComponent::reset() {
     ui.checkBoxTileCanSteppedOn->setChecked(false);
     ui.checkBoxObjectAbovePlayer->setChecked(false);
     ui.checkBoxIsWallToClimb->setChecked(false);
+    ui.comboBoxMonsterZoneApplied->setCurrentIndex(-1);
     refreshEventList({});
+}
+
+void TilePropsComponent::refreshMonsterZones(const std::vector<mapeditor::controllers::MonsterZoneDTO> &zones) {
+    int selectedComboBoxIndex = ui.comboBoxMonsterZoneApplied->currentIndex();
+    ui.comboBoxMonsterZoneApplied->model()->removeRows(0, ui.comboBoxMonsterZoneApplied->count());
+    int i = 0;
+    for (const auto &zone : zones) {
+        ui.comboBoxMonsterZoneApplied->insertItem(i, zone.m_name.c_str());
+        i++;
+    }
+    if (selectedComboBoxIndex != -1 && selectedComboBoxIndex < ui.comboBoxMonsterZoneApplied->count()) {
+        ui.comboBoxMonsterZoneApplied->setCurrentIndex(selectedComboBoxIndex);
+    }
+}
+
+void TilePropsComponent::setOnlyOneMonsterZoneForMap(bool value) {
+
 }
 
 void TilePropsComponent::refreshEventList(std::set<mapeditor::controllers::MapTileTriggerDTO> triggers) {
@@ -176,6 +199,9 @@ void TilePropsComponent::onTileSelected(std::vector<MapTileDTO> tiles) {
     updateUIField(tiles, ui.checkBoxIsWallToClimb, [](const MapTileDTO &tile) { return tile.isWallToClimb; },
     [](QCheckBox *field, bool value, bool empty) { empty ? field->setChecked(false) : field->setChecked(value); });
 
+    updateUIField(tiles, ui.comboBoxMonsterZoneApplied, [](const MapTileDTO &tile) { return tile.monsterZoneIndex; },
+    [](QComboBox *field, int value, bool empty) { empty ? field->setCurrentIndex(-1) : field->setCurrentIndex(value); });
+
     refreshEventList(m_controller.getTilesCommonTriggers());
     m_disableFieldsChangedEvent = false;
     setEnabledWidgetsInLayout(ui.verticalLayout_4, true);
@@ -190,6 +216,7 @@ void TilePropsComponent::onTileUnselected() {
     ui.checkBoxTileCanSteppedOn->setChecked(false);
     ui.checkBoxObjectAbovePlayer->setChecked(false);
     ui.checkBoxIsWallToClimb->setChecked(false);
+    ui.comboBoxMonsterZoneApplied->setCurrentIndex(-1);
     refreshEventList({});
     setEnabledWidgetsInLayout(ui.verticalLayout_4, false);
 }
@@ -276,6 +303,13 @@ void TilePropsComponent::onCheckBoxTileCanSteppedOnChanged(int state) {
 void TilePropsComponent::onCheckBoxIsWallToClimbChanged(int state) {
     if (!m_disableFieldsChangedEvent) {
         m_controller.setTilesIsWallToClimb(state == Qt::Checked);
+        m_glComponent->updateGL();
+    }
+}
+
+void TilePropsComponent::onComboBoxMonsterZoneCurrentIndexChanged(int index) {
+    if (!m_disableFieldsChangedEvent) {
+        m_controller.setTilesMonsterZoneIndex(index);
         m_glComponent->updateGL();
     }
 }

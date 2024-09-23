@@ -15,12 +15,15 @@
 using commoneditor::ui::ErrorMessage;
 using commoneditor::ui::UIUtils;
 using mapeditor::controllers::ContainerOfMonsterStore;
+using mapeditor::controllers::GLComponentController;
 using mapeditor::controllers::MonsterZoneDTO;
 
 MonsterZoneListComponent::MonsterZoneListComponent(QWidget *parent,
-        MainForm_GLComponent *glComponent)
+        MainForm_GLComponent *glComponent,
+        GLComponentController *glComponentController)
     : QWidget(parent),
       ui(Ui::MonsterZoneListComponent()),
+      m_controller(glComponentController),
       m_glComponent(glComponent) {
       ui.setupUi(this);
       initializeUIObjects();

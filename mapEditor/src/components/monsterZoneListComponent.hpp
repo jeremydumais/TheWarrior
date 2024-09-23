@@ -8,10 +8,10 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include "glComponentController.hpp"
 #include "mainForm_GLComponent.hpp"
-#include "monsterStore.hpp"
-#include "monsterZone.hpp"
 #include "monsterZoneDTO.hpp"
+#include "monsterZoneListComponentController.hpp"
 #include "qTableWidgetKeyPressWatcher.h"
 #include "types.hpp"
 #include "ui_monsterZoneListComponent.h"
@@ -21,7 +21,8 @@ class MonsterZoneListComponent : public QWidget {
 
  public:
     MonsterZoneListComponent(QWidget *parent,
-            MainForm_GLComponent *glComponent);
+            MainForm_GLComponent *glComponent,
+            mapeditor::controllers::GLComponentController *glComponentController);
     void initializeUIObjects();
     void connectUIActions();
     void refreshMonsterZones();
@@ -41,6 +42,7 @@ class MonsterZoneListComponent : public QWidget {
 
  private:
     Ui::MonsterZoneListComponent ui;
+    mapeditor::controllers::MonsterZoneListComponentController m_controller;
     std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> m_monsterStores = nullptr;
     std::string m_resourcesPath;
     QTableWidgetKeyPressWatcher tableWidgetMonsterZoneKeyWatcher;
