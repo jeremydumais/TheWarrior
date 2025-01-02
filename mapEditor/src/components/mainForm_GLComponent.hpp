@@ -56,8 +56,6 @@ class MainForm_GLComponent : public QWidget {
     std::vector<mapeditor::controllers::MonsterZoneDTO> getMonsterZones() const;
     mapeditor::controllers::OptMonsterZoneDTOConst getMonsterZoneByName(const std::string &name) const;
     std::vector<std::string> getAlreadyUsedMonsterZoneNames() const;
-    void setUseOnlyOneMonsterZone(bool value);
-    bool isUseOnlyOneMonsterZone() const;
  signals:
         void tileSelected(thewarrior::models::MapTile *tile, thewarrior::models::Point<> coord);
         void tileUnselected();

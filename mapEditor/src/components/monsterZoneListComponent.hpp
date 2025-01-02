@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 #include "mainForm_GLComponent.hpp"
+#include "monsterStore.hpp"
+#include "monsterZone.hpp"
 #include "monsterZoneDTO.hpp"
 #include "qTableWidgetKeyPressWatcher.h"
 #include "types.hpp"

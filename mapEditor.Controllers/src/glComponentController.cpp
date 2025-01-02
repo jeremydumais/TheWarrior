@@ -101,12 +101,4 @@ OptMonsterZoneDTOConst GLComponentController::getMonsterZoneByName(const std::st
     return std::nullopt;
 }
 
-bool GLComponentController::setUseOnlyOneMonsterZone(bool value) {
-    return (m_map->setUseOnlyOneMonsterZone(value));
-}
-
-bool GLComponentController::isUseOnlyOneMonsterZone() const {
-    return m_map->useOnlyOneMonsterZone();
-}
-
 }  // namespace mapeditor::controllers

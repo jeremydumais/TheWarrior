@@ -1,6 +1,6 @@
 # Set project name
 set(PROJECT_NAME    "MapEditor")
-project(${PROJECT_NAME} VERSION 1.3.4)
+project(${PROJECT_NAME} VERSION 1.3.3)
 
 include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/src

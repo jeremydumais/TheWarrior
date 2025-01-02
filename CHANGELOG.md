@@ -109,22 +109,3 @@ View > Toolbar menu.
 
 #### Bug fixes
 - Solved Issue # 10: When you unselect a tile the tiles details stays in the Tile Properties Component.
-
-## [0.3.3]
-
-### Map Editor (Version 1.3.4)
-
-#### New features
-- Persist the position status of toolbars.
-- Persist the visibility status of toolbars.
-- Persist the visiblity status of the display grid menu item.
-- Add a shortcut to move the map -> Alt + Click.
-- Enable the zoom feature with the mouse wheel.
-- Implement the undo/redo actions.
-- Add a Picker tool to get a texture an object from a tile.
-- Add support to change multi-selection tile properties.
-- Add bottom tabs to change the map view (ex: CanStep, MonsterZone, BlockedBorder etc).
-- Persist the "Use only one monster zone for all the map" field in the GameMap class.
-
-#### Bug fixes
-- Solved Issue # 6: Application crash when you multiselect a zone that ends outside of the GLComponent.

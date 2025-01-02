@@ -77,12 +77,9 @@ class GameMap {
         if (version > 1) {
             ar & m_monsterZones;
         }
-        if (version > 2) {
-            ar & m_useOnlyOneMonsterZone;
-        }
     }
 };
 
 }  // namespace thewarrior::models
 
-BOOST_CLASS_VERSION(thewarrior::models::GameMap, 3)
+BOOST_CLASS_VERSION(thewarrior::models::GameMap, 2)

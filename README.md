@@ -5,7 +5,7 @@
 
 ## An RPG game developped in C++ with SDL2.
 
-Current version: 0.3.3
+Current version: 0.3.2
 
 **Still in development...**
 

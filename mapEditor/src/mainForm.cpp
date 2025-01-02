@@ -22,14 +22,18 @@
 #include "manageMonsterStoreForm.hpp"
 #include "mapTile.hpp"
 #include "monsterZoneDTO.hpp"
+#include "monsterZoneMonsterEncounter.hpp"
 #include "selectionMode.hpp"
+#include "specialFolders.hpp"
 #include "textureDTO.hpp"
+#include "textureInfo.hpp"
 
 using commoneditor::ui::ErrorMessage;
 using commoneditor::ui::TextureDTO;
 using mapeditor::controllers::MonsterZoneDTO;
 using thewarrior::models::MapTile;
 using thewarrior::models::Point;
+using thewarrior::models::TextureInfo;
 using thewarrior::storage::ConfigurationManager;
 using thewarrior::storage::GameMapStorage;
 
@@ -654,8 +658,7 @@ void MainForm::toggleMonsterZoneAssignationControls() {
     ui.action_ClearMonsterZone->setEnabled(active);
 }
 
-void MainForm::useOnlyOneMonsterZoneChanged(bool value) {
-    m_glComponent.setUseOnlyOneMonsterZone(value);
+void MainForm::useOnlyOneMonsterZoneChanged(bool) {
     toggleMonsterZoneAssignationControls();
     if (m_monsterZoneListComponent->isOnlyOneMonsterZoneChecked() &&
             (m_glComponent.getSelectionMode() == SelectionMode::ApplyMonsterZone ||
