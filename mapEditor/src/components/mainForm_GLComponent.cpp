@@ -1,8 +1,6 @@
 #include "mainForm_GLComponent.hpp"
-#include <algorithm>
 #include <optional>
 #include "monsterZoneDTO.hpp"
-#include "monsterZoneDTOUtils.hpp"
 
 using thewarrior::models::GameMap;
 using thewarrior::models::MapTile;
@@ -259,4 +257,12 @@ OptMonsterZoneDTOConst MainForm_GLComponent::getMonsterZoneByName(const std::str
 
 std::vector<std::string> MainForm_GLComponent::getAlreadyUsedMonsterZoneNames() const {
     return m_controller.getAlreadyUsedMonsterZoneNames();
+}
+
+void MainForm_GLComponent::setUseOnlyOneMonsterZone(bool value) {
+    m_controller.setUseOnlyOneMonsterZone(value);
+}
+
+bool MainForm_GLComponent::isUseOnlyOneMonsterZone() const {
+    return m_controller.isUseOnlyOneMonsterZone();
 }

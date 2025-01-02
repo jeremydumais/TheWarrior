@@ -27,6 +27,7 @@ class SampleGLComponentController : public ::testing::Test {
                 32, 32
                 });
         map->addMonsterZone(MonsterZone("Zone1", RGBItemColor("Black", "#000000")));
+        map->setUseOnlyOneMonsterZone(true);
         auto &tile { map->getTileForEditing(0) };
         tile.setTextureName("tex1");
         tile.setTextureIndex(0);
@@ -152,6 +153,24 @@ TEST_F(SampleGLComponentController, getMonsterZoneByName_WithZone1_ReturnZone) {
     const auto zoneOpt = glComponentController.getMonsterZoneByName("Zone1");
     ASSERT_TRUE(zoneOpt.has_value());
     ASSERT_EQ("Zone1", zoneOpt.value().m_name);
+}
+
+TEST_F(SampleGLComponentController, setUseOnlyOneMonsterZone_WithFalse_ReturnTrue) {
+    ASSERT_TRUE(glComponentController.setUseOnlyOneMonsterZone(false));
+    ASSERT_FALSE(glComponentController.isUseOnlyOneMonsterZone());
+}
+
+TEST_F(SampleGLComponentControllerWithTilesAssigned, setUseOnlyOneMonsterZone_WithTrue_ReturnFalse) {
+    // No monster zone available so return false
+    ASSERT_FALSE(glComponentController.setUseOnlyOneMonsterZone(true));
+}
+
+TEST_F(SampleGLComponentController, isUseOnlyOneMonsterZone_ReturnTrue) {
+    ASSERT_TRUE(glComponentController.isUseOnlyOneMonsterZone());
+}
+
+TEST_F(SampleGLComponentControllerWithTilesAssigned, isUseOnlyOneMonsterZone_ReturnFalse) {
+    ASSERT_FALSE(glComponentController.isUseOnlyOneMonsterZone());
 }
 
 }  // namespace mapeditor::controllers::glcomponentcontroller::unittest

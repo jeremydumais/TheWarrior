@@ -12,14 +12,11 @@
 #include <vector>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
-#include "editMonsterEncounterFormController.hpp"
 #include "monster.hpp"
 #include "monsterEncounterDTO.hpp"
-#include "monsterStoreStorage.hpp"
 #include "monsterZoneDTOUtils.hpp"
 #include "monsterZoneMonsterEncounter.hpp"
 #include "monsterUtils.hpp"
-#include "types.h"
 
 using commoneditor::ui::MonsterUtils;
 using thewarrior::models::Monster;

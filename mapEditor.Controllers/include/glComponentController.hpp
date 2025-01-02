@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include "gameMap.hpp"
-#include "monsterZone.hpp"
 #include "monsterZoneDTO.hpp"
 
 namespace mapeditor::controllers {
@@ -29,6 +28,8 @@ class GLComponentController {
                    int offsetBottom);
     std::vector<mapeditor::controllers::MonsterZoneDTO> getMonsterZones() const;
     OptMonsterZoneDTOConst getMonsterZoneByName(const std::string &name) const;
+    bool setUseOnlyOneMonsterZone(bool value);
+    bool isUseOnlyOneMonsterZone() const;
 
  private:
     std::shared_ptr<thewarrior::models::GameMap> m_map;
