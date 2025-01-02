@@ -127,11 +127,24 @@ void TilePropsComponent::refreshMonsterZones(const std::vector<mapeditor::contro
         ui.comboBoxMonsterZoneApplied->insertItem(i, zone.m_name.c_str());
         i++;
     }
-    if (m_controller.getSelectedTiles().size() == 0) {
+    if (selectedComboBoxIndex == -1 || m_controller.getSelectedTiles().size() == 0) {
         ui.comboBoxMonsterZoneApplied->setCurrentIndex(-1);
-    } else if (selectedComboBoxIndex != -1 &&
-            selectedComboBoxIndex < ui.comboBoxMonsterZoneApplied->count() ) {
+    } else if (selectedComboBoxIndex < ui.comboBoxMonsterZoneApplied->count()) {
         ui.comboBoxMonsterZoneApplied->setCurrentIndex(selectedComboBoxIndex);
+    }
+}
+
+void TilePropsComponent::refreshMonsterZoneComboBoxEnableStatus() {
+    auto selectedMapTiles = m_controller.getSelectedTiles();
+    if (selectedMapTiles.size() == 0) {
+        return;
+    }
+    bool isUseOnlyOneMonsterZone = m_glComponent->isUseOnlyOneMonsterZone();
+    ui.comboBoxMonsterZoneApplied->setEnabled(!isUseOnlyOneMonsterZone);
+    if (isUseOnlyOneMonsterZone) {
+        ui.comboBoxMonsterZoneApplied->setToolTip("This field is disabled because the unique monster zone is apply to all the map.");
+    } else {
+        ui.comboBoxMonsterZoneApplied->setToolTip("");
     }
 }
 
@@ -421,16 +434,3 @@ void TilePropsComponent::onTableWidgetMapTileTriggersKeyPressEvent(int key, int,
     }
 }
 
-void TilePropsComponent::refreshMonsterZoneComboBoxEnableStatus() {
-    auto selectedMapTiles = m_controller.getSelectedTiles();
-    if (selectedMapTiles.size() == 0) {
-        return;
-    }
-    bool isUseOnlyOneMonsterZone = m_glComponent->isUseOnlyOneMonsterZone();
-    ui.comboBoxMonsterZoneApplied->setEnabled(!isUseOnlyOneMonsterZone);
-    if (isUseOnlyOneMonsterZone) {
-        ui.comboBoxMonsterZoneApplied->setToolTip("This field is disabled because the unique monster zone is apply to all the map.");
-    } else {
-        ui.comboBoxMonsterZoneApplied->setToolTip("");
-    }
-}

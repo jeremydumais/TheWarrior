@@ -36,6 +36,7 @@ Q_OBJECT
     MainForm_GLComponent *m_glComponent;
     bool m_disableFieldsChangedEvent;
     void refreshEventList(std::set<mapeditor::controllers::MapTileTriggerDTO> triggers);
+    void refreshMonsterZoneComboBoxEnableStatus();
     void onTileSelected(std::vector<mapeditor::controllers::MapTileDTO> tiles);
     void onTileUnselected();
     void onTilePropsChanged();
@@ -53,5 +54,4 @@ Q_OBJECT
     void onPushButtonEditTileEventClick();
     void onPushButtonDeleteTileEventClick();
     void onTableWidgetMapTileTriggersKeyPressEvent(int key, int, int);
-    void refreshMonsterZoneComboBoxEnableStatus();
 };

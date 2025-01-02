@@ -108,7 +108,7 @@ View > Toolbar menu.
 - Enhanced the current texture edit form by using the common ui texture edit form controller.
 
 #### Bug fixes
-- Solved Issue # 10: When you unselect a tile the tiles details stays in the Tile Properties Component.
+- Solved Issue #10: When you unselect a tile the tiles details stays in the Tile Properties Component.
 
 ## [0.3.3]
 
@@ -132,7 +132,8 @@ instead of "The Warrior - Map Editor"
 - Disable the MonsterZone combobox in tile props component when "Use only one monster zone for all the map" is selected.
 
 #### Bug fixes
-- Solved Issue # 6: Application crash when you multiselect a zone that ends outside of the GLComponent.
+- Solved Issue #6: Application crash when you multiselect a zone that ends outside of the GLComponent.
+- Solved Issue #14 When creating the first monster zone, it is assigned automatically to the selected tiles.
 
 ### Item Editor (Version 1.0.1)
 
