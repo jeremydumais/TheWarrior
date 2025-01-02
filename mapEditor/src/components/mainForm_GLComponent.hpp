@@ -62,6 +62,7 @@ class MainForm_GLComponent : public QWidget {
     std::vector<mapeditor::controllers::MonsterZoneDTO> getMonsterZones() const;
     mapeditor::controllers::OptMonsterZoneDTOConst getMonsterZoneByName(const std::string &name) const;
     std::vector<std::string> getAlreadyUsedMonsterZoneNames() const;
+    bool isUseOnlyOneMonsterZone() const;
     void clearEditHistory();
     void undo();
     void redo();
@@ -72,6 +73,7 @@ class MainForm_GLComponent : public QWidget {
     void clearMoveDenyTriggers();
     void applyMonsterZone();
     void clearMonsterZone();
+    bool setUseOnlyOneMonsterZone(bool value);
 
  signals:
     void tileSelected(std::vector<mapeditor::controllers::MapTileDTO> tiles);

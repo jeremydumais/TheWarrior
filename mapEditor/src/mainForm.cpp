@@ -682,7 +682,6 @@ void MainForm::refreshMonsterZones() {
 }
 
 void MainForm::toggleMonsterZoneAssignationControls() {
-
     bool active = !m_monsterZoneListComponent->isMonsterZonesEmpty() &&
         !m_monsterZoneListComponent->isOnlyOneMonsterZoneChecked();
     comboBoxToolbarMonsterZone->setEnabled(active);
@@ -691,7 +690,8 @@ void MainForm::toggleMonsterZoneAssignationControls() {
     // TODO: send message to the tile props component
 }
 
-void MainForm::useOnlyOneMonsterZoneChanged(bool) {
+void MainForm::useOnlyOneMonsterZoneChanged(bool value) {
+    m_glComponent.setUseOnlyOneMonsterZone(value);
     toggleMonsterZoneAssignationControls();
 }
 

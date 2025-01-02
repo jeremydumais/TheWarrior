@@ -101,6 +101,10 @@ std::vector<std::string> GLComponentController::getAlreadyUsedMonsterZoneNames()
     return alreadyUsedMonsterZoneNames;
 }
 
+bool GLComponentController::isUseOnlyOneMonsterZone() const {
+    return m_map->useOnlyOneMonsterZone();
+}
+
 bool isTextureNameUsedInTile(const std::string &name, const MapTile &tile) {
     return tile.getTextureName() == name ||
            tile.getObjectTextureName() == name;
@@ -402,6 +406,10 @@ bool GLComponentController::removeMonsterZone(const std::string &name) {
         return false;
     }
     return true;
+}
+
+bool GLComponentController::setUseOnlyOneMonsterZone(bool value) {
+    return (m_map->setUseOnlyOneMonsterZone(value));
 }
 
 }  // namespace mapeditor::controllers
