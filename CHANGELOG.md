@@ -129,6 +129,7 @@ instead of "The Warrior - Map Editor"
 - Add support to change multi-selection tile properties.
 - Add bottom tabs to change the map view (ex: CanStep, MonsterZone, BlockedBorder etc).
 - Persist the "Use only one monster zone for all the map" field in the GameMap class.
+- Disable the MonsterZone combobox in tile props component when "Use only one monster zone for all the map" is selected.
 
 #### Bug fixes
 - Solved Issue # 6: Application crash when you multiselect a zone that ends outside of the GLComponent.

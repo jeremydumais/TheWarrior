@@ -17,7 +17,6 @@ using commoneditor::ui::UIUtils;
 using mapeditor::controllers::GLComponentController;
 using mapeditor::controllers::MapTileDTO;
 using mapeditor::controllers::MapTileTriggerDTO;
-using thewarrior::models::Point;
 
 void setEnabledWidgetsInLayout(QLayout *layout, bool enabled);
 bool isChildWidgetOfAnyLayout(QLayout *layout, QWidget *widget);
@@ -128,13 +127,16 @@ void TilePropsComponent::refreshMonsterZones(const std::vector<mapeditor::contro
         ui.comboBoxMonsterZoneApplied->insertItem(i, zone.m_name.c_str());
         i++;
     }
-    if (selectedComboBoxIndex != -1 && selectedComboBoxIndex < ui.comboBoxMonsterZoneApplied->count()) {
+    if (m_controller.getSelectedTiles().size() == 0) {
+        ui.comboBoxMonsterZoneApplied->setCurrentIndex(-1);
+    } else if (selectedComboBoxIndex != -1 &&
+            selectedComboBoxIndex < ui.comboBoxMonsterZoneApplied->count() ) {
         ui.comboBoxMonsterZoneApplied->setCurrentIndex(selectedComboBoxIndex);
     }
 }
 
-void TilePropsComponent::setOnlyOneMonsterZoneForMap(bool value) {
-
+void TilePropsComponent::setOnlyOneMonsterZoneForMap(bool) {
+    refreshMonsterZoneComboBoxEnableStatus();
 }
 
 void TilePropsComponent::refreshEventList(std::set<mapeditor::controllers::MapTileTriggerDTO> triggers) {
@@ -205,6 +207,7 @@ void TilePropsComponent::onTileSelected(std::vector<MapTileDTO> tiles) {
     refreshEventList(m_controller.getTilesCommonTriggers());
     m_disableFieldsChangedEvent = false;
     setEnabledWidgetsInLayout(ui.verticalLayout_4, true);
+    refreshMonsterZoneComboBoxEnableStatus();
 }
 
 void TilePropsComponent::onTileUnselected() {
@@ -415,5 +418,19 @@ void TilePropsComponent::onPushButtonDeleteTileEventClick() {
 void TilePropsComponent::onTableWidgetMapTileTriggersKeyPressEvent(int key, int, int) {
     if (key == Qt::Key_Delete) {
         onPushButtonDeleteTileEventClick();
+    }
+}
+
+void TilePropsComponent::refreshMonsterZoneComboBoxEnableStatus() {
+    auto selectedMapTiles = m_controller.getSelectedTiles();
+    if (selectedMapTiles.size() == 0) {
+        return;
+    }
+    bool isUseOnlyOneMonsterZone = m_glComponent->isUseOnlyOneMonsterZone();
+    ui.comboBoxMonsterZoneApplied->setEnabled(!isUseOnlyOneMonsterZone);
+    if (isUseOnlyOneMonsterZone) {
+        ui.comboBoxMonsterZoneApplied->setToolTip("This field is disabled because the unique monster zone is apply to all the map.");
+    } else {
+        ui.comboBoxMonsterZoneApplied->setToolTip("");
     }
 }

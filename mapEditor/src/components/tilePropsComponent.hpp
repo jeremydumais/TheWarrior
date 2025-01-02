@@ -10,11 +10,9 @@
 #include <boost/optional.hpp>
 #include "glComponentController.hpp"
 #include "mainForm_GLComponent.hpp"
-#include "mapTile.hpp"
 #include "mapTileDTO.hpp"
 #include "mapTileTriggerDTO.hpp"
 #include "monsterZoneDTO.hpp"
-#include "point.hpp"
 #include "qTableWidgetKeyPressWatcher.h"
 #include "tilePropsComponentController.hpp"
 #include "ui_tilePropsComponent.h"
@@ -55,4 +53,5 @@ Q_OBJECT
     void onPushButtonEditTileEventClick();
     void onPushButtonDeleteTileEventClick();
     void onTableWidgetMapTileTriggersKeyPressEvent(int key, int, int);
+    void refreshMonsterZoneComboBoxEnableStatus();
 };

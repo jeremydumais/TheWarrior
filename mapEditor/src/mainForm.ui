@@ -101,7 +101,7 @@
      <x>0</x>
      <y>0</y>
      <width>1013</width>
-     <height>30</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -110,7 +110,7 @@
       <x>267</x>
       <y>187</y>
       <width>260</width>
-      <height>230</height>
+      <height>204</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -202,7 +202,7 @@
     <string>toolBar</string>
    </property>
    <property name="toolTip">
-    <string>Select tile</string>
+    <string/>
    </property>
    <property name="iconSize">
     <size>
@@ -243,9 +243,6 @@
    <property name="floating">
     <bool>false</bool>
    </property>
-   <property name="features">
-    <set>QDockWidget::AllDockWidgetFeatures</set>
-   </property>
    <property name="allowedAreas">
     <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
@@ -280,7 +277,7 @@
           <x>0</x>
           <y>0</y>
           <width>300</width>
-          <height>491</height>
+          <height>517</height>
          </rect>
         </property>
         <attribute name="label">
