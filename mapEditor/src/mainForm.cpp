@@ -682,16 +682,19 @@ void MainForm::refreshMonsterZones() {
 }
 
 void MainForm::toggleMonsterZoneAssignationControls() {
-
     bool active = !m_monsterZoneListComponent->isMonsterZonesEmpty() &&
         !m_monsterZoneListComponent->isOnlyOneMonsterZoneChecked();
     comboBoxToolbarMonsterZone->setEnabled(active);
     ui.action_ApplyMonsterZone->setEnabled(active);
     ui.action_ClearMonsterZone->setEnabled(active);
-    // TODO: send message to the tile props component
+    // TODO: 0.3.3 send message to the tile props component
+    m_tilePropsComponent->setOnlyOneMonsterZoneForMap(m_glComponent.isUseOnlyOneMonsterZone());
 }
 
-void MainForm::useOnlyOneMonsterZoneChanged(bool) {
+void MainForm::useOnlyOneMonsterZoneChanged(bool value) {
+    if (!m_glComponent.setUseOnlyOneMonsterZone(value)) {
+        ErrorMessage::show("Unable to set the value for the 'Use only one monster zone for all the map' field");
+    }
     toggleMonsterZoneAssignationControls();
 }
 

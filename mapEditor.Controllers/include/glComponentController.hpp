@@ -27,6 +27,7 @@ class GLComponentController {
     std::vector<MapTileDTO> getSelectedMapTiles() const;
     std::vector<std::string> getAlreadyUsedTextureNames() const;
     std::vector<std::string> getAlreadyUsedMonsterZoneNames() const;
+    bool isUseOnlyOneMonsterZone() const;
     bool isTextureUsedInMap(const std::string &name);
     bool isShrinkMapImpactAssignedTiles(int offsetLeft,
                                         int offsetTop,
@@ -67,6 +68,7 @@ class GLComponentController {
     bool addMonsterZone(const MonsterZoneDTO &monsterZoneDTO);
     bool replaceMonsterZone(const std::string &name, const MonsterZoneDTO &monsterZoneDTO);
     bool removeMonsterZone(const std::string &name);
+    bool setUseOnlyOneMonsterZone(bool value);
 
  private:
     std::shared_ptr<thewarrior::models::GameMap> m_map;

@@ -10,11 +10,9 @@
 #include <boost/optional.hpp>
 #include "glComponentController.hpp"
 #include "mainForm_GLComponent.hpp"
-#include "mapTile.hpp"
 #include "mapTileDTO.hpp"
 #include "mapTileTriggerDTO.hpp"
 #include "monsterZoneDTO.hpp"
-#include "point.hpp"
 #include "qTableWidgetKeyPressWatcher.h"
 #include "tilePropsComponentController.hpp"
 #include "ui_tilePropsComponent.h"
@@ -38,6 +36,7 @@ Q_OBJECT
     MainForm_GLComponent *m_glComponent;
     bool m_disableFieldsChangedEvent;
     void refreshEventList(std::set<mapeditor::controllers::MapTileTriggerDTO> triggers);
+    void refreshMonsterZoneComboBoxEnableStatus();
     void onTileSelected(std::vector<mapeditor::controllers::MapTileDTO> tiles);
     void onTileUnselected();
     void onTilePropsChanged();

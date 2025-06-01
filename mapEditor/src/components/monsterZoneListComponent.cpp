@@ -56,6 +56,7 @@ void MonsterZoneListComponent::refreshMonsterZones() {
          index++;
     }
     ui.checkBoxOneMonsterZoneForAllTheMap->setEnabled(m_glComponent->getMonsterZones().size() == 1);
+    ui.checkBoxOneMonsterZoneForAllTheMap->setChecked(m_glComponent->isUseOnlyOneMonsterZone());
 }
 
 std::vector<MonsterZoneDTO> MonsterZoneListComponent::getMonsterZones() const {
