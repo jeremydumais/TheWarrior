@@ -1,34 +1,41 @@
 #include <gmock/gmock-function-mocker.h>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <stdlib.h>
+#include <memory>
+#include <string>
+#include <vector>
 #include "../include/monsterZoneListComponentController.hpp"
 #include "glComponentController.hpp"
-#include <memory>
-#include <stdlib.h>
-#include <vector>
 
 using ::testing::Return;
-using ::testing::NiceMock;
-using ::testing::_;
 
 namespace mapeditor::controllers::monsterzonelistcomponentcontroller::unittest {
 
 class MockGLComponentController : public GLComponentController {
  public:
-     std::vector<std::string> getAlreadyUsedMonsterZoneNames() {
-         return { "A", "B", "C" };
-     }
-     //MOCK_METHOD(std::vector<std::string>, getAlreadyUsedMonsterZoneNames, (), (const));
+     MOCK_METHOD(std::vector<std::string>, getAlreadyUsedMonsterZoneNames, (), (const, override));
 };
-
 
 TEST(monsterZoneListComponentController_getAlreadyUsedMonsterZoneNamesForEdition,
        WithEmptyVector_ReturnEmptyVector) {
-    //TODO: Complete this test...
-    //auto mockGLController = std::make_shared<MockGLComponentController>();
-    //MonsterZoneListComponentController controller(mockGLController.get());
-    //ASSERT_EQ(2, controller.getAlreadyUsedMonsterZoneNames().size());
+     auto mockGLController = std::make_shared<MockGLComponentController>();
+     ON_CALL(*mockGLController, getAlreadyUsedMonsterZoneNames())
+         .WillByDefault(Return(std::vector<std::string>({})));
+     MonsterZoneListComponentController controller(reinterpret_cast<GLComponentController *>(mockGLController.get()));
+     ASSERT_EQ(0, controller.getAlreadyUsedMonsterZoneNames().size());
 }
 
-} // namespace mapeditor::controllers::monsterzonelistcomponentcontroller::unittest {
+TEST(monsterZoneListComponentController_getAlreadyUsedMonsterZoneNamesForEdition,
+       With2Zones_Return2ZonesVector) {
+     auto mockGLController = std::make_shared<MockGLComponentController>();
+     ON_CALL(*mockGLController, getAlreadyUsedMonsterZoneNames())
+         .WillByDefault(Return(std::vector<std::string>({"1", "2"})));
+     MonsterZoneListComponentController controller(reinterpret_cast<GLComponentController *>(mockGLController.get()));
+     ASSERT_EQ(2, controller.getAlreadyUsedMonsterZoneNames().size());
+     ASSERT_EQ("1", controller.getAlreadyUsedMonsterZoneNames()[0]);
+     ASSERT_EQ("2", controller.getAlreadyUsedMonsterZoneNames()[1]);
+}
+
+}  // namespace mapeditor::controllers::monsterzonelistcomponentcontroller::unittest
 

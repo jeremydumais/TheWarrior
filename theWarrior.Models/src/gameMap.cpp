@@ -15,7 +15,8 @@ using boost::algorithm::to_upper_copy;
 namespace thewarrior::models {
 
 GameMap::GameMap(unsigned int width, unsigned int height)
-    : m_lastError("") {
+    : m_lastError(""),
+      m_useOnlyOneMonsterZone(false) {
         if (width == 0) {
             throw std::invalid_argument("width must be greater than zero.");
         }

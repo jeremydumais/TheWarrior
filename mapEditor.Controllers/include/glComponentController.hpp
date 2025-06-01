@@ -21,12 +21,13 @@ typedef std::optional<const mapeditor::controllers::MonsterZoneDTO> OptMonsterZo
 class GLComponentController {
  public:
     GLComponentController();
+    virtual ~GLComponentController() = default;
     const std::shared_ptr<thewarrior::models::GameMap> getMap() const;
     const std::string &getLastError() const;
     std::vector<thewarrior::models::MapTile *> getCurrentMapTiles();
     std::vector<MapTileDTO> getSelectedMapTiles() const;
     std::vector<std::string> getAlreadyUsedTextureNames() const;
-    std::vector<std::string> getAlreadyUsedMonsterZoneNames() const;
+    virtual std::vector<std::string> getAlreadyUsedMonsterZoneNames() const;
     bool isUseOnlyOneMonsterZone() const;
     bool isTextureUsedInMap(const std::string &name);
     bool isShrinkMapImpactAssignedTiles(int offsetLeft,

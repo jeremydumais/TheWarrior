@@ -25,5 +25,5 @@ add_executable(${PROJECT_UNITTEST_NAME} ${INCLUDE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}/tilePropsComponentController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/toolbarStateInfoJSONSerializer_unittest.cpp)
 
-target_link_libraries(${PROJECT_UNITTEST_NAME} PRIVATE MapEditor.Controllers theWarrior.Models gtest)
+target_link_libraries(${PROJECT_UNITTEST_NAME} PRIVATE MapEditor.Controllers theWarrior.Models gtest gmock)
 gtest_discover_tests(${PROJECT_UNITTEST_NAME})
