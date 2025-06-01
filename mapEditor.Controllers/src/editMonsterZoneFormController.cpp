@@ -19,7 +19,6 @@
 #include "monsterZoneDTOUtils.hpp"
 #include "monsterZoneMonsterEncounter.hpp"
 #include "monsterUtils.hpp"
-#include "types.h"
 
 using commoneditor::ui::MonsterUtils;
 using thewarrior::models::Monster;
