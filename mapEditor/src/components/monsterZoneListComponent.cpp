@@ -59,14 +59,15 @@ void MonsterZoneListComponent::refreshMonsterZones() {
 }
 
 std::vector<MonsterZoneDTO> MonsterZoneListComponent::getMonsterZones() const {
-    return m_glComponent->getMonsterZones();
+    return m_controller.getMonsterZones();
 }
+
 std::optional<const MonsterZoneDTO> MonsterZoneListComponent::getSelectedMonsterZoneInMonsterZoneList() const {
     if (ui.tableWidgetMonsterZone->selectionModel()->hasSelection()) {
         // Find the selected monster zone
         const auto selectedRow = ui.tableWidgetMonsterZone->selectionModel()->selectedRows()[0];
         auto selectedItemName { selectedRow.sibling(selectedRow.row(), 1).data().toString().toStdString() };
-        return m_glComponent->getMonsterZoneByName(selectedItemName);
+        return m_controller.getMonsterZoneByName(selectedItemName);
     } else {
         return std::nullopt;
     }
@@ -81,7 +82,7 @@ void MonsterZoneListComponent::setResourcesPath(const std::string &resourcesPath
 }
 
 void MonsterZoneListComponent::confirmValidityOfOneMonsterZoneCheckBox() {
-    const auto &zones = m_glComponent->getMonsterZones();
+    const auto &zones = m_controller.getMonsterZones();
     if (zones.size() != 1 &&
         ui.checkBoxOneMonsterZoneForAllTheMap->checkState() == Qt::CheckState::Checked) {
         ui.checkBoxOneMonsterZoneForAllTheMap->setCheckState(Qt::CheckState::Unchecked);
@@ -89,7 +90,7 @@ void MonsterZoneListComponent::confirmValidityOfOneMonsterZoneCheckBox() {
 }
 
 std::string MonsterZoneListComponent::getMonsterZoneColor(const std::string &zoneName) const {
-    const auto &zone = m_glComponent->getMonsterZoneByName(zoneName);
+    const auto &zone = m_controller.getMonsterZoneByName(zoneName);
     if (zone.has_value()) {
         return zone->m_colorValue;
     }
@@ -97,7 +98,7 @@ std::string MonsterZoneListComponent::getMonsterZoneColor(const std::string &zon
 }
 
 bool MonsterZoneListComponent::isMonsterZonesEmpty() const {
-    return m_glComponent->getMonsterZones().empty();
+    return m_controller.isMonsterZonesEmpty();
 }
 
 bool MonsterZoneListComponent::isOnlyOneMonsterZoneChecked() const {
@@ -106,7 +107,7 @@ bool MonsterZoneListComponent::isOnlyOneMonsterZoneChecked() const {
 
 void MonsterZoneListComponent::onPushButtonAddMonsterZoneClick() {
     m_glComponent->stopAutoUpdate();
-    const auto alreadyUsedMonsterZoneNames = m_glComponent->getAlreadyUsedMonsterZoneNames();
+    const auto alreadyUsedMonsterZoneNames = m_controller.getAlreadyUsedMonsterZoneNames();
     EditMonsterZoneForm formEditMonsterZone(this,
             m_monsterStores,
             m_resourcesPath,
@@ -123,7 +124,7 @@ void MonsterZoneListComponent::onPushButtonEditMonsterZoneClick() {
     m_glComponent->stopAutoUpdate();
     auto selectedMonsterZone = getSelectedMonsterZoneInMonsterZoneList();
     if (selectedMonsterZone.has_value()) {
-        auto alreadyUsedMonsterZoneNames = m_glComponent->getAlreadyUsedMonsterZoneNames();
+        auto alreadyUsedMonsterZoneNames = m_controller.getAlreadyUsedMonsterZoneNames();
         // Remove the actual selected monster zone name
         auto iter = std::find(alreadyUsedMonsterZoneNames.begin(), alreadyUsedMonsterZoneNames.end(), selectedMonsterZone.value().m_name);
         if (iter != alreadyUsedMonsterZoneNames.end()) {
@@ -163,7 +164,7 @@ void MonsterZoneListComponent::onTableWidgetMonsterZoneKeyPressEvent(int key, in
 
 void MonsterZoneListComponent::onCheckBoxOneMonsterZoneForAllTheMapChanged(int state) {
     if (state == Qt::CheckState::Checked) {
-        const auto &zones = m_glComponent->getMonsterZones();
+        const auto &zones = m_controller.getMonsterZones();
         if (zones.size() != 1) {
             ErrorMessage::show("To enable this feature you must have exactly one monster zone configured");
             ui.checkBoxOneMonsterZoneForAllTheMap->setCheckState(Qt::CheckState::Unchecked);
