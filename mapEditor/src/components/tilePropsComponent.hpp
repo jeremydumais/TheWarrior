@@ -50,6 +50,7 @@ Q_OBJECT
     void onCheckBoxIsWallToClimbChanged(int state);
     void onComboBoxMonsterZoneCurrentIndexChanged(int index);
     boost::optional<mapeditor::controllers::MapTileTriggerDTO> getSelectedTrigger();
+    void onPushButtonClearMonsterZoneClick();
     void onPushButtonAddTileEventClick();
     void onPushButtonEditTileEventClick();
     void onPushButtonDeleteTileEventClick();

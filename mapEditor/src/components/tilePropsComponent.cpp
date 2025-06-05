@@ -83,6 +83,10 @@ void TilePropsComponent::connectUIActions() {
             static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this,
             &TilePropsComponent::onComboBoxMonsterZoneCurrentIndexChanged);
+    connect(ui.pushButtonClearMonsterZone,
+            &QPushButton::clicked,
+            this,
+            &TilePropsComponent::onPushButtonClearMonsterZoneClick);
     connect(ui.pushButtonAddTileEvent,
             &QPushButton::clicked,
             this,
@@ -141,6 +145,7 @@ void TilePropsComponent::refreshMonsterZoneComboBoxEnableStatus() {
     }
     bool isUseOnlyOneMonsterZone = m_glComponent->isUseOnlyOneMonsterZone();
     ui.comboBoxMonsterZoneApplied->setEnabled(!isUseOnlyOneMonsterZone);
+    ui.pushButtonClearMonsterZone->setEnabled(!isUseOnlyOneMonsterZone);
     if (isUseOnlyOneMonsterZone) {
         ui.comboBoxMonsterZoneApplied->setToolTip("This field is disabled because the unique monster zone is apply to all the map.");
     } else {
@@ -337,6 +342,13 @@ boost::optional<MapTileTriggerDTO> TilePropsComponent::getSelectedTrigger() {
         return m_controller.findMapTileTriggerByEvent(selectedItemName);
     } else {
         return {};
+    }
+}
+
+void TilePropsComponent::onPushButtonClearMonsterZoneClick() {
+    if (!m_disableFieldsChangedEvent) {
+        m_controller.setTilesMonsterZoneIndex(-1);
+        m_glComponent->updateGL();
     }
 }
 
