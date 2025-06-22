@@ -16,7 +16,6 @@ class MonsterZoneListComponentController {
     OptMonsterZoneDTOConst getMonsterZoneByName(const std::string &name) const;
     bool isMonsterZonesEmpty() const;
     std::vector<std::string> getAlreadyUsedMonsterZoneNames() const;
-    std::vector<std::string> getAlreadyUsedMonsterZoneNamesForEdition(const std::string &currentName) const;
  private:
     GLComponentController *m_glComponentController = nullptr;
     std::string m_lastError = "";

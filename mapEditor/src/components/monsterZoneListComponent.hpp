@@ -13,8 +13,8 @@
 #include "monsterZoneDTO.hpp"
 #include "monsterZoneListComponentController.hpp"
 #include "qTableWidgetKeyPressWatcher.h"
-#include "types.hpp"
 #include "ui_monsterZoneListComponent.h"
+#include "types.hpp"
 
 class MonsterZoneListComponent : public QWidget {
     Q_OBJECT

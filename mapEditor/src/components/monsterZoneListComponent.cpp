@@ -9,7 +9,6 @@
 #include "editMonsterZoneForm.hpp"
 #include "errorMessage.hpp"
 #include "monsterZoneDTO.hpp"
-#include "types.hpp"
 #include "uiUtils.hpp"
 
 using commoneditor::ui::ErrorMessage;

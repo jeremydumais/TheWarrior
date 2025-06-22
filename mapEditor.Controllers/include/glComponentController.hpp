@@ -34,8 +34,8 @@ class GLComponentController {
                                         int offsetTop,
                                         int offsetRight,
                                         int offsetBottom) const;
-    std::vector<mapeditor::controllers::MonsterZoneDTO> getMonsterZones() const;
-    OptMonsterZoneDTOConst getMonsterZoneByName(const std::string &name) const;
+    virtual std::vector<mapeditor::controllers::MonsterZoneDTO> getMonsterZones() const;
+    virtual OptMonsterZoneDTOConst getMonsterZoneByName(const std::string &name) const;
     boost::optional<thewarrior::models::Point<int>> getCoordFromSingleSelectedTile() const;
     size_t getHistoryCurrentIndex() const;
     size_t getHistoryCount() const;

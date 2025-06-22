@@ -26,9 +26,5 @@ std::vector<std::string> MonsterZoneListComponentController::getAlreadyUsedMonst
     return m_glComponentController->getAlreadyUsedMonsterZoneNames();
 }
 
-std::vector<std::string> MonsterZoneListComponentController::getAlreadyUsedMonsterZoneNamesForEdition(const std::string &currentName) const {
-    return m_glComponentController->getAlreadyUsedMonsterZoneNames();
-}
-
 }  // namespace mapeditor::controllers
 
