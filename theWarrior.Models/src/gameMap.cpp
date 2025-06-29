@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <iterator>
 #include <optional>
+#include <set>
 #include <stdexcept>
 #include <boost/algorithm/string.hpp>
 #include "boost/algorithm/string/case_conv.hpp"

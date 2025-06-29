@@ -101,7 +101,7 @@
      <x>0</x>
      <y>0</y>
      <width>1013</width>
-     <height>22</height>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -110,7 +110,7 @@
       <x>267</x>
       <y>187</y>
       <width>260</width>
-      <height>204</height>
+      <height>230</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -189,6 +189,8 @@
     </property>
     <addaction name="action_Undo"/>
     <addaction name="action_Redo"/>
+    <addaction name="action_Copy"/>
+    <addaction name="action_Paste"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Edit"/>
@@ -277,7 +279,7 @@
           <x>0</x>
           <y>0</y>
           <width>300</width>
-          <height>517</height>
+          <height>491</height>
          </rect>
         </property>
         <attribute name="label">
@@ -659,6 +661,25 @@
    </property>
    <property name="text">
     <string>Map configuration</string>
+   </property>
+  </action>
+  <action name="action_Copy">
+   <property name="text">
+    <string>Copy</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="action_Paste">
+   <property name="text">
+    <string>Paste</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
    </property>
   </action>
  </widget>

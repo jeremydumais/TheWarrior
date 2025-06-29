@@ -31,11 +31,13 @@ class MainForm_GLComponent : public QWidget {
     unsigned int getMapHeight() const;
     size_t getHistoryCurrentIndex() const;
     size_t getHistoryCount() const;
+    bool isClipboardEmpty() const;
     void setCurrentMap(std::shared_ptr<thewarrior::models::GameMap> map);
     void setResourcesPath(const std::string &path);
     void setSelectionMode(SelectionMode mode);
     void setMapView(MapView view);
     std::vector<mapeditor::controllers::MapTileDTO> getCurrentMapTiles();
+    bool isSelectedMapTiles() const;
     void setLastSelectedTexture(const std::string &name, int index);
     void setLastSelectedObject(const std::string &name, int index);
     void clearLastSelectedTexture();
@@ -66,6 +68,8 @@ class MainForm_GLComponent : public QWidget {
     void clearEditHistory();
     void undo();
     void redo();
+    void copySelectionInClipboard();
+    void pasteClipboard();
     void applyTexture();
     void applyObject();
     void applyCanStep(bool value);
@@ -82,6 +86,7 @@ class MainForm_GLComponent : public QWidget {
     void tileTriggerChanged();
     void pickerToolTileSelected(const PickerToolSelection &selection);
     void editHistoryChanged();
+    void clipboardChanged();
     void zoomChanged(int zoomPercentage);
 
  private:

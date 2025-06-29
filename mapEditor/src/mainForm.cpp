@@ -93,6 +93,7 @@ MainForm::MainForm(QWidget *parent,
     }
     refreshRecentMapsMenu();
     refreshUndoControls();
+    refreshClipboardControls();
     refreshTextureList();
     refreshMonsterZones();
     m_mapPropsComponent->reset();
@@ -158,6 +159,8 @@ void MainForm::connectUIActions() {
     connect(ui.action_PickerTool, &QAction::triggered, this, &MainForm::action_PickerToolClick);
     connect(ui.action_Undo, &QAction::triggered, this, &MainForm::action_UndoClick);
     connect(ui.action_Redo, &QAction::triggered, this, &MainForm::action_RedoClick);
+    connect(ui.action_Copy, &QAction::triggered, this, &MainForm::action_CopyClick);
+    connect(ui.action_Paste, &QAction::triggered, this, &MainForm::action_PasteClick);
     connect(ui.action_ApplyTexture, &QAction::triggered, this, &MainForm::action_ApplyTextureClick);
     connect(ui.action_ApplyObject, &QAction::triggered, this, &MainForm::action_ApplyObjectClick);
     connect(ui.action_EnableCanStep, &QAction::triggered, this, &MainForm::action_EnableCanStepClick);
@@ -178,6 +181,7 @@ void MainForm::connectUIActions() {
     m_glComponent.connectUIActions();
     connect(&m_glComponent, &MainForm_GLComponent::tileSelected, this, &MainForm::onTileSelected);
     connect(&m_glComponent, &MainForm_GLComponent::editHistoryChanged, this, &MainForm::onEditHistoryChanged);
+    connect(&m_glComponent, &MainForm_GLComponent::clipboardChanged, this, &MainForm::onClipboardChanged);
     connect(&m_glComponent, &MainForm_GLComponent::zoomChanged, this, &MainForm::onZoomChanged);
     connect(m_textureListComponent.get(), &TextureListComponent::textureAdded, this, &MainForm::onTextureAdded);
     connect(m_textureListComponent.get(), &TextureListComponent::textureUpdated, this, &MainForm::onTextureUpdated);
@@ -374,6 +378,17 @@ void MainForm::action_RedoClick() {
     refreshMonsterZones();
 }
 
+void MainForm::action_CopyClick() {
+    m_glComponent.copySelectionInClipboard();
+}
+
+void MainForm::action_PasteClick() {
+    m_glComponent.setSelectionMode(SelectionMode::Paste);
+    m_glComponent.pasteClipboard();
+    setActiveToolbarActionChecked(SelectionMode::Paste);
+
+}
+
 void MainForm::action_ApplyTextureClick() {
     m_glComponent.applyTexture();
 }
@@ -505,6 +520,11 @@ void MainForm::refreshUndoControls() {
     ui.action_Redo->setEnabled(total > 0 && index < total-1);
 }
 
+void MainForm::refreshClipboardControls() {
+    ui.action_Copy->setEnabled(m_glComponent.isSelectedMapTiles());
+    ui.action_Paste->setEnabled(!m_glComponent.isClipboardEmpty());
+}
+
 void MainForm::refreshRecentMapsMenu() {
     auto recents = m_controller.getRecentMapsFromConfig();
     if (recents.size() > 5) {
@@ -588,10 +608,15 @@ void MainForm::widgetDebugInfoClosed(QEvent *event) {
 
 void MainForm::onTileSelected(std::vector<MapTileDTO>) {
     ui.toolBox->setCurrentWidget(m_tilePropsComponent.get());
+    refreshClipboardControls();
 }
 
 void MainForm::onEditHistoryChanged() {
     refreshUndoControls();
+}
+
+void MainForm::onClipboardChanged() {
+    refreshClipboardControls();
 }
 
 void MainForm::onZoomChanged(int zoomPercentage) {

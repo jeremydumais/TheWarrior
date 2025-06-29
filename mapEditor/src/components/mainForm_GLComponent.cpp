@@ -74,6 +74,10 @@ size_t MainForm_GLComponent::getHistoryCount() const {
     return m_controller.getHistoryCount();
 }
 
+bool MainForm_GLComponent::isClipboardEmpty() const {
+    return m_controller.getClipboard().size() == 0;
+}
+
 void MainForm_GLComponent::setCurrentMap(std::shared_ptr<GameMap> map) {
     this->m_controller.setCurrentMap(map);
     this->m_glWidget->setCurrentMap(map);
@@ -95,6 +99,10 @@ void MainForm_GLComponent::setMapView(MapView view) {
 
 std::vector<MapTileDTO> MainForm_GLComponent::getCurrentMapTiles() {
     return m_controller.getSelectedMapTiles();
+}
+
+bool MainForm_GLComponent::isSelectedMapTiles() const {
+    return m_controller.getSelectedMapTiles().size() > 0;
 }
 
 void MainForm_GLComponent::setLastSelectedTexture(const std::string &name,
@@ -210,6 +218,15 @@ void MainForm_GLComponent::undo() {
 void MainForm_GLComponent::redo() {
     m_controller.redo();
     emit editHistoryChanged();
+}
+
+void MainForm_GLComponent::copySelectionInClipboard() {
+    m_controller.copySelectionInClipboard();
+    emit clipboardChanged();
+}
+
+void MainForm_GLComponent::pasteClipboard() {
+   m_glWidget->pasteClipboard(m_controller.getClipboard());
 }
 
 void MainForm_GLComponent::applyTexture() {

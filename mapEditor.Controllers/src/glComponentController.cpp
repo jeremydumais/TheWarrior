@@ -38,6 +38,7 @@ GLComponentController::GLComponentController()
       m_currentMapTiles({}),
       m_selectedIndices({}),
       m_editHistory(),
+      m_clipboard({}),
       m_lastError(""),
       m_lastSelectedTextureName(""),
       m_lastSelectedObjectName(""),
@@ -174,6 +175,10 @@ size_t GLComponentController::getHistoryCount() const {
     return m_editHistory.size();
 }
 
+const std::vector<thewarrior::models::MapTile> &GLComponentController::getClipboard() const {
+    return m_clipboard;
+}
+
 void GLComponentController::setLastSelectedTexture(const std::string &name,
         int index) {
     this->m_lastSelectedTextureName = name;
@@ -230,6 +235,14 @@ void GLComponentController::redo() {
         auto mapToRestore = m_editHistory.at(m_historyCurrentIndex);
         *m_map = *mapToRestore;
     }
+}
+
+void GLComponentController::copySelectionInClipboard() {
+    m_clipboard.clear();
+    std::transform(m_currentMapTiles.begin(),
+            m_currentMapTiles.end(),
+            std::back_inserter(m_clipboard),
+            [](auto elem) -> auto { return *elem; });
 }
 
 void GLComponentController::pushCurrentStateToHistory() {

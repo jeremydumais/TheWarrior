@@ -6,6 +6,8 @@
 #include <fmt/format.h>
 #include <memory>
 #include <optional>
+#include <string>
+#include <vector>
 #include "editMonsterZoneForm.hpp"
 #include "errorMessage.hpp"
 #include "monsterZoneDTO.hpp"

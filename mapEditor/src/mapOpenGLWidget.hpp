@@ -1,18 +1,19 @@
 #ifndef MAPEDITOR_SRC_MAPOPENGLWIDGET_HPP_
 #define MAPEDITOR_SRC_MAPOPENGLWIDGET_HPP_
 
+#include <qevent.h>
 #include <QTimer>
 #include <QtOpenGL/QGLWidget>
 #include <QtOpenGL/QtOpenGL>
 #include <map>
 #include <memory>
-#include <qevent.h>
 #include <set>
 #include <string>
 #include <vector>
 #include <boost/optional/optional.hpp>
 #include <glm/glm.hpp>
 #include "gameMap.hpp"
+#include "mapTile.hpp"
 #include "mapView.hpp"
 #include "pickerToolSelection.hpp"
 #include "selectionMode.hpp"
@@ -49,6 +50,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
     void stopAutoUpdate();
     void resetMapMovePosition();
     void wheelEvent(QWheelEvent *event) override;
+    void pasteClipboard(const std::vector<thewarrior::models::MapTile> &tiles);
 
  protected:
     void initializeGL() override;
@@ -96,13 +98,23 @@ class MapOpenGLWidget : public QOpenGLWidget {
     float m_translationXGL { 0.0F };
     float m_translationYGL { 0.0F };
     const float TILESPACING { 0.0F };
+    // Copy paste section
+    std::vector<thewarrior::models::MapTile> m_pasteResult;
+    std::set<int> m_pasteResultIndices;
+    QPoint m_pasteDragStartPosition;
+    QPoint m_pasteDragEndPosition;
+    QPoint m_pasteSelectionStartPosition;
+    QPoint m_pasteSelectionEndPosition;
+    // ------------------
     bool isMultiTileSelectionMode() const;
     void recalculateTileSize();
     void updateCursor();
     void draw();
+    void drawTile(const thewarrior::models::MapTile &tile, int index, const std::vector<std::string> &zoneColors);
     void drawTileWithTexture(const std::string &textureName, int textureIndex);
     void drawColoredTile() const;
     void drawSelectionZone() const;
+    void drawPasteResult();
     void drawGrid() const;
     void drawBlockBorderLeft();
     void drawBlockBorderTop();

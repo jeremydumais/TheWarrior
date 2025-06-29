@@ -3,5 +3,6 @@
 enum class SelectionMode {
     Select,
     MoveMap,
-    PickerTool
+    PickerTool,
+    Paste
 };

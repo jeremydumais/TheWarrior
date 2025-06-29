@@ -1,4 +1,6 @@
 #include "mapOpenGLWidget.hpp"
+#include <GL/gl.h>
+#include <iterator>
 #define STB_IMAGE_IMPLEMENTATION
 #include <GL/glut.h>
 #include <QtWidgets>
@@ -35,7 +37,10 @@ MapOpenGLWidget::MapOpenGLWidget(QWidget *parent)
     m_texturesObjMap(std::map<std::string, const Texture &>()),
     m_currentMap(nullptr),
     m_lastCursorPosition(QPoint(0, 0)),
-    m_currentCursorPosition(QPoint(0, 0)) {
+    m_currentCursorPosition(QPoint(0, 0)),
+    m_pasteResult({}),
+    m_pasteDragStartPosition(QPoint(0, 0)),
+    m_pasteDragEndPosition(QPoint(0, 0)) {
     connect(&m_repaintTimer, SIGNAL(timeout()), this, SLOT(update()));
     setMouseTracking(true);
 }
@@ -187,6 +192,11 @@ void MapOpenGLWidget::resetMapMovePosition() {
     m_translationYGL = 0.0F;
 }
 
+void MapOpenGLWidget::pasteClipboard(const std::vector<thewarrior::models::MapTile> &tiles) {
+    m_pasteResult = tiles;
+    m_pasteResultIndices = m_selectedTileIndices;
+}
+
 void MapOpenGLWidget::wheelEvent(QWheelEvent *event) {
     m_zoomPercentage += event->angleDelta().y() / 40;
     if (m_zoomPercentage < m_zoomPercentageMin) {
@@ -203,11 +213,13 @@ void MapOpenGLWidget::mousePressEvent(QMouseEvent *event) {
     if (altPressed) {
         m_oldSelectionMode = m_selectionMode;
         m_selectionMode = SelectionMode::MoveMap;
-    }
-    if (!m_mousePressed &&
+    } else if (!m_mousePressed &&
          m_selectionMode == SelectionMode::MoveMap) {
         m_translationDragAndDropX = 0.0f;
         m_translationDragAndDropY = 0.0f;
+    } else if (!m_mousePressed && m_selectionMode == SelectionMode::Paste) {
+        // TODO: Check that the user clicked in the paste zone
+        m_pasteDragStartPosition = QPoint(event->pos());
     }
     m_lastCursorPosition = event->pos();
     m_currentCursorPosition = event->pos();
@@ -287,6 +299,36 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event) {
                 tile.getObjectTextureIndex()
             });
         }
+    } else if (m_selectionMode == SelectionMode::Paste) {
+        m_pasteDragEndPosition = QPoint(event->pos());
+        auto startTileIndex = getTileIndex(m_pasteDragStartPosition.x(), m_pasteDragStartPosition.y());
+        auto endTileIndex = getTileIndex(m_pasteDragEndPosition.x(), m_pasteDragEndPosition.y());
+        std::set<int> newIndices;
+        std::transform(m_pasteResultIndices.begin(),
+            m_pasteResultIndices.end(),
+            std::inserter(newIndices, newIndices.begin()),
+            [startTileIndex, endTileIndex](int indice) -> int { return indice + (endTileIndex - startTileIndex); });
+        m_pasteResultIndices = newIndices;
+        auto firstIndiceCoord = m_currentMap->getCoordFromTileIndex(*(m_pasteResultIndices.begin()));
+        m_pasteSelectionStartPosition.setX(firstIndiceCoord.x());
+        m_pasteSelectionStartPosition.setY(firstIndiceCoord.y());
+        m_pasteSelectionEndPosition.setX(firstIndiceCoord.x());
+        m_pasteSelectionEndPosition.setY(firstIndiceCoord.y());
+        for (const auto indice : m_pasteResultIndices) {
+            const auto indicePoint = m_currentMap->getCoordFromTileIndex(indice);
+            if (indicePoint.x() < m_pasteSelectionStartPosition.x()) {
+                m_pasteSelectionStartPosition.setX(indicePoint.x());
+            }
+            if (indicePoint.x() > m_pasteSelectionEndPosition.x()) {
+                m_pasteSelectionEndPosition.setX(indicePoint.x());
+            }
+            if (indicePoint.y() < m_pasteSelectionStartPosition.y()) {
+                m_pasteSelectionStartPosition.setY(indicePoint.y());
+            }
+            if (indicePoint.y() > m_pasteSelectionEndPosition.y()) {
+                m_pasteSelectionEndPosition.setY(indicePoint.y());
+            }
+        }
     }
     if (m_oldSelectionMode.has_value()) {
         m_selectionMode = m_oldSelectionMode.value();
@@ -303,6 +345,8 @@ void MapOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
             m_selectionMode == SelectionMode::MoveMap) {
         m_translationDragAndDropX = static_cast<float>(event->pos().x() - m_lastCursorPosition.x()) / (static_cast<float>(ONSCREENTILESIZE) * m_translationXToPixel);
         m_translationDragAndDropY = static_cast<float>(m_lastCursorPosition.y() - event->pos().y()) / (static_cast<float>(ONSCREENTILESIZE) * m_translationYToPixel);
+    }
+    if (m_mousePressed && m_selectionMode == SelectionMode::Paste) {
     }
     m_currentCursorPosition = event->pos();
     updateCursor();
@@ -368,109 +412,13 @@ void MapOpenGLWidget::draw() {
                    std::back_inserter(zoneColors),
                    [](const MonsterZone &zone) -> std::string { return zone.getColor().getValue(); });
 
-    if (m_selectedTileIndices.size() > 0) {
+    if (m_selectionMode == SelectionMode::Select || m_selectionMode == SelectionMode::Paste) {
         updateSelectedTileColor();
     }
+    glPushMatrix();
     for (const auto &row : m_currentMap->getTiles()) {
         for (const auto &tile : row) {
-            bool hasTexture { false };
-            if (m_texturesGLMap.find(tile.getTextureName()) != m_texturesGLMap.end()) {
-                hasTexture = true;
-                glBindTexture(GL_TEXTURE_2D, m_texturesGLMap[tile.getTextureName()]);
-            }
-
-            float transparency = 1.0F;
-            // Filter to apply/clear monster zone
-            if (m_mapView == MapView::MonsterZones) {
-                transparency = 0.2F;
-                glColor4f(1.0F, 1.0F, 1.0F, 0.2F);
-            }
-            if (m_mapView == MapView::CanStep) {
-                transparency = 0.5F;
-                glColor4f(1.0F, 1.0F, 1.0F, 0.5F);
-            }
-
-            if (m_selectedTileIndices.contains(index)) {
-                glColor4ub(m_selectedTileColor, m_selectedTileColor, m_selectedTileColor, static_cast<GLubyte>(transparency * 255.0F));
-            } else {
-                glColor4f(1.0F, 1.0F, 1.0F, transparency);
-            }
-
-            if (hasTexture) {
-                drawTileWithTexture(tile.getTextureName(), tile.getTextureIndex());
-                // Check if it has an optionnal object
-                // TODO: create a method and test for bool hasAndObjectDefined() on the mapTile
-                if (tile.getObjectTextureName() != "" && tile.getObjectTextureIndex() != -1) {
-                    if (tile.getTextureName() != tile.getObjectTextureName()) {
-                        if (m_texturesGLMap.find(tile.getObjectTextureName()) != m_texturesGLMap.end()) {
-                            glBindTexture(GL_TEXTURE_2D, m_texturesGLMap[tile.getObjectTextureName()]);
-                            glPushMatrix();
-                            drawTileWithTexture(tile.getObjectTextureName(), tile.getObjectTextureIndex());
-                            glPopMatrix();
-                            glBindTexture(GL_TEXTURE_2D, 0);
-                        }
-                    } else {
-                        drawTileWithTexture(tile.getObjectTextureName(), tile.getObjectTextureIndex());
-                    }
-                }
-            } else {
-                // not defined tile (no texture)
-                glPushMatrix();
-                glColor3f(0.5F, 0.5F, 0.5F);
-                glBegin(GL_QUADS);
-                glVertex3f(m_glTileHalfWidth, m_glTileHalfHeight, 0);
-                glVertex3f(m_glTileHalfWidth, -m_glTileHalfHeight, 0);
-                glVertex3f(-m_glTileHalfWidth, -m_glTileHalfHeight, 0);
-                glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight, 0);
-                glEnd();
-                glPopMatrix();
-            }
-
-            // Filter to apply/clear monster zone
-            if (m_mapView == MapView::MonsterZones) {
-                if (tile.getMonsterZoneIndex() != -1) {
-                    const auto zoneColor = getVec3FromRGBString(zoneColors[static_cast<size_t>(tile.getMonsterZoneIndex())]);
-                    glColor4f(zoneColor.r, zoneColor.g, zoneColor.b, 0.4F);
-                    drawColoredTile();
-                }
-            }
-            // Filter to enable/disable can step on tile
-            if (m_mapView == MapView::CanStep) {
-                if (tile.canPlayerSteppedOn()) {
-                    glColor4f(0.25F, 1.0F, 0.25F, 0.4F);
-                } else {
-                    glColor4f(1.0F, 0.25F, 0.25F, 0.4F);
-                }
-                drawColoredTile();
-            }
-
-            // If we are in block border mode
-            if (m_mapView == MapView::BlockedBorders) {
-                auto triggers { tile.getTriggers() };
-                for (const auto &trigger : triggers) {
-                    if (trigger.getAction() == MapTileTriggerAction::DenyMove) {
-                        switch (trigger.getEvent()) {
-                            case MapTileTriggerEvent::MoveLeftPressed:
-                                drawBlockBorderLeft();
-                                break;
-                            case MapTileTriggerEvent::MoveUpPressed:
-                                drawBlockBorderTop();
-                                break;
-                            case MapTileTriggerEvent::MoveRightPressed:
-                                drawBlockBorderRight();
-                                break;
-                            case MapTileTriggerEvent::MoveDownPressed:
-                                drawBlockBorderBottom();
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                }
-            }
-            if (m_isGridEnabled) {
-                drawGrid();
-            }
+            drawTile(tile, index, zoneColors);
 
             x += m_glTileWidth + TILESPACING;
             glTranslatef(m_glTileWidth + TILESPACING, 0, 0);
@@ -482,12 +430,119 @@ void MapOpenGLWidget::draw() {
         glTranslatef(static_cast<float>(row.size()) * -(m_glTileWidth + TILESPACING), -(m_glTileHeight + TILESPACING), 0.0f);
     }
     glPopMatrix();
+    if (m_selectionMode == SelectionMode::Paste) {
+        drawPasteResult();
+    }
+    glPopMatrix();
     glPushMatrix();
     if (m_mousePressed && isMultiTileSelectionMode()) {
         drawSelectionZone();
     }
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
+}
+
+void MapOpenGLWidget::drawTile(const MapTile &tile, int index, const std::vector<std::string> &zoneColors) {
+    bool hasTexture { false };
+    if (m_texturesGLMap.find(tile.getTextureName()) != m_texturesGLMap.end()) {
+        hasTexture = true;
+        glBindTexture(GL_TEXTURE_2D, m_texturesGLMap[tile.getTextureName()]);
+    }
+
+    float transparency = 1.0F;
+    // Filter to apply/clear monster zone
+    if (m_mapView == MapView::MonsterZones) {
+        transparency = 0.2F;
+        glColor4f(1.0F, 1.0F, 1.0F, 0.2F);
+    }
+    if (m_mapView == MapView::CanStep) {
+        transparency = 0.5F;
+        glColor4f(1.0F, 1.0F, 1.0F, 0.5F);
+    }
+
+    if ((m_selectionMode == SelectionMode::Select && m_selectedTileIndices.contains(index)) ||
+        (m_selectionMode == SelectionMode::Paste && m_pasteResultIndices.contains(index))) {
+        glColor4ub(m_selectedTileColor, m_selectedTileColor, m_selectedTileColor, static_cast<GLubyte>(transparency * 255.0F));
+    } else {
+        glColor4f(1.0F, 1.0F, 1.0F, transparency);
+    }
+
+    if (hasTexture) {
+        drawTileWithTexture(tile.getTextureName(), tile.getTextureIndex());
+        // Check if it has an optionnal object
+        // TODO: create a method and test for bool hasAndObjectDefined() on the mapTile
+        if (tile.getObjectTextureName() != "" && tile.getObjectTextureIndex() != -1) {
+            if (tile.getTextureName() != tile.getObjectTextureName()) {
+                if (m_texturesGLMap.find(tile.getObjectTextureName()) != m_texturesGLMap.end()) {
+                    glBindTexture(GL_TEXTURE_2D, m_texturesGLMap[tile.getObjectTextureName()]);
+                    glPushMatrix();
+                    drawTileWithTexture(tile.getObjectTextureName(), tile.getObjectTextureIndex());
+                    glPopMatrix();
+                    glBindTexture(GL_TEXTURE_2D, 0);
+                }
+            } else {
+                drawTileWithTexture(tile.getObjectTextureName(), tile.getObjectTextureIndex());
+            }
+        glBindTexture(GL_TEXTURE_2D, 0);
+        }
+    } else {
+        // not defined tile (no texture)
+        glPushMatrix();
+        glColor3f(0.5F, 0.5F, 0.5F);
+        glBegin(GL_QUADS);
+        glVertex3f(m_glTileHalfWidth, m_glTileHalfHeight, 0);
+        glVertex3f(m_glTileHalfWidth, -m_glTileHalfHeight, 0);
+        glVertex3f(-m_glTileHalfWidth, -m_glTileHalfHeight, 0);
+        glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight, 0);
+        glEnd();
+        glPopMatrix();
+    }
+
+    // Filter to apply/clear monster zone
+    if (m_mapView == MapView::MonsterZones) {
+        if (tile.getMonsterZoneIndex() != -1) {
+            const auto zoneColor = getVec3FromRGBString(zoneColors[static_cast<size_t>(tile.getMonsterZoneIndex())]);
+            glColor4f(zoneColor.r, zoneColor.g, zoneColor.b, 0.4F);
+            drawColoredTile();
+        }
+    }
+    // Filter to enable/disable can step on tile
+    if (m_mapView == MapView::CanStep) {
+        if (tile.canPlayerSteppedOn()) {
+            glColor4f(0.25F, 1.0F, 0.25F, 0.4F);
+        } else {
+            glColor4f(1.0F, 0.25F, 0.25F, 0.4F);
+        }
+        drawColoredTile();
+    }
+
+    // If we are in block border mode
+    if (m_mapView == MapView::BlockedBorders) {
+        auto triggers { tile.getTriggers() };
+        for (const auto &trigger : triggers) {
+            if (trigger.getAction() == MapTileTriggerAction::DenyMove) {
+                switch (trigger.getEvent()) {
+                    case MapTileTriggerEvent::MoveLeftPressed:
+                        drawBlockBorderLeft();
+                        break;
+                    case MapTileTriggerEvent::MoveUpPressed:
+                        drawBlockBorderTop();
+                        break;
+                    case MapTileTriggerEvent::MoveRightPressed:
+                        drawBlockBorderRight();
+                        break;
+                    case MapTileTriggerEvent::MoveDownPressed:
+                        drawBlockBorderBottom();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+    if (m_isGridEnabled) {
+        drawGrid();
+    }
 }
 
 void MapOpenGLWidget::drawTileWithTexture(const std::string &textureName, int textureIndex) {
@@ -538,6 +593,51 @@ void MapOpenGLWidget::drawSelectionZone() const {
     glVertex3f(-m_glTileHalfWidth, -endCoord.y + m_glTileHalfHeight, 0);
     glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight, 0);
     glEnd();
+}
+
+void MapOpenGLWidget::drawPasteResult() {
+    size_t index = 0;
+    std::vector<int> tileIndices = {};
+    std::transform(m_pasteResultIndices.begin(),
+            m_pasteResultIndices.end(),
+            std::back_inserter(tileIndices),
+            [](int indice) -> int { return indice; });
+
+    for (const auto &tile : m_pasteResult) {
+        auto tileIndice = tileIndices[index];
+        // From indice compute the row and col
+        const auto point = m_currentMap->getCoordFromTileIndex(tileIndice);
+        glPushMatrix();
+        glTranslatef(static_cast<float>(point.x()) * (m_glTileWidth + TILESPACING),
+                static_cast<float>(point.y()) * -(m_glTileHeight + TILESPACING), 0.0f);
+        drawTile(tile, tileIndice, {});
+        glPopMatrix();
+        index++;
+    }
+    // TODO: Draw a selection zone around the pasted elements
+    const auto selectionBoxWidth = m_glTileWidth * (static_cast<float>(m_pasteSelectionEndPosition.x()) - static_cast<float>(m_pasteSelectionStartPosition.x()));
+    const auto selectionBoxHeight = m_glTileHeight * (static_cast<float>(m_pasteSelectionEndPosition.y()) - static_cast<float>(m_pasteSelectionStartPosition.y()));
+    glPushMatrix();
+    glTranslatef(static_cast<float>(m_pasteSelectionStartPosition.x()) * (m_glTileWidth + TILESPACING),
+            static_cast<float>(m_pasteSelectionStartPosition.y()) * -(m_glTileHeight + TILESPACING), 0.0f);
+    glColor4f(1.0F, 1.0F, 1.0F, 0.7F);
+    glBegin(GL_LINES);
+    glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, -m_glTileHalfHeight - selectionBoxHeight, 0);
+    glEnd();
+    glBegin(GL_LINES);
+    glVertex3f(m_glTileHalfWidth + selectionBoxWidth, -m_glTileHalfHeight - selectionBoxHeight, 0);
+    glVertex3f(-m_glTileHalfWidth, -m_glTileHalfHeight - selectionBoxHeight, 0);
+    glEnd();
+    glBegin(GL_LINES);
+    glVertex3f(m_glTileHalfWidth + selectionBoxWidth, -m_glTileHalfHeight - selectionBoxHeight, 0);
+    glVertex3f(m_glTileHalfWidth + selectionBoxWidth, m_glTileHalfHeight, 0);
+    glEnd();
+    glBegin(GL_LINES);
+    glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight, 0);
+    glVertex3f(m_glTileHalfWidth + selectionBoxWidth, m_glTileHalfHeight, 0);
+    glEnd();
+    glPopMatrix();
 }
 
 void MapOpenGLWidget::drawGrid() const {
