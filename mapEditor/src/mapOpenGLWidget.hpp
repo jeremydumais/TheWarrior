@@ -92,7 +92,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
     float m_glTileHeight { 0.0F };
     float m_glTileHalfWidth { m_glTileWidth / 2.0F };
     float m_glTileHalfHeight { m_glTileHeight / 2.0F };
-    unsigned int ONSCREENTILESIZE { 40 };
+    float ONSCREENTILESIZE { 40.0F };
     float m_translationXToPixel { 0.0F };
     float m_translationYToPixel { 0.0F };
     float m_translationXGL { 0.0F };
@@ -101,6 +101,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
     // Copy paste section
     std::vector<thewarrior::models::MapTile> m_pasteResult;
     std::set<int> m_pasteResultIndices;
+    bool m_pasteDragInProgress;
     QPoint m_pasteDragStartPosition;
     QPoint m_pasteDragEndPosition;
     QPoint m_pasteSelectionStartPosition;
@@ -108,7 +109,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
     // ------------------
     bool isMultiTileSelectionMode() const;
     void recalculateTileSize();
-    void updateCursor();
+    void updateCursor(QMouseEvent *event);
     void draw();
     void drawTile(const thewarrior::models::MapTile &tile, int index, const std::vector<std::string> &zoneColors);
     void drawTileWithTexture(const std::string &textureName, int textureIndex);
@@ -121,8 +122,12 @@ class MapOpenGLWidget : public QOpenGLWidget {
     void drawBlockBorderRight();
     void drawBlockBorderBottom();
     int getTileIndex(int onScreenX, int onScreenY);
+    QPoint getTileLeftUpperCornerScreenCoord(int tileIndex) const;
+    QPoint getTileRightLowerCornerScreenCoord(int tileIndex) const;
     glm::vec2 convertScreenCoordToGlCoord(QPoint coord) const;
     void updateSelectedTileColor();
+    void calculatePasteSelectionZone();
+    bool isCursorInPasteSelectionZone(QPoint cursorPosition) const;
 
  signals:
     void onRecalculateTileSize(ResizeGLComponentInfo info);

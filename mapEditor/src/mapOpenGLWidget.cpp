@@ -1,12 +1,14 @@
 #include "mapOpenGLWidget.hpp"
 #include <GL/gl.h>
-#include <iterator>
+#include <qnamespace.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include <GL/glut.h>
 #include <QtWidgets>
 #include <fmt/format.h>
 #include <stb_image.h>
 #include <algorithm>
+#include <iterator>
+#include <map>
 #include <set>
 #include <string>
 #include <vector>
@@ -14,6 +16,7 @@
 #include "mapView.hpp"
 #include "monsterZone.hpp"
 #include "pickerToolSelection.hpp"
+#include "point.hpp"
 #include "selectionMode.hpp"
 
 using namespace thewarrior::models;
@@ -39,6 +42,7 @@ MapOpenGLWidget::MapOpenGLWidget(QWidget *parent)
     m_lastCursorPosition(QPoint(0, 0)),
     m_currentCursorPosition(QPoint(0, 0)),
     m_pasteResult({}),
+    m_pasteDragInProgress(false),
     m_pasteDragStartPosition(QPoint(0, 0)),
     m_pasteDragEndPosition(QPoint(0, 0)) {
     connect(&m_repaintTimer, SIGNAL(timeout()), this, SLOT(update()));
@@ -195,6 +199,9 @@ void MapOpenGLWidget::resetMapMovePosition() {
 void MapOpenGLWidget::pasteClipboard(const std::vector<thewarrior::models::MapTile> &tiles) {
     m_pasteResult = tiles;
     m_pasteResultIndices = m_selectedTileIndices;
+    m_pasteDragStartPosition = QPoint(0, 0);
+    m_pasteDragEndPosition = QPoint(0, 0);
+    calculatePasteSelectionZone();
 }
 
 void MapOpenGLWidget::wheelEvent(QWheelEvent *event) {
@@ -218,8 +225,10 @@ void MapOpenGLWidget::mousePressEvent(QMouseEvent *event) {
         m_translationDragAndDropX = 0.0f;
         m_translationDragAndDropY = 0.0f;
     } else if (!m_mousePressed && m_selectionMode == SelectionMode::Paste) {
-        // TODO: Check that the user clicked in the paste zone
-        m_pasteDragStartPosition = QPoint(event->pos());
+        if (isCursorInPasteSelectionZone(event->pos())) {
+            m_pasteDragStartPosition = QPoint(event->pos());
+            m_pasteDragInProgress = true;
+        }
     }
     m_lastCursorPosition = event->pos();
     m_currentCursorPosition = event->pos();
@@ -300,35 +309,11 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event) {
             });
         }
     } else if (m_selectionMode == SelectionMode::Paste) {
-        m_pasteDragEndPosition = QPoint(event->pos());
-        auto startTileIndex = getTileIndex(m_pasteDragStartPosition.x(), m_pasteDragStartPosition.y());
-        auto endTileIndex = getTileIndex(m_pasteDragEndPosition.x(), m_pasteDragEndPosition.y());
-        std::set<int> newIndices;
-        std::transform(m_pasteResultIndices.begin(),
-            m_pasteResultIndices.end(),
-            std::inserter(newIndices, newIndices.begin()),
-            [startTileIndex, endTileIndex](int indice) -> int { return indice + (endTileIndex - startTileIndex); });
-        m_pasteResultIndices = newIndices;
-        auto firstIndiceCoord = m_currentMap->getCoordFromTileIndex(*(m_pasteResultIndices.begin()));
-        m_pasteSelectionStartPosition.setX(firstIndiceCoord.x());
-        m_pasteSelectionStartPosition.setY(firstIndiceCoord.y());
-        m_pasteSelectionEndPosition.setX(firstIndiceCoord.x());
-        m_pasteSelectionEndPosition.setY(firstIndiceCoord.y());
-        for (const auto indice : m_pasteResultIndices) {
-            const auto indicePoint = m_currentMap->getCoordFromTileIndex(indice);
-            if (indicePoint.x() < m_pasteSelectionStartPosition.x()) {
-                m_pasteSelectionStartPosition.setX(indicePoint.x());
-            }
-            if (indicePoint.x() > m_pasteSelectionEndPosition.x()) {
-                m_pasteSelectionEndPosition.setX(indicePoint.x());
-            }
-            if (indicePoint.y() < m_pasteSelectionStartPosition.y()) {
-                m_pasteSelectionStartPosition.setY(indicePoint.y());
-            }
-            if (indicePoint.y() > m_pasteSelectionEndPosition.y()) {
-                m_pasteSelectionEndPosition.setY(indicePoint.y());
-            }
+        if (m_pasteDragInProgress) {
+            m_pasteDragEndPosition = QPoint(event->pos());
+            calculatePasteSelectionZone();
         }
+        m_pasteDragInProgress = false;
     }
     if (m_oldSelectionMode.has_value()) {
         m_selectionMode = m_oldSelectionMode.value();
@@ -346,10 +331,8 @@ void MapOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
         m_translationDragAndDropX = static_cast<float>(event->pos().x() - m_lastCursorPosition.x()) / (static_cast<float>(ONSCREENTILESIZE) * m_translationXToPixel);
         m_translationDragAndDropY = static_cast<float>(m_lastCursorPosition.y() - event->pos().y()) / (static_cast<float>(ONSCREENTILESIZE) * m_translationYToPixel);
     }
-    if (m_mousePressed && m_selectionMode == SelectionMode::Paste) {
-    }
     m_currentCursorPosition = event->pos();
-    updateCursor();
+    updateCursor(event);
     emit onTileMouseMoveEvent(m_mousePressed, getTileIndex(event->pos().x(), event->pos().y()));
 }
 
@@ -360,7 +343,9 @@ bool MapOpenGLWidget::isMultiTileSelectionMode() const {
 void MapOpenGLWidget::recalculateTileSize() {
     const float NOZOOMSCREENTILESIZE = 40.0F;
     const float ZOOMFLOATVALUE = static_cast<float>(m_zoomPercentage) / 100.0F;
-    ONSCREENTILESIZE = static_cast<unsigned int>(40.0F * ZOOMFLOATVALUE);
+    //TODO: Try to fix ONSCREENTILESIZE to a float to solve the selection value offset
+    //ONSCREENTILESIZE = static_cast<unsigned int>(40.0F * ZOOMFLOATVALUE);
+    ONSCREENTILESIZE = (40.0F * ZOOMFLOATVALUE);
     float nbOfTilesForWidth = static_cast<float>(m_width) / static_cast<float>(NOZOOMSCREENTILESIZE);
     float nbOfTilesForHeight = static_cast<float>(m_height) / static_cast<float>(NOZOOMSCREENTILESIZE);
     m_glTileWidth = (static_cast<float>(m_width) / 10.0F / nbOfTilesForWidth / nbOfTilesForWidth) * ZOOMFLOATVALUE;
@@ -378,18 +363,24 @@ void MapOpenGLWidget::recalculateTileSize() {
         .glTileHeight = m_glTileHeight,
         .translationXToPixel = m_translationXToPixel,
         .translationYToPixel = m_translationYToPixel,
-        .tileSizeInPx = ONSCREENTILESIZE
+        .tileSizeInPx = static_cast<unsigned int>(ONSCREENTILESIZE)
     };
     emit onRecalculateTileSize(info);
 }
 
-void MapOpenGLWidget::updateCursor() {
+void MapOpenGLWidget::updateCursor(QMouseEvent *event) {
     if (m_selectionMode == SelectionMode::MoveMap) {
         setCursor(m_mousePressed ? Qt::ClosedHandCursor : Qt::OpenHandCursor);
     } else if (m_selectionMode == SelectionMode::Select) {
         setCursor(Qt::ArrowCursor);
     } else if (isMultiTileSelectionMode()) {
         setCursor(Qt::CrossCursor);
+    } else if (m_selectionMode == SelectionMode::Paste) {
+        if (isCursorInPasteSelectionZone(event->pos())) {
+            setCursor(Qt::DragMoveCursor);
+        } else {
+            setCursor(Qt::ArrowCursor);
+        }
     } else {
         setCursor(Qt::ArrowCursor);
     }
@@ -430,7 +421,7 @@ void MapOpenGLWidget::draw() {
         glTranslatef(static_cast<float>(row.size()) * -(m_glTileWidth + TILESPACING), -(m_glTileHeight + TILESPACING), 0.0f);
     }
     glPopMatrix();
-    if (m_selectionMode == SelectionMode::Paste) {
+    if (m_selectionMode == SelectionMode::Paste || m_oldSelectionMode == SelectionMode::Paste) {
         drawPasteResult();
     }
     glPopMatrix();
@@ -614,10 +605,11 @@ void MapOpenGLWidget::drawPasteResult() {
         glPopMatrix();
         index++;
     }
-    // TODO: Draw a selection zone around the pasted elements
+    // Draw a selection zone around the pasted elements
     const auto selectionBoxWidth = m_glTileWidth * (static_cast<float>(m_pasteSelectionEndPosition.x()) - static_cast<float>(m_pasteSelectionStartPosition.x()));
     const auto selectionBoxHeight = m_glTileHeight * (static_cast<float>(m_pasteSelectionEndPosition.y()) - static_cast<float>(m_pasteSelectionStartPosition.y()));
     glPushMatrix();
+    glBindTexture(GL_TEXTURE_2D, 0);
     glTranslatef(static_cast<float>(m_pasteSelectionStartPosition.x()) * (m_glTileWidth + TILESPACING),
             static_cast<float>(m_pasteSelectionStartPosition.y()) * -(m_glTileHeight + TILESPACING), 0.0f);
     glColor4f(1.0F, 1.0F, 1.0F, 0.7F);
@@ -743,22 +735,59 @@ void MapOpenGLWidget::drawBlockBorderBottom() {
     glEnd();
     glPopMatrix();
 }
+
 int MapOpenGLWidget::getTileIndex(int onScreenX, int onScreenY) {
-    if (onScreenX / static_cast<int>(ONSCREENTILESIZE) > static_cast<int>(m_currentMap->getWidth()) - 1) {
+    if (static_cast<float>(onScreenX) / ONSCREENTILESIZE > static_cast<float>(m_currentMap->getWidth()) - 1) {
         return -1;
     }
-    if (onScreenY / static_cast<int>(ONSCREENTILESIZE) > static_cast<int>(m_currentMap->getHeight()) - 1) {
+    if (static_cast<float>(onScreenY) / ONSCREENTILESIZE > static_cast<float>(m_currentMap->getHeight()) - 1) {
         return -1;
     }
-    int x = onScreenX - static_cast<int>(m_translationX * m_translationXToPixel * static_cast<float>(ONSCREENTILESIZE));
-    int y = onScreenY + static_cast<int>(m_translationY * m_translationYToPixel * static_cast<float>(ONSCREENTILESIZE));
-    int indexX = x / static_cast<int>(ONSCREENTILESIZE);
-    int indexY = y / static_cast<int>(ONSCREENTILESIZE);
+    float x = static_cast<float>(onScreenX) - m_translationX * m_translationXToPixel * static_cast<float>(ONSCREENTILESIZE);
+    float y = static_cast<float>(onScreenY) + m_translationY * m_translationYToPixel * static_cast<float>(ONSCREENTILESIZE);
+    int indexX = static_cast<int>(x / ONSCREENTILESIZE);
+    int indexY = static_cast<int>(y / ONSCREENTILESIZE);
     int tileIndex { indexX + (indexY * static_cast<int>(m_currentMap->getWidth())) };
     if (tileIndex < 0 || (tileIndex > static_cast<int>(m_currentMap->getWidth() * m_currentMap->getHeight() -1))) {
         return -1;
     }
     return tileIndex;
+}
+
+QPoint MapOpenGLWidget::getTileLeftUpperCornerScreenCoord(int tileIndex) const {
+    if (!m_currentMap || tileIndex < 0 || tileIndex >= static_cast<int>(m_currentMap->getWidth()) * static_cast<int>(m_currentMap->getHeight())) {
+        return QPoint(-1, -1);
+    }
+
+    int mapWidth = static_cast<int>(m_currentMap->getWidth());
+    int indexX = tileIndex % mapWidth;
+    int indexY = tileIndex / mapWidth;
+
+    // Reverse the translation logic from getTileIndex
+    float screenX = static_cast<float>(indexX) * ONSCREENTILESIZE +
+                  (m_translationX * m_translationXToPixel * ONSCREENTILESIZE);
+    float screenY = static_cast<float>(indexY) * ONSCREENTILESIZE -
+                  (m_translationY * m_translationYToPixel * ONSCREENTILESIZE);
+
+    return QPoint(static_cast<int>(screenX), static_cast<int>(screenY));
+}
+
+QPoint MapOpenGLWidget::getTileRightLowerCornerScreenCoord(int tileIndex) const {
+    if (!m_currentMap || tileIndex < 0 || tileIndex >= static_cast<int>(m_currentMap->getWidth()) * static_cast<int>(m_currentMap->getHeight())) {
+        return QPoint(-1, -1);
+    }
+
+    int mapWidth = static_cast<int>(m_currentMap->getWidth());
+    int indexX = tileIndex % mapWidth;
+    int indexY = tileIndex / mapWidth;
+
+    // Reverse the translation logic from getTileIndex
+    float screenX = static_cast<float>(indexX) * ONSCREENTILESIZE +
+                  ((m_translationX * m_translationXToPixel * ONSCREENTILESIZE) + ONSCREENTILESIZE);
+    float screenY = static_cast<float>(indexY) * ONSCREENTILESIZE -
+                  ((m_translationY * m_translationYToPixel * ONSCREENTILESIZE) - ONSCREENTILESIZE);
+
+    return QPoint(static_cast<int>(screenX), static_cast<int>(screenY));
 }
 
 glm::vec2 MapOpenGLWidget::convertScreenCoordToGlCoord(QPoint coord) const {
@@ -782,5 +811,51 @@ void MapOpenGLWidget::updateSelectedTileColor() {
         m_selectedTileColor--;
     } else if (m_selectedTileColor <= 100) {
         m_selectedTileColorGrowing = true;
+    }
+}
+
+void MapOpenGLWidget::calculatePasteSelectionZone() {
+    auto startTileIndex = getTileIndex(m_pasteDragStartPosition.x(), m_pasteDragStartPosition.y());
+    auto endTileIndex = getTileIndex(m_pasteDragEndPosition.x(), m_pasteDragEndPosition.y());
+    std::set<int> newIndices;
+    std::transform(m_pasteResultIndices.begin(),
+        m_pasteResultIndices.end(),
+        std::inserter(newIndices, newIndices.begin()),
+        [startTileIndex, endTileIndex](int indice) -> int { return indice + (endTileIndex - startTileIndex); });
+    m_pasteResultIndices = newIndices;
+    auto firstIndiceCoord = m_currentMap->getCoordFromTileIndex(*(m_pasteResultIndices.begin()));
+    m_pasteSelectionStartPosition.setX(firstIndiceCoord.x());
+    m_pasteSelectionStartPosition.setY(firstIndiceCoord.y());
+    m_pasteSelectionEndPosition.setX(firstIndiceCoord.x());
+    m_pasteSelectionEndPosition.setY(firstIndiceCoord.y());
+    for (const auto indice : m_pasteResultIndices) {
+        const auto indicePoint = m_currentMap->getCoordFromTileIndex(indice);
+        if (indicePoint.x() < m_pasteSelectionStartPosition.x()) {
+            m_pasteSelectionStartPosition.setX(indicePoint.x());
+        }
+        if (indicePoint.x() > m_pasteSelectionEndPosition.x()) {
+            m_pasteSelectionEndPosition.setX(indicePoint.x());
+        }
+        if (indicePoint.y() < m_pasteSelectionStartPosition.y()) {
+            m_pasteSelectionStartPosition.setY(indicePoint.y());
+        }
+        if (indicePoint.y() > m_pasteSelectionEndPosition.y()) {
+            m_pasteSelectionEndPosition.setY(indicePoint.y());
+        }
+    }
+}
+
+bool MapOpenGLWidget::isCursorInPasteSelectionZone(QPoint cursorPosition) const {
+    auto selectionZoneStartTileIndex = m_currentMap->getTileIndexFromCoord(Point<int>(m_pasteSelectionStartPosition.x(), m_pasteSelectionStartPosition.y()));
+    auto selectionZoneStartCoord = getTileLeftUpperCornerScreenCoord(selectionZoneStartTileIndex);
+    auto selectionZoneEndTileIndex = m_currentMap->getTileIndexFromCoord(Point<int>(m_pasteSelectionEndPosition.x(), m_pasteSelectionEndPosition.y()));
+    auto selectionZoneEndCoord = getTileRightLowerCornerScreenCoord(selectionZoneEndTileIndex);
+    if (cursorPosition.x() > selectionZoneStartCoord.x() &&
+        cursorPosition.x() < selectionZoneEndCoord.x() &&
+        cursorPosition.y() > selectionZoneStartCoord.y() &&
+        cursorPosition.y() < selectionZoneEndCoord.y()) {
+        return true;
+    } else {
+        return false;
     }
 }
