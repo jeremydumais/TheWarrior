@@ -95,4 +95,5 @@ class MainForm_GLComponent : public QWidget {
     void onTileClicked(const std::set<int> &tileIndices, int, int);
     void onPickerToolTileSelected(const PickerToolSelection &selection);
     void onZoomChanged(int zoomPercentage);
+    void onClipboardPasted();
 };

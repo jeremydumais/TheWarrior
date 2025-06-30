@@ -48,6 +48,10 @@ void MainForm_GLComponent::connectUIActions() {
             &MapOpenGLWidget::onZoomChanged,
             this,
             &MainForm_GLComponent::onZoomChanged);
+    connect(this->m_glWidget,
+            &MapOpenGLWidget::onClipboardPasted,
+            this,
+            &MainForm_GLComponent::onClipboardPasted);
 }
 
 const std::string &MainForm_GLComponent::getResourcesPath() const {
@@ -203,6 +207,11 @@ void MainForm_GLComponent::onPickerToolTileSelected(const PickerToolSelection &s
 
 void MainForm_GLComponent::onZoomChanged(int zoomPercentage) {
     emit zoomChanged(zoomPercentage);
+}
+
+void MainForm_GLComponent::onClipboardPasted() {
+    m_controller.pushCurrentStateToHistory();
+    emit editHistoryChanged();
 }
 
 void MainForm_GLComponent::clearEditHistory() {

@@ -5,6 +5,7 @@
 #include <QTimer>
 #include <QtOpenGL/QGLWidget>
 #include <QtOpenGL/QtOpenGL>
+#include <qpoint.h>
 #include <map>
 #include <memory>
 #include <set>
@@ -71,7 +72,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
     int m_zoomPercentageMin;
     int m_zoomPercentageMax;
     SelectionMode m_selectionMode;
-    boost::optional<SelectionMode> m_oldSelectionMode = {}; //Used when using alt key to move the map
+    boost::optional<SelectionMode> m_oldSelectionMode = {}; // Used when using alt key to move the map
     MapView m_mapView;
     std::string m_resourcesPath;
     bool m_mousePressed;
@@ -126,7 +127,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
     QPoint getTileRightLowerCornerScreenCoord(int tileIndex) const;
     glm::vec2 convertScreenCoordToGlCoord(QPoint coord) const;
     void updateSelectedTileColor();
-    void calculatePasteSelectionZone();
+    void calculatePasteSelectionZone(QPoint dragEndPosition, bool initialCalculation = false);
     bool isCursorInPasteSelectionZone(QPoint cursorPosition) const;
 
  signals:
@@ -136,6 +137,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
     void onMapMoved(float translationX, float translationY);
     void onPickerToolTileSelected(PickerToolSelection selection);
     void onZoomChanged(int zoomPercentage);
+    void onClipboardPasted();
 };
 
 #endif  // MAPEDITOR_SRC_MAPOPENGLWIDGET_HPP_

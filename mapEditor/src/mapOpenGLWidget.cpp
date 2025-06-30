@@ -198,10 +198,11 @@ void MapOpenGLWidget::resetMapMovePosition() {
 
 void MapOpenGLWidget::pasteClipboard(const std::vector<thewarrior::models::MapTile> &tiles) {
     m_pasteResult = tiles;
+    //TODO: To fix, we must receive the indices in parameters and must be persisted in the component
     m_pasteResultIndices = m_selectedTileIndices;
     m_pasteDragStartPosition = QPoint(0, 0);
     m_pasteDragEndPosition = QPoint(0, 0);
-    calculatePasteSelectionZone();
+    calculatePasteSelectionZone(m_pasteDragEndPosition, true);
 }
 
 void MapOpenGLWidget::wheelEvent(QWheelEvent *event) {
@@ -310,8 +311,17 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event) {
         }
     } else if (m_selectionMode == SelectionMode::Paste) {
         if (m_pasteDragInProgress) {
-            m_pasteDragEndPosition = QPoint(event->pos());
-            calculatePasteSelectionZone();
+            calculatePasteSelectionZone(event->pos());
+        } else {
+            emit onClipboardPasted();
+            m_selectionMode = SelectionMode::Select;
+            size_t tileIndexInSelection = 0;
+            for (auto mapTile : m_currentMap->getTilesForEditing(m_pasteResultIndices)) {
+                *mapTile = m_pasteResult.at(tileIndexInSelection);
+                tileIndexInSelection++;
+            }
+            m_pasteResult = {};
+            m_pasteResultIndices = {};
         }
         m_pasteDragInProgress = false;
     }
@@ -343,8 +353,6 @@ bool MapOpenGLWidget::isMultiTileSelectionMode() const {
 void MapOpenGLWidget::recalculateTileSize() {
     const float NOZOOMSCREENTILESIZE = 40.0F;
     const float ZOOMFLOATVALUE = static_cast<float>(m_zoomPercentage) / 100.0F;
-    //TODO: Try to fix ONSCREENTILESIZE to a float to solve the selection value offset
-    //ONSCREENTILESIZE = static_cast<unsigned int>(40.0F * ZOOMFLOATVALUE);
     ONSCREENTILESIZE = (40.0F * ZOOMFLOATVALUE);
     float nbOfTilesForWidth = static_cast<float>(m_width) / static_cast<float>(NOZOOMSCREENTILESIZE);
     float nbOfTilesForHeight = static_cast<float>(m_height) / static_cast<float>(NOZOOMSCREENTILESIZE);
@@ -814,35 +822,59 @@ void MapOpenGLWidget::updateSelectedTileColor() {
     }
 }
 
-void MapOpenGLWidget::calculatePasteSelectionZone() {
+void MapOpenGLWidget::calculatePasteSelectionZone(QPoint dragEndPosition, bool initialCalculation) {
     auto startTileIndex = getTileIndex(m_pasteDragStartPosition.x(), m_pasteDragStartPosition.y());
-    auto endTileIndex = getTileIndex(m_pasteDragEndPosition.x(), m_pasteDragEndPosition.y());
+    auto endTileIndex = getTileIndex(dragEndPosition.x(), dragEndPosition.y());
+    auto lastMapTileIndex = m_currentMap->getTileIndexFromCoord(Point<>(static_cast<int>(m_currentMap->getWidth()) - 1,
+                                                                        static_cast<int>(m_currentMap->getHeight()) - 1));
+    auto firstMapTilePosition = getTileLeftUpperCornerScreenCoord(0);
+    auto lastMapTilePosition = getTileRightLowerCornerScreenCoord(lastMapTileIndex);
+    if (dragEndPosition.x() < firstMapTilePosition.x() ||
+        dragEndPosition.x() > lastMapTilePosition.x() ||
+        dragEndPosition.y() < firstMapTilePosition.y() ||
+        dragEndPosition.y() > lastMapTilePosition.y()) {
+        return;
+    }
     std::set<int> newIndices;
-    std::transform(m_pasteResultIndices.begin(),
-        m_pasteResultIndices.end(),
-        std::inserter(newIndices, newIndices.begin()),
-        [startTileIndex, endTileIndex](int indice) -> int { return indice + (endTileIndex - startTileIndex); });
-    m_pasteResultIndices = newIndices;
-    auto firstIndiceCoord = m_currentMap->getCoordFromTileIndex(*(m_pasteResultIndices.begin()));
-    m_pasteSelectionStartPosition.setX(firstIndiceCoord.x());
-    m_pasteSelectionStartPosition.setY(firstIndiceCoord.y());
-    m_pasteSelectionEndPosition.setX(firstIndiceCoord.x());
-    m_pasteSelectionEndPosition.setY(firstIndiceCoord.y());
-    for (const auto indice : m_pasteResultIndices) {
+    for (auto indice : m_pasteResultIndices) {
+        auto newIndex = indice + (endTileIndex - startTileIndex);
+        // Check that new tile index is in map range
+        if (newIndex < 0 || newIndex > lastMapTileIndex) {
+            return;
+        }
+        newIndices.emplace(newIndex);
+    }
+    auto firstIndiceCoord = m_currentMap->getCoordFromTileIndex(*(newIndices.begin()));
+    auto tempSelectionStartPosition = m_pasteSelectionStartPosition;
+    auto tempSelectionEndPosition = m_pasteSelectionEndPosition;
+    tempSelectionStartPosition.setX(firstIndiceCoord.x());
+    tempSelectionStartPosition.setY(firstIndiceCoord.y());
+    tempSelectionEndPosition.setX(firstIndiceCoord.x());
+    tempSelectionEndPosition.setY(firstIndiceCoord.y());
+    for (const auto indice : newIndices) {
         const auto indicePoint = m_currentMap->getCoordFromTileIndex(indice);
-        if (indicePoint.x() < m_pasteSelectionStartPosition.x()) {
-            m_pasteSelectionStartPosition.setX(indicePoint.x());
+        if (indicePoint.x() < tempSelectionStartPosition.x()) {
+            tempSelectionStartPosition.setX(indicePoint.x());
         }
-        if (indicePoint.x() > m_pasteSelectionEndPosition.x()) {
-            m_pasteSelectionEndPosition.setX(indicePoint.x());
+        if (indicePoint.x() > tempSelectionEndPosition.x()) {
+            tempSelectionEndPosition.setX(indicePoint.x());
         }
-        if (indicePoint.y() < m_pasteSelectionStartPosition.y()) {
-            m_pasteSelectionStartPosition.setY(indicePoint.y());
+        if (indicePoint.y() < tempSelectionStartPosition.y()) {
+            tempSelectionStartPosition.setY(indicePoint.y());
         }
-        if (indicePoint.y() > m_pasteSelectionEndPosition.y()) {
-            m_pasteSelectionEndPosition.setY(indicePoint.y());
+        if (indicePoint.y() > tempSelectionEndPosition.y()) {
+            tempSelectionEndPosition.setY(indicePoint.y());
         }
     }
+    // If we are in the map limit accept the change
+    if (!initialCalculation && (tempSelectionEndPosition.x() - tempSelectionStartPosition.x() != m_pasteSelectionEndPosition.x() - m_pasteSelectionStartPosition.x()
+                || (tempSelectionEndPosition.y() - tempSelectionStartPosition.y() != m_pasteSelectionEndPosition.y() - m_pasteSelectionStartPosition.y()))) {
+        return;
+    }
+    m_pasteDragEndPosition = dragEndPosition;
+    m_pasteResultIndices = newIndices;
+    m_pasteSelectionStartPosition = tempSelectionStartPosition;
+    m_pasteSelectionEndPosition = tempSelectionEndPosition;
 }
 
 bool MapOpenGLWidget::isCursorInPasteSelectionZone(QPoint cursorPosition) const {
