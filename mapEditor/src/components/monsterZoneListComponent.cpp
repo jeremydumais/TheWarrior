@@ -50,13 +50,13 @@ void MonsterZoneListComponent::connectUIActions() {
 void MonsterZoneListComponent::refreshMonsterZones() {
     ui.tableWidgetMonsterZone->model()->removeRows(0, ui.tableWidgetMonsterZone->rowCount());
     int index {0};
-    for (const auto &monsterZone : m_glComponent->getMonsterZones()) {
+    for (const auto &monsterZone : m_controller.getMonsterZones()) {
         ui.tableWidgetMonsterZone->insertRow(index);
         ui.tableWidgetMonsterZone->setItem(index, 0, new QTableWidgetItem(monsterZone.m_colorName.c_str()));
         ui.tableWidgetMonsterZone->setItem(index, 1, new QTableWidgetItem(monsterZone.m_name.c_str()));
          index++;
     }
-    ui.checkBoxOneMonsterZoneForAllTheMap->setEnabled(m_glComponent->getMonsterZones().size() == 1);
+    ui.checkBoxOneMonsterZoneForAllTheMap->setEnabled(m_controller.getMonsterZones().size() == 1);
     ui.checkBoxOneMonsterZoneForAllTheMap->setChecked(m_glComponent->isUseOnlyOneMonsterZone());
 }
 
