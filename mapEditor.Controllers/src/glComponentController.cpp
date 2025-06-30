@@ -41,6 +41,7 @@ GLComponentController::GLComponentController()
 m_currentMapTiles({}),
 m_selectedIndices({}),
 m_editHistory(),
+m_historyCurrentIndex(0),
 m_clipboard({}),
 m_clipboardSelectedIndices({}),
 m_lastError(""),
@@ -63,8 +64,16 @@ void GLComponentController::setCurrentMap(std::shared_ptr<GameMap> map) {
     m_map = map;
     m_currentMapTiles.clear();
     m_selectedIndices.clear();
+    m_editHistory.clear();
+    m_historyCurrentIndex = 0;
+    m_lastError.clear();
     m_clipboard.clear();
     m_clipboardSelectedIndices.clear();
+    m_lastSelectedTextureName.clear();
+    m_lastSelectedObjectName.clear();
+    m_lastSelectedTextureIndex = -1;
+    m_lastSelectedObjectIndex = -1;
+    m_lastSelectedMonsterZoneIndex = -1;
 }
 
 void GLComponentController::selectTilesForEditing(const std::set<int> &indices) {

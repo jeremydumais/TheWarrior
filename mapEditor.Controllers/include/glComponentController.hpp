@@ -77,7 +77,7 @@ class GLComponentController {
     std::vector<thewarrior::models::MapTile *> m_currentMapTiles;
     std::set<int> m_selectedIndices;
     std::vector<std::shared_ptr<thewarrior::models::GameMap>> m_editHistory;
-    size_t m_historyCurrentIndex = 0;
+    size_t m_historyCurrentIndex;
     std::vector<thewarrior::models::MapTile> m_clipboard;
     std::set<int> m_clipboardSelectedIndices;
     std::string m_lastError;
