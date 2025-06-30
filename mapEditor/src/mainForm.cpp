@@ -497,8 +497,10 @@ void MainForm::openMap(const std::string &filePath) {
     m_currentFilePath = filePath;
     addNewRecentMap(m_currentFilePath);
     m_glComponent.setCurrentMap(m_controller.getMap());
+    m_glComponent.setSelectionMode(SelectionMode::Select);
     m_glComponent.resetMapMovePosition();
     m_glComponent.clearEditHistory();
+    refreshClipboardControls();
     refreshTextureList();
     refreshMonsterZones();
     m_tilePropsComponent->reset();

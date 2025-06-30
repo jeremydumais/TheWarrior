@@ -18,7 +18,6 @@
 #include "components/tilePropsComponent.hpp"
 #include "mapTileDTO.hpp"
 #include "monsterZoneDTO.hpp"
-#include "qClosableDockWidget.hpp"
 #include "selectionMode.hpp"
 #include "ui_mainForm.h"
 

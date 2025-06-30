@@ -2,14 +2,12 @@
 
 #include <memory>
 #include <set>
-#include <stack>
 #include <string>
 #include <vector>
 #include <boost/optional/optional.hpp>
 #include "gameMap.hpp"
 #include "mapTile.hpp"
 #include "mapTileDTO.hpp"
-#include "monsterZone.hpp"
 #include "monsterZoneDTO.hpp"
 #include "point.hpp"
 #include "textureDTO.hpp"
@@ -40,6 +38,7 @@ class GLComponentController {
     size_t getHistoryCurrentIndex() const;
     size_t getHistoryCount() const;
     const std::vector<thewarrior::models::MapTile> &getClipboard() const;
+    const std::set<int> &getClipboardSelectedTileIndices() const;
     void setCurrentMap(std::shared_ptr<thewarrior::models::GameMap> map);
     void selectTilesForEditing(const std::set<int> &indices);
     void resizeMap(int offsetLeft,
@@ -80,6 +79,7 @@ class GLComponentController {
     std::vector<std::shared_ptr<thewarrior::models::GameMap>> m_editHistory;
     size_t m_historyCurrentIndex = 0;
     std::vector<thewarrior::models::MapTile> m_clipboard;
+    std::set<int> m_clipboardSelectedIndices;
     std::string m_lastError;
     std::string m_lastSelectedTextureName;
     std::string m_lastSelectedObjectName;

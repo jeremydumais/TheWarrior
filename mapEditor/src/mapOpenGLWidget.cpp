@@ -52,6 +52,13 @@ MapOpenGLWidget::MapOpenGLWidget(QWidget *parent)
 void MapOpenGLWidget::setCurrentMap(std::shared_ptr<GameMap> map) {
     m_currentMap = map;
     m_selectedTileIndices = {};
+    m_pasteResult = {};
+    m_pasteResultIndices = {};
+    m_pasteDragInProgress = false;
+    m_pasteDragStartPosition = QPoint(0, 0);
+    m_pasteDragEndPosition = QPoint(0, 0);
+    m_pasteSelectionStartPosition = QPoint(0, 0);
+    m_pasteSelectionEndPosition = QPoint(0, 0);
 }
 
 void MapOpenGLWidget::setGridEnabled(bool enabled) {
@@ -196,10 +203,10 @@ void MapOpenGLWidget::resetMapMovePosition() {
     m_translationYGL = 0.0F;
 }
 
-void MapOpenGLWidget::pasteClipboard(const std::vector<thewarrior::models::MapTile> &tiles) {
+void MapOpenGLWidget::pasteClipboard(const std::vector<thewarrior::models::MapTile> &tiles,
+                                     const std::set<int> &clipboardSelectedTileIndices) {
     m_pasteResult = tiles;
-    //TODO: To fix, we must receive the indices in parameters and must be persisted in the component
-    m_pasteResultIndices = m_selectedTileIndices;
+    m_pasteResultIndices = clipboardSelectedTileIndices;
     m_pasteDragStartPosition = QPoint(0, 0);
     m_pasteDragEndPosition = QPoint(0, 0);
     calculatePasteSelectionZone(m_pasteDragEndPosition, true);
@@ -745,10 +752,10 @@ void MapOpenGLWidget::drawBlockBorderBottom() {
 }
 
 int MapOpenGLWidget::getTileIndex(int onScreenX, int onScreenY) {
-    if (static_cast<float>(onScreenX) / ONSCREENTILESIZE > static_cast<float>(m_currentMap->getWidth()) - 1) {
+    if (static_cast<float>(onScreenX) / ONSCREENTILESIZE > static_cast<float>(m_currentMap->getWidth())) {
         return -1;
     }
-    if (static_cast<float>(onScreenY) / ONSCREENTILESIZE > static_cast<float>(m_currentMap->getHeight()) - 1) {
+    if (static_cast<float>(onScreenY) / ONSCREENTILESIZE > static_cast<float>(m_currentMap->getHeight())) {
         return -1;
     }
     float x = static_cast<float>(onScreenX) - m_translationX * m_translationXToPixel * static_cast<float>(ONSCREENTILESIZE);
@@ -756,7 +763,7 @@ int MapOpenGLWidget::getTileIndex(int onScreenX, int onScreenY) {
     int indexX = static_cast<int>(x / ONSCREENTILESIZE);
     int indexY = static_cast<int>(y / ONSCREENTILESIZE);
     int tileIndex { indexX + (indexY * static_cast<int>(m_currentMap->getWidth())) };
-    if (tileIndex < 0 || (tileIndex > static_cast<int>(m_currentMap->getWidth() * m_currentMap->getHeight() -1))) {
+    if (tileIndex < 0 || (tileIndex > static_cast<int>(m_currentMap->getWidth() * m_currentMap->getHeight()))) {
         return -1;
     }
     return tileIndex;

@@ -13,7 +13,6 @@
 #include "mapTileDTO.hpp"
 #include "monsterZoneDTO.hpp"
 #include "pickerToolSelection.hpp"
-#include "point.hpp"
 #include "selectionMode.hpp"
 
 

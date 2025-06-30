@@ -3,6 +3,9 @@
 #include <algorithm>
 #include <iterator>
 #include <memory>
+#include <set>
+#include <string>
+#include <vector>
 #include <boost/optional/optional.hpp>
 #include "gameMap.hpp"
 #include "mapTile.hpp"
@@ -35,17 +38,18 @@ namespace mapeditor::controllers {
 
 GLComponentController::GLComponentController()
     : m_map(nullptr),
-      m_currentMapTiles({}),
-      m_selectedIndices({}),
-      m_editHistory(),
-      m_clipboard({}),
-      m_lastError(""),
-      m_lastSelectedTextureName(""),
-      m_lastSelectedObjectName(""),
-      m_lastSelectedTextureIndex(-1),
-      m_lastSelectedObjectIndex(-1),
-      m_lastSelectedMonsterZoneIndex(-1) {
-    }
+m_currentMapTiles({}),
+m_selectedIndices({}),
+m_editHistory(),
+m_clipboard({}),
+m_clipboardSelectedIndices({}),
+m_lastError(""),
+m_lastSelectedTextureName(""),
+m_lastSelectedObjectName(""),
+m_lastSelectedTextureIndex(-1),
+m_lastSelectedObjectIndex(-1),
+m_lastSelectedMonsterZoneIndex(-1) {
+}
 
 const std::shared_ptr<GameMap> GLComponentController::getMap() const {
     return m_map;
@@ -59,6 +63,8 @@ void GLComponentController::setCurrentMap(std::shared_ptr<GameMap> map) {
     m_map = map;
     m_currentMapTiles.clear();
     m_selectedIndices.clear();
+    m_clipboard.clear();
+    m_clipboardSelectedIndices.clear();
 }
 
 void GLComponentController::selectTilesForEditing(const std::set<int> &indices) {
@@ -179,6 +185,10 @@ const std::vector<thewarrior::models::MapTile> &GLComponentController::getClipbo
     return m_clipboard;
 }
 
+const std::set<int> &GLComponentController::getClipboardSelectedTileIndices() const {
+    return m_clipboardSelectedIndices;
+}
+
 void GLComponentController::setLastSelectedTexture(const std::string &name,
         int index) {
     this->m_lastSelectedTextureName = name;
@@ -243,6 +253,8 @@ void GLComponentController::copySelectionInClipboard() {
             m_currentMapTiles.end(),
             std::back_inserter(m_clipboard),
             [](auto elem) -> auto { return *elem; });
+    m_clipboardSelectedIndices.clear();
+    m_clipboardSelectedIndices = m_selectedIndices;
 }
 
 void GLComponentController::pushCurrentStateToHistory() {

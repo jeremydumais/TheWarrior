@@ -1,12 +1,9 @@
 #include "mainForm_GLComponent.hpp"
-#include <algorithm>
 #include <optional>
-#include <stdexcept>
 #include "errorMessage.hpp"
 #include "glComponentController.hpp"
 #include "mapTileDTO.hpp"
 #include "monsterZoneDTO.hpp"
-#include "monsterZoneDTOUtils.hpp"
 #include "pickerToolSelection.hpp"
 
 using commoneditor::ui::ErrorMessage;
@@ -235,7 +232,8 @@ void MainForm_GLComponent::copySelectionInClipboard() {
 }
 
 void MainForm_GLComponent::pasteClipboard() {
-   m_glWidget->pasteClipboard(m_controller.getClipboard());
+    m_glWidget->pasteClipboard(m_controller.getClipboard(),
+                               m_controller.getClipboardSelectedTileIndices());
 }
 
 void MainForm_GLComponent::applyTexture() {

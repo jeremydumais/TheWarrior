@@ -51,7 +51,8 @@ class MapOpenGLWidget : public QOpenGLWidget {
     void stopAutoUpdate();
     void resetMapMovePosition();
     void wheelEvent(QWheelEvent *event) override;
-    void pasteClipboard(const std::vector<thewarrior::models::MapTile> &tiles);
+    void pasteClipboard(const std::vector<thewarrior::models::MapTile> &tiles,
+                        const std::set<int> &clipboardSelectedTileIndices);
 
  protected:
     void initializeGL() override;
