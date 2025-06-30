@@ -348,6 +348,7 @@ boost::optional<MapTileTriggerDTO> TilePropsComponent::getSelectedTrigger() {
 void TilePropsComponent::onPushButtonClearMonsterZoneClick() {
     if (!m_disableFieldsChangedEvent) {
         m_controller.setTilesMonsterZoneIndex(-1);
+        ui.comboBoxMonsterZoneApplied->setCurrentIndex(-1);
         m_glComponent->updateGL();
     }
 }
