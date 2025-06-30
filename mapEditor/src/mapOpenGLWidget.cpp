@@ -347,6 +347,12 @@ void MapOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
             m_selectionMode == SelectionMode::MoveMap) {
         m_translationDragAndDropX = static_cast<float>(event->pos().x() - m_lastCursorPosition.x()) / (static_cast<float>(ONSCREENTILESIZE) * m_translationXToPixel);
         m_translationDragAndDropY = static_cast<float>(m_lastCursorPosition.y() - event->pos().y()) / (static_cast<float>(ONSCREENTILESIZE) * m_translationYToPixel);
+        if (m_translationX + m_translationDragAndDropX > 0) {
+            m_translationDragAndDropX = m_translationX * -1.0F;
+        }
+        if (m_translationY + m_translationDragAndDropY < 0) {
+            m_translationDragAndDropY = m_translationY * -1.0F;
+        }
     }
     m_currentCursorPosition = event->pos();
     updateCursor(event);
