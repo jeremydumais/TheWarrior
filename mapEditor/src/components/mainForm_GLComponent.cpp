@@ -216,6 +216,11 @@ void MainForm_GLComponent::clearEditHistory() {
     emit editHistoryChanged();
 }
 
+void MainForm_GLComponent::pushCurrentStateToHistory() {
+    m_controller.pushCurrentStateToHistory();
+    emit editHistoryChanged();
+}
+
 void MainForm_GLComponent::undo() {
     m_controller.undo();
     emit editHistoryChanged();

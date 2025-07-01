@@ -44,6 +44,7 @@ void MapPropsComponent::onPushButtonApplySizeChangeClick() {
             return;
         }
     }
+    emit onBeforeApplyChange();
     // Apply new size
     try {
         m_glComponent->resizeMap(offsetLeft,

@@ -11,6 +11,7 @@
 #include <memory>
 #include "aboutBoxForm.hpp"
 #include "components/debugInfoDockWidget.hpp"
+#include "components/mapPropsComponent.hpp"
 #include "constants.hpp"
 #include "errorMessage.hpp"
 #include "gameMapStorage.hpp"
@@ -179,6 +180,7 @@ void MainForm::connectUIActions() {
     connect(m_textureSelectionDockWidget.get(), &QClosableDockWidget::onCloseEvent, this, &MainForm::widgetTextureSelectionClosed);
     connect(m_debugInfoDockWidget.get(), &QClosableDockWidget::onCloseEvent, this, &MainForm::widgetDebugInfoClosed);
     m_glComponent.connectUIActions();
+    connect(m_mapPropsComponent.get(), &MapPropsComponent::onBeforeApplyChange, this, &MainForm::onMapPropsComponentBeforeChange);
     connect(&m_glComponent, &MainForm_GLComponent::tileSelected, this, &MainForm::onTileSelected);
     connect(&m_glComponent, &MainForm_GLComponent::editHistoryChanged, this, &MainForm::onEditHistoryChanged);
     connect(&m_glComponent, &MainForm_GLComponent::clipboardChanged, this, &MainForm::onClipboardChanged);
@@ -723,5 +725,9 @@ void MainForm::useOnlyOneMonsterZoneChanged(bool value) {
         ErrorMessage::show("Unable to set the value for the 'Use only one monster zone for all the map' field");
     }
     toggleMonsterZoneAssignationControls();
+}
+
+void MainForm::onMapPropsComponentBeforeChange() {
+    m_glComponent.pushCurrentStateToHistory();
 }
 

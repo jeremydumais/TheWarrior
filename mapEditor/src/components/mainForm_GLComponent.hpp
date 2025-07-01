@@ -65,6 +65,7 @@ class MainForm_GLComponent : public QWidget {
     std::vector<std::string> getAlreadyUsedMonsterZoneNames() const;
     bool isUseOnlyOneMonsterZone() const;
     void clearEditHistory();
+    void pushCurrentStateToHistory();
     void undo();
     void redo();
     void copySelectionInClipboard();

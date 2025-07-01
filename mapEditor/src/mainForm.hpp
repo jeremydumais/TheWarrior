@@ -117,6 +117,7 @@ Q_OBJECT
     void refreshMonsterZones();
     void toggleMonsterZoneAssignationControls();
     void useOnlyOneMonsterZoneChanged(bool value);
+    void onMapPropsComponentBeforeChange();
 };
 
 #endif  // MAPEDITOR_SRC_MAINFORM_HPP_
