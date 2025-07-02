@@ -7,6 +7,7 @@
 #include <fmt/format.h>
 #include <stb_image.h>
 #include <algorithm>
+#include <iostream>
 #include <iterator>
 #include <map>
 #include <set>
@@ -47,6 +48,10 @@ MapOpenGLWidget::MapOpenGLWidget(QWidget *parent)
     m_pasteDragEndPosition(QPoint(0, 0)) {
     connect(&m_repaintTimer, SIGNAL(timeout()), this, SLOT(update()));
     setMouseTracking(true);
+    setAutoFillBackground(false);
+    QSurfaceFormat fmt;
+    fmt.setSwapInterval(1); // Enable VSync
+    setFormat(fmt);
 }
 
 void MapOpenGLWidget::setCurrentMap(std::shared_ptr<GameMap> map) {
@@ -187,7 +192,7 @@ void MapOpenGLWidget::reloadTextures() {
 }
 
 void MapOpenGLWidget::startAutoUpdate() {
-    m_repaintTimer.start(static_cast<int>(1000.0F / 10.0F));
+    m_repaintTimer.start(100);
 }
 
 void MapOpenGLWidget::stopAutoUpdate() {
@@ -224,6 +229,7 @@ void MapOpenGLWidget::wheelEvent(QWheelEvent *event) {
 }
 
 void MapOpenGLWidget::mousePressEvent(QMouseEvent *event) {
+    this->setFocus();
     bool altPressed = QGuiApplication::keyboardModifiers().testFlag(Qt::AltModifier);
     if (altPressed) {
         m_oldSelectionMode = m_selectionMode;
@@ -427,19 +433,31 @@ void MapOpenGLWidget::draw() {
     if (m_selectionMode == SelectionMode::Select || m_selectionMode == SelectionMode::Paste) {
         updateSelectedTileColor();
     }
+    int yIndexPos = 0;
+    int firstHorizontalTileToDisplay = static_cast<int>(std::abs((m_translationX + m_translationDragAndDropX) * m_translationXToPixel));
+    int lastHorizontalTileToDisplay = firstHorizontalTileToDisplay + static_cast<int>(std::ceil(static_cast<float>(this->width()) / ONSCREENTILESIZE));
+    int firstVerticalTileToDisplay = static_cast<int>(std::abs((m_translationY + m_translationDragAndDropY) * m_translationYToPixel));
+    int lastVerticalTileToDisplay = firstVerticalTileToDisplay + static_cast<int>(std::ceil(static_cast<float>(this->height()) / ONSCREENTILESIZE));
     glPushMatrix();
     for (const auto &row : m_currentMap->getTiles()) {
+        int xIndexPos = 0;
         for (const auto &tile : row) {
-            drawTile(tile, index, zoneColors);
+            //TODO: only draw tiles that are visible
+            if (yIndexPos >= firstVerticalTileToDisplay && yIndexPos <= lastVerticalTileToDisplay &&
+                xIndexPos >= firstHorizontalTileToDisplay && xIndexPos <= lastHorizontalTileToDisplay) {
+                drawTile(tile, index, zoneColors);
+            }
 
             x += m_glTileWidth + TILESPACING;
             glTranslatef(m_glTileWidth + TILESPACING, 0, 0);
             glBindTexture(GL_TEXTURE_2D, 0);
             index++;
+            xIndexPos++;
         }
         x += static_cast<float>(row.size()) * -(m_glTileWidth + TILESPACING);
         y += -(m_glTileHeight + TILESPACING);
         glTranslatef(static_cast<float>(row.size()) * -(m_glTileWidth + TILESPACING), -(m_glTileHeight + TILESPACING), 0.0f);
+        yIndexPos++;
     }
     glPopMatrix();
     if (m_selectionMode == SelectionMode::Paste || m_oldSelectionMode == SelectionMode::Paste) {

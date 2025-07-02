@@ -28,6 +28,8 @@ Q_OBJECT
     void reset();
     void refreshMonsterZones(const std::vector<mapeditor::controllers::MonsterZoneDTO> &zones);
     void setOnlyOneMonsterZoneForMap(bool value);
+    void disableFieldsChangeEvent();
+    void enableFieldsChangeEvent();
 
  private:
     Ui::TilePropsComponent ui;
@@ -35,16 +37,16 @@ Q_OBJECT
     QTableWidgetKeyPressWatcher tableWidgetMapTileTriggersKeyWatcher;
     MainForm_GLComponent *m_glComponent;
     bool m_disableFieldsChangedEvent;
-    void refreshEventList(std::set<mapeditor::controllers::MapTileTriggerDTO> triggers);
+    void refreshEventList(const std::set<mapeditor::controllers::MapTileTriggerDTO> &triggers);
     void refreshMonsterZoneComboBoxEnableStatus();
     void onTileSelected(std::vector<mapeditor::controllers::MapTileDTO> tiles);
     void onTileUnselected();
     void onTilePropsChanged();
     void onTileTriggerChanged();
-    void onLineEditTexNameTextChanged(const QString &text);
-    void onSpinBoxTexIndexValueChanged(int value);
-    void onLineEditObjTexNameTextChanged(const QString &text);
-    void onSpinBoxObjTexIndexValueChanged(int value);
+    void onLineEditTexNameEditingFinished();
+    void onSpinBoxTexIndexEditingFinished();
+    void onLineEditObjTexNameEditingFinished();
+    void onSpinBoxObjTexIndexEditingFinished();
     void onCheckBoxObjectAbovePlayerChanged(int state);
     void onCheckBoxTileCanSteppedOnChanged(int state);
     void onCheckBoxIsWallToClimbChanged(int state);

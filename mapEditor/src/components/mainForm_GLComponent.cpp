@@ -1,5 +1,8 @@
 #include "mainForm_GLComponent.hpp"
 #include <optional>
+#include <set>
+#include <string>
+#include <vector>
 #include "errorMessage.hpp"
 #include "glComponentController.hpp"
 #include "mapTileDTO.hpp"

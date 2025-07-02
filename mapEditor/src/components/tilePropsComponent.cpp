@@ -2,6 +2,7 @@
 #include <qcombobox.h>
 #include <qtablewidget.h>
 #include <algorithm>
+#include <set>
 #include <string>
 #include <vector>
 #include "glComponentController.hpp"
@@ -52,21 +53,21 @@ void TilePropsComponent::connectUIActions() {
             this,
             &TilePropsComponent::onTilePropsChanged);
     connect(ui.lineEditTexName,
-            &QLineEdit::textChanged,
+            &QLineEdit::editingFinished,
             this,
-            &TilePropsComponent::onLineEditTexNameTextChanged);
+            &TilePropsComponent::onLineEditTexNameEditingFinished);
     connect(ui.spinBoxTexIndex,
-            static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            static_cast<void(QAbstractSpinBox::*)()>(&QSpinBox::editingFinished),
             this,
-            &TilePropsComponent::onSpinBoxTexIndexValueChanged);
+            &TilePropsComponent::onSpinBoxTexIndexEditingFinished);
     connect(ui.lineEditObjTexName,
-            &QLineEdit::textChanged,
+            &QLineEdit::editingFinished,
             this,
-            &TilePropsComponent::onLineEditObjTexNameTextChanged);
+            &TilePropsComponent::onLineEditObjTexNameEditingFinished);
     connect(ui.spinBoxObjTexIndex,
-            static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            static_cast<void(QAbstractSpinBox::*)()>(&QSpinBox::editingFinished),
             this,
-            &TilePropsComponent::onSpinBoxObjTexIndexValueChanged);
+            &TilePropsComponent::onSpinBoxObjTexIndexEditingFinished);
     connect(ui.checkBoxTileCanSteppedOn,
             &QCheckBox::stateChanged,
             this,
@@ -157,7 +158,15 @@ void TilePropsComponent::setOnlyOneMonsterZoneForMap(bool) {
     refreshMonsterZoneComboBoxEnableStatus();
 }
 
-void TilePropsComponent::refreshEventList(std::set<mapeditor::controllers::MapTileTriggerDTO> triggers) {
+void TilePropsComponent::disableFieldsChangeEvent() {
+    m_disableFieldsChangedEvent = true;
+}
+
+void TilePropsComponent::enableFieldsChangeEvent() {
+    m_disableFieldsChangedEvent = false;
+}
+
+void TilePropsComponent::refreshEventList(const std::set<mapeditor::controllers::MapTileTriggerDTO> &triggers) {
     ui.tableWidgetMapTileTriggers->model()->removeRows(0, ui.tableWidgetMapTileTriggers->rowCount());
     if (triggers.size() > 0) {
         int indexTrigger {0};
@@ -279,36 +288,61 @@ bool isChildWidgetOfAnyLayout(QLayout *layout, QWidget *widget) {
     return false;
 }
 
-void TilePropsComponent::onLineEditTexNameTextChanged(const QString &text) {
+void TilePropsComponent::onLineEditTexNameEditingFinished() {
     if (!m_disableFieldsChangedEvent) {
-        m_controller.setTilesTextureName(text.toStdString());
+        auto tiles = m_controller.getSelectedTiles();
+        if (!std::all_of(tiles.begin(), tiles.end(), [&](const MapTileDTO &tile) {
+            return ui.lineEditTexName->text().toStdString() == tile.textureName;
+        })) {
+            m_glComponent->pushCurrentStateToHistory();
+            m_controller.setTilesTextureName(ui.lineEditTexName->text().toStdString());
+        }
         m_glComponent->updateGL();
     }
 }
 
-void TilePropsComponent::onSpinBoxTexIndexValueChanged(int value) {
+void TilePropsComponent::onSpinBoxTexIndexEditingFinished() {
     if (!m_disableFieldsChangedEvent) {
-        m_controller.setTilesTextureIndex(value);
+        auto tiles = m_controller.getSelectedTiles();
+        if (!std::all_of(tiles.begin(), tiles.end(), [&](const MapTileDTO &tile) {
+            return ui.spinBoxTexIndex->value() == tile.textureIndex;
+        })) {
+            m_glComponent->pushCurrentStateToHistory();
+            m_controller.setTilesTextureIndex(ui.spinBoxTexIndex->value());
+        }
         m_glComponent->updateGL();
     }
 }
 
-void TilePropsComponent::onLineEditObjTexNameTextChanged(const QString &text) {
+void TilePropsComponent::onLineEditObjTexNameEditingFinished() {
     if (!m_disableFieldsChangedEvent) {
-        m_controller.setTilesObjectTextureName(text.toStdString());
+        auto tiles = m_controller.getSelectedTiles();
+        if (!std::all_of(tiles.begin(), tiles.end(), [&](const MapTileDTO &tile) {
+            return ui.lineEditObjTexName->text().toStdString() == tile.objectTextureName;
+        })) {
+            m_glComponent->pushCurrentStateToHistory();
+            m_controller.setTilesObjectTextureName(ui.lineEditObjTexName->text().toStdString());
+        }
         m_glComponent->updateGL();
     }
 }
 
-void TilePropsComponent::onSpinBoxObjTexIndexValueChanged(int value) {
+void TilePropsComponent::onSpinBoxObjTexIndexEditingFinished() {
     if (!m_disableFieldsChangedEvent) {
-        m_controller.setTilesObjectTextureIndex(value);
+        auto tiles = m_controller.getSelectedTiles();
+        if (!std::all_of(tiles.begin(), tiles.end(), [&](const MapTileDTO &tile) {
+            return ui.spinBoxObjTexIndex->value() == tile.objectTextureIndex;
+        })) {
+            m_glComponent->pushCurrentStateToHistory();
+            m_controller.setTilesObjectTextureIndex(ui.spinBoxObjTexIndex->value());
+        }
         m_glComponent->updateGL();
     }
 }
 
 void TilePropsComponent::onCheckBoxObjectAbovePlayerChanged(int state) {
     if (!m_disableFieldsChangedEvent) {
+        m_glComponent->pushCurrentStateToHistory();
         m_controller.setTilesObjectAbovePlayer(state == Qt::Checked);
         m_glComponent->updateGL();
     }
@@ -316,6 +350,7 @@ void TilePropsComponent::onCheckBoxObjectAbovePlayerChanged(int state) {
 
 void TilePropsComponent::onCheckBoxTileCanSteppedOnChanged(int state) {
     if (!m_disableFieldsChangedEvent) {
+        m_glComponent->pushCurrentStateToHistory();
         m_controller.setTilesCanSteppedOn(state == Qt::Checked);
         m_glComponent->updateGL();
     }
@@ -323,6 +358,7 @@ void TilePropsComponent::onCheckBoxTileCanSteppedOnChanged(int state) {
 
 void TilePropsComponent::onCheckBoxIsWallToClimbChanged(int state) {
     if (!m_disableFieldsChangedEvent) {
+        m_glComponent->pushCurrentStateToHistory();
         m_controller.setTilesIsWallToClimb(state == Qt::Checked);
         m_glComponent->updateGL();
     }
@@ -330,7 +366,13 @@ void TilePropsComponent::onCheckBoxIsWallToClimbChanged(int state) {
 
 void TilePropsComponent::onComboBoxMonsterZoneCurrentIndexChanged(int index) {
     if (!m_disableFieldsChangedEvent) {
-        m_controller.setTilesMonsterZoneIndex(index);
+        auto tiles = m_controller.getSelectedTiles();
+        if (!std::all_of(tiles.begin(), tiles.end(), [&](const MapTileDTO &tile) {
+            return index == tile.monsterZoneIndex;
+        })) {
+            m_glComponent->pushCurrentStateToHistory();
+            m_controller.setTilesMonsterZoneIndex(index);
+        }
         m_glComponent->updateGL();
     }
 }
@@ -347,6 +389,7 @@ boost::optional<MapTileTriggerDTO> TilePropsComponent::getSelectedTrigger() {
 
 void TilePropsComponent::onPushButtonClearMonsterZoneClick() {
     if (!m_disableFieldsChangedEvent) {
+        m_glComponent->pushCurrentStateToHistory();
         m_controller.setTilesMonsterZoneIndex(-1);
         ui.comboBoxMonsterZoneApplied->setCurrentIndex(-1);
         m_glComponent->updateGL();
@@ -370,6 +413,7 @@ void TilePropsComponent::onPushButtonAddTileEventClick() {
                 combinedTriggers);
         UIUtils::centerToScreen(&formEditMapTileTrigger);
         if (formEditMapTileTrigger.exec() == QDialog::Accepted) {
+            m_glComponent->pushCurrentStateToHistory();
             m_controller.addTilesTrigger(formEditMapTileTrigger.getUpdatedTrigger());
             refreshEventList(m_controller.getTilesCommonTriggers());
         }
@@ -397,6 +441,7 @@ void TilePropsComponent::onPushButtonEditTileEventClick() {
                     combinedTriggers);
             UIUtils::centerToScreen(&formEditMapTileTrigger);
             if (formEditMapTileTrigger.exec() == QDialog::Accepted) {
+                m_glComponent->pushCurrentStateToHistory();
                 if (!m_controller.updateTilesTrigger(selectedMapTileTrigger.value(),
                         formEditMapTileTrigger.getUpdatedTrigger())) {
                     ErrorMessage::show("An error occurred while trying to update the selected trigger.\n"
@@ -430,6 +475,7 @@ void TilePropsComponent::onPushButtonDeleteTileEventClick() {
             msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
             msgBox.setDefaultButton(QMessageBox::Cancel);
             if (msgBox.exec() == QMessageBox::Yes) {
+                m_glComponent->pushCurrentStateToHistory();
                 if (!m_controller.deleteTilesTrigger(selectedMapTileTrigger.value())) {
                     ErrorMessage::show("An error occurred while trying to delete the selected trigger.\n"
                             "Some selected tiles may have been updated.");

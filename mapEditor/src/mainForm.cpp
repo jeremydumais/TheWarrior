@@ -9,6 +9,8 @@
 #include <QtCore/qfile.h>
 #include <fmt/format.h>
 #include <memory>
+#include <string>
+#include <vector>
 #include "aboutBoxForm.hpp"
 #include "components/debugInfoDockWidget.hpp"
 #include "components/mapPropsComponent.hpp"
@@ -369,15 +371,19 @@ void MainForm::action_PickerToolClick() {
 }
 
 void MainForm::action_UndoClick() {
+    m_tilePropsComponent->disableFieldsChangeEvent();
     m_glComponent.undo();
     refreshTextureList();
     refreshMonsterZones();
+    m_tilePropsComponent->enableFieldsChangeEvent();
 }
 
 void MainForm::action_RedoClick() {
+    m_tilePropsComponent->disableFieldsChangeEvent();
     m_glComponent.redo();
     refreshTextureList();
     refreshMonsterZones();
+    m_tilePropsComponent->enableFieldsChangeEvent();
 }
 
 void MainForm::action_CopyClick() {
@@ -388,7 +394,6 @@ void MainForm::action_PasteClick() {
     m_glComponent.setSelectionMode(SelectionMode::Paste);
     m_glComponent.pasteClipboard();
     setActiveToolbarActionChecked(SelectionMode::Paste);
-
 }
 
 void MainForm::action_ApplyTextureClick() {
