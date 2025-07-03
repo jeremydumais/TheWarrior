@@ -372,17 +372,21 @@ void MainForm::action_PickerToolClick() {
 
 void MainForm::action_UndoClick() {
     m_tilePropsComponent->disableFieldsChangeEvent();
+    m_monsterZoneListComponent->disableFieldsChangeEvent();
     m_glComponent.undo();
     refreshTextureList();
     refreshMonsterZones();
+    m_monsterZoneListComponent->enableFieldsChangeEvent();
     m_tilePropsComponent->enableFieldsChangeEvent();
 }
 
 void MainForm::action_RedoClick() {
     m_tilePropsComponent->disableFieldsChangeEvent();
+    m_monsterZoneListComponent->disableFieldsChangeEvent();
     m_glComponent.redo();
     refreshTextureList();
     refreshMonsterZones();
+    m_monsterZoneListComponent->enableFieldsChangeEvent();
     m_tilePropsComponent->enableFieldsChangeEvent();
 }
 
@@ -663,6 +667,7 @@ void MainForm::refreshTextureList() {
 }
 
 void MainForm::onMonsterZoneAdded(MonsterZoneDTO monsterZoneDTO) {
+    m_tilePropsComponent->disableFieldsChangeEvent();
     if (m_controller.addMonsterZone(monsterZoneDTO)) {
         m_monsterZoneListComponent->confirmValidityOfOneMonsterZoneCheckBox();
     } else {
@@ -670,17 +675,21 @@ void MainForm::onMonsterZoneAdded(MonsterZoneDTO monsterZoneDTO) {
     }
     refreshMonsterZones();
     refreshUndoControls();
+    m_tilePropsComponent->enableFieldsChangeEvent();
 }
 
 void MainForm::onMonsterZoneUpdated(const std::string &name, MonsterZoneDTO monsterZoneDTO) {
+    m_tilePropsComponent->disableFieldsChangeEvent();
     if (!m_controller.replaceMonsterZone(name, monsterZoneDTO)) {
         ErrorMessage::show(m_controller.getLastError());
     }
     refreshMonsterZones();
     refreshUndoControls();
+    m_tilePropsComponent->enableFieldsChangeEvent();
 }
 
 void MainForm::onMonsterZoneDeleted(const std::string &name) {
+    m_tilePropsComponent->disableFieldsChangeEvent();
     if (m_controller.removeMonsterZone(name)) {
         m_monsterZoneListComponent->confirmValidityOfOneMonsterZoneCheckBox();
     } else {
@@ -688,6 +697,7 @@ void MainForm::onMonsterZoneDeleted(const std::string &name) {
     }
     refreshMonsterZones();
     refreshUndoControls();
+    m_tilePropsComponent->enableFieldsChangeEvent();
 }
 
 void MainForm::refreshMonsterZones() {
@@ -721,15 +731,19 @@ void MainForm::toggleMonsterZoneAssignationControls() {
     comboBoxToolbarMonsterZone->setEnabled(active);
     ui.action_ApplyMonsterZone->setEnabled(active);
     ui.action_ClearMonsterZone->setEnabled(active);
-    // TODO: 0.3.3 send message to the tile props component
+    // Inform the tile props component of the only one monster zone for map status
     m_tilePropsComponent->setOnlyOneMonsterZoneForMap(m_glComponent.isUseOnlyOneMonsterZone());
 }
 
 void MainForm::useOnlyOneMonsterZoneChanged(bool value) {
+    m_tilePropsComponent->disableFieldsChangeEvent();
     if (!m_glComponent.setUseOnlyOneMonsterZone(value)) {
         ErrorMessage::show("Unable to set the value for the 'Use only one monster zone for all the map' field");
     }
     toggleMonsterZoneAssignationControls();
+    refreshMonsterZones();
+    refreshUndoControls();
+    m_tilePropsComponent->enableFieldsChangeEvent();
 }
 
 void MainForm::onMapPropsComponentBeforeChange() {

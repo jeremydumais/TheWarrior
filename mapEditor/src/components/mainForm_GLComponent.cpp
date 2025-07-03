@@ -296,7 +296,10 @@ void MainForm_GLComponent::clearMonsterZone() {
 }
 
 bool MainForm_GLComponent::setUseOnlyOneMonsterZone(bool value) {
-    return (m_controller.setUseOnlyOneMonsterZone(value));
+    m_controller.pushCurrentStateToHistory();
+    bool retval = m_controller.setUseOnlyOneMonsterZone(value);
+    emit editHistoryChanged();
+    return retval;
 }
 
 std::vector<MonsterZoneDTO> MainForm_GLComponent::getMonsterZones() const {

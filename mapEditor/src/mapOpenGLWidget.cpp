@@ -7,7 +7,6 @@
 #include <fmt/format.h>
 #include <stb_image.h>
 #include <algorithm>
-#include <iostream>
 #include <iterator>
 #include <map>
 #include <set>

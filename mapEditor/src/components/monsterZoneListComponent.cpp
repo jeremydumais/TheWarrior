@@ -25,7 +25,8 @@ MonsterZoneListComponent::MonsterZoneListComponent(QWidget *parent,
     : QWidget(parent),
       ui(Ui::MonsterZoneListComponent()),
       m_controller(glComponentController),
-      m_glComponent(glComponent) {
+      m_glComponent(glComponent),
+      m_disableFieldsChangedEvent(false) {
       ui.setupUi(this);
       initializeUIObjects();
       connectUIActions();
@@ -59,6 +60,15 @@ void MonsterZoneListComponent::refreshMonsterZones() {
     ui.checkBoxOneMonsterZoneForAllTheMap->setEnabled(m_controller.getMonsterZones().size() == 1);
     ui.checkBoxOneMonsterZoneForAllTheMap->setChecked(m_glComponent->isUseOnlyOneMonsterZone());
 }
+
+void MonsterZoneListComponent::disableFieldsChangeEvent() {
+    m_disableFieldsChangedEvent = true;
+}
+
+void MonsterZoneListComponent::enableFieldsChangeEvent() {
+    m_disableFieldsChangedEvent = false;
+}
+
 
 std::vector<MonsterZoneDTO> MonsterZoneListComponent::getMonsterZones() const {
     return m_controller.getMonsterZones();
@@ -165,16 +175,18 @@ void MonsterZoneListComponent::onTableWidgetMonsterZoneKeyPressEvent(int key, in
 }
 
 void MonsterZoneListComponent::onCheckBoxOneMonsterZoneForAllTheMapChanged(int state) {
-    if (state == Qt::CheckState::Checked) {
-        const auto &zones = m_controller.getMonsterZones();
-        if (zones.size() != 1) {
-            ErrorMessage::show("To enable this feature you must have exactly one monster zone configured");
-            ui.checkBoxOneMonsterZoneForAllTheMap->setCheckState(Qt::CheckState::Unchecked);
-            return;
+    if (!m_disableFieldsChangedEvent) {
+        if (state == Qt::CheckState::Checked) {
+            const auto &zones = m_controller.getMonsterZones();
+            if (zones.size() != 1) {
+                ErrorMessage::show("To enable this feature you must have exactly one monster zone configured");
+                ui.checkBoxOneMonsterZoneForAllTheMap->setCheckState(Qt::CheckState::Unchecked);
+                return;
+            } else {
+                emit useOnlyOneMonsterZoneChanged(true);
+            }
         } else {
-            emit useOnlyOneMonsterZoneChanged(true);
+            emit useOnlyOneMonsterZoneChanged(false);
         }
-    } else {
-        emit useOnlyOneMonsterZoneChanged(false);
     }
 }

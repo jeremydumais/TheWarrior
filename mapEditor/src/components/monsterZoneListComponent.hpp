@@ -26,6 +26,8 @@ class MonsterZoneListComponent : public QWidget {
     void initializeUIObjects();
     void connectUIActions();
     void refreshMonsterZones();
+    void disableFieldsChangeEvent();
+    void enableFieldsChangeEvent();
     std::vector<mapeditor::controllers::MonsterZoneDTO> getMonsterZones() const;
     std::optional<const mapeditor::controllers::MonsterZoneDTO> getSelectedMonsterZoneInMonsterZoneList() const;
     void setMonsterStores(const std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> monsterStores);
@@ -47,6 +49,7 @@ class MonsterZoneListComponent : public QWidget {
     std::string m_resourcesPath;
     QTableWidgetKeyPressWatcher tableWidgetMonsterZoneKeyWatcher;
     MainForm_GLComponent *m_glComponent;
+    bool m_disableFieldsChangedEvent;
     void onPushButtonAddMonsterZoneClick();
     void onPushButtonEditMonsterZoneClick();
     void onPushButtonDeleteMonsterZoneClick();
