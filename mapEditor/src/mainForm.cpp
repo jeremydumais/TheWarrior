@@ -376,6 +376,8 @@ void MainForm::action_UndoClick() {
     m_glComponent.undo();
     refreshTextureList();
     refreshMonsterZones();
+    m_mapPropsComponent->refresh();
+    m_tilePropsComponent->refresh();
     m_monsterZoneListComponent->enableFieldsChangeEvent();
     m_tilePropsComponent->enableFieldsChangeEvent();
 }
@@ -386,6 +388,8 @@ void MainForm::action_RedoClick() {
     m_glComponent.redo();
     refreshTextureList();
     refreshMonsterZones();
+    m_mapPropsComponent->refresh();
+    m_tilePropsComponent->refresh();
     m_monsterZoneListComponent->enableFieldsChangeEvent();
     m_tilePropsComponent->enableFieldsChangeEvent();
 }

@@ -124,20 +124,22 @@ void TilePropsComponent::reset() {
     refreshEventList({});
 }
 
+void TilePropsComponent::refresh() {
+    onTileSelected(m_controller.getSelectedTiles());
+}
+
 void TilePropsComponent::refreshMonsterZones(const std::vector<mapeditor::controllers::MonsterZoneDTO> &zones) {
-    if (!m_disableFieldsChangedEvent) {
-        int selectedComboBoxIndex = ui.comboBoxMonsterZoneApplied->currentIndex();
-        ui.comboBoxMonsterZoneApplied->model()->removeRows(0, ui.comboBoxMonsterZoneApplied->count());
-        int i = 0;
-        for (const auto &zone : zones) {
-            ui.comboBoxMonsterZoneApplied->insertItem(i, zone.m_name.c_str());
-            i++;
-        }
-        if (selectedComboBoxIndex == -1 || m_controller.getSelectedTiles().size() == 0) {
-            ui.comboBoxMonsterZoneApplied->setCurrentIndex(-1);
-        } else if (selectedComboBoxIndex < ui.comboBoxMonsterZoneApplied->count()) {
-            ui.comboBoxMonsterZoneApplied->setCurrentIndex(selectedComboBoxIndex);
-        }
+int selectedComboBoxIndex = ui.comboBoxMonsterZoneApplied->currentIndex();
+    ui.comboBoxMonsterZoneApplied->model()->removeRows(0, ui.comboBoxMonsterZoneApplied->count());
+    int i = 0;
+    for (const auto &zone : zones) {
+        ui.comboBoxMonsterZoneApplied->insertItem(i, zone.m_name.c_str());
+        i++;
+    }
+    if (selectedComboBoxIndex == -1 || m_controller.getSelectedTiles().size() == 0) {
+        ui.comboBoxMonsterZoneApplied->setCurrentIndex(-1);
+    } else if (selectedComboBoxIndex < ui.comboBoxMonsterZoneApplied->count()) {
+        ui.comboBoxMonsterZoneApplied->setCurrentIndex(selectedComboBoxIndex);
     }
 }
 

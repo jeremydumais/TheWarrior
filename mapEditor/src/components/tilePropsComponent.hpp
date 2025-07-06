@@ -26,6 +26,7 @@ Q_OBJECT
             mapeditor::controllers::GLComponentController *glComponentController);
     void connectUIActions();
     void reset();
+    void refresh();
     void refreshMonsterZones(const std::vector<mapeditor::controllers::MonsterZoneDTO> &zones);
     void setOnlyOneMonsterZoneForMap(bool value);
     void disableFieldsChangeEvent();

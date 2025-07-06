@@ -441,7 +441,6 @@ void MapOpenGLWidget::draw() {
     for (const auto &row : m_currentMap->getTiles()) {
         int xIndexPos = 0;
         for (const auto &tile : row) {
-            //TODO: only draw tiles that are visible
             if (yIndexPos >= firstVerticalTileToDisplay && yIndexPos <= lastVerticalTileToDisplay &&
                 xIndexPos >= firstHorizontalTileToDisplay && xIndexPos <= lastHorizontalTileToDisplay) {
                 drawTile(tile, index, zoneColors);

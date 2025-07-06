@@ -15,6 +15,7 @@ Q_OBJECT
             MainForm_GLComponent *glComponent);
     void connectUIActions();
     void reset();
+    void refresh();
 
  signals:
     void onBeforeApplyChange();
