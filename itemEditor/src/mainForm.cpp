@@ -15,6 +15,7 @@
 #include "aboutBoxForm.hpp"
 #include "addItemChooserForm.hpp"
 #include "configurationManager.hpp"
+#include "constants.hpp"
 #include "editArmorItemForm.hpp"
 #include "editItemForm.hpp"
 #include "editStatsItemForm.hpp"
@@ -23,7 +24,6 @@
 #include "itemType.hpp"
 #include "manageTexturesForm.hpp"
 #include "specialFolders.hpp"
-#include "weaponItem.hpp"
 
 using commoneditor::ui::ErrorMessage;
 using itemeditor::controllers::MainController;
@@ -48,7 +48,9 @@ MainForm::MainForm(QWidget *parent,
     ui.setupUi(this);
 
     // Check if the user configuration folder exist
-    m_userConfigFolder = SpecialFolders::getAppConfigDirectory("TheWarrior_ItemEditor");
+    m_userConfigFolder = SpecialFolders::getAppConfigDirectory(fmt::format("{0}/{1}",
+                                                                           ORGANIZATIONNAME,
+                                                                           APPLICATIONNAME));
     if (!boost::filesystem::exists(m_userConfigFolder)) {
         if (!boost::filesystem::create_directory(m_userConfigFolder)) {
             ErrorMessage::show(fmt::format("Unable to create the folder {0}", m_userConfigFolder), "");

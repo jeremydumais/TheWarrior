@@ -5,11 +5,12 @@
 #include <QtWidgets/QPushButton>
 #include <qdockwidget.h>
 #include "mainForm_GLComponent.hpp"
-#include "point.hpp"
+#include "pickerToolSelection.hpp"
 #include "qClickableLabel.hpp"
+#include "qClosableDockWidget.hpp"
 #include "ui_textureSelectionDockWidget.h"
 
-class TextureSelectionDockWidget : public QDockWidget {
+class TextureSelectionDockWidget : public QClosableDockWidget {
 Q_OBJECT
  public:
     TextureSelectionDockWidget(QWidget *parent, MainForm_GLComponent *glComponent);
@@ -26,4 +27,5 @@ Q_OBJECT
     void onPushButtonSelectedObjectClearClick();
     void onLabelImageTextureMouseReleaseEvent(QMouseEvent *event);
     void onComboBoxTextureCurrentIndexChanged();
+    void onPickerToolTileSelected(const PickerToolSelection &selection);
 };

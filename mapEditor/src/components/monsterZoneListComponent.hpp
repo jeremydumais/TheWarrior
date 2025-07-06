@@ -8,23 +8,26 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include "glComponentController.hpp"
 #include "mainForm_GLComponent.hpp"
-#include "monsterStore.hpp"
-#include "monsterZone.hpp"
 #include "monsterZoneDTO.hpp"
+#include "monsterZoneListComponentController.hpp"
 #include "qTableWidgetKeyPressWatcher.h"
-#include "types.hpp"
 #include "ui_monsterZoneListComponent.h"
+#include "types.hpp"
 
 class MonsterZoneListComponent : public QWidget {
     Q_OBJECT
 
  public:
     MonsterZoneListComponent(QWidget *parent,
-            MainForm_GLComponent *glComponent);
+            MainForm_GLComponent *glComponent,
+            mapeditor::controllers::GLComponentController *glComponentController);
     void initializeUIObjects();
     void connectUIActions();
     void refreshMonsterZones();
+    void disableFieldsChangeEvent();
+    void enableFieldsChangeEvent();
     std::vector<mapeditor::controllers::MonsterZoneDTO> getMonsterZones() const;
     std::optional<const mapeditor::controllers::MonsterZoneDTO> getSelectedMonsterZoneInMonsterZoneList() const;
     void setMonsterStores(const std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> monsterStores);
@@ -41,10 +44,12 @@ class MonsterZoneListComponent : public QWidget {
 
  private:
     Ui::MonsterZoneListComponent ui;
+    mapeditor::controllers::MonsterZoneListComponentController m_controller;
     std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> m_monsterStores = nullptr;
     std::string m_resourcesPath;
     QTableWidgetKeyPressWatcher tableWidgetMonsterZoneKeyWatcher;
     MainForm_GLComponent *m_glComponent;
+    bool m_disableFieldsChangedEvent;
     void onPushButtonAddMonsterZoneClick();
     void onPushButtonEditMonsterZoneClick();
     void onPushButtonDeleteMonsterZoneClick();

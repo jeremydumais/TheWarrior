@@ -108,4 +108,49 @@ View > Toolbar menu.
 - Enhanced the current texture edit form by using the common ui texture edit form controller.
 
 #### Bug fixes
-- Solved Issue # 10: When you unselect a tile the tiles details stays in the Tile Properties Component.
+- Solved Issue #10: When you unselect a tile the tiles details stays in the Tile Properties Component.
+
+## [0.3.3]
+
+### Map Editor (Version 1.3.4)
+
+#### Change
+- Move the editor configuration file into the folder "Jed# Software/The Warrior - Map Editor"
+instead of "The Warrior - Map Editor"
+- Only the tiles that are visible on the screen are now displayes. This result
+in lower CPU usage.
+
+#### New features
+- Persist the position status of toolbars.
+- Persist the visibility status of toolbars.
+- Persist the visiblity status of the display grid menu item.
+- Add a shortcut to move the map -> Alt + Click.
+- Enable the zoom feature with the mouse wheel.
+- Implement the undo/redo actions.
+- Add a Picker tool to get a texture an object from a tile.
+- Add support to change multi-selection tile properties.
+- Add bottom tabs to change the map view (ex: CanStep, MonsterZone, BlockedBorder etc).
+- Persist the "Use only one monster zone for all the map" field in the GameMap class.
+- Add a MonsterZone selection component in the Tile Property panel.^
+- Disable the MonsterZone combobox in tile props component when "Use only one monster zone for all the map" is selected.
+- Implement the copy/paste of tiles feature.
+
+#### Bug fixes
+- Solved Issue #6: Application crash when you multiselect a zone that ends outside of the GLComponent.
+- Solved Issue #14: When creating the first monster zone, it is assigned automatically to the selected tiles.
+- Solved Issue #15: Undo history is not update when we change tile value via the Tile Property panel.
+- Solved Issue #13: Application crash when you apply texture on map then same on another file.
+- Solved Issue #9: Unable to select a tile when the map is moved in the lower right corner.
+
+
+### Item Editor (Version 1.0.1)
+
+#### Change
+- Move the editor configuration file into the folder "Jed# Software/The Warrior - Item Editor"
+instead of "The Warrior - Item Editor"
+
+### Monster Editor (Version 1.0.1)
+
+#### Change
+- Move the editor configuration file into the folder "Jed# Software/The Warrior - Monster Editor"
+instead of "The Warrior - Monster Editor"

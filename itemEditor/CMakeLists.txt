@@ -1,6 +1,6 @@
 # Set project name
 set(PROJECT_NAME    "ItemEditor")
-project(${PROJECT_NAME} VERSION 1.0)
+project(${PROJECT_NAME} VERSION 1.0.1)
 
 include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/../commonEditor.UI/include
@@ -22,6 +22,7 @@ set(CMAKE_AUTOUIC_SEARCH_PATHS AUTOGEN_BUILD_DIR/include)
 set (RESOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/../commonEditor.UI/res/darkstyle)
 
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/constants.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mainForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/aboutBoxForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/imageAttributionsForm.cpp

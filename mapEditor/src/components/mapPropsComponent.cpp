@@ -25,6 +25,11 @@ void MapPropsComponent::reset() {
     ui.spinBoxMapSizeBottom->setValue(0);
 }
 
+void MapPropsComponent::refresh() {
+    ui.lineEditMapWidth->setText(std::to_string(m_glComponent->getMapWidth()).c_str());
+    ui.lineEditMapHeight->setText(std::to_string(m_glComponent->getMapHeight()).c_str());
+}
+
 void MapPropsComponent::onPushButtonApplySizeChangeClick() {
     int offsetLeft { ui.spinBoxMapSizeLeft->value() };
     int offsetTop { ui.spinBoxMapSizeTop->value() };
@@ -44,6 +49,7 @@ void MapPropsComponent::onPushButtonApplySizeChangeClick() {
             return;
         }
     }
+    emit onBeforeApplyChange();
     // Apply new size
     try {
         m_glComponent->resizeMap(offsetLeft,

@@ -1,6 +1,6 @@
 # Set project name
 set(PROJECT_NAME    "MapEditor")
-project(${PROJECT_NAME} VERSION 1.3.3)
+project(${PROJECT_NAME} VERSION 1.3.4)
 
 include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/src
@@ -24,6 +24,7 @@ set (RESOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/../commonEditor.UI/res/darkstyle
 
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mainForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/constants.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/debugInfoDockWidget.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_GLComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/tilePropsComponent.cpp

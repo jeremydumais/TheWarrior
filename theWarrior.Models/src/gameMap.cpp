@@ -4,8 +4,8 @@
 #include <algorithm>
 #include <cstdint>
 #include <iterator>
-#include <limits>
 #include <optional>
+#include <set>
 #include <stdexcept>
 #include <boost/algorithm/string.hpp>
 #include "boost/algorithm/string/case_conv.hpp"
@@ -59,6 +59,21 @@ MapTile& GameMap::getTileForEditing(Point<> coord) {
     }
     return m_tiles.at(static_cast<size_t>(coord.y()))
         .at(static_cast<size_t>(coord.x()));
+}
+
+const std::vector<MapTile *> GameMap::getTilesForEditing(const std::set<int> &indices) {
+    std::vector<MapTile *> retval = {};
+    std::for_each(indices.cbegin(), indices.cend(), [&retval, this](const int index) {
+        if (index < 0) {
+            return;
+        }
+        auto indexConverted { static_cast<size_t>(index) };
+        if (indexConverted >= getWidth() * getHeight()) {
+            return;
+        }
+        retval.push_back(&m_tiles.at(indexConverted / getWidth()).at(indexConverted % getWidth()));
+    });
+    return retval;
 }
 
 const MapTile& GameMap::getTileFromCoord(Point<> coord) const {

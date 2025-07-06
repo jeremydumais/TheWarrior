@@ -4,10 +4,9 @@
 
 namespace mapeditor::controllers {
 
-struct ItemStoreInfo
-{
+struct ItemStoreInfo {
     std::string name;
     std::string filename;
 };
 
-} // namespace mapeditor::controllers
+}  // namespace mapeditor::controllers

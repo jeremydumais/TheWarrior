@@ -1,9 +1,15 @@
 #include <gtest/gtest.h>
+#include <map>
 #include "glComponentController.hpp"
 #include "mainController.hpp"
+#include "mapTileTrigger.hpp"
 #include "monsterZone.hpp"
 #include "rgbItemColor.hpp"
 
+using thewarrior::models::MapTileTrigger;
+using thewarrior::models::MapTileTriggerEvent;
+using thewarrior::models::MapTileTriggerCondition;
+using thewarrior::models::MapTileTriggerAction;
 using thewarrior::models::MonsterZone;
 using thewarrior::models::RGBItemColor;
 
@@ -12,6 +18,7 @@ namespace mapeditor::controllers::glcomponentcontroller::unittest {
 class SampleGLComponentController : public ::testing::Test {
  public:
     SampleGLComponentController() {
+        mainController.setGLComponentController(&glComponentController);
         mainController.createMap(6, 6);
         auto map { mainController.getMap() };
         map->addTexture({
@@ -27,11 +34,26 @@ class SampleGLComponentController : public ::testing::Test {
                 32, 32
                 });
         map->addMonsterZone(MonsterZone("Zone1", RGBItemColor("Black", "#000000")));
+        map->setUseOnlyOneMonsterZone(true);
         auto &tile { map->getTileForEditing(0) };
         tile.setTextureName("tex1");
         tile.setTextureIndex(0);
         tile.setObjectTextureName("tex1");
         tile.setObjectTextureIndex(0);
+        tile.addTrigger(MapTileTrigger(MapTileTriggerEvent::MoveUpPressed,
+                    MapTileTriggerCondition::None,
+                    MapTileTriggerAction::DenyMove,
+                    {}));
+        auto &tile1 { map->getTileForEditing(1) };
+        tile1.addTrigger(MapTileTrigger(MapTileTriggerEvent::MoveUpPressed,
+                    MapTileTriggerCondition::MustBeFacing,
+                    MapTileTriggerAction::ChangeMap,
+                    {{ "a", "b"}, {"c", "d"}}));
+        auto &tile3 { map->getTileForEditing(3) };
+        tile3.addTrigger(MapTileTrigger(MapTileTriggerEvent::MoveUpPressed,
+                    MapTileTriggerCondition::MustBeFacing,
+                    MapTileTriggerAction::DenyMove,
+                    {{"a", "b"}}));
         glComponentController.setCurrentMap(map);
     }
     MainController mainController;
@@ -51,6 +73,7 @@ class SampleGLComponentController : public ::testing::Test {
 class SampleGLComponentControllerWithTilesAssigned : public ::testing::Test {
  public:
     SampleGLComponentControllerWithTilesAssigned() {
+        mainController.setGLComponentController(&glComponentController);
         mainController.createMap(6, 6);
         auto map { mainController.getMap() };
         map->addTexture({
@@ -152,6 +175,110 @@ TEST_F(SampleGLComponentController, getMonsterZoneByName_WithZone1_ReturnZone) {
     const auto zoneOpt = glComponentController.getMonsterZoneByName("Zone1");
     ASSERT_TRUE(zoneOpt.has_value());
     ASSERT_EQ("Zone1", zoneOpt.value().m_name);
+}
+
+TEST_F(SampleGLComponentController, applyDenyZone_WithInvalidEventStr_ReturnFalse) {
+    ASSERT_FALSE(glComponentController.applyDenyZone("a"));
+    ASSERT_EQ("Unrecognized trigger event string a", glComponentController.getLastError());
+}
+
+TEST_F(SampleGLComponentController, applyDenyZone_WithMoveUpPressedAndEventIsAlreadyUsedForAnotherAction_ReturnFalse) {
+    glComponentController.selectTilesForEditing({1});
+    ASSERT_FALSE(glComponentController.applyDenyZone("MoveUpPressed"));
+    ASSERT_EQ("Trigger MoveUpPressed is already used for another purpose", glComponentController.getLastError());
+}
+
+TEST_F(SampleGLComponentController, applyDenyZone_WithMoveUpPressedAndEventIsAlreadyUsedForAnotherActionOn1Tile_ReturnFalse) {
+    glComponentController.selectTilesForEditing({0, 1});
+    ASSERT_FALSE(glComponentController.applyDenyZone("MoveUpPressed"));
+    ASSERT_EQ("Trigger MoveUpPressed is already used for another purpose", glComponentController.getLastError());
+}
+
+TEST_F(SampleGLComponentController, applyDenyZone_WithMoveUpPressedAndEventIsAlreadyUsedSameAction_ReturnFalse) {
+    glComponentController.selectTilesForEditing({0, 1});
+    ASSERT_FALSE(glComponentController.applyDenyZone("MoveUpPressed"));
+    ASSERT_EQ("Trigger MoveUpPressed is already used for another purpose", glComponentController.getLastError());
+}
+
+TEST_F(SampleGLComponentController, applyDenyZone_WithMoveUpPressedAndEventIsAlreadyUsedSameAction_ReturnTrue) {
+    glComponentController.selectTilesForEditing({0});
+    ASSERT_TRUE(glComponentController.applyDenyZone("MoveUpPressed"));
+    const auto tiles = glComponentController.getCurrentMapTiles();
+    const auto newTrigger = tiles[0]->findConstTrigger(MapTileTriggerEvent::MoveUpPressed);
+    ASSERT_EQ(MapTileTriggerEvent::MoveUpPressed, newTrigger->getEvent());
+    ASSERT_EQ(MapTileTriggerCondition::None, newTrigger->getCondition());
+    ASSERT_EQ(MapTileTriggerAction::DenyMove, newTrigger->getAction());
+    ASSERT_EQ(0, newTrigger->getActionProperties().size());
+}
+
+TEST_F(SampleGLComponentController, applyDenyZone_WithMoveUpPressedAndEventIsAlreadyUsedSameActionOn1Tile_ReturnTrue) {
+    glComponentController.selectTilesForEditing({0, 2, 3});
+    ASSERT_TRUE(glComponentController.applyDenyZone("MoveUpPressed"));
+    const auto tiles = glComponentController.getCurrentMapTiles();
+    const auto triggerTile0 = tiles[0]->findConstTrigger(MapTileTriggerEvent::MoveUpPressed);
+    ASSERT_EQ(MapTileTriggerEvent::MoveUpPressed, triggerTile0->getEvent());
+    ASSERT_EQ(MapTileTriggerCondition::None, triggerTile0->getCondition());
+    ASSERT_EQ(MapTileTriggerAction::DenyMove, triggerTile0->getAction());
+    ASSERT_EQ(0, triggerTile0->getActionProperties().size());
+    const auto newTrigger = tiles[1]->findConstTrigger(MapTileTriggerEvent::MoveUpPressed);
+    ASSERT_EQ(MapTileTriggerEvent::MoveUpPressed, newTrigger->getEvent());
+    ASSERT_EQ(MapTileTriggerCondition::None, newTrigger->getCondition());
+    ASSERT_EQ(MapTileTriggerAction::DenyMove, newTrigger->getAction());
+    ASSERT_EQ(0, newTrigger->getActionProperties().size());
+    const auto triggerTile3 = tiles[2]->findConstTrigger(MapTileTriggerEvent::MoveUpPressed);
+    ASSERT_EQ(MapTileTriggerEvent::MoveUpPressed, triggerTile3->getEvent());
+    ASSERT_EQ(MapTileTriggerCondition::MustBeFacing, triggerTile3->getCondition());
+    ASSERT_EQ(MapTileTriggerAction::DenyMove, triggerTile3->getAction());
+    ASSERT_EQ(1, triggerTile3->getActionProperties().size());
+}
+
+TEST_F(SampleGLComponentController, clearDenyZones_WithNoTriggersTile_ReturnSuccess) {
+    glComponentController.selectTilesForEditing({2});
+    glComponentController.clearDenyZones();
+    const auto tiles = glComponentController.getCurrentMapTiles();
+    ASSERT_EQ(1, tiles.size());
+    ASSERT_EQ(0, tiles[0]->getTriggers().size());
+}
+
+TEST_F(SampleGLComponentController, clearDenyZones_WithOneTriggerTile_ReturnSuccess) {
+    glComponentController.selectTilesForEditing({0});
+    glComponentController.clearDenyZones();
+    const auto tiles = glComponentController.getCurrentMapTiles();
+    ASSERT_EQ(1, tiles.size());
+    ASSERT_EQ(0, tiles[0]->getTriggers().size());
+}
+
+TEST_F(SampleGLComponentController, clearDenyZones_WithOneTriggerNotDenyMove_ReturnSuccess) {
+    glComponentController.selectTilesForEditing({1});
+    glComponentController.clearDenyZones();
+    const auto tiles = glComponentController.getCurrentMapTiles();
+    ASSERT_EQ(1, tiles.size());
+    ASSERT_EQ(1, tiles[0]->getTriggers().size());
+}
+
+TEST_F(SampleGLComponentController, clearDenyZones_WithTwoTriggersDenyMoveAndOneNot_ReturnSuccess) {
+    glComponentController.selectTilesForEditing({0, 1, 3});
+    glComponentController.clearDenyZones();
+    const auto tiles = glComponentController.getCurrentMapTiles();
+    ASSERT_EQ(3, tiles.size());
+    ASSERT_EQ(0, tiles[0]->getTriggers().size());
+    ASSERT_EQ(1, tiles[1]->getTriggers().size());
+    ASSERT_EQ(0, tiles[2]->getTriggers().size());
+}
+
+TEST_F(SampleGLComponentController, setUseOnlyOneMonsterZone_WithFalse_ReturnTrue) {
+    ASSERT_TRUE(glComponentController.setUseOnlyOneMonsterZone(false));
+    ASSERT_FALSE(glComponentController.isUseOnlyOneMonsterZone());
+}
+TEST_F(SampleGLComponentControllerWithTilesAssigned, setUseOnlyOneMonsterZone_WithTrue_ReturnFalse) {
+    // No monster zone available so return false
+    ASSERT_FALSE(glComponentController.setUseOnlyOneMonsterZone(true));
+}
+TEST_F(SampleGLComponentController, isUseOnlyOneMonsterZone_ReturnTrue) {
+    ASSERT_TRUE(glComponentController.isUseOnlyOneMonsterZone());
+}
+TEST_F(SampleGLComponentControllerWithTilesAssigned, isUseOnlyOneMonsterZone_ReturnFalse) {
+    ASSERT_FALSE(glComponentController.isUseOnlyOneMonsterZone());
 }
 
 }  // namespace mapeditor::controllers::glcomponentcontroller::unittest

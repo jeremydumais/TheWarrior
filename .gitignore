@@ -41,3 +41,4 @@ workspace.code-workspace
 tags
 Session.vim
 CMakeUserPresets.json
+compile_commands.json

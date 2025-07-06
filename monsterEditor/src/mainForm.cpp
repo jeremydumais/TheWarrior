@@ -13,6 +13,7 @@
 #include <boost/filesystem.hpp>
 #include "aboutBoxForm.hpp"
 #include "configurationManager.hpp"
+#include "constants.hpp"
 #include "editMonsterForm.hpp"
 #include "errorMessage.hpp"
 #include "mainController.hpp"
@@ -41,7 +42,9 @@ MainForm::MainForm(QWidget *parent,
     ui.setupUi(this);
 
     // Check if the user configuration folder exist
-    m_userConfigFolder = SpecialFolders::getAppConfigDirectory("TheWarrior_MonsterEditor");
+    m_userConfigFolder = SpecialFolders::getAppConfigDirectory(fmt::format("{0}/{1}",
+                                                                           ORGANIZATIONNAME,
+                                                                           APPLICATIONNAME));
     if (!boost::filesystem::exists(m_userConfigFolder)) {
         if (!boost::filesystem::create_directory(m_userConfigFolder)) {
             ErrorMessage::show(fmt::format("Unable to create the folder {0}", m_userConfigFolder), "");

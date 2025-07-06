@@ -148,6 +148,40 @@
          </property>
         </widget>
        </item>
+       <item row="8" column="0">
+        <widget class="QLabel" name="labelMonsterZone">
+         <property name="text">
+          <string>Monster zone applied :</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QComboBox" name="comboBoxMonsterZoneApplied"/>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonClearMonsterZone">
+           <property name="maximumSize">
+            <size>
+             <width>32</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Clear the monster zone</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../res/global.qrc">
+             <normaloff>:/clear.png</normaloff>:/clear.png</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
       </layout>
      </item>
      <item>
@@ -236,6 +270,8 @@
   <tabstop>checkBoxObjectAbovePlayer</tabstop>
   <tabstop>checkBoxTileCanSteppedOn</tabstop>
   <tabstop>checkBoxIsWallToClimb</tabstop>
+  <tabstop>comboBoxMonsterZoneApplied</tabstop>
+  <tabstop>pushButtonClearMonsterZone</tabstop>
   <tabstop>tableWidgetMapTileTriggers</tabstop>
   <tabstop>pushButtonAddTileEvent</tabstop>
   <tabstop>pushButtonEditTileEvent</tabstop>

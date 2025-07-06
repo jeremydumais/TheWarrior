@@ -1,21 +1,17 @@
 #include "mapTileTriggerConditionConverter.hpp"
-#include <boost/algorithm/string.hpp>
 #include <algorithm>
-
-using namespace std;
+#include <boost/algorithm/string.hpp>
 
 namespace thewarrior::models {
 
-string MapTileTriggerConditionConverter::conditionToString(MapTileTriggerCondition condition)
-{
+std::string MapTileTriggerConditionConverter::conditionToString(MapTileTriggerCondition condition) {
     return allConditionsToString()[static_cast<size_t>(condition)];
 }
 
-boost::optional<MapTileTriggerCondition> MapTileTriggerConditionConverter::conditionFromString(const std::string &conditionStr)
-{
+boost::optional<MapTileTriggerCondition> MapTileTriggerConditionConverter::conditionFromString(const std::string &conditionStr) {
     auto allConditionsStr { allConditionsToString() };
 
-    auto iter { find_if(allConditionsStr.begin(), allConditionsStr.end(), [&conditionStr](const string &conditionStr2) {
+    auto iter { find_if(allConditionsStr.begin(), allConditionsStr.end(), [&conditionStr](const std::string &conditionStr2) {
         return boost::iequals(conditionStr, conditionStr2);
         }) };
     if (iter != allConditionsStr.end()) {
@@ -24,11 +20,10 @@ boost::optional<MapTileTriggerCondition> MapTileTriggerConditionConverter::condi
     return {};
 }
 
-vector<string> MapTileTriggerConditionConverter::allConditionsToString()
-{
-    return { "None"s,
-             "MustBeFacing"s,
-             "MustHaveItem"s };
+std::vector<std::string> MapTileTriggerConditionConverter::allConditionsToString() {
+    return { "None",
+             "MustBeFacing",
+             "MustHaveItem" };
 }
 
-} // namespace thewarrior::models
+}  // namespace thewarrior::models

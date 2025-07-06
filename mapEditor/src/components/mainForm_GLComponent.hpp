@@ -9,9 +9,10 @@
 #include "gameMap.hpp"
 #include "../mapOpenGLWidget.hpp"
 #include "glComponentController.hpp"
-#include "mapTile.hpp"
+#include "mapView.hpp"
+#include "mapTileDTO.hpp"
 #include "monsterZoneDTO.hpp"
-#include "point.hpp"
+#include "pickerToolSelection.hpp"
 #include "selectionMode.hpp"
 
 
@@ -20,16 +21,22 @@ class MainForm_GLComponent : public QWidget {
 
  public:
     MainForm_GLComponent();
+    mapeditor::controllers::GLComponentController *getControllerPtr();
     void initializeUIObjects(MapOpenGLWidget *glWidget);
     void connectUIActions();
     const std::string &getResourcesPath() const;
     SelectionMode getSelectionMode() const;
     unsigned int getMapWidth() const;
     unsigned int getMapHeight() const;
+    size_t getHistoryCurrentIndex() const;
+    size_t getHistoryCount() const;
+    bool isClipboardEmpty() const;
     void setCurrentMap(std::shared_ptr<thewarrior::models::GameMap> map);
     void setResourcesPath(const std::string &path);
     void setSelectionMode(SelectionMode mode);
-    thewarrior::models::MapTile *getCurrentMapTile();
+    void setMapView(MapView view);
+    std::vector<mapeditor::controllers::MapTileDTO> getCurrentMapTiles();
+    bool isSelectedMapTiles() const;
     void setLastSelectedTexture(const std::string &name, int index);
     void setLastSelectedObject(const std::string &name, int index);
     void clearLastSelectedTexture();
@@ -56,21 +63,37 @@ class MainForm_GLComponent : public QWidget {
     std::vector<mapeditor::controllers::MonsterZoneDTO> getMonsterZones() const;
     mapeditor::controllers::OptMonsterZoneDTOConst getMonsterZoneByName(const std::string &name) const;
     std::vector<std::string> getAlreadyUsedMonsterZoneNames() const;
+    bool isUseOnlyOneMonsterZone() const;
+    void clearEditHistory();
+    void pushCurrentStateToHistory();
+    void undo();
+    void redo();
+    void copySelectionInClipboard();
+    void pasteClipboard();
+    void applyTexture();
+    void applyObject();
+    void applyCanStep(bool value);
+    void addMoveDenyTrigger(const std::string &event);
+    void clearMoveDenyTriggers();
+    void applyMonsterZone();
+    void clearMonsterZone();
+    bool setUseOnlyOneMonsterZone(bool value);
+
  signals:
-        void tileSelected(thewarrior::models::MapTile *tile, thewarrior::models::Point<> coord);
-        void tileUnselected();
+    void tileSelected(std::vector<mapeditor::controllers::MapTileDTO> tiles);
+    void tileUnselected();
+    void tilePropsChanged();
+    void tileTriggerChanged();
+    void pickerToolTileSelected(const PickerToolSelection &selection);
+    void editHistoryChanged();
+    void clipboardChanged();
+    void zoomChanged(int zoomPercentage);
 
  private:
     MapOpenGLWidget *m_glWidget;
     mapeditor::controllers::GLComponentController m_controller;
-    thewarrior::models::MapTile *m_currentMapTile;
-    std::string m_lastSelectedTextureName;
-    std::string m_lastSelectedObjectName;
-    int m_lastSelectedTextureIndex;
-    int m_lastSelectedObjectIndex;
-    int m_lastSelectedMonsterZoneIndex;
-    void onTileClicked(int tileIndex, int, int);
-    void onTileMouseReleaseEvent(std::set<int> selectedTileIndexes);
-    void addMoveDenyTrigger(const std::set<int> &selectedTileIndexes,
-            thewarrior::models::MapTileTriggerEvent event);
+    void onTileClicked(const std::set<int> &tileIndices, int, int);
+    void onPickerToolTileSelected(const PickerToolSelection &selection);
+    void onZoomChanged(int zoomPercentage);
+    void onClipboardPasted();
 };

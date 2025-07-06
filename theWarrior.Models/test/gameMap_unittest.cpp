@@ -1,5 +1,5 @@
-#include <algorithm>
 #include <gtest/gtest.h>
+#include <algorithm>
 #include "gameMap.hpp"
 #include "monsterZone.hpp"
 #include "rgbItemColor.hpp"
@@ -159,6 +159,34 @@ TEST_F(SampleGameMap5x6WithTwoTextures, getTileForEditing_WithPoint0AndMinus1_Th
 TEST_F(SampleGameMap5x6WithTwoTextures, getTileForEditing_WithPoint0And0_ReturnFirstTile) {
     const auto &tile { map.getTileForEditing({0 , 0}) };
     ASSERT_EQ("a", tile.getTextureName());
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getTilesForEditing_WithEmpty_Return0Tiles) {
+    const auto tiles = map.getTilesForEditing({ });
+    ASSERT_EQ(0, tiles.size());
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getTilesForEditing_With0_Return1Tiles) {
+    const auto tiles = map.getTilesForEditing({0});
+    ASSERT_EQ(1, tiles.size());
+    ASSERT_EQ("a", tiles.at(0)->getTextureName());
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getTilesForEditing_WithMinus1_ReturnEmpty) {
+    const auto tiles = map.getTilesForEditing({-1});
+    ASSERT_EQ(0, tiles.size());
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getTilesForEditing_With0And1_Return2Tiles) {
+    const auto tiles = map.getTilesForEditing({0, 1});
+    ASSERT_EQ(2, tiles.size());
+    ASSERT_EQ("a", tiles.at(0)->getTextureName());
+}
+
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getTilesForEditing_With30_ReturnEmpty) {
+    const auto tiles = map.getTilesForEditing({30});
+    ASSERT_EQ(0, tiles.size());
 }
 
 TEST_F(SampleGameMap5x6WithTwoTextures, getTileFromCoord_WithPointMinus1And0_ThrowInvalidArgument) {

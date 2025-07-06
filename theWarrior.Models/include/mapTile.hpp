@@ -15,6 +15,8 @@ namespace thewarrior::models {
 class MapTile {
  public:
     MapTile();
+    friend bool operator==(const MapTile &lhs, const MapTile &rhs);
+    friend bool operator!=(const MapTile &lhs, const MapTile &rhs);
     const std::string &getTextureName() const;
     int getTextureIndex() const;
     bool hasTexture() const;

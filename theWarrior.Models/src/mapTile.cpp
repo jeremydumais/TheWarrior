@@ -15,6 +15,22 @@ MapTile::MapTile()
       m_triggers(std::vector<MapTileTrigger>()) {
 }
 
+bool operator==(const MapTile &lhs, const MapTile &rhs) {
+    return lhs.getTextureName() == rhs.getTextureName() &&
+        lhs.getTextureIndex() == rhs.getTextureIndex() &&
+        lhs.getObjectTextureName() == rhs.getObjectTextureName() &&
+        lhs.getObjectTextureIndex() == rhs.getObjectTextureIndex() &&
+        lhs.canPlayerSteppedOn() == rhs.canPlayerSteppedOn() &&
+        lhs.getObjectAbovePlayer() == rhs.getObjectAbovePlayer() &&
+        lhs.getIsWallToClimb() == rhs.getIsWallToClimb() &&
+        lhs.getMonsterZoneIndex() == rhs.getMonsterZoneIndex() &&
+        lhs.getTriggers() == rhs.getTriggers();
+}
+
+bool operator!=(const MapTile &lhs, const MapTile &rhs) {
+    return !(lhs == rhs);
+}
+
 const std::string& MapTile::getTextureName() const {
     return m_textureName;
 }

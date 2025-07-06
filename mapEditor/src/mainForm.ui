@@ -13,22 +13,85 @@
   <property name="windowTitle">
    <string>MapEditor</string>
   </property>
+  <property name="dockNestingEnabled">
+   <bool>true</bool>
+  </property>
+  <property name="dockOptions">
+   <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::VerticalTabs</set>
+  </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_5">
     <item>
-     <widget class="QSplitter" name="splitter">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <widget class="MapOpenGLWidget" name="mapOpenGLWidget">
-       <property name="baseSize">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
-       </property>
-      </widget>
-     </widget>
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <item>
+       <widget class="MapOpenGLWidget" name="mapOpenGLWidget">
+        <property name="baseSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTabWidget" name="tabWidgetMapView">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="tabPosition">
+         <enum>QTabWidget::South</enum>
+        </property>
+        <property name="tabShape">
+         <enum>QTabWidget::Rounded</enum>
+        </property>
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <property name="documentMode">
+         <bool>true</bool>
+        </property>
+        <widget class="QWidget" name="tabViewStandard">
+         <attribute name="icon">
+          <iconset resource="../res/global.qrc">
+           <normaloff>:/MapEditor Icon.png</normaloff>:/MapEditor Icon.png</iconset>
+         </attribute>
+         <attribute name="title">
+          <string>Standard</string>
+         </attribute>
+        </widget>
+        <widget class="QWidget" name="tabMapViewCanStep">
+         <attribute name="icon">
+          <iconset resource="../res/global.qrc">
+           <normaloff>:/canStepOn.png</normaloff>:/canStepOn.png</iconset>
+         </attribute>
+         <attribute name="title">
+          <string>Can Step?</string>
+         </attribute>
+        </widget>
+        <widget class="QWidget" name="tabMapViewBlockedBorder">
+         <attribute name="icon">
+          <iconset resource="../res/global.qrc">
+           <normaloff>:/viewBorderMode.png</normaloff>:/viewBorderMode.png</iconset>
+         </attribute>
+         <attribute name="title">
+          <string>Blocked Borders</string>
+         </attribute>
+        </widget>
+        <widget class="QWidget" name="tabMapViewMonsterZones">
+         <attribute name="icon">
+          <iconset resource="../res/global.qrc">
+           <normaloff>:/applyMonsterZone.png</normaloff>:/applyMonsterZone.png</iconset>
+         </attribute>
+         <attribute name="title">
+          <string>Monster zones</string>
+         </attribute>
+        </widget>
+       </widget>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
@@ -44,10 +107,10 @@
    <widget class="QMenu" name="menu_File">
     <property name="geometry">
      <rect>
-      <x>2193</x>
-      <y>146</y>
+      <x>267</x>
+      <y>187</y>
       <width>260</width>
-      <height>222</height>
+      <height>230</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -105,7 +168,7 @@
      <property name="title">
       <string>Toolbars</string>
      </property>
-     <addaction name="actionView_MapConfiguration"/>
+     <addaction name="actionView_MapConfig"/>
      <addaction name="actionView_TextureSelection"/>
      <addaction name="actionView_DebuggingInfo"/>
     </widget>
@@ -120,7 +183,17 @@
     <addaction name="action_ItemStore"/>
     <addaction name="action_MonsterStore"/>
    </widget>
+   <widget class="QMenu" name="menu_Edit">
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="action_Undo"/>
+    <addaction name="action_Redo"/>
+    <addaction name="action_Copy"/>
+    <addaction name="action_Paste"/>
+   </widget>
    <addaction name="menu_File"/>
+   <addaction name="menu_Edit"/>
    <addaction name="menu_View"/>
    <addaction name="menu_Settings"/>
    <addaction name="menuHelp"/>
@@ -131,7 +204,7 @@
     <string>toolBar</string>
    </property>
    <property name="toolTip">
-    <string>Select tile</string>
+    <string/>
    </property>
    <property name="iconSize">
     <size>
@@ -147,13 +220,17 @@
    </attribute>
    <addaction name="action_Select"/>
    <addaction name="action_MoveMap"/>
+   <addaction name="action_PickerTool"/>
+   <addaction name="separator"/>
+   <addaction name="action_Undo"/>
+   <addaction name="action_Redo"/>
+   <addaction name="separator"/>
    <addaction name="action_ApplyTexture"/>
    <addaction name="action_ApplyObject"/>
    <addaction name="separator"/>
    <addaction name="action_EnableCanStep"/>
    <addaction name="action_DisableCanStep"/>
    <addaction name="separator"/>
-   <addaction name="action_ViewBorderMode"/>
    <addaction name="action_BlockLeftBorder"/>
    <addaction name="action_BlockTopBorder"/>
    <addaction name="action_BlockRightBorder"/>
@@ -164,7 +241,10 @@
    <addaction name="action_ClearMonsterZone"/>
    <addaction name="separator"/>
   </widget>
-  <widget class="QDockWidget" name="dockWidgetMapConfig">
+  <widget class="QClosableDockWidget" name="dockWidgetMapConfig">
+   <property name="floating">
+    <bool>false</bool>
+   </property>
    <property name="allowedAreas">
     <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
@@ -294,9 +374,6 @@
    </property>
   </action>
   <action name="action_ApplyTexture">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/texture.png</normaloff>:/texture.png</iconset>
@@ -306,9 +383,6 @@
    </property>
   </action>
   <action name="action_ApplyObject">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/object.png</normaloff>:/object.png</iconset>
@@ -393,9 +467,6 @@
    </property>
   </action>
   <action name="action_EnableCanStep">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/canStepOn.png</normaloff>:/canStepOn.png</iconset>
@@ -408,9 +479,6 @@
    </property>
   </action>
   <action name="action_DisableCanStep">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="checked">
     <bool>false</bool>
    </property>
@@ -426,9 +494,6 @@
    </property>
   </action>
   <action name="action_BlockLeftBorder">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/blockLeftBorder.png</normaloff>:/blockLeftBorder.png</iconset>
@@ -441,9 +506,6 @@
    </property>
   </action>
   <action name="action_BlockTopBorder">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/blockTopBorder.png</normaloff>:/blockTopBorder.png</iconset>
@@ -456,9 +518,6 @@
    </property>
   </action>
   <action name="action_BlockRightBorder">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/blockRightBorder.png</normaloff>:/blockRightBorder.png</iconset>
@@ -471,9 +530,6 @@
    </property>
   </action>
   <action name="action_BlockBottomBorder">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/blockBottomBorder.png</normaloff>:/blockBottomBorder.png</iconset>
@@ -485,25 +541,7 @@
     <string>Block Bottom Border</string>
    </property>
   </action>
-  <action name="action_ViewBorderMode">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="../res/global.qrc">
-     <normaloff>:/viewBorderMode.png</normaloff>:/viewBorderMode.png</iconset>
-   </property>
-   <property name="text">
-    <string>View Border Mode</string>
-   </property>
-   <property name="toolTip">
-    <string>View Border Mode</string>
-   </property>
-  </action>
   <action name="action_ClearBlockedBorders">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/clearBlockBorder.png</normaloff>:/clearBlockBorder.png</iconset>
@@ -516,9 +554,6 @@
    </property>
   </action>
   <action name="action_ApplyMonsterZone">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/applyMonsterZone.png</normaloff>:/applyMonsterZone.png</iconset>
@@ -531,9 +566,6 @@
    </property>
   </action>
   <action name="action_ClearMonsterZone">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="../res/global.qrc">
      <normaloff>:/clearMonsterZone.png</normaloff>:/clearMonsterZone.png</iconset>
@@ -553,17 +585,6 @@
   <action name="action_MonsterStore">
    <property name="text">
     <string>&amp;Monster store...</string>
-   </property>
-  </action>
-  <action name="actionView_MapConfiguration">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Map configuration</string>
    </property>
   </action>
   <action name="actionView_TextureSelection">
@@ -588,12 +609,91 @@
     <string>Debugging info</string>
    </property>
   </action>
+  <action name="action_PickerTool">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/pickerTool.png</normaloff>:/pickerTool.png</iconset>
+   </property>
+   <property name="text">
+    <string>Picker tool</string>
+   </property>
+   <property name="toolTip">
+    <string>Picker tool</string>
+   </property>
+  </action>
+  <action name="action_Undo">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/undo.png</normaloff>
+     <disabledoff>:/undoDisabled.png</disabledoff>
+     <disabledon>:/undoDisabled.png</disabledon>:/undo.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Undo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="action_Redo">
+   <property name="icon">
+    <iconset resource="../res/global.qrc">
+     <normaloff>:/redo.png</normaloff>
+     <disabledoff>:/redoDisabled.png</disabledoff>
+     <disabledon>:/redoDisabled.png</disabledon>:/redo.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Redo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+Z</string>
+   </property>
+  </action>
+  <action name="actionView_MapConfig">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Map configuration</string>
+   </property>
+  </action>
+  <action name="action_Copy">
+   <property name="text">
+    <string>Copy</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="action_Paste">
+   <property name="text">
+    <string>Paste</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
    <class>MapOpenGLWidget</class>
    <extends>QOpenGLWidget</extends>
    <header>mapOpenGLWidget.hpp</header>
+  </customwidget>
+  <customwidget>
+   <class>QClosableDockWidget</class>
+   <extends>QDockWidget</extends>
+   <header>qClosableDockWidget.hpp</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>

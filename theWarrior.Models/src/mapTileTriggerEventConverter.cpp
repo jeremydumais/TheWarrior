@@ -1,21 +1,17 @@
 #include "mapTileTriggerEventConverter.hpp"
-#include <boost/algorithm/string.hpp>
 #include <algorithm>
-
-using namespace std;
+#include <boost/algorithm/string.hpp>
 
 namespace thewarrior::models {
 
-string MapTileTriggerEventConverter::eventToString(MapTileTriggerEvent event)
-{
+std::string MapTileTriggerEventConverter::eventToString(MapTileTriggerEvent event) {
     return allEventsToString()[static_cast<size_t>(event)];
 }
 
-boost::optional<MapTileTriggerEvent> MapTileTriggerEventConverter::eventFromString(const std::string &eventStr)
-{
+boost::optional<MapTileTriggerEvent> MapTileTriggerEventConverter::eventFromString(const std::string &eventStr) {
     auto allEventsStr { allEventsToString() };
 
-    auto iter { find_if(allEventsStr.begin(), allEventsStr.end(), [&eventStr](const string &eventStr2) {
+    auto iter { find_if(allEventsStr.begin(), allEventsStr.end(), [&eventStr](const std::string &eventStr2) {
         return boost::iequals(eventStr, eventStr2);
         }) };
     if (iter != allEventsStr.end()) {
@@ -24,15 +20,14 @@ boost::optional<MapTileTriggerEvent> MapTileTriggerEventConverter::eventFromStri
     return {};
 }
 
-vector<string> MapTileTriggerEventConverter::allEventsToString()
-{
-    return { "None"s,
-             "SteppedOn"s,
-             "MoveUpPressed"s,
-             "MoveDownPressed"s,
-             "MoveLeftPressed"s,
-             "MoveRightPressed"s,
-             "ActionButtonPressed"s };
+std::vector<std::string> MapTileTriggerEventConverter::allEventsToString() {
+    return { "None",
+             "SteppedOn",
+             "MoveUpPressed",
+             "MoveDownPressed",
+             "MoveLeftPressed",
+             "MoveRightPressed",
+             "ActionButtonPressed" };
 }
 
-} // namespace thewarrior::models
+}  // namespace thewarrior::models

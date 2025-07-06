@@ -1,21 +1,17 @@
 #include "mapTileTriggerActionConverter.hpp"
-#include <boost/algorithm/string.hpp>
 #include <algorithm>
-
-using namespace std;
+#include <boost/algorithm/string.hpp>
 
 namespace thewarrior::models {
 
-string MapTileTriggerActionConverter::actionToString(MapTileTriggerAction action)
-{
+std::string MapTileTriggerActionConverter::actionToString(MapTileTriggerAction action) {
     return allActionsToString()[static_cast<size_t>(action)];
 }
 
-boost::optional<MapTileTriggerAction> MapTileTriggerActionConverter::actionFromString(const std::string &actionStr)
-{
+boost::optional<MapTileTriggerAction> MapTileTriggerActionConverter::actionFromString(const std::string &actionStr) {
     auto allActionsStr { allActionsToString() };
 
-    auto iter { find_if(allActionsStr.begin(), allActionsStr.end(), [&actionStr](const string &actionStr2) {
+    auto iter { find_if(allActionsStr.begin(), allActionsStr.end(), [&actionStr](const std::string &actionStr2) {
         return boost::iequals(actionStr, actionStr2);
         }) };
     if (iter != allActionsStr.end()) {
@@ -24,12 +20,11 @@ boost::optional<MapTileTriggerAction> MapTileTriggerActionConverter::actionFromS
     return {};
 }
 
-vector<string> MapTileTriggerActionConverter::allActionsToString()
-{
-    return { "None"s,
-             "OpenChest"s,
-             "ChangeMap"s,
-             "DenyMove"s };
+std::vector<std::string> MapTileTriggerActionConverter::allActionsToString() {
+    return { "None",
+             "OpenChest",
+             "ChangeMap",
+             "DenyMove" };
 }
 
-} // namespace thewarrior::models
+}  // namespace thewarrior::models

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <set>
 #include <string>
 #include <vector>
 #include "mapTile.hpp"
@@ -25,6 +26,7 @@ class GameMap {
     const std::vector<std::vector<MapTile>> &getTiles() const;
     MapTile &getTileForEditing(int index);
     MapTile &getTileForEditing(Point<> coord);
+    const std::vector<MapTile *> getTilesForEditing(const std::set<int> &indices);
     const MapTile &getTileFromCoord(Point<> coord) const;
     unsigned int getWidth() const;
     unsigned int getHeight() const;
@@ -77,9 +79,12 @@ class GameMap {
         if (version > 1) {
             ar & m_monsterZones;
         }
+        if (version > 2) {
+            ar & m_useOnlyOneMonsterZone;
+        }
     }
 };
 
 }  // namespace thewarrior::models
 
-BOOST_CLASS_VERSION(thewarrior::models::GameMap, 2)
+BOOST_CLASS_VERSION(thewarrior::models::GameMap, 3)

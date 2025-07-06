@@ -3,7 +3,7 @@
 
 DebugInfoDockWidget::DebugInfoDockWidget(QWidget *parent,
         MapOpenGLWidget *mapOpenGLWidget)
-    : QDockWidget(parent),
+    : QClosableDockWidget(parent),
       ui(Ui::DebugInfoDockWidget()),
       m_mapOpenGLWidget(mapOpenGLWidget) {
     ui.setupUi(this);
@@ -29,7 +29,13 @@ void DebugInfoDockWidget::refreshTable() {
     addItem("Trans. Y to px", QString::number(static_cast<double>(m_componentSizeInfo.translationYToPixel)));
     addItem("Translation X", QString::number(static_cast<double>(m_translationX)));
     addItem("Translation Y", QString::number(static_cast<double>(m_translationY)));
-    addItem("Last selected tile index", QString::number(m_lastSelectedTileIndex));
+    QString tileIndices = std::accumulate(m_lastSelectedTileIndices.begin(),
+            m_lastSelectedTileIndices.end(),
+            QString {},
+         [](const QString &acc, int value) {
+            return acc.isEmpty() ? QString::number(value) : acc + ", " + QString::number(value);
+        });
+    addItem("Last selected tile indices", tileIndices);
     addItem("Last clicked screen X", QString::number(m_lastScreenXClicked));
     addItem("Last clicked screen Y", QString::number(m_lastScreenYClicked));
 }
@@ -53,10 +59,10 @@ void DebugInfoDockWidget::onMapMoved(float translationX, float translationY) {
     refreshTable();
 }
 
-void DebugInfoDockWidget::onTileClicked(int tileIndex,
+void DebugInfoDockWidget::onTileClicked(const std::set<int> &tileIndex,
         int screenX,
         int screenY) {
-    m_lastSelectedTileIndex = tileIndex;
+    m_lastSelectedTileIndices = tileIndex;
     m_lastScreenXClicked = screenX;
     m_lastScreenYClicked = screenY;
     refreshTable();
