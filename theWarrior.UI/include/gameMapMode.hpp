@@ -1,5 +1,11 @@
 #pragma once
 
+#include <SDL2/SDL_events.h>
+#include <array>
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
 #include "gameMap.hpp"
 #include "gameMapModeController.hpp"
 #include "glCharacterWindow.hpp"
@@ -18,25 +24,18 @@
 #include "point.hpp"
 #include "size.hpp"
 #include "tileSize.hpp"
-#include <SDL2/SDL_events.h>
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
 
 namespace thewarrior::ui {
 
-enum GameMapInputMode
-{
+enum GameMapInputMode {
     Map,
     MainMenuPopup,
     CharacterWindow,
     InventoryWindow
 };
 
-class GameMapMode
-{
-public:
+class GameMapMode {
+ public:
     GameMapMode();
     void initialize(const std::string &resourcesPath,
             std::shared_ptr<GLPlayer> glPlayer,
@@ -55,7 +54,8 @@ public:
     void unloadGLMapObjects();
     void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
     void gameWindowTileSizeChanged(const TileSize &tileSize);
-private:
+
+ private:
     thewarrior::ui::controllers::GameMapModeController m_controller;
     std::string m_lastError = "";
     std::string m_resourcesPath = "";
@@ -75,6 +75,7 @@ private:
     std::vector<GLTile> m_glTiles;
     std::map<std::string, unsigned int> m_texturesGLMap;
     TileSize m_tileSize = { 1.0F, 1.0F, 1.0F };
+    std::array<int, 4> m_tileCoordToDisplay = { 0, 0, 0, 0 };  // Left, Right, Up and Bottom
     std::shared_ptr<InputDevicesState> m_inputDevicesState = nullptr;
     GLfloat m_texColorBuf[4][3] = { { 1.0F, 1.0F, 1.0F },   /* Red */
         { 1.0F, 1.0F, 1.0F },   /* Green */
@@ -96,10 +97,11 @@ private:
     void processAction(thewarrior::models::MapTileTriggerAction action,
                        const std::map<std::string, std::string> &properties,
                        thewarrior::models::MapTile *tile = nullptr,
-                       thewarrior::models::Point<> tilePosition = thewarrior::models::Point(0, 0));
+                       thewarrior::models::Point<int> tilePosition = thewarrior::models::Point<int>(0, 0));
     void loadMap(const std::string &filePath, const std::string &mapName);
     void changeMap(const std::string &filePath, const std::string &mapName);
     void calculateGLTileCoord(const thewarrior::models::Point<> &tilePosition, GLfloat tileCoord[4][2]);
+    void calculateTilesToDisplay();
     void loadMapTextures();
     void onCharacterWindowClose();
     void onInventoryWindowClose();
@@ -107,4 +109,4 @@ private:
     void mainMenuPopupCanceled();
 };
 
-} // namespace thewarrior::ui
+}  // namespace thewarrior::ui
