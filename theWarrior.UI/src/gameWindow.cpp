@@ -1,6 +1,7 @@
 #include "gameWindow.hpp"
 #include <fmt/format.h>
 #include <iostream>
+#include <string>
 
 using namespace std;
 using namespace thewarrior::models;
@@ -10,8 +11,7 @@ namespace thewarrior::ui {
 GameWindow::GameWindow(const string &title,
         int x, int y,
         int width, int height)
-    : m_WindowSize(width, height)
-{
+    : m_WindowSize(width, height) {
     if (!initializeOpenGL(title, x, y, width, height)) {
         return;
     }
@@ -44,6 +44,7 @@ GameWindow::GameWindow(const string &title,
     m_gameMapMode.initialize(m_controller.getResourcesPath(),
             m_glPlayer,
             m_controller.getItemStore(),
+            m_controller.getMonsterStore(),
             m_controller.getMessagePipeline(),
             m_tileService,
             m_textBox,
@@ -54,8 +55,7 @@ GameWindow::GameWindow(const string &title,
     m_windowSizeChanged(m_WindowSize);
 }
 
-GameWindow::~GameWindow()
-{
+GameWindow::~GameWindow() {
     m_gameMapMode.unloadGLMapObjects();
     m_glPlayer->unloadGLPlayerObject();
     SDL_JoystickClose(m_joystick);
@@ -64,31 +64,27 @@ GameWindow::~GameWindow()
     SDL_Quit();
 }
 
-void GameWindow::show()
-{
+void GameWindow::show() {
     SDL_ShowWindow(m_window);
 }
 
-void GameWindow::hide()
-{
+void GameWindow::hide() {
     SDL_HideWindow(m_window);
 }
 
-bool GameWindow::isAlive() const
-{
+bool GameWindow::isAlive() const {
     return !m_mustExit;
 }
 
-void GameWindow::processEvents()
-{
+void GameWindow::processEvents() {
     SDL_Event e;
     m_inputDevicesState->processJoystick(m_joystick);
-    while(SDL_PollEvent(&e) != 0) {
+    while (SDL_PollEvent(&e) != 0) {
         m_inputDevicesState->processEvent(e);
-        if(e.type == SDL_KEYUP) {
+        if (e.type == SDL_KEYUP) {
             m_blockKeyDown = false;
         }
-        if(e.type == SDL_QUIT){
+        if (e.type == SDL_QUIT) {
             m_mustExit = true;
             continue;
         }
@@ -134,48 +130,47 @@ void GameWindow::processEvents()
 
 bool GameWindow::initializeOpenGL(const std::string &title,
         int x, int y,
-        int width, int height)
-{
-    //Initialize SDL
-    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0) {
+        int width, int height) {
+    // Initialize SDL
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0) {
         cerr << fmt::format("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
         return false;
     }
 
-    //Use OpenGL 3.1 core
+    // Use OpenGL 3.1 core
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-    //Create window
+    // Create window
     m_window = SDL_CreateWindow(title.c_str(),
             x,
             y,
             width,
             height,
             SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL | SDL_WINDOW_MAXIMIZED);
-    if(m_window == nullptr) {
+    if (m_window == nullptr) {
         cerr << fmt::format("Window could not be created! SDL_Error: %s\n", SDL_GetError());
         return false;
     }
 
-    //Create context
+    // Create context
     m_gContext = SDL_GL_CreateContext(m_window);
-    if(m_gContext == nullptr) {
+    if (m_gContext == nullptr) {
         cerr << fmt::format("OpenGL context could not be created! SDL Error: {0}\n", SDL_GetError());
         return false;
     }
 
-    //Initialize GLEW
+    // Initialize GLEW
     glewExperimental = GL_TRUE;
     GLenum glewError = glewInit();
-    if( glewError != GLEW_OK ) {
+    if (glewError != GLEW_OK) {
         cerr << fmt::format("Error initializing GLEW! {0}\n", glewGetErrorString(glewError));
         return false;
     }
 
-    //Use Vsync
-    if(SDL_GL_SetSwapInterval(-1) < 0) {
+    // Use Vsync
+    if (SDL_GL_SetSwapInterval(-1) < 0) {
         cerr << fmt::format("Warning: Unable to set VSync! SDL Error: {0}\n", SDL_GetError());
         return false;
     }
@@ -185,10 +180,13 @@ bool GameWindow::initializeOpenGL(const std::string &title,
     return true;
 }
 
-bool GameWindow::loadResourceFiles()
-{
+bool GameWindow::loadResourceFiles() {
     if (!m_controller.loadItemStore(fmt::format("{0}/items/itemstore.itm", m_controller.getResourcesPath()))) {
         cerr << "Unable to load the item store : " << m_controller.getLastError() << "\n";
+        return false;
+    }
+    if (!m_controller.loadMonsterStore(fmt::format("{0}/monsters/monsterstore.mon", m_controller.getResourcesPath()))) {
+        cerr << "Unable to load the monster store : " << m_controller.getLastError() << "\n";
         return false;
     }
     if (!m_tileService->initShader(fmt::format("{0}/shaders/tile_330_vs.glsl", m_controller.getResourcesPath()),
@@ -219,8 +217,7 @@ bool GameWindow::loadResourceFiles()
     return true;
 }
 
-void GameWindow::subscribeEvents()
-{
+void GameWindow::subscribeEvents() {
     m_windowSizeChanged.connect(boost::bind(&GameMapMode::gameWindowSizeChanged, &m_gameMapMode, boost::placeholders::_1));
     m_windowSizeChanged.connect(boost::bind(&GLPlayer::onGameWindowSizeChanged, m_glPlayer, boost::placeholders::_1));
     m_windowSizeChanged.connect(boost::bind(&GLTextService::gameWindowSizeChanged, m_textService, boost::placeholders::_1));
@@ -230,8 +227,7 @@ void GameWindow::subscribeEvents()
     m_windowUpdate.connect(boost::bind(&GLPlayer::onGameWindowUpdate, m_glPlayer, boost::placeholders::_1));
 }
 
-void GameWindow::render()
-{
+void GameWindow::render() {
     switch (m_interactionMode) {
         case InteractionMode::Game:
             m_gameMapMode.render();
@@ -239,33 +235,31 @@ void GameWindow::render()
         default:
             break;
     }
-    //Display the FPS
+    // Display the FPS
     if (m_toggleFPS) {
         m_textService->useShader();
         m_textService->renderText(m_fpsCalculator.getFPSDisplayText(),
                 1.0f,                               // X
-                static_cast<float>(m_WindowSize.height()) - 24.0f, // Y
+                static_cast<float>(m_WindowSize.height()) - 24.0f,  // Y
                 0.5f,                               // Scale
                 glm::vec3(1.0f, 1.0f, 1.0f));       // Color
     }
     SDL_GL_SwapWindow(m_window);
 }
 
-void GameWindow::loadItemStoreTextures()
-{
-    //Clear existing textures in graphics memory
-    for(auto &glTexture : m_texturesGLItemStore) {
+void GameWindow::loadItemStoreTextures() {
+    // Clear existing textures in graphics memory
+    for (auto &glTexture : m_texturesGLItemStore) {
         glDeleteTextures(1, &glTexture.second);
     }
     m_texturesGLItemStore.clear();
-    for(const auto &texture : m_controller.getItemStore()->getTextureContainer().getTextures()) {
+    for (const auto &texture : m_controller.getItemStore()->getTextureContainer().getTextures()) {
         const auto &textureName { texture.getName() };
         m_textureService.loadTexture(texture, m_texturesGLItemStore[textureName]);
     }
 }
 
-void GameWindow::calculateTileSize()
-{
+void GameWindow::calculateTileSize() {
     Size<float> screenSizeFloat(static_cast<float>(m_WindowSize.width()), static_cast<float>(m_WindowSize.height()));
 
     m_tileSize.tileWidth = (1.0F / (screenSizeFloat.width() / 51.2F)) * 2.0F;
@@ -274,4 +268,4 @@ void GameWindow::calculateTileSize()
     m_tileSizeChanged(m_tileSize);
 }
 
-} // namespace thewarrior::ui
+}  // namespace thewarrior::ui

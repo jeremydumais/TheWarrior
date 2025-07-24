@@ -40,6 +40,7 @@ class GameMapMode {
     void initialize(const std::string &resourcesPath,
             std::shared_ptr<GLPlayer> glPlayer,
             std::shared_ptr<thewarrior::models::ItemStore> itemStore,
+            std::shared_ptr<thewarrior::models::MonsterStore> monsterStore,
             std::shared_ptr<thewarrior::ui::models::MessagePipeline> messagePipeline,
             std::shared_ptr<GLTileService> tileService,
             std::shared_ptr<GLTextBox> textBox,
@@ -98,6 +99,7 @@ class GameMapMode {
                        const std::map<std::string, std::string> &properties,
                        thewarrior::models::MapTile *tile = nullptr,
                        thewarrior::models::Point<int> tilePosition = thewarrior::models::Point<int>(0, 0));
+    void checkForMonsterEncounter(const thewarrior::models::MapTile &tile);
     void loadMap(const std::string &filePath, const std::string &mapName);
     void changeMap(const std::string &filePath, const std::string &mapName);
     void calculateGLTileCoord(const thewarrior::models::Point<> &tilePosition, GLfloat tileCoord[4][2]);

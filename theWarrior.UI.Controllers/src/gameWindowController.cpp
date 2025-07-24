@@ -1,10 +1,13 @@
-#include "gameWindowController.hpp"
-#include "itemStoreStorage.hpp"
 #include <fmt/format.h>
 #include <GL/glew.h>
 #include <libgen.h>         // dirname
 #include <linux/limits.h>   // PATH_MAX
 #include <unistd.h>         // readlink
+#include <memory>
+#include <string>
+#include "gameWindowController.hpp"
+#include "itemStoreStorage.hpp"
+#include "monsterStoreStorage.hpp"
 
 using namespace thewarrior::models;
 using namespace thewarrior::ui::models;
@@ -16,33 +19,31 @@ GameWindowController::GameWindowController()
     : m_itemStore(std::make_shared<ItemStore>()),
       m_messagePipeline(std::make_shared<MessagePipeline>()),
       m_resourcesPath(""),
-      m_lastError("")
-{
+      m_lastError("") {
     initializeResourcesPath();
 }
 
-const std::string &GameWindowController::getResourcesPath() const
-{
+const std::string &GameWindowController::getResourcesPath() const {
     return m_resourcesPath;
 }
 
-const std::string &GameWindowController::getLastError() const
-{
+const std::string &GameWindowController::getLastError() const {
     return m_lastError;
 }
 
-std::shared_ptr<ItemStore> GameWindowController::getItemStore()
-{
+std::shared_ptr<ItemStore> GameWindowController::getItemStore() {
     return m_itemStore;
 }
 
-std::shared_ptr<MessagePipeline> GameWindowController::getMessagePipeline()
-{
+std::shared_ptr<MonsterStore> GameWindowController::getMonsterStore() {
+    return m_monsterStore;
+}
+
+std::shared_ptr<MessagePipeline> GameWindowController::getMessagePipeline() {
     return m_messagePipeline;
 }
 
-bool GameWindowController::loadItemStore(const std::string &filePath)
-{
+bool GameWindowController::loadItemStore(const std::string &filePath) {
     ItemStoreStorage storage;
     try {
         storage.loadItemStore(filePath, m_itemStore);
@@ -54,13 +55,23 @@ bool GameWindowController::loadItemStore(const std::string &filePath)
     return false;
 }
 
-size_t GameWindowController::getMessageCount() const
-{
+bool GameWindowController::loadMonsterStore(const std::string &filePath) {
+    MonsterStoreStorage storage;
+    try {
+        storage.loadMonsterStore(filePath, m_monsterStore);
+        return true;
+    }
+    catch(const std::exception &err) {
+        m_lastError = err.what();
+    }
+    return false;
+}
+
+size_t GameWindowController::getMessageCount() const {
     return m_messagePipeline->getMessageCount();
 }
 
-void GameWindowController::initializeResourcesPath()
-{
+void GameWindowController::initializeResourcesPath() {
     std::string executablePath = "";
     char result[PATH_MAX];
     ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
@@ -70,4 +81,4 @@ void GameWindowController::initializeResourcesPath()
     m_resourcesPath = fmt::format("{0}/resources/", executablePath);
 }
 
-} // namespace thewarrior::ui::controllers
+}  // namespace thewarrior::ui::controllers
