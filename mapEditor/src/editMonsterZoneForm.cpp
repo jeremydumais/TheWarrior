@@ -115,9 +115,15 @@ void EditMonsterZoneForm::onPushButtonOK() {
     }
     const auto zoneName = ui.lineEditName->text().toStdString();
     if (m_controller.isMonsterZoneNameAlreadyUsed(zoneName)) {
-        ErrorMessage::show(fmt::format("The monster zone name {} already exists in the list", zoneName));
+        ErrorMessage::show(fmt::format("The monster zone name {} already exists in the list.", zoneName));
         return;
     }
+    // Ensure that is at least one Monster Encounter that has a Normal ratio.
+    if (!m_controller.isAtLeastAMonsterEncounterWithNormalRatio()) {
+        ErrorMessage::show(fmt::format("The monster zone needs to have at least one encounter with a Normal ratio.", zoneName));
+        return;
+    }
+
 
     m_result.m_name = zoneName;
     m_result.m_colorName = ui.comboBoxColor->currentText().toStdString();
