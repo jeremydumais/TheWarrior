@@ -17,6 +17,7 @@ namespace thewarrior::ui::controllers {
 
 GameWindowController::GameWindowController()
     : m_itemStore(std::make_shared<ItemStore>()),
+      m_monsterStore(std::make_shared<MonsterStore>()),
       m_messagePipeline(std::make_shared<MessagePipeline>()),
       m_resourcesPath(""),
       m_lastError("") {

@@ -8,6 +8,7 @@
 #include <vector>
 #include "gameMap.hpp"
 #include "gameMapModeController.hpp"
+#include "glBattleWindow.hpp"
 #include "glCharacterWindow.hpp"
 #include "glChoicePopup.hpp"
 #include "glFormService.hpp"
@@ -21,6 +22,7 @@
 #include "inputDevicesState.hpp"
 #include "mapTile.hpp"
 #include "mapTileTrigger.hpp"
+#include "monsterZoneMonsterEncounter.hpp"
 #include "point.hpp"
 #include "size.hpp"
 #include "tileSize.hpp"
@@ -31,7 +33,8 @@ enum GameMapInputMode {
     Map,
     MainMenuPopup,
     CharacterWindow,
-    InventoryWindow
+    InventoryWindow,
+    Battle
 };
 
 class GameMapMode {
@@ -46,6 +49,7 @@ class GameMapMode {
             std::shared_ptr<GLTextBox> textBox,
             std::shared_ptr<GLTextService> textService,
             const std::map<std::string, unsigned int> *texturesGLItemStore,
+            const std::map<std::string, unsigned int> *texturesGLMonsterStore,
             std::shared_ptr<InputDevicesState> inputDevicesState);
     bool initShaders(const std::string &resourcesPath);
     const std::string &getLastError() const;
@@ -69,6 +73,7 @@ class GameMapMode {
     std::shared_ptr<GLTextBox> m_textBox;
     std::shared_ptr<GLShaderProgram> m_shaderProgram = nullptr;
     std::shared_ptr<GLFormService> m_glFormService = std::make_shared<GLFormService>();
+    GLBattleWindow m_glBattleWindow;
     GLCharacterWindow m_glCharacterWindow;
     GLInventory m_glInventory;
     GLChoicePopup m_choicePopup;
@@ -100,6 +105,8 @@ class GameMapMode {
                        thewarrior::models::MapTile *tile = nullptr,
                        thewarrior::models::Point<int> tilePosition = thewarrior::models::Point<int>(0, 0));
     void checkForMonsterEncounter(const thewarrior::models::MapTile &tile);
+    std::string selectMonsterEncounter(const std::vector<thewarrior::models::MonsterZoneMonsterEncounter> &encounters,
+                                       thewarrior::models::MonsterEncounterRatio ratio);
     void loadMap(const std::string &filePath, const std::string &mapName);
     void changeMap(const std::string &filePath, const std::string &mapName);
     void calculateGLTileCoord(const thewarrior::models::Point<> &tilePosition, GLfloat tileCoord[4][2]);
@@ -109,6 +116,8 @@ class GameMapMode {
     void onInventoryWindowClose();
     void mainMenuPopupClicked(size_t choice);
     void mainMenuPopupCanceled();
+    void onPlayerMoveCompleted();
+    void onBattleCompleted();
 };
 
 }  // namespace thewarrior::ui

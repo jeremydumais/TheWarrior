@@ -7,6 +7,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Storage/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.UI.Models/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Utils/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.UI.Controllers/include)
 
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindow.cpp
@@ -14,6 +15,7 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glColor.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glFormService.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/fpsCalculator.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/glBattleWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glInventory.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glCharacterWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glChoicePopup.cpp
@@ -33,7 +35,12 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STRE
 endif()
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${CONAN_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} theWarrior.Models theWarrior.Storage theWarrior.UI.Controllers SDL2 GLU GL GLEW freetype bz2 png16 brotlicommon brotlidec brotlienc z)
+target_link_libraries(${PROJECT_NAME}
+                      theWarrior.Models
+                      theWarrior.Storage
+                      theWarrior.Utils
+                      theWarrior.UI.Controllers
+                      SDL2 GLU GL GLEW freetype bz2 png16 brotlicommon brotlidec brotlienc z)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html

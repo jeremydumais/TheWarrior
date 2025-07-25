@@ -14,7 +14,10 @@ void main(void) {
     // Pass through our original color with full opacity.
     //color = vec4(ex_Color,1.0);
     color = texture(myTextureSampler, ex_UV); // + vec4(ex_Color,1.0f);
+    if (color.a <= 0.01) {
+        discard;
+    }
     if (transparency > 0.0) {
-        color.a = transparency;
+        color.a *= transparency;
     }
 }

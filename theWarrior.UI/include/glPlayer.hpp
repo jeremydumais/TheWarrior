@@ -1,5 +1,9 @@
 #pragma once
 
+#include <GL/glew.h>
+#include <memory>
+#include <string>
+#include <boost/signals2.hpp>
 #include "glObjectService.hpp"
 #include "glTextureService.hpp"
 #include "player.hpp"
@@ -7,9 +11,6 @@
 #include "size.hpp"
 #include "texture.hpp"
 #include "tileSize.hpp"
-#include <GL/glew.h>
-#include "memory"
-#include <string>
 
 namespace thewarrior::ui {
 
@@ -20,9 +21,8 @@ struct MovingResult {
     bool needToRefreshTexture;
 };
 
-class GLPlayer : public thewarrior::models::Player
-{
-public:
+class GLPlayer : public thewarrior::models::Player {
+ public:
     explicit GLPlayer(const std::string &name);
     const std::string &getTextureName() const;
     int getTextureIndex() const;
@@ -54,7 +54,9 @@ public:
     void onGameWindowSizeChanged(const thewarrior::models::Size<> &);
     void onGameWindowTileSizeChanged(const TileSize &tileSize);
     void onGameWindowUpdate(float delta_time);
-private:
+    boost::signals2::signal<void()> m_playerMoveCompleted;
+
+ private:
     GLObject glObject;
     unsigned int glTextureId;
     thewarrior::models::Point<> m_coord;
@@ -72,4 +74,4 @@ private:
     GLTextureService m_textureService;
 };
 
-} // namespace thewarrior::ui
+}  // namespace thewarrior::ui

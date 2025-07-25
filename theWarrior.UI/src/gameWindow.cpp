@@ -50,6 +50,7 @@ GameWindow::GameWindow(const string &title,
             m_textBox,
             m_textService,
             &m_texturesGLItemStore,
+            &m_texturesGLMonsterStore,
             m_inputDevicesState);
     m_fpsCalculator.initialize();
     m_windowSizeChanged(m_WindowSize);
@@ -214,6 +215,7 @@ bool GameWindow::loadResourceFiles() {
     }
     m_textureService.setResourcesPath(m_controller.getResourcesPath());
     loadItemStoreTextures();
+    loadMonsterStoreTextures();
     return true;
 }
 
@@ -256,6 +258,18 @@ void GameWindow::loadItemStoreTextures() {
     for (const auto &texture : m_controller.getItemStore()->getTextureContainer().getTextures()) {
         const auto &textureName { texture.getName() };
         m_textureService.loadTexture(texture, m_texturesGLItemStore[textureName]);
+    }
+}
+
+void GameWindow::loadMonsterStoreTextures() {
+    // Clear existing textures in graphics memory
+    for (auto &glTexture : m_texturesGLMonsterStore) {
+        glDeleteTextures(1, &glTexture.second);
+    }
+    m_texturesGLMonsterStore.clear();
+    for (const auto &texture : m_controller.getMonsterStore()->getTextureContainer().getTextures()) {
+        const auto &textureName { texture.getName() };
+        m_textureService.loadTexture(texture, m_texturesGLMonsterStore[textureName]);
     }
 }
 

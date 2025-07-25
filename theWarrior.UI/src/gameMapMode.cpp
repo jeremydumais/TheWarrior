@@ -19,17 +19,20 @@
 #include "monsterStore.hpp"
 #include "monsterZone.hpp"
 #include "monsterZoneMonsterEncounter.hpp"
+#include "randomUtils.hpp"
 
 using namespace thewarrior::models;
 using namespace thewarrior::ui::controllers;
 using namespace thewarrior::ui::models;
 using namespace thewarrior::storage;
+using namespace thewarrior::utils;
 
 namespace thewarrior::ui {
 
 GameMapMode::GameMapMode() {
     m_choicePopup.m_choiceClicked.connect(boost::bind(&GameMapMode::mainMenuPopupClicked, this, boost::placeholders::_1));
     m_choicePopup.m_cancelClicked.connect(boost::bind(&GameMapMode::mainMenuPopupCanceled, this));
+    m_glBattleWindow.m_battleCompleted.connect(boost::bind(&GameMapMode::onBattleCompleted, this));
 }
 
 void GameMapMode::initialize(const std::string &resourcesPath,
@@ -41,11 +44,14 @@ void GameMapMode::initialize(const std::string &resourcesPath,
         std::shared_ptr<GLTextBox> textBox,
         std::shared_ptr<GLTextService> textService,
         const std::map<std::string, unsigned int> *texturesGLItemStore,
+        const std::map<std::string, unsigned int> *texturesGLMonsterStore,
         std::shared_ptr<InputDevicesState> inputDevicesState) {
     m_resourcesPath = resourcesPath;
     m_map = std::make_shared<GameMap>(1, 1);
     m_glPlayer = glPlayer;
+    m_glPlayer->m_playerMoveCompleted.connect(boost::bind(&GameMapMode::onPlayerMoveCompleted, this));
     m_glFormService->initialize(m_shaderProgram, textService);
+    m_glBattleWindow.initialize(resourcesPath, glPlayer, textService, monsterStore, texturesGLMonsterStore, inputDevicesState);
     m_glCharacterWindow.initialize(resourcesPath, glPlayer, textService, itemStore, texturesGLItemStore, inputDevicesState);
     m_glInventory.initialize(resourcesPath, glPlayer, textService, itemStore, texturesGLItemStore, inputDevicesState);
     m_glInventory.setInventory(m_glPlayer->getInventory());
@@ -60,6 +66,9 @@ void GameMapMode::initialize(const std::string &resourcesPath,
     generateGLMapObjects();
     m_glCharacterWindow.onCloseEvent.connect(boost::bind(&GameMapMode::onCharacterWindowClose, this));
     m_glInventory.onCloseEvent.connect(boost::bind(&GameMapMode::onInventoryWindowClose, this));
+    //HACK: Remove this when 0.3.4 completed
+    m_inputMode = GameMapInputMode::Battle;
+    m_glBattleWindow.prepareWindow("slm001");
 }
 
 bool GameMapMode::initShaders(const std::string &resourcesPath) {
@@ -73,6 +82,7 @@ bool GameMapMode::initShaders(const std::string &resourcesPath) {
         m_lastError = m_shaderProgram->getLastError();
         return false;
     }
+    m_glBattleWindow.initShader(m_shaderProgram);
     m_glCharacterWindow.initShader(m_shaderProgram);
     m_glInventory.initShader(m_shaderProgram);
     return true;
@@ -135,6 +145,9 @@ void GameMapMode::update() {
         case GameMapInputMode::CharacterWindow:
             m_glCharacterWindow.update();
             break;
+        case GameMapInputMode::Battle:
+            m_glBattleWindow.update();
+            break;
     }
     calculateTilesToDisplay();
 }
@@ -145,6 +158,7 @@ void GameMapMode::gameWindowSizeChanged(const Size<> &size) {
     unloadGLMapObjects();
     generateGLMapObjects();
     m_glInventory.gameWindowSizeChanged(size);
+    m_glBattleWindow.gameWindowSizeChanged(size);
     m_glCharacterWindow.gameWindowSizeChanged(size);
     m_choicePopup.gameWindowLocationChanged({static_cast<float>(size.width()) / 2.0F,
             static_cast<float>(size.height()) / 2.0F});
@@ -247,6 +261,9 @@ void GameMapMode::render() {
     if (m_inputMode == GameMapInputMode::CharacterWindow) {
         m_glCharacterWindow.render();
     }
+    if (m_inputMode == GameMapInputMode::Battle) {
+        m_glBattleWindow.render();
+    }
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
     glUseProgram(0);
@@ -295,32 +312,25 @@ void GameMapMode::moveUpPressed() {
     // Check if there is an action
     const auto playerCoord = m_glPlayer->getGridPosition();
     const auto tile = m_map->getTileFromCoord(playerCoord);
-    auto playerHasMoved = false;
     auto moveUpTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveUpPressed);
     if (moveUpTrigger.has_value()) {
         processAction(moveUpTrigger->getAction(), moveUpTrigger->getActionProperties());
     } else if (m_map->canSteppedOnTile(Point<int>(playerCoord.x(), playerCoord.y() - 1))) {
         m_glPlayer->moveUp();
-        playerHasMoved = true;
     }
     m_glPlayer->faceUp();
     m_glPlayer->applyCurrentGLTexture(m_textureService);
-    if (playerHasMoved) {
-        checkForMonsterEncounter(tile);
-    }
 }
 
 void GameMapMode::moveDownPressed() {
     // Check if there is an action
     const auto playerCoord = m_glPlayer->getGridPosition();
     const auto tile = m_map->getTileFromCoord(playerCoord);
-    auto playerHasMoved = false;
     auto moveDownTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveDownPressed);
     if (moveDownTrigger.has_value()) {
         processAction(moveDownTrigger->getAction(), moveDownTrigger->getActionProperties());
     } else if (m_map->canSteppedOnTile(Point<int>(playerCoord.x(), playerCoord.y() + 1))) {
         m_glPlayer->moveDown(tile.getIsWallToClimb());
-        playerHasMoved = true;
     }
     if (tile.getIsWallToClimb()) {
         m_glPlayer->faceUp();
@@ -328,22 +338,17 @@ void GameMapMode::moveDownPressed() {
         m_glPlayer->faceDown();
     }
     m_glPlayer->applyCurrentGLTexture(m_textureService);
-    if (playerHasMoved) {
-        checkForMonsterEncounter(tile);
-    }
 }
 
 void GameMapMode::moveLeftPressed() {
     // Check if there is an action
     const auto playerCoord = m_glPlayer->getGridPosition();
     const auto tile = m_map->getTileFromCoord(playerCoord);
-    auto playerHasMoved = false;
     auto moveLeftTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveLeftPressed);
     if (moveLeftTrigger.has_value()) {
         processAction(moveLeftTrigger->getAction(), moveLeftTrigger->getActionProperties());
     } else if (m_map->canSteppedOnTile(Point<int>(playerCoord.x() - 1, playerCoord.y()))) {
         m_glPlayer->moveLeft();
-        playerHasMoved = true;
     }
     if (tile.getIsWallToClimb()) {
         m_glPlayer->faceUp();
@@ -351,22 +356,17 @@ void GameMapMode::moveLeftPressed() {
         m_glPlayer->faceLeft();
     }
     m_glPlayer->applyCurrentGLTexture(m_textureService);
-    if (playerHasMoved) {
-        checkForMonsterEncounter(tile);
-    }
 }
 
 void GameMapMode::moveRightPressed() {
     // Check if there is an action
     const auto playerCoord = m_glPlayer->getGridPosition();
     const auto tile = m_map->getTileFromCoord(playerCoord);
-    auto playerHasMoved = false;
     auto moveRightTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveRightPressed);
     if (moveRightTrigger.has_value()) {
         processAction(moveRightTrigger->getAction(), moveRightTrigger->getActionProperties());
     } else if (m_map->canSteppedOnTile(Point<int>(playerCoord.x() + 1, playerCoord.y()))) {
         m_glPlayer->moveRight();
-        playerHasMoved = true;
     }
     if (tile.getIsWallToClimb()) {
         m_glPlayer->faceUp();
@@ -374,9 +374,6 @@ void GameMapMode::moveRightPressed() {
         m_glPlayer->faceRight();
     }
     m_glPlayer->applyCurrentGLTexture(m_textureService);
-    if (playerHasMoved) {
-        checkForMonsterEncounter(tile);
-    }
 }
 
 void GameMapMode::processAction(MapTileTriggerAction action, const std::map<std::string, std::string> &properties, MapTile *tile, Point<> tilePosition) {
@@ -438,8 +435,6 @@ void GameMapMode::processAction(MapTileTriggerAction action, const std::map<std:
 }
 
 void GameMapMode::checkForMonsterEncounter(const MapTile &tile) {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
     auto zones = m_map->getMonsterZones();
     if (tile.getMonsterZoneIndex() == -1 ||
         tile.getMonsterZoneIndex() >= static_cast<int>(zones.size())) {
@@ -449,13 +444,13 @@ void GameMapMode::checkForMonsterEncounter(const MapTile &tile) {
     const MonsterZone zone = m_map->getMonsterZones().at(static_cast<size_t>(tile.getMonsterZoneIndex()));
     std::uniform_int_distribution<> distributionEncounter(static_cast<int>(zone.getRatioEncounter()),
                                          static_cast<int>(zone.getRatioEncounterOn()));
-    bool encounterAMonster = distributionEncounter(gen) == 1;
+    bool encounterAMonster = distributionEncounter(RandomGenerator::instance()) == 1;
     if (!encounterAMonster) {
         return;
     }
     // Check if we get a Rare, lessThanNormal or Normal monster
     std::uniform_int_distribution<> distributionMonsterType(1, 50);
-    int monsterTypeResult = distributionMonsterType(gen);
+    int monsterTypeResult = distributionMonsterType(RandomGenerator::instance());
     MonsterEncounterRatio typeOfMonsterEncountered = [&monsterTypeResult]() -> MonsterEncounterRatio {
         if (monsterTypeResult >= 1 && monsterTypeResult <= 37) {
             return MonsterEncounterRatio::Normal;
@@ -466,30 +461,56 @@ void GameMapMode::checkForMonsterEncounter(const MapTile &tile) {
     }();
     // Get a list of available Monsters by type
     const auto monsterEncounterList = zone.getMonsterEncounters();
+    const auto monsterIdEncounter = selectMonsterEncounter(zone.getMonsterEncounters(), typeOfMonsterEncountered);
+    m_inputMode = GameMapInputMode::Battle;
+    m_glBattleWindow.prepareWindow(monsterIdEncounter);
+     //std::cout << "MonsterZone: " << tile.getMonsterZoneIndex() <<
+        //" Name: " << zone.getName() <<
+        //" Encounter: " << (encounterAMonster ? "Yes" : "No") <<
+        //" TypeOfEncounter: " << typeOfMonsterEncountered <<
+        //" MonsterId: " << monsterIdEncounter <<
+        //std::endl;
+}
+
+std::string GameMapMode::selectMonsterEncounter(const std::vector<MonsterZoneMonsterEncounter> &encounters,
+                                                MonsterEncounterRatio ratio) {
     std::vector<MonsterZoneMonsterEncounter> rareMonsters;
     std::vector<MonsterZoneMonsterEncounter> lessThanNormalMonsters;
     std::vector<MonsterZoneMonsterEncounter> normalMonsters;
-    std::copy_if(monsterEncounterList.begin(),
-                 monsterEncounterList.end(),
+    std::copy_if(encounters.begin(),
+                 encounters.end(),
                  std::back_inserter(rareMonsters),
-                 [](MonsterZoneMonsterEncounter encounter) { return encounter.getEncounterRatio() == MonsterEncounterRatio::Rare; });
-    std::copy_if(monsterEncounterList.begin(),
-                 monsterEncounterList.end(),
+                 [](MonsterZoneMonsterEncounter encounter) {
+                    return encounter.getEncounterRatio() == MonsterEncounterRatio::Rare;
+                 });
+    std::copy_if(encounters.begin(),
+                 encounters.end(),
                  std::back_inserter(lessThanNormalMonsters),
-                 [](MonsterZoneMonsterEncounter encounter) { return encounter.getEncounterRatio() == MonsterEncounterRatio::LessThanNormal; });
-    std::copy_if(monsterEncounterList.begin(),
-                 monsterEncounterList.end(),
+                 [](MonsterZoneMonsterEncounter encounter) {
+                    return encounter.getEncounterRatio() == MonsterEncounterRatio::LessThanNormal;
+                 });
+    std::copy_if(encounters.begin(),
+                 encounters.end(),
                  std::back_inserter(normalMonsters),
-                 [](MonsterZoneMonsterEncounter encounter) { return encounter.getEncounterRatio() == MonsterEncounterRatio::Normal; });
-
-    //std::uniform_int_distribution<> distributionMonsterSelection(1, 50);
-    //int monsterSelectionResult = distributionMonsterSelection(gen);
-
-    std::cout << "MonsterZone: " << tile.getMonsterZoneIndex() <<
-        " Name: " << zone.getName() <<
-        " Encounter: " << (encounterAMonster ? "Yes" : "No") <<
-        " TypeOfEncounter: " << typeOfMonsterEncountered <<
-        std::endl;
+                 [](MonsterZoneMonsterEncounter encounter) {
+                    return encounter.getEncounterRatio() == MonsterEncounterRatio::Normal;
+                 });
+    const auto &monsterListToUse = [rareMonsters, lessThanNormalMonsters, normalMonsters, ratio]() {
+        if (ratio == MonsterEncounterRatio::Rare && rareMonsters.size() > 0) {
+            return rareMonsters;
+        }
+        if ((ratio == MonsterEncounterRatio::Rare || ratio == MonsterEncounterRatio::LessThanNormal) && lessThanNormalMonsters.size() > 0) {
+            return lessThanNormalMonsters;
+        }
+        return normalMonsters;
+    }();
+    if (monsterListToUse.size() == 1) {
+        return monsterListToUse.at(0).getMonsterId();
+    } else {
+        std::uniform_int_distribution<> distributionMonsterSelection(1, static_cast<int>(monsterListToUse.size()));
+        size_t monsterRandomIndex = static_cast<size_t>(distributionMonsterSelection(RandomGenerator::instance()));
+        return monsterListToUse.at(monsterRandomIndex - 1).getMonsterId();
+    }
 }
 
 void GameMapMode::loadMap(const std::string &filePath, const std::string &mapName) {
@@ -638,6 +659,15 @@ void GameMapMode::mainMenuPopupClicked(size_t choice) {
 }
 
 void GameMapMode::mainMenuPopupCanceled() {
+    m_inputMode = GameMapInputMode::Map;
+}
+
+void GameMapMode::onPlayerMoveCompleted() {
+    const auto &tile = m_map->getTileFromCoord(m_glPlayer->getGridPosition());
+    checkForMonsterEncounter(tile);
+}
+
+void GameMapMode::onBattleCompleted() {
     m_inputMode = GameMapInputMode::Map;
 }
 

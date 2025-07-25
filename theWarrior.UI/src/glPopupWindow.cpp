@@ -1,7 +1,9 @@
+#include <fmt/format.h>
+#include <memory>
+#include <string>
+#include <vector>
 #include "glPopupWindow.hpp"
 #include <boost/algorithm/string.hpp>
-#include <fmt/format.h>
-#include <vector>
 
 using namespace thewarrior::models;
 
@@ -22,33 +24,27 @@ GLPopupWindow::GLPopupWindow(Size<float> size)
       m_windowBackgrounds(std::vector<GLObject>()),
       m_windowTitleObjects(std::vector<GLObject>()),
       m_glObjects(std::vector<GLObject>()),
-      m_glTextObjects(std::vector<GLTextObject>())
-{
+      m_glTextObjects(std::vector<GLTextObject>()) {
 }
 
-const std::string& GLPopupWindow::getLastError() const
-{
+const std::string& GLPopupWindow::getLastError() const {
     return m_lastError;
 }
 
-const Point<float> &GLPopupWindow::getWindowLocation() const
-{
+const Point<float> &GLPopupWindow::getWindowLocation() const {
     return m_windowLocation;
 }
 
-const Size<float>& GLPopupWindow::getWindowSize() const
-{
+const Size<float>& GLPopupWindow::getWindowSize() const {
     return m_windowSize;
 }
 
-Point<float> GLPopupWindow::getWindowCenter() const
-{
+Point<float> GLPopupWindow::getWindowCenter() const {
     return m_windowCenter;
 }
 
 bool GLPopupWindow::initShader(const std::string &vertexShaderFileName,
-                             const std::string &fragmentShaderFileName)
-{
+                             const std::string &fragmentShaderFileName) {
     m_shaderProgram = std::make_shared<GLShaderProgram>(vertexShaderFileName,
                                                         fragmentShaderFileName);
     if (!m_shaderProgram->compileShaders()) {
@@ -62,15 +58,13 @@ bool GLPopupWindow::initShader(const std::string &vertexShaderFileName,
     return true;
 }
 
-void GLPopupWindow::initShader(const std::shared_ptr<GLShaderProgram> shaderProgram)
-{
+void GLPopupWindow::initShader(const std::shared_ptr<GLShaderProgram> shaderProgram) {
     m_shaderProgram = shaderProgram;
 }
 
 void GLPopupWindow::initialize(const std::string &title,
                                const std::string &resourcePath,
-                               std::shared_ptr<GLTextService> textService)
-{
+                               std::shared_ptr<GLTextService> textService) {
     m_glTitle.text = title;
     m_textService = textService;
     m_textureService.setResourcesPath(resourcePath);
@@ -78,56 +72,48 @@ void GLPopupWindow::initialize(const std::string &title,
     m_glFormService->initialize(m_shaderProgram, textService);
 }
 
-void GLPopupWindow::generateGLElements()
-{
+void GLPopupWindow::setTitle(const std::string &title) {
+    m_glTitle.text = title;
+    generateTitleBox();
+}
+
+void GLPopupWindow::generateGLElements() {
     m_windowObjects.clear();
     m_windowBackgrounds.clear();
-    m_windowTitleObjects.clear();
     m_glObjects.clear();
     m_glTextObjects.clear();
-    //Window
+    // Window
     m_glFormService->generateQuad(m_windowBackgrounds, getWindowLocation(), getWindowSize());
     m_glFormService->generateBoxQuad(m_windowObjects,
                                     getWindowLocation(),
                                     getWindowSize(),
                                     &m_windowGLTexture.texture,
                                     17);
-    //TitleBox
-    m_displayTitle = !m_glTitle.text.empty();
-    auto titleSize = m_textService->getTextSize(m_glTitle.text, 0.6F);
-    m_glTitle.position = { getWindowLocation().x() + 15.0F + (getWindowSize().width() / 2.0F) - (titleSize.width() / 2.0F),
-                           getWindowLocation().y() + 40.0F };
-    m_glFormService->generateBoxQuad(m_windowTitleObjects,
-                                    {m_glTitle.position.x() - 35.0F, m_glTitle.position.y() - 30.0F},
-                                    {titleSize.width() + 70.0F, 40.0F},
-                                    &m_windowGLTexture.texture,
-                                    17);
+    generateTitleBox();
 }
 
-void GLPopupWindow::render()
-{
-    for(const auto &obj : m_windowBackgrounds) {
+void GLPopupWindow::render() {
+    for (const auto &obj : m_windowBackgrounds) {
         m_glFormService->drawQuad(obj, 0, 0.9F);
     }
-    for(const auto &obj : m_windowObjects) {
+    for (const auto &obj : m_windowObjects) {
         m_glFormService->drawQuad(obj, m_windowGLTexture.glTextureId);
     }
     if (m_displayTitle) {
-        for(const auto &obj : m_windowTitleObjects) {
+        for (const auto &obj : m_windowTitleObjects) {
             m_glFormService->drawQuad(obj, m_windowGLTexture.glTextureId);
         }
         m_glFormService->drawText(m_glTitle);
     }
-    for(const auto &obj : m_glObjects) {
+    for (const auto &obj : m_glObjects) {
         m_glFormService->drawQuad(obj, obj.textureGLId);
     }
-    for(const auto &textObj : m_glTextObjects) {
+    for (const auto &textObj : m_glTextObjects) {
         m_glFormService->drawText(textObj);
     }
 }
 
-void GLPopupWindow::gameWindowSizeChanged(const Size<> &size)
-{
+void GLPopupWindow::gameWindowSizeChanged(const Size<> &size) {
     m_windowLocation = { (static_cast<float>(size.width()) / 2.0F) - (m_windowSize.width() / 2.0F),
                          (static_cast<float>(size.height()) / 2.0F) - (m_windowSize.height() / 2.0F) };
     m_windowCenter = { m_windowLocation.x() + (m_windowSize.width() / 2.0F),
@@ -135,8 +121,7 @@ void GLPopupWindow::gameWindowSizeChanged(const Size<> &size)
     m_glFormService->gameWindowSizeChanged(size);
 }
 
-void GLPopupWindow::generateQuad(std::vector<GLObject> &objects, Point<float> location, Size<float> size, const Texture *texture, int textureId, GLuint textureGLId)
-{
+void GLPopupWindow::generateQuad(std::vector<GLObject> &objects, Point<float> location, Size<float> size, const Texture *texture, int textureId, GLuint textureGLId) {
     m_glFormService->generateQuad(objects,
                                   { m_windowLocation.x() + location.x(),
                                     m_windowLocation.y() + location.y() },
@@ -148,18 +133,29 @@ void GLPopupWindow::generateBoxQuad(std::vector<GLObject> &objects,
                      Size<float> size,
                      const Texture *texture,
                      int textureBeginId,
-                     GLuint textureGLId)
-{
+                     GLuint textureGLId) {
     m_glFormService->generateBoxQuad(objects,
                                      { m_windowLocation.x() + location.x(),
                                        m_windowLocation.y() + location.y() },
                                      size, texture, textureBeginId, textureGLId);
 }
 
+void GLPopupWindow::generateTitleBox() {
+    m_windowTitleObjects.clear();
+    m_displayTitle = !m_glTitle.text.empty();
+    auto titleSize = m_textService->getTextSize(m_glTitle.text, 0.6F);
+    m_glTitle.position = { getWindowLocation().x() + 15.0F + (getWindowSize().width() / 2.0F) - (titleSize.width() / 2.0F),
+                           getWindowLocation().y() + 40.0F };
+    m_glFormService->generateBoxQuad(m_windowTitleObjects,
+                                    {m_glTitle.position.x() - 35.0F, m_glTitle.position.y() - 30.0F},
+                                    {titleSize.width() + 70.0F, 40.0F},
+                                    &m_windowGLTexture.texture,
+                                    17);
+}
+
 void GLPopupWindow::addWindowPanel(Point<float> location,
                                    Size<float> size,
-                                   int textureBeginId)
-{
+                                   int textureBeginId) {
     generateBoxQuad(m_windowObjects,
                     location,
                     size,
@@ -168,20 +164,18 @@ void GLPopupWindow::addWindowPanel(Point<float> location,
                     m_windowGLTexture.glTextureId);
 }
 
-void GLPopupWindow::addTextObject(GLTextObject textObject)
-{
+void GLPopupWindow::addTextObject(GLTextObject textObject) {
     textObject.position.setX(m_windowLocation.x() + textObject.position.x());
     textObject.position.setY(m_windowLocation.y() + textObject.position.y());
     m_glTextObjects.push_back(textObject);
 }
 
-void GLPopupWindow::addXCenteredTextObject(GLTextObject textObject, float x, float width)
-{
+void GLPopupWindow::addXCenteredTextObject(GLTextObject textObject, float x, float width) {
     std::vector<std::string> lines;
     boost::split(lines, textObject.text, boost::is_any_of("\n"));
     float initialYPosition = textObject.position.y();
     int lineIndex = 0;
-    for(const auto &line : lines) {
+    for (const auto &line : lines) {
         textObject.text = line;
         auto textSize = m_textService->getTextSize(textObject.text, textObject.scale);
         textObject.position.setX(x + (width / 2.0F) - (textSize.width() / 2.0F));
@@ -198,8 +192,7 @@ void GLPopupWindow::addXCenteredTwoColumnsLabels(const std::string &label,
                                                float x,
                                                float width,
                                                GLColor colorLabel,
-                                               GLColor colorValue)
-{
+                                               GLColor colorValue) {
     auto labelStrSize = m_textService->getTextSize(label, scale);
     auto labelAndValueSize = m_textService->getTextSize(fmt::format("{0}{1}", label, value), scale);
 
@@ -207,4 +200,4 @@ void GLPopupWindow::addXCenteredTwoColumnsLabels(const std::string &label,
     addTextObject({value, {(x + (width / 2.0F)) - (labelAndValueSize.width() / 2.0F) + labelStrSize.width(), yPosition}, scale, colorValue});
 }
 
-} // namespace thewarrior::ui
+}  // namespace thewarrior::ui

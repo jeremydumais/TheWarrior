@@ -58,6 +58,7 @@ class GameWindow {
     GLTextureService m_textureService;
     std::shared_ptr<GLPlayer> m_glPlayer = std::make_shared<GLPlayer>("Ragnar");
     std::map<std::string, unsigned int> m_texturesGLItemStore;
+    std::map<std::string, unsigned int> m_texturesGLMonsterStore;
     // FPS variables
     thewarrior::ui::FPSCalculator m_fpsCalculator;
     bool m_toggleFPS = false;
@@ -72,6 +73,7 @@ class GameWindow {
     void subscribeEvents();
     void render();
     void loadItemStoreTextures();
+    void loadMonsterStoreTextures();
     void calculateTileSize();
 };
 
