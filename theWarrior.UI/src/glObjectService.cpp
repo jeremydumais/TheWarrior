@@ -3,8 +3,7 @@
 
 namespace thewarrior::ui {
 
-void GLObjectService::generateGLObject(GenerateGLObjectInfo &info, const GLfloat tileCoord[4][2], const GLfloat colors[4][3])
-{
+void GLObjectService::generateGLObject(GenerateGLObjectInfo &info, const GLfloat tileCoord[4][2], const GLfloat colors[4][3]) {
     GLfloat texCoordBuf[4][2] { { 0.0F, 0.0F },
                                   { 0.0F, 0.0F },
                                   { 0.0F, 0.0F },
@@ -22,14 +21,14 @@ void GLObjectService::generateGLObject(GenerateGLObjectInfo &info, const GLfloat
     glGenBuffers(1, &info.glObject->vboPosition);
     glBindBuffer(GL_ARRAY_BUFFER, info.glObject->vboPosition);
     glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), tileCoord, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(0);
 
     /* Bind our second VBO as being the active buffer and storing vertex attributes (colors) */
     glGenBuffers(1, &info.glObject->vboColor);
     glBindBuffer(GL_ARRAY_BUFFER, info.glObject->vboColor);
     glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(GLfloat), colors, GL_STATIC_DRAW);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(1);
 
     /* Bind our third VBO as being the active buffer and storing vertex attributes (textures) */
@@ -37,7 +36,7 @@ void GLObjectService::generateGLObject(GenerateGLObjectInfo &info, const GLfloat
     glGenBuffers(1, vboTexturePtr);
     glBindBuffer(GL_ARRAY_BUFFER, *vboTexturePtr);
     glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), texCoordBuf, GL_STATIC_DRAW);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -46,4 +45,4 @@ void GLObjectService::generateGLObject(GenerateGLObjectInfo &info, const GLfloat
     glDisableVertexAttribArray(2);
 }
 
-} // namespace thewarrior::ui
+}  // namespace thewarrior::ui

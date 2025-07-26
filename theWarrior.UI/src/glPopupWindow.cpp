@@ -14,6 +14,7 @@ GLPopupWindow::GLPopupWindow(Size<float> size)
       m_windowLocation({ 1.0F, 1.0F }),
       m_windowSize(size),
       m_windowCenter({ 1.0F, 1.0F }),
+      m_screenSize({ 1.0F, 1.0F }),
       m_shaderProgram(nullptr),
       m_glFormService(std::make_shared<GLFormService>()),
       m_textService(nullptr),
@@ -114,6 +115,7 @@ void GLPopupWindow::render() {
 }
 
 void GLPopupWindow::gameWindowSizeChanged(const Size<> &size) {
+    m_screenSize = Size<float>(static_cast<float>(size.width()), static_cast<float>(size.height()));
     m_windowLocation = { (static_cast<float>(size.width()) / 2.0F) - (m_windowSize.width() / 2.0F),
                          (static_cast<float>(size.height()) / 2.0F) - (m_windowSize.height() / 2.0F) };
     m_windowCenter = { m_windowLocation.x() + (m_windowSize.width() / 2.0F),
@@ -133,11 +135,12 @@ void GLPopupWindow::generateBoxQuad(std::vector<GLObject> &objects,
                      Size<float> size,
                      const Texture *texture,
                      int textureBeginId,
-                     GLuint textureGLId) {
+                     GLuint textureGLId,
+                     float blockSize) {
     m_glFormService->generateBoxQuad(objects,
                                      { m_windowLocation.x() + location.x(),
                                        m_windowLocation.y() + location.y() },
-                                     size, texture, textureBeginId, textureGLId);
+                                     size, texture, textureBeginId, textureGLId, blockSize);
 }
 
 void GLPopupWindow::generateTitleBox() {

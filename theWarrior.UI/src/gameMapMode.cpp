@@ -83,6 +83,10 @@ bool GameMapMode::initShaders(const std::string &resourcesPath) {
         return false;
     }
     m_glBattleWindow.initShader(m_shaderProgram);
+    if (!m_glBattleWindow.initBattleShaders(resourcesPath)) {
+        m_lastError = m_glBattleWindow.getLastError();
+        return false;
+    }
     m_glCharacterWindow.initShader(m_shaderProgram);
     m_glInventory.initShader(m_shaderProgram);
     return true;

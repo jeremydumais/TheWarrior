@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 #include "glBattleWindow.hpp"
+#include "fadeLoopAnimation.hpp"
+#include "fadeOutAnimation.hpp"
 #include "glColor.hpp"
 #include "glObjectService.hpp"
 #include "monsterStore.hpp"
@@ -22,8 +24,10 @@ namespace thewarrior::ui {
 GLBattleWindow::GLBattleWindow()
     : GLPopupWindow({ 800.0F, 600.0F }),
       m_slotsGLTexture({ Texture(TextureInfo{ "battleLandscape", "battle_landscape.png", 1536, 512, 512, 512 }), 0 }),
-      m_battleObjects(std::map<std::string, GLObject>()),
+      m_namedObjects(std::map<std::string, GLObject>()),
+      m_monsterHPBarWindow(std::vector<GLObject>()),
       m_monster(nullptr),
+      m_monsterInitial(nullptr),
       m_glTextActions(std::vector<GLTextObject>()),
       m_menuActionsPosition(0),
       m_battleLog(std::queue<std::string>()) {
@@ -47,15 +51,32 @@ void GLBattleWindow::initialize(const std::string &resourcePath,
     m_glTextActions.push_back({ "Run", { 1.0F, 520.0F }, 0.6F });
 }
 
+bool GLBattleWindow::initBattleShaders(const std::string &resourcesPath) {
+    m_monsterHealthShaderProgram = std::make_shared<GLShaderProgram>(fmt::format("{0}/shaders/monsterHPBar_330_vs.glsl", resourcesPath),
+            fmt::format("{0}/shaders/monsterHPBar_330_fs.glsl", resourcesPath));
+    if (!m_monsterHealthShaderProgram->compileShaders()) {
+        m_lastError = m_monsterHealthShaderProgram->getLastError();
+        return false;
+    }
+    if (!m_monsterHealthShaderProgram->linkShaders({ "vertex" })) {
+        m_lastError = m_monsterHealthShaderProgram->getLastError();
+        return false;
+    }
+    return true;
+}
+
 void GLBattleWindow::reset() {
     m_battleLog = std::queue<std::string>();
     m_menuActionsPosition = 0;
-    m_battleAction = BattleAction::PlayerTurn;
-    monsterAlphaValue = 1.0F;
+    m_currentBattleAction = BattleAction::PlayerTurn;
+    m_namedObjectsAnimations.clear();
 }
 
 void GLBattleWindow::update() {
-    if (m_battleAction == BattleAction::PlayerTurn) {
+    if (m_namedObjectsAnimations.contains(MonsterHPBarObj)) {
+        m_namedObjectsAnimations[MonsterHPBarObj]->process();
+    }
+    if (m_currentBattleAction == BattleAction::PlayerTurn) {
         const Uint64 MS_BETWEEN_SELECTION_CHANGE = 110;
         auto inputUpTicks = m_inputDevicesState->getUpPressedTicks();
         if (m_inputDevicesState->getUpPressed() &&
@@ -84,7 +105,7 @@ void GLBattleWindow::update() {
         }
     } else {
         if (SDL_GetTicks64() - m_actionStepStartTicks > m_actionStepNextTicks) {
-            switch (m_battleAction) {
+            switch (m_currentBattleAction) {
                 case BattleAction::PlayerTurn:
                     break;
                 case BattleAction::PlayerAttack:
@@ -112,7 +133,7 @@ void GLBattleWindow::update() {
 
 void GLBattleWindow::generateGLElements() {
     GLPopupWindow::generateGLElements();
-    //m_battleObjects.clear();
+    m_monsterHPBarWindow.clear();
     // Equipments
     auto equipment = m_glPlayer->getEquipment();
     addWindowPanel({260.0F, 60.0F}, {280.0F, 280.0F}, 17);
@@ -121,8 +142,8 @@ void GLBattleWindow::generateGLElements() {
     addWindowPanel({260.0F, 360.0F}, {510.0F, 200.0F}, 17);
     for (size_t i = 0; i < m_glTextActions.size(); i++) {
         auto actionElement = m_glTextActions.at(i);
-        if (m_menuActionsPosition == i) {
-            actionElement.color = GLColor::Gray;
+        if (m_menuActionsPosition == i && m_currentBattleAction == BattleAction::PlayerTurn) {
+            actionElement.color = GLColor::Green;
         }
         addXCenteredTextObject(actionElement, 30.0F, 190.0F);
     }
@@ -164,16 +185,36 @@ void GLBattleWindow::generateGLElements() {
                     textureMonster,
                     m_monster->getTextureIndex(),
                     m_texturesGLMonsterStore->at(m_monster->getTextureName()));
-    m_battleObjects["moreText"] = battleObjects.at(0);
-    m_battleObjects["monster"] = battleObjects.at(1);
+    generateBoxQuad(m_monsterHPBarWindow,
+                    {335.0F, 325.0F},
+                    {130.0F, 20.0F},
+                    &m_windowGLTexture.texture,
+                    8,
+                    m_windowGLTexture.glTextureId, 16);
+    generateQuad(battleObjects, {338.0F, 328.0F}, {124.0F, 14.0F}, &m_windowGLTexture.texture, 26, m_windowGLTexture.glTextureId);
+    m_namedObjects[MoreTextObj] = battleObjects.at(0);
+    m_namedObjects[MonsterObj] = battleObjects.at(1);
+    m_namedObjects[MonsterHPBarObj] = battleObjects.at(2);
 }
 
 void GLBattleWindow::render() {
     GLPopupWindow::render();
-    if (m_battleAction == BattleAction::PlayerWon) {
-        m_glFormService->drawQuad(m_battleObjects.at("moreText"), m_battleObjects.at("moreText").textureGLId, moreTextIconAlphaValue);
+    if (m_currentBattleAction == BattleAction::PlayerWon) {
+        float moreTextTransparency = m_namedObjectsAnimations.contains(MoreTextObj) ?
+            m_namedObjectsAnimations[MoreTextObj]->getValue() :
+            0.0F;
+        m_glFormService->drawQuad(m_namedObjects.at(MoreTextObj),
+                                  m_namedObjects.at(MoreTextObj).textureGLId,
+                                  moreTextTransparency);
     }
-    m_glFormService->drawQuad(m_battleObjects.at("monster"), m_battleObjects.at("monster").textureGLId, monsterAlphaValue);
+    float monsterTransparency = m_namedObjectsAnimations.contains(MonsterObj) ?
+        m_namedObjectsAnimations[MonsterObj]->getValue() :
+        0.0F;
+    m_glFormService->drawQuad(m_namedObjects.at(MonsterObj), m_namedObjects.at(MonsterObj).textureGLId, monsterTransparency);
+    for (const auto &obj : m_monsterHPBarWindow) {
+        m_glFormService->drawQuad(obj, m_windowGLTexture.glTextureId, monsterTransparency);
+    }
+    drawMonsterHPBar(m_namedObjects.at(MonsterHPBarObj), m_namedObjects.at(MonsterHPBarObj).textureGLId, monsterTransparency);
 }
 
 void GLBattleWindow::gameWindowSizeChanged(const Size<> &size) {
@@ -188,6 +229,7 @@ void GLBattleWindow::prepareWindow(const std::string &id) {
         throw std::runtime_error(fmt::format("Unable to found the monster {0}", id));
     }
     m_monster = std::make_unique<Monster>(*monster);
+    m_monsterInitial = std::make_unique<Monster>(*monster);
     setTitle(m_monster->getName());
     addBattleLog(fmt::format("You encountered a {}!", m_monster->getName()).c_str());
     generateGLElements();
@@ -211,8 +253,8 @@ void GLBattleWindow::actionButtonPressed() {
     if (m_menuActionsPosition == 0) {  // Attack
         addBattleLog(fmt::format("You attack the {0}...", m_monster->getName()).c_str());
         startAction(BattleAction::PlayerAttack, 750);
-    }
-    if (m_menuActionsPosition == 3) {  // Run
+    } else if (m_menuActionsPosition == 1) {  // Spell
+    } else if (m_menuActionsPosition == 3) {  // Run
         addBattleLog("Attempting to run away...");
         startAction(BattleAction::PlayerTryToRun, 750);
     }
@@ -227,23 +269,35 @@ void GLBattleWindow::addBattleLog(const std::string &log) {
 }
 
 void GLBattleWindow::startAction(BattleAction action, Uint64 timeLength) {
-        m_battleAction = action;
+        m_currentBattleAction = action;
         m_actionStepStartTicks = SDL_GetTicks64();
         m_actionStepNextTicks = timeLength;
 }
 
 void GLBattleWindow::playerAttackWorkflow() {
-    if (m_battleAction == BattleAction::PlayerAttack) {
-        //TODO: Check block and miss
+    if (m_currentBattleAction == BattleAction::PlayerAttack) {
+        //TODO: Check block, critical and miss
         //TODO Calculate the DPS
-        int dps = 9;
+        int dps = 20;
+        //TODO: Need to transfer the calculation in the monster class!!!
         addBattleLog(fmt::format("You hit and HPs have been reduces by {0}!", dps).c_str());
-        m_monster->setHealth(m_monster->getHealth() - dps);
-        std::cout << m_monster->getHealth() << std::endl;
+        float monsterHealth = static_cast<float>(m_monster->getHealth()) / static_cast<float>(m_monsterInitial->getHealth());
+        float newMonsterHealth = (static_cast<float>(m_monster->getHealth()) - static_cast<float>(dps)) / static_cast<float>(m_monsterInitial->getHealth());
+        if (newMonsterHealth < 0.0F) {
+            newMonsterHealth = 0.0F;
+        }
+        m_namedObjectsAnimations[MonsterHPBarObj] = std::make_shared<FadeOutAnimation>(newMonsterHealth,
+                monsterHealth, 0.075F);
+        int newHP = m_monster->getHealth() - dps;
+        if (newHP < 0) {
+            newHP = 0;
+        }
+        m_monster->setHealth(newHP);
         if (m_monster->getHealth() <= 0) {
+            m_namedObjectsAnimations[MoreTextObj] = std::make_shared<FadeLoopAnimation>(0.1F, 1.0F, 0.01F);
+            m_namedObjectsAnimations[MonsterObj] = std::make_shared<FadeOutAnimation>(0.1F, 1.0F, 0.05F);
             startAction(BattleAction::PlayerWon, 500);
             addBattleLog(fmt::format("You have defeated the {0}", m_monster->getName()).c_str());
-            //TODO: start the animation for the monster to disapear
         } else {
             startAction(BattleAction::MonsterTurn, 500);
         }
@@ -251,35 +305,25 @@ void GLBattleWindow::playerAttackWorkflow() {
 }
 
 void GLBattleWindow::playerRunWorkflow() {
-    if (m_battleAction == BattleAction::PlayerTryToRun) {
+    if (m_currentBattleAction == BattleAction::PlayerTryToRun) {
         std::uniform_int_distribution<> distributionAttemptingToRun(1, 2);
         if (distributionAttemptingToRun(RandomGenerator::instance()) == 1) {
             startAction(BattleAction::PlayerRanAway, 750);
             addBattleLog("You ran away!");
         } else {
-            m_battleAction = BattleAction::PlayerTurn;
+            m_currentBattleAction = BattleAction::PlayerTurn;
             m_menuActionsPosition = 0;
             addBattleLog("You were not able to run away! The battle continues...");
             startAction(BattleAction::MonsterTurn, 500);
         }
-    } else if (m_battleAction == BattleAction::PlayerRanAway) {
+    } else if (m_currentBattleAction == BattleAction::PlayerRanAway) {
         m_battleCompleted();
     }
 }
 
 void GLBattleWindow::playerWonWorkflow() {
-    if (moreTextIconAlphaIncrease)
-        moreTextIconAlphaValue += 0.01F;
-    else
-        moreTextIconAlphaValue -= 0.01F;
-    if (moreTextIconAlphaValue >= 1.0F) {
-        moreTextIconAlphaIncrease = false;
-    } else if (moreTextIconAlphaValue <= 0.1F) {
-        moreTextIconAlphaIncrease = true;
-    }
-    if (monsterAlphaValue > 0.05F) {
-        monsterAlphaValue -= 0.05F;
-    }
+    m_namedObjectsAnimations[MoreTextObj]->process();
+    m_namedObjectsAnimations[MonsterObj]->process();
     if (m_inputDevicesState->getButtonAState() == InputElementState::Released) {
         m_battleCompleted();
     }
@@ -288,9 +332,36 @@ void GLBattleWindow::playerWonWorkflow() {
 void GLBattleWindow::monsterTurnWorkflow() {
     addBattleLog("Monster turn!");
     startAction(BattleAction::PlayerTurn, 750);
+    generateGLElements();
 }
 
 void GLBattleWindow::monsterAttackWorkflow() {
+}
+
+void GLBattleWindow::drawMonsterHPBar(const GLObject &glObject,
+                                      GLuint textureGLIndex,
+                                      float transparency) {
+    m_monsterHealthShaderProgram->use();
+    GLint uniformTransparency = glGetUniformLocation(m_monsterHealthShaderProgram->getShaderProgramID(), "transparency");
+    glUniform1f(uniformTransparency, transparency);
+    //TODO: Need to transfer the calculation in the monster class!!!
+    glUniform1f(glGetUniformLocation(m_monsterHealthShaderProgram->getShaderProgramID(), "widthScale"), m_namedObjectsAnimations.contains(MonsterHPBarObj) && !m_namedObjectsAnimations.at(MonsterHPBarObj)->isCompleted() ? m_namedObjectsAnimations.at(MonsterHPBarObj)->getValue() : static_cast<float>(m_monster->getHealth()) / static_cast<float>(m_monsterInitial->getHealth()));
+    glUniform1f(glGetUniformLocation(m_monsterHealthShaderProgram->getShaderProgramID(), "screenWidth"), m_screenSize.width());
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureGLIndex);
+    glBindVertexArray(glObject.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, glObject.vboPosition);
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, glObject.vboColor);
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, glObject.vboTexture);
+    glEnableVertexAttribArray(2);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+    glDisableVertexAttribArray(2);
+    glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(0);
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 }  // namespace thewarrior::ui

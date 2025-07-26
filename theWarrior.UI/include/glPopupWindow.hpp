@@ -43,6 +43,7 @@ class GLPopupWindow : public IShaderService {
     thewarrior::models::Point<float> m_windowLocation;
     thewarrior::models::Size<float> m_windowSize;
     thewarrior::models::Point<float> m_windowCenter;
+    thewarrior::models::Size<float> m_screenSize;
     std::shared_ptr<GLShaderProgram> m_shaderProgram;
     std::shared_ptr<GLFormService> m_glFormService;
     std::shared_ptr<GLTextService> m_textService;
@@ -65,7 +66,8 @@ class GLPopupWindow : public IShaderService {
                          thewarrior::models::Size<float> size,
                          const thewarrior::models::Texture *texture,
                          int textureBeginId,
-                         GLuint textureGLId = 0);
+                         GLuint textureGLId = 0,
+                         float blockSize = 32.0F);
     void generateTitleBox();
     void addWindowPanel(thewarrior::models::Point<float> location,
                         thewarrior::models::Size<float> size,
