@@ -69,7 +69,7 @@ std::vector<MonsterCreationInfo> MonsterPickerFormController::getMonsters(const 
                 monster->getName(),
                 monster->getTextureName(),
                 monster->getTextureIndex(),
-                monster->getHealth(),
+                monster->getMaxHealth(),
                 monster->getAttack(),
                 monster->getDefense(),
                 monster->getGoldRewardRange().first,

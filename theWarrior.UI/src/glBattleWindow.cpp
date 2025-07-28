@@ -2,7 +2,6 @@
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <cstddef>
-#include <iostream>
 #include <map>
 #include <memory>
 #include <queue>
@@ -70,6 +69,7 @@ void GLBattleWindow::reset() {
     m_menuActionsPosition = 0;
     m_currentBattleAction = BattleAction::PlayerTurn;
     m_namedObjectsAnimations.clear();
+    m_goldObtained = 0;
 }
 
 void GLBattleWindow::update() {
@@ -117,6 +117,9 @@ void GLBattleWindow::update() {
                     break;
                 case BattleAction::PlayerWon:
                     playerWonWorkflow();
+                    break;
+                case BattleAction::PlayerGetReward:
+                    playerObtainRewardWorkflow();
                     break;
                 case BattleAction::MonsterTurn:
                     monsterTurnWorkflow();
@@ -199,7 +202,7 @@ void GLBattleWindow::generateGLElements() {
 
 void GLBattleWindow::render() {
     GLPopupWindow::render();
-    if (m_currentBattleAction == BattleAction::PlayerWon) {
+    if (m_namedObjectsAnimations.contains(MoreTextObj)) {
         float moreTextTransparency = m_namedObjectsAnimations.contains(MoreTextObj) ?
             m_namedObjectsAnimations[MoreTextObj]->getValue() :
             0.0F;
@@ -279,25 +282,22 @@ void GLBattleWindow::playerAttackWorkflow() {
         //TODO: Check block, critical and miss
         //TODO Calculate the DPS
         int dps = 20;
-        //TODO: Need to transfer the calculation in the monster class!!!
         addBattleLog(fmt::format("You hit and HPs have been reduces by {0}!", dps).c_str());
-        float monsterHealth = static_cast<float>(m_monster->getHealth()) / static_cast<float>(m_monsterInitial->getHealth());
-        float newMonsterHealth = (static_cast<float>(m_monster->getHealth()) - static_cast<float>(dps)) / static_cast<float>(m_monsterInitial->getHealth());
-        if (newMonsterHealth < 0.0F) {
-            newMonsterHealth = 0.0F;
-        }
-        m_namedObjectsAnimations[MonsterHPBarObj] = std::make_shared<FadeOutAnimation>(newMonsterHealth,
-                monsterHealth, 0.075F);
-        int newHP = m_monster->getHealth() - dps;
-        if (newHP < 0) {
-            newHP = 0;
-        }
-        m_monster->setHealth(newHP);
-        if (m_monster->getHealth() <= 0) {
-            m_namedObjectsAnimations[MoreTextObj] = std::make_shared<FadeLoopAnimation>(0.1F, 1.0F, 0.01F);
+        float oldMonsterHealthRatio = m_monster->getHealthRatio();
+        m_monster->reduceHealth(dps);
+ m_namedObjectsAnimations[MonsterHPBarObj] = std::make_shared<FadeOutAnimation>(m_monster->getHealthRatio(),
+                oldMonsterHealthRatio, 0.075F);
+        if (m_monster->isDead()) {
             m_namedObjectsAnimations[MonsterObj] = std::make_shared<FadeOutAnimation>(0.1F, 1.0F, 0.05F);
-            startAction(BattleAction::PlayerWon, 500);
             addBattleLog(fmt::format("You have defeated the {0}", m_monster->getName()).c_str());
+            std::uniform_int_distribution<> distributionReward(m_monster->getGoldRewardRange().first,
+                                                                        m_monster->getGoldRewardRange().second);
+            m_goldObtained = distributionReward(RandomGenerator::instance());
+            if (m_goldObtained > 0) {
+                m_glPlayer->addGold(m_goldObtained);
+                m_namedObjectsAnimations[MoreTextObj] = std::make_shared<FadeLoopAnimation>(0.1F, 1.0F, 0.01F);
+            }
+            startAction(BattleAction::PlayerWon, 500);
         } else {
             startAction(BattleAction::MonsterTurn, 500);
         }
@@ -325,6 +325,14 @@ void GLBattleWindow::playerWonWorkflow() {
     m_namedObjectsAnimations[MoreTextObj]->process();
     m_namedObjectsAnimations[MonsterObj]->process();
     if (m_inputDevicesState->getButtonAState() == InputElementState::Released) {
+        m_namedObjectsAnimations.erase(MoreTextObj);
+        m_currentBattleAction = BattleAction::PlayerGetReward;
+        addBattleLog(fmt::format("You obtain {0} gold!", m_goldObtained).c_str());
+    }
+}
+
+void GLBattleWindow::playerObtainRewardWorkflow() {
+    if (m_inputDevicesState->getButtonAState() == InputElementState::Released) {
         m_battleCompleted();
     }
 }
@@ -344,8 +352,11 @@ void GLBattleWindow::drawMonsterHPBar(const GLObject &glObject,
     m_monsterHealthShaderProgram->use();
     GLint uniformTransparency = glGetUniformLocation(m_monsterHealthShaderProgram->getShaderProgramID(), "transparency");
     glUniform1f(uniformTransparency, transparency);
-    //TODO: Need to transfer the calculation in the monster class!!!
-    glUniform1f(glGetUniformLocation(m_monsterHealthShaderProgram->getShaderProgramID(), "widthScale"), m_namedObjectsAnimations.contains(MonsterHPBarObj) && !m_namedObjectsAnimations.at(MonsterHPBarObj)->isCompleted() ? m_namedObjectsAnimations.at(MonsterHPBarObj)->getValue() : static_cast<float>(m_monster->getHealth()) / static_cast<float>(m_monsterInitial->getHealth()));
+    float health = m_namedObjectsAnimations.contains(MonsterHPBarObj) &&
+                   !m_namedObjectsAnimations.at(MonsterHPBarObj)->isCompleted() ?
+        m_namedObjectsAnimations.at(MonsterHPBarObj)->getValue() :
+        m_monster->getHealthRatio();
+    glUniform1f(glGetUniformLocation(m_monsterHealthShaderProgram->getShaderProgramID(), "widthScale"), health);
     glUniform1f(glGetUniformLocation(m_monsterHealthShaderProgram->getShaderProgramID(), "screenWidth"), m_screenSize.width());
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureGLIndex);

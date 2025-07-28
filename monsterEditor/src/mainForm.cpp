@@ -79,7 +79,7 @@ MainForm::MainForm(QWidget *parent,
 void MainForm::initializeMonstersTableControl() {
     ui.tableWidgetMonsters->setHorizontalHeaderItem(0, new QTableWidgetItem("Id"));
     ui.tableWidgetMonsters->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
-    ui.tableWidgetMonsters->setHorizontalHeaderItem(2, new QTableWidgetItem("Health"));
+    ui.tableWidgetMonsters->setHorizontalHeaderItem(2, new QTableWidgetItem("Max health"));
     ui.tableWidgetMonsters->setHorizontalHeaderItem(3, new QTableWidgetItem("Attack"));
     ui.tableWidgetMonsters->setHorizontalHeaderItem(4, new QTableWidgetItem("Defense"));
     ui.tableWidgetMonsters->setHorizontalHeaderItem(5, new QTableWidgetItem("Gold reward"));

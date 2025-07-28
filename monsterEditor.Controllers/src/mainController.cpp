@@ -67,7 +67,7 @@ std::vector<MonsterListDisplay> MainController::getMonsters() const {
         auto [min, max] = monster->getGoldRewardRange();
         return MonsterListDisplay { .id = monster->getId(),
             .name = monster->getName(),
-            .health = monster->getHealth(),
+            .health = monster->getMaxHealth(),
             .attack = monster->getAttack(),
             .defense = monster->getDefense(),
             .goldMinimum = min,

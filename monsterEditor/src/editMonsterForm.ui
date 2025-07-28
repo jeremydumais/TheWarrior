@@ -154,7 +154,7 @@
      <item row="3" column="0">
       <widget class="QLabel" name="label_6">
        <property name="text">
-        <string>Health :</string>
+        <string>Max health :</string>
        </property>
       </widget>
      </item>

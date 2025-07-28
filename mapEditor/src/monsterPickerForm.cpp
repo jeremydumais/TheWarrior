@@ -74,7 +74,7 @@ void MonsterPickerForm::refreshMonsterTable(const std::string &filter)
         }
         ui.tableWidgetMonsters->setItem(index, 0, idMonster);
         ui.tableWidgetMonsters->setItem(index, 1, new QTableWidgetItem(monster.name.c_str()));
-        ui.tableWidgetMonsters->setItem(index, 2, new QTableWidgetItem(fmt::format("{}", monster.health).c_str()));
+        ui.tableWidgetMonsters->setItem(index, 2, new QTableWidgetItem(fmt::format("{}", monster.maxHealth).c_str()));
         ui.tableWidgetMonsters->setItem(index, 3, new QTableWidgetItem(fmt::format("{}", monster.attack).c_str()));
         ui.tableWidgetMonsters->setItem(index, 4, new QTableWidgetItem(fmt::format("{}", monster.defense).c_str()));
         ui.tableWidgetMonsters->setItem(index, 5, new QTableWidgetItem(fmt::format("[{}-{}]",
