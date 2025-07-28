@@ -16,7 +16,6 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glFormService.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/fpsCalculator.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/fadeLoopAnimation.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/fadeOutAnimation.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glBattleWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glInventory.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glCharacterWindow.cpp
@@ -29,7 +28,9 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glTextBox.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glTextureService.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glShaderProgram.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/inputDevicesState.cpp)
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/inputDevicesState.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/shakingAnimation.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/valueChangeAnimation.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")

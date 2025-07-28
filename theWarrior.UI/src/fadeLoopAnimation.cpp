@@ -1,4 +1,3 @@
-#include <string>
 #include "fadeLoopAnimation.hpp"
 
 FadeLoopAnimation::FadeLoopAnimation(float minBound, float maxBound, float step)
@@ -16,8 +15,10 @@ void FadeLoopAnimation::process() {
         m_currentValue -= m_step;
     if (m_currentValue >= m_maxBound) {
         m_increase = false;
+        m_currentValue = m_maxBound;
     } else if (m_currentValue <= m_minBound) {
         m_increase = true;
+        m_currentValue = m_minBound;
     }
 }
 

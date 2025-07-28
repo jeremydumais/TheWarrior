@@ -1,6 +1,5 @@
 #pragma once
 
-#include <string>
 #include "IAnimation.hpp"
 
 class FadeLoopAnimation : public thewarrior::ui::IAnimation {

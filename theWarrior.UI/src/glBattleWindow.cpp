@@ -9,7 +9,8 @@
 #include <vector>
 #include "glBattleWindow.hpp"
 #include "fadeLoopAnimation.hpp"
-#include "fadeOutAnimation.hpp"
+#include "shakingAnimation.hpp"
+#include "valueChangeAnimation.hpp"
 #include "glColor.hpp"
 #include "glObjectService.hpp"
 #include "monsterStore.hpp"
@@ -51,8 +52,8 @@ void GLBattleWindow::initialize(const std::string &resourcePath,
 }
 
 bool GLBattleWindow::initBattleShaders(const std::string &resourcesPath) {
-    m_monsterHealthShaderProgram = std::make_shared<GLShaderProgram>(fmt::format("{0}/shaders/monsterHPBar_330_vs.glsl", resourcesPath),
-            fmt::format("{0}/shaders/monsterHPBar_330_fs.glsl", resourcesPath));
+    m_monsterHealthShaderProgram = std::make_shared<GLShaderProgram>(fmt::format("{0}/shaders/monster_330_vs.glsl", resourcesPath),
+            fmt::format("{0}/shaders/monster_330_fs.glsl", resourcesPath));
     if (!m_monsterHealthShaderProgram->compileShaders()) {
         m_lastError = m_monsterHealthShaderProgram->getLastError();
         return false;
@@ -75,6 +76,9 @@ void GLBattleWindow::reset() {
 void GLBattleWindow::update() {
     if (m_namedObjectsAnimations.contains(MonsterHPBarObj)) {
         m_namedObjectsAnimations[MonsterHPBarObj]->process();
+    }
+    if (m_namedObjectsAnimations.contains(MonsterShaking)) {
+        m_namedObjectsAnimations[MonsterShaking]->process();
     }
     if (m_currentBattleAction == BattleAction::PlayerTurn) {
         const Uint64 MS_BETWEEN_SELECTION_CHANGE = 110;
@@ -213,7 +217,7 @@ void GLBattleWindow::render() {
     float monsterTransparency = m_namedObjectsAnimations.contains(MonsterObj) ?
         m_namedObjectsAnimations[MonsterObj]->getValue() :
         0.0F;
-    m_glFormService->drawQuad(m_namedObjects.at(MonsterObj), m_namedObjects.at(MonsterObj).textureGLId, monsterTransparency);
+    drawMonster(m_namedObjects.at(MonsterObj), m_namedObjects.at(MonsterObj).textureGLId, monsterTransparency);
     for (const auto &obj : m_monsterHPBarWindow) {
         m_glFormService->drawQuad(obj, m_windowGLTexture.glTextureId, monsterTransparency);
     }
@@ -285,10 +289,12 @@ void GLBattleWindow::playerAttackWorkflow() {
         addBattleLog(fmt::format("You hit and HPs have been reduces by {0}!", dps).c_str());
         float oldMonsterHealthRatio = m_monster->getHealthRatio();
         m_monster->reduceHealth(dps);
- m_namedObjectsAnimations[MonsterHPBarObj] = std::make_shared<FadeOutAnimation>(m_monster->getHealthRatio(),
-                oldMonsterHealthRatio, 0.075F);
+        m_namedObjectsAnimations[MonsterShaking] = std::make_shared<ShakingAnimation>(25, 3);
+        m_namedObjectsAnimations[MonsterHPBarObj] = std::make_shared<ValueChangeAnimation>(oldMonsterHealthRatio,
+                m_monster->getHealthRatio(),
+                0.075F);
         if (m_monster->isDead()) {
-            m_namedObjectsAnimations[MonsterObj] = std::make_shared<FadeOutAnimation>(0.1F, 1.0F, 0.05F);
+            m_namedObjectsAnimations[MonsterObj] = std::make_shared<ValueChangeAnimation>(1.0F, 0.1F, 0.05F);
             addBattleLog(fmt::format("You have defeated the {0}", m_monster->getName()).c_str());
             std::uniform_int_distribution<> distributionReward(m_monster->getGoldRewardRange().first,
                                                                         m_monster->getGoldRewardRange().second);
@@ -346,6 +352,34 @@ void GLBattleWindow::monsterTurnWorkflow() {
 void GLBattleWindow::monsterAttackWorkflow() {
 }
 
+void GLBattleWindow::drawMonster(const GLObject &glObject, GLuint textureGLIndex, float transparency) {
+    m_monsterHealthShaderProgram->use();
+    GLint uniformTransparency = glGetUniformLocation(m_monsterHealthShaderProgram->getShaderProgramID(), "transparency");
+    glUniform1f(uniformTransparency, transparency);
+    glUniform1f(glGetUniformLocation(m_monsterHealthShaderProgram->getShaderProgramID(), "widthScale"), 1.0F);
+    glUniform1f(glGetUniformLocation(m_monsterHealthShaderProgram->getShaderProgramID(), "screenWidth"), m_screenSize.width());
+    float translationX = m_namedObjectsAnimations.contains(MonsterShaking) &&
+                   !m_namedObjectsAnimations.at(MonsterShaking)->isCompleted() ?
+        m_namedObjectsAnimations.at(MonsterShaking)->getValue() :
+        0.0F;
+    glUniform2f(glGetUniformLocation(m_monsterHealthShaderProgram->getShaderProgramID(), "translation"), translationX, 0.0F);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureGLIndex);
+    glBindVertexArray(glObject.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, glObject.vboPosition);
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, glObject.vboColor);
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, glObject.vboTexture);
+    glEnableVertexAttribArray(2);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+    glDisableVertexAttribArray(2);
+    glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(0);
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 void GLBattleWindow::drawMonsterHPBar(const GLObject &glObject,
                                       GLuint textureGLIndex,
                                       float transparency) {
@@ -358,6 +392,7 @@ void GLBattleWindow::drawMonsterHPBar(const GLObject &glObject,
         m_monster->getHealthRatio();
     glUniform1f(glGetUniformLocation(m_monsterHealthShaderProgram->getShaderProgramID(), "widthScale"), health);
     glUniform1f(glGetUniformLocation(m_monsterHealthShaderProgram->getShaderProgramID(), "screenWidth"), m_screenSize.width());
+    glUniform2f(glGetUniformLocation(m_monsterHealthShaderProgram->getShaderProgramID(), "translation"), 0.0F, 0.0F);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureGLIndex);
     glBindVertexArray(glObject.vao);

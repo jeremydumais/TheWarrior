@@ -40,6 +40,7 @@ constexpr const char* MoreTextObj = "moreTextObj";
 constexpr const char* MonsterObj = "monsterObj";
 constexpr const char* MonsterHPWindowObj = "monsterHPWindowObj";
 constexpr const char* MonsterHPBarObj = "monsterHPBarObj";
+constexpr const char* MonsterShaking = "monsterShaking";
 
 class GLBattleWindow : public GLPopupWindow {
  public:
@@ -93,6 +94,7 @@ class GLBattleWindow : public GLPopupWindow {
     void playerObtainRewardWorkflow();
     void monsterTurnWorkflow();
     void monsterAttackWorkflow();
+    void drawMonster(const GLObject &glObject, GLuint textureGLIndex, float transparency);
     void drawMonsterHPBar(const GLObject &glObject, GLuint textureGLIndex, float transparency);
 };
 
