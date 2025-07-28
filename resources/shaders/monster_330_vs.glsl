@@ -13,13 +13,14 @@ uniform float widthScale; // New: scale factor for width (1.0 = normal, 0.0 = co
 uniform float screenWidth;
 
 void main(void) {
-    float translationTest = ((124.0 / screenWidth) / 10) * ((1.0 - widthScale) * 10);
+    float translationForScaling = ((124.0 / screenWidth) / 10) * ((1.0 - widthScale) * 10);
+    float translationXComputed = translation.x / screenWidth;
     // Apply horizontal scaling to X coordinate
     float scaledX = in_Position.x * widthScale;
 
     // Since we are using flat lines, our input only had two points: x and y.
     // Set the Z coordinate to 0 and W coordinate to 1
-    gl_Position = vec4(scaledX - translation.x - translationTest, in_Position.y + translation.y, 0.0, 1.0);
+    gl_Position = vec4(scaledX - translationXComputed - translationForScaling, in_Position.y + translation.y, 0.0, 1.0);
 
     // We're simply passing the color through unmodified
     ex_Color = in_Color;
