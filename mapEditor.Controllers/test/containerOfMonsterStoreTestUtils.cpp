@@ -3,6 +3,7 @@
 #include "monsterStore.hpp"
 #include "types.hpp"
 #include <memory>
+#include <utility>
 
 using namespace mapeditor::controllers;
 using namespace thewarrior::models;
@@ -16,7 +17,7 @@ MonsterCreationInfo ContainerOfMonsterStoreTestUtils::getMonsterSample(const std
         id,
         name,
         "Tex1",
-        1, 15, 1.0F, 1.1F, 2, 4
+        1, std::pair<int, int>(14, 15), 15, 1.0F, 1.1F, std::pair<int, int>(2, 4)
     };
 }
 

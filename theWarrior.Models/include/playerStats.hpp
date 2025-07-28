@@ -7,6 +7,7 @@ struct PlayerStats {
     float defense;
     int health;
     int maxHealth;
+    int experience;
 };
 
 }  // namespace thewarrior::models

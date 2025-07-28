@@ -33,7 +33,8 @@ PlayerStats Player::getStats() const {
         .attack = static_cast<float>(m_strength),
         .defense = static_cast<float>(m_agility),
         .health = m_health,
-        .maxHealth = m_maxHealth
+        .maxHealth = m_maxHealth,
+        .experience = m_experience
     };
     // Add equipment stats
     if (m_equipment.getMainHand().has_value()) {
@@ -56,6 +57,10 @@ PlayerStats Player::getStats() const {
 
 int Player::getGold() const {
     return m_gold;
+}
+
+int Player::getExperience() const {
+    return m_experience;
 }
 
 float Player::getOptionalArmorItemDefense(const boost::optional<ArmorItem> &item) {
@@ -112,6 +117,19 @@ void Player::removeGold(int value) {
         m_gold -= value;
     } else {
         m_gold = 0;
+    }
+}
+
+void Player::addExperience(int value) {
+    int intMax = std::numeric_limits<int>::max();
+    if (intMax - m_experience >= value) {
+        m_experience += value;
+    } else {
+        m_experience = intMax;
+    }
+    auto experienceLimitToNextLevel = getExperienceByLevel(m_level + 1);
+    if (m_experience >= experienceLimitToNextLevel) {
+        incrementLevel();
     }
 }
 
@@ -199,6 +217,34 @@ int Player::getAgilityByLevel(unsigned int level) {
             return 28;
         default:
             return 28;
+    }
+}
+
+int Player::getExperienceByLevel(unsigned int level) {
+    // What experience it takes to reach that level
+    switch (level) {
+        case 1:
+            return 0;
+        case 2:
+            return 7;
+        case 3:
+            return 23;
+        case 4:
+            return 47;
+        case 5:
+            return 110;
+        case 6:
+            return 220;
+        case 7:
+            return 450;
+        case 8:
+            return 800;
+        case 9:
+            return 1300;
+        case 10:
+            return 2200;
+        default:
+            return 2200;
     }
 }
 

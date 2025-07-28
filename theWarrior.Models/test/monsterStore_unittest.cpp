@@ -1,12 +1,13 @@
 #include "monsterStore.hpp"
 #include <gtest/gtest.h>
 #include <memory>
+#include <utility>
 
 using namespace std;
 using namespace thewarrior::models;
 
-const Monster monsterSample1({ "slm001", "Blue Slime", "tex1", 1, 15, 1.1F, 1.2F, 3, 4});
-const Monster monsterSample2({ "slm002", "Red Slime", "tex1", 2, 20, 2.1F, 2.2F, 5, 7});
+const Monster monsterSample1({ "slm001", "Blue Slime", "tex1", 1, std::pair<int, int>(14, 15), 15, 1.1F, 1.2F, std::pair<int, int>(3, 4)});
+const Monster monsterSample2({ "slm002", "Red Slime", "tex1", 2, std::pair<int, int>(19, 20), 20, 2.1F, 2.2F, std::pair<int, int>(5, 7)});
 
 struct DefaultConstructedMonsterStore : public ::testing::Test
 {

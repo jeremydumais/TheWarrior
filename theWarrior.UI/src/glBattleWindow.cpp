@@ -71,6 +71,8 @@ void GLBattleWindow::reset() {
     m_currentBattleAction = BattleAction::PlayerTurn;
     m_namedObjectsAnimations.clear();
     m_goldObtained = 0;
+    m_experienceObtained = 0;
+    m_didLevelUp = false;
 }
 
 void GLBattleWindow::update() {
@@ -124,6 +126,9 @@ void GLBattleWindow::update() {
                     break;
                 case BattleAction::PlayerGetReward:
                     playerObtainRewardWorkflow();
+                    break;
+                case BattleAction::PlayerLevelUp:
+                    playerObtainNewLevelWorkflow();
                     break;
                 case BattleAction::MonsterTurn:
                     monsterTurnWorkflow();
@@ -302,13 +307,19 @@ void GLBattleWindow::playerAttackWorkflow() {
         if (m_monster->isDead()) {
             m_namedObjectsAnimations[MonsterObj] = std::make_shared<ValueChangeAnimation>(1.0F, 0.1F, 0.05F);
             addBattleLog(fmt::format("You have defeated the {0}", m_monster->getName()).c_str());
-            std::uniform_int_distribution<> distributionReward(m_monster->getGoldRewardRange().first,
-                                                                        m_monster->getGoldRewardRange().second);
-            m_goldObtained = distributionReward(RandomGenerator::instance());
+            std::uniform_int_distribution<> distributionGoldReward(m_monster->getGoldRewardRange().first,
+                                                               m_monster->getGoldRewardRange().second);
+            m_goldObtained = distributionGoldReward(RandomGenerator::instance());
             if (m_goldObtained > 0) {
                 m_glPlayer->addGold(m_goldObtained);
                 m_namedObjectsAnimations[MoreTextObj] = std::make_shared<FadeLoopAnimation>(0.1F, 1.0F, 0.01F);
             }
+            std::uniform_int_distribution<> distributionExpReward(m_monster->getExperienceRewardRange().first,
+                                                               m_monster->getExperienceRewardRange().second);
+            m_experienceObtained = distributionExpReward(RandomGenerator::instance());
+            unsigned int oldLevel = m_glPlayer->getLevel();
+            m_glPlayer->addExperience(m_experienceObtained);
+            m_didLevelUp = oldLevel != m_glPlayer->getLevel();
             startAction(BattleAction::PlayerWon, 500);
         } else {
             startAction(BattleAction::MonsterTurn, 500);
@@ -337,13 +348,27 @@ void GLBattleWindow::playerWonWorkflow() {
     m_namedObjectsAnimations[MoreTextObj]->process();
     m_namedObjectsAnimations[MonsterObj]->process();
     if (m_inputDevicesState->getButtonAState() == InputElementState::Released) {
-        m_namedObjectsAnimations.erase(MoreTextObj);
+        if (!m_didLevelUp) {
+            m_namedObjectsAnimations.erase(MoreTextObj);
+        }
         m_currentBattleAction = BattleAction::PlayerGetReward;
-        addBattleLog(fmt::format("You obtain {0} gold!", m_goldObtained).c_str());
+        addBattleLog(fmt::format("You obtain {0} gold and {1} experience!", m_goldObtained, m_experienceObtained).c_str());
     }
 }
 
 void GLBattleWindow::playerObtainRewardWorkflow() {
+    if (m_inputDevicesState->getButtonAState() == InputElementState::Released) {
+        if (m_didLevelUp) {
+            m_namedObjectsAnimations.erase(MoreTextObj);
+            m_currentBattleAction = BattleAction::PlayerLevelUp;
+            addBattleLog(fmt::format("You have reach level {0}! You are stronger than ever!", m_glPlayer->getLevel()).c_str());
+        } else {
+            m_battleCompleted();
+        }
+    }
+}
+
+void GLBattleWindow::playerObtainNewLevelWorkflow() {
     if (m_inputDevicesState->getButtonAState() == InputElementState::Released) {
         m_battleCompleted();
     }

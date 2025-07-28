@@ -154,3 +154,18 @@ instead of "The Warrior - Item Editor"
 #### Change
 - Move the editor configuration file into the folder "Jed# Software/The Warrior - Monster Editor"
 instead of "The Warrior - Monster Editor"
+
+## [0.3.4]
+
+### Game
+
+#### New features
+- Add the battle system
+
+### Monster Editor (Version 1.0.2)
+
+#### New features
+- Added the Experience range fields.
+
+#### Change
+- The monster health is now a range instead of single value.

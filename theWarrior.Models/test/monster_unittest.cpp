@@ -11,11 +11,12 @@ MonsterCreationInfo getMonsterInfoSample1() {
         "Slime",
         "Tex1",
         1,
+        std::pair<int, int>(4, 5),
         6,
         1.0F,
         1.1F,
-        0,
-        2
+        std::pair<int, int>(0, 2),
+        std::pair<int, int>(1, 3)
     };
 }
 
@@ -126,11 +127,33 @@ TEST(Monster_Constructor, WithMinus1TextureIndex_ThrowInvalidArgument) {
     }
 }
 
+TEST(Monster_Constructor, WithHealthRange3And2_ThrowInvalidArgument) {
+    auto creationInfo = getMonsterInfoSample1();
+    creationInfo.healthRange = std::pair<int, int>(3, 2);
+    try {
+        Monster monster1(creationInfo);
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("health maximum must be greater or equal to the minimum.", err.what());
+    }
+}
+
+TEST(Monster_Constructor, WithHealthRangeMinus1And2_ThrowInvalidArgument) {
+    auto creationInfo = getMonsterInfoSample1();
+    creationInfo.healthRange = std::pair<int, int>(-1, 2);
+    try {
+        Monster monster1(creationInfo);
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("health minimum cannot be a negative number.", err.what());
+    }
+}
 
 TEST(Monster_Constructor, WithGoldReward3And2_ThrowInvalidArgument) {
     auto creationInfo = getMonsterInfoSample1();
-    creationInfo.goldMinimum = 3;
-    creationInfo.goldMaximum = 2;
+    creationInfo.gold = std::pair<int, int>(3, 2);
     try {
         Monster monster1(creationInfo);
         FAIL();
@@ -142,14 +165,37 @@ TEST(Monster_Constructor, WithGoldReward3And2_ThrowInvalidArgument) {
 
 TEST(Monster_Constructor, WithGoldRewardMinus1And2_ThrowInvalidArgument) {
     auto creationInfo = getMonsterInfoSample1();
-    creationInfo.goldMinimum = -1;
-    creationInfo.goldMaximum = 2;
+    creationInfo.gold = std::pair<int, int>(-1, 2);
     try {
         Monster monster1(creationInfo);
         FAIL();
     }
     catch(const std::invalid_argument &err) {
         ASSERT_STREQ("gold reward minimum cannot be a negative number.", err.what());
+    }
+}
+
+TEST(Monster_Constructor, WithExperienceReward3And2_ThrowInvalidArgument) {
+    auto creationInfo = getMonsterInfoSample1();
+    creationInfo.experience = std::pair<int, int>(3, 2);
+    try {
+        Monster monster1(creationInfo);
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("experience reward maximum must be greater or equal to the minimum.", err.what());
+    }
+}
+
+TEST(Monster_Constructor, WithExperienceRewardMinus1And2_ThrowInvalidArgument) {
+    auto creationInfo = getMonsterInfoSample1();
+    creationInfo.experience = std::pair<int, int>(-1, 2);
+    try {
+        Monster monster1(creationInfo);
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("experience reward minimum cannot be a negative number.", err.what());
     }
 }
 
@@ -169,6 +215,11 @@ TEST_F(MonsterSample1, GetTextureName_WithMonsterSample1_ReturnSlime) {
 
 TEST_F(MonsterSample1, GetTextureIndex_WithMonsterSample1_Return1) {
     ASSERT_EQ(1, monster.getTextureIndex());
+}
+
+TEST_F(MonsterSample1, GetHealthRange_WithMonsterSample1_Return4And5) {
+    std::pair<int, int> expected = { 4, 5 };
+    ASSERT_EQ(expected, monster.getHealthRange());
 }
 
 TEST_F(MonsterSample1, GetMaxHealth_WithMonsterSample1_Return1) {
@@ -204,6 +255,11 @@ TEST_F(MonsterSample1, GetDefense_WithMonsterSample1_Return1_1F) {
 TEST_F(MonsterSample1, GetGoldRewardRange_WithMonsterSample1_Return0And2) {
     std::pair<int, int> expected = { 0, 2 };
     ASSERT_EQ(expected, monster.getGoldRewardRange());
+}
+
+TEST_F(MonsterSample1, GetExperienceRewardRange_WithMonsterSample1_Return1And3) {
+    std::pair<int, int> expected = { 1, 3 };
+    ASSERT_EQ(expected, monster.getExperienceRewardRange());
 }
 
 TEST_F(MonsterSample1, IsDead_WithMonsterSample1_ReturnFalse) {
@@ -318,6 +374,42 @@ TEST_F(MonsterSample1, SetTextureIndex_WithTextureIndex5_ReturnSuccess) {
     ASSERT_EQ(5, monster.getTextureIndex());
 }
 
+TEST_F(MonsterSample1, SetHealthRange_With1And3_ReturnSuccess) {
+    monster.setHealthRange(std::pair<int, int>(1, 3));
+    std::pair<int, int> expected = { 1, 3 };
+    ASSERT_EQ(expected, monster.getHealthRange());
+}
+
+TEST_F(MonsterSample1, SetHealthRange_WithMinus1And3_ThrowInvalidArgument) {
+    try {
+        monster.setHealthRange(std::pair<int, int>(-1, 3));
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("health minimum cannot be a negative number.", err.what());
+    }
+}
+
+TEST_F(MonsterSample1, SetHealthRange_With1And0_ThrowInvalidArgument) {
+    try {
+        monster.setHealthRange(std::pair<int, int>(1, 0));
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("health maximum must be greater or equal to the minimum.", err.what());
+    }
+}
+
+TEST_F(MonsterSample1, SetHealthRange_With1AndMinus5_ThrowInvalidArgument) {
+    try {
+        monster.setHealthRange(std::pair<int, int>(1, -5));
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("health maximum must be greater or equal to the minimum.", err.what());
+    }
+}
+
 TEST_F(MonsterSample1, SetMaxHealth_With12_ReturnSuccess) {
     monster.setMaxHealth(12);
     ASSERT_EQ(12, monster.getMaxHealth());
@@ -358,14 +450,14 @@ TEST_F(MonsterSample1, SetDefense_With1_6F_ReturnSuccess) {
 }
 
 TEST_F(MonsterSample1, SetGoldRewardRange_With1And3_ReturnSuccess) {
-    monster.setGoldRewardRange(1, 3);
+    monster.setGoldRewardRange(std::pair<int, int>(1, 3));
     std::pair<int, int> expected = { 1, 3 };
     ASSERT_EQ(expected, monster.getGoldRewardRange());
 }
 
 TEST_F(MonsterSample1, SetGoldRewardRange_WithMinus1And3_ThrowInvalidArgument) {
     try {
-        monster.setGoldRewardRange(-1, 3);
+        monster.setGoldRewardRange(std::pair<int, int>(-1, 3));
         FAIL();
     }
     catch(const std::invalid_argument &err) {
@@ -375,7 +467,7 @@ TEST_F(MonsterSample1, SetGoldRewardRange_WithMinus1And3_ThrowInvalidArgument) {
 
 TEST_F(MonsterSample1, SetGoldRewardRange_With1And0_ThrowInvalidArgument) {
     try {
-        monster.setGoldRewardRange(1, 0);
+        monster.setGoldRewardRange(std::pair<int, int>(1, 0));
         FAIL();
     }
     catch(const std::invalid_argument &err) {
@@ -385,11 +477,41 @@ TEST_F(MonsterSample1, SetGoldRewardRange_With1And0_ThrowInvalidArgument) {
 
 TEST_F(MonsterSample1, SetGoldRewardRange_With1AndMinus5_ThrowInvalidArgument) {
     try {
-        monster.setGoldRewardRange(1, -5);
+        monster.setGoldRewardRange(std::pair<int, int>(1, -5));
         FAIL();
     }
     catch(const std::invalid_argument &err) {
         ASSERT_STREQ("gold reward maximum must be greater or equal to the minimum.", err.what());
+    }
+}
+
+TEST_F(MonsterSample1, SetExperienceRewardRange_WithMinus1And3_ThrowInvalidArgument) {
+    try {
+        monster.setExperienceRewardRange(std::pair<int, int>(-1, 3));
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("experience reward minimum cannot be a negative number.", err.what());
+    }
+}
+
+TEST_F(MonsterSample1, SetExperienceRewardRange_With1And0_ThrowInvalidArgument) {
+    try {
+        monster.setExperienceRewardRange(std::pair<int, int>(1, 0));
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("experience reward maximum must be greater or equal to the minimum.", err.what());
+    }
+}
+
+TEST_F(MonsterSample1, SetExperienceRewardRange_With1AndMinus5_ThrowInvalidArgument) {
+    try {
+        monster.setExperienceRewardRange(std::pair<int, int>(1, -5));
+        FAIL();
+    }
+    catch(const std::invalid_argument &err) {
+        ASSERT_STREQ("experience reward maximum must be greater or equal to the minimum.", err.what());
     }
 }
 
@@ -480,13 +602,13 @@ TEST_F(MonsterSample1, equalityOperator_WithDifferentDefense_ReturnFalse) {
 
 TEST_F(MonsterSample1, equalityOperator_WithDifferentGoldMinimum_ReturnFalse) {
     auto info = getMonsterInfoSample1();
-    info.goldMinimum = 1;
+    info.gold.first = 1;
     ASSERT_FALSE(monster == Monster(info));
 }
 
 TEST_F(MonsterSample1, equalityOperator_WithDifferentGoldMaximum_ReturnFalse) {
     auto info = getMonsterInfoSample1();
-    info.goldMaximum = 3;
+    info.gold.second = 3;
     ASSERT_FALSE(monster == Monster(info));
 }
 
@@ -545,12 +667,12 @@ TEST_F(MonsterSample1, inequalityOperator_WithDifferentDefense_ReturnTrue) {
 
 TEST_F(MonsterSample1, inequalityOperator_WithDifferentGoldMinimum_ReturnTrue) {
     auto info = getMonsterInfoSample1();
-    info.goldMinimum = 1;
+    info.gold = std::pair<int, int>(1, info.gold.second);
     ASSERT_NE(monster, Monster(info));
 }
 
 TEST_F(MonsterSample1, inequalityOperator_WithDifferentGoldMaximum_ReturnTrue) {
     auto info = getMonsterInfoSample1();
-    info.goldMaximum = 3;
+    info.gold = std::pair<int, int>(info.gold.first, 3);
     ASSERT_NE(monster, Monster(info));
 }

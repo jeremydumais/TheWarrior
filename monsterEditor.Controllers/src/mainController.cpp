@@ -6,6 +6,8 @@
 #include <memory>
 #include <optional>
 #include <stdexcept>
+#include <string>
+#include <vector>
 #include "monsterStore.hpp"
 #include "monsterStoreStorage.hpp"
 #include "monsterUtils.hpp"
@@ -64,14 +66,13 @@ std::vector<MonsterListDisplay> MainController::getMonsters() const {
     std::vector<MonsterListDisplay> retval {};
     auto monsters = m_monsterStore->getMonsters();
     auto createMonsterListDisplay = [](const auto &monster) {
-        auto [min, max] = monster->getGoldRewardRange();
         return MonsterListDisplay { .id = monster->getId(),
             .name = monster->getName(),
-            .health = monster->getMaxHealth(),
+            .health = monster->getHealthRange(),
             .attack = monster->getAttack(),
             .defense = monster->getDefense(),
-            .goldMinimum = min,
-            .goldMaximum = max
+            .gold = monster->getGoldRewardRange(),
+            .experience = monster->getExperienceRewardRange()
         }; };
     std::ranges::transform(monsters,
             std::back_inserter(retval),

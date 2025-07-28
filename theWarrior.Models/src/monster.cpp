@@ -11,25 +11,29 @@ namespace thewarrior::models {
 void validateMonsterName(const std::string &name);
 void validateMonsterTextureName(const std::string &textureName);
 void validateMonsterTextureIndex(const int textureIndex);
-void validateMonsterGoldReward(const int minimum, const int maximum);
-
+void validateMonsterHealthRange(const std::pair<int, int> value);
+void validateMonsterGoldReward(const std::pair<int, int> gold);
+void validateMonsterExperienceReward(const std::pair<int, int> experience);
 
 Monster::Monster(MonsterCreationInfo info)
     : m_id(info.id),
       m_name(info.name),
       m_textureName(info.textureName),
       m_textureIndex(info.textureIndex),
+      m_healthRange(info.healthRange),
       m_maxHealth(info.maxHealth),
       m_health(info.maxHealth),
       m_attack(info.attack),
       m_defense(info.defense),
-      m_goldMinimum(info.goldMinimum),
-      m_goldMaximum(info.goldMaximum) {
+      m_gold(info.gold),
+      m_experience(info.experience) {
     Monster::validateId(m_id);
     validateMonsterName(m_name);
     validateMonsterTextureName(m_textureName);
     validateMonsterTextureIndex(m_textureIndex);
-    validateMonsterGoldReward(m_goldMinimum, m_goldMaximum);
+    validateMonsterHealthRange(m_healthRange);
+    validateMonsterGoldReward(m_gold);
+    validateMonsterExperienceReward(m_experience);
 }
 
 bool Monster::operator==(const Monster &other) const {
@@ -40,12 +44,13 @@ bool Monster::operator==(const Monster &other) const {
            this->m_name == other.m_name &&
            this->m_textureName == other.m_textureName &&
            this->m_textureIndex == other.m_textureIndex &&
+           this->m_healthRange == other.m_healthRange &&
            this->m_maxHealth == other.m_maxHealth &&
            this->m_health == other.m_health &&
            this->m_attack == other.m_attack &&
            this->m_defense == other.m_defense &&
-           this->m_goldMinimum == other.m_goldMinimum &&
-           this->m_goldMaximum == other.m_goldMaximum;
+           this->m_gold == other.m_gold &&
+           this->m_experience == other.m_experience;
 }
 
 bool Monster::operator!=(const Monster &other) const {
@@ -66,6 +71,10 @@ const std::string& Monster::getTextureName() const {
 
 int Monster::getTextureIndex() const {
     return m_textureIndex;
+}
+
+std::pair<int, int> Monster::getHealthRange() const {
+    return m_healthRange;
 }
 
 int Monster::getMaxHealth() const {
@@ -94,7 +103,11 @@ float Monster::getDefense() const {
 }
 
 std::pair<int, int> Monster::getGoldRewardRange() const {
-    return { m_goldMinimum, m_goldMaximum };
+    return m_gold;
+}
+
+std::pair<int, int> Monster::getExperienceRewardRange() const {
+    return m_experience;
 }
 
 bool Monster::isDead() const {
@@ -121,6 +134,11 @@ void Monster::setTextureIndex(int textureIndex) {
     m_textureIndex = textureIndex;
 }
 
+void Monster::setHealthRange(std::pair<int, int> value) {
+    validateMonsterHealthRange(value);
+    m_healthRange = value;
+}
+
 void Monster::setMaxHealth(int value) {
     if (m_health > value) {
         m_health = value;
@@ -144,10 +162,14 @@ void Monster::setDefense(float value) {
     m_defense = value;
 }
 
-void Monster::setGoldRewardRange(int minimum, int maximum) {
-    validateMonsterGoldReward(minimum, maximum);
-    m_goldMinimum = minimum;
-    m_goldMaximum = maximum;
+void Monster::setGoldRewardRange(std::pair<int, int> value) {
+    validateMonsterGoldReward(value);
+    m_gold = value;
+}
+
+void Monster::setExperienceRewardRange(std::pair<int, int> value) {
+    validateMonsterExperienceReward(value);
+    m_experience = value;
 }
 
 void Monster::reduceHealth(int amount) {
@@ -194,12 +216,30 @@ void validateMonsterTextureIndex(const int textureIndex) {
     }
 }
 
-void validateMonsterGoldReward(const int minimum, const int maximum) {
-    if (minimum < 0) {
+void validateMonsterHealthRange(const std::pair<int, int> value) {
+    if (value.first < 0) {
+        throw std::invalid_argument("health minimum cannot be a negative number.");
+    }
+    if (value.second < value.first) {
+        throw std::invalid_argument("health maximum must be greater or equal to the minimum.");
+    }
+}
+
+void validateMonsterGoldReward(const std::pair<int, int> gold) {
+    if (gold.first < 0) {
         throw std::invalid_argument("gold reward minimum cannot be a negative number.");
     }
-    if (maximum < minimum) {
+    if (gold.second < gold.first) {
         throw std::invalid_argument("gold reward maximum must be greater or equal to the minimum.");
+    }
+}
+
+void validateMonsterExperienceReward(const std::pair<int, int> experience) {
+    if (experience.first < 0) {
+        throw std::invalid_argument("experience reward minimum cannot be a negative number.");
+    }
+    if (experience.second < experience.first) {
+        throw std::invalid_argument("experience reward maximum must be greater or equal to the minimum.");
     }
 }
 

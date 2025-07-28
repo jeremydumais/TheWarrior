@@ -21,6 +21,7 @@ class Player {
     PlayerEquipment &getEquipment();
     PlayerStats getStats() const;
     int getGold() const;
+    int getExperience() const;
     void setName(const std::string &name);
     void setLevel(unsigned int level);
     void incrementLevel();
@@ -28,6 +29,7 @@ class Player {
     void restoreHealth(int amount);
     void addGold(int value);
     void removeGold(int value);
+    void addExperience(int value);
 
  protected:
     unsigned int m_level = 1;
@@ -38,6 +40,7 @@ class Player {
     int m_agility = 4;
     int m_bonusHealthFromLevel = 10;
     int m_gold = 0;
+    int m_experience = 0;
 
  private:
     friend class boost::serialization::access;
@@ -49,6 +52,7 @@ class Player {
     int getMaxHealthByLevel(unsigned int level);
     int getStrengthByLevel(unsigned int level);
     int getAgilityByLevel(unsigned int level);
+    int getExperienceByLevel(unsigned int level);
     static float getOptionalArmorItemDefense(const boost::optional<ArmorItem> &item);
     // Serialization method
     template<class Archive>

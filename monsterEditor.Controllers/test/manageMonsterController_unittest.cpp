@@ -17,8 +17,7 @@ class MonsterDTOSamples {
         retVal.maxHealth = 15;
         retVal.attack = 1.1F;
         retVal.defense = 1.2F;
-        retVal.goldMinimum = 3;
-        retVal.goldMaximum = 4;
+        retVal.gold = std::pair<int, int>(3, 4);
         return retVal;
     }
     static MonsterDTO getSample2() {
@@ -30,8 +29,7 @@ class MonsterDTOSamples {
         retVal.maxHealth = 20;
         retVal.attack = 2.1F;
         retVal.defense = 2.2F;
-        retVal.goldMinimum = 5;
-        retVal.goldMaximum = 7;
+        retVal.gold = std::pair<int, int>(5, 7);
         return retVal;
     }
 };

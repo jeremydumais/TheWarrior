@@ -3,8 +3,8 @@
 #include <qicon.h>
 #include <map>
 #include <memory>
-#include <set>
 #include <string>
+#include <utility>
 #include <vector>
 #include "monsterStore.hpp"
 #include "textureContainer.hpp"
@@ -14,11 +14,11 @@ namespace monstereditor::controllers {
 struct MonsterListDisplay {
     std::string id;
     std::string name;
-    int health;
+    std::pair<int, int> health;
     float attack;
     float defense;
-    int goldMinimum;
-    int goldMaximum;
+    std::pair<int, int> gold;
+    std::pair<int, int> experience;
 };
 
 class MainController {

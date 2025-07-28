@@ -1,15 +1,16 @@
+#include <algorithm>
+#include <iterator>
+#include <map>
+#include <memory>
+#include <ranges>
+#include <string>
+#include <vector>
 #include "monsterPickerFormController.hpp"
 #include "monster.hpp"
 #include "monsterUtils.hpp"
 #include "types.hpp"
 #include <bits/ranges_algo.h>
 #include <boost/algorithm/string.hpp>
-#include <algorithm>
-#include <iterator>
-#include <map>
-#include <memory>
-#include <ranges>
-#include <vector>
 
 using namespace commoneditor::ui;
 using namespace thewarrior::models;
@@ -20,12 +21,10 @@ namespace mapeditor::controllers {
 MonsterPickerFormController::MonsterPickerFormController(const std::shared_ptr<ContainerOfMonsterStore> monsterStores,
                                                          const std::string &resourcesPath)
     : m_monsterStores(monsterStores),
-      m_resourcesPath(resourcesPath)
-{
+      m_resourcesPath(resourcesPath) {
 }
 
-std::vector<std::string> MonsterPickerFormController::getMonsterStoreNames() const
-{
+std::vector<std::string> MonsterPickerFormController::getMonsterStoreNames() const {
     std::vector<std::string> retval = {};
     std::transform(m_monsterStores->begin(),
                    m_monsterStores->end(),
@@ -38,8 +37,7 @@ std::vector<std::string> MonsterPickerFormController::getMonsterStoreNames() con
 }
 
 std::vector<std::string> MonsterPickerFormController::getMonsterIds(const std::string &storeName,
-                                                                    const std::string &filter)
-{
+                                                                    const std::string &filter) {
     std::vector<std::string> retval = {};
     if (m_monsterStores != nullptr && m_monsterStores->contains(storeName)) {
         const auto store = m_monsterStores->find(storeName)->second;
@@ -55,8 +53,7 @@ std::vector<std::string> MonsterPickerFormController::getMonsterIds(const std::s
 }
 
 std::vector<MonsterCreationInfo> MonsterPickerFormController::getMonsters(const std::string &storeName,
-                                                                          const std::vector<std::string> &monsterIds) const
-{
+                                                                          const std::vector<std::string> &monsterIds) const {
     std::vector<MonsterCreationInfo> retval = {};
     if (m_monsterStores != nullptr && m_monsterStores->contains(storeName)) {
         const auto store = m_monsterStores->find(storeName)->second;
@@ -69,11 +66,12 @@ std::vector<MonsterCreationInfo> MonsterPickerFormController::getMonsters(const 
                 monster->getName(),
                 monster->getTextureName(),
                 monster->getTextureIndex(),
+                monster->getHealthRange(),
                 monster->getMaxHealth(),
                 monster->getAttack(),
                 monster->getDefense(),
-                monster->getGoldRewardRange().first,
-                monster->getGoldRewardRange().second
+                monster->getGoldRewardRange(),
+                monster->getExperienceRewardRange()
             };
         };
         auto monsters = store->getMonsters();
@@ -85,8 +83,7 @@ std::vector<MonsterCreationInfo> MonsterPickerFormController::getMonsters(const 
 }
 
 std::map<std::string, QIcon> MonsterPickerFormController::getMonstersIcon(const std::string &storeName,
-                                                                          const std::vector<std::string> &monsterIds)
-{
+                                                                          const std::vector<std::string> &monsterIds) {
     if (m_monsterStores != nullptr && m_monsterStores->contains(storeName)) {
         const auto store = m_monsterStores->find(storeName)->second;
         return MonsterUtils::getIconsFromMonsterIds(monsterIds, store, m_resourcesPath);
@@ -94,4 +91,4 @@ std::map<std::string, QIcon> MonsterPickerFormController::getMonstersIcon(const 
     return {};
 }
 
-} // namespace mapeditor::controllers
+}  // namespace mapeditor::controllers

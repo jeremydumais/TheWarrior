@@ -79,16 +79,18 @@ MainForm::MainForm(QWidget *parent,
 void MainForm::initializeMonstersTableControl() {
     ui.tableWidgetMonsters->setHorizontalHeaderItem(0, new QTableWidgetItem("Id"));
     ui.tableWidgetMonsters->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
-    ui.tableWidgetMonsters->setHorizontalHeaderItem(2, new QTableWidgetItem("Max health"));
+    ui.tableWidgetMonsters->setHorizontalHeaderItem(2, new QTableWidgetItem("Health"));
     ui.tableWidgetMonsters->setHorizontalHeaderItem(3, new QTableWidgetItem("Attack"));
     ui.tableWidgetMonsters->setHorizontalHeaderItem(4, new QTableWidgetItem("Defense"));
     ui.tableWidgetMonsters->setHorizontalHeaderItem(5, new QTableWidgetItem("Gold reward"));
+    ui.tableWidgetMonsters->setHorizontalHeaderItem(6, new QTableWidgetItem("Experience reward"));
     ui.tableWidgetMonsters->setColumnWidth(0, 120);
     ui.tableWidgetMonsters->setColumnWidth(1, 300);
     ui.tableWidgetMonsters->setColumnWidth(2, 120);
     ui.tableWidgetMonsters->setColumnWidth(3, 120);
     ui.tableWidgetMonsters->setColumnWidth(4, 120);
     ui.tableWidgetMonsters->setColumnWidth(5, 120);
+    ui.tableWidgetMonsters->setColumnWidth(6, 120);
 }
 
 void MainForm::connectUIActions() {
@@ -281,12 +283,17 @@ void MainForm::refreshMonstersTable() {
         }
         ui.tableWidgetMonsters->setItem(index, 0, idMonster);
         ui.tableWidgetMonsters->setItem(index, 1, new QTableWidgetItem(monster.name.c_str()));
-        ui.tableWidgetMonsters->setItem(index, 2, new QTableWidgetItem(std::to_string(monster.health).c_str()));
+        ui.tableWidgetMonsters->setItem(index, 2, new QTableWidgetItem(fmt::format("[{}-{}]",
+                        monster.health.first,
+                        monster.health.second).c_str()));
         ui.tableWidgetMonsters->setItem(index, 3, new QTableWidgetItem(fmt::format("{}", monster.attack).c_str()));
         ui.tableWidgetMonsters->setItem(index, 4, new QTableWidgetItem(fmt::format("{}", monster.defense).c_str()));
         ui.tableWidgetMonsters->setItem(index, 5, new QTableWidgetItem(fmt::format("[{}-{}]",
-                        monster.goldMinimum,
-                        monster.goldMaximum).c_str()));
+                        monster.gold.first,
+                        monster.gold.second).c_str()));
+        ui.tableWidgetMonsters->setItem(index, 6, new QTableWidgetItem(fmt::format("[{}-{}]",
+                        monster.experience.first,
+                        monster.experience.second).c_str()));
         index++;
     }
 }

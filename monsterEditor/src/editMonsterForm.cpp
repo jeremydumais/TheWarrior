@@ -60,11 +60,14 @@ bool EditMonsterForm::loadExistingMonsterToForm() {
         ui.lineEditName->setText(existingMonster->name.c_str());
         ui.lineEditTextureName->setText(existingMonster->textureName.c_str());
         ui.spinBoxTextureIndex->setValue(existingMonster->textureIndex);
-        ui.spinBoxHealth->setValue(existingMonster->maxHealth);
+        ui.spinBoxHealthMin->setValue(existingMonster->healthRange.first);
+        ui.spinBoxHealthMax->setValue(existingMonster->healthRange.second);
         ui.doubleSpinBoxAttack->setValue(static_cast<double>(existingMonster->attack));
         ui.doubleSpinBoxDefense->setValue(static_cast<double>(existingMonster->defense));
-        ui.spinBoxGoldMin->setValue(existingMonster->goldMinimum);
-        ui.spinBoxGoldMax->setValue(existingMonster->goldMaximum);
+        ui.spinBoxGoldMin->setValue(existingMonster->gold.first);
+        ui.spinBoxGoldMax->setValue(existingMonster->gold.second);
+        ui.spinBoxExperienceMin->setValue(existingMonster->experience.first);
+        ui.spinBoxExperienceMax->setValue(existingMonster->experience.second);
         refreshSelectedTexture();
     } else {
         ErrorMessage::show("Unable to load the selected monster");
@@ -83,11 +86,15 @@ void EditMonsterForm::onPushButtonOKClick() {
     monsterInfo->name = ui.lineEditName->text().toStdString();
     monsterInfo->textureName = ui.lineEditTextureName->text().toStdString();
     monsterInfo->textureIndex = ui.spinBoxTextureIndex->value();
-    monsterInfo->maxHealth = ui.spinBoxHealth->value();
+    monsterInfo->healthRange.first = ui.spinBoxHealthMin->value();
+    monsterInfo->healthRange.second = ui.spinBoxHealthMax->value();
+    monsterInfo->maxHealth = ui.spinBoxHealthMax->value();
     monsterInfo->attack = static_cast<float>(ui.doubleSpinBoxAttack->value());
     monsterInfo->defense = static_cast<float>(ui.doubleSpinBoxDefense->value());
-    monsterInfo->goldMinimum = ui.spinBoxGoldMin->value();
-    monsterInfo->goldMaximum = ui.spinBoxGoldMax->value();
+    monsterInfo->gold.first = ui.spinBoxGoldMin->value();
+    monsterInfo->gold.second = ui.spinBoxGoldMax->value();
+    monsterInfo->experience.first = ui.spinBoxExperienceMin->value();
+    monsterInfo->experience.second = ui.spinBoxExperienceMax->value();
 
     if (!m_monsterIdToEdit.has_value()) {
         if (!m_controller.addMonster(std::move(monsterInfo))) {

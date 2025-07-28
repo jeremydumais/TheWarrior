@@ -29,6 +29,7 @@ enum class BattleAction {
     PlayerRanAway,
     PlayerWon,
     PlayerGetReward,
+    PlayerLevelUp,
     MonsterTurn,
     MonsterAttack,
     MonsterSpell,
@@ -82,6 +83,8 @@ class GLBattleWindow : public GLPopupWindow {
     Uint64 m_actionStepStartTicks = 0;
     Uint64 m_actionStepNextTicks = 0;
     int m_goldObtained = 0;
+    int m_experienceObtained = 0;
+    bool m_didLevelUp = false;
     BattleAction m_currentBattleAction = BattleAction::PlayerTurn;
     void moveUpPressed();
     void moveDownPressed();
@@ -92,6 +95,7 @@ class GLBattleWindow : public GLPopupWindow {
     void playerRunWorkflow();
     void playerWonWorkflow();
     void playerObtainRewardWorkflow();
+    void playerObtainNewLevelWorkflow();
     void monsterTurnWorkflow();
     void monsterAttackWorkflow();
     void drawMonster(const GLObject &glObject, GLuint textureGLIndex, float transparency);

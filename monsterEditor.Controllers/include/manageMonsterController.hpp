@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 #include "monsterStore.hpp"
 #include "textureContainer.hpp"
 
@@ -12,11 +13,12 @@ struct MonsterDTO {
     std::string name;
     std::string textureName;
     int textureIndex;
+    std::pair<int, int> healthRange;
     int maxHealth;
     float attack;
     float defense;
-    int goldMinimum;
-    int goldMaximum;
+    std::pair<int, int> gold;
+    std::pair<int, int> experience;
     virtual ~MonsterDTO() = default;  // Used to make the struct polymorphic
 };
 

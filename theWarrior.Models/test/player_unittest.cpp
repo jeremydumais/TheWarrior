@@ -22,6 +22,7 @@ class FakePlayer : public Player {
         m_agility = 5.0F;
         m_bonusHealthFromLevel = 5;
         m_gold = 24;
+        m_experience = 6;
         getEquipment().setMainHand(WeaponItem({"swd001",
                                                "Sword1",
                                                "Tex1",
@@ -95,6 +96,14 @@ TEST_F(PlayerSample, getStats_ReturnLvl1Stats) {
 
 TEST_F(PlayerSample, getGold_Return0) {
     ASSERT_EQ(0, player.getGold());
+}
+
+TEST_F(PlayerSample, getExperience_Return0) {
+    ASSERT_EQ(0, player.getExperience());
+}
+
+TEST_F(PlayerLvl2WithEquipmentsSample, getExperience_Return6) {
+    ASSERT_EQ(6, player.getExperience());
 }
 
 TEST_F(PlayerLvl2WithEquipmentsSample, getStats_ReturnLvl2Stats) {
@@ -199,3 +208,42 @@ TEST_F(PlayerLvl2WithEquipmentsSample, RemoveGoldWith25_ReturnSuccess) {
     player.removeGold(25);
     ASSERT_EQ(0, player.getGold());
 }
+
+TEST_F(PlayerSample, AddExperienceWith15_ReturnSuccess) {
+    player.addExperience(5);
+    ASSERT_EQ(5, player.getExperience());
+    ASSERT_EQ(1, player.getLevel());
+}
+
+TEST_F(PlayerSample, AddExperienceWithIntMax_ReturnSuccess) {
+    int max = std::numeric_limits<int>::max();
+    player.addExperience(max);
+    ASSERT_EQ(max, player.getExperience());
+}
+
+TEST_F(PlayerSample, AddExperienceWithIntMaxAndPlayerHad1Experience_ReturnSuccessAndMaxExperience) {
+    player.addExperience(1);
+    int max = std::numeric_limits<int>::max();
+    player.addExperience(max);
+    ASSERT_EQ(max, player.getExperience());
+}
+
+TEST_F(PlayerSample, AddExperienceWithIntMaxMinus1AndPlayerHad1Experience_ReturnSuccess) {
+    int max = std::numeric_limits<int>::max();
+    player.addExperience(max - 1);
+    player.addExperience(1);
+    ASSERT_EQ(max, player.getExperience());
+}
+
+TEST_F(PlayerSample, AddExperienceWith7_ReturnSuccessAndLevelUp) {
+    player.addExperience(7);
+    ASSERT_EQ(7, player.getExperience());
+    ASSERT_EQ(2, player.getLevel());
+}
+
+TEST_F(PlayerSample, AddExperienceWith8_ReturnSuccessAndLevelUp) {
+    player.addExperience(8);
+    ASSERT_EQ(8, player.getExperience());
+    ASSERT_EQ(2, player.getLevel());
+}
+

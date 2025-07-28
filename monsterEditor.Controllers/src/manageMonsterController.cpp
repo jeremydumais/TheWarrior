@@ -34,12 +34,12 @@ std::unique_ptr<MonsterDTO> ManageMonsterController::getMonster(const std::strin
         retval->name = monster->getName();
         retval->textureName = monster->getTextureName();
         retval->textureIndex = monster->getTextureIndex();
+        retval->healthRange = monster->getHealthRange();
         retval->maxHealth = monster->getMaxHealth();
         retval->attack = monster->getAttack();
         retval->defense = monster->getDefense();
-        auto [min, max] = monster->getGoldRewardRange();
-        retval->goldMinimum = min;
-        retval->goldMaximum = max;
+        retval->gold = monster->getGoldRewardRange();
+        retval->experience = monster->getExperienceRewardRange();
         return retval;
     }
     return nullptr;
@@ -96,11 +96,12 @@ std::shared_ptr<Monster> ManageMonsterController::monsterDTOToMonster(std::uniqu
         dto->name,
         dto->textureName,
         dto->textureIndex,
+        dto->healthRange,
         dto->maxHealth,
         dto->attack,
         dto->defense,
-        dto->goldMinimum,
-        dto->goldMaximum
+        dto->gold,
+        dto->experience
     };
     std::shared_ptr<Monster> updateMonster = nullptr;
     try {
