@@ -155,8 +155,14 @@ void GLBattleWindow::generateGLElements() {
         addXCenteredTextObject(actionElement, 30.0F, 190.0F);
     }
     addXCenteredTextObject({"Warrior", {1.0F, 100.0F}, 0.5F}, 30.0F, 190.0F);
-    addXCenteredTextObject({"HP 20/320", {1.0F, 140.0F}, 0.5F}, 30.0F, 190.0F);
-    addXCenteredTextObject({"MP 12/120", {1.0F, 180.0F}, 0.5F}, 30.0F, 190.0F);
+    addXCenteredTextObject({fmt::format("HP {0}/{1}",
+                                m_glPlayer->getStats().health ,
+                                m_glPlayer->getStats().maxHealth),
+                            {1.0F, 140.0F},
+                           0.5F},
+                           30.0F,
+                           190.0F);
+    addXCenteredTextObject({"MP 0/0", {1.0F, 180.0F}, 0.5F}, 30.0F, 190.0F);
     auto battleLogCopy = m_battleLog;
     for (size_t i = 0; i < m_battleLog.size(); i++) {
         size_t colorIndex =  (m_battleLog.size() - 1) - i;
@@ -284,11 +290,11 @@ void GLBattleWindow::startAction(BattleAction action, Uint64 timeLength) {
 void GLBattleWindow::playerAttackWorkflow() {
     if (m_currentBattleAction == BattleAction::PlayerAttack) {
         //TODO: Check block, critical and miss
-        //TODO Calculate the DPS
-        int dps = 20;
-        addBattleLog(fmt::format("You hit and HPs have been reduces by {0}!", dps).c_str());
+        //TODO Calculate the damage
+        int damage = static_cast<int>(ceil(m_glPlayer->getStats().attack));  // That's the basic damage. Can't do less than that
+        addBattleLog(fmt::format("You hit and HPs have been reduces by {0}!", damage).c_str());
         float oldMonsterHealthRatio = m_monster->getHealthRatio();
-        m_monster->reduceHealth(dps);
+        m_monster->reduceHealth(damage);
         m_namedObjectsAnimations[MonsterShaking] = std::make_shared<ShakingAnimation>(25, 3);
         m_namedObjectsAnimations[MonsterHPBarObj] = std::make_shared<ValueChangeAnimation>(oldMonsterHealthRatio,
                 m_monster->getHealthRatio(),

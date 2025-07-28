@@ -31,10 +31,11 @@ class Player {
 
  protected:
     unsigned int m_level = 1;
-    int m_health = 10;
-    int m_maxHealth = 10;
-    float m_bonusAttackFromLevel = 0.5F;
-    float m_bonusDefenseFromLevel = 0.5F;
+    unsigned int m_maxLevel = 10;
+    int m_health = 15;
+    int m_maxHealth = 15;
+    int m_strength = 4;
+    int m_agility = 4;
     int m_bonusHealthFromLevel = 10;
     int m_gold = 0;
 
@@ -45,6 +46,9 @@ class Player {
     std::shared_ptr<Inventory> m_inventory = std::make_shared<Inventory>();
     PlayerEquipment m_equipment;
     void validateName(const std::string &name) const;
+    int getMaxHealthByLevel(unsigned int level);
+    int getStrengthByLevel(unsigned int level);
+    int getAgilityByLevel(unsigned int level);
     static float getOptionalArmorItemDefense(const boost::optional<ArmorItem> &item);
     // Serialization method
     template<class Archive>

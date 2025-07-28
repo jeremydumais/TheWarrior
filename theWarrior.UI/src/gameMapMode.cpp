@@ -68,7 +68,7 @@ void GameMapMode::initialize(const std::string &resourcesPath,
     m_glInventory.onCloseEvent.connect(boost::bind(&GameMapMode::onInventoryWindowClose, this));
     //HACK: Remove this when 0.3.4 completed
     m_inputMode = GameMapInputMode::Battle;
-    m_glBattleWindow.prepareWindow("slm001");
+    m_glBattleWindow.prepareWindow("slg001");
 }
 
 bool GameMapMode::initShaders(const std::string &resourcesPath) {

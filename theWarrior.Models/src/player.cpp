@@ -30,8 +30,8 @@ PlayerEquipment& Player::getEquipment() {
 
 PlayerStats Player::getStats() const {
     PlayerStats stats {
-        .attack = m_bonusAttackFromLevel,
-        .defense = m_bonusDefenseFromLevel,
+        .attack = static_cast<float>(m_strength),
+        .defense = static_cast<float>(m_agility),
         .health = m_health,
         .maxHealth = m_maxHealth
     };
@@ -72,7 +72,14 @@ void Player::setLevel(unsigned int level) {
 }
 
 void Player::incrementLevel() {
-    m_level++;
+    if (m_level < m_maxLevel) {
+        m_level++;
+        // Set new HP, Attack and Defense
+        m_maxHealth = getMaxHealthByLevel(m_level);
+        m_health = m_maxHealth;
+        m_strength = getStrengthByLevel(m_level);
+        m_agility = getAgilityByLevel(m_level);
+    }
 }
 
 void Player::reduceHealth(int amount) {
@@ -111,6 +118,87 @@ void Player::removeGold(int value) {
 void Player::validateName(const std::string &name) const {
     if (boost::trim_copy(name).empty()) {
         throw std::invalid_argument("name cannot be null or empty.");
+    }
+}
+
+int Player::getMaxHealthByLevel(unsigned int level) {
+    switch (level) {
+        case 1:
+            return 15;
+        case 2:
+            return 22;
+        case 3:
+            return 30;
+        case 4:
+            return 38;
+        case 5:
+            return 46;
+        case 6:
+            return 54;
+        case 7:
+            return 62;
+        case 8:
+            return 70;
+        case 9:
+            return 78;
+        case 10:
+            return 86;
+        default:
+            return 86;
+    }
+}
+
+int Player::getStrengthByLevel(unsigned int level) {
+    switch (level) {
+        case 1:
+            return 4;
+        case 2:
+            return 5;
+        case 3:
+            return 7;
+        case 4:
+            return 10;
+        case 5:
+            return 13;
+        case 6:
+            return 16;
+        case 7:
+            return 19;
+        case 8:
+            return 22;
+        case 9:
+            return 25;
+        case 10:
+            return 28;
+        default:
+            return 28;
+    }
+}
+
+int Player::getAgilityByLevel(unsigned int level) {
+    switch (level) {
+        case 1:
+            return 4;
+        case 2:
+            return 5;
+        case 3:
+            return 7;
+        case 4:
+            return 10;
+        case 5:
+            return 13;
+        case 6:
+            return 16;
+        case 7:
+            return 19;
+        case 8:
+            return 22;
+        case 9:
+            return 25;
+        case 10:
+            return 28;
+        default:
+            return 28;
     }
 }
 
