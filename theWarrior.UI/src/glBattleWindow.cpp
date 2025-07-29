@@ -2,9 +2,12 @@
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <cstddef>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <queue>
+#include <random>
+#include <stdexcept>
 #include <string>
 #include <vector>
 #include "glBattleWindow.hpp"
@@ -22,15 +25,14 @@ using namespace thewarrior::utils;
 namespace thewarrior::ui {
 
 GLBattleWindow::GLBattleWindow()
-    : GLPopupWindow({ 800.0F, 600.0F }),
-      m_slotsGLTexture({ Texture(TextureInfo{ "battleLandscape", "battle_landscape.png", 1536, 512, 512, 512 }), 0 }),
-      m_namedObjects(std::map<std::string, GLObject>()),
-      m_monsterHPBarWindow(std::vector<GLObject>()),
-      m_monster(nullptr),
-      m_monsterInitial(nullptr),
-      m_glTextActions(std::vector<GLTextObject>()),
-      m_menuActionsPosition(0),
-      m_battleLog(std::queue<std::string>()) {
+: GLPopupWindow({ 800.0F, 600.0F }),
+m_slotsGLTexture({ Texture(TextureInfo{ "battleLandscape", "battle_landscape.png", 1536, 512, 512, 512 }), 0 }),
+m_namedObjects(std::map<std::string, GLObject>()),
+m_monsterHPBarWindow(std::vector<GLObject>()),
+m_monster(nullptr),
+m_glTextActions(std::vector<GLTextObject>()),
+m_menuActionsPosition(0),
+m_battleLog(std::queue<std::string>()) {
 }
 
 void GLBattleWindow::initialize(const std::string &resourcePath,
@@ -129,6 +131,9 @@ void GLBattleWindow::update() {
                     break;
                 case BattleAction::PlayerLevelUp:
                     playerObtainNewLevelWorkflow();
+                    break;
+                case BattleAction::PlayerDied:
+                    playerDiedWorkflow();
                     break;
                 case BattleAction::MonsterTurn:
                     monsterTurnWorkflow();
@@ -237,7 +242,9 @@ void GLBattleWindow::render() {
 
 void GLBattleWindow::gameWindowSizeChanged(const Size<> &size) {
     GLPopupWindow::gameWindowSizeChanged(size);
-    generateGLElements();
+    if (m_monster) {
+        generateGLElements();
+    }
 }
 
 void GLBattleWindow::prepareWindow(const std::string &id) {
@@ -247,7 +254,12 @@ void GLBattleWindow::prepareWindow(const std::string &id) {
         throw std::runtime_error(fmt::format("Unable to found the monster {0}", id));
     }
     m_monster = std::make_unique<Monster>(*monster);
-    m_monsterInitial = std::make_unique<Monster>(*monster);
+    // Randomize the monster health
+    std::uniform_int_distribution<> distributionMonsterHealth(m_monster->getHealthRange().first,
+                                                              m_monster->getHealthRange().second);
+    int health = distributionMonsterHealth(RandomGenerator::instance());
+    m_monster->setMaxHealth(health);
+    m_monster->setHealth(health);
     setTitle(m_monster->getName());
     addBattleLog(fmt::format("You encountered a {}!", m_monster->getName()).c_str());
     generateGLElements();
@@ -272,6 +284,9 @@ void GLBattleWindow::actionButtonPressed() {
         addBattleLog(fmt::format("You attack the {0}...", m_monster->getName()).c_str());
         startAction(BattleAction::PlayerAttack, 750);
     } else if (m_menuActionsPosition == 1) {  // Spell
+        addBattleLog("<Not implemented yet>");
+    } else if (m_menuActionsPosition == 2) {  // Item
+        addBattleLog("<Not implemented yet>");
     } else if (m_menuActionsPosition == 3) {  // Run
         addBattleLog("Attempting to run away...");
         startAction(BattleAction::PlayerTryToRun, 750);
@@ -293,14 +308,47 @@ void GLBattleWindow::startAction(BattleAction action, Uint64 timeLength) {
 }
 
 void GLBattleWindow::playerAttackWorkflow() {
-    if (m_currentBattleAction == BattleAction::PlayerAttack) {
-        //TODO: Check block, critical and miss
-        //TODO Calculate the damage
-        int damage = static_cast<int>(ceil(m_glPlayer->getStats().attack));  // That's the basic damage. Can't do less than that
-        addBattleLog(fmt::format("You hit and HPs have been reduces by {0}!", damage).c_str());
-        float oldMonsterHealthRatio = m_monster->getHealthRatio();
+    // If player's attack is >= than monster defense 1 on 20 to miss else
+    // PlayerAttack on MonsterDefense to have success (otherwise miss).
+    bool playerMissed = false;
+    if (m_glPlayer->getStats().attack >= m_monster->getDefense()) {
+        std::uniform_int_distribution<> distributionMissChance(1, 20);
+        if (distributionMissChance(RandomGenerator::instance()) == 1) {
+            playerMissed = true;
+        }
+    } else {
+        std::uniform_int_distribution<> distributionMissChance(1, static_cast<int>(ceil(m_monster->getDefense())));
+        if (static_cast<float>(distributionMissChance(RandomGenerator::instance())) > m_glPlayer->getStats().attack) {
+            playerMissed = true;
+        }
+    }
+    // Compute the potential damage
+    // 1 on 16 to land a critical
+    bool critical = false;
+    float criticalBonus = 1.0F;
+    std::uniform_int_distribution<> distributionCriticalChance(1, 16);
+    if (distributionCriticalChance(RandomGenerator::instance()) == 1) {
+        // Critical bonus from 1.5 to 2.0
+        critical = true;
+        std::uniform_real_distribution<> distributionCriticalBonus(1.5, 2.0);
+        criticalBonus = static_cast<float>(distributionCriticalBonus(RandomGenerator::instance()));
+    }
+    std::uniform_real_distribution<> distributionRandomRoll(0.75, 1.0);
+    float randomRollValue = static_cast<float>(distributionRandomRoll(RandomGenerator::instance()));
+    int damage = static_cast<int>(ceil(m_glPlayer->getStats().attack * criticalBonus * randomRollValue - m_monster->getDefense()));
+    if (playerMissed || damage <= 0) {
+        addBattleLog("You missed your attack!");
+        startAction(BattleAction::MonsterTurn, 500);
+    } else {
         m_monster->reduceHealth(damage);
-        m_namedObjectsAnimations[MonsterShaking] = std::make_shared<ShakingAnimation>(25, 3);
+        if (critical) {
+            m_namedObjectsAnimations[MonsterShaking] = std::make_shared<ShakingAnimation>(60, 4);
+            addBattleLog(fmt::format("You struck critically! -{0} HP!", damage).c_str());
+        } else {
+            m_namedObjectsAnimations[MonsterShaking] = std::make_shared<ShakingAnimation>(25, 3);
+            addBattleLog(fmt::format("You hit and HPs have been reduced by {0}!", damage).c_str());
+        }
+        float oldMonsterHealthRatio = m_monster->getHealthRatio();
         m_namedObjectsAnimations[MonsterHPBarObj] = std::make_shared<ValueChangeAnimation>(oldMonsterHealthRatio,
                 m_monster->getHealthRatio(),
                 0.075F);
@@ -329,8 +377,25 @@ void GLBattleWindow::playerAttackWorkflow() {
 
 void GLBattleWindow::playerRunWorkflow() {
     if (m_currentBattleAction == BattleAction::PlayerTryToRun) {
-        std::uniform_int_distribution<> distributionAttemptingToRun(1, 2);
-        if (distributionAttemptingToRun(RandomGenerator::instance()) == 1) {
+        // If player's attack is >= than monster defense then 9 on 10 to run away
+        // else one chance MonsterDefense-PlayerAttack to a maximum of 10.
+        bool runAway = false;
+        float difference = m_monster->getDefense() - m_glPlayer->getStats().attack;
+        if (difference > 10.0F) {
+            difference = 10.0F;
+        }
+        if (difference <= 0.0F) {
+            std::uniform_int_distribution<> distributionAttemptingToRun(1, 10);
+            if (distributionAttemptingToRun(RandomGenerator::instance()) > 1) {
+                runAway = true;
+            }
+        } else {
+            std::uniform_int_distribution<> distributionAttemptingToRun(1, static_cast<int>(ceil(difference)));
+            if (distributionAttemptingToRun(RandomGenerator::instance()) == 1) {
+                runAway = true;
+            }
+        }
+        if (runAway) {
             startAction(BattleAction::PlayerRanAway, 750);
             addBattleLog("You ran away!");
         } else {
@@ -374,13 +439,68 @@ void GLBattleWindow::playerObtainNewLevelWorkflow() {
     }
 }
 
+void GLBattleWindow::playerDiedWorkflow() {
+    if (m_inputDevicesState->getButtonAState() == InputElementState::Released) {
+        //TODO: Implement the process when you die in a battle
+        throw std::runtime_error("You died");
+    }
+}
+
 void GLBattleWindow::monsterTurnWorkflow() {
-    addBattleLog("Monster turn!");
-    startAction(BattleAction::PlayerTurn, 750);
+    // Decide if the monster attack, cast a spell or heal itself
+    startAction(BattleAction::MonsterAttack, 500);
+    addBattleLog(fmt::format("The {0} attack...", m_monster->getName()).c_str());
     generateGLElements();
 }
 
 void GLBattleWindow::monsterAttackWorkflow() {
+    // If monster's attack is >= than player defense 1 on 20 to miss else
+    // MonsterAttack on PlayerDefense to have success (otherwise miss).
+    bool monsterMissed = false;
+    if (m_monster->getAttack() >= m_glPlayer->getStats().defense) {
+        std::uniform_int_distribution<> distributionMissChance(1, 20);
+        if (distributionMissChance(RandomGenerator::instance()) == 1) {
+            monsterMissed = true;
+        }
+    } else {
+        std::uniform_int_distribution<> distributionMissChance(1, static_cast<int>(ceil(m_glPlayer->getStats().defense)));
+        if (static_cast<float>(distributionMissChance(RandomGenerator::instance())) > m_monster->getAttack()) {
+            monsterMissed = true;
+        }
+    }
+    // Compute the potential damage
+    // 1 on 16 to land a critical
+    bool critical = false;
+    float criticalBonus = 1.0F;
+    std::uniform_int_distribution<> distributionCriticalChance(1, 32);
+    if (distributionCriticalChance(RandomGenerator::instance()) == 1) {
+        // Critical bonus from 1.5 to 2.0
+        critical = true;
+        std::uniform_real_distribution<> distributionCriticalBonus(1.3, 1.5);
+        criticalBonus = static_cast<float>(distributionCriticalBonus(RandomGenerator::instance()));
+    }
+    std::uniform_real_distribution<> distributionRandomRoll(0.75, 1.0);
+    float randomRollValue = static_cast<float>(distributionRandomRoll(RandomGenerator::instance()));
+    int damage = static_cast<int>(ceil((m_monster->getAttack() * criticalBonus * randomRollValue) - (m_glPlayer->getStats().defense / 2)));
+    if (monsterMissed || damage <= 0) {
+        startAction(BattleAction::PlayerTurn, 500);
+        addBattleLog(fmt::format("The {0} missed its attack!", m_monster->getName()).c_str());
+    } else {
+        m_namedObjectsAnimations[MonsterObj] = std::make_shared<ValueChangeAnimation>(1.0F, 0.1F, 0.05F);
+        m_glPlayer->reduceHealth(damage);
+        if (critical) {
+            addBattleLog(fmt::format("{0} landed a crit -{1} HP lost!", m_monster->getName(), damage).c_str());
+        } else {
+            addBattleLog(fmt::format("{0} hit! You lost {1} HP!", m_monster->getName(), damage).c_str());
+        }
+        if (m_glPlayer->isDead()) {
+            addBattleLog("You are dead...");
+            startAction(BattleAction::PlayerDied, 500);
+        } else {
+            startAction(BattleAction::PlayerTurn, 500);
+            generateGLElements();
+        }
+    }
 }
 
 void GLBattleWindow::drawMonster(const GLObject &glObject, GLuint textureGLIndex, float transparency) {

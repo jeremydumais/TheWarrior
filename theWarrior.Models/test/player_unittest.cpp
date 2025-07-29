@@ -114,6 +114,15 @@ TEST_F(PlayerLvl2WithEquipmentsSample, getStats_ReturnLvl2Stats) {
     ASSERT_EQ(22, stats.maxHealth);
 }
 
+TEST_F(PlayerLvl2WithEquipmentsSample, isDeadWidth22HP_ReturnFalse) {
+    ASSERT_FALSE(player.isDead());
+}
+
+TEST_F(PlayerLvl2WithEquipmentsSample, isDeadWidth0HP_ReturnTrue) {
+    player.reduceHealth(22);
+    ASSERT_TRUE(player.isDead());
+}
+
 TEST_F(PlayerLvl2WithEquipmentsSample, getGold_Return24) {
     ASSERT_EQ(24, player.getGold());
 }

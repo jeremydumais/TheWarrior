@@ -8,7 +8,6 @@ int main(int, char **) {
     GameWindow gameWindow("The Warrior", 0, 0, 1120, 1080);
     //GameWindow gameWindow("The Warrior", 0, 0, 1024, 768);
     gameWindow.show();
-
     while (gameWindow.isAlive()) {
         gameWindow.processEvents();
     }

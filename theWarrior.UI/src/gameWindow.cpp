@@ -60,7 +60,6 @@ GameWindow::~GameWindow() {
     m_gameMapMode.unloadGLMapObjects();
     m_glPlayer->unloadGLPlayerObject();
     SDL_JoystickClose(m_joystick);
-    SDL_DestroyRenderer(m_renderer);
     SDL_DestroyWindow(m_window);
     SDL_Quit();
 }

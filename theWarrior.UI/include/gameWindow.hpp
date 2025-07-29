@@ -41,7 +41,6 @@ class GameWindow {
  private:
     thewarrior::ui::controllers::GameWindowController m_controller;
     SDL_Window *m_window;
-    SDL_Renderer *m_renderer;
     SDL_GLContext m_gContext;
     thewarrior::models::Size<> m_WindowSize;
     TileSize m_tileSize = {1.0F, 1.0F, 1.0F};

@@ -55,6 +55,10 @@ PlayerStats Player::getStats() const {
     return stats;
 }
 
+bool Player::isDead() const {
+    return m_health == 0;
+}
+
 int Player::getGold() const {
     return m_gold;
 }

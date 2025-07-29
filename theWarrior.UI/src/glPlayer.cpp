@@ -53,7 +53,8 @@ bool GLPlayer::isFacing(PlayerFacing direction) {
 
 void GLPlayer::initialize(const std::string &resourcePath) {
     m_textureName = "NPC1";
-    m_coord = Point<int>(30, 14);
+    //HACK: To be changed
+    m_coord = Point<int>(40, 20);
     m_xMove = 0.0f;
     m_yMove = 0.0f;
     m_baseTextureIndex = 9;

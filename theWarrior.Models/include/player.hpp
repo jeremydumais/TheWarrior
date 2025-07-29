@@ -20,6 +20,7 @@ class Player {
     std::shared_ptr<Inventory> getInventory();
     PlayerEquipment &getEquipment();
     PlayerStats getStats() const;
+    bool isDead() const;
     int getGold() const;
     int getExperience() const;
     void setName(const std::string &name);

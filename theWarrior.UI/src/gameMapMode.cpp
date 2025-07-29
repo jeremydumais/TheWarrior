@@ -66,9 +66,6 @@ void GameMapMode::initialize(const std::string &resourcesPath,
     generateGLMapObjects();
     m_glCharacterWindow.onCloseEvent.connect(boost::bind(&GameMapMode::onCharacterWindowClose, this));
     m_glInventory.onCloseEvent.connect(boost::bind(&GameMapMode::onInventoryWindowClose, this));
-    //HACK: Remove this when 0.3.4 completed
-    m_inputMode = GameMapInputMode::Battle;
-    m_glBattleWindow.prepareWindow("slg001");
 }
 
 bool GameMapMode::initShaders(const std::string &resourcesPath) {
@@ -383,8 +380,14 @@ void GameMapMode::moveRightPressed() {
 void GameMapMode::processAction(MapTileTriggerAction action, const std::map<std::string, std::string> &properties, MapTile *tile, Point<> tilePosition) {
     switch (action) {
         case MapTileTriggerAction::ChangeMap:
-            if (properties.at("playerFacing") == "1") {
+            if (properties.at("playerFacing") == "0") {
+                m_glPlayer->faceUp();
+            } else if (properties.at("playerFacing") == "1") {
                 m_glPlayer->faceDown();
+            } else if (properties.at("playerFacing") == "2") {
+                m_glPlayer->faceLeft();
+            } else if (properties.at("playerFacing") == "3") {
+                m_glPlayer->faceRight();
             }
             m_glPlayer->setGridPosition(Point<>(stoi(properties.at("playerX")), stoi(properties.at("playerY"))));
             changeMap(fmt::format("{0}/maps/{1}", m_resourcesPath, properties.at("mapFileName")), properties.at("mapFileName"));
@@ -570,8 +573,34 @@ void GameMapMode::calculateTilesToDisplay() {
     auto playerPosition = m_glPlayer->getGLObjectPositionWithMovement();
     m_tileCoordToDisplay.at(0) = static_cast<int>(floor(playerPosition.x() - (screenCenterX / tileWidthInPx)));
     m_tileCoordToDisplay.at(1) = static_cast<int>(ceil(playerPosition.x() - 1 + (screenCenterX / tileWidthInPx)));
+    // If you reach the left of the map, add the tiles to display to the right
+    if (m_tileCoordToDisplay.at(0) < 0) {
+        m_tileCoordToDisplay.at(1) += m_tileCoordToDisplay.at(0) * -1;
+    }
+    // If you reach the right of the map, add the tiles to display to the left
+    if (m_tileCoordToDisplay.at(1) > static_cast<int>(m_map->getWidth()) - 1) {
+        m_tileCoordToDisplay.at(0) -= m_tileCoordToDisplay.at(1) - static_cast<int>(m_map->getWidth());
+        m_tileCoordToDisplay.at(1) = static_cast<int>(m_map->getWidth()) - 1;
+    }
+    // Set map boundary if necessary
+    if (m_tileCoordToDisplay.at(0) < 0) {
+        m_tileCoordToDisplay.at(0) = 0;
+    }
     m_tileCoordToDisplay.at(2) = static_cast<int>(floor(playerPosition.y() - (screenCenterY / tileHeightInPx)));
     m_tileCoordToDisplay.at(3) = static_cast<int>(ceil(playerPosition.y() - 1 + (screenCenterY / tileHeightInPx)));
+    // If you reach the top of the map, add the tiles to display to the bottom
+    if (m_tileCoordToDisplay.at(2) < 0) {
+        m_tileCoordToDisplay.at(3) += m_tileCoordToDisplay.at(2) * -1;
+    }
+    // If you reach the bottom of the map, add the tiles to display to the top
+    if (m_tileCoordToDisplay.at(3) > static_cast<int>(m_map->getHeight()) - 1) {
+        m_tileCoordToDisplay.at(2) -= m_tileCoordToDisplay.at(3) - static_cast<int>(m_map->getHeight());
+        m_tileCoordToDisplay.at(3) = static_cast<int>(m_map->getHeight()) - 1;
+    }
+    // Set map boundary if necessary
+    if (m_tileCoordToDisplay.at(2) < 0) {
+        m_tileCoordToDisplay.at(2) = 0;
+    }
 }
 
 void GameMapMode::unloadGLMapObjects() {
@@ -668,7 +697,13 @@ void GameMapMode::mainMenuPopupCanceled() {
 
 void GameMapMode::onPlayerMoveCompleted() {
     const auto &tile = m_map->getTileFromCoord(m_glPlayer->getGridPosition());
-    checkForMonsterEncounter(tile);
+    //TODO: Check for the SteppedOn event
+    auto steppedOnTrigger = tile.findConstTrigger(MapTileTriggerEvent::SteppedOn);
+    if (steppedOnTrigger.has_value()) {
+        processAction(steppedOnTrigger->getAction(), steppedOnTrigger->getActionProperties());
+    } else {
+        checkForMonsterEncounter(tile);
+    }
 }
 
 void GameMapMode::onBattleCompleted() {

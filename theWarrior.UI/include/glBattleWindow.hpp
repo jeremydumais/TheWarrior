@@ -30,6 +30,7 @@ enum class BattleAction {
     PlayerWon,
     PlayerGetReward,
     PlayerLevelUp,
+    PlayerDied,
     MonsterTurn,
     MonsterAttack,
     MonsterSpell,
@@ -74,7 +75,6 @@ class GLBattleWindow : public GLPopupWindow {
     std::map<std::string, std::shared_ptr<IAnimation>> m_namedObjectsAnimations = {};
     std::vector<GLObject> m_monsterHPBarWindow = {};
     std::unique_ptr<thewarrior::models::Monster> m_monster;
-    std::unique_ptr<thewarrior::models::Monster> m_monsterInitial;
     std::vector<GLTextObject> m_glTextActions;
     size_t m_menuActionsPosition;
     std::queue<std::string> m_battleLog;
@@ -96,6 +96,7 @@ class GLBattleWindow : public GLPopupWindow {
     void playerWonWorkflow();
     void playerObtainRewardWorkflow();
     void playerObtainNewLevelWorkflow();
+    void playerDiedWorkflow();
     void monsterTurnWorkflow();
     void monsterAttackWorkflow();
     void drawMonster(const GLObject &glObject, GLuint textureGLIndex, float transparency);
