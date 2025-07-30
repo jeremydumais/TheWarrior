@@ -1,30 +1,30 @@
 #pragma once
 
-#include "monsterStore.hpp"
-#include "textureContainer.hpp"
 #include <memory>
 #include <string>
+#include <utility>
+#include "monsterStore.hpp"
+#include "textureContainer.hpp"
 
 namespace monstereditor::controllers {
 
-struct MonsterDTO
-{
+struct MonsterDTO {
     std::string id;
     std::string name;
     std::string textureName;
     int textureIndex;
-    int health;
+    std::pair<int, int> healthRange;
+    int maxHealth;
     float attack;
     float defense;
-    int goldMinimum;
-    int goldMaximum;
-    virtual ~MonsterDTO() = default; //Used to make the struct polymorphic
+    std::pair<int, int> gold;
+    std::pair<int, int> experience;
+    virtual ~MonsterDTO() = default;  // Used to make the struct polymorphic
 };
 
-class ManageMonsterController
-{
-public:
-    ManageMonsterController(std::shared_ptr<thewarrior::models::MonsterStore> monsterStore);
+class ManageMonsterController {
+ public:
+    explicit ManageMonsterController(std::shared_ptr<thewarrior::models::MonsterStore> monsterStore);
     virtual ~ManageMonsterController() = default;
     const std::string &getLastError() const;
     const thewarrior::models::TextureContainer &getTextureContainer() const;
@@ -33,11 +33,12 @@ public:
     bool updateMonster(std::unique_ptr<MonsterDTO> monsterInfo,
                     const std::string &oldMonsterId);
     bool deleteMonster(const std::string &monsterId);
-protected:
+
+ protected:
     std::shared_ptr<thewarrior::models::MonsterStore> m_monsterStore;
     std::string m_lastError;
     std::shared_ptr<thewarrior::models::MonsterStore> getMonsterStore();
     virtual std::shared_ptr<thewarrior::models::Monster> monsterDTOToMonster(std::unique_ptr<MonsterDTO> dto);
 };
 
-} // namespace ManageMonsterController
+}  // namespace monstereditor::controllers

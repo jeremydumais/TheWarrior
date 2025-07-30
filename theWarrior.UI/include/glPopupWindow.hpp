@@ -1,5 +1,8 @@
 #pragma once
 
+#include <memory>
+#include <string>
+#include <vector>
 #include "glColor.hpp"
 #include "glFormService.hpp"
 #include "glObjectService.hpp"
@@ -12,15 +15,11 @@
 #include "size.hpp"
 #include "texture.hpp"
 #include <boost/signals2.hpp>
-#include <memory>
-#include <string>
-#include <vector>
 
 namespace thewarrior::ui {
 
-class GLPopupWindow : public IShaderService
-{
-public:
+class GLPopupWindow : public IShaderService {
+ public:
     explicit GLPopupWindow(thewarrior::models::Size<float> size);
     virtual ~GLPopupWindow() = default;
     const std::string &getLastError() const;
@@ -33,15 +32,18 @@ public:
     void initialize(const std::string &title,
                     const std::string &resourcePath,
                     std::shared_ptr<GLTextService> textService);
+    void setTitle(const std::string &title);
     void generateGLElements();
     void render();
     void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
     boost::signals2::signal<void()> onCloseEvent;
-protected:
+
+ protected:
     std::string m_lastError;
     thewarrior::models::Point<float> m_windowLocation;
     thewarrior::models::Size<float> m_windowSize;
     thewarrior::models::Point<float> m_windowCenter;
+    thewarrior::models::Size<float> m_screenSize;
     std::shared_ptr<GLShaderProgram> m_shaderProgram;
     std::shared_ptr<GLFormService> m_glFormService;
     std::shared_ptr<GLTextService> m_textService;
@@ -64,7 +66,9 @@ protected:
                          thewarrior::models::Size<float> size,
                          const thewarrior::models::Texture *texture,
                          int textureBeginId,
-                         GLuint textureGLId = 0);
+                         GLuint textureGLId = 0,
+                         float blockSize = 32.0F);
+    void generateTitleBox();
     void addWindowPanel(thewarrior::models::Point<float> location,
                         thewarrior::models::Size<float> size,
                         int textureBeginId);
@@ -82,4 +86,4 @@ protected:
     std::vector<GLTextObject> m_glTextObjects;
 };
 
-} // namespace thewarrior::ui
+}  // namespace thewarrior::ui

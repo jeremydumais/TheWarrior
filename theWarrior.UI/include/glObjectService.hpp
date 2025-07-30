@@ -1,12 +1,11 @@
 #pragma once
 
-#include "texture.hpp"
 #include <GL/glew.h>
+#include "texture.hpp"
 
 namespace thewarrior::ui {
 
-struct GLObject
-{
+struct GLObject {
     GLuint vao;
     GLuint vboPosition;
     GLuint vboColor;
@@ -22,10 +21,9 @@ struct GenerateGLObjectInfo {
     GLuint *specialVBOTexture = nullptr;
 };
 
-class GLObjectService
-{
-public:
+class GLObjectService {
+ public:
     static void generateGLObject(GenerateGLObjectInfo &info, const GLfloat tileCoord[4][2], const GLfloat colors[4][3]);
 };
 
-} // namespace thewarrior::ui
+}  // namespace thewarrior::ui

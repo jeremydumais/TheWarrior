@@ -6,16 +6,14 @@
 
 namespace thewarrior::ui {
 
-enum class InputElementState
-{
+enum class InputElementState {
     Idle,
     Pressed,
     Released
 };
 
-class InputDevicesState
-{
-public:
+class InputDevicesState {
+ public:
     virtual ~InputDevicesState() = default;
     bool getUpPressed() const;
     std::optional<Uint64> getUpPressedTicks() const;
@@ -35,7 +33,10 @@ public:
     void processJoystick(SDL_Joystick *joystick);
     InputElementState getElementState(bool pressed, bool previouslyPressed) const;
     void processEvent(SDL_Event &e);
-protected:
+    void confirmDirections();
+    void invalidateDirections();
+
+ protected:
     void setUpPressed(bool value);
     void setDownPressed(bool value);
     void setLeftPressed(bool value);
@@ -46,16 +47,26 @@ protected:
     void setButtonDState(InputElementState state);
     void setKeyShiftState(InputElementState state);
     virtual Uint64 getTicks() const;
-private:
+
+ private:
     std::optional<Uint64> m_upPressed = std::nullopt;
     std::optional<Uint64> m_downPressed = std::nullopt;
     std::optional<Uint64> m_leftPressed = std::nullopt;
     std::optional<Uint64> m_rightPressed = std::nullopt;
+    bool m_joystickUp = false;
+    bool m_joystickDown = false;
+    bool m_joystickLeft = false;
+    bool m_joystickRight = false;
+    bool m_keyboardUp = false;
+    bool m_keyboardDown = false;
+    bool m_keyboardLeft = false;
+    bool m_keyboardRight = false;
     InputElementState m_buttonAState = InputElementState::Idle;
     InputElementState m_buttonBState = InputElementState::Idle;
     InputElementState m_buttonCState = InputElementState::Idle;
     InputElementState m_buttonDState = InputElementState::Idle;
     InputElementState m_keyShiftState = InputElementState::Idle;
+    bool m_directionInvalidate = false;
 };
 
-} // namespace thewarrior::ui
+}  // namespace thewarrior::ui

@@ -1,7 +1,9 @@
-#include "manageMonsterController.hpp"
 #include <fmt/format.h>
 #include <memory>
 #include <stdexcept>
+#include <string>
+#include <utility>
+#include "manageMonsterController.hpp"
 
 using namespace thewarrior::models;
 
@@ -9,27 +11,22 @@ namespace monstereditor::controllers {
 
 ManageMonsterController::ManageMonsterController(std::shared_ptr<MonsterStore> monsterStore)
     : m_monsterStore(monsterStore),
-      m_lastError("")
-{
+      m_lastError("") {
 }
 
-const std::string& ManageMonsterController::getLastError() const
-{
+const std::string& ManageMonsterController::getLastError() const {
     return m_lastError;
 }
 
-std::shared_ptr<MonsterStore> ManageMonsterController::getMonsterStore()
-{
+std::shared_ptr<MonsterStore> ManageMonsterController::getMonsterStore() {
     return m_monsterStore;
 }
 
-const TextureContainer &ManageMonsterController::getTextureContainer() const
-{
+const TextureContainer &ManageMonsterController::getTextureContainer() const {
     return m_monsterStore->getTextureContainer();
 }
 
-std::unique_ptr<MonsterDTO> ManageMonsterController::getMonster(const std::string &id) const
-{
+std::unique_ptr<MonsterDTO> ManageMonsterController::getMonster(const std::string &id) const {
     auto monster = m_monsterStore->findMonster(id);
     if (monster != nullptr) {
         auto retval = std::make_unique<MonsterDTO>();
@@ -37,19 +34,18 @@ std::unique_ptr<MonsterDTO> ManageMonsterController::getMonster(const std::strin
         retval->name = monster->getName();
         retval->textureName = monster->getTextureName();
         retval->textureIndex = monster->getTextureIndex();
-        retval->health = monster->getHealth();
+        retval->healthRange = monster->getHealthRange();
+        retval->maxHealth = monster->getMaxHealth();
         retval->attack = monster->getAttack();
         retval->defense = monster->getDefense();
-        auto [min, max] = monster->getGoldRewardRange();
-        retval->goldMinimum = min;
-        retval->goldMaximum = max;
+        retval->gold = monster->getGoldRewardRange();
+        retval->experience = monster->getExperienceRewardRange();
         return retval;
     }
     return nullptr;
 }
 
-bool ManageMonsterController::addMonster(std::unique_ptr<MonsterDTO> monsterInfo)
-{
+bool ManageMonsterController::addMonster(std::unique_ptr<MonsterDTO> monsterInfo) {
     std::shared_ptr<Monster> newMonster = monsterDTOToMonster(std::move(monsterInfo));
     if (newMonster == nullptr) {
         return false;
@@ -66,8 +62,7 @@ bool ManageMonsterController::addMonster(std::unique_ptr<MonsterDTO> monsterInfo
 }
 
 bool ManageMonsterController::updateMonster(std::unique_ptr<MonsterDTO> monsterInfo,
-                                      const std::string &oldMonsterId)
-{
+                                      const std::string &oldMonsterId) {
     if (monsterInfo == nullptr) {
         m_lastError = "No monsterInfo structure has been provided.";
         return false;
@@ -87,8 +82,7 @@ bool ManageMonsterController::updateMonster(std::unique_ptr<MonsterDTO> monsterI
     return true;
 }
 
-bool ManageMonsterController::deleteMonster(const std::string &monsterId)
-{
+bool ManageMonsterController::deleteMonster(const std::string &monsterId) {
     if (!m_monsterStore->removeMonster(monsterId)) {
         m_lastError = m_monsterStore->getLastError();
         return false;
@@ -96,18 +90,18 @@ bool ManageMonsterController::deleteMonster(const std::string &monsterId)
     return true;
 }
 
-std::shared_ptr<Monster> ManageMonsterController::monsterDTOToMonster(std::unique_ptr<MonsterDTO> dto)
-{
+std::shared_ptr<Monster> ManageMonsterController::monsterDTOToMonster(std::unique_ptr<MonsterDTO> dto) {
     MonsterCreationInfo creationInfo = {
         dto->id,
         dto->name,
         dto->textureName,
         dto->textureIndex,
-        dto->health,
+        dto->healthRange,
+        dto->maxHealth,
         dto->attack,
         dto->defense,
-        dto->goldMinimum,
-        dto->goldMaximum
+        dto->gold,
+        dto->experience
     };
     std::shared_ptr<Monster> updateMonster = nullptr;
     try {
@@ -119,4 +113,4 @@ std::shared_ptr<Monster> ManageMonsterController::monsterDTOToMonster(std::uniqu
     return updateMonster;
 }
 
-} // namespace ManageMonsterController
+}  // namespace monstereditor::controllers

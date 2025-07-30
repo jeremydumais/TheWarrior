@@ -1,15 +1,14 @@
-#include "gameWindow.hpp"
 #include <SDL2/SDL.h>
-#include <iostream>
+#include "gameWindow.hpp"
 
 using namespace thewarrior::ui;
 
-int main(int, char **)
-{
-    GameWindow gameWindow("The Warrior", 100, 50, 1024, 900);
+int main(int, char **) {
+    //HACK: To remove
+    GameWindow gameWindow("The Warrior", 0, 0, 1120, 1080);
+    //GameWindow gameWindow("The Warrior", 0, 0, 1024, 768);
     gameWindow.show();
-
-    while(gameWindow.isAlive()) {
+    while (gameWindow.isAlive()) {
         gameWindow.processEvents();
     }
     return 0;

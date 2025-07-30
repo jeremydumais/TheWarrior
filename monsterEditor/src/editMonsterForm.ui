@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>570</width>
+    <width>580</width>
     <height>371</height>
    </rect>
   </property>
@@ -154,16 +154,33 @@
      <item row="3" column="0">
       <widget class="QLabel" name="label_6">
        <property name="text">
-        <string>Health :</string>
+        <string>Max health :</string>
        </property>
       </widget>
      </item>
      <item row="3" column="1">
-      <widget class="QSpinBox" name="spinBoxHealth">
-       <property name="maximum">
-        <number>9999</number>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <widget class="QLabel" name="label_12">
+         <property name="text">
+          <string>Min  :</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="spinBoxHealthMin"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_13">
+         <property name="text">
+          <string>Max :</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="spinBoxHealthMax"/>
+       </item>
+      </layout>
      </item>
      <item row="4" column="0">
       <widget class="QLabel" name="label_7">
@@ -224,6 +241,37 @@
        </item>
       </layout>
      </item>
+     <item row="7" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <widget class="QLabel" name="label_14">
+         <property name="text">
+          <string>Min  :</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="spinBoxExperienceMin"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_15">
+         <property name="text">
+          <string>Max :</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="spinBoxExperienceMax"/>
+       </item>
+      </layout>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="label_16">
+       <property name="text">
+        <string>Experience :</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
   </layout>
@@ -234,11 +282,14 @@
   <tabstop>lineEditTextureName</tabstop>
   <tabstop>spinBoxTextureIndex</tabstop>
   <tabstop>pushButtonTexturePicker</tabstop>
-  <tabstop>spinBoxHealth</tabstop>
+  <tabstop>spinBoxHealthMin</tabstop>
+  <tabstop>spinBoxHealthMax</tabstop>
   <tabstop>doubleSpinBoxAttack</tabstop>
   <tabstop>doubleSpinBoxDefense</tabstop>
   <tabstop>spinBoxGoldMin</tabstop>
   <tabstop>spinBoxGoldMax</tabstop>
+  <tabstop>spinBoxExperienceMin</tabstop>
+  <tabstop>spinBoxExperienceMax</tabstop>
   <tabstop>pushButtonOK</tabstop>
   <tabstop>pushButtonCancel</tabstop>
  </tabstops>

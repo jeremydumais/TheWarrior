@@ -154,3 +154,28 @@ instead of "The Warrior - Item Editor"
 #### Change
 - Move the editor configuration file into the folder "Jed# Software/The Warrior - Monster Editor"
 instead of "The Warrior - Monster Editor"
+
+## [0.3.4]
+
+### Game
+
+#### New features
+- Add the battle system and monster encounter. Fight and Run action items are
+now supported.
+- Add the Damage system (Player and Monsters).
+
+#### Optimization
+- Now only the tiles visible on screen are processed and displayed with OpenGL.
+
+### Monster Editor (Version 1.0.2)
+
+#### New features
+- Add the Experience range fields for monster.
+
+#### Change
+- The monster health is now a range instead of single value.
+
+### Map Editor (Version 1.3.5)
+
+#### Change
+- Ensure that at least one Monster encounter has a ratio of Normal.

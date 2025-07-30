@@ -26,6 +26,7 @@ class EditMonsterZoneFormController {
     std::vector<MonsterEncounterDTO> getMonsterEncounters() const;
     std::vector<std::string> getMonsterEncounterIds() const;
     bool isMonsterZoneNameAlreadyUsed(const std::string &zoneName) const;
+    bool isAtLeastAMonsterEncounterWithNormalRatio() const;
     bool addMonsterEncounter(mapeditor::controllers::MonsterEncounterDTO monsterEncounter);
     bool updateMonsterEncounter(const std::string &oldMonsterId,
                                 mapeditor::controllers::MonsterEncounterDTO monsterEncounter);

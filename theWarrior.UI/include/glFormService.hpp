@@ -29,7 +29,8 @@ public:
                          thewarrior::models::Size<float> size,
                          const thewarrior::models::Texture *texture,
                          int textureBeginId,
-                         GLuint textureGLId = 0);
+                         GLuint textureGLId = 0,
+                         float blockSize = 32.0F);
     void drawQuad(const GLObject &glObject, GLuint textureGLIndex, float transparency = 0.0F);
     void drawText(const GLTextObject &glTextObject);
     void drawText(const GLTextObject &glTextObject, GLColor color);

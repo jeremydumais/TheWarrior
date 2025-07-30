@@ -1,24 +1,22 @@
+#ifndef MAPEDITOR_SRC_MONSTERPICKERFORM_HPP_
+#define MAPEDITOR_SRC_MONSTERPICKERFORM_HPP_
 
-#ifndef MONSTERPICKERFORM_H
-#define MONSTERPICKERFORM_H
-
+#include <memory>
+#include <string>
 #include "ui_monsterPickerForm.h"
 #include "monsterPickerFormController.hpp"
 #include "types.hpp"
-#include <memory>
-#include <string>
-#include <vector>
 
-class MonsterPickerForm : public QDialog
-{
+class MonsterPickerForm : public QDialog{
 Q_OBJECT
 
-public:
+ public:
     explicit MonsterPickerForm(QWidget *parent,
                                const std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> monsterStores,
                                const std::string &resourcesPath);
     const std::string &getSelectedMonsterId() const;
-private:
+
+ private:
     Ui::monsterPickerFormClass ui;
     mapeditor::controllers::MonsterPickerFormController m_controller;
     std::string m_selectedMonsterId = "";
@@ -31,4 +29,4 @@ private:
     void onComboBoxStoreIndexChanged();
 };
 
-#endif // MONSTERPICKERFORM_H
+#endif  // MAPEDITOR_SRC_MONSTERPICKERFORM_HPP_

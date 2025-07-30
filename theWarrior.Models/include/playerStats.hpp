@@ -2,12 +2,12 @@
 
 namespace thewarrior::models {
 
-struct PlayerStats
-{
+struct PlayerStats {
     float attack;
     float defense;
     int health;
     int maxHealth;
+    int experience;
 };
 
-} // namespace thewarrior::models
+}  // namespace thewarrior::models

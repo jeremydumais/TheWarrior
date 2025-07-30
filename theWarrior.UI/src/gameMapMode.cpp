@@ -1,40 +1,57 @@
+#include <fmt/format.h>
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <iostream>
+#include <iterator>
+#include <map>
+#include <memory>
+#include <random>
+#include <stdexcept>
+#include <string>
+#include <utility>
+#include <vector>
 #include "gameMapMode.hpp"
 #include "gameMap.hpp"
 #include "gameMapStorage.hpp"
 #include "itemFoundMessageDTO.hpp"
-#include "fmt/format.h"
-#include <iostream>
-#include <memory>
-#include <stdexcept>
-#include <vector>
+#include "mapTile.hpp"
+#include "monsterStore.hpp"
+#include "monsterZone.hpp"
+#include "monsterZoneMonsterEncounter.hpp"
+#include "randomUtils.hpp"
 
 using namespace thewarrior::models;
 using namespace thewarrior::ui::controllers;
 using namespace thewarrior::ui::models;
 using namespace thewarrior::storage;
+using namespace thewarrior::utils;
 
 namespace thewarrior::ui {
 
-GameMapMode::GameMapMode()
-{
+GameMapMode::GameMapMode() {
     m_choicePopup.m_choiceClicked.connect(boost::bind(&GameMapMode::mainMenuPopupClicked, this, boost::placeholders::_1));
     m_choicePopup.m_cancelClicked.connect(boost::bind(&GameMapMode::mainMenuPopupCanceled, this));
+    m_glBattleWindow.m_battleCompleted.connect(boost::bind(&GameMapMode::onBattleCompleted, this));
 }
 
 void GameMapMode::initialize(const std::string &resourcesPath,
         std::shared_ptr<GLPlayer> glPlayer,
         std::shared_ptr<ItemStore> itemStore,
+        std::shared_ptr<MonsterStore> monsterStore,
         std::shared_ptr<MessagePipeline> messagePipeline,
         std::shared_ptr<GLTileService> tileService,
         std::shared_ptr<GLTextBox> textBox,
         std::shared_ptr<GLTextService> textService,
         const std::map<std::string, unsigned int> *texturesGLItemStore,
-        std::shared_ptr<InputDevicesState> inputDevicesState)
-{
+        const std::map<std::string, unsigned int> *texturesGLMonsterStore,
+        std::shared_ptr<InputDevicesState> inputDevicesState) {
     m_resourcesPath = resourcesPath;
     m_map = std::make_shared<GameMap>(1, 1);
     m_glPlayer = glPlayer;
+    m_glPlayer->m_playerMoveCompleted.connect(boost::bind(&GameMapMode::onPlayerMoveCompleted, this));
     m_glFormService->initialize(m_shaderProgram, textService);
+    m_glBattleWindow.initialize(resourcesPath, glPlayer, textService, monsterStore, texturesGLMonsterStore, inputDevicesState);
     m_glCharacterWindow.initialize(resourcesPath, glPlayer, textService, itemStore, texturesGLItemStore, inputDevicesState);
     m_glInventory.initialize(resourcesPath, glPlayer, textService, itemStore, texturesGLItemStore, inputDevicesState);
     m_glInventory.setInventory(m_glPlayer->getInventory());
@@ -42,17 +59,16 @@ void GameMapMode::initialize(const std::string &resourcesPath,
     m_tileService = tileService;
     m_textBox = textBox;
     m_inputDevicesState = inputDevicesState;
-    m_controller.initialize(itemStore, messagePipeline);
+    m_controller.initialize(itemStore, monsterStore, messagePipeline);
     m_choicePopup.initialize(resourcesPath, m_glFormService, textService, inputDevicesState);
-    loadMap(fmt::format("{0}/maps/homeHouseV1.map", resourcesPath), "homeHouseV1.map");
+    loadMap(fmt::format("{0}/maps/Outworld.map", resourcesPath), "Outworld.map");
     loadMapTextures();
     generateGLMapObjects();
     m_glCharacterWindow.onCloseEvent.connect(boost::bind(&GameMapMode::onCharacterWindowClose, this));
     m_glInventory.onCloseEvent.connect(boost::bind(&GameMapMode::onInventoryWindowClose, this));
 }
 
-bool GameMapMode::initShaders(const std::string &resourcesPath)
-{
+bool GameMapMode::initShaders(const std::string &resourcesPath) {
     m_shaderProgram = std::make_shared<GLShaderProgram>(fmt::format("{0}/shaders/window_330_vs.glsl", resourcesPath),
             fmt::format("{0}/shaders/window_330_fs.glsl", resourcesPath));
     if (!m_shaderProgram->compileShaders()) {
@@ -63,25 +79,26 @@ bool GameMapMode::initShaders(const std::string &resourcesPath)
         m_lastError = m_shaderProgram->getLastError();
         return false;
     }
+    m_glBattleWindow.initShader(m_shaderProgram);
+    if (!m_glBattleWindow.initBattleShaders(resourcesPath)) {
+        m_lastError = m_glBattleWindow.getLastError();
+        return false;
+    }
     m_glCharacterWindow.initShader(m_shaderProgram);
     m_glInventory.initShader(m_shaderProgram);
     return true;
 }
 
-const std::string& GameMapMode::getLastError() const
-{
+const std::string& GameMapMode::getLastError() const {
     return m_lastError;
 }
 
-void GameMapMode::processEvents(SDL_Event &e)
-{
-    if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_i) {
+void GameMapMode::processEvents(SDL_Event &e) {
+    if (e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_i) {
         toggleInventoryWindow();
-    }
-    else if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_c) {
+    } else if (e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_c) {
         toggleCharacterWindow();
-    }
-    else if(e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_ESCAPE) {
+    } else if (e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_ESCAPE) {
         if (m_inputMode == GameMapInputMode::Map) {
             showMainMenu();
             m_inputDevicesState->reset();
@@ -89,39 +106,34 @@ void GameMapMode::processEvents(SDL_Event &e)
     }
 }
 
-void GameMapMode::update()
-{
+void GameMapMode::update() {
     switch (m_inputMode) {
         case GameMapInputMode::Map:
-            if(m_inputDevicesState->isADirectionKeyPressed()) {
+            if (m_inputDevicesState->isADirectionKeyPressed()) {
                 if (!m_glPlayer->isInMovement()) {
                     if (m_inputDevicesState->getUpPressed()) {
                         moveUpPressed();
-                    }
-                    else if (m_inputDevicesState->getDownPressed()) {
+                    } else if (m_inputDevicesState->getDownPressed()) {
                         moveDownPressed();
-                    }
-                    else if (m_inputDevicesState->getLeftPressed()) {
+                    } else if (m_inputDevicesState->getLeftPressed()) {
                         moveLeftPressed();
-                    }
-                    else if (m_inputDevicesState->getRightPressed()) {
+                    } else if (m_inputDevicesState->getRightPressed()) {
                         moveRightPressed();
                     }
                 }
             }
-            if(m_inputDevicesState->getButtonAState() == InputElementState::Released) {
+            if (m_inputDevicesState->getButtonAState() == InputElementState::Released) {
                 actionButtonPressed();
             }
-            if(m_inputDevicesState->isADirectionKeyPressed()) {
+            if (m_inputDevicesState->isADirectionKeyPressed()) {
                 if (m_inputDevicesState->getButtonBState() == InputElementState::Pressed ||
                         m_inputDevicesState->getKeyShiftState() == InputElementState::Pressed) {
                     m_glPlayer->enableRunMode();
-                }
-                else {
+                } else {
                     m_glPlayer->disableRunMode();
                 }
             }
-            if(m_inputDevicesState->getButtonCState() == InputElementState::Released) {
+            if (m_inputDevicesState->getButtonCState() == InputElementState::Released) {
                 showMainMenu();
             }
             break;
@@ -134,59 +146,56 @@ void GameMapMode::update()
         case GameMapInputMode::CharacterWindow:
             m_glCharacterWindow.update();
             break;
+        case GameMapInputMode::Battle:
+            m_glBattleWindow.update();
+            break;
     }
+    calculateTilesToDisplay();
 }
 
-void GameMapMode::gameWindowSizeChanged(const Size<> &size)
-{
+void GameMapMode::gameWindowSizeChanged(const Size<> &size) {
     m_screenSize = size;
     m_glFormService->gameWindowSizeChanged(size);
     unloadGLMapObjects();
     generateGLMapObjects();
     m_glInventory.gameWindowSizeChanged(size);
+    m_glBattleWindow.gameWindowSizeChanged(size);
     m_glCharacterWindow.gameWindowSizeChanged(size);
     m_choicePopup.gameWindowLocationChanged({static_cast<float>(size.width()) / 2.0F,
             static_cast<float>(size.height()) / 2.0F});
 }
 
-void GameMapMode::gameWindowTileSizeChanged(const TileSize &tileSize)
-{
+void GameMapMode::gameWindowTileSizeChanged(const TileSize &tileSize) {
     m_tileSize = tileSize;
 }
 
-void GameMapMode::showMainMenu()
-{
+void GameMapMode::showMainMenu() {
     m_inputMode = GameMapInputMode::MainMenuPopup;
     m_choicePopup.preparePopup({"Inventory", "Character", "Back"});
     m_choicePopup.generateGLElements();
 }
 
-void GameMapMode::toggleInventoryWindow()
-{
+void GameMapMode::toggleInventoryWindow() {
     if (m_inputMode == GameMapInputMode::Map || m_inputMode == GameMapInputMode::MainMenuPopup) {
         m_inputMode = GameMapInputMode::InventoryWindow;
         m_glInventory.generateGLInventory();
-    }
-    else if (m_inputMode == GameMapInputMode::InventoryWindow) {
+    } else if (m_inputMode == GameMapInputMode::InventoryWindow) {
         m_inputMode = GameMapInputMode::Map;
         onInventoryWindowClose();
     }
 }
 
-void GameMapMode::toggleCharacterWindow()
-{
+void GameMapMode::toggleCharacterWindow() {
     if (m_inputMode == GameMapInputMode::Map || m_inputMode == GameMapInputMode::MainMenuPopup) {
         m_inputMode = GameMapInputMode::CharacterWindow;
         m_glCharacterWindow.generateGLElements();
-    }
-    else if (m_inputMode == GameMapInputMode::CharacterWindow) {
+    } else if (m_inputMode == GameMapInputMode::CharacterWindow) {
         m_inputMode = GameMapInputMode::Map;
         onCharacterWindowClose();
     }
 }
 
-void GameMapMode::render()
-{
+void GameMapMode::render() {
     m_tileService->useShader();
     m_tileService->setShaderTranslation(m_map->getWidth(), m_map->getHeight(),
             m_screenSize.width(), m_screenSize.height(),
@@ -196,7 +205,12 @@ void GameMapMode::render()
     glEnable(GL_TEXTURE_2D);
 
     std::vector<GLTile *> tilesToBeDrawedAfterPlayer;
-    for(auto &item : m_glTiles) {
+    for (auto &item : m_glTiles) {
+        // Display only the tiles that are visible on the screen
+        if (item.x < m_tileCoordToDisplay[0] || item.x > m_tileCoordToDisplay[1]
+            || item.y < m_tileCoordToDisplay[2] || item.y > m_tileCoordToDisplay[3]) {
+            continue;
+        }
         glBindVertexArray(item.glObject.vao);
         glBindBuffer(GL_ARRAY_BUFFER, item.glObject.vboPosition);
         glEnableVertexAttribArray(0);
@@ -210,31 +224,30 @@ void GameMapMode::render()
         }
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
         glBindTexture(GL_TEXTURE_2D, 0);
-        //Object
+        // Object
         if (item.tile.hasTexture() && item.tile.hasObjectTexture()) {
             if (!item.tile.getObjectAbovePlayer()) {
                 drawObjectTile(item);
-            }
-            else {
-                //Add the tile to a list that will be drawed after the player
+            } else {
+                // Add the tile to a list that will be drawed after the player
                 tilesToBeDrawedAfterPlayer.push_back(&item);
             }
         }
     }
-    //Render the player
+    // Render the player
     m_glPlayer->draw();
-    //Draw all the object that appears above the player
+    // Draw all the object that appears above the player
     for (auto item : tilesToBeDrawedAfterPlayer) {
         drawObjectTile(*item);
     }
-    //Display messages
+    // Display messages
     auto currentMessage = m_controller.getCurrentMessage();
     if (currentMessage) {
         if (!currentMessage->isDisplayed) {
             m_textBox->generateMessage(currentMessage);
             m_controller.displayCurrentMessage();
         }
-        //Display the message
+        // Display the message
         m_textBox->draw();
         if (currentMessage->isExpired) {
             m_controller.deleteCurrentMessage();
@@ -249,6 +262,9 @@ void GameMapMode::render()
     if (m_inputMode == GameMapInputMode::CharacterWindow) {
         m_glCharacterWindow.render();
     }
+    if (m_inputMode == GameMapInputMode::Battle) {
+        m_glBattleWindow.render();
+    }
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
     glUseProgram(0);
@@ -258,8 +274,7 @@ void GameMapMode::render()
     glDisableVertexAttribArray(2);
 }
 
-void GameMapMode::drawObjectTile(GLTile &tile)
-{
+void GameMapMode::drawObjectTile(GLTile &tile) {
     glBindTexture(GL_TEXTURE_2D, m_texturesGLMap[tile.tile.getObjectTextureName()]);
     glBindVertexArray(tile.vaoObject);
     glBindBuffer(GL_ARRAY_BUFFER, tile.glObject.vboPosition);
@@ -277,13 +292,11 @@ void GameMapMode::drawObjectTile(GLTile &tile)
     glDisableVertexAttribArray(2);
 }
 
-void GameMapMode::actionButtonPressed()
-{
+void GameMapMode::actionButtonPressed() {
     if (m_controller.isMessageDisplayed()) {
         m_controller.acknowledgeMessage();
-    }
-    else {
-        //Check if you are facing a tile with a ActionButton trigger configured.
+    } else {
+        // Check if you are facing a tile with a ActionButton trigger configured.
         if (m_glPlayer->isFacing(PlayerFacing::Up)) {
             Point<> tilePositionToProcess = m_glPlayer->getGridPosition();
             tilePositionToProcess.setY(tilePositionToProcess.y() - 1);
@@ -296,107 +309,100 @@ void GameMapMode::actionButtonPressed()
     }
 }
 
-void GameMapMode::moveUpPressed()
-{
-    //Check if there is an action
+void GameMapMode::moveUpPressed() {
+    // Check if there is an action
     const auto playerCoord = m_glPlayer->getGridPosition();
     const auto tile = m_map->getTileFromCoord(playerCoord);
     auto moveUpTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveUpPressed);
     if (moveUpTrigger.has_value()) {
         processAction(moveUpTrigger->getAction(), moveUpTrigger->getActionProperties());
-    }
-    else if (m_map->canSteppedOnTile(Point(playerCoord.x(), playerCoord.y() - 1))) {
+    } else if (m_map->canSteppedOnTile(Point<int>(playerCoord.x(), playerCoord.y() - 1))) {
         m_glPlayer->moveUp();
     }
     m_glPlayer->faceUp();
     m_glPlayer->applyCurrentGLTexture(m_textureService);
 }
 
-void GameMapMode::moveDownPressed()
-{
-    //Check if there is an action
+void GameMapMode::moveDownPressed() {
+    // Check if there is an action
     const auto playerCoord = m_glPlayer->getGridPosition();
     const auto tile = m_map->getTileFromCoord(playerCoord);
     auto moveDownTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveDownPressed);
     if (moveDownTrigger.has_value()) {
         processAction(moveDownTrigger->getAction(), moveDownTrigger->getActionProperties());
-    }
-    else if (m_map->canSteppedOnTile(Point(playerCoord.x(), playerCoord.y() + 1))) {
+    } else if (m_map->canSteppedOnTile(Point<int>(playerCoord.x(), playerCoord.y() + 1))) {
         m_glPlayer->moveDown(tile.getIsWallToClimb());
     }
     if (tile.getIsWallToClimb()) {
         m_glPlayer->faceUp();
-    }
-    else {
+    } else {
         m_glPlayer->faceDown();
     }
     m_glPlayer->applyCurrentGLTexture(m_textureService);
 }
 
-void GameMapMode::moveLeftPressed()
-{
-    //Check if there is an action
+void GameMapMode::moveLeftPressed() {
+    // Check if there is an action
     const auto playerCoord = m_glPlayer->getGridPosition();
     const auto tile = m_map->getTileFromCoord(playerCoord);
     auto moveLeftTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveLeftPressed);
     if (moveLeftTrigger.has_value()) {
         processAction(moveLeftTrigger->getAction(), moveLeftTrigger->getActionProperties());
-    }
-    else if (m_map->canSteppedOnTile(Point(playerCoord.x() - 1, playerCoord.y()))) {
+    } else if (m_map->canSteppedOnTile(Point<int>(playerCoord.x() - 1, playerCoord.y()))) {
         m_glPlayer->moveLeft();
     }
     if (tile.getIsWallToClimb()) {
         m_glPlayer->faceUp();
-    }
-    else {
+    } else {
         m_glPlayer->faceLeft();
     }
     m_glPlayer->applyCurrentGLTexture(m_textureService);
 }
 
-void GameMapMode::moveRightPressed()
-{
-    //Check if there is an action
+void GameMapMode::moveRightPressed() {
+    // Check if there is an action
     const auto playerCoord = m_glPlayer->getGridPosition();
     const auto tile = m_map->getTileFromCoord(playerCoord);
     auto moveRightTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveRightPressed);
     if (moveRightTrigger.has_value()) {
         processAction(moveRightTrigger->getAction(), moveRightTrigger->getActionProperties());
-    }
-    else if (m_map->canSteppedOnTile(Point(playerCoord.x() + 1, playerCoord.y()))) {
+    } else if (m_map->canSteppedOnTile(Point<int>(playerCoord.x() + 1, playerCoord.y()))) {
         m_glPlayer->moveRight();
     }
     if (tile.getIsWallToClimb()) {
         m_glPlayer->faceUp();
-    }
-    else {
+    } else {
         m_glPlayer->faceRight();
     }
     m_glPlayer->applyCurrentGLTexture(m_textureService);
 }
 
-void GameMapMode::processAction(MapTileTriggerAction action, const std::map<std::string, std::string> &properties, MapTile *tile, Point<> tilePosition)
-{
-    switch (action)
-    {
+void GameMapMode::processAction(MapTileTriggerAction action, const std::map<std::string, std::string> &properties, MapTile *tile, Point<> tilePosition) {
+    switch (action) {
         case MapTileTriggerAction::ChangeMap:
-            if (properties.at("playerFacing") == "1") {
+            if (properties.at("playerFacing") == "0") {
+                m_glPlayer->faceUp();
+            } else if (properties.at("playerFacing") == "1") {
                 m_glPlayer->faceDown();
+            } else if (properties.at("playerFacing") == "2") {
+                m_glPlayer->faceLeft();
+            } else if (properties.at("playerFacing") == "3") {
+                m_glPlayer->faceRight();
             }
             m_glPlayer->setGridPosition(Point<>(stoi(properties.at("playerX")), stoi(properties.at("playerY"))));
             changeMap(fmt::format("{0}/maps/{1}", m_resourcesPath, properties.at("mapFileName")), properties.at("mapFileName"));
             break;
         case MapTileTriggerAction::OpenChest:
             {
-                //Check if the item has already been taken
+                // Check if the item has already been taken
                 auto tileIndex = m_map->getTileIndexFromCoord(tilePosition);
                 if (!m_controller.isTileActionAlreadyProcessed(m_currentMapName, tileIndex)) {
                     if (properties.find("itemIdInside") != properties.end()) {
                         auto itemIdInside = properties.find("itemIdInside")->second;
-                        //Find the item in the item store
+                        // Find the item in the item store
                         const auto item = m_controller.findItem(itemIdInside);
                         m_controller.addItemToInventory(dynamic_cast<Player *>(m_glPlayer.get()), itemIdInside);
-                        //Display the item on the screen
+                        // Display the item on the screen
                         auto msg = std::make_unique<ItemFoundMessageDTO>();
                         msg->message = fmt::format("You found a {0}!", item.name);
                         msg->maxDurationInMilliseconds = 2000;
@@ -408,7 +414,7 @@ void GameMapMode::processAction(MapTileTriggerAction action, const std::map<std:
                 }
                 if (tile != nullptr) {
                     tile->setObjectTextureIndex(stoi(properties.at("objectTextureIndexOpenedChest")));
-                    //Update the GLTile
+                    // Update the GLTile
                     auto iter = find_if(m_glTiles.begin(), m_glTiles.end(), [&tilePosition](GLTile &glTile) {
                             return glTile.x == tilePosition.x() && glTile.y == tilePosition.y();
                             });
@@ -416,7 +422,7 @@ void GameMapMode::processAction(MapTileTriggerAction action, const std::map<std:
                         GLTile &glTileToUpdate = *iter;
                         glTileToUpdate.tile = *tile;
                         GLfloat tileCoord[4][2];
-                        calculateGLTileCoord(Point(glTileToUpdate.x, glTileToUpdate.y), tileCoord);
+                        calculateGLTileCoord(Point<int>(glTileToUpdate.x, glTileToUpdate.y), tileCoord);
                         auto newChestTexture = m_map->getTextureByName(tile->getObjectTextureName());
                         GenerateGLObjectInfo infoGenObject {
                             &glTileToUpdate.glObject,
@@ -435,8 +441,86 @@ void GameMapMode::processAction(MapTileTriggerAction action, const std::map<std:
     }
 }
 
-void GameMapMode::loadMap(const std::string &filePath, const std::string &mapName)
-{
+void GameMapMode::checkForMonsterEncounter(const MapTile &tile) {
+    auto zones = m_map->getMonsterZones();
+    if (tile.getMonsterZoneIndex() == -1 ||
+        tile.getMonsterZoneIndex() >= static_cast<int>(zones.size())) {
+        return;
+    }
+    // Check if we encounter a monster
+    const MonsterZone zone = m_map->getMonsterZones().at(static_cast<size_t>(tile.getMonsterZoneIndex()));
+    std::uniform_int_distribution<> distributionEncounter(static_cast<int>(zone.getRatioEncounter()),
+                                         static_cast<int>(zone.getRatioEncounterOn()));
+    bool encounterAMonster = distributionEncounter(RandomGenerator::instance()) == 1;
+    if (!encounterAMonster) {
+        return;
+    }
+    // Check if we get a Rare, lessThanNormal or Normal monster
+    std::uniform_int_distribution<> distributionMonsterType(1, 50);
+    int monsterTypeResult = distributionMonsterType(RandomGenerator::instance());
+    MonsterEncounterRatio typeOfMonsterEncountered = [&monsterTypeResult]() -> MonsterEncounterRatio {
+        if (monsterTypeResult >= 1 && monsterTypeResult <= 37) {
+            return MonsterEncounterRatio::Normal;
+        } else if (monsterTypeResult >= 38 && monsterTypeResult <= 49) {
+            return MonsterEncounterRatio::LessThanNormal;
+        }
+        return MonsterEncounterRatio::Rare;
+    }();
+    // Get a list of available Monsters by type
+    const auto monsterEncounterList = zone.getMonsterEncounters();
+    const auto monsterIdEncounter = selectMonsterEncounter(zone.getMonsterEncounters(), typeOfMonsterEncountered);
+    m_inputMode = GameMapInputMode::Battle;
+    m_glBattleWindow.prepareWindow(monsterIdEncounter);
+     //std::cout << "MonsterZone: " << tile.getMonsterZoneIndex() <<
+        //" Name: " << zone.getName() <<
+        //" Encounter: " << (encounterAMonster ? "Yes" : "No") <<
+        //" TypeOfEncounter: " << typeOfMonsterEncountered <<
+        //" MonsterId: " << monsterIdEncounter <<
+        //std::endl;
+}
+
+std::string GameMapMode::selectMonsterEncounter(const std::vector<MonsterZoneMonsterEncounter> &encounters,
+                                                MonsterEncounterRatio ratio) {
+    std::vector<MonsterZoneMonsterEncounter> rareMonsters;
+    std::vector<MonsterZoneMonsterEncounter> lessThanNormalMonsters;
+    std::vector<MonsterZoneMonsterEncounter> normalMonsters;
+    std::copy_if(encounters.begin(),
+                 encounters.end(),
+                 std::back_inserter(rareMonsters),
+                 [](MonsterZoneMonsterEncounter encounter) {
+                    return encounter.getEncounterRatio() == MonsterEncounterRatio::Rare;
+                 });
+    std::copy_if(encounters.begin(),
+                 encounters.end(),
+                 std::back_inserter(lessThanNormalMonsters),
+                 [](MonsterZoneMonsterEncounter encounter) {
+                    return encounter.getEncounterRatio() == MonsterEncounterRatio::LessThanNormal;
+                 });
+    std::copy_if(encounters.begin(),
+                 encounters.end(),
+                 std::back_inserter(normalMonsters),
+                 [](MonsterZoneMonsterEncounter encounter) {
+                    return encounter.getEncounterRatio() == MonsterEncounterRatio::Normal;
+                 });
+    const auto &monsterListToUse = [rareMonsters, lessThanNormalMonsters, normalMonsters, ratio]() {
+        if (ratio == MonsterEncounterRatio::Rare && rareMonsters.size() > 0) {
+            return rareMonsters;
+        }
+        if ((ratio == MonsterEncounterRatio::Rare || ratio == MonsterEncounterRatio::LessThanNormal) && lessThanNormalMonsters.size() > 0) {
+            return lessThanNormalMonsters;
+        }
+        return normalMonsters;
+    }();
+    if (monsterListToUse.size() == 1) {
+        return monsterListToUse.at(0).getMonsterId();
+    } else {
+        std::uniform_int_distribution<> distributionMonsterSelection(1, static_cast<int>(monsterListToUse.size()));
+        size_t monsterRandomIndex = static_cast<size_t>(distributionMonsterSelection(RandomGenerator::instance()));
+        return monsterListToUse.at(monsterRandomIndex - 1).getMonsterId();
+    }
+}
+
+void GameMapMode::loadMap(const std::string &filePath, const std::string &mapName) {
     GameMapStorage mapStorage;
     try {
         mapStorage.loadMap(filePath, m_map);
@@ -448,11 +532,9 @@ void GameMapMode::loadMap(const std::string &filePath, const std::string &mapNam
     catch(std::runtime_error &err) {
         std::cerr << err.what() << '\n';
     }
-
 }
 
-void GameMapMode::changeMap(const std::string &filePath, const std::string &mapName)
-{
+void GameMapMode::changeMap(const std::string &filePath, const std::string &mapName) {
     m_glPlayer->unloadGLPlayerObject();
     unloadGLMapObjects();
     loadMap(filePath, mapName);
@@ -462,8 +544,7 @@ void GameMapMode::changeMap(const std::string &filePath, const std::string &mapN
     m_glPlayer->setGLObjectPosition();
 }
 
-void GameMapMode::calculateGLTileCoord(const Point<> &tilePosition, GLfloat tileCoord[4][2])
-{
+void GameMapMode::calculateGLTileCoord(const Point<> &tilePosition, GLfloat tileCoord[4][2]) {
     auto tileWidth = m_tileSize.tileWidth;
     auto tileHalfWidth = m_tileSize.tileHalfWidth;
     auto tileHalfHeight = m_tileSize.tileHalfHeight;
@@ -482,9 +563,48 @@ void GameMapMode::calculateGLTileCoord(const Point<> &tilePosition, GLfloat tile
     tileCoord[3][1] = { -tileHalfHeight + startPosY - ((tileHalfHeight * 2) * yConverted) };    /* Bottom Left point */
 }
 
-void GameMapMode::unloadGLMapObjects()
-{
-    for(auto &item : m_glTiles) {
+void GameMapMode::calculateTilesToDisplay() {
+    float screenWidth = static_cast<float>(m_screenSize.width());
+    float screenHeight = static_cast<float>(m_screenSize.height());
+    float screenCenterX = screenWidth / 2.0F;
+    float screenCenterY = screenHeight / 2.0F;
+    float tileWidthInPx = screenWidth * (m_tileSize.tileHalfWidth * 2.0F) / 2.0F;
+    float tileHeightInPx = screenHeight * (m_tileSize.tileHalfHeight * 2.0F) / 2.0F;
+    auto playerPosition = m_glPlayer->getGLObjectPositionWithMovement();
+    m_tileCoordToDisplay.at(0) = static_cast<int>(floor(playerPosition.x() - (screenCenterX / tileWidthInPx)));
+    m_tileCoordToDisplay.at(1) = static_cast<int>(ceil(playerPosition.x() - 1 + (screenCenterX / tileWidthInPx)));
+    // If you reach the left of the map, add the tiles to display to the right
+    if (m_tileCoordToDisplay.at(0) < 0) {
+        m_tileCoordToDisplay.at(1) += m_tileCoordToDisplay.at(0) * -1;
+    }
+    // If you reach the right of the map, add the tiles to display to the left
+    if (m_tileCoordToDisplay.at(1) > static_cast<int>(m_map->getWidth()) - 1) {
+        m_tileCoordToDisplay.at(0) -= m_tileCoordToDisplay.at(1) - static_cast<int>(m_map->getWidth());
+        m_tileCoordToDisplay.at(1) = static_cast<int>(m_map->getWidth()) - 1;
+    }
+    // Set map boundary if necessary
+    if (m_tileCoordToDisplay.at(0) < 0) {
+        m_tileCoordToDisplay.at(0) = 0;
+    }
+    m_tileCoordToDisplay.at(2) = static_cast<int>(floor(playerPosition.y() - (screenCenterY / tileHeightInPx)));
+    m_tileCoordToDisplay.at(3) = static_cast<int>(ceil(playerPosition.y() - 1 + (screenCenterY / tileHeightInPx)));
+    // If you reach the top of the map, add the tiles to display to the bottom
+    if (m_tileCoordToDisplay.at(2) < 0) {
+        m_tileCoordToDisplay.at(3) += m_tileCoordToDisplay.at(2) * -1;
+    }
+    // If you reach the bottom of the map, add the tiles to display to the top
+    if (m_tileCoordToDisplay.at(3) > static_cast<int>(m_map->getHeight()) - 1) {
+        m_tileCoordToDisplay.at(2) -= m_tileCoordToDisplay.at(3) - static_cast<int>(m_map->getHeight());
+        m_tileCoordToDisplay.at(3) = static_cast<int>(m_map->getHeight()) - 1;
+    }
+    // Set map boundary if necessary
+    if (m_tileCoordToDisplay.at(2) < 0) {
+        m_tileCoordToDisplay.at(2) = 0;
+    }
+}
+
+void GameMapMode::unloadGLMapObjects() {
+    for (auto &item : m_glTiles) {
         glDeleteBuffers(1, &item.glObject.vboPosition);
         glDeleteBuffers(1, &item.glObject.vboColor);
         glDeleteBuffers(1, &item.glObject.vboTexture);
@@ -497,32 +617,30 @@ void GameMapMode::unloadGLMapObjects()
     m_glTiles.clear();
 }
 
-void GameMapMode::loadMapTextures()
-{
-    //Clear existing textures in graphics memory
-    for(auto &glTexture : m_texturesGLMap) {
+void GameMapMode::loadMapTextures() {
+    // Clear existing textures in graphics memory
+    for (auto &glTexture : m_texturesGLMap) {
         m_textureService.unloadTexture(glTexture.second);
     }
     m_texturesGLMap.clear();
-    //Load texture in graphics memory
-    for(const auto &texture : m_map->getTextures()) {
+    // Load texture in graphics memory
+    for (const auto &texture : m_map->getTextures()) {
         const auto &textureName { texture.getName() };
         m_textureService.loadTexture(texture, m_texturesGLMap[textureName]);
     }
 }
 
-void GameMapMode::generateGLMapObjects()
-{
+void GameMapMode::generateGLMapObjects() {
     int indexRow {0};
-    for(const auto &row : m_map->getTiles()) {
+    for (const auto &row : m_map->getTiles()) {
         int indexCol {0};
-        for(const auto &tile : row) {
+        for (const auto &tile : row) {
             GLTile glTile;
             glTile.x = indexCol;
             glTile.y = indexRow;
             glTile.tile = tile;
             GLfloat tileCoord[4][2];
-            calculateGLTileCoord(Point(indexCol, indexRow), tileCoord);
+            calculateGLTileCoord(Point<int>(indexCol, indexRow), tileCoord);
             auto tileTexture = m_map->getTextureByName(tile.getTextureName());
             GenerateGLObjectInfo infoGenTexture {
                 &glTile.glObject,
@@ -547,23 +665,18 @@ void GameMapMode::generateGLMapObjects()
     }
 }
 
-void GameMapMode::onCharacterWindowClose()
-{
+void GameMapMode::onCharacterWindowClose() {
     m_isCharacterWindowDisplayed = false;
     m_inputMode = GameMapInputMode::Map;
-
 }
 
-void GameMapMode::onInventoryWindowClose()
-{
+void GameMapMode::onInventoryWindowClose() {
     m_isInventoryDisplayed = false;
     m_inputMode = GameMapInputMode::Map;
 }
 
-void GameMapMode::mainMenuPopupClicked(size_t choice)
-{
-    switch (choice)
-    {
+void GameMapMode::mainMenuPopupClicked(size_t choice) {
+    switch (choice) {
         case 0:
             toggleInventoryWindow();
             break;
@@ -578,9 +691,23 @@ void GameMapMode::mainMenuPopupClicked(size_t choice)
     }
 }
 
-void GameMapMode::mainMenuPopupCanceled()
-{
+void GameMapMode::mainMenuPopupCanceled() {
     m_inputMode = GameMapInputMode::Map;
 }
 
-} // namespace thewarrior::ui
+void GameMapMode::onPlayerMoveCompleted() {
+    const auto &tile = m_map->getTileFromCoord(m_glPlayer->getGridPosition());
+    //TODO: Check for the SteppedOn event
+    auto steppedOnTrigger = tile.findConstTrigger(MapTileTriggerEvent::SteppedOn);
+    if (steppedOnTrigger.has_value()) {
+        processAction(steppedOnTrigger->getAction(), steppedOnTrigger->getActionProperties());
+    } else {
+        checkForMonsterEncounter(tile);
+    }
+}
+
+void GameMapMode::onBattleCompleted() {
+    m_inputMode = GameMapInputMode::Map;
+}
+
+}  // namespace thewarrior::ui

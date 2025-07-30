@@ -49,6 +49,15 @@ TEST_F(EditMonsterZoneFormControllerWith2StoresSample, isMonsterZoneNameAlreadyU
     ASSERT_FALSE(controller->isMonsterZoneNameAlreadyUsed("Zone2"));
 }
 
+TEST_F(EditMonsterZoneFormControllerWith2StoresSample, isAtLeastAMonsterEncounterWithNormalRatio_WithOneNormal_ReturnTrue) {
+    ASSERT_TRUE(controller->isAtLeastAMonsterEncounterWithNormalRatio());
+}
+
+TEST_F(EditMonsterZoneFormControllerWith2StoresSample, isAtLeastAMonsterEncounterWithNormalRatio_WithOneLessThanNormal_ReturnFalse) {
+    controller->removeMonsterEncounter("DRA001");
+    ASSERT_FALSE(controller->isAtLeastAMonsterEncounterWithNormalRatio());
+}
+
 TEST_F(EditMonsterZoneFormControllerWith2StoresSample, addMonsterEncounter_WithTES001_ReturnTrue) {
     const MonsterEncounterDTO expected {
         .monsterId = "TES001",

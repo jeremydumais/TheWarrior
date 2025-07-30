@@ -1,12 +1,15 @@
+#include <fmt/format.h>
+#include <qdialog.h>
+#include <qtimer.h>
+#include <qwidget.h>
+#include <memory>
+#include <string>
+#include <utility>
 #include "editMonsterForm.hpp"
 #include "errorMessage.hpp"
 #include "texturePickerForm.hpp"
 #include "textureUtils.hpp"
 #include <boost/algorithm/string.hpp>
-#include <fmt/format.h>
-#include <qdialog.h>
-#include <qtimer.h>
-#include <qwidget.h>
 
 using namespace commoneditor::ui;
 using namespace monstereditor::controllers;
@@ -30,8 +33,7 @@ EditMonsterForm::EditMonsterForm(QWidget *parent,
     ui(Ui::editMonsterFormClass()),
     m_controller(monsterStore),
     m_resourcesPath(resourcesPath),
-    m_monsterIdToEdit(monsterIdToEdit)
-{
+    m_monsterIdToEdit(monsterIdToEdit) {
     ui.setupUi(this);
     setWindowIcon(QIcon(":/MonsterEditor Icon.png"));
     window()->layout()->setSizeConstraint(QLayout::SetFixedSize);
@@ -45,60 +47,61 @@ EditMonsterForm::EditMonsterForm(QWidget *parent,
     }
 }
 
-void EditMonsterForm::connectUIActions()
-{
+void EditMonsterForm::connectUIActions() {
     connect(ui.pushButtonCancel, &QPushButton::clicked, this, &EditMonsterForm::onPushButtonCancelClick);
     connect(ui.pushButtonOK, &QPushButton::clicked, this, &EditMonsterForm::onPushButtonOKClick);
     connect(ui.pushButtonTexturePicker, &QPushButton::clicked, this, &EditMonsterForm::onPushButtonTexturePickerClick);
 }
 
-bool EditMonsterForm::loadExistingMonsterToForm()
-{
+bool EditMonsterForm::loadExistingMonsterToForm() {
     auto existingMonster = m_controller.getMonster(*m_monsterIdToEdit);
     if (existingMonster != nullptr) {
         ui.lineEditId->setText(existingMonster->id.c_str());
         ui.lineEditName->setText(existingMonster->name.c_str());
         ui.lineEditTextureName->setText(existingMonster->textureName.c_str());
         ui.spinBoxTextureIndex->setValue(existingMonster->textureIndex);
-        ui.spinBoxHealth->setValue(existingMonster->health);
+        ui.spinBoxHealthMin->setValue(existingMonster->healthRange.first);
+        ui.spinBoxHealthMax->setValue(existingMonster->healthRange.second);
         ui.doubleSpinBoxAttack->setValue(static_cast<double>(existingMonster->attack));
         ui.doubleSpinBoxDefense->setValue(static_cast<double>(existingMonster->defense));
-        ui.spinBoxGoldMin->setValue(existingMonster->goldMinimum);
-        ui.spinBoxGoldMax->setValue(existingMonster->goldMaximum);
+        ui.spinBoxGoldMin->setValue(existingMonster->gold.first);
+        ui.spinBoxGoldMax->setValue(existingMonster->gold.second);
+        ui.spinBoxExperienceMin->setValue(existingMonster->experience.first);
+        ui.spinBoxExperienceMax->setValue(existingMonster->experience.second);
         refreshSelectedTexture();
-    }
-    else {
+    } else {
         ErrorMessage::show("Unable to load the selected monster");
         return false;
     }
     return true;
 }
 
-void EditMonsterForm::onPushButtonCancelClick()
-{
+void EditMonsterForm::onPushButtonCancelClick() {
     reject();
 }
 
-void EditMonsterForm::onPushButtonOKClick()
-{
+void EditMonsterForm::onPushButtonOKClick() {
     auto monsterInfo = std::make_unique<MonsterDTO>();
     monsterInfo->id = ui.lineEditId->text().toStdString();
     monsterInfo->name = ui.lineEditName->text().toStdString();
     monsterInfo->textureName = ui.lineEditTextureName->text().toStdString();
     monsterInfo->textureIndex = ui.spinBoxTextureIndex->value();
-    monsterInfo->health = ui.spinBoxHealth->value();
+    monsterInfo->healthRange.first = ui.spinBoxHealthMin->value();
+    monsterInfo->healthRange.second = ui.spinBoxHealthMax->value();
+    monsterInfo->maxHealth = ui.spinBoxHealthMax->value();
     monsterInfo->attack = static_cast<float>(ui.doubleSpinBoxAttack->value());
     monsterInfo->defense = static_cast<float>(ui.doubleSpinBoxDefense->value());
-    monsterInfo->goldMinimum = ui.spinBoxGoldMin->value();
-    monsterInfo->goldMaximum = ui.spinBoxGoldMax->value();
+    monsterInfo->gold.first = ui.spinBoxGoldMin->value();
+    monsterInfo->gold.second = ui.spinBoxGoldMax->value();
+    monsterInfo->experience.first = ui.spinBoxExperienceMin->value();
+    monsterInfo->experience.second = ui.spinBoxExperienceMax->value();
 
     if (!m_monsterIdToEdit.has_value()) {
         if (!m_controller.addMonster(std::move(monsterInfo))) {
             ErrorMessage::show(m_controller.getLastError());
             return;
         }
-    }
-    else {
+    } else {
         if (!m_controller.updateMonster(std::move(monsterInfo), *m_monsterIdToEdit)) {
             ErrorMessage::show(m_controller.getLastError());
             return;
@@ -107,8 +110,7 @@ void EditMonsterForm::onPushButtonOKClick()
     accept();
 }
 
-void EditMonsterForm::onPushButtonTexturePickerClick()
-{
+void EditMonsterForm::onPushButtonTexturePickerClick() {
     auto result = showTexturePicker(this,
             m_resourcesPath,
             { ui.lineEditTextureName->text().toStdString(),
@@ -124,8 +126,7 @@ void EditMonsterForm::onPushButtonTexturePickerClick()
 std::optional<TextureSelectionInfo> showTexturePicker(QWidget *parent,
         const std::string &resourcesPath,
         const TextureSelectionInfo &info,
-        const TextureContainer &textureContainer)
-{
+        const TextureContainer &textureContainer) {
     TexturePickerForm texturePickerForm(parent,
             resourcesPath,
             textureContainer);
@@ -144,8 +145,7 @@ std::optional<TextureSelectionInfo> showTexturePicker(QWidget *parent,
     return std::nullopt;
 }
 
-void EditMonsterForm::refreshSelectedTexture()
-{
+void EditMonsterForm::refreshSelectedTexture() {
     ui.labelIcon->clear();
     if (!ui.lineEditTextureName->text().isEmpty()) {
         const auto &textureContainer = m_controller.getTextureContainer();

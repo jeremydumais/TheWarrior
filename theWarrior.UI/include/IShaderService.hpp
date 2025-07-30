@@ -1,18 +1,17 @@
 #pragma once
 
-#include "glShaderProgram.hpp"
 #include <memory>
 #include <string>
+#include "glShaderProgram.hpp"
 
 namespace thewarrior::ui {
 
-class IShaderService
-{
-public:
+class IShaderService {
+ public:
     virtual bool initShader(const std::string &vertexShaderFileName,
                             const std::string &fragmentShaderFileName) = 0;
     virtual void initShader(const std::shared_ptr<GLShaderProgram> shaderProgram) = 0;
     virtual ~IShaderService() = default;
 };
 
-} // namespace thewarrior::ui
+}  // namespace thewarrior::ui

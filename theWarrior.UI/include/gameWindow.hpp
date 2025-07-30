@@ -1,10 +1,16 @@
 #pragma once
 
+#include <GL/glew.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
+#include <map>
+#include <memory>
+#include <string>
 #include "fpsCalculator.hpp"
-#include "gameMap.hpp"
 #include "gameMapMode.hpp"
 #include "gameWindowController.hpp"
 #include "glPlayer.hpp"
+#include <glm/glm.hpp>
 #include "glTextBox.hpp"
 #include "glTextService.hpp"
 #include "glTextureService.hpp"
@@ -13,25 +19,16 @@
 #include <size.hpp>
 #include <tileSize.hpp>
 #include <boost/signals2.hpp>
-#include <GL/glew.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
-#include <glm/glm.hpp>
-#include <map>
-#include <memory>
-#include <string>
 
 namespace thewarrior::ui {
 
-enum class InteractionMode
-{
+enum class InteractionMode {
     Game,
     NewGame
 };
 
-class GameWindow
-{
-public:
+class GameWindow {
+ public:
     GameWindow(const std::string &title,
                int x, int y,
                int width, int height);
@@ -40,10 +37,10 @@ public:
     void hide();
     bool isAlive() const;
     void processEvents();
-private:
+
+ private:
     thewarrior::ui::controllers::GameWindowController m_controller;
     SDL_Window *m_window;
-    SDL_Renderer *m_renderer;
     SDL_GLContext m_gContext;
     thewarrior::models::Size<> m_WindowSize;
     TileSize m_tileSize = {1.0F, 1.0F, 1.0F};
@@ -60,10 +57,11 @@ private:
     GLTextureService m_textureService;
     std::shared_ptr<GLPlayer> m_glPlayer = std::make_shared<GLPlayer>("Ragnar");
     std::map<std::string, unsigned int> m_texturesGLItemStore;
-    //FPS variables
+    std::map<std::string, unsigned int> m_texturesGLMonsterStore;
+    // FPS variables
     thewarrior::ui::FPSCalculator m_fpsCalculator;
     bool m_toggleFPS = false;
-    //Input
+    // Input
     std::shared_ptr<InputDevicesState> m_inputDevicesState = std::make_shared<InputDevicesState>();
     bool m_blockKeyDown = false;
     SDL_Joystick *m_joystick = nullptr;
@@ -74,8 +72,8 @@ private:
     void subscribeEvents();
     void render();
     void loadItemStoreTextures();
+    void loadMonsterStoreTextures();
     void calculateTileSize();
-
 };
 
-} // namespace thewarrior::ui
+}  // namespace thewarrior::ui

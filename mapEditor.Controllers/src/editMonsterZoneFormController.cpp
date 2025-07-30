@@ -7,15 +7,12 @@
 #include <map>
 #include <memory>
 #include <optional>
-#include <stdexcept>
 #include <string>
 #include <vector>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
-#include "editMonsterEncounterFormController.hpp"
 #include "monster.hpp"
 #include "monsterEncounterDTO.hpp"
-#include "monsterStoreStorage.hpp"
 #include "monsterZoneDTOUtils.hpp"
 #include "monsterZoneMonsterEncounter.hpp"
 #include "monsterUtils.hpp"
@@ -131,6 +128,14 @@ bool EditMonsterZoneFormController::isMonsterZoneNameAlreadyUsed(const std::stri
                         [zoneName](const std::string &name) {
                             return to_upper_copy(zoneName) == to_upper_copy(name);
                         }) != m_alreadyUsedZoneNames.end();
+}
+
+bool EditMonsterZoneFormController::isAtLeastAMonsterEncounterWithNormalRatio() const {
+    return std::any_of(m_monsterEncounters.begin(),
+                       m_monsterEncounters.end(),
+                       [](const auto &encounter) {
+                            return encounter.getEncounterRatio() == MonsterEncounterRatio::Normal;
+                       });
 }
 
 bool EditMonsterZoneFormController::addMonsterEncounter(mapeditor::controllers::MonsterEncounterDTO monsterEncounter) {
