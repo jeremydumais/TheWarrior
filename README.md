@@ -20,12 +20,18 @@ Current version: 0.3.4
 #### Game character window
 ![Game Sample 1](https://raw.githubusercontent.com/jeremydumais/TheWarrior/medias/GameCharacterWindow.png)
 
+#### Battle system
+![Battle Sample 1](https://raw.githubusercontent.com/jeremydumais/TheWarrior/medias/BattleSystem.png)
+
 
 #### The MapEditor sample
 ![MapEditor Sample 1](https://raw.githubusercontent.com/jeremydumais/TheWarrior/medias/MapEditor1.png)
 
 #### The ItemEditor sample
 ![ItemEditor Sample 1](https://raw.githubusercontent.com/jeremydumais/TheWarrior/medias/ItemEditor1.png)
+
+#### The MonsterEditor sample
+![MonsterEditor Sample 1](https://raw.githubusercontent.com/jeremydumais/TheWarrior/medias/MonsterEditor1.png)
 
 ### How to build source (Linux)
 

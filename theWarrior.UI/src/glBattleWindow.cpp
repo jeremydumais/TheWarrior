@@ -96,7 +96,6 @@ void GLBattleWindow::update() {
         } else if (!m_inputDevicesState->getUpPressed()) {
             m_lastMoveUpTicks = 0;
         }
-
         auto inputDownTicks = m_inputDevicesState->getDownPressedTicks();
         if (m_inputDevicesState->getDownPressed() &&
             inputDownTicks.has_value() &&
@@ -263,6 +262,7 @@ void GLBattleWindow::prepareWindow(const std::string &id) {
     setTitle(m_monster->getName());
     addBattleLog(fmt::format("You encountered a {}!", m_monster->getName()).c_str());
     generateGLElements();
+    m_inputDevicesState->invalidateDirections();
 }
 
 void GLBattleWindow::moveUpPressed() {

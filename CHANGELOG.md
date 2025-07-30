@@ -160,12 +160,22 @@ instead of "The Warrior - Monster Editor"
 ### Game
 
 #### New features
-- Add the battle system
+- Add the battle system and monster encounter. Fight and Run action items are
+now supported.
+- Add the Damage system (Player and Monsters).
+
+#### Optimization
+- Now only the tiles visible on screen are processed and displayed with OpenGL.
 
 ### Monster Editor (Version 1.0.2)
 
 #### New features
-- Added the Experience range fields.
+- Add the Experience range fields for monster.
 
 #### Change
 - The monster health is now a range instead of single value.
+
+### Map Editor (Version 1.3.5)
+
+#### Change
+- Ensure that at least one Monster encounter has a ratio of Normal.
