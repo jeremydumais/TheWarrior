@@ -20,6 +20,7 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glInventory.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glCharacterWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glChoicePopup.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/glMenuButton.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glObjectService.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glPlayer.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glPopupWindow.cpp
@@ -29,6 +30,7 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glTextureService.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glShaderProgram.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/inputDevicesState.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/mainMenuMode.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/shakingAnimation.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/valueChangeAnimation.cpp)
 

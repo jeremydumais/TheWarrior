@@ -16,6 +16,7 @@
 #include "glTextureService.hpp"
 #include "glTileService.hpp"
 #include "inputDevicesState.hpp"
+#include "mainMenuMode.hpp"
 #include <size.hpp>
 #include <tileSize.hpp>
 #include <boost/signals2.hpp>
@@ -23,8 +24,8 @@
 namespace thewarrior::ui {
 
 enum class InteractionMode {
-    Game,
-    NewGame
+    MainMenu,
+    Game
 };
 
 class GameWindow {
@@ -48,8 +49,9 @@ class GameWindow {
     boost::signals2::signal<void(const TileSize &)> m_tileSizeChanged;
     boost::signals2::signal<void(float deltaTime)> m_windowUpdate;
     bool m_mustExit = false;
-    InteractionMode m_interactionMode = InteractionMode::Game;
+    InteractionMode m_interactionMode = InteractionMode::MainMenu;
     thewarrior::ui::GameMapMode m_gameMapMode;
+    thewarrior::ui::MainMenuMode m_mainMenuMode;
     std::string m_executablePath;
     std::shared_ptr<GLTileService> m_tileService = std::make_shared<GLTileService>();
     std::shared_ptr<GLTextBox> m_textBox = std::make_shared<GLTextBox>();

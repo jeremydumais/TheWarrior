@@ -21,7 +21,7 @@ namespace thewarrior::ui {
 class GLPopupWindow : public IShaderService {
  public:
     explicit GLPopupWindow(thewarrior::models::Size<float> size);
-    virtual ~GLPopupWindow() = default;
+    ~GLPopupWindow() override = default;
     const std::string &getLastError() const;
     const thewarrior::models::Point<float> &getWindowLocation() const;
     const thewarrior::models::Size<float> &getWindowSize() const;
@@ -36,6 +36,8 @@ class GLPopupWindow : public IShaderService {
     void generateGLElements();
     void render();
     void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
+    void setTextureBeginId(int value);
+    void setFillCenter(bool value);
     boost::signals2::signal<void()> onCloseEvent;
 
  protected:
@@ -55,6 +57,10 @@ class GLPopupWindow : public IShaderService {
     std::vector<GLObject> m_windowObjects;
     std::vector<GLObject> m_windowBackgrounds;
     std::vector<GLObject> m_windowTitleObjects;
+    int m_textureBeginId;
+    bool m_fillCenter;
+    std::vector<GLObject> m_glObjects;
+    std::vector<GLTextObject> m_glTextObjects;
     void generateQuad(std::vector<GLObject> &objects,
                       thewarrior::models::Point<float> location,
                       thewarrior::models::Size<float> size,
@@ -82,8 +88,6 @@ class GLPopupWindow : public IShaderService {
                                       float width,
                                       GLColor colorLabel = GLColor::White,
                                       GLColor colorValue = GLColor::White);
-    std::vector<GLObject> m_glObjects;
-    std::vector<GLTextObject> m_glTextObjects;
 };
 
 }  // namespace thewarrior::ui

@@ -29,7 +29,7 @@ GameWindow::GameWindow(const string &title,
             &m_texturesGLItemStore);
     m_glPlayer->initialize(m_controller.getResourcesPath());
     // HACK: to remove (Test only)
-    m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("pot001"));
+    /*m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("pot001"));
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("ubd001"));
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("hlm001"));
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("swd003"));
@@ -37,7 +37,7 @@ GameWindow::GameWindow(const string &title,
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("swd002"));
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("shd001"));
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("key001"));
-    /*m_glPlayer->getEquipment().setMainHand(*dynamic_cast<const WeaponItem*>(m_controller.getItemStore()->findItem("swd002").get()));
+    m_glPlayer->getEquipment().setMainHand(*dynamic_cast<const WeaponItem*>(m_controller.getItemStore()->findItem("swd002").get()));
       m_glPlayer->getEquipment().setSecondaryHand(VariantEquipment(*dynamic_cast<const ArmorItem*>(m_controller.getItemStore()->findItem("shd001").get())));
       m_glPlayer->getEquipment().setHead(*dynamic_cast<const ArmorItem*>(m_controller.getItemStore()->findItem("hlm001").get()));
       m_glPlayer->getEquipment().setUpperBody(*dynamic_cast<const ArmorItem*>(m_controller.getItemStore()->findItem("ubd001").get()));*/
@@ -52,11 +52,15 @@ GameWindow::GameWindow(const string &title,
             &m_texturesGLItemStore,
             &m_texturesGLMonsterStore,
             m_inputDevicesState);
+    m_mainMenuMode.initialize(m_controller.getResourcesPath(),
+            m_textService,
+            m_inputDevicesState);
     m_fpsCalculator.initialize();
     m_windowSizeChanged(m_WindowSize);
 }
 
 GameWindow::~GameWindow() {
+    m_mainMenuMode.unloadGLMapObjects();
     m_gameMapMode.unloadGLMapObjects();
     m_glPlayer->unloadGLPlayerObject();
     SDL_JoystickClose(m_joystick);
@@ -89,6 +93,9 @@ void GameWindow::processEvents() {
             continue;
         }
         switch (m_interactionMode) {
+            case InteractionMode::MainMenu:
+                m_mainMenuMode.processEvents(e);
+                break;
             case InteractionMode::Game:
                 m_gameMapMode.processEvents(e);
                 break;
@@ -116,6 +123,9 @@ void GameWindow::processEvents() {
         }
     }
     switch (m_interactionMode) {
+        case InteractionMode::MainMenu:
+            m_mainMenuMode.update();
+            break;
         case InteractionMode::Game:
             m_gameMapMode.update();
             break;
@@ -211,6 +221,10 @@ bool GameWindow::loadResourceFiles() {
         cerr << m_textService->getLastError() << "\n";
         return false;
     }
+    if (!m_mainMenuMode.initShaders(m_controller.getResourcesPath())) {
+        cerr << m_mainMenuMode.getLastError() << "\n";
+        return false;
+    }
     if (!m_gameMapMode.initShaders(m_controller.getResourcesPath())) {
         cerr << m_gameMapMode.getLastError() << "\n";
         return false;
@@ -222,6 +236,7 @@ bool GameWindow::loadResourceFiles() {
 }
 
 void GameWindow::subscribeEvents() {
+    m_windowSizeChanged.connect(boost::bind(&MainMenuMode::gameWindowSizeChanged, &m_mainMenuMode, boost::placeholders::_1));
     m_windowSizeChanged.connect(boost::bind(&GameMapMode::gameWindowSizeChanged, &m_gameMapMode, boost::placeholders::_1));
     m_windowSizeChanged.connect(boost::bind(&GLPlayer::onGameWindowSizeChanged, m_glPlayer, boost::placeholders::_1));
     m_windowSizeChanged.connect(boost::bind(&GLTextService::gameWindowSizeChanged, m_textService, boost::placeholders::_1));
@@ -233,6 +248,9 @@ void GameWindow::subscribeEvents() {
 
 void GameWindow::render() {
     switch (m_interactionMode) {
+        case InteractionMode::MainMenu:
+            m_mainMenuMode.render();
+            break;
         case InteractionMode::Game:
             m_gameMapMode.render();
             break;
