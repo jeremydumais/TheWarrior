@@ -1,5 +1,6 @@
 #pragma once
 
+#include <SDL2/SDL_mixer.h>
 #include <cstddef>
 #include <map>
 #include <memory>
@@ -21,11 +22,7 @@ class MainMenuScreen : public MenuScreenBase {
  public:
      MainMenuScreen(std::map<std::string, std::shared_ptr<thewarrior::models::Texture>> &textures,
                     std::map<std::string, unsigned int> &texturesGL);
-     void initialize(const std::string &resourcesPath,
-            std::shared_ptr<GLShaderProgram> shaderProgram,
-            std::shared_ptr<GLTextService> textService,
-            std::shared_ptr<InputDevicesState> inputDevicesState,
-            std::shared_ptr<GLTexture> windowGLTexture);
+     void initialize(const MenuScreenBaseInfo &info);
     void processEvents(SDL_Event &);
     void update();
     void render();

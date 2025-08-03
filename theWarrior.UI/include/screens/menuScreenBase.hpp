@@ -1,5 +1,6 @@
 #pragma once
 
+#include <SDL2/SDL_mixer.h>
 #include <map>
 #include <memory>
 #include <string>
@@ -14,16 +15,22 @@
 
 namespace thewarrior::ui::screens {
 
+struct MenuScreenBaseInfo {
+    const std::string &resourcesPath;
+    std::shared_ptr<GLShaderProgram> shaderProgram;
+    std::shared_ptr<GLTextService> textService;
+    std::shared_ptr<InputDevicesState> inputDevicesState;
+    std::shared_ptr<GLTexture> windowGLTexture;
+    std::shared_ptr<Mix_Chunk> menuMoveSound;
+    std::shared_ptr<Mix_Chunk> menuClickSound;
+};
+
 class MenuScreenBase {
  public:
      MenuScreenBase(std::map<std::string, std::shared_ptr<thewarrior::models::Texture>> &textures,
                     std::map<std::string, unsigned int> &texturesGL);
      virtual ~MenuScreenBase() = default;
-     void initializeBase(const std::string &resourcesPath,
-            std::shared_ptr<GLShaderProgram> shaderProgram,
-            std::shared_ptr<GLTextService> textService,
-            std::shared_ptr<InputDevicesState> inputDevicesState,
-            std::shared_ptr<GLTexture> windowGLTexture);
+     void initializeBase(const MenuScreenBaseInfo &info);
     const std::string &getLastError() const;
     void updateBase();
     void renderBase();
@@ -44,10 +51,11 @@ class MenuScreenBase {
     std::shared_ptr<GLTexture> m_windowGLTexture;
     Uint64 m_lastMoveUpTicks = 0;
     Uint64 m_lastMoveDownTicks = 0;
+    std::shared_ptr<Mix_Chunk> m_menuMoveSound;
+    std::shared_ptr<Mix_Chunk> m_menuClickSound;
     void generateGLElementsBase();
-    void moveUpPressed();
-    void moveDownPressed();
-    void actionButtonPressed();
+    void playMoveSound();
+    void playClickSound();
 };
 
 }  // namespace thewarrior::ui::screens

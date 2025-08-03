@@ -70,6 +70,7 @@ class GameWindow {
     bool initializeOpenGL(const std::string &title,
                           int x, int y,
                           int width, int height);
+    bool initializeAudio();
     bool loadResourceFiles();
     void subscribeEvents();
     void render();

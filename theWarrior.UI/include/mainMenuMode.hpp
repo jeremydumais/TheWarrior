@@ -1,5 +1,6 @@
 #pragma once
 
+#include <SDL2/SDL_mixer.h>
 #include <map>
 #include <memory>
 #include <string>
@@ -27,6 +28,7 @@ enum class MainMenuInputMode {
 class MainMenuMode {
  public:
      MainMenuMode();
+     ~MainMenuMode();
      void initialize(const std::string &resourcesPath,
             std::shared_ptr<GLTextService> textService,
             std::shared_ptr<InputDevicesState> inputDevicesState);
@@ -52,7 +54,11 @@ class MainMenuMode {
     std::map<std::string, GLObject> m_namedObjects = {};
     std::shared_ptr<GLTexture> m_windowGLTexture;
     screens::MainMenuScreen m_mainScreen;
+    Mix_Music* m_backgroundMusic;
+    std::shared_ptr<Mix_Chunk> m_menuMoveSound;
+    std::shared_ptr<Mix_Chunk> m_menuClickSound;
     void loadMenuTextures();
+    void loadMenuSounds();
     void quitPressed();
 };
 

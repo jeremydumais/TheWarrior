@@ -2,6 +2,9 @@
 set(PROJECT_NAME    "theWarrior.UI")
 
 #find_package(Freetype)
+find_package(SDL2 REQUIRED)
+find_library(SDL2_MIXER_LIBRARY SDL2_mixer REQUIRED)
+
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/include/components
@@ -49,7 +52,7 @@ target_link_libraries(${PROJECT_NAME}
                       theWarrior.Storage
                       theWarrior.Utils
                       theWarrior.UI.Controllers
-                      SDL2 GLU GL GLEW freetype bz2 png16 brotlicommon brotlidec brotlienc z)
+                      SDL2 ${SDL2_MIXER_LIBRARY} GLU GL GLEW freetype bz2 png16 brotlicommon brotlidec brotlienc z)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html

@@ -1,7 +1,8 @@
-#include "gameWindow.hpp"
+#include <SDL2/SDL_mixer.h>
 #include <fmt/format.h>
 #include <iostream>
 #include <string>
+#include "gameWindow.hpp"
 
 using namespace std;
 using namespace thewarrior::models;
@@ -13,6 +14,9 @@ GameWindow::GameWindow(const string &title,
         int width, int height)
     : m_WindowSize(width, height) {
     if (!initializeOpenGL(title, x, y, width, height)) {
+        return;
+    }
+    if (!initializeAudio()) {
         return;
     }
     if (!loadResourceFiles()) {
@@ -193,6 +197,19 @@ bool GameWindow::initializeOpenGL(const std::string &title,
     return true;
 }
 
+bool GameWindow::initializeAudio() {
+    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+        cerr << fmt::format("SDL could not initialize! SDL_Error: {0}\n", SDL_GetError());
+        return false;
+    }
+
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        cerr << fmt::format("SDL_mixer could not initialize! SDL_mixer Error: {0}\n", SDL_GetError());
+        return false;
+    }
+    return true;
+}
+
 bool GameWindow::loadResourceFiles() {
     if (!m_controller.loadItemStore(fmt::format("{0}/items/itemstore.itm", m_controller.getResourcesPath()))) {
         cerr << "Unable to load the item store : " << m_controller.getLastError() << "\n";
@@ -305,6 +322,7 @@ void GameWindow::calculateTileSize() {
 
 void GameWindow::quitRequested() {
     m_mustExit = true;
+    Mix_CloseAudio();
 }
 
 }  // namespace thewarrior::ui

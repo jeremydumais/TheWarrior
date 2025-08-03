@@ -1,3 +1,5 @@
+#include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL_timer.h>
 #include <fmt/format.h>
 #include <map>
 #include <memory>
@@ -23,20 +25,16 @@ m_menuButtonSettings(Point<float>(0.0F, 45.0F), Size<float>(250.0F, 75.0F)),
 m_menuButtonQuit(Point<float>(0.0F, 135.0F), Size<float>(250.0F, 75.0F)) {
 }
 
-void MainMenuScreen::initialize(const std::string &resourcesPath,
-            std::shared_ptr<GLShaderProgram> shaderProgram,
-            std::shared_ptr<GLTextService> textService,
-            std::shared_ptr<InputDevicesState> inputDevicesState,
-            std::shared_ptr<GLTexture> windowGLTexture) {
-    MenuScreenBase::initializeBase(resourcesPath, shaderProgram, textService, inputDevicesState, windowGLTexture);
+void MainMenuScreen::initialize(const MenuScreenBaseInfo &info) {
+    MenuScreenBase::initializeBase(info);
     m_menuWindow.initShader(m_shaderProgram);
-    m_menuWindow.initialize("", resourcesPath, textService);
+    m_menuWindow.initialize("", info.resourcesPath, info.textService);
     m_menuWindow.setTextureBeginId(29);
     m_menuWindow.setFillCenter(true);
-    m_menuButtonNewGame.initialize("New Game", m_windowGLTexture, m_shaderProgram, textService);
-    m_menuButtonLoadGame.initialize("Load Game", m_windowGLTexture, m_shaderProgram, textService);
-    m_menuButtonSettings.initialize("Settings", m_windowGLTexture, m_shaderProgram, textService);
-    m_menuButtonQuit.initialize("Quit", m_windowGLTexture, m_shaderProgram, textService);
+    m_menuButtonNewGame.initialize("New Game", m_windowGLTexture, m_shaderProgram, info.textService);
+    m_menuButtonLoadGame.initialize("Load Game", m_windowGLTexture, m_shaderProgram, info.textService);
+    m_menuButtonSettings.initialize("Settings", m_windowGLTexture, m_shaderProgram, info.textService);
+    m_menuButtonQuit.initialize("Quit", m_windowGLTexture, m_shaderProgram, info.textService);
 }
 
 void MainMenuScreen::processEvents(SDL_Event &) {
@@ -84,6 +82,7 @@ void MainMenuScreen::buttonUpPressed() {
     if (m_menuSelectedIndex > 0) {
         m_menuSelectedIndex--;
         generateGLElements();
+        playMoveSound();
     }
 }
 
@@ -91,12 +90,16 @@ void MainMenuScreen::buttonDownPressed() {
     if (m_menuSelectedIndex + 1 < 4) {
         m_menuSelectedIndex++;
         generateGLElements();
+        playMoveSound();
     }
 }
 
 void MainMenuScreen::buttonActionPressed() {
     if (m_menuSelectedIndex == 0) {
+        playClickSound();
     } else if (m_menuSelectedIndex == 3) {
+        playClickSound();
+        SDL_Delay(500);
         quitPressed();
     }
 }

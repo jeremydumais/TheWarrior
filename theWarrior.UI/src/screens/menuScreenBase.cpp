@@ -1,3 +1,4 @@
+#include <SDL2/SDL_mixer.h>
 #include <fmt/format.h>
 #include <map>
 #include <memory>
@@ -20,17 +21,15 @@ m_textures(textures),
 m_texturesGL(texturesGL) {
 }
 
-void MenuScreenBase::initializeBase(const std::string &resourcesPath,
-            std::shared_ptr<GLShaderProgram> shaderProgram,
-            std::shared_ptr<GLTextService> textService,
-            std::shared_ptr<InputDevicesState> inputDevicesState,
-            std::shared_ptr<GLTexture> windowGLTexture) {
-    m_resourcesPath = resourcesPath;
-    m_shaderProgram = shaderProgram;
-    m_glFormService->initialize(m_shaderProgram, textService);
-    m_textureService.setResourcesPath(resourcesPath);
-    m_inputDevicesState = inputDevicesState;
-    m_windowGLTexture = windowGLTexture;
+void MenuScreenBase::initializeBase(const MenuScreenBaseInfo &info) {
+    m_resourcesPath = info.resourcesPath;
+    m_shaderProgram = info.shaderProgram;
+    m_glFormService->initialize(m_shaderProgram, info.textService);
+    m_textureService.setResourcesPath(info.resourcesPath);
+    m_inputDevicesState = info.inputDevicesState;
+    m_windowGLTexture = info.windowGLTexture;
+    m_menuMoveSound = info.menuMoveSound;
+    m_menuClickSound = info.menuClickSound;
 }
 
 const std::string& MenuScreenBase::getLastError() const {
@@ -75,6 +74,14 @@ void MenuScreenBase::generateGLElementsBase() {
                                   { 0.0F, 0.0F },
                                   { 1.0F, 1.0F}, m_textures[TextureBackground].get(), 25, m_texturesGL[TextureBackground]);
     m_namedObjects[TextureBackground] = menuObjects.at(0);
+}
+
+void MenuScreenBase::playMoveSound() {
+    Mix_PlayChannel(-1, m_menuMoveSound.get(), 0);
+}
+
+void MenuScreenBase::playClickSound() {
+    Mix_PlayChannel(-1, m_menuClickSound.get(), 0);
 }
 
 }  // namespace thewarrior::ui::screens

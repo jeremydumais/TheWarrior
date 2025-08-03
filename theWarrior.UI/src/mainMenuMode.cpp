@@ -1,3 +1,5 @@
+#include <SDL2/SDL_mixer.h>
+#include <fmt/core.h>
 #include <fmt/format.h>
 #include <iostream>
 #include <map>
@@ -7,6 +9,7 @@
 #include <vector>
 #include "mainMenuMode.hpp"
 #include "glTexture.hpp"
+#include "menuScreenBase.hpp"
 #include "size.hpp"
 #include "texture.hpp"
 #include "textureInfo.hpp"
@@ -24,6 +27,9 @@ m_texturesGL(std::map<std::string, unsigned int>()),
 m_mainScreen(m_textures, m_texturesGL) {
 }
 
+MainMenuMode::~MainMenuMode() {
+}
+
 void MainMenuMode::initialize(const std::string &resourcesPath,
             std::shared_ptr<GLTextService> textService,
             std::shared_ptr<InputDevicesState> inputDevicesState) {
@@ -32,8 +38,19 @@ void MainMenuMode::initialize(const std::string &resourcesPath,
     m_textureService.setResourcesPath(resourcesPath);
     m_inputDevicesState = inputDevicesState;
     loadMenuTextures();
-    m_mainScreen.initialize(resourcesPath, m_shaderProgram, textService, inputDevicesState, m_windowGLTexture);
+    loadMenuSounds();
+    MenuScreenBaseInfo baseScreenInfo {
+        .resourcesPath = resourcesPath,
+        .shaderProgram = m_shaderProgram,
+        .textService = textService,
+        .inputDevicesState = inputDevicesState,
+        .windowGLTexture = m_windowGLTexture,
+        .menuMoveSound = m_menuMoveSound,
+        .menuClickSound = m_menuClickSound
+    };
+    m_mainScreen.initialize(baseScreenInfo);
     m_mainScreen.quitPressed.connect(boost::bind(&MainMenuMode::quitPressed, this));
+    Mix_PlayMusic(m_backgroundMusic, -1);  // loop forever
 }
 
 bool MainMenuMode::initShaders(const std::string &resourcesPath) {
@@ -148,8 +165,27 @@ void MainMenuMode::loadMenuTextures() {
     }
 }
 
+void MainMenuMode::loadMenuSounds() {
+    m_backgroundMusic = Mix_LoadMUS(fmt::format("{0}/sounds/main_menu.mp3", m_resourcesPath).c_str());
+    if (!m_backgroundMusic) {
+        std::cerr << fmt::format("Mix_LoadMUS error: {0}", Mix_GetError()) << std::endl;
+        return;
+    }
+    m_menuMoveSound = std::shared_ptr<Mix_Chunk>(Mix_LoadWAV(fmt::format("{0}/sounds/menu_move.wav", m_resourcesPath).c_str()), Mix_FreeChunk);
+    if (!m_menuMoveSound) {
+        std::cerr << fmt::format("Mix_LoadMUS error: {0}", Mix_GetError()) << std::endl;
+        return;
+    }
+    m_menuClickSound = std::shared_ptr<Mix_Chunk>(Mix_LoadWAV(fmt::format("{0}/sounds/menu_click.wav", m_resourcesPath).c_str()), Mix_FreeChunk);
+    if (!m_menuClickSound) {
+        std::cerr << fmt::format("Mix_LoadMUS error: {0}", Mix_GetError()) << std::endl;
+        return;
+    }
+}
+
 void MainMenuMode::quitPressed() {
     quitRequested();
+    Mix_FreeMusic(m_backgroundMusic);
 }
 
 }  // namespace thewarrior::ui
