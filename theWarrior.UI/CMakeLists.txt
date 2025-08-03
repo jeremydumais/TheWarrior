@@ -4,6 +4,8 @@ set(PROJECT_NAME    "theWarrior.UI")
 #find_package(Freetype)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/include/components
+                    ${CMAKE_CURRENT_SOURCE_DIR}/include/screens
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Storage/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.UI.Models/include
@@ -20,7 +22,6 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glInventory.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glCharacterWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glChoicePopup.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/glMenuButton.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glObjectService.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glPlayer.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glPopupWindow.cpp
@@ -32,7 +33,9 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/inputDevicesState.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mainMenuMode.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/shakingAnimation.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/valueChangeAnimation.cpp)
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/valueChangeAnimation.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glMenuButton.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/screens/mainMenuScreen.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")

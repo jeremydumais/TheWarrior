@@ -10,7 +10,7 @@
 
 using namespace thewarrior::models;
 
-namespace thewarrior::ui {
+namespace thewarrior::ui::components {
 
 GLMenuButton::GLMenuButton(Point<float> location, Size<float> size)
 : m_location(location),
@@ -119,4 +119,4 @@ void GLMenuButton::generateCaption() {
   }
 }
 
-} // namespace thewarrior::ui
+} // namespace thewarrior::ui::components

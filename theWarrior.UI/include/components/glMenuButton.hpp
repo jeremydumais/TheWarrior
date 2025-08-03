@@ -15,7 +15,7 @@
 #include "texture.hpp"
 #include <boost/signals2.hpp>
 
-namespace thewarrior::ui {
+namespace thewarrior::ui::components {
 
 class GLMenuButton {
  public:
@@ -67,4 +67,4 @@ class GLMenuButton {
     void generateCaption();
 };
 
-}  // namespace thewarrior::ui
+}  // namespace thewarrior::ui::components
