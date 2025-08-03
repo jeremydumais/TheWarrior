@@ -3,6 +3,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <boost/signals2.hpp>
 #include "glFormService.hpp"
 #include "glObjectService.hpp"
 #include "glShaderProgram.hpp"
@@ -36,6 +37,7 @@ class MainMenuMode {
     void render();
     void unloadGLMapObjects();
     void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
+    boost::signals2::signal<void()> quitRequested;
 
  private:
     std::string m_lastError = "";
@@ -51,6 +53,7 @@ class MainMenuMode {
     std::shared_ptr<GLTexture> m_windowGLTexture;
     screens::MainMenuScreen m_mainScreen;
     void loadMenuTextures();
+    void quitPressed();
 };
 
 }  // namespace thewarrior::ui

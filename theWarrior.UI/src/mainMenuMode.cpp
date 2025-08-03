@@ -33,6 +33,7 @@ void MainMenuMode::initialize(const std::string &resourcesPath,
     m_inputDevicesState = inputDevicesState;
     loadMenuTextures();
     m_mainScreen.initialize(resourcesPath, m_shaderProgram, textService, inputDevicesState, m_windowGLTexture);
+    m_mainScreen.quitPressed.connect(boost::bind(&MainMenuMode::quitPressed, this));
 }
 
 bool MainMenuMode::initShaders(const std::string &resourcesPath) {
@@ -145,6 +146,10 @@ void MainMenuMode::loadMenuTextures() {
     } catch (const std::invalid_argument &err) {
         std::cerr << "Unable to load the window texture: " << err.what() << std::endl;
     }
+}
+
+void MainMenuMode::quitPressed() {
+    quitRequested();
 }
 
 }  // namespace thewarrior::ui

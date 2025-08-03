@@ -76,6 +76,7 @@ class GameWindow {
     void loadItemStoreTextures();
     void loadMonsterStoreTextures();
     void calculateTileSize();
+    void quitRequested();
 };
 
 }  // namespace thewarrior::ui

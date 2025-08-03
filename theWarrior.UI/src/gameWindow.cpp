@@ -244,6 +244,7 @@ void GameWindow::subscribeEvents() {
     m_tileSizeChanged.connect(boost::bind(&GameMapMode::gameWindowTileSizeChanged, &m_gameMapMode, boost::placeholders::_1));
     m_tileSizeChanged.connect(boost::bind(&GLPlayer::onGameWindowTileSizeChanged, m_glPlayer, boost::placeholders::_1));
     m_windowUpdate.connect(boost::bind(&GLPlayer::onGameWindowUpdate, m_glPlayer, boost::placeholders::_1));
+    m_mainMenuMode.quitRequested.connect(boost::bind(&GameWindow::quitRequested, this));
 }
 
 void GameWindow::render() {
@@ -300,6 +301,10 @@ void GameWindow::calculateTileSize() {
     m_tileSize.tileHalfWidth = m_tileSize.tileWidth / 2.0F;
     m_tileSize.tileHalfHeight = (screenSizeFloat.width() * m_tileSize.tileHalfWidth) / screenSizeFloat.height();
     m_tileSizeChanged(m_tileSize);
+}
+
+void GameWindow::quitRequested() {
+    m_mustExit = true;
 }
 
 }  // namespace thewarrior::ui
