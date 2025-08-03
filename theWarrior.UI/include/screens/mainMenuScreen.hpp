@@ -20,9 +20,9 @@ namespace thewarrior::ui::screens {
 
 class MainMenuScreen : public MenuScreenBase {
  public:
-     MainMenuScreen(std::map<std::string, std::shared_ptr<thewarrior::models::Texture>> &textures,
-                    std::map<std::string, unsigned int> &texturesGL);
-     void initialize(const MenuScreenBaseInfo &info);
+    MainMenuScreen(std::map<std::string, std::shared_ptr<thewarrior::models::Texture>> &textures,
+                   std::map<std::string, unsigned int> &texturesGL);
+    void initialize(const MenuScreenBaseInfo &info);
     void processEvents(SDL_Event &);
     void update();
     void render();
@@ -37,6 +37,7 @@ class MainMenuScreen : public MenuScreenBase {
     thewarrior::ui::components::GLMenuButton m_menuButtonLoadGame;
     thewarrior::ui::components::GLMenuButton m_menuButtonSettings;
     thewarrior::ui::components::GLMenuButton m_menuButtonQuit;
+    void loadTextures();
     void generateGLElements();
     void buttonUpPressed() override;
     void buttonDownPressed() override;

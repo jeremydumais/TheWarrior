@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 #include "menuScreenBase.hpp"
-#include "glTexture.hpp"
 #include "size.hpp"
 #include "texture.hpp"
 #include "screens/mainMenuCommons.hpp"
@@ -17,6 +16,7 @@ namespace thewarrior::ui::screens {
 MenuScreenBase::MenuScreenBase(std::map<std::string, std::shared_ptr<Texture>> &textures,
                                std::map<std::string, unsigned int> &texturesGL)
 : m_glFormService(std::make_shared<GLFormService>()),
+m_screenSize(Size<float>(1.0F, 1.0F)),
 m_textures(textures),
 m_texturesGL(texturesGL) {
 }
@@ -66,6 +66,11 @@ void MenuScreenBase::updateBase() {
 
 void MenuScreenBase::renderBase() {
     m_glFormService->drawQuad(m_namedObjects[TextureBackground], m_texturesGL[TextureBackground]);
+}
+
+void MenuScreenBase::gameWindowSizeChangedBase(const Size<> &size) {
+    m_screenSize = Size<float>(static_cast<float>(size.width()),
+                               static_cast<float>(size.height()));
 }
 
 void MenuScreenBase::generateGLElementsBase() {

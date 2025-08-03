@@ -11,6 +11,7 @@
 #include "glTexture.hpp"
 #include "glTextureService.hpp"
 #include "inputDevicesState.hpp"
+#include "size.hpp"
 #include "texture.hpp"
 
 namespace thewarrior::ui::screens {
@@ -34,6 +35,7 @@ class MenuScreenBase {
     const std::string &getLastError() const;
     void updateBase();
     void renderBase();
+    void gameWindowSizeChangedBase(const thewarrior::models::Size<> &size);
     virtual void buttonUpPressed() = 0;
     virtual void buttonDownPressed() = 0;
     virtual void buttonActionPressed() = 0;
@@ -45,6 +47,7 @@ class MenuScreenBase {
     std::shared_ptr<GLShaderProgram> m_shaderProgram = nullptr;
     std::shared_ptr<GLFormService> m_glFormService;
     std::shared_ptr<InputDevicesState> m_inputDevicesState = nullptr;
+    thewarrior::models::Size<float> m_screenSize;
     std::map<std::string, std::shared_ptr<thewarrior::models::Texture>> &m_textures;
     std::map<std::string, unsigned int> &m_texturesGL;
     std::map<std::string, GLObject> m_namedObjects = {};

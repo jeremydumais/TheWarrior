@@ -1,11 +1,13 @@
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_timer.h>
 #include <fmt/format.h>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
+#include "mainMenuCommons.hpp"
 #include "mainMenuScreen.hpp"
-#include "glTexture.hpp"
 #include "menuScreenBase.hpp"
 #include "size.hpp"
 #include "texture.hpp"
@@ -27,6 +29,7 @@ m_menuButtonQuit(Point<float>(0.0F, 135.0F), Size<float>(250.0F, 75.0F)) {
 
 void MainMenuScreen::initialize(const MenuScreenBaseInfo &info) {
     MenuScreenBase::initializeBase(info);
+    loadTextures();
     m_menuWindow.initShader(m_shaderProgram);
     m_menuWindow.initialize("", info.resourcesPath, info.textService);
     m_menuWindow.setTextureBeginId(29);
@@ -51,6 +54,7 @@ void MainMenuScreen::update() {
 
 void MainMenuScreen::render() {
     MenuScreenBase::renderBase();
+    m_glFormService->drawQuad(m_namedObjects[TextureMainMenuLogo], m_texturesGL[TextureMainMenuLogo]);
     m_menuWindow.render();
     m_menuButtonNewGame.render();
     m_menuButtonLoadGame.render();
@@ -62,6 +66,7 @@ void MainMenuScreen::unloadGLMapObjects() {
 }
 
 void MainMenuScreen::gameWindowSizeChanged(const thewarrior::models::Size<> &size) {
+    MenuScreenBase::gameWindowSizeChangedBase(size);
     m_menuWindow.gameWindowSizeChanged(size);
     m_menuButtonNewGame.gameWindowSizeChanged(size);
     m_menuButtonLoadGame.gameWindowSizeChanged(size);
@@ -69,8 +74,36 @@ void MainMenuScreen::gameWindowSizeChanged(const thewarrior::models::Size<> &siz
     m_menuButtonQuit.gameWindowSizeChanged(size);
 }
 
+void MainMenuScreen::loadTextures() {
+    TextureInfo textureMainMenuLogoInfo {
+        .name = "mainmenulogo",
+        .filename = "mainmenu_logo.png",
+        .width = 324,
+        .height = 324,
+        .tileWidth = 324,
+        .tileHeight = 324
+    };
+    try {
+        m_textures[TextureMainMenuLogo] = std::make_shared<Texture>(textureMainMenuLogoInfo);
+        m_textureService.loadTexture(*m_textures[TextureMainMenuLogo], m_texturesGL[TextureMainMenuLogo]);
+    } catch (const std::invalid_argument &err) {
+        std::cerr << "Unable to load the main menu logo texture: " << err.what() << std::endl;
+    }
+}
+
 void MainMenuScreen::generateGLElements() {
     MenuScreenBase::generateGLElementsBase();
+    std::vector<GLObject> menuObjects = {};
+    //TODO: Calculate what is 1 pixel with screenWidth
+    float pixelX = 1.0F / m_screenSize.width();
+    float pixelY = 1.0F / m_screenSize.height();
+    m_glFormService->generateQuad(menuObjects,
+                                  { 0.0F, 0.0F },
+                                  { 324.0F * pixelX, 324.0F * pixelY},
+                                  m_textures[TextureMainMenuLogo].get(),
+                                  0,
+                                  m_texturesGL[TextureMainMenuLogo]);
+    m_namedObjects[TextureMainMenuLogo] = menuObjects.at(0);
     m_menuWindow.generateGLElements();
     m_menuButtonNewGame.generateGLElements();
     m_menuButtonLoadGame.generateGLElements();
