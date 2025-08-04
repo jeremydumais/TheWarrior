@@ -1,26 +1,18 @@
 #pragma once
 
-#include <SDL2/SDL_mixer.h>
-#include <cstddef>
+#include <SDL2/SDL_events.h>
 #include <map>
 #include <memory>
 #include <string>
 #include <boost/signals2.hpp>
-#include "components/glMenuButton.hpp"
 #include "glPopupWindow.hpp"
-#include "glShaderProgram.hpp"
-#include "glTextService.hpp"
-#include "glTexture.hpp"
-#include "inputDevicesState.hpp"
 #include "menuScreenBase.hpp"
-#include "size.hpp"
-#include "texture.hpp"
 
 namespace thewarrior::ui::screens {
 
-class MainMenuScreen : public MenuScreenBase {
+class NewGamePlayerNameScreen : public MenuScreenBase {
  public:
-    MainMenuScreen(std::map<std::string, std::shared_ptr<thewarrior::models::Texture>> &textures,
+    NewGamePlayerNameScreen(std::map<std::string, std::shared_ptr<thewarrior::models::Texture>> &textures,
                    std::map<std::string, unsigned int> &texturesGL);
     void initialize(const MenuScreenBaseInfo &info);
     bool loadTextures();
@@ -29,16 +21,12 @@ class MainMenuScreen : public MenuScreenBase {
     void render();
     void unloadGLMapObjects();
     void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
-    boost::signals2::signal<void()> newGamePressed;
-    boost::signals2::signal<void()> quitPressed;
+    boost::signals2::signal<void()> backPressed;
+    boost::signals2::signal<void()> okPressed;
 
  private:
     size_t m_menuSelectedIndex = 0;
     GLPopupWindow m_menuWindow;
-    thewarrior::ui::components::GLMenuButton m_menuButtonNewGame;
-    thewarrior::ui::components::GLMenuButton m_menuButtonLoadGame;
-    thewarrior::ui::components::GLMenuButton m_menuButtonSettings;
-    thewarrior::ui::components::GLMenuButton m_menuButtonQuit;
     void generateGLElements();
     void buttonUpPressed() override;
     void buttonDownPressed() override;

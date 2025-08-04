@@ -29,7 +29,6 @@ m_menuButtonQuit(Point<float>(0.0F, 135.0F), Size<float>(250.0F, 75.0F)) {
 
 void MainMenuScreen::initialize(const MenuScreenBaseInfo &info) {
     MenuScreenBase::initializeBase(info);
-    loadTextures();
     m_menuWindow.initShader(m_shaderProgram);
     m_menuWindow.initialize("", info.resourcesPath, info.textService);
     m_menuWindow.setTextureBeginId(29);
@@ -74,7 +73,7 @@ void MainMenuScreen::gameWindowSizeChanged(const thewarrior::models::Size<> &siz
     m_menuButtonQuit.gameWindowSizeChanged(size);
 }
 
-void MainMenuScreen::loadTextures() {
+bool MainMenuScreen::loadTextures() {
     TextureInfo textureMainMenuLogoInfo {
         .name = "mainmenulogo",
         .filename = "mainmenu_logo.png",
@@ -87,19 +86,18 @@ void MainMenuScreen::loadTextures() {
         m_textures[TextureMainMenuLogo] = std::make_shared<Texture>(textureMainMenuLogoInfo);
         m_textureService.loadTexture(*m_textures[TextureMainMenuLogo], m_texturesGL[TextureMainMenuLogo]);
     } catch (const std::invalid_argument &err) {
-        std::cerr << "Unable to load the main menu logo texture: " << err.what() << std::endl;
+        m_lastError = fmt::format("Unable to load the main menu logo texture: {0}", err.what());
+        return false;
     }
+    return true;
 }
 
 void MainMenuScreen::generateGLElements() {
     MenuScreenBase::generateGLElementsBase();
     std::vector<GLObject> menuObjects = {};
-    //TODO: Calculate what is 1 pixel with screenWidth
-    float pixelX = 1.0F / m_screenSize.width();
-    float pixelY = 1.0F / m_screenSize.height();
     m_glFormService->generateQuad(menuObjects,
                                   { 0.0F, 0.0F },
-                                  { 324.0F * pixelX, 324.0F * pixelY},
+                                  { getGLSizeFromPx(Size<int>(324, 324)) },
                                   m_textures[TextureMainMenuLogo].get(),
                                   0,
                                   m_texturesGL[TextureMainMenuLogo]);
@@ -127,9 +125,14 @@ void MainMenuScreen::buttonDownPressed() {
     }
 }
 
+void MainMenuScreen::buttonCancelPressed() {
+}
+
 void MainMenuScreen::buttonActionPressed() {
     if (m_menuSelectedIndex == 0) {
         playClickSound();
+        SDL_Delay(500);
+        newGamePressed();
     } else if (m_menuSelectedIndex == 3) {
         playClickSound();
         SDL_Delay(500);

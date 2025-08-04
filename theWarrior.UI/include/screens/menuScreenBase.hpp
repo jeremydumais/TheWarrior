@@ -38,6 +38,7 @@ class MenuScreenBase {
     void gameWindowSizeChangedBase(const thewarrior::models::Size<> &size);
     virtual void buttonUpPressed() = 0;
     virtual void buttonDownPressed() = 0;
+    virtual void buttonCancelPressed() = 0;
     virtual void buttonActionPressed() = 0;
 
  protected:
@@ -59,6 +60,7 @@ class MenuScreenBase {
     void generateGLElementsBase();
     void playMoveSound();
     void playClickSound();
+    thewarrior::models::Size<float> getGLSizeFromPx(thewarrior::models::Size<int> value) const;
 };
 
 }  // namespace thewarrior::ui::screens

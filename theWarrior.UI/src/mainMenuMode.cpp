@@ -24,7 +24,8 @@ MainMenuMode::MainMenuMode()
 : m_glFormService(std::make_shared<GLFormService>()),
 m_textures(std::map<std::string, std::shared_ptr<Texture>>()),
 m_texturesGL(std::map<std::string, unsigned int>()),
-m_mainScreen(m_textures, m_texturesGL) {
+m_mainScreen(m_textures, m_texturesGL),
+m_newGamePlayerNameScreen(m_textures, m_texturesGL) {
 }
 
 MainMenuMode::~MainMenuMode() {
@@ -49,7 +50,13 @@ void MainMenuMode::initialize(const std::string &resourcesPath,
         .menuClickSound = m_menuClickSound
     };
     m_mainScreen.initialize(baseScreenInfo);
+    if (!m_mainScreen.loadTextures()) {
+        throw std::runtime_error(m_mainScreen.getLastError());
+    }
+    m_mainScreen.newGamePressed.connect(boost::bind(&MainMenuMode::newGamePressed, this));
     m_mainScreen.quitPressed.connect(boost::bind(&MainMenuMode::quitPressed, this));
+    m_newGamePlayerNameScreen.initialize(baseScreenInfo);
+    m_newGamePlayerNameScreen.backPressed.connect(boost::bind(&MainMenuMode::backToMainMenu, this));
     Mix_PlayMusic(m_backgroundMusic, -1);  // loop forever
 }
 
@@ -77,6 +84,7 @@ void MainMenuMode::processEvents(SDL_Event &e) {
             m_mainScreen.processEvents(e);
             break;
         case MainMenuInputMode::NewGamePlayerName:
+            m_newGamePlayerNameScreen.processEvents(e);
             break;
         case MainMenuInputMode::LoadGame:
             break;
@@ -93,6 +101,7 @@ void MainMenuMode::update() {
             m_mainScreen.update();
             break;
         case MainMenuInputMode::NewGamePlayerName:
+            m_newGamePlayerNameScreen.update();
             break;
         case MainMenuInputMode::LoadGame:
             break;
@@ -109,6 +118,7 @@ void MainMenuMode::render() {
             m_mainScreen.render();
             break;
         case MainMenuInputMode::NewGamePlayerName:
+            m_newGamePlayerNameScreen.render();
             break;
         case MainMenuInputMode::LoadGame:
             break;
@@ -124,6 +134,7 @@ void MainMenuMode::unloadGLMapObjects() {
 
 void MainMenuMode::gameWindowSizeChanged(const thewarrior::models::Size<> &size) {
     m_mainScreen.gameWindowSizeChanged(size);
+    m_newGamePlayerNameScreen.gameWindowSizeChanged(size);
 }
 
 void MainMenuMode::loadMenuTextures() {
@@ -183,9 +194,17 @@ void MainMenuMode::loadMenuSounds() {
     }
 }
 
+void MainMenuMode::newGamePressed() {
+    m_inputMode = MainMenuInputMode::NewGamePlayerName;
+}
+
 void MainMenuMode::quitPressed() {
     quitRequested();
     Mix_FreeMusic(m_backgroundMusic);
+}
+
+void MainMenuMode::backToMainMenu() {
+    m_inputMode = MainMenuInputMode::Main;
 }
 
 }  // namespace thewarrior::ui

@@ -62,6 +62,10 @@ void MenuScreenBase::updateBase() {
     if (m_inputDevicesState->getButtonAState() == InputElementState::Released) {
         buttonActionPressed();
     }
+
+    if (m_inputDevicesState->getButtonBState() == InputElementState::Released) {
+        buttonCancelPressed();
+    }
 }
 
 void MenuScreenBase::renderBase() {
@@ -87,6 +91,13 @@ void MenuScreenBase::playMoveSound() {
 
 void MenuScreenBase::playClickSound() {
     Mix_PlayChannel(-1, m_menuClickSound.get(), 0);
+}
+
+Size<float> MenuScreenBase::getGLSizeFromPx(Size<int> value) const {
+    float pixelX = 1.0F / m_screenSize.width();
+    float pixelY = 1.0F / m_screenSize.height();
+    return Size<float>(static_cast<float>(value.width()) * pixelX,
+                       static_cast<float>(value.height()) * pixelY);
 }
 
 }  // namespace thewarrior::ui::screens
