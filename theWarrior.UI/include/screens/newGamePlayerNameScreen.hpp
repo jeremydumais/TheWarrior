@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include <boost/signals2.hpp>
+#include "components/glOnScreenKeyboard.hpp"
 #include "glPopupWindow.hpp"
 #include "menuScreenBase.hpp"
 
@@ -27,6 +28,7 @@ class NewGamePlayerNameScreen : public MenuScreenBase {
  private:
     size_t m_menuSelectedIndex = 0;
     GLPopupWindow m_menuWindow;
+    components::GLOnScreenKeyboard m_onScreenKeyboard;
     void generateGLElements();
     void buttonUpPressed() override;
     void buttonDownPressed() override;
