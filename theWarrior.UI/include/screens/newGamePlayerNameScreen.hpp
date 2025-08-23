@@ -32,6 +32,8 @@ class NewGamePlayerNameScreen : public MenuScreenBase {
     void generateGLElements();
     void buttonUpPressed() override;
     void buttonDownPressed() override;
+    void buttonLeftPressed() override;
+    void buttonRightPressed() override;
     void buttonCancelPressed() override;
     void buttonActionPressed() override;
 };

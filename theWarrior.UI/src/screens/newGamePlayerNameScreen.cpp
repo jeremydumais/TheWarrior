@@ -20,10 +20,6 @@ NewGamePlayerNameScreen::NewGamePlayerNameScreen(std::map<std::string, std::shar
 : MenuScreenBase(textures, texturesGL),
 m_menuWindow(Size<float>(850.0F, 620.0F)),
 m_onScreenKeyboard(Point<float>(1.0F, 1.0F)) {
-//HACK: Remove this
-//m_buttonTest(Point<float>(1.0F, 1.0F), Size<float>(64.0F, 64.0F)),
-//m_buttonTest2(Point<float>(100.0F, 1.0F), Size<float>(128.0F, 61.5F)),
-//m_buttonTest3(Point<float>(-240.0F, 1.0F), Size<float>(400.0F, 61.5F)) {
 }
 
 void NewGamePlayerNameScreen::initialize(const MenuScreenBaseInfo &info) {
@@ -32,7 +28,11 @@ void NewGamePlayerNameScreen::initialize(const MenuScreenBaseInfo &info) {
     m_menuWindow.initialize("", info.resourcesPath, info.textService);
     m_menuWindow.setTextureBeginId(29);
     m_menuWindow.setFillCenter(true);
-    m_onScreenKeyboard.initialize(info.windowGLTexture, m_shaderProgram, info.textService);
+    m_onScreenKeyboard.initialize(info.windowGLTexture,
+                                  m_shaderProgram,
+                                  info.textService,
+                                  info.menuMoveSound,
+                                  info.menuClickSound);
 }
 
 void NewGamePlayerNameScreen::processEvents(SDL_Event &) {
@@ -70,19 +70,19 @@ void NewGamePlayerNameScreen::generateGLElements() {
 }
 
 void NewGamePlayerNameScreen::buttonUpPressed() {
-    //if (m_menuSelectedIndex > 0) {
-        //m_menuSelectedIndex--;
-        //generateGLElements();
-        //playMoveSound();
-    //}
+    m_onScreenKeyboard.buttonUpPress();
 }
 
 void NewGamePlayerNameScreen::buttonDownPressed() {
-    //if (m_menuSelectedIndex + 1 < 4) {
-        //m_menuSelectedIndex++;
-        //generateGLElements();
-        //playMoveSound();
-    //}
+    m_onScreenKeyboard.buttonDownPress();
+}
+
+void NewGamePlayerNameScreen::buttonLeftPressed() {
+    m_onScreenKeyboard.buttonLeftPress();
+}
+
+void NewGamePlayerNameScreen::buttonRightPressed() {
+    m_onScreenKeyboard.buttonRightPress();
 }
 
 void NewGamePlayerNameScreen::buttonCancelPressed() {

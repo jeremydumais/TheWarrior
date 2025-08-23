@@ -17,10 +17,9 @@ namespace thewarrior::ui::components {
 
 class GLOnScreenKeyboardButton {
  public:
-    explicit GLOnScreenKeyboardButton(const std::string &caption,
+    GLOnScreenKeyboardButton(const std::string &caption,
                           thewarrior::models::Point<float> location,
                           thewarrior::models::Size<float> size = thewarrior::models::Size<float>(64.0F, 64.0F));
-    virtual ~GLOnScreenKeyboardButton() = default;
     void initialize(const std::shared_ptr<GLTexture> texture,
                     const std::shared_ptr<GLShaderProgram> shaderProgram,
                     std::shared_ptr<GLTextService> textService);

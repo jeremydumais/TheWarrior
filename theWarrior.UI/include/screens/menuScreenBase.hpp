@@ -38,6 +38,8 @@ class MenuScreenBase {
     void gameWindowSizeChangedBase(const thewarrior::models::Size<> &size);
     virtual void buttonUpPressed() = 0;
     virtual void buttonDownPressed() = 0;
+    virtual void buttonLeftPressed();
+    virtual void buttonRightPressed();
     virtual void buttonCancelPressed() = 0;
     virtual void buttonActionPressed() = 0;
 
@@ -55,6 +57,8 @@ class MenuScreenBase {
     std::shared_ptr<GLTexture> m_windowGLTexture;
     Uint64 m_lastMoveUpTicks = 0;
     Uint64 m_lastMoveDownTicks = 0;
+    Uint64 m_lastMoveLeftTicks = 0;
+    Uint64 m_lastMoveRightTicks = 0;
     std::shared_ptr<Mix_Chunk> m_menuMoveSound;
     std::shared_ptr<Mix_Chunk> m_menuClickSound;
     void generateGLElementsBase();

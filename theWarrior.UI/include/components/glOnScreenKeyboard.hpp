@@ -1,6 +1,8 @@
 #pragma once
 
+#include <SDL2/SDL_mixer.h>
 #include <array>
+#include <cstddef>
 #include <memory>
 #include <string>
 #include <vector>
@@ -23,11 +25,17 @@ class GLOnScreenKeyboard {
     virtual ~GLOnScreenKeyboard() = default;
     void initialize(const std::shared_ptr<GLTexture> texture,
                     const std::shared_ptr<GLShaderProgram> shaderProgram,
-                    std::shared_ptr<GLTextService> textService);
+                    std::shared_ptr<GLTextService> textService,
+                    std::shared_ptr<Mix_Chunk> menuMoveSound,
+                    std::shared_ptr<Mix_Chunk> menuClickSound);
     void setCaption(const std::string &title);
     void generateGLElements();
     void render();
     void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
+    void buttonUpPress();
+    void buttonDownPress();
+    void buttonLeftPress();
+    void buttonRightPress();
     boost::signals2::signal<void()> onClickEvent;
 
  protected:
@@ -44,6 +52,15 @@ class GLOnScreenKeyboard {
     GLObject m_glwindow;
     std::array<std::vector<std::shared_ptr<GLOnScreenKeyboardButton>>, 5> m_buttonRows;
     GLTextObject m_enterNameObject;
+    thewarrior::models::Point<size_t> m_focusPosition;
+    size_t m_fourthRowLastXPosition = 0;
+    std::shared_ptr<Mix_Chunk> m_menuMoveSound;
+    std::shared_ptr<Mix_Chunk> m_menuClickSound;
+    void playMoveSound();
+    void playClickSound();
+
+ private:
+    void updateFourthRowLastXPosition();
 };
 
 }  // namespace thewarrior::ui::components

@@ -59,6 +59,28 @@ void MenuScreenBase::updateBase() {
         m_lastMoveDownTicks = 0;
     }
 
+    auto inputLeftTicks = m_inputDevicesState->getLeftPressedTicks();
+    if (m_inputDevicesState->getLeftPressed() &&
+        inputLeftTicks.has_value() &&
+        (inputLeftTicks.value() - m_lastMoveLeftTicks) > MS_BETWEEN_SELECTION_CHANGE) {
+        buttonLeftPressed();
+        m_lastMoveLeftTicks = inputLeftTicks.value();
+        return;
+    } else if (!m_inputDevicesState->getLeftPressed()) {
+        m_lastMoveLeftTicks = 0;
+    }
+
+    auto inputRightTicks = m_inputDevicesState->getRightPressedTicks();
+    if (m_inputDevicesState->getRightPressed() &&
+        inputRightTicks.has_value() &&
+        (inputRightTicks.value() - m_lastMoveRightTicks) > MS_BETWEEN_SELECTION_CHANGE) {
+        buttonRightPressed();
+        m_lastMoveRightTicks = inputRightTicks.value();
+        return;
+    } else if (!m_inputDevicesState->getRightPressed()) {
+        m_lastMoveRightTicks = 0;
+    }
+
     if (m_inputDevicesState->getButtonAState() == InputElementState::Released) {
         buttonActionPressed();
     }
@@ -98,6 +120,12 @@ Size<float> MenuScreenBase::getGLSizeFromPx(Size<int> value) const {
     float pixelY = 1.0F / m_screenSize.height();
     return Size<float>(static_cast<float>(value.width()) * pixelX,
                        static_cast<float>(value.height()) * pixelY);
+}
+
+void MenuScreenBase::buttonLeftPressed() {
+}
+
+void MenuScreenBase::buttonRightPressed() {
 }
 
 }  // namespace thewarrior::ui::screens
