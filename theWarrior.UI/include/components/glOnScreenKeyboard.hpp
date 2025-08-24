@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 #include "glFormService.hpp"
 #include "glObjectService.hpp"
@@ -18,6 +19,14 @@
 #include <boost/signals2.hpp>
 
 namespace thewarrior::ui::components {
+
+constexpr std::array<std::string_view, 43> ONSCREENKEYBOARD_BUTTONSTEXT = {
+    "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
+    "q", "w", "e", "r", "t", "y", "u", "i", "o", "p",
+    "a", "s", "d", "f", "g", "h", "j", "k", "l", "-",
+    "z", "x", "c", "v", "b", "n", "m", "'", ".", "DEL",
+    "SHIFT", "SPACE", "OK"
+};
 
 class GLOnScreenKeyboard {
  public:
@@ -36,12 +45,14 @@ class GLOnScreenKeyboard {
     void buttonDownPress();
     void buttonLeftPress();
     void buttonRightPress();
+    void buttonCancelPress();
     void buttonActionPress();
-    boost::signals2::signal<void()> onClickEvent;
+    boost::signals2::signal<void()> onOKButtonPressed;
+    boost::signals2::signal<void()> onDELButtonPressed;
+    boost::signals2::signal<void(char c)> onCharButtonPressed;
 
  protected:
     thewarrior::models::Point<float> m_location;
-    thewarrior::models::Point<float> m_initialLocation;
     thewarrior::models::Size<float> m_size;
     thewarrior::models::Point<float> m_windowCenter;
     thewarrior::models::Size<float> m_screenSize;
@@ -52,7 +63,6 @@ class GLOnScreenKeyboard {
     std::shared_ptr<GLTexture> m_windowGLTexture;
     GLObject m_glwindow;
     std::array<std::vector<std::shared_ptr<GLOnScreenKeyboardButton>>, 5> m_buttonRows;
-    GLTextObject m_enterNameObject;
     thewarrior::models::Point<size_t> m_focusPosition;
     size_t m_fourthRowLastXPosition;
     bool m_isInCapsMode;

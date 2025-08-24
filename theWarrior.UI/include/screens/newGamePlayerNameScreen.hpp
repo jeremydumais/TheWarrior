@@ -7,7 +7,10 @@
 #include <boost/signals2.hpp>
 #include "components/glOnScreenKeyboard.hpp"
 #include "glPopupWindow.hpp"
+#include "glTextService.hpp"
 #include "menuScreenBase.hpp"
+#include "point.hpp"
+#include "size.hpp"
 
 namespace thewarrior::ui::screens {
 
@@ -17,7 +20,7 @@ class NewGamePlayerNameScreen : public MenuScreenBase {
                    std::map<std::string, unsigned int> &texturesGL);
     void initialize(const MenuScreenBaseInfo &info);
     bool loadTextures();
-    void processEvents(SDL_Event &);
+    void processEvents(SDL_Event &e);
     void update();
     void render();
     void unloadGLMapObjects();
@@ -26,8 +29,13 @@ class NewGamePlayerNameScreen : public MenuScreenBase {
     boost::signals2::signal<void()> okPressed;
 
  private:
+    std::shared_ptr<GLTextService> m_textService;
     GLPopupWindow m_menuWindow;
     components::GLOnScreenKeyboard m_onScreenKeyboard;
+    GLTextObject m_enterNameObject;
+    std::string m_playerName;
+    thewarrior::models::Point<float> m_location;
+    thewarrior::models::Point<float> m_initialLocation;
     void generateGLElements();
     void buttonUpPressed() override;
     void buttonDownPressed() override;
@@ -35,6 +43,10 @@ class NewGamePlayerNameScreen : public MenuScreenBase {
     void buttonRightPressed() override;
     void buttonCancelPressed() override;
     void buttonActionPressed() override;
+    bool addPlayerNameChar(char c);
+    bool removePlayerNameChar();
+    void keyboardCharButtonPressed(char c);
+    void keyboardDELButtonPressed();
 };
 
 }  // namespace thewarrior::ui::screens

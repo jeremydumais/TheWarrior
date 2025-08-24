@@ -59,6 +59,7 @@ class MainMenuMode {
     Mix_Music* m_backgroundMusic;
     std::shared_ptr<Mix_Chunk> m_menuMoveSound;
     std::shared_ptr<Mix_Chunk> m_menuClickSound;
+    std::shared_ptr<Mix_Chunk> m_menuClickDisableSound;
     void loadMenuTextures();
     void loadMenuSounds();
     void newGamePressed();

@@ -697,7 +697,6 @@ void GameMapMode::mainMenuPopupCanceled() {
 
 void GameMapMode::onPlayerMoveCompleted() {
     const auto &tile = m_map->getTileFromCoord(m_glPlayer->getGridPosition());
-    //TODO: Check for the SteppedOn event
     auto steppedOnTrigger = tile.findConstTrigger(MapTileTriggerEvent::SteppedOn);
     if (steppedOnTrigger.has_value()) {
         processAction(steppedOnTrigger->getAction(), steppedOnTrigger->getActionProperties());

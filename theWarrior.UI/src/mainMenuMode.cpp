@@ -47,7 +47,8 @@ void MainMenuMode::initialize(const std::string &resourcesPath,
         .inputDevicesState = inputDevicesState,
         .windowGLTexture = m_windowGLTexture,
         .menuMoveSound = m_menuMoveSound,
-        .menuClickSound = m_menuClickSound
+        .menuClickSound = m_menuClickSound,
+        .menuClickDisableSound = m_menuClickDisableSound
     };
     m_mainScreen.initialize(baseScreenInfo);
     if (!m_mainScreen.loadTextures()) {
@@ -190,6 +191,11 @@ void MainMenuMode::loadMenuSounds() {
     }
     m_menuClickSound = std::shared_ptr<Mix_Chunk>(Mix_LoadWAV(fmt::format("{0}/sounds/menu_click.wav", m_resourcesPath).c_str()), Mix_FreeChunk);
     if (!m_menuClickSound) {
+        std::cerr << fmt::format("Mix_LoadMUS error: {0}", Mix_GetError()) << std::endl;
+        return;
+    }
+    m_menuClickDisableSound = std::shared_ptr<Mix_Chunk>(Mix_LoadWAV(fmt::format("{0}/sounds/menu_click_disable.wav", m_resourcesPath).c_str()), Mix_FreeChunk);
+    if (!m_menuClickDisableSound) {
         std::cerr << fmt::format("Mix_LoadMUS error: {0}", Mix_GetError()) << std::endl;
         return;
     }

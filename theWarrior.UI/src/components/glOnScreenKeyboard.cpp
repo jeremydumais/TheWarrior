@@ -1,3 +1,4 @@
+#include <cctype>
 #include <fmt/format.h>
 #include <array>
 #include <cstddef>
@@ -6,6 +7,7 @@
 #include <string>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string.hpp>
+#include <string_view>
 #include "glOnScreenKeyboard.hpp"
 #include "glOnScreenKeyboardButton.hpp"
 #include "glTexture.hpp"
@@ -18,7 +20,6 @@ namespace thewarrior::ui::components {
 
 GLOnScreenKeyboard::GLOnScreenKeyboard(Point<float> location)
 : m_location(location),
-m_initialLocation(location),
 m_size(Size<float>(700.0F, 700.0F)),
 m_windowCenter({1.0F, 1.0F}),
 m_screenSize({1.0F, 1.0F}),
@@ -26,7 +27,6 @@ m_shaderProgram(nullptr),
 m_glFormService(std::make_shared<GLFormService>()),
 m_textService(nullptr),
 m_windowGLTexture(nullptr),
-m_enterNameObject({"Enter name:", {-200.0F, -450.0F}, 0.8F}),
 m_focusPosition(0, 0),
 m_fourthRowLastXPosition(0),
 m_isInCapsMode(false) {
@@ -61,14 +61,6 @@ void GLOnScreenKeyboard::generateGLElements() {
         buttonPosition.setX(0);
         buttonPosition.setY(buttonPosition.y() + 1);
     }
-    auto enterNameSize = m_textService->getTextSize(m_enterNameObject.text, 0.8F);
-    m_enterNameObject.position = {m_location.x() + m_initialLocation.x() +
-        (m_size.width() / 2.0F) -
-            (enterNameSize.width() / 2.0F) - 200.0F,
-            m_location.y() + m_initialLocation.y() +
-                (m_size.height() / 2.0F) +
-                (enterNameSize.height() / 2.0F) - 250.0F};
-    m_enterNameObject.color = GLColor::Gray;
 }
 
 void GLOnScreenKeyboard::render() {
@@ -77,7 +69,6 @@ void GLOnScreenKeyboard::render() {
             button->render();
         }
     }
-    m_glFormService->drawText(m_enterNameObject);
 }
 
 void GLOnScreenKeyboard::gameWindowSizeChanged(const Size<> &size) {
@@ -149,11 +140,28 @@ void GLOnScreenKeyboard::buttonRightPress() {
     }
 }
 
+void GLOnScreenKeyboard::buttonCancelPress() {
+    onDELButtonPressed();
+}
+
 void GLOnScreenKeyboard::buttonActionPress() {
+    // Shift button
     if (m_focusPosition == Point<size_t>(0, 4)) {
         m_isInCapsMode = !m_isInCapsMode;
         generateKeyboardItems();
         generateGLElements();
+    } else if (m_focusPosition == Point<size_t>(1, 4)) {
+        onCharButtonPressed(' ');
+    } else if (m_focusPosition == Point<size_t>(2, 4)) {
+        //TODO: OK button
+    } else if (m_focusPosition == Point<size_t>(9, 3)) {
+        onDELButtonPressed();
+    } else {
+        char c = ONSCREENKEYBOARD_BUTTONSTEXT.at(m_focusPosition.y() * 10 + m_focusPosition.x()).at(0);
+        if (m_isInCapsMode) {
+            c = static_cast<char>(std::toupper(c));
+        }
+        onCharButtonPressed(c);
     }
     playClickSound();
 }
@@ -165,18 +173,11 @@ void GLOnScreenKeyboard::generateKeyboardItems() {
     m_buttonRows.at(3).clear();
     m_buttonRows.at(4).clear();
     size_t indexChar = 0;
-    const std::array<std::string, 43> BUTTONSTEXT = {
-        "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
-        "q", "w", "e", "r", "t", "y", "u", "i", "o", "p",
-        "a", "s", "d", "f", "g", "h", "j", "k", "l", "-",
-        "z", "x", "c", "v", "b", "n", "m", "\'", ".", "DEL",
-        "SHIFT", "SPACE", "OK"
-    };
     float buttonTop = -150.0F;
     for (size_t i = 0; i < 4; i++) {
         float buttonLeft = -350.0F;
         for (size_t j = 0; j < 10; j++) {
-            std::string buttonText = BUTTONSTEXT.at(indexChar);
+            std::string buttonText = std::string(ONSCREENKEYBOARD_BUTTONSTEXT.at(indexChar));
             if (m_isInCapsMode) {
                 buttonText = boost::to_upper_copy(buttonText);
             }
@@ -188,13 +189,13 @@ void GLOnScreenKeyboard::generateKeyboardItems() {
         }
         buttonTop += 77.0F;
     }
-    m_buttonRows[4].push_back(std::make_shared<GLOnScreenKeyboardButton>(BUTTONSTEXT.at(40),
+    m_buttonRows[4].push_back(std::make_shared<GLOnScreenKeyboardButton>(std::string(ONSCREENKEYBOARD_BUTTONSTEXT.at(40)),
                               Point<float>(-318.0F, 158.0F),
                               Size<float>(128.0F, 61.5F)));
-    m_buttonRows[4].push_back(std::make_shared<GLOnScreenKeyboardButton>(BUTTONSTEXT.at(41),
+    m_buttonRows[4].push_back(std::make_shared<GLOnScreenKeyboardButton>(std::string(ONSCREENKEYBOARD_BUTTONSTEXT.at(41)),
                               Point<float>(-5.0F, 158.0F),
                               Size<float>(470.0F, 61.5F)));
-    m_buttonRows[4].push_back(std::make_shared<GLOnScreenKeyboardButton>(BUTTONSTEXT.at(42),
+    m_buttonRows[4].push_back(std::make_shared<GLOnScreenKeyboardButton>(std::string(ONSCREENKEYBOARD_BUTTONSTEXT.at(42)),
                               Point<float>(311.0F, 158.0F),
                               Size<float>(128.0F, 61.5F)));
     for (const auto& row : m_buttonRows | std::views::all) {

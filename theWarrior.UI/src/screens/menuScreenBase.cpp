@@ -30,6 +30,7 @@ void MenuScreenBase::initializeBase(const MenuScreenBaseInfo &info) {
     m_windowGLTexture = info.windowGLTexture;
     m_menuMoveSound = info.menuMoveSound;
     m_menuClickSound = info.menuClickSound;
+    m_menuClickDisableSound = info.menuClickDisableSound;
 }
 
 const std::string& MenuScreenBase::getLastError() const {
@@ -113,6 +114,10 @@ void MenuScreenBase::playMoveSound() {
 
 void MenuScreenBase::playClickSound() {
     Mix_PlayChannel(-1, m_menuClickSound.get(), 0);
+}
+
+void MenuScreenBase::playClickDisableSound() {
+    Mix_PlayChannel(-1, m_menuClickDisableSound.get(), 0);
 }
 
 Size<float> MenuScreenBase::getGLSizeFromPx(Size<int> value) const {

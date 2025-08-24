@@ -24,6 +24,7 @@ struct MenuScreenBaseInfo {
     std::shared_ptr<GLTexture> windowGLTexture;
     std::shared_ptr<Mix_Chunk> menuMoveSound;
     std::shared_ptr<Mix_Chunk> menuClickSound;
+    std::shared_ptr<Mix_Chunk> menuClickDisableSound;
 };
 
 class MenuScreenBase {
@@ -61,9 +62,11 @@ class MenuScreenBase {
     Uint64 m_lastMoveRightTicks = 0;
     std::shared_ptr<Mix_Chunk> m_menuMoveSound;
     std::shared_ptr<Mix_Chunk> m_menuClickSound;
+    std::shared_ptr<Mix_Chunk> m_menuClickDisableSound;
     void generateGLElementsBase();
     void playMoveSound();
     void playClickSound();
+    void playClickDisableSound();
     thewarrior::models::Size<float> getGLSizeFromPx(thewarrior::models::Size<int> value) const;
 };
 
