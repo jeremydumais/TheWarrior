@@ -4,11 +4,13 @@
 #include <memory>
 #include <ranges>
 #include <string>
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string.hpp>
 #include "glOnScreenKeyboard.hpp"
 #include "glOnScreenKeyboardButton.hpp"
 #include "glTexture.hpp"
 #include "point.hpp"
-#include <boost/algorithm/string.hpp>
+#include "size.hpp"
 
 using namespace thewarrior::models;
 
@@ -25,36 +27,9 @@ m_glFormService(std::make_shared<GLFormService>()),
 m_textService(nullptr),
 m_windowGLTexture(nullptr),
 m_enterNameObject({"Enter name:", {-200.0F, -450.0F}, 0.8F}),
-m_focusPosition(0, 0) {
-    size_t indexChar = 0;
-    std::array<std::string, 43> buttonsText = {
-        "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
-        "q", "w", "e", "r", "t", "y", "u", "i", "o", "p",
-        "a", "s", "d", "f", "g", "h", "j", "k", "l", "-",
-        "z", "x", "c", "v", "b", "n", "m", "\'", ".", "DEL",
-        "SHIFT", "SPACE", "OK"
-    };
-    float buttonTop = -150.0F;
-    for (size_t i = 0; i < 4; i++) {
-        float buttonLeft = -350.0F;
-        for (size_t j = 0; j < 10; j++) {
-            auto button = std::make_shared<GLOnScreenKeyboardButton>(buttonsText.at(indexChar),
-                                                                     Point<float>(buttonLeft, buttonTop));
-            m_buttonRows[i].push_back(button);
-            buttonLeft += 77.0F;
-            indexChar++;
-        }
-        buttonTop += 77.0F;
-    }
-    m_buttonRows[4].push_back(std::make_shared<GLOnScreenKeyboardButton>(buttonsText.at(40),
-                              Point<float>(-318.0F, 158.0F),
-                              Size<float>(128.0F, 61.5F)));
-    m_buttonRows[4].push_back(std::make_shared<GLOnScreenKeyboardButton>(buttonsText.at(41),
-                              Point<float>(-5.0F, 158.0F),
-                              Size<float>(470.0F, 61.5F)));
-    m_buttonRows[4].push_back(std::make_shared<GLOnScreenKeyboardButton>(buttonsText.at(42),
-                              Point<float>(311.0F, 158.0F),
-                              Size<float>(128.0F, 61.5F)));
+m_focusPosition(0, 0),
+m_fourthRowLastXPosition(0),
+m_isInCapsMode(false) {
 }
 
 void GLOnScreenKeyboard::initialize(const std::shared_ptr<GLTexture> glTexture,
@@ -66,11 +41,7 @@ void GLOnScreenKeyboard::initialize(const std::shared_ptr<GLTexture> glTexture,
     m_shaderProgram = shaderProgram;
     m_textService = textService;
     m_glFormService->initialize(m_shaderProgram, textService);
-    for (const auto& row : m_buttonRows | std::views::all) {
-        for (auto& button : row | std::views::all) {
-            button->initialize(glTexture, shaderProgram, textService);
-        }
-    }
+    generateKeyboardItems();
     m_menuMoveSound = menuMoveSound;
     m_menuClickSound = menuClickSound;
 }
@@ -175,6 +146,63 @@ void GLOnScreenKeyboard::buttonRightPress() {
         }
         generateGLElements();
         playMoveSound();
+    }
+}
+
+void GLOnScreenKeyboard::buttonActionPress() {
+    if (m_focusPosition == Point<size_t>(0, 4)) {
+        m_isInCapsMode = !m_isInCapsMode;
+        generateKeyboardItems();
+        generateGLElements();
+    }
+    playClickSound();
+}
+
+void GLOnScreenKeyboard::generateKeyboardItems() {
+    m_buttonRows.at(0).clear();
+    m_buttonRows.at(1).clear();
+    m_buttonRows.at(2).clear();
+    m_buttonRows.at(3).clear();
+    m_buttonRows.at(4).clear();
+    size_t indexChar = 0;
+    const std::array<std::string, 43> BUTTONSTEXT = {
+        "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
+        "q", "w", "e", "r", "t", "y", "u", "i", "o", "p",
+        "a", "s", "d", "f", "g", "h", "j", "k", "l", "-",
+        "z", "x", "c", "v", "b", "n", "m", "\'", ".", "DEL",
+        "SHIFT", "SPACE", "OK"
+    };
+    float buttonTop = -150.0F;
+    for (size_t i = 0; i < 4; i++) {
+        float buttonLeft = -350.0F;
+        for (size_t j = 0; j < 10; j++) {
+            std::string buttonText = BUTTONSTEXT.at(indexChar);
+            if (m_isInCapsMode) {
+                buttonText = boost::to_upper_copy(buttonText);
+            }
+            auto button = std::make_shared<GLOnScreenKeyboardButton>(buttonText,
+                                                                     Point<float>(buttonLeft, buttonTop));
+            m_buttonRows[i].push_back(button);
+            buttonLeft += 77.0F;
+            indexChar++;
+        }
+        buttonTop += 77.0F;
+    }
+    m_buttonRows[4].push_back(std::make_shared<GLOnScreenKeyboardButton>(BUTTONSTEXT.at(40),
+                              Point<float>(-318.0F, 158.0F),
+                              Size<float>(128.0F, 61.5F)));
+    m_buttonRows[4].push_back(std::make_shared<GLOnScreenKeyboardButton>(BUTTONSTEXT.at(41),
+                              Point<float>(-5.0F, 158.0F),
+                              Size<float>(470.0F, 61.5F)));
+    m_buttonRows[4].push_back(std::make_shared<GLOnScreenKeyboardButton>(BUTTONSTEXT.at(42),
+                              Point<float>(311.0F, 158.0F),
+                              Size<float>(128.0F, 61.5F)));
+    for (const auto& row : m_buttonRows | std::views::all) {
+        for (auto& button : row | std::views::all) {
+            button->initialize(m_windowGLTexture, m_shaderProgram, m_textService);
+            button->gameWindowSizeChanged(Size<>(static_cast<int>(m_screenSize.width()),
+                                                 static_cast<int>(m_screenSize.height())));
+        }
     }
 }
 

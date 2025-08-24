@@ -92,11 +92,7 @@ void NewGamePlayerNameScreen::buttonCancelPressed() {
 }
 
 void NewGamePlayerNameScreen::buttonActionPressed() {
-    if (m_menuSelectedIndex == 0) {
-        playClickSound();
-    } else if (m_menuSelectedIndex == 3) {
-        playClickSound();
-    }
+    m_onScreenKeyboard.buttonActionPress();
 }
 
 }  // namespace thewarrior::ui::screens

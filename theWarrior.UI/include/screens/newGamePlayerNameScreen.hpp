@@ -26,7 +26,6 @@ class NewGamePlayerNameScreen : public MenuScreenBase {
     boost::signals2::signal<void()> okPressed;
 
  private:
-    size_t m_menuSelectedIndex = 0;
     GLPopupWindow m_menuWindow;
     components::GLOnScreenKeyboard m_onScreenKeyboard;
     void generateGLElements();

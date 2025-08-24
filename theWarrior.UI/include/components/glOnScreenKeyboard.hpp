@@ -36,6 +36,7 @@ class GLOnScreenKeyboard {
     void buttonDownPress();
     void buttonLeftPress();
     void buttonRightPress();
+    void buttonActionPress();
     boost::signals2::signal<void()> onClickEvent;
 
  protected:
@@ -53,9 +54,11 @@ class GLOnScreenKeyboard {
     std::array<std::vector<std::shared_ptr<GLOnScreenKeyboardButton>>, 5> m_buttonRows;
     GLTextObject m_enterNameObject;
     thewarrior::models::Point<size_t> m_focusPosition;
-    size_t m_fourthRowLastXPosition = 0;
+    size_t m_fourthRowLastXPosition;
+    bool m_isInCapsMode;
     std::shared_ptr<Mix_Chunk> m_menuMoveSound;
     std::shared_ptr<Mix_Chunk> m_menuClickSound;
+    void generateKeyboardItems();
     void playMoveSound();
     void playClickSound();
 
