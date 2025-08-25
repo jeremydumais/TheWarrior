@@ -37,6 +37,7 @@ void MainMenuScreen::initialize(const MenuScreenBaseInfo &info) {
     m_menuButtonLoadGame.initialize("Load Game", m_windowGLTexture, m_shaderProgram, info.textService);
     m_menuButtonSettings.initialize("Settings", m_windowGLTexture, m_shaderProgram, info.textService);
     m_menuButtonQuit.initialize("Quit", m_windowGLTexture, m_shaderProgram, info.textService);
+    generateGLElements();
 }
 
 void MainMenuScreen::processEvents(SDL_Event &) {
@@ -44,11 +45,6 @@ void MainMenuScreen::processEvents(SDL_Event &) {
 
 void MainMenuScreen::update() {
     MenuScreenBase::updateBase();
-    m_menuButtonNewGame.setHasFocus(m_menuSelectedIndex == 0);
-    m_menuButtonLoadGame.setHasFocus(m_menuSelectedIndex == 1);
-    m_menuButtonSettings.setHasFocus(m_menuSelectedIndex == 2);
-    m_menuButtonQuit.setHasFocus(m_menuSelectedIndex == 3);
-    generateGLElements();
 }
 
 void MainMenuScreen::render() {
@@ -71,6 +67,7 @@ void MainMenuScreen::gameWindowSizeChanged(const thewarrior::models::Size<> &siz
     m_menuButtonLoadGame.gameWindowSizeChanged(size);
     m_menuButtonSettings.gameWindowSizeChanged(size);
     m_menuButtonQuit.gameWindowSizeChanged(size);
+    generateGLElements();
 }
 
 bool MainMenuScreen::loadTextures() {
@@ -103,6 +100,10 @@ void MainMenuScreen::generateGLElements() {
                                   m_texturesGL[TextureMainMenuLogo]);
     m_namedObjects[TextureMainMenuLogo] = menuObjects.at(0);
     m_menuWindow.generateGLElements();
+    m_menuButtonNewGame.setHasFocus(m_menuSelectedIndex == 0);
+    m_menuButtonLoadGame.setHasFocus(m_menuSelectedIndex == 1);
+    m_menuButtonSettings.setHasFocus(m_menuSelectedIndex == 2);
+    m_menuButtonQuit.setHasFocus(m_menuSelectedIndex == 3);
     m_menuButtonNewGame.generateGLElements();
     m_menuButtonLoadGame.generateGLElements();
     m_menuButtonSettings.generateGLElements();

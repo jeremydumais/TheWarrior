@@ -4,6 +4,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 #include "glFormService.hpp"
 #include "glObjectService.hpp"
 #include "glShaderProgram.hpp"
@@ -25,6 +26,7 @@ struct MenuScreenBaseInfo {
     std::shared_ptr<Mix_Chunk> menuMoveSound;
     std::shared_ptr<Mix_Chunk> menuClickSound;
     std::shared_ptr<Mix_Chunk> menuClickDisableSound;
+    std::shared_ptr<Mix_Chunk> menuBackSound;
 };
 
 class MenuScreenBase {
@@ -63,10 +65,14 @@ class MenuScreenBase {
     std::shared_ptr<Mix_Chunk> m_menuMoveSound;
     std::shared_ptr<Mix_Chunk> m_menuClickSound;
     std::shared_ptr<Mix_Chunk> m_menuClickDisableSound;
+    std::shared_ptr<Mix_Chunk> m_menuBackSound;
+    static void freeGLObjects(std::vector<GLObject> &objects);
+    static void freeGLObjects(std::map<std::string, GLObject> &objects);
     void generateGLElementsBase();
     void playMoveSound();
     void playClickSound();
     void playClickDisableSound();
+    void playBackSound();
     thewarrior::models::Size<float> getGLSizeFromPx(thewarrior::models::Size<int> value) const;
 };
 

@@ -42,13 +42,13 @@ class GLOnScreenKeyboardButton {
     std::shared_ptr<GLTextService> m_textService;
     GLTextureService m_textureService;
     std::shared_ptr<GLTexture> m_windowGLTexture;
-    GLObject m_glwindow;
     GLTextObject m_glCaption;
     std::vector<GLObject> m_windowObjects;
     std::vector<GLObject> m_windowBackgrounds;
     int m_textureBeginId;
     bool m_hasFocus;
     void generateCaption();
+    void freeGLObjects(std::vector<GLObject> &objects);
 };
 
 }  // namespace thewarrior::ui::components

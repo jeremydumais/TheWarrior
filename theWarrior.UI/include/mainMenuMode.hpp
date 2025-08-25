@@ -6,7 +6,6 @@
 #include <string>
 #include <boost/signals2.hpp>
 #include "glFormService.hpp"
-#include "glObjectService.hpp"
 #include "glShaderProgram.hpp"
 #include "glTextService.hpp"
 #include "glTexture.hpp"
@@ -45,14 +44,13 @@ class MainMenuMode {
  private:
     std::string m_lastError = "";
     std::string m_resourcesPath = "";
-    MainMenuInputMode m_inputMode = MainMenuInputMode::NewGamePlayerName;
+    MainMenuInputMode m_inputMode = MainMenuInputMode::Main;
     GLTextureService m_textureService;
     std::shared_ptr<GLShaderProgram> m_shaderProgram = nullptr;
     std::shared_ptr<GLFormService> m_glFormService;
     std::shared_ptr<InputDevicesState> m_inputDevicesState = nullptr;
     std::map<std::string, std::shared_ptr<thewarrior::models::Texture>> m_textures;
     std::map<std::string, unsigned int> m_texturesGL;
-    std::map<std::string, GLObject> m_namedObjects = {};
     std::shared_ptr<GLTexture> m_windowGLTexture;
     screens::MainMenuScreen m_mainScreen;
     screens::NewGamePlayerNameScreen m_newGamePlayerNameScreen;
@@ -60,6 +58,7 @@ class MainMenuMode {
     std::shared_ptr<Mix_Chunk> m_menuMoveSound;
     std::shared_ptr<Mix_Chunk> m_menuClickSound;
     std::shared_ptr<Mix_Chunk> m_menuClickDisableSound;
+    std::shared_ptr<Mix_Chunk> m_menuBackSound;
     void loadMenuTextures();
     void loadMenuSounds();
     void newGamePressed();

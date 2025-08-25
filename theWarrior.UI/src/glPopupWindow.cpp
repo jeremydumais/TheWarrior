@@ -1,8 +1,11 @@
 #include <fmt/format.h>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
 #include "glPopupWindow.hpp"
+#include "glObjectService.hpp"
+#include "glTextureService.hpp"
 #include <boost/algorithm/string.hpp>
 
 using namespace thewarrior::models;
@@ -81,9 +84,9 @@ void GLPopupWindow::setTitle(const std::string &title) {
 }
 
 void GLPopupWindow::generateGLElements() {
-    m_windowObjects.clear();
-    m_windowBackgrounds.clear();
-    m_glObjects.clear();
+    freeGLObjects(m_windowObjects);
+    freeGLObjects(m_windowBackgrounds);
+    freeGLObjects(m_glObjects);
     m_glTextObjects.clear();
     // Window
     m_glFormService->generateQuad(m_windowBackgrounds, getWindowLocation(), getWindowSize(),
@@ -137,6 +140,26 @@ void GLPopupWindow::setFillCenter(bool value) {
     m_fillCenter = value;
 }
 
+void GLPopupWindow::freeGLObjects(std::vector<GLObject> &objects) {
+    for (auto &item : objects) {
+        if (item.vboPosition) glDeleteBuffers(1, &item.vboPosition);
+        if (item.vboColor) glDeleteBuffers(1, &item.vboColor);
+        if (item.vboTexture) glDeleteBuffers(1, &item.vboTexture);
+        if (item.vao) glDeleteVertexArrays(1, &item.vao);
+    }
+    objects.clear();
+}
+
+void GLPopupWindow::freeGLObjects(std::map<std::string, GLObject> &objects) {
+    for (auto &item : objects) {
+        if (item.second.vboPosition) glDeleteBuffers(1, &item.second.vboPosition);
+        if (item.second.vboColor) glDeleteBuffers(1, &item.second.vboColor);
+        if (item.second.vboTexture) glDeleteBuffers(1, &item.second.vboTexture);
+        if (item.second.vao) glDeleteVertexArrays(1, &item.second.vao);
+    }
+    objects.clear();
+}
+
 void GLPopupWindow::generateQuad(std::vector<GLObject> &objects, Point<float> location, Size<float> size, const Texture *texture, int textureId, GLuint textureGLId) {
     m_glFormService->generateQuad(objects,
                                   { m_windowLocation.x() + location.x(),
@@ -158,7 +181,7 @@ void GLPopupWindow::generateBoxQuad(std::vector<GLObject> &objects,
 }
 
 void GLPopupWindow::generateTitleBox() {
-    m_windowTitleObjects.clear();
+    freeGLObjects(m_windowTitleObjects);
     m_displayTitle = !m_glTitle.text.empty();
     auto titleSize = m_textService->getTextSize(m_glTitle.text, 0.6F);
     m_glTitle.position = { getWindowLocation().x() + 15.0F + (getWindowSize().width() / 2.0F) - (titleSize.width() / 2.0F),

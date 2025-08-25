@@ -44,12 +44,18 @@ void NewGamePlayerNameScreen::initialize(const MenuScreenBaseInfo &info) {
                                   info.textService,
                                   info.menuMoveSound,
                                   info.menuClickSound);
+    generateGLElements();
 }
 
 void NewGamePlayerNameScreen::processEvents(SDL_Event &e) {
     if (e.type == SDL_KEYUP) {
         SDL_Keycode key = e.key.keysym.sym;
 
+        if (key == SDLK_ESCAPE) {
+            playBackSound();
+            SDL_Delay(500);
+            backPressed();
+        }
         if ((key >= SDLK_a && key <= SDLK_z)) {
             int letter = key;
             if (e.key.keysym.mod & (KMOD_SHIFT | KMOD_CAPS)) {
@@ -107,7 +113,6 @@ void NewGamePlayerNameScreen::processEvents(SDL_Event &e) {
 
 void NewGamePlayerNameScreen::update() {
     MenuScreenBase::updateBase();
-    generateGLElements();
 }
 
 void NewGamePlayerNameScreen::render() {
@@ -128,6 +133,7 @@ void NewGamePlayerNameScreen::gameWindowSizeChanged(const thewarrior::models::Si
         (m_screenSize.height() / 2.0F) };
     m_menuWindow.gameWindowSizeChanged(size);
     m_onScreenKeyboard.gameWindowSizeChanged(size);
+    generateGLElements();
 }
 
 bool NewGamePlayerNameScreen::loadTextures() {
@@ -160,7 +166,13 @@ void NewGamePlayerNameScreen::buttonRightPressed() {
 }
 
 void NewGamePlayerNameScreen::buttonCancelPressed() {
-    m_onScreenKeyboard.buttonCancelPress();
+    if (!m_playerName.empty()) {
+        m_onScreenKeyboard.buttonCancelPress();
+    } else {
+        playBackSound();
+        SDL_Delay(500);
+        backPressed();
+    }
 }
 
 void NewGamePlayerNameScreen::buttonActionPressed() {
@@ -194,13 +206,7 @@ void NewGamePlayerNameScreen::keyboardCharButtonPressed(char c) {
 }
 
 void NewGamePlayerNameScreen::keyboardDELButtonPressed() {
-    if (m_playerName.empty()) {
-        playClickSound();
-        SDL_Delay(500);
-        backPressed();
-    } else {
-        removePlayerNameChar();
-    }
+    removePlayerNameChar();
 }
 
 }  // namespace thewarrior::ui::screens

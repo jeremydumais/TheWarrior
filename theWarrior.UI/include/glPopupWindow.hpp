@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -61,6 +62,8 @@ class GLPopupWindow : public IShaderService {
     bool m_fillCenter;
     std::vector<GLObject> m_glObjects;
     std::vector<GLTextObject> m_glTextObjects;
+    static void freeGLObjects(std::vector<GLObject> &objects);
+    static void freeGLObjects(std::map<std::string, GLObject> &objects);
     void generateQuad(std::vector<GLObject> &objects,
                       thewarrior::models::Point<float> location,
                       thewarrior::models::Size<float> size,

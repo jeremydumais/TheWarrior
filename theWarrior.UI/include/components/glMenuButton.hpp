@@ -3,7 +3,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "glColor.hpp"
 #include "glFormService.hpp"
 #include "glObjectService.hpp"
 #include "glShaderProgram.hpp"
@@ -51,6 +50,7 @@ class GLMenuButton {
     std::vector<GLObject> m_windowBackgrounds;
     int m_textureBeginId;
     bool m_hasFocus;
+    void freeGLObjects(std::vector<GLObject> &objects);
     void generateQuad(std::vector<GLObject> &objects,
                       thewarrior::models::Point<float> location,
                       thewarrior::models::Size<float> size,

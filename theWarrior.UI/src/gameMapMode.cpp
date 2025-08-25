@@ -211,15 +211,15 @@ void GameMapMode::render() {
             || item.y < m_tileCoordToDisplay[2] || item.y > m_tileCoordToDisplay[3]) {
             continue;
         }
-        glBindVertexArray(item.glObject.vao);
-        glBindBuffer(GL_ARRAY_BUFFER, item.glObject.vboPosition);
+        glBindVertexArray(item.glMainObject.vao);
+        glBindBuffer(GL_ARRAY_BUFFER, item.glMainObject.vboPosition);
         glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, item.glObject.vboColor);
+        glBindBuffer(GL_ARRAY_BUFFER, item.glMainObject.vboColor);
         glEnableVertexAttribArray(1);
         if (item.tile.hasTexture()) {
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, m_texturesGLMap[item.tile.getTextureName()]);
-            glBindBuffer(GL_ARRAY_BUFFER, item.glObject.vboTexture);
+            glBindBuffer(GL_ARRAY_BUFFER, item.glMainObject.vboTexture);
             glEnableVertexAttribArray(2);
         }
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
@@ -276,12 +276,12 @@ void GameMapMode::render() {
 
 void GameMapMode::drawObjectTile(GLTile &tile) {
     glBindTexture(GL_TEXTURE_2D, m_texturesGLMap[tile.tile.getObjectTextureName()]);
-    glBindVertexArray(tile.vaoObject);
-    glBindBuffer(GL_ARRAY_BUFFER, tile.glObject.vboPosition);
+    glBindVertexArray(tile.vaoSecondObject);
+    glBindBuffer(GL_ARRAY_BUFFER, tile.glMainObject.vboPosition);
     glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, tile.glObject.vboColor);
+    glBindBuffer(GL_ARRAY_BUFFER, tile.glMainObject.vboColor);
     glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, tile.vboTextureObject);
+    glBindBuffer(GL_ARRAY_BUFFER, tile.vboSecondTextureObject);
     glEnableVertexAttribArray(2);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
@@ -425,11 +425,11 @@ void GameMapMode::processAction(MapTileTriggerAction action, const std::map<std:
                         calculateGLTileCoord(Point<int>(glTileToUpdate.x, glTileToUpdate.y), tileCoord);
                         auto newChestTexture = m_map->getTextureByName(tile->getObjectTextureName());
                         GenerateGLObjectInfo infoGenObject {
-                            &glTileToUpdate.glObject,
+                            &glTileToUpdate.glMainObject,
                                 newChestTexture.has_value() ? &newChestTexture.value().get() : nullptr,
                                 tile->getObjectTextureIndex(),
-                                &glTileToUpdate.vaoObject,
-                                &glTileToUpdate.vboTextureObject
+                                &glTileToUpdate.vaoSecondObject,
+                                &glTileToUpdate.vboSecondTextureObject
                         };
                         GLObjectService::generateGLObject(infoGenObject, tileCoord, m_texColorBuf);
                     }
@@ -539,6 +539,7 @@ void GameMapMode::changeMap(const std::string &filePath, const std::string &mapN
     unloadGLMapObjects();
     loadMap(filePath, mapName);
     loadMapTextures();
+    unloadGLMapObjects();
     generateGLMapObjects();
     m_glPlayer->generateGLPlayerObject();
     m_glPlayer->setGLObjectPosition();
@@ -605,13 +606,17 @@ void GameMapMode::calculateTilesToDisplay() {
 
 void GameMapMode::unloadGLMapObjects() {
     for (auto &item : m_glTiles) {
-        glDeleteBuffers(1, &item.glObject.vboPosition);
-        glDeleteBuffers(1, &item.glObject.vboColor);
-        glDeleteBuffers(1, &item.glObject.vboTexture);
-        glDeleteBuffers(1, &item.vboTextureObject);
-        glDeleteVertexArrays(1, &item.glObject.vao);
+        if (item.glMainObject.vboPosition) glDeleteBuffers(1, &item.glMainObject.vboPosition);
+        if (item.glMainObject.vboColor) glDeleteBuffers(1, &item.glMainObject.vboColor);
+        if (item.glMainObject.vboTexture) glDeleteBuffers(1, &item.glMainObject.vboTexture);
+        if (item.glMainObject.vao) glDeleteVertexArrays(1, &item.glMainObject.vao);
+        if (item.glSecondObject.vboPosition) glDeleteBuffers(1, &item.glSecondObject.vboPosition);
+        if (item.glSecondObject.vboColor) glDeleteBuffers(1, &item.glSecondObject.vboColor);
+        if (item.glSecondObject.vboTexture) glDeleteBuffers(1, &item.glSecondObject.vboTexture);
+        if (item.glSecondObject.vao)  glDeleteVertexArrays(1, &item.glSecondObject.vao);
+        if (item.vboSecondTextureObject) glDeleteBuffers(1, &item.vboSecondTextureObject);
         if (item.tile.hasObjectTexture()) {
-            glDeleteVertexArrays(1, &item.vaoObject);
+            if (item.vaoSecondObject) glDeleteVertexArrays(1, &item.vaoSecondObject);
         }
     }
     m_glTiles.clear();
@@ -643,7 +648,7 @@ void GameMapMode::generateGLMapObjects() {
             calculateGLTileCoord(Point<int>(indexCol, indexRow), tileCoord);
             auto tileTexture = m_map->getTextureByName(tile.getTextureName());
             GenerateGLObjectInfo infoGenTexture {
-                &glTile.glObject,
+                &glTile.glMainObject,
                     tileTexture.has_value() ? &tileTexture.value().get() : nullptr,
                     tile.getTextureIndex()};
             GLObjectService::generateGLObject(infoGenTexture, tileCoord, m_texColorBuf);
@@ -651,11 +656,11 @@ void GameMapMode::generateGLMapObjects() {
             if (glTile.tile.hasObjectTexture()) {
                 auto objectTexture = m_map->getTextureByName(tile.getObjectTextureName());
                 GenerateGLObjectInfo infoGenObject {
-                    &glTile.glObject,
+                    &glTile.glSecondObject,
                         objectTexture.has_value() ? &objectTexture.value().get() : nullptr,
                         tile.getObjectTextureIndex(),
-                        &glTile.vaoObject,
-                        &glTile.vboTextureObject };
+                        &glTile.vaoSecondObject,
+                        &glTile.vboSecondTextureObject };
                 GLObjectService::generateGLObject(infoGenObject, tileCoord, m_texColorBuf);
             }
             indexCol++;

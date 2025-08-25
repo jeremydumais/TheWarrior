@@ -32,56 +32,56 @@ m_textureBeginId(48),
 m_hasFocus(false) {}
 
 void GLOnScreenKeyboardButton::initialize(const std::shared_ptr<GLTexture> glTexture,
-                              const std::shared_ptr<GLShaderProgram> shaderProgram,
-                              std::shared_ptr<GLTextService> textService) {
-  m_windowGLTexture = glTexture;
-  m_shaderProgram = shaderProgram;
-  m_textService = textService;
-  m_glFormService->initialize(m_shaderProgram, textService);
+                                          const std::shared_ptr<GLShaderProgram> shaderProgram,
+                                          std::shared_ptr<GLTextService> textService) {
+    m_windowGLTexture = glTexture;
+    m_shaderProgram = shaderProgram;
+    m_textService = textService;
+    m_glFormService->initialize(m_shaderProgram, textService);
 }
 
 void GLOnScreenKeyboardButton::setCaption(const std::string &title) {
-  m_glCaption.text = title;
-  generateCaption();
+    m_glCaption.text = title;
+    generateCaption();
 }
 
 void GLOnScreenKeyboardButton::generateGLElements() {
-  m_windowObjects.clear();
-  m_windowBackgrounds.clear();
-  if (FloatUtils::areEqual(m_size.width(), m_size.height())) {
-      m_glFormService->generateQuad(m_windowBackgrounds,
-              {m_initialLocation.x() + m_location.x(), m_initialLocation.y() + m_location.y()},
-              m_size, &m_windowGLTexture->texture, 47);
-  } else {
-      m_glFormService->generateQuad(m_windowBackgrounds,
-              {m_initialLocation.x() + m_location.x(), m_initialLocation.y() + m_location.y()},
-              m_size, &m_windowGLTexture->texture, m_textureBeginId + 8);
-      m_glFormService->generateBoxQuad(m_windowObjects,
-              {m_initialLocation.x() + m_location.x(), m_initialLocation.y() + m_location.y()},
-              m_size, &m_windowGLTexture->texture, m_textureBeginId);
-  }
-  generateCaption();
+    freeGLObjects(m_windowObjects);
+    freeGLObjects(m_windowBackgrounds);
+    if (FloatUtils::areEqual(m_size.width(), m_size.height())) {
+        m_glFormService->generateQuad(m_windowBackgrounds,
+                {m_initialLocation.x() + m_location.x(), m_initialLocation.y() + m_location.y()},
+                m_size, &m_windowGLTexture->texture, 47);
+    } else {
+        m_glFormService->generateQuad(m_windowBackgrounds,
+                {m_initialLocation.x() + m_location.x(), m_initialLocation.y() + m_location.y()},
+                m_size, &m_windowGLTexture->texture, m_textureBeginId + 8);
+        m_glFormService->generateBoxQuad(m_windowObjects,
+                {m_initialLocation.x() + m_location.x(), m_initialLocation.y() + m_location.y()},
+                m_size, &m_windowGLTexture->texture, m_textureBeginId);
+    }
+    generateCaption();
 }
 
 void GLOnScreenKeyboardButton::render() {
-  for (const auto &obj : m_windowBackgrounds) {
-    m_glFormService->drawQuad(obj, m_windowGLTexture->glTextureId, 1.0F);
-  }
-  for (const auto &obj : m_windowObjects) {
-    m_glFormService->drawQuad(obj, m_windowGLTexture->glTextureId);
-  }
-  m_glFormService->drawText(m_glCaption);
+    for (const auto &obj : m_windowBackgrounds) {
+        m_glFormService->drawQuad(obj, m_windowGLTexture->glTextureId, 1.0F);
+    }
+    for (const auto &obj : m_windowObjects) {
+        m_glFormService->drawQuad(obj, m_windowGLTexture->glTextureId);
+    }
+    m_glFormService->drawText(m_glCaption);
 }
 
 void GLOnScreenKeyboardButton::gameWindowSizeChanged(const Size<> &size) {
-  m_screenSize = Size<float>(static_cast<float>(size.width()),
-                             static_cast<float>(size.height()));
-  m_location = {
-      (m_screenSize.width() / 2.0F) - (m_size.width() / 2.0F),
-      (m_screenSize.height() / 2.0F) - (m_size.height() / 2.0F) };
-  m_windowCenter = {m_location.x() + (m_size.width() / 2.0F),
-                    m_location.y() + (m_size.height() / 2.0F)};
-  m_glFormService->gameWindowSizeChanged(size);
+    m_screenSize = Size<float>(static_cast<float>(size.width()),
+            static_cast<float>(size.height()));
+    m_location = {
+        (m_screenSize.width() / 2.0F) - (m_size.width() / 2.0F),
+        (m_screenSize.height() / 2.0F) - (m_size.height() / 2.0F) };
+    m_windowCenter = {m_location.x() + (m_size.width() / 2.0F),
+        m_location.y() + (m_size.height() / 2.0F)};
+    m_glFormService->gameWindowSizeChanged(size);
 }
 
 void GLOnScreenKeyboardButton::setTextureBeginId(int value) {
@@ -93,18 +93,28 @@ void GLOnScreenKeyboardButton::setHasFocus(bool value) {
 }
 
 void GLOnScreenKeyboardButton::generateCaption() {
-  auto titleSize = m_textService->getTextSize(m_glCaption.text, 0.6F);
-  m_glCaption.position = {m_location.x() + m_initialLocation.x() +
-                              (m_size.width() / 2.0F) -
-                              (titleSize.width() / 2.0F),
-                          m_location.y() + m_initialLocation.y() +
-                              (m_size.height() / 2.0F) +
-                              (titleSize.height() / 2.0F)};
-  if (m_hasFocus) {
-      m_glCaption.color = GLColor::Green;
-  } else {
-      m_glCaption.color = GLColor::White;
-  }
+    auto titleSize = m_textService->getTextSize(m_glCaption.text, 0.6F);
+    m_glCaption.position = {m_location.x() + m_initialLocation.x() +
+        (m_size.width() / 2.0F) -
+            (titleSize.width() / 2.0F),
+            m_location.y() + m_initialLocation.y() +
+                (m_size.height() / 2.0F) +
+                (titleSize.height() / 2.0F)};
+    if (m_hasFocus) {
+        m_glCaption.color = GLColor::Green;
+    } else {
+        m_glCaption.color = GLColor::White;
+    }
+}
+
+void GLOnScreenKeyboardButton::freeGLObjects(std::vector<GLObject> &objects) {
+    for (auto &item : objects) {
+        if (item.vboPosition) glDeleteBuffers(1, &item.vboPosition);
+        if (item.vboColor) glDeleteBuffers(1, &item.vboColor);
+        if (item.vboTexture) glDeleteBuffers(1, &item.vboTexture);
+        if (item.vao) glDeleteVertexArrays(1, &item.vao);
+    }
+    objects.clear();
 }
 
 }  // namespace thewarrior::ui::components

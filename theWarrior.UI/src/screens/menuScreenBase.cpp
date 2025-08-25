@@ -31,6 +31,7 @@ void MenuScreenBase::initializeBase(const MenuScreenBaseInfo &info) {
     m_menuMoveSound = info.menuMoveSound;
     m_menuClickSound = info.menuClickSound;
     m_menuClickDisableSound = info.menuClickDisableSound;
+    m_menuBackSound = info.menuBackSound;
 }
 
 const std::string& MenuScreenBase::getLastError() const {
@@ -100,7 +101,28 @@ void MenuScreenBase::gameWindowSizeChangedBase(const Size<> &size) {
                                static_cast<float>(size.height()));
 }
 
+void MenuScreenBase::freeGLObjects(std::vector<GLObject> &objects) {
+    for (auto &item : objects) {
+        if (item.vboPosition) glDeleteBuffers(1, &item.vboPosition);
+        if (item.vboColor) glDeleteBuffers(1, &item.vboColor);
+        if (item.vboTexture) glDeleteBuffers(1, &item.vboTexture);
+        if (item.vao) glDeleteVertexArrays(1, &item.vao);
+    }
+    objects.clear();
+}
+
+void MenuScreenBase::freeGLObjects(std::map<std::string, GLObject> &objects) {
+    for (auto &item : objects) {
+        if (item.second.vboPosition) glDeleteBuffers(1, &item.second.vboPosition);
+        if (item.second.vboColor) glDeleteBuffers(1, &item.second.vboColor);
+        if (item.second.vboTexture) glDeleteBuffers(1, &item.second.vboTexture);
+        if (item.second.vao) glDeleteVertexArrays(1, &item.second.vao);
+    }
+    objects.clear();
+}
+
 void MenuScreenBase::generateGLElementsBase() {
+    freeGLObjects(m_namedObjects);
     std::vector<GLObject> menuObjects = {};
     m_glFormService->generateQuad(menuObjects,
                                   { 0.0F, 0.0F },
@@ -118,6 +140,10 @@ void MenuScreenBase::playClickSound() {
 
 void MenuScreenBase::playClickDisableSound() {
     Mix_PlayChannel(-1, m_menuClickDisableSound.get(), 0);
+}
+
+void MenuScreenBase::playBackSound() {
+    Mix_PlayChannel(-1, m_menuBackSound.get(), 0);
 }
 
 Size<float> MenuScreenBase::getGLSizeFromPx(Size<int> value) const {
