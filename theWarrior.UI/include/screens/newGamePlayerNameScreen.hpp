@@ -34,8 +34,8 @@ class NewGamePlayerNameScreen : public MenuScreenBase {
     components::GLOnScreenKeyboard m_onScreenKeyboard;
     GLTextObject m_enterNameObject;
     std::string m_playerName;
-    thewarrior::models::Point<float> m_location;
-    thewarrior::models::Point<float> m_initialLocation;
+    thewarrior::models::Point<float> m_playerNameLocation;
+    thewarrior::models::Point<float> m_playerNameInitialLocation;
     void generateGLElements();
     void buttonUpPressed() override;
     void buttonDownPressed() override;

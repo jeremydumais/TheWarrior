@@ -5,6 +5,7 @@
 #include "glOnScreenKeyboardButton.hpp"
 #include "floatUtils.hpp"
 #include "glColor.hpp"
+#include "glComponentBase.hpp"
 #include "glTexture.hpp"
 #include "point.hpp"
 #include <boost/algorithm/string.hpp>
@@ -19,25 +20,21 @@ GLOnScreenKeyboardButton::GLOnScreenKeyboardButton(const std::string &caption, P
 m_location(location),
 m_initialLocation(location),
 m_size(size),
-m_windowCenter({1.0F, 1.0F}),
-m_screenSize({1.0F, 1.0F}),
-m_shaderProgram(nullptr),
-m_glFormService(std::make_shared<GLFormService>()),
-m_textService(nullptr),
-m_windowGLTexture(nullptr),
 m_glCaption({caption, {1.0F, 1.0F}, 0.6F}),
 m_windowObjects(std::vector<GLObject>()),
 m_windowBackgrounds(std::vector<GLObject>()),
 m_textureBeginId(48),
 m_hasFocus(false) {}
 
+GLOnScreenKeyboardButton::~GLOnScreenKeyboardButton() {
+    GLComponentBase::freeGLObjects(m_windowObjects);
+    GLComponentBase::freeGLObjects(m_windowBackgrounds);
+}
+
 void GLOnScreenKeyboardButton::initialize(const std::shared_ptr<GLTexture> glTexture,
                                           const std::shared_ptr<GLShaderProgram> shaderProgram,
                                           std::shared_ptr<GLTextService> textService) {
-    m_windowGLTexture = glTexture;
-    m_shaderProgram = shaderProgram;
-    m_textService = textService;
-    m_glFormService->initialize(m_shaderProgram, textService);
+    GLComponentBase::initialize(glTexture, shaderProgram, textService);
 }
 
 void GLOnScreenKeyboardButton::setCaption(const std::string &title) {
@@ -45,43 +42,38 @@ void GLOnScreenKeyboardButton::setCaption(const std::string &title) {
     generateCaption();
 }
 
-void GLOnScreenKeyboardButton::generateGLElements() {
-    freeGLObjects(m_windowObjects);
-    freeGLObjects(m_windowBackgrounds);
+void GLOnScreenKeyboardButton::onGenerateGLElements() {
+    GLComponentBase::freeGLObjects(m_windowObjects);
+    GLComponentBase::freeGLObjects(m_windowBackgrounds);
     if (FloatUtils::areEqual(m_size.width(), m_size.height())) {
         m_glFormService->generateQuad(m_windowBackgrounds,
                 {m_initialLocation.x() + m_location.x(), m_initialLocation.y() + m_location.y()},
-                m_size, &m_windowGLTexture->texture, 47);
+                m_size, &m_glTexture->texture, 47);
     } else {
         m_glFormService->generateQuad(m_windowBackgrounds,
                 {m_initialLocation.x() + m_location.x(), m_initialLocation.y() + m_location.y()},
-                m_size, &m_windowGLTexture->texture, m_textureBeginId + 8);
+                m_size, &m_glTexture->texture, m_textureBeginId + 8);
         m_glFormService->generateBoxQuad(m_windowObjects,
                 {m_initialLocation.x() + m_location.x(), m_initialLocation.y() + m_location.y()},
-                m_size, &m_windowGLTexture->texture, m_textureBeginId);
+                m_size, &m_glTexture->texture, m_textureBeginId);
     }
     generateCaption();
 }
 
-void GLOnScreenKeyboardButton::render() {
+void GLOnScreenKeyboardButton::onRender() {
     for (const auto &obj : m_windowBackgrounds) {
-        m_glFormService->drawQuad(obj, m_windowGLTexture->glTextureId, 1.0F);
+        m_glFormService->drawQuad(obj, m_glTexture->glTextureId, 1.0F);
     }
     for (const auto &obj : m_windowObjects) {
-        m_glFormService->drawQuad(obj, m_windowGLTexture->glTextureId);
+        m_glFormService->drawQuad(obj, m_glTexture->glTextureId);
     }
     m_glFormService->drawText(m_glCaption);
 }
 
-void GLOnScreenKeyboardButton::gameWindowSizeChanged(const Size<> &size) {
-    m_screenSize = Size<float>(static_cast<float>(size.width()),
-            static_cast<float>(size.height()));
+void GLOnScreenKeyboardButton::onGameWindowSizeChanged(const Size<> &) {
     m_location = {
         (m_screenSize.width() / 2.0F) - (m_size.width() / 2.0F),
         (m_screenSize.height() / 2.0F) - (m_size.height() / 2.0F) };
-    m_windowCenter = {m_location.x() + (m_size.width() / 2.0F),
-        m_location.y() + (m_size.height() / 2.0F)};
-    m_glFormService->gameWindowSizeChanged(size);
 }
 
 void GLOnScreenKeyboardButton::setTextureBeginId(int value) {
@@ -105,16 +97,6 @@ void GLOnScreenKeyboardButton::generateCaption() {
     } else {
         m_glCaption.color = GLColor::White;
     }
-}
-
-void GLOnScreenKeyboardButton::freeGLObjects(std::vector<GLObject> &objects) {
-    for (auto &item : objects) {
-        if (item.vboPosition) glDeleteBuffers(1, &item.vboPosition);
-        if (item.vboColor) glDeleteBuffers(1, &item.vboColor);
-        if (item.vboTexture) glDeleteBuffers(1, &item.vboTexture);
-        if (item.vao) glDeleteVertexArrays(1, &item.vao);
-    }
-    objects.clear();
 }
 
 }  // namespace thewarrior::ui::components

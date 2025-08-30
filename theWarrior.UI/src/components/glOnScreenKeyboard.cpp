@@ -1,5 +1,5 @@
-#include <cctype>
 #include <fmt/format.h>
+#include <cctype>
 #include <array>
 #include <cstddef>
 #include <memory>
@@ -7,8 +7,8 @@
 #include <string>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string.hpp>
-#include <string_view>
 #include "glOnScreenKeyboard.hpp"
+#include "glComponentBase.hpp"
 #include "glOnScreenKeyboardButton.hpp"
 #include "glTexture.hpp"
 #include "point.hpp"
@@ -21,12 +21,6 @@ namespace thewarrior::ui::components {
 GLOnScreenKeyboard::GLOnScreenKeyboard(Point<float> location)
 : m_location(location),
 m_size(Size<float>(700.0F, 700.0F)),
-m_windowCenter({1.0F, 1.0F}),
-m_screenSize({1.0F, 1.0F}),
-m_shaderProgram(nullptr),
-m_glFormService(std::make_shared<GLFormService>()),
-m_textService(nullptr),
-m_windowGLTexture(nullptr),
 m_focusPosition(0, 0),
 m_fourthRowLastXPosition(0),
 m_isInCapsMode(false) {
@@ -37,16 +31,13 @@ void GLOnScreenKeyboard::initialize(const std::shared_ptr<GLTexture> glTexture,
                               std::shared_ptr<GLTextService> textService,
                               std::shared_ptr<Mix_Chunk> menuMoveSound,
                               std::shared_ptr<Mix_Chunk> menuClickSound) {
-    m_windowGLTexture = glTexture;
-    m_shaderProgram = shaderProgram;
-    m_textService = textService;
-    m_glFormService->initialize(m_shaderProgram, textService);
+    GLComponentBase::initialize(glTexture, shaderProgram, textService);
     generateKeyboardItems();
     m_menuMoveSound = menuMoveSound;
     m_menuClickSound = menuClickSound;
 }
 
-void GLOnScreenKeyboard::generateGLElements() {
+void GLOnScreenKeyboard::onGenerateGLElements() {
     auto buttonPosition = Point<size_t>(0, 0);
     for (const auto& row : m_buttonRows | std::views::all) {
         for (auto& button : row | std::views::all) {
@@ -63,7 +54,7 @@ void GLOnScreenKeyboard::generateGLElements() {
     }
 }
 
-void GLOnScreenKeyboard::render() {
+void GLOnScreenKeyboard::onRender() {
     for (const auto& row : m_buttonRows | std::views::all) {
         for (auto& button : row | std::views::all) {
             button->render();
@@ -71,15 +62,10 @@ void GLOnScreenKeyboard::render() {
     }
 }
 
-void GLOnScreenKeyboard::gameWindowSizeChanged(const Size<> &size) {
-    m_screenSize = Size<float>(static_cast<float>(size.width()),
-                               static_cast<float>(size.height()));
+void GLOnScreenKeyboard::onGameWindowSizeChanged(const Size<> &size) {
     m_location = {
         (m_screenSize.width() / 2.0F) - (m_size.width() / 2.0F),
         (m_screenSize.height() / 2.0F) - (m_size.height() / 2.0F) };
-    m_windowCenter = {m_location.x() + (m_size.width() / 2.0F),
-                      m_location.y() + (m_size.height() / 2.0F)};
-    m_glFormService->gameWindowSizeChanged(size);
     for (const auto& row : m_buttonRows | std::views::all) {
         for (auto& button : row | std::views::all) {
             button->gameWindowSizeChanged(size);
@@ -200,7 +186,7 @@ void GLOnScreenKeyboard::generateKeyboardItems() {
                               Size<float>(128.0F, 61.5F)));
     for (const auto& row : m_buttonRows | std::views::all) {
         for (auto& button : row | std::views::all) {
-            button->initialize(m_windowGLTexture, m_shaderProgram, m_textService);
+            button->initialize(m_glTexture, m_shaderProgram, m_textService);
             button->gameWindowSizeChanged(Size<>(static_cast<int>(m_screenSize.width()),
                                                  static_cast<int>(m_screenSize.height())));
         }

@@ -4,6 +4,7 @@
 #include <vector>
 #include "glMenuButton.hpp"
 #include "glColor.hpp"
+#include "glComponentBase.hpp"
 #include "glTexture.hpp"
 #include "point.hpp"
 #include <boost/algorithm/string.hpp>
@@ -16,27 +17,23 @@ GLMenuButton::GLMenuButton(Point<float> location, Size<float> size)
 : m_location(location),
 m_initialLocation(location),
 m_size(size),
-m_windowCenter({1.0F, 1.0F}),
-m_screenSize({1.0F, 1.0F}),
-m_shaderProgram(nullptr),
-m_glFormService(std::make_shared<GLFormService>()),
-m_textService(nullptr),
-m_windowGLTexture(nullptr),
 m_glCaption({"", {1.0F, 1.0F}, 0.6F}),
 m_windowObjects(std::vector<GLObject>()),
 m_windowBackgrounds(std::vector<GLObject>()),
 m_textureBeginId(38),
 m_hasFocus(false) {}
 
+GLMenuButton::~GLMenuButton() {
+    GLComponentBase::freeGLObjects(m_windowObjects);
+    GLComponentBase::freeGLObjects(m_windowBackgrounds);
+}
+
 void GLMenuButton::initialize(const std::string &caption,
                               const std::shared_ptr<GLTexture> glTexture,
                               const std::shared_ptr<GLShaderProgram> shaderProgram,
                               std::shared_ptr<GLTextService> textService) {
+    GLComponentBase::initialize(glTexture, shaderProgram, textService);
     m_glCaption.text = caption;
-    m_windowGLTexture = glTexture;
-    m_shaderProgram = shaderProgram;
-    m_textService = textService;
-    m_glFormService->initialize(m_shaderProgram, textService);
 }
 
 void GLMenuButton::setCaption(const std::string &title) {
@@ -44,38 +41,33 @@ void GLMenuButton::setCaption(const std::string &title) {
     generateCaption();
 }
 
-void GLMenuButton::generateGLElements() {
-    freeGLObjects(m_windowObjects);
-    freeGLObjects(m_windowBackgrounds);
+void GLMenuButton::onGenerateGLElements() {
+    GLComponentBase::freeGLObjects(m_windowObjects);
+    GLComponentBase::freeGLObjects(m_windowBackgrounds);
     // Window
     generateQuad(m_windowBackgrounds, m_location,
-            m_size, &m_windowGLTexture->texture,
+            m_size, &m_glTexture->texture,
             m_textureBeginId + 8);
     generateBoxQuad(m_windowObjects, m_location,
-            m_size, &m_windowGLTexture->texture,
+            m_size, &m_glTexture->texture,
             m_textureBeginId);
     generateCaption();
 }
 
-void GLMenuButton::render() {
+void GLMenuButton::onRender() {
     for (const auto &obj : m_windowBackgrounds) {
-        m_glFormService->drawQuad(obj, m_windowGLTexture->glTextureId, 1.0F);
+        m_glFormService->drawQuad(obj, m_glTexture->glTextureId, 1.0F);
     }
     for (const auto &obj : m_windowObjects) {
-        m_glFormService->drawQuad(obj, m_windowGLTexture->glTextureId);
+        m_glFormService->drawQuad(obj, m_glTexture->glTextureId);
     }
     m_glFormService->drawText(m_glCaption);
 }
 
-void GLMenuButton::gameWindowSizeChanged(const Size<> &size) {
-    m_screenSize = Size<float>(static_cast<float>(size.width()),
-            static_cast<float>(size.height()));
+void GLMenuButton::onGameWindowSizeChanged(const Size<int> &) {
     m_location = {
         (m_screenSize.width() / 2.0F) - (m_size.width() / 2.0F),
         (m_screenSize.height() / 2.0F) - (m_size.height() / 2.0F) };
-    m_windowCenter = {m_location.x() + (m_size.width() / 2.0F),
-        m_location.y() + (m_size.height() / 2.0F)};
-    m_glFormService->gameWindowSizeChanged(size);
 }
 
 void GLMenuButton::setTextureBeginId(int value) {
@@ -84,16 +76,6 @@ void GLMenuButton::setTextureBeginId(int value) {
 
 void GLMenuButton::setHasFocus(bool value) {
     m_hasFocus = value;
-}
-
-void GLMenuButton::freeGLObjects(std::vector<GLObject> &objects) {
-    for (auto &item : objects) {
-        if (item.vboPosition) glDeleteBuffers(1, &item.vboPosition);
-        if (item.vboColor) glDeleteBuffers(1, &item.vboColor);
-        if (item.vboTexture) glDeleteBuffers(1, &item.vboTexture);
-        if (item.vao) glDeleteVertexArrays(1, &item.vao);
-    }
-    objects.clear();
 }
 
 void GLMenuButton::generateQuad(std::vector<GLObject> &objects,

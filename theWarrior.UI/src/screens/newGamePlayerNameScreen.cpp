@@ -26,8 +26,8 @@ m_menuWindow(Size<float>(850.0F, 620.0F)),
 m_onScreenKeyboard(Point<float>(1.0F, 1.0F)),
 m_enterNameObject({"Enter name:", {0.0F, 0.0F}, 0.8F}),
 m_playerName(""),
-m_location(Point<float>(0.0F, 0.0F)),
-m_initialLocation(Point<float>(-300.0F, -230.0F)) {
+m_playerNameLocation(Point<float>(0.0F, 0.0F)),
+m_playerNameInitialLocation(Point<float>(-300.0F, -230.0F)) {
     m_onScreenKeyboard.onCharButtonPressed.connect(boost::bind(&NewGamePlayerNameScreen::keyboardCharButtonPressed, this, boost::placeholders::_1));
     m_onScreenKeyboard.onDELButtonPressed.connect(boost::bind(&NewGamePlayerNameScreen::keyboardDELButtonPressed, this));
 }
@@ -128,7 +128,7 @@ void NewGamePlayerNameScreen::unloadGLMapObjects() {
 
 void NewGamePlayerNameScreen::gameWindowSizeChanged(const thewarrior::models::Size<> &size) {
     MenuScreenBase::gameWindowSizeChangedBase(size);
-    m_location = {
+    m_playerNameLocation = {
         (m_screenSize.width() / 2.0F) ,
         (m_screenSize.height() / 2.0F) };
     m_menuWindow.gameWindowSizeChanged(size);
@@ -144,7 +144,7 @@ void NewGamePlayerNameScreen::generateGLElements() {
     MenuScreenBase::generateGLElementsBase();
     m_menuWindow.generateGLElements();
     m_onScreenKeyboard.generateGLElements();
-    m_enterNameObject.position = {m_location.x() + m_initialLocation.x(), -m_location.y() + m_initialLocation.y() };
+    m_enterNameObject.position = {m_playerNameLocation.x() + m_playerNameInitialLocation.x(), -m_playerNameLocation.y() + m_playerNameInitialLocation.y() };
     m_enterNameObject.text = fmt::format("Enter name: {0}", m_playerName);
     m_enterNameObject.color = GLColor::Gray;
 }

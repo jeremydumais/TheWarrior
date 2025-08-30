@@ -7,13 +7,12 @@
 #include <string>
 #include <string_view>
 #include <vector>
-#include "glFormService.hpp"
+#include "glComponentBase.hpp"
 #include "glObjectService.hpp"
 #include "glOnScreenKeyboardButton.hpp"
 #include "glShaderProgram.hpp"
 #include "glTextService.hpp"
 #include "glTexture.hpp"
-#include "glTextureService.hpp"
 #include "point.hpp"
 #include "size.hpp"
 #include <boost/signals2.hpp>
@@ -28,19 +27,19 @@ constexpr std::array<std::string_view, 43> ONSCREENKEYBOARD_BUTTONSTEXT = {
     "SHIFT", "SPACE", "OK"
 };
 
-class GLOnScreenKeyboard {
+class GLOnScreenKeyboard : public GLComponentBase {
  public:
     explicit GLOnScreenKeyboard(thewarrior::models::Point<float> location);
-    virtual ~GLOnScreenKeyboard() = default;
+    ~GLOnScreenKeyboard() override = default;
     void initialize(const std::shared_ptr<GLTexture> texture,
                     const std::shared_ptr<GLShaderProgram> shaderProgram,
                     std::shared_ptr<GLTextService> textService,
                     std::shared_ptr<Mix_Chunk> menuMoveSound,
                     std::shared_ptr<Mix_Chunk> menuClickSound);
     void setCaption(const std::string &title);
-    void generateGLElements();
-    void render();
-    void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
+    void onGenerateGLElements() override;
+    void onRender() override;
+    void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;
     void buttonUpPress();
     void buttonDownPress();
     void buttonLeftPress();
@@ -54,14 +53,6 @@ class GLOnScreenKeyboard {
  protected:
     thewarrior::models::Point<float> m_location;
     thewarrior::models::Size<float> m_size;
-    thewarrior::models::Point<float> m_windowCenter;
-    thewarrior::models::Size<float> m_screenSize;
-    std::shared_ptr<GLShaderProgram> m_shaderProgram;
-    std::shared_ptr<GLFormService> m_glFormService;
-    std::shared_ptr<GLTextService> m_textService;
-    GLTextureService m_textureService;
-    std::shared_ptr<GLTexture> m_windowGLTexture;
-    GLObject m_glwindow;
     std::array<std::vector<std::shared_ptr<GLOnScreenKeyboardButton>>, 5> m_buttonRows;
     thewarrior::models::Point<size_t> m_focusPosition;
     size_t m_fourthRowLastXPosition;
