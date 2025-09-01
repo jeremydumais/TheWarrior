@@ -1,14 +1,19 @@
 #include <memory>
 #include "glComponentBase.hpp"
 #include "glFormService.hpp"
+#include "point.hpp"
 #include "size.hpp"
 
 using namespace thewarrior::models;
 
 namespace thewarrior::ui::components {
 
-GLComponentBase::GLComponentBase()
-: m_screenSize(Size<float>(1.0F, 1.0F)),
+GLComponentBase::GLComponentBase(Point<float> location,
+                                 Size<float> size)
+: m_location(location),
+m_initialLocation(location),
+m_size(size),
+m_screenSize(Size<float>(1.0F, 1.0F)),
 m_shaderProgram(nullptr),
 m_glFormService(std::make_shared<GLFormService>()),
 m_textService(nullptr) {}
@@ -35,6 +40,24 @@ void GLComponentBase::gameWindowSizeChanged(const thewarrior::models::Size<int> 
             static_cast<float>(size.height()));
     m_glFormService->gameWindowSizeChanged(size);
     onGameWindowSizeChanged(size);
+}
+
+Size<float> GLComponentBase::getSize() const {
+    return m_size;
+}
+
+Point<float> GLComponentBase::getLocation() const {
+    return m_initialLocation;
+}
+
+void GLComponentBase::setLocation(thewarrior::models::Point<float> value) {
+    m_location = value;
+    m_initialLocation = value;
+    // Recalculate the real position
+    onGameWindowSizeChanged(Size<int>{
+            static_cast<int>(m_screenSize.width()),
+            static_cast<int>(m_screenSize.height())
+    });
 }
 
 void GLComponentBase::freeGLObjects(std::vector<GLObject> &objects) {

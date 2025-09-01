@@ -30,7 +30,7 @@ m_menuButtonQuit(Point<float>(0.0F, 135.0F), Size<float>(250.0F, 75.0F)) {
 void MainMenuScreen::initialize(const MenuScreenBaseInfo &info) {
     MenuScreenBase::initializeBase(info);
     m_menuWindow.initShader(m_shaderProgram);
-    m_menuWindow.initialize("", info.resourcesPath, info.textService);
+    m_menuWindow.initialize("", info.windowGLTexture, info.textService);
     m_menuWindow.setTextureBeginId(29);
     m_menuWindow.setFillCenter(true);
     m_menuButtonNewGame.initialize("New Game", m_windowGLTexture, m_shaderProgram, info.textService);

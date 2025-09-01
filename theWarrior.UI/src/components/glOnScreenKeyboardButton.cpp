@@ -16,9 +16,7 @@ using thewarrior::utils::FloatUtils;
 namespace thewarrior::ui::components {
 
 GLOnScreenKeyboardButton::GLOnScreenKeyboardButton(const std::string &caption, Point<float> location, Size<float> size)
-:
-m_location(location),
-m_initialLocation(location),
+: GLComponentBase(location, size),
 m_size(size),
 m_glCaption({caption, {1.0F, 1.0F}, 0.6F}),
 m_windowObjects(std::vector<GLObject>()),

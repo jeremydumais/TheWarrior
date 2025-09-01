@@ -8,7 +8,6 @@
 #include <string_view>
 #include <vector>
 #include "glComponentBase.hpp"
-#include "glObjectService.hpp"
 #include "glOnScreenKeyboardButton.hpp"
 #include "glShaderProgram.hpp"
 #include "glTextService.hpp"
@@ -51,8 +50,6 @@ class GLOnScreenKeyboard : public GLComponentBase {
     boost::signals2::signal<void(char c)> onCharButtonPressed;
 
  protected:
-    thewarrior::models::Point<float> m_location;
-    thewarrior::models::Size<float> m_size;
     std::array<std::vector<std::shared_ptr<GLOnScreenKeyboardButton>>, 5> m_buttonRows;
     thewarrior::models::Point<size_t> m_focusPosition;
     size_t m_fourthRowLastXPosition;

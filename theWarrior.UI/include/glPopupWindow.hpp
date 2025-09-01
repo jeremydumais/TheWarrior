@@ -33,12 +33,16 @@ class GLPopupWindow : public IShaderService {
     void initialize(const std::string &title,
                     const std::string &resourcePath,
                     std::shared_ptr<GLTextService> textService);
+    void initialize(const std::string &title,
+                    const std::shared_ptr<GLTexture> texture,
+                    std::shared_ptr<GLTextService> textService);
     void setTitle(const std::string &title);
     void generateGLElements();
     void render();
     void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
     void setTextureBeginId(int value);
     void setFillCenter(bool value);
+    void setWindowSize(thewarrior::models::Size<float> size);
     boost::signals2::signal<void()> onCloseEvent;
 
  protected:
@@ -52,6 +56,7 @@ class GLPopupWindow : public IShaderService {
     std::shared_ptr<GLTextService> m_textService;
     GLTextureService m_textureService;
     GLTexture m_windowGLTexture;
+    std::shared_ptr<GLTexture> m_texture;
     GLObject m_glwindow;
     GLTextObject m_glTitle;
     bool m_displayTitle;
@@ -91,6 +96,7 @@ class GLPopupWindow : public IShaderService {
                                       float width,
                                       GLColor colorLabel = GLColor::White,
                                       GLColor colorValue = GLColor::White);
+    GLTexture *getTexturePtr();
 };
 
 }  // namespace thewarrior::ui

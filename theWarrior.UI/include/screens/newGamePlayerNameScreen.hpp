@@ -6,6 +6,7 @@
 #include <string>
 #include <boost/signals2.hpp>
 #include "components/glOnScreenKeyboard.hpp"
+#include "components/glMenuModalDialog.hpp"
 #include "glPopupWindow.hpp"
 #include "glTextService.hpp"
 #include "menuScreenBase.hpp"
@@ -36,6 +37,7 @@ class NewGamePlayerNameScreen : public MenuScreenBase {
     std::string m_playerName;
     thewarrior::models::Point<float> m_playerNameLocation;
     thewarrior::models::Point<float> m_playerNameInitialLocation;
+    components::GLMenuModalDialog m_modalDialog;
     void generateGLElements();
     void buttonUpPressed() override;
     void buttonDownPressed() override;
@@ -47,6 +49,7 @@ class NewGamePlayerNameScreen : public MenuScreenBase {
     bool removePlayerNameChar();
     void keyboardCharButtonPressed(char c);
     void keyboardDELButtonPressed();
+    void keyboardOKButtonPressed();
 };
 
 }  // namespace thewarrior::ui::screens

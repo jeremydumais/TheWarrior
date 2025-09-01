@@ -32,8 +32,6 @@ class GLOnScreenKeyboardButton : public GLComponentBase {
     boost::signals2::signal<void()> onClickEvent;
 
  protected:
-    thewarrior::models::Point<float> m_location;
-    thewarrior::models::Point<float> m_initialLocation;
     thewarrior::models::Size<float> m_size;
     GLTextObject m_glCaption;
     std::vector<GLObject> m_windowObjects;

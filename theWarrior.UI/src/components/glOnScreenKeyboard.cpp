@@ -19,19 +19,18 @@ using namespace thewarrior::models;
 namespace thewarrior::ui::components {
 
 GLOnScreenKeyboard::GLOnScreenKeyboard(Point<float> location)
-: m_location(location),
-m_size(Size<float>(700.0F, 700.0F)),
+: GLComponentBase(location, Size<float>(700.0F, 700.0F)),
 m_focusPosition(0, 0),
 m_fourthRowLastXPosition(0),
 m_isInCapsMode(false) {
 }
 
-void GLOnScreenKeyboard::initialize(const std::shared_ptr<GLTexture> glTexture,
+void GLOnScreenKeyboard::initialize(const std::shared_ptr<GLTexture> texture,
                               const std::shared_ptr<GLShaderProgram> shaderProgram,
                               std::shared_ptr<GLTextService> textService,
                               std::shared_ptr<Mix_Chunk> menuMoveSound,
                               std::shared_ptr<Mix_Chunk> menuClickSound) {
-    GLComponentBase::initialize(glTexture, shaderProgram, textService);
+    GLComponentBase::initialize(texture, shaderProgram, textService);
     generateKeyboardItems();
     m_menuMoveSound = menuMoveSound;
     m_menuClickSound = menuClickSound;
@@ -139,7 +138,7 @@ void GLOnScreenKeyboard::buttonActionPress() {
     } else if (m_focusPosition == Point<size_t>(1, 4)) {
         onCharButtonPressed(' ');
     } else if (m_focusPosition == Point<size_t>(2, 4)) {
-        //TODO: OK button
+        onOKButtonPressed();
     } else if (m_focusPosition == Point<size_t>(9, 3)) {
         onDELButtonPressed();
     } else {

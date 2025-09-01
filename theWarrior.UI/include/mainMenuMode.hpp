@@ -44,7 +44,7 @@ class MainMenuMode {
  private:
     std::string m_lastError = "";
     std::string m_resourcesPath = "";
-    MainMenuInputMode m_inputMode = MainMenuInputMode::Main;
+    MainMenuInputMode m_inputMode = MainMenuInputMode::NewGamePlayerName;
     GLTextureService m_textureService;
     std::shared_ptr<GLShaderProgram> m_shaderProgram = nullptr;
     std::shared_ptr<GLFormService> m_glFormService;

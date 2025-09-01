@@ -14,9 +14,7 @@ using namespace thewarrior::models;
 namespace thewarrior::ui::components {
 
 GLMenuButton::GLMenuButton(Point<float> location, Size<float> size)
-: m_location(location),
-m_initialLocation(location),
-m_size(size),
+: GLComponentBase(location, size),
 m_glCaption({"", {1.0F, 1.0F}, 0.6F}),
 m_windowObjects(std::vector<GLObject>()),
 m_windowBackgrounds(std::vector<GLObject>()),
