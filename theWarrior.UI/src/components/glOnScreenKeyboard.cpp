@@ -10,7 +10,6 @@
 #include "glOnScreenKeyboard.hpp"
 #include "glComponentBase.hpp"
 #include "glOnScreenKeyboardButton.hpp"
-#include "glTexture.hpp"
 #include "point.hpp"
 #include "size.hpp"
 
@@ -25,15 +24,9 @@ m_fourthRowLastXPosition(0),
 m_isInCapsMode(false) {
 }
 
-void GLOnScreenKeyboard::initialize(const std::shared_ptr<GLTexture> texture,
-                              const std::shared_ptr<GLShaderProgram> shaderProgram,
-                              std::shared_ptr<GLTextService> textService,
-                              std::shared_ptr<Mix_Chunk> menuMoveSound,
-                              std::shared_ptr<Mix_Chunk> menuClickSound) {
-    GLComponentBase::initialize(texture, shaderProgram, textService);
+void GLOnScreenKeyboard::initialize(const GLComponentBaseInfo &info) {
+    GLComponentBase::initialize(info);
     generateKeyboardItems();
-    m_menuMoveSound = menuMoveSound;
-    m_menuClickSound = menuClickSound;
 }
 
 void GLOnScreenKeyboard::onGenerateGLElements() {
@@ -185,19 +178,21 @@ void GLOnScreenKeyboard::generateKeyboardItems() {
                               Size<float>(128.0F, 61.5F)));
     for (const auto& row : m_buttonRows | std::views::all) {
         for (auto& button : row | std::views::all) {
-            button->initialize(m_glTexture, m_shaderProgram, m_textService);
+            GLComponentBaseInfo componentInfo {
+                .shaderProgram = m_shaderProgram,
+                .textService = m_textService,
+                .inputDevicesState = m_inputDevicesState,
+                .texture = m_glTexture,
+                .menuMoveSound = m_menuMoveSound,
+                .menuClickSound = m_menuClickSound,
+                .menuClickDisableSound = m_menuClickDisableSound,
+                .menuBackSound = m_menuBackSound
+            };
+            button->initialize(componentInfo);
             button->gameWindowSizeChanged(Size<>(static_cast<int>(m_screenSize.width()),
                                                  static_cast<int>(m_screenSize.height())));
         }
     }
-}
-
-void GLOnScreenKeyboard::playMoveSound() {
-    Mix_PlayChannel(-1, m_menuMoveSound.get(), 0);
-}
-
-void GLOnScreenKeyboard::playClickSound() {
-    Mix_PlayChannel(-1, m_menuClickSound.get(), 0);
 }
 
 // The fifth row having less buttons, we need to reposition the last focus

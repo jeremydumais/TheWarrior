@@ -1,13 +1,10 @@
 #pragma once
 
-#include <memory>
 #include <string>
 #include <vector>
 #include "glComponentBase.hpp"
 #include "glObjectService.hpp"
-#include "glShaderProgram.hpp"
 #include "glTextService.hpp"
-#include "glTexture.hpp"
 #include "point.hpp"
 #include "size.hpp"
 #include <boost/signals2.hpp>
@@ -20,9 +17,7 @@ class GLOnScreenKeyboardButton : public GLComponentBase {
                              thewarrior::models::Point<float> location,
                              thewarrior::models::Size<float> size = thewarrior::models::Size<float>(64.0F, 64.0F));
     ~GLOnScreenKeyboardButton() override;
-    void initialize(const std::shared_ptr<GLTexture> texture,
-                    const std::shared_ptr<GLShaderProgram> shaderProgram,
-                    std::shared_ptr<GLTextService> textService);
+    void initialize(const GLComponentBaseInfo &info);
     void setCaption(const std::string &title);
     void onGenerateGLElements() override;
     void onRender() override;

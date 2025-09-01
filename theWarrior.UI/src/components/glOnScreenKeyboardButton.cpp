@@ -29,10 +29,8 @@ GLOnScreenKeyboardButton::~GLOnScreenKeyboardButton() {
     GLComponentBase::freeGLObjects(m_windowBackgrounds);
 }
 
-void GLOnScreenKeyboardButton::initialize(const std::shared_ptr<GLTexture> glTexture,
-                                          const std::shared_ptr<GLShaderProgram> shaderProgram,
-                                          std::shared_ptr<GLTextService> textService) {
-    GLComponentBase::initialize(glTexture, shaderProgram, textService);
+void GLOnScreenKeyboardButton::initialize(const GLComponentBaseInfo &info) {
+    GLComponentBase::initialize(info);
 }
 
 void GLOnScreenKeyboardButton::setCaption(const std::string &title) {

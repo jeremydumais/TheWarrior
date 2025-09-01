@@ -29,14 +29,24 @@ m_menuButtonQuit(Point<float>(0.0F, 135.0F), Size<float>(250.0F, 75.0F)) {
 
 void MainMenuScreen::initialize(const MenuScreenBaseInfo &info) {
     MenuScreenBase::initializeBase(info);
+    components::GLComponentBaseInfo componentInfo {
+        .shaderProgram = info.shaderProgram,
+        .textService = info.textService,
+        .inputDevicesState = info.inputDevicesState,
+        .texture = info.windowGLTexture,
+        .menuMoveSound = info.menuMoveSound,
+        .menuClickSound = info.menuClickSound,
+        .menuClickDisableSound = info.menuClickDisableSound,
+        .menuBackSound = info.menuBackSound
+    };
     m_menuWindow.initShader(m_shaderProgram);
     m_menuWindow.initialize("", info.windowGLTexture, info.textService);
     m_menuWindow.setTextureBeginId(29);
     m_menuWindow.setFillCenter(true);
-    m_menuButtonNewGame.initialize("New Game", m_windowGLTexture, m_shaderProgram, info.textService);
-    m_menuButtonLoadGame.initialize("Load Game", m_windowGLTexture, m_shaderProgram, info.textService);
-    m_menuButtonSettings.initialize("Settings", m_windowGLTexture, m_shaderProgram, info.textService);
-    m_menuButtonQuit.initialize("Quit", m_windowGLTexture, m_shaderProgram, info.textService);
+    m_menuButtonNewGame.initialize("New Game", componentInfo);
+    m_menuButtonLoadGame.initialize("Load Game", componentInfo);
+    m_menuButtonSettings.initialize("Settings", componentInfo);
+    m_menuButtonQuit.initialize("Quit", componentInfo);
     generateGLElements();
 }
 

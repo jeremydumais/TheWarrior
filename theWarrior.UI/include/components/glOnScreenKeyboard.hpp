@@ -9,9 +9,6 @@
 #include <vector>
 #include "glComponentBase.hpp"
 #include "glOnScreenKeyboardButton.hpp"
-#include "glShaderProgram.hpp"
-#include "glTextService.hpp"
-#include "glTexture.hpp"
 #include "point.hpp"
 #include "size.hpp"
 #include <boost/signals2.hpp>
@@ -30,11 +27,7 @@ class GLOnScreenKeyboard : public GLComponentBase {
  public:
     explicit GLOnScreenKeyboard(thewarrior::models::Point<float> location);
     ~GLOnScreenKeyboard() override = default;
-    void initialize(const std::shared_ptr<GLTexture> texture,
-                    const std::shared_ptr<GLShaderProgram> shaderProgram,
-                    std::shared_ptr<GLTextService> textService,
-                    std::shared_ptr<Mix_Chunk> menuMoveSound,
-                    std::shared_ptr<Mix_Chunk> menuClickSound);
+    void initialize(const GLComponentBaseInfo &info);
     void setCaption(const std::string &title);
     void onGenerateGLElements() override;
     void onRender() override;
@@ -54,11 +47,7 @@ class GLOnScreenKeyboard : public GLComponentBase {
     thewarrior::models::Point<size_t> m_focusPosition;
     size_t m_fourthRowLastXPosition;
     bool m_isInCapsMode;
-    std::shared_ptr<Mix_Chunk> m_menuMoveSound;
-    std::shared_ptr<Mix_Chunk> m_menuClickSound;
     void generateKeyboardItems();
-    void playMoveSound();
-    void playClickSound();
 
  private:
     void updateFourthRowLastXPosition();

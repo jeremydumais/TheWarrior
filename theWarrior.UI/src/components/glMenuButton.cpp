@@ -27,10 +27,8 @@ GLMenuButton::~GLMenuButton() {
 }
 
 void GLMenuButton::initialize(const std::string &caption,
-                              const std::shared_ptr<GLTexture> glTexture,
-                              const std::shared_ptr<GLShaderProgram> shaderProgram,
-                              std::shared_ptr<GLTextService> textService) {
-    GLComponentBase::initialize(glTexture, shaderProgram, textService);
+                              const GLComponentBaseInfo &info) {
+    GLComponentBase::initialize(info);
     m_glCaption.text = caption;
 }
 

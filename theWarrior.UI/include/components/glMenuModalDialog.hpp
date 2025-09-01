@@ -1,9 +1,8 @@
 #pragma once
 
-#include <SDL2/SDL_mixer.h>
-#include <memory>
 #include <string>
 #include <vector>
+#include <boost/signals2.hpp>
 #include "glComponentBase.hpp"
 #include "glMenuButton.hpp"
 #include "glPopupWindow.hpp"
@@ -18,20 +17,14 @@ class GLMenuModalDialog : public GLComponentBase {
     explicit GLMenuModalDialog(thewarrior::models::Point<float> location,
                                thewarrior::models::Size<float> size);
     ~GLMenuModalDialog() override = default;
-    void initialize(const std::shared_ptr<GLTexture> texture,
-            const std::shared_ptr<GLShaderProgram> shaderProgram,
-            std::shared_ptr<GLTextService> textService,
-            std::shared_ptr<Mix_Chunk> menuMoveSound,
-            std::shared_ptr<Mix_Chunk> menuClickSound);
+    void initialize(const GLComponentBaseInfo &info);
     bool isVisible() const;
     bool isAutoSize() const;
-    void onGenerateGLElements() override;
-    void onRender() override;
-    void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;
     void show();
     void hide();
     void setAutoSize(bool value);
     void setMessage(const std::string &message);
+    boost::signals2::signal<void()> onOKButtonPressed;
 
  private:
     std::vector<GLTextObject> m_glMessageLines;
@@ -39,6 +32,11 @@ class GLMenuModalDialog : public GLComponentBase {
     bool m_autoSize;
     GLPopupWindow m_menuWindow;
     GLMenuButton m_menuButtonOK;
+    void onGenerateGLElements() override;
+    void onRender() override;
+    void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;
+    void onButtonActionPressed() override;
+    void onButtonCancelPressed() override;
 };
 
 }  // namespace thewarrior::ui::components

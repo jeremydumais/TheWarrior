@@ -21,9 +21,7 @@ class GLMenuButton : public GLComponentBase {
                           thewarrior::models::Size<float> size);
     ~GLMenuButton() override;
     void initialize(const std::string &title,
-                    const std::shared_ptr<GLTexture> texture,
-                    const std::shared_ptr<GLShaderProgram> shaderProgram,
-                    std::shared_ptr<GLTextService> textService);
+                    const GLComponentBaseInfo &info);
     void setCaption(const std::string &title);
     void onGenerateGLElements() override;
     void onRender() override;

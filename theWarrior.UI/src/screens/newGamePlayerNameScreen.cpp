@@ -8,6 +8,7 @@
 #include <memory>
 #include <string>
 #include <boost/algorithm/string/case_conv.hpp>
+#include "glComponentBase.hpp"
 #include "mainMenuCommons.hpp"
 #include "newGamePlayerNameScreen.hpp"
 #include "menuScreenBase.hpp"
@@ -38,20 +39,23 @@ m_modalDialog(Point<float>(0.0F, 0.0F), Size<float>(300.0F, 150.0F)) {
 void NewGamePlayerNameScreen::initialize(const MenuScreenBaseInfo &info) {
     MenuScreenBase::initializeBase(info);
     m_textService = info.textService;
+    components::GLComponentBaseInfo componentInfo {
+        .shaderProgram = info.shaderProgram,
+        .textService = info.textService,
+        .inputDevicesState = info.inputDevicesState,
+        .texture = info.windowGLTexture,
+        .menuMoveSound = info.menuMoveSound,
+        .menuClickSound = info.menuClickSound,
+        .menuClickDisableSound = info.menuClickDisableSound,
+        .menuBackSound = info.menuBackSound
+    };
     m_menuWindow.initShader(m_shaderProgram);
     m_menuWindow.initialize("", info.windowGLTexture, info.textService);
     m_menuWindow.setTextureBeginId(29);
     m_menuWindow.setFillCenter(true);
-    m_onScreenKeyboard.initialize(info.windowGLTexture,
-                                  m_shaderProgram,
-                                  info.textService,
-                                  info.menuMoveSound,
-                                  info.menuClickSound);
-    m_modalDialog.initialize(info.windowGLTexture,
-                                  m_shaderProgram,
-                                  info.textService,
-                                  info.menuMoveSound,
-                                  info.menuClickSound);
+
+    m_onScreenKeyboard.initialize(componentInfo);
+    m_modalDialog.initialize(componentInfo);
     //m_modalDialog.setMessage("The name of the player\ncannot be empty!");
     //m_modalDialog.setMessage("The name of the player\ncannot be white spaces!");
     //m_modalDialog.setMessage("The name of the player must\ncontain at least 2 letters!");
@@ -126,7 +130,11 @@ void NewGamePlayerNameScreen::processEvents(SDL_Event &e) {
 }
 
 void NewGamePlayerNameScreen::update() {
-    MenuScreenBase::updateBase();
+    if (m_modalDialog.isVisible()) {
+        m_modalDialog.update();
+    } else {
+        MenuScreenBase::updateBase();
+    }
 }
 
 void NewGamePlayerNameScreen::render() {

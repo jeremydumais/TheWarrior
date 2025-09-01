@@ -1,5 +1,3 @@
-#include <cstddef>
-#include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -26,17 +24,13 @@ m_menuWindow(size),
 m_menuButtonOK(Point<float>(0.0F, -135.0F), Size<float>(250.0F, 75.0F)) {
 }
 
-void GLMenuModalDialog::initialize(const std::shared_ptr<GLTexture> texture,
-            const std::shared_ptr<GLShaderProgram> shaderProgram,
-            std::shared_ptr<GLTextService> textService,
-            std::shared_ptr<Mix_Chunk> menuMoveSound,
-            std::shared_ptr<Mix_Chunk> menuClickSound) {
-    GLComponentBase::initialize(texture, shaderProgram, textService);
+void GLMenuModalDialog::initialize(const GLComponentBaseInfo &info) {
+    GLComponentBase::initialize(info);
     m_menuWindow.initShader(m_shaderProgram);
     m_menuWindow.initialize("", m_glTexture, m_textService);
     m_menuWindow.setTextureBeginId(29);
     m_menuWindow.setFillCenter(true);
-    m_menuButtonOK.initialize("OK", m_glTexture, m_shaderProgram, m_textService);
+    m_menuButtonOK.initialize("OK", info);
     m_menuButtonOK.setHasFocus(true);
 }
 
@@ -46,6 +40,30 @@ bool GLMenuModalDialog::isVisible() const {
 
 bool GLMenuModalDialog::isAutoSize() const {
     return m_autoSize;
+}
+
+void GLMenuModalDialog::show() {
+    m_visible = true;
+}
+
+void GLMenuModalDialog::hide() {
+    m_visible = false;
+}
+
+void GLMenuModalDialog::setAutoSize(bool value) {
+    m_autoSize = value;
+}
+
+void GLMenuModalDialog::setMessage(const std::string &message) {
+    // Split the message with \r
+    m_glMessageLines.clear();
+    std::istringstream iss(message);
+    std::string line;
+    while (std::getline(iss, line)) {
+        if (!line.empty() && line.back() == '\r') line.pop_back();
+        m_glMessageLines.push_back({ std::move(line), Point<float>(0.0F, 0.0F), 0.6F, GLColor::Gray });
+    }
+    generateGLElements();
 }
 
 void GLMenuModalDialog::onGenerateGLElements() {
@@ -100,28 +118,14 @@ void GLMenuModalDialog::onGameWindowSizeChanged(const thewarrior::models::Size<>
     m_menuButtonOK.gameWindowSizeChanged(size);
 }
 
-void GLMenuModalDialog::show() {
-    m_visible = true;
+void GLMenuModalDialog::onButtonActionPressed() {
+    hide();
+    playClickSound();
 }
 
-void GLMenuModalDialog::hide() {
-    m_visible = false;
-}
-
-void GLMenuModalDialog::setAutoSize(bool value) {
-    m_autoSize = value;
-}
-
-void GLMenuModalDialog::setMessage(const std::string &message) {
-    // Split the message with \r
-    m_glMessageLines.clear();
-    std::istringstream iss(message);
-    std::string line;
-    while (std::getline(iss, line)) {
-        if (!line.empty() && line.back() == '\r') line.pop_back();
-        m_glMessageLines.push_back({ std::move(line), Point<float>(0.0F, 0.0F), 0.6F, GLColor::Gray });
-    }
-    generateGLElements();
+void GLMenuModalDialog::onButtonCancelPressed() {
+    hide();
+    playBackSound();
 }
 
 }  // namespace thewarrior::ui::components
