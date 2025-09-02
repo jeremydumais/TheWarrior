@@ -3,14 +3,13 @@
 #include <SDL2/SDL_timer.h>
 #include <fmt/format.h>
 #include <cctype>
-#include <iostream>
 #include <map>
 #include <memory>
 #include <string>
 #include <boost/algorithm/string/case_conv.hpp>
 #include "glComponentBase.hpp"
-#include "mainMenuCommons.hpp"
 #include "newGamePlayerNameScreen.hpp"
+#include "mainMenuCommons.hpp"
 #include "menuScreenBase.hpp"
 #include "point.hpp"
 #include "size.hpp"
@@ -23,7 +22,6 @@ namespace thewarrior::ui::screens {
 NewGamePlayerNameScreen::NewGamePlayerNameScreen(std::map<std::string, std::shared_ptr<Texture>> &textures,
                                std::map<std::string, unsigned int> &texturesGL)
 : MenuScreenBase(textures, texturesGL),
-m_textService(nullptr),
 m_menuWindow(Size<float>(850.0F, 620.0F)),
 m_onScreenKeyboard(Point<float>(1.0F, 1.0F)),
 m_enterNameObject({"Enter name:", {0.0F, 0.0F}, 0.8F}),
@@ -36,26 +34,15 @@ m_modalDialog(Point<float>(0.0F, 0.0F), Size<float>(300.0F, 150.0F)) {
     m_onScreenKeyboard.onOKButtonPressed.connect(boost::bind(&NewGamePlayerNameScreen::keyboardOKButtonPressed, this));
 }
 
-void NewGamePlayerNameScreen::initialize(const MenuScreenBaseInfo &info) {
+void NewGamePlayerNameScreen::initialize(const components::GLComponentBaseInfo &info) {
     MenuScreenBase::initializeBase(info);
-    m_textService = info.textService;
-    components::GLComponentBaseInfo componentInfo {
-        .shaderProgram = info.shaderProgram,
-        .textService = info.textService,
-        .inputDevicesState = info.inputDevicesState,
-        .texture = info.windowGLTexture,
-        .menuMoveSound = info.menuMoveSound,
-        .menuClickSound = info.menuClickSound,
-        .menuClickDisableSound = info.menuClickDisableSound,
-        .menuBackSound = info.menuBackSound
-    };
     m_menuWindow.initShader(m_shaderProgram);
-    m_menuWindow.initialize("", info.windowGLTexture, info.textService);
+    m_menuWindow.initialize("", info.texture, info.textService);
     m_menuWindow.setTextureBeginId(29);
     m_menuWindow.setFillCenter(true);
 
-    m_onScreenKeyboard.initialize(componentInfo);
-    m_modalDialog.initialize(componentInfo);
+    m_onScreenKeyboard.initialize(info);
+    m_modalDialog.initialize(info);
     //m_modalDialog.setMessage("The name of the player\ncannot be empty!");
     //m_modalDialog.setMessage("The name of the player\ncannot be white spaces!");
     //m_modalDialog.setMessage("The name of the player must\ncontain at least 2 letters!");
@@ -133,12 +120,12 @@ void NewGamePlayerNameScreen::update() {
     if (m_modalDialog.isVisible()) {
         m_modalDialog.update();
     } else {
-        MenuScreenBase::updateBase();
+        MenuScreenBase::update();
     }
 }
 
-void NewGamePlayerNameScreen::render() {
-    MenuScreenBase::renderBase();
+void NewGamePlayerNameScreen::onRender() {
+    MenuScreenBase::onRender();
     m_glFormService->drawQuad(m_namedObjects[TextureMainMenuLogo], m_texturesGL[TextureMainMenuLogo]);
     m_menuWindow.render();
     m_onScreenKeyboard.render();
@@ -149,8 +136,8 @@ void NewGamePlayerNameScreen::render() {
 void NewGamePlayerNameScreen::unloadGLMapObjects() {
 }
 
-void NewGamePlayerNameScreen::gameWindowSizeChanged(const thewarrior::models::Size<> &size) {
-    MenuScreenBase::gameWindowSizeChangedBase(size);
+void NewGamePlayerNameScreen::onGameWindowSizeChanged(const thewarrior::models::Size<> &size) {
+    MenuScreenBase::onGameWindowSizeChanged(size);
     m_playerNameLocation = {
         (m_screenSize.width() / 2.0F) ,
         (m_screenSize.height() / 2.0F) };
@@ -164,8 +151,8 @@ bool NewGamePlayerNameScreen::loadTextures() {
     return true;
 }
 
-void NewGamePlayerNameScreen::generateGLElements() {
-    MenuScreenBase::generateGLElementsBase();
+void NewGamePlayerNameScreen::onGenerateGLElements() {
+    MenuScreenBase::onGenerateGLElements();
     m_menuWindow.generateGLElements();
     m_onScreenKeyboard.generateGLElements();
     m_modalDialog.generateGLElements();
@@ -174,31 +161,32 @@ void NewGamePlayerNameScreen::generateGLElements() {
     m_enterNameObject.color = GLColor::Gray;
 }
 
-void NewGamePlayerNameScreen::buttonUpPressed() {
+void NewGamePlayerNameScreen::onButtonUpPressed() {
+
     if (!m_modalDialog.isVisible()) {
         m_onScreenKeyboard.buttonUpPress();
     }
 }
 
-void NewGamePlayerNameScreen::buttonDownPressed() {
+void NewGamePlayerNameScreen::onButtonDownPressed() {
     if (!m_modalDialog.isVisible()) {
         m_onScreenKeyboard.buttonDownPress();
     }
 }
 
-void NewGamePlayerNameScreen::buttonLeftPressed() {
+void NewGamePlayerNameScreen::onButtonLeftPressed() {
     if (!m_modalDialog.isVisible()) {
         m_onScreenKeyboard.buttonLeftPress();
     }
 }
 
-void NewGamePlayerNameScreen::buttonRightPressed() {
+void NewGamePlayerNameScreen::onButtonRightPressed() {
     if (!m_modalDialog.isVisible()) {
         m_onScreenKeyboard.buttonRightPress();
     }
 }
 
-void NewGamePlayerNameScreen::buttonCancelPressed() {
+void NewGamePlayerNameScreen::onButtonCancelPressed() {
     if (m_modalDialog.isVisible()) {
         m_modalDialog.hide();
         playBackSound();
@@ -213,7 +201,7 @@ void NewGamePlayerNameScreen::buttonCancelPressed() {
     }
 }
 
-void NewGamePlayerNameScreen::buttonActionPressed() {
+void NewGamePlayerNameScreen::onButtonActionPressed() {
     if (m_modalDialog.isVisible()) {
         //TODO: Handle the button click on the dialog
         m_modalDialog.hide();

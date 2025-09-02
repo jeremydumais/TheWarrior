@@ -5,7 +5,6 @@
 #include "glMenuButton.hpp"
 #include "glColor.hpp"
 #include "glComponentBase.hpp"
-#include "glTexture.hpp"
 #include "point.hpp"
 #include <boost/algorithm/string.hpp>
 
@@ -60,10 +59,11 @@ void GLMenuButton::onRender() {
     m_glFormService->drawText(m_glCaption);
 }
 
-void GLMenuButton::onGameWindowSizeChanged(const Size<int> &) {
+void GLMenuButton::onGameWindowSizeChanged(const Size<int> &size) {
     m_location = {
         (m_screenSize.width() / 2.0F) - (m_size.width() / 2.0F),
         (m_screenSize.height() / 2.0F) - (m_size.height() / 2.0F) };
+    m_glFormService->gameWindowSizeChanged(size);
 }
 
 void GLMenuButton::setTextureBeginId(int value) {

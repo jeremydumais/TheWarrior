@@ -1,13 +1,10 @@
 #pragma once
 
-#include <memory>
 #include <string>
 #include <vector>
 #include "glComponentBase.hpp"
 #include "glObjectService.hpp"
-#include "glShaderProgram.hpp"
 #include "glTextService.hpp"
-#include "glTexture.hpp"
 #include "point.hpp"
 #include "size.hpp"
 #include "texture.hpp"

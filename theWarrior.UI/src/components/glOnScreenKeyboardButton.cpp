@@ -6,7 +6,6 @@
 #include "floatUtils.hpp"
 #include "glColor.hpp"
 #include "glComponentBase.hpp"
-#include "glTexture.hpp"
 #include "point.hpp"
 #include <boost/algorithm/string.hpp>
 
@@ -66,10 +65,11 @@ void GLOnScreenKeyboardButton::onRender() {
     m_glFormService->drawText(m_glCaption);
 }
 
-void GLOnScreenKeyboardButton::onGameWindowSizeChanged(const Size<> &) {
+void GLOnScreenKeyboardButton::onGameWindowSizeChanged(const Size<> &size) {
     m_location = {
         (m_screenSize.width() / 2.0F) - (m_size.width() / 2.0F),
         (m_screenSize.height() / 2.0F) - (m_size.height() / 2.0F) };
+    m_glFormService->gameWindowSizeChanged(size);
 }
 
 void GLOnScreenKeyboardButton::setTextureBeginId(int value) {

@@ -7,6 +7,7 @@
 #include <boost/signals2.hpp>
 #include "components/glOnScreenKeyboard.hpp"
 #include "components/glMenuModalDialog.hpp"
+#include "components/glComponentBase.hpp"
 #include "glPopupWindow.hpp"
 #include "glTextService.hpp"
 #include "menuScreenBase.hpp"
@@ -19,18 +20,18 @@ class NewGamePlayerNameScreen : public MenuScreenBase {
  public:
     NewGamePlayerNameScreen(std::map<std::string, std::shared_ptr<thewarrior::models::Texture>> &textures,
                    std::map<std::string, unsigned int> &texturesGL);
-    void initialize(const MenuScreenBaseInfo &info);
+    void initialize(const components::GLComponentBaseInfo &info);
     bool loadTextures();
     void processEvents(SDL_Event &e);
     void update();
-    void render();
+    void onGenerateGLElements() override;
+    void onRender() override;
     void unloadGLMapObjects();
-    void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
+    void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;
     boost::signals2::signal<void()> backPressed;
     boost::signals2::signal<void()> okPressed;
 
- private:
-    std::shared_ptr<GLTextService> m_textService;
+ protected:
     GLPopupWindow m_menuWindow;
     components::GLOnScreenKeyboard m_onScreenKeyboard;
     GLTextObject m_enterNameObject;
@@ -38,13 +39,12 @@ class NewGamePlayerNameScreen : public MenuScreenBase {
     thewarrior::models::Point<float> m_playerNameLocation;
     thewarrior::models::Point<float> m_playerNameInitialLocation;
     components::GLMenuModalDialog m_modalDialog;
-    void generateGLElements();
-    void buttonUpPressed() override;
-    void buttonDownPressed() override;
-    void buttonLeftPressed() override;
-    void buttonRightPressed() override;
-    void buttonCancelPressed() override;
-    void buttonActionPressed() override;
+    void onButtonUpPressed() override;
+    void onButtonDownPressed() override;
+    void onButtonLeftPressed() override;
+    void onButtonRightPressed() override;
+    void onButtonCancelPressed() override;
+    void onButtonActionPressed() override;
     bool addPlayerNameChar(char c);
     bool removePlayerNameChar();
     void keyboardCharButtonPressed(char c);

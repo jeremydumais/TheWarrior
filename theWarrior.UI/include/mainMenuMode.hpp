@@ -44,10 +44,10 @@ class MainMenuMode {
  private:
     std::string m_lastError = "";
     std::string m_resourcesPath = "";
-    MainMenuInputMode m_inputMode = MainMenuInputMode::NewGamePlayerName;
-    GLTextureService m_textureService;
+    MainMenuInputMode m_inputMode = MainMenuInputMode::Main;
+    std::shared_ptr<GLTextureService> m_textureService = nullptr;
     std::shared_ptr<GLShaderProgram> m_shaderProgram = nullptr;
-    std::shared_ptr<GLFormService> m_glFormService;
+    std::shared_ptr<GLFormService> m_glFormService = nullptr;
     std::shared_ptr<InputDevicesState> m_inputDevicesState = nullptr;
     std::map<std::string, std::shared_ptr<thewarrior::models::Texture>> m_textures;
     std::map<std::string, unsigned int> m_texturesGL;

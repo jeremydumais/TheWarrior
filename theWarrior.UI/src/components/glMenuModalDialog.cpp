@@ -116,6 +116,7 @@ void GLMenuModalDialog::onRender() {
 void GLMenuModalDialog::onGameWindowSizeChanged(const thewarrior::models::Size<> &size) {
     m_menuWindow.gameWindowSizeChanged(size);
     m_menuButtonOK.gameWindowSizeChanged(size);
+    m_glFormService->gameWindowSizeChanged(size);
 }
 
 void GLMenuModalDialog::onButtonActionPressed() {

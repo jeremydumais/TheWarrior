@@ -7,11 +7,8 @@
 #include <string>
 #include <boost/signals2.hpp>
 #include "components/glMenuButton.hpp"
+#include "components/glComponentBase.hpp"
 #include "glPopupWindow.hpp"
-#include "glShaderProgram.hpp"
-#include "glTextService.hpp"
-#include "glTexture.hpp"
-#include "inputDevicesState.hpp"
 #include "menuScreenBase.hpp"
 #include "size.hpp"
 #include "texture.hpp"
@@ -22,13 +19,13 @@ class MainMenuScreen : public MenuScreenBase {
  public:
     MainMenuScreen(std::map<std::string, std::shared_ptr<thewarrior::models::Texture>> &textures,
                    std::map<std::string, unsigned int> &texturesGL);
-    void initialize(const MenuScreenBaseInfo &info);
+    void initialize(const components::GLComponentBaseInfo &info);
     bool loadTextures();
     void processEvents(SDL_Event &);
-    void update();
-    void render();
+    void onGenerateGLElements() override;
+    void onRender() override;
     void unloadGLMapObjects();
-    void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
+    void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;
     boost::signals2::signal<void()> newGamePressed;
     boost::signals2::signal<void()> quitPressed;
 
@@ -39,11 +36,10 @@ class MainMenuScreen : public MenuScreenBase {
     thewarrior::ui::components::GLMenuButton m_menuButtonLoadGame;
     thewarrior::ui::components::GLMenuButton m_menuButtonSettings;
     thewarrior::ui::components::GLMenuButton m_menuButtonQuit;
-    void generateGLElements();
-    void buttonUpPressed() override;
-    void buttonDownPressed() override;
-    void buttonCancelPressed() override;
-    void buttonActionPressed() override;
+    void onButtonUpPressed() override;
+    void onButtonDownPressed() override;
+    void onButtonCancelPressed() override;
+    void onButtonActionPressed() override;
 };
 
 }  // namespace thewarrior::ui::screens

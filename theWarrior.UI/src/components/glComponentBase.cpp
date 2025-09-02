@@ -2,7 +2,6 @@
 #include <SDL2/SDL_stdinc.h>
 #include <memory>
 #include "glComponentBase.hpp"
-#include "glFormService.hpp"
 #include "point.hpp"
 #include "size.hpp"
 
@@ -12,25 +11,28 @@ namespace thewarrior::ui::components {
 
 GLComponentBase::GLComponentBase(Point<float> location,
                                  Size<float> size)
-: m_location(location),
+: m_resourcesPath(""),
+m_location(location),
 m_initialLocation(location),
 m_size(size),
 m_screenSize(Size<float>(1.0F, 1.0F)),
 m_shaderProgram(nullptr),
-m_glFormService(std::make_shared<GLFormService>()),
 m_textService(nullptr),
+m_glFormService(std::make_unique<GLFormService>()),
 m_inputDevicesState(nullptr) {}
 
 void GLComponentBase::initialize(const GLComponentBaseInfo &info) {
+    m_resourcesPath = info.resourcesPath;
     m_glTexture = info.texture;
     m_shaderProgram = info.shaderProgram;
     m_textService = info.textService;
-    m_glFormService->initialize(info.shaderProgram, info.textService);
+    m_textureService = info.textureService;
     m_inputDevicesState = info.inputDevicesState;
     m_menuBackSound = info.menuBackSound;
     m_menuClickSound = info.menuClickSound;
     m_menuClickDisableSound = info.menuClickDisableSound;
     m_menuMoveSound = info.menuMoveSound;
+    m_glFormService->initialize(info.shaderProgram, info.textService);
 }
 
 void GLComponentBase::generateGLElements() {
@@ -89,6 +91,7 @@ void GLComponentBase::update() {
     if (m_inputDevicesState->getButtonBState() == InputElementState::Released) {
         onButtonCancelPressed();
     }
+    generateGLElements();
 }
 
 void GLComponentBase::render() {
@@ -98,8 +101,8 @@ void GLComponentBase::render() {
 void GLComponentBase::gameWindowSizeChanged(const thewarrior::models::Size<int> &size) {
     m_screenSize = Size<float>(static_cast<float>(size.width()),
             static_cast<float>(size.height()));
-    m_glFormService->gameWindowSizeChanged(size);
     onGameWindowSizeChanged(size);
+    //FIX: Find why I can't do that! Not working in screen //m_glFormService->gameWindowSizeChanged(size);
 }
 
 Size<float> GLComponentBase::getSize() const {
@@ -144,6 +147,22 @@ void GLComponentBase::playClickDisableSound() {
 
 void GLComponentBase::playMoveSound() {
     Mix_PlayChannel(-1, m_menuMoveSound.get(), 0);
+}
+
+GLComponentBaseInfo GLComponentBase::getComponentBaseInfo() const {
+    GLComponentBaseInfo componentInfo {
+        .resourcesPath = m_resourcesPath,
+        .shaderProgram = m_shaderProgram,
+        .textService = m_textService,
+        .textureService = m_textureService,
+        .inputDevicesState = m_inputDevicesState,
+        .texture = m_glTexture,
+        .menuMoveSound = m_menuMoveSound,
+        .menuClickSound = m_menuClickSound,
+        .menuClickDisableSound = m_menuClickDisableSound,
+        .menuBackSound = m_menuBackSound
+    };
+    return componentInfo;
 }
 
 }  // namespace thewarrior::ui::components

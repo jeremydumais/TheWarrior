@@ -26,6 +26,7 @@ m_isInCapsMode(false) {
 
 void GLOnScreenKeyboard::initialize(const GLComponentBaseInfo &info) {
     GLComponentBase::initialize(info);
+
     generateKeyboardItems();
 }
 
@@ -178,17 +179,7 @@ void GLOnScreenKeyboard::generateKeyboardItems() {
                               Size<float>(128.0F, 61.5F)));
     for (const auto& row : m_buttonRows | std::views::all) {
         for (auto& button : row | std::views::all) {
-            GLComponentBaseInfo componentInfo {
-                .shaderProgram = m_shaderProgram,
-                .textService = m_textService,
-                .inputDevicesState = m_inputDevicesState,
-                .texture = m_glTexture,
-                .menuMoveSound = m_menuMoveSound,
-                .menuClickSound = m_menuClickSound,
-                .menuClickDisableSound = m_menuClickDisableSound,
-                .menuBackSound = m_menuBackSound
-            };
-            button->initialize(componentInfo);
+            button->initialize(getComponentBaseInfo());
             button->gameWindowSizeChanged(Size<>(static_cast<int>(m_screenSize.width()),
                                                  static_cast<int>(m_screenSize.height())));
         }

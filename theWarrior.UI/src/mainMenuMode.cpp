@@ -8,8 +8,8 @@
 #include <string>
 #include <vector>
 #include "mainMenuMode.hpp"
+#include "glComponentBase.hpp"
 #include "glTexture.hpp"
-#include "menuScreenBase.hpp"
 #include "size.hpp"
 #include "texture.hpp"
 #include "textureInfo.hpp"
@@ -21,7 +21,8 @@ using namespace thewarrior::ui::screens;
 namespace thewarrior::ui {
 
 MainMenuMode::MainMenuMode()
-: m_glFormService(std::make_shared<GLFormService>()),
+: m_textureService(std::make_shared<GLTextureService>()),
+m_glFormService(std::make_shared<GLFormService>()),
 m_textures(std::map<std::string, std::shared_ptr<Texture>>()),
 m_texturesGL(std::map<std::string, unsigned int>()),
 m_mainScreen(m_textures, m_texturesGL),
@@ -36,28 +37,29 @@ void MainMenuMode::initialize(const std::string &resourcesPath,
             std::shared_ptr<InputDevicesState> inputDevicesState) {
     m_resourcesPath = resourcesPath;
     m_glFormService->initialize(m_shaderProgram, textService);
-    m_textureService.setResourcesPath(resourcesPath);
+    m_textureService->setResourcesPath(resourcesPath);
     m_inputDevicesState = inputDevicesState;
     loadMenuTextures();
     loadMenuSounds();
-    MenuScreenBaseInfo baseScreenInfo {
+    components::GLComponentBaseInfo baseInfo {
         .resourcesPath = resourcesPath,
         .shaderProgram = m_shaderProgram,
         .textService = textService,
+        .textureService = m_textureService,
         .inputDevicesState = inputDevicesState,
-        .windowGLTexture = m_windowGLTexture,
+        .texture = m_windowGLTexture,
         .menuMoveSound = m_menuMoveSound,
         .menuClickSound = m_menuClickSound,
         .menuClickDisableSound = m_menuClickDisableSound,
         .menuBackSound = m_menuBackSound
     };
-    m_mainScreen.initialize(baseScreenInfo);
+    m_mainScreen.initialize(baseInfo);
     if (!m_mainScreen.loadTextures()) {
         throw std::runtime_error(m_mainScreen.getLastError());
     }
     m_mainScreen.newGamePressed.connect(boost::bind(&MainMenuMode::newGamePressed, this));
     m_mainScreen.quitPressed.connect(boost::bind(&MainMenuMode::quitPressed, this));
-    m_newGamePlayerNameScreen.initialize(baseScreenInfo);
+    m_newGamePlayerNameScreen.initialize(baseInfo);
     m_newGamePlayerNameScreen.backPressed.connect(boost::bind(&MainMenuMode::backToMainMenu, this));
     //HACK: Uncomment this before release
     //Mix_PlayMusic(m_backgroundMusic, -1);  // loop forever
@@ -143,7 +145,7 @@ void MainMenuMode::gameWindowSizeChanged(const thewarrior::models::Size<> &size)
 void MainMenuMode::loadMenuTextures() {
     // Clear existing textures in graphics memory
     for (auto &glTexture : m_texturesGL) {
-        m_textureService.unloadTexture(glTexture.second);
+        m_textureService->unloadTexture(glTexture.second);
     }
     m_texturesGL.clear();
     // Background
@@ -157,7 +159,7 @@ void MainMenuMode::loadMenuTextures() {
     };
     try {
         m_textures[TextureBackground] = std::make_shared<Texture>(textureBackgroundInfo);
-        m_textureService.loadTexture(*m_textures[TextureBackground], m_texturesGL[TextureBackground]);
+        m_textureService->loadTexture(*m_textures[TextureBackground], m_texturesGL[TextureBackground]);
     } catch (const std::invalid_argument &err) {
         std::cerr << "Unable to load the main menu background texture: " << err.what() << std::endl;
     }
@@ -173,7 +175,7 @@ void MainMenuMode::loadMenuTextures() {
     try {
         m_textures[TextureWindow] = std::make_shared<Texture>(textureInfoWindow);
         m_windowGLTexture = std::make_shared<GLTexture>(*m_textures[TextureWindow], 0);
-        m_textureService.loadTexture(*m_windowGLTexture);
+        m_textureService->loadTexture(*m_windowGLTexture);
     } catch (const std::invalid_argument &err) {
         std::cerr << "Unable to load the window texture: " << err.what() << std::endl;
     }

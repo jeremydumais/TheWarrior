@@ -1,11 +1,11 @@
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_timer.h>
 #include <fmt/format.h>
-#include <iostream>
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
+#include "glComponentBase.hpp"
 #include "mainMenuCommons.hpp"
 #include "mainMenuScreen.hpp"
 #include "menuScreenBase.hpp"
@@ -27,38 +27,24 @@ m_menuButtonSettings(Point<float>(0.0F, 45.0F), Size<float>(250.0F, 75.0F)),
 m_menuButtonQuit(Point<float>(0.0F, 135.0F), Size<float>(250.0F, 75.0F)) {
 }
 
-void MainMenuScreen::initialize(const MenuScreenBaseInfo &info) {
+void MainMenuScreen::initialize(const GLComponentBaseInfo &info) {
     MenuScreenBase::initializeBase(info);
-    components::GLComponentBaseInfo componentInfo {
-        .shaderProgram = info.shaderProgram,
-        .textService = info.textService,
-        .inputDevicesState = info.inputDevicesState,
-        .texture = info.windowGLTexture,
-        .menuMoveSound = info.menuMoveSound,
-        .menuClickSound = info.menuClickSound,
-        .menuClickDisableSound = info.menuClickDisableSound,
-        .menuBackSound = info.menuBackSound
-    };
     m_menuWindow.initShader(m_shaderProgram);
-    m_menuWindow.initialize("", info.windowGLTexture, info.textService);
+    m_menuWindow.initialize("", info.texture, info.textService);
     m_menuWindow.setTextureBeginId(29);
     m_menuWindow.setFillCenter(true);
-    m_menuButtonNewGame.initialize("New Game", componentInfo);
-    m_menuButtonLoadGame.initialize("Load Game", componentInfo);
-    m_menuButtonSettings.initialize("Settings", componentInfo);
-    m_menuButtonQuit.initialize("Quit", componentInfo);
+    m_menuButtonNewGame.initialize("New Game", info);
+    m_menuButtonLoadGame.initialize("Load Game", info);
+    m_menuButtonSettings.initialize("Settings", info);
+    m_menuButtonQuit.initialize("Quit", info);
     generateGLElements();
 }
 
 void MainMenuScreen::processEvents(SDL_Event &) {
 }
 
-void MainMenuScreen::update() {
-    MenuScreenBase::updateBase();
-}
-
-void MainMenuScreen::render() {
-    MenuScreenBase::renderBase();
+void MainMenuScreen::onRender() {
+    MenuScreenBase::onRender();
     m_glFormService->drawQuad(m_namedObjects[TextureMainMenuLogo], m_texturesGL[TextureMainMenuLogo]);
     m_menuWindow.render();
     m_menuButtonNewGame.render();
@@ -70,14 +56,13 @@ void MainMenuScreen::render() {
 void MainMenuScreen::unloadGLMapObjects() {
 }
 
-void MainMenuScreen::gameWindowSizeChanged(const thewarrior::models::Size<> &size) {
-    MenuScreenBase::gameWindowSizeChangedBase(size);
+void MainMenuScreen::onGameWindowSizeChanged(const thewarrior::models::Size<> &size) {
+    MenuScreenBase::onGameWindowSizeChanged(size);
     m_menuWindow.gameWindowSizeChanged(size);
     m_menuButtonNewGame.gameWindowSizeChanged(size);
     m_menuButtonLoadGame.gameWindowSizeChanged(size);
     m_menuButtonSettings.gameWindowSizeChanged(size);
     m_menuButtonQuit.gameWindowSizeChanged(size);
-    generateGLElements();
 }
 
 bool MainMenuScreen::loadTextures() {
@@ -91,7 +76,7 @@ bool MainMenuScreen::loadTextures() {
     };
     try {
         m_textures[TextureMainMenuLogo] = std::make_shared<Texture>(textureMainMenuLogoInfo);
-        m_textureService.loadTexture(*m_textures[TextureMainMenuLogo], m_texturesGL[TextureMainMenuLogo]);
+        m_textureService->loadTexture(*m_textures[TextureMainMenuLogo], m_texturesGL[TextureMainMenuLogo]);
     } catch (const std::invalid_argument &err) {
         m_lastError = fmt::format("Unable to load the main menu logo texture: {0}", err.what());
         return false;
@@ -99,8 +84,8 @@ bool MainMenuScreen::loadTextures() {
     return true;
 }
 
-void MainMenuScreen::generateGLElements() {
-    MenuScreenBase::generateGLElementsBase();
+void MainMenuScreen::onGenerateGLElements() {
+    MenuScreenBase::onGenerateGLElements();
     std::vector<GLObject> menuObjects = {};
     m_glFormService->generateQuad(menuObjects,
                                   { 0.0F, 0.0F },
@@ -120,7 +105,7 @@ void MainMenuScreen::generateGLElements() {
     m_menuButtonQuit.generateGLElements();
 }
 
-void MainMenuScreen::buttonUpPressed() {
+void MainMenuScreen::onButtonUpPressed() {
     if (m_menuSelectedIndex > 0) {
         m_menuSelectedIndex--;
         generateGLElements();
@@ -128,7 +113,7 @@ void MainMenuScreen::buttonUpPressed() {
     }
 }
 
-void MainMenuScreen::buttonDownPressed() {
+void MainMenuScreen::onButtonDownPressed() {
     if (m_menuSelectedIndex + 1 < 4) {
         m_menuSelectedIndex++;
         generateGLElements();
@@ -136,10 +121,10 @@ void MainMenuScreen::buttonDownPressed() {
     }
 }
 
-void MainMenuScreen::buttonCancelPressed() {
+void MainMenuScreen::onButtonCancelPressed() {
 }
 
-void MainMenuScreen::buttonActionPressed() {
+void MainMenuScreen::onButtonActionPressed() {
     if (m_menuSelectedIndex == 0) {
         playClickSound();
         SDL_Delay(500);
