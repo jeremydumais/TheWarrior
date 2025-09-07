@@ -83,6 +83,10 @@ void GameWindow::processEvents() {
         createNewGame();
         return;
     }
+    if (m_mustReturnToMainMenu) {
+        returnToMainMenu();
+        return;
+    }
     SDL_Event e;
     m_inputDevicesState->processJoystick(m_joystick);
     while (SDL_PollEvent(&e) != 0) {
@@ -237,6 +241,7 @@ bool GameWindow::initializeGame(const std::string &playerName) {
     }
     m_windowSizeChanged.connect(boost::bind(&GameMapMode::gameWindowSizeChanged, m_gameMapMode.get(), boost::placeholders::_1));
     m_windowUpdate.connect(boost::bind(&GameMapMode::onGameWindowUpdate, m_gameMapMode.get(), boost::placeholders::_1));
+    m_gameMapMode->quitRequested.connect(boost::bind(&GameWindow::quitGameRequested, this));
     m_windowSizeChanged(m_WindowSize);
     return true;
 }
@@ -292,6 +297,10 @@ void GameWindow::newGameRequested(std::string playerName) {
     m_mustCreateNewGame = true;
 }
 
+void GameWindow::quitGameRequested() {
+    m_mustReturnToMainMenu = true;
+}
+
 void GameWindow::createNewGame() {
     m_windowSizeChanged.disconnect_all_slots();
     m_mainMenuMode->quitRequested.disconnect_all_slots();
@@ -305,6 +314,21 @@ void GameWindow::createNewGame() {
         Mix_CloseAudio();
     }
     m_mustCreateNewGame = false;
+}
+
+void GameWindow::returnToMainMenu() {
+    m_windowSizeChanged.disconnect_all_slots();
+    m_windowUpdate.disconnect_all_slots();
+    m_gameMapMode->quitRequested.disconnect_all_slots();
+    m_gameMapMode.reset();
+    m_gameMapMode = nullptr;
+    if (initializeMenu()) {
+        m_interactionMode = InteractionMode::MainMenu;
+    } else {
+        m_mustExit = true;
+        Mix_CloseAudio();
+    }
+    m_mustReturnToMainMenu = false;
 }
 
 }  // namespace thewarrior::ui

@@ -45,6 +45,7 @@ class GameWindow {
     boost::signals2::signal<void(float deltaTime)> m_windowUpdate;
     bool m_mustExit = false;
     bool m_mustCreateNewGame = false;
+    bool m_mustReturnToMainMenu = false;
     InteractionMode m_interactionMode = InteractionMode::Game;
     std::unique_ptr<thewarrior::ui::GameMapMode> m_gameMapMode;
     std::unique_ptr<thewarrior::ui::MainMenuMode> m_mainMenuMode;
@@ -70,7 +71,9 @@ class GameWindow {
     void render();
     void quitRequested();
     void newGameRequested(std::string playerName);
+    void quitGameRequested();
     void createNewGame();
+    void returnToMainMenu();
 };
 
 }  // namespace thewarrior::ui

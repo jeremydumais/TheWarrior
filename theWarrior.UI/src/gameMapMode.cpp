@@ -35,6 +35,7 @@ GameMapMode::GameMapMode() {
 
 GameMapMode::~GameMapMode() {
     m_glPlayer->unloadGLPlayerObject();
+    unloadGLMapObjects();
 }
 
 bool GameMapMode::initialize(const std::string &resourcesPath,
@@ -188,7 +189,7 @@ void GameMapMode::calculateTileSize() {
 
 void GameMapMode::showMainMenu() {
     m_inputMode = GameMapInputMode::MainMenuPopup;
-    m_choicePopup.preparePopup({"Inventory", "Character", "Back"});
+    m_choicePopup.preparePopup({"Inventory", "Character", "Back", "Save", "Exit Game"});
     m_choicePopup.generateGLElements();
 }
 
@@ -758,6 +759,11 @@ void GameMapMode::mainMenuPopupClicked(size_t choice) {
         case 2:
             mainMenuPopupCanceled();
             break;
+        case 3:
+            //TODO: Code the save function
+            break;
+        case 4:
+            exitGameAndReturnToMainMenu();
         default:
             break;
     }
@@ -765,6 +771,10 @@ void GameMapMode::mainMenuPopupClicked(size_t choice) {
 
 void GameMapMode::mainMenuPopupCanceled() {
     m_inputMode = GameMapInputMode::Map;
+}
+
+void GameMapMode::exitGameAndReturnToMainMenu() {
+    quitRequested();
 }
 
 void GameMapMode::onPlayerMoveCompleted() {

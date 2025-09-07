@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <boost/signals2.hpp>
 #include "gameMap.hpp"
 #include "gameMapModeController.hpp"
 #include "glBattleWindow.hpp"
@@ -53,6 +54,7 @@ class GameMapMode {
     void unloadGLMapObjects();
     void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
     void onGameWindowUpdate(float delta_time);
+    boost::signals2::signal<void()> quitRequested;
 
  private:
     thewarrior::ui::controllers::GameMapModeController m_controller;
@@ -116,6 +118,7 @@ class GameMapMode {
     void onInventoryWindowClose();
     void mainMenuPopupClicked(size_t choice);
     void mainMenuPopupCanceled();
+    void exitGameAndReturnToMainMenu();
     void onPlayerMoveCompleted();
     void onBattleCompleted();
 };
