@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include <boost/signals2.hpp>
+#include <string_view>
 #include "components/glOnScreenKeyboard.hpp"
 #include "components/glMenuModalDialog.hpp"
 #include "components/glComponentBase.hpp"
@@ -28,6 +29,7 @@ class NewGamePlayerNameScreen : public MenuScreenBase {
     void onRender() override;
     void unloadGLMapObjects();
     void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;
+    const std::string &getPlayerName() const;
     boost::signals2::signal<void()> backPressed;
     boost::signals2::signal<void()> okPressed;
 
@@ -50,6 +52,7 @@ class NewGamePlayerNameScreen : public MenuScreenBase {
     void keyboardCharButtonPressed(char c);
     void keyboardDELButtonPressed();
     void keyboardOKButtonPressed();
+    bool hasAtLeastTwoAlphaAscii(std::string_view value);
 };
 
 }  // namespace thewarrior::ui::screens

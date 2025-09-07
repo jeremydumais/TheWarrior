@@ -44,40 +44,42 @@ class GameWindow {
     SDL_Window *m_window;
     SDL_GLContext m_gContext;
     thewarrior::models::Size<> m_WindowSize;
-    TileSize m_tileSize = {1.0F, 1.0F, 1.0F};
     boost::signals2::signal<void(const thewarrior::models::Size<> &)> m_windowSizeChanged;
-    boost::signals2::signal<void(const TileSize &)> m_tileSizeChanged;
     boost::signals2::signal<void(float deltaTime)> m_windowUpdate;
     bool m_mustExit = false;
+    bool m_mustCreateNewGame = false;
     InteractionMode m_interactionMode = InteractionMode::MainMenu;
-    thewarrior::ui::GameMapMode m_gameMapMode;
-    thewarrior::ui::MainMenuMode m_mainMenuMode;
+    std::unique_ptr<thewarrior::ui::GameMapMode> m_gameMapMode;
+    std::unique_ptr<thewarrior::ui::MainMenuMode> m_mainMenuMode;
     std::string m_executablePath;
     std::shared_ptr<GLTileService> m_tileService = std::make_shared<GLTileService>();
     std::shared_ptr<GLTextBox> m_textBox = std::make_shared<GLTextBox>();
     std::shared_ptr<GLTextService> m_textService = std::make_shared<GLTextService>();
     GLTextureService m_textureService;
-    std::shared_ptr<GLPlayer> m_glPlayer = std::make_shared<GLPlayer>("Ragnar");
     std::map<std::string, unsigned int> m_texturesGLItemStore;
     std::map<std::string, unsigned int> m_texturesGLMonsterStore;
     // FPS variables
     thewarrior::ui::FPSCalculator m_fpsCalculator;
     bool m_toggleFPS = false;
     // Input
-    std::shared_ptr<InputDevicesState> m_inputDevicesState = std::make_shared<InputDevicesState>();
+    std::shared_ptr<InputDevicesState> m_inputDevicesState = nullptr;
     bool m_blockKeyDown = false;
     SDL_Joystick *m_joystick = nullptr;
+    std::string m_playerName = "Ragnar";
     bool initializeOpenGL(const std::string &title,
                           int x, int y,
                           int width, int height);
     bool initializeAudio();
+    bool initializeMenu();
+    bool initializeGame(const std::string &playerName);
     bool loadResourceFiles();
     void subscribeEvents();
     void render();
     void loadItemStoreTextures();
     void loadMonsterStoreTextures();
-    void calculateTileSize();
     void quitRequested();
+    void newGameRequested(std::string playerName);
+    void createNewGame();
 };
 
 }  // namespace thewarrior::ui

@@ -40,6 +40,7 @@ class MainMenuMode {
     void unloadGLMapObjects();
     void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
     boost::signals2::signal<void()> quitRequested;
+    boost::signals2::signal<void(std::string playerName)> newGameRequested;
 
  private:
     std::string m_lastError = "";
@@ -60,10 +61,12 @@ class MainMenuMode {
     std::shared_ptr<Mix_Chunk> m_menuClickDisableSound;
     std::shared_ptr<Mix_Chunk> m_menuBackSound;
     void loadMenuTextures();
+    void unloadMenuTextures();
     void loadMenuSounds();
     void newGamePressed();
     void quitPressed();
     void backToMainMenu();
+    void newGameConfirmed();
 };
 
 }  // namespace thewarrior::ui

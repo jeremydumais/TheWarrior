@@ -22,7 +22,7 @@ namespace thewarrior::ui {
 class GLPopupWindow : public IShaderService {
  public:
     explicit GLPopupWindow(thewarrior::models::Size<float> size);
-    ~GLPopupWindow() override = default;
+    ~GLPopupWindow() override;
     const std::string &getLastError() const;
     const thewarrior::models::Point<float> &getWindowLocation() const;
     const thewarrior::models::Size<float> &getWindowSize() const;

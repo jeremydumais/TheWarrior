@@ -1,6 +1,7 @@
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_stdinc.h>
 #include <memory>
+#include <string>
 #include "glComponentBase.hpp"
 #include "point.hpp"
 #include "size.hpp"
@@ -102,7 +103,6 @@ void GLComponentBase::gameWindowSizeChanged(const thewarrior::models::Size<int> 
     m_screenSize = Size<float>(static_cast<float>(size.width()),
             static_cast<float>(size.height()));
     onGameWindowSizeChanged(size);
-    //FIX: Find why I can't do that! Not working in screen //m_glFormService->gameWindowSizeChanged(size);
 }
 
 Size<float> GLComponentBase::getSize() const {

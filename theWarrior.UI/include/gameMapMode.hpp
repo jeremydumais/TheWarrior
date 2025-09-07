@@ -40,8 +40,9 @@ enum GameMapInputMode {
 class GameMapMode {
  public:
     GameMapMode();
+    ~GameMapMode();
     void initialize(const std::string &resourcesPath,
-            std::shared_ptr<GLPlayer> glPlayer,
+            const std::string &playerName,
             std::shared_ptr<thewarrior::models::ItemStore> itemStore,
             std::shared_ptr<thewarrior::models::MonsterStore> monsterStore,
             std::shared_ptr<thewarrior::ui::models::MessagePipeline> messagePipeline,
@@ -58,7 +59,7 @@ class GameMapMode {
     void render();
     void unloadGLMapObjects();
     void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
-    void gameWindowTileSizeChanged(const TileSize &tileSize);
+    void onGameWindowUpdate(float delta_time);
 
  private:
     thewarrior::ui::controllers::GameMapModeController m_controller;
@@ -67,7 +68,7 @@ class GameMapMode {
     std::string m_currentMapName = "";
     GameMapInputMode m_inputMode = GameMapInputMode::Map;
     std::shared_ptr<thewarrior::models::GameMap> m_map;
-    std::shared_ptr<GLPlayer> m_glPlayer;
+    std::shared_ptr<GLPlayer> m_glPlayer = nullptr;
     std::shared_ptr<GLTileService> m_tileService;
     GLTextureService m_textureService;
     std::shared_ptr<GLTextBox> m_textBox;
@@ -90,6 +91,7 @@ class GameMapMode {
     bool m_blockKeyDown = false;
     bool m_isCharacterWindowDisplayed = false;
     bool m_isInventoryDisplayed = false;
+    void calculateTileSize();
     void showMainMenu();
     void toggleInventoryWindow();
     void toggleCharacterWindow();

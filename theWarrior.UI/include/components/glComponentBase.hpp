@@ -52,7 +52,7 @@ class GLComponentBase {
     std::shared_ptr<GLShaderProgram> m_shaderProgram;
     std::shared_ptr<GLTextService> m_textService;
     std::shared_ptr<GLTextureService> m_textureService;
-    std::unique_ptr<GLFormService> m_glFormService;
+    std::shared_ptr<GLFormService> m_glFormService;
     std::shared_ptr<GLTexture> m_glTexture;
     std::shared_ptr<InputDevicesState> m_inputDevicesState;
     Uint64 m_lastMoveUpTicks = 0;

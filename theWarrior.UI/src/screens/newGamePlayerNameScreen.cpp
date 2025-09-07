@@ -6,6 +6,8 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <string_view>
+#include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 #include "glComponentBase.hpp"
 #include "newGamePlayerNameScreen.hpp"
@@ -43,9 +45,6 @@ void NewGamePlayerNameScreen::initialize(const components::GLComponentBaseInfo &
 
     m_onScreenKeyboard.initialize(info);
     m_modalDialog.initialize(info);
-    //m_modalDialog.setMessage("The name of the player\ncannot be empty!");
-    //m_modalDialog.setMessage("The name of the player\ncannot be white spaces!");
-    //m_modalDialog.setMessage("The name of the player must\ncontain at least 2 letters!");
     generateGLElements();
 }
 
@@ -147,6 +146,10 @@ void NewGamePlayerNameScreen::onGameWindowSizeChanged(const thewarrior::models::
     generateGLElements();
 }
 
+const std::string &NewGamePlayerNameScreen::getPlayerName() const {
+    return m_playerName;
+}
+
 bool NewGamePlayerNameScreen::loadTextures() {
     return true;
 }
@@ -162,53 +165,33 @@ void NewGamePlayerNameScreen::onGenerateGLElements() {
 }
 
 void NewGamePlayerNameScreen::onButtonUpPressed() {
-
-    if (!m_modalDialog.isVisible()) {
-        m_onScreenKeyboard.buttonUpPress();
-    }
+    m_onScreenKeyboard.buttonUpPress();
 }
 
 void NewGamePlayerNameScreen::onButtonDownPressed() {
-    if (!m_modalDialog.isVisible()) {
-        m_onScreenKeyboard.buttonDownPress();
-    }
+    m_onScreenKeyboard.buttonDownPress();
 }
 
 void NewGamePlayerNameScreen::onButtonLeftPressed() {
-    if (!m_modalDialog.isVisible()) {
-        m_onScreenKeyboard.buttonLeftPress();
-    }
+    m_onScreenKeyboard.buttonLeftPress();
 }
 
 void NewGamePlayerNameScreen::onButtonRightPressed() {
-    if (!m_modalDialog.isVisible()) {
-        m_onScreenKeyboard.buttonRightPress();
-    }
+    m_onScreenKeyboard.buttonRightPress();
 }
 
 void NewGamePlayerNameScreen::onButtonCancelPressed() {
-    if (m_modalDialog.isVisible()) {
-        m_modalDialog.hide();
-        playBackSound();
+    if (!m_playerName.empty()) {
+        m_onScreenKeyboard.buttonCancelPress();
     } else {
-        if (!m_playerName.empty()) {
-            m_onScreenKeyboard.buttonCancelPress();
-        } else {
-            playBackSound();
-            SDL_Delay(500);
-            backPressed();
-        }
+        playBackSound();
+        SDL_Delay(500);
+        backPressed();
     }
 }
 
 void NewGamePlayerNameScreen::onButtonActionPressed() {
-    if (m_modalDialog.isVisible()) {
-        //TODO: Handle the button click on the dialog
-        m_modalDialog.hide();
-        playClickSound();
-    } else {
-        m_onScreenKeyboard.buttonActionPress();
-    }
+    m_onScreenKeyboard.buttonActionPress();
 }
 
 bool NewGamePlayerNameScreen::addPlayerNameChar(char c) {
@@ -242,10 +225,30 @@ void NewGamePlayerNameScreen::keyboardDELButtonPressed() {
 }
 
 void NewGamePlayerNameScreen::keyboardOKButtonPressed() {
-    //TODO: Validate the player name
-    m_modalDialog.setMessage("Validation to be done");
-    m_modalDialog.show();
-    generateGLElements();
+    bool error = false;
+    if (boost::trim_copy(m_playerName).empty()) {
+        m_modalDialog.setMessage("The name of the player\ncannot be empty!");
+        error = true;
+    } else if (!hasAtLeastTwoAlphaAscii(m_playerName)) {
+        m_modalDialog.setMessage("The name of the player must\ncontain at least 2 letters!");
+        error = true;
+    }
+    if (error) {
+        m_modalDialog.show();
+        generateGLElements();
+    } else {
+        okPressed();
+    }
+}
+
+bool NewGamePlayerNameScreen::hasAtLeastTwoAlphaAscii(std::string_view value) {
+    int count = 0;
+    for (char ch : value) {
+        if (std::isalpha(ch)) {
+            if (++count == 2) return true;
+        }
+    }
+    return false;
 }
 
 }  // namespace thewarrior::ui::screens

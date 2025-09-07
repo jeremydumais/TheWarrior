@@ -1,6 +1,7 @@
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_timer.h>
 #include <fmt/format.h>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <string>
@@ -25,6 +26,10 @@ m_menuButtonNewGame(Point<float>(0.0F, -135.0F), Size<float>(250.0F, 75.0F)),
 m_menuButtonLoadGame(Point<float>(0.0F, -45.0F), Size<float>(250.0F, 75.0F)),
 m_menuButtonSettings(Point<float>(0.0F, 45.0F), Size<float>(250.0F, 75.0F)),
 m_menuButtonQuit(Point<float>(0.0F, 135.0F), Size<float>(250.0F, 75.0F)) {
+}
+
+MainMenuScreen::~MainMenuScreen() {
+    m_textureService->unloadTexture(m_texturesGL[TextureMainMenuLogo]);
 }
 
 void MainMenuScreen::initialize(const GLComponentBaseInfo &info) {
@@ -57,7 +62,6 @@ void MainMenuScreen::unloadGLMapObjects() {
 }
 
 void MainMenuScreen::onGameWindowSizeChanged(const thewarrior::models::Size<> &size) {
-    MenuScreenBase::onGameWindowSizeChanged(size);
     m_menuWindow.gameWindowSizeChanged(size);
     m_menuButtonNewGame.gameWindowSizeChanged(size);
     m_menuButtonLoadGame.gameWindowSizeChanged(size);

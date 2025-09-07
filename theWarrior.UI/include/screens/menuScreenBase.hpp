@@ -15,12 +15,11 @@ class MenuScreenBase : public components::GLComponentBase {
  public:
     MenuScreenBase(std::map<std::string, std::shared_ptr<thewarrior::models::Texture>> &textures,
                     std::map<std::string, unsigned int> &texturesGL);
-    ~MenuScreenBase() override = default;
+    ~MenuScreenBase() override;
     void initializeBase(const components::GLComponentBaseInfo &info);
     const std::string &getLastError() const;
     void onGenerateGLElements() override;
     void onRender() override;
-    void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;
 
  protected:
     std::string m_lastError = "";

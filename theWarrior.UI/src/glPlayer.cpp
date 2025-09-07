@@ -326,14 +326,11 @@ MovingResult GLPlayer::processMoving(float delta_time) {
     return result;
 }
 
-void GLPlayer::onGameWindowSizeChanged(const Size<> &) {
+void GLPlayer::onGameWindowTileSizeChanged(const TileSize &tileSize) {
+    m_tileSize = tileSize;
     unloadGLPlayerObject();
     generateGLPlayerObject();
     setGLObjectPosition();
-}
-
-void GLPlayer::onGameWindowTileSizeChanged(const TileSize &tileSize) {
-    m_tileSize = tileSize;
 }
 
 void GLPlayer::onGameWindowUpdate(float delta_time) {

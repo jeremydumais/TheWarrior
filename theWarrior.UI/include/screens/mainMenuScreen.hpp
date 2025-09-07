@@ -19,6 +19,7 @@ class MainMenuScreen : public MenuScreenBase {
  public:
     MainMenuScreen(std::map<std::string, std::shared_ptr<thewarrior::models::Texture>> &textures,
                    std::map<std::string, unsigned int> &texturesGL);
+    ~MainMenuScreen() override;
     void initialize(const components::GLComponentBaseInfo &info);
     bool loadTextures();
     void processEvents(SDL_Event &);

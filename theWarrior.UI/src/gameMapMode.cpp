@@ -35,8 +35,12 @@ GameMapMode::GameMapMode() {
     m_glBattleWindow.m_battleCompleted.connect(boost::bind(&GameMapMode::onBattleCompleted, this));
 }
 
+GameMapMode::~GameMapMode() {
+    m_glPlayer->unloadGLPlayerObject();
+}
+
 void GameMapMode::initialize(const std::string &resourcesPath,
-        std::shared_ptr<GLPlayer> glPlayer,
+        const std::string &playerName,
         std::shared_ptr<ItemStore> itemStore,
         std::shared_ptr<MonsterStore> monsterStore,
         std::shared_ptr<MessagePipeline> messagePipeline,
@@ -48,12 +52,13 @@ void GameMapMode::initialize(const std::string &resourcesPath,
         std::shared_ptr<InputDevicesState> inputDevicesState) {
     m_resourcesPath = resourcesPath;
     m_map = std::make_shared<GameMap>(1, 1);
-    m_glPlayer = glPlayer;
+    m_glPlayer = std::make_shared<GLPlayer>(playerName);
+    m_glPlayer->initialize(m_resourcesPath);
     m_glPlayer->m_playerMoveCompleted.connect(boost::bind(&GameMapMode::onPlayerMoveCompleted, this));
     m_glFormService->initialize(m_shaderProgram, textService);
-    m_glBattleWindow.initialize(resourcesPath, glPlayer, textService, monsterStore, texturesGLMonsterStore, inputDevicesState);
-    m_glCharacterWindow.initialize(resourcesPath, glPlayer, textService, itemStore, texturesGLItemStore, inputDevicesState);
-    m_glInventory.initialize(resourcesPath, glPlayer, textService, itemStore, texturesGLItemStore, inputDevicesState);
+    m_glBattleWindow.initialize(resourcesPath, m_glPlayer, textService, monsterStore, texturesGLMonsterStore, inputDevicesState);
+    m_glCharacterWindow.initialize(resourcesPath, m_glPlayer, textService, itemStore, texturesGLItemStore, inputDevicesState);
+    m_glInventory.initialize(resourcesPath, m_glPlayer, textService, itemStore, texturesGLItemStore, inputDevicesState);
     m_glInventory.setInventory(m_glPlayer->getInventory());
     m_textureService.setResourcesPath(resourcesPath);
     m_tileService = tileService;
@@ -155,9 +160,11 @@ void GameMapMode::update() {
 
 void GameMapMode::gameWindowSizeChanged(const Size<> &size) {
     m_screenSize = size;
+    calculateTileSize();
     m_glFormService->gameWindowSizeChanged(size);
     unloadGLMapObjects();
     generateGLMapObjects();
+    m_glPlayer->onGameWindowTileSizeChanged(m_tileSize);
     m_glInventory.gameWindowSizeChanged(size);
     m_glBattleWindow.gameWindowSizeChanged(size);
     m_glCharacterWindow.gameWindowSizeChanged(size);
@@ -165,8 +172,16 @@ void GameMapMode::gameWindowSizeChanged(const Size<> &size) {
             static_cast<float>(size.height()) / 2.0F});
 }
 
-void GameMapMode::gameWindowTileSizeChanged(const TileSize &tileSize) {
-    m_tileSize = tileSize;
+void GameMapMode::onGameWindowUpdate(float delta_time) {
+    m_glPlayer->onGameWindowUpdate(delta_time);
+}
+
+void GameMapMode::calculateTileSize() {
+    Size<float> screenSizeFloat(static_cast<float>(m_screenSize.width()), static_cast<float>(m_screenSize.height()));
+
+    m_tileSize.tileWidth = (1.0F / (screenSizeFloat.width() / 51.2F)) * 2.0F;
+    m_tileSize.tileHalfWidth = m_tileSize.tileWidth / 2.0F;
+    m_tileSize.tileHalfHeight = (screenSizeFloat.width() * m_tileSize.tileHalfWidth) / screenSizeFloat.height();
 }
 
 void GameMapMode::showMainMenu() {

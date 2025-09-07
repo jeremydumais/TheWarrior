@@ -35,6 +35,13 @@ m_glObjects(std::vector<GLObject>()),
 m_glTextObjects(std::vector<GLTextObject>()) {
 }
 
+GLPopupWindow::~GLPopupWindow() {
+    freeGLObjects(m_windowObjects);
+    freeGLObjects(m_windowBackgrounds);
+    freeGLObjects(m_glObjects);
+    freeGLObjects(m_windowTitleObjects);
+}
+
 const std::string& GLPopupWindow::getLastError() const {
     return m_lastError;
 }

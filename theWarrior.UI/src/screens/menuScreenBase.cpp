@@ -21,6 +21,10 @@ m_textures(textures),
 m_texturesGL(texturesGL) {
 }
 
+MenuScreenBase::~MenuScreenBase() {
+    freeGLObjects(m_namedObjects);
+}
+
 void MenuScreenBase::initializeBase(const components::GLComponentBaseInfo &info) {
     components::GLComponentBase::initialize(info);
 }
@@ -40,9 +44,6 @@ void MenuScreenBase::onGenerateGLElements() {
 
 void MenuScreenBase::onRender() {
     m_glFormService->drawQuad(m_namedObjects[TextureBackground], m_texturesGL[TextureBackground]);
-}
-
-void MenuScreenBase::onGameWindowSizeChanged(const Size<> &size) {
 }
 
 void MenuScreenBase::freeGLObjects(std::map<std::string, GLObject> &objects) {
