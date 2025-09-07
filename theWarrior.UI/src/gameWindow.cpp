@@ -32,10 +32,6 @@ GameWindow::GameWindow(const string &title,
     m_joystick = SDL_JoystickOpen(0);
 
     subscribeEvents();
-    m_textBox->initialize(m_controller.getResourcesPath(),
-            m_textService,
-            m_controller.getItemStore(),
-            &m_texturesGLItemStore);
     // HACK: to remove (Test only)
     /*m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("pot001"));
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("ubd001"));
@@ -233,19 +229,12 @@ bool GameWindow::initializeGame(const std::string &playerName) {
         cerr << m_gameMapMode->getLastError() << "\n";
         return false;
     }
-    loadItemStoreTextures();
-    loadMonsterStoreTextures();
-    m_gameMapMode->initialize(m_controller.getResourcesPath(),
+    if (!m_gameMapMode->initialize(m_controller.getResourcesPath(),
             playerName,
-            m_controller.getItemStore(),
-            m_controller.getMonsterStore(),
-            m_controller.getMessagePipeline(),
-            m_tileService,
-            m_textBox,
             m_textService,
-            &m_texturesGLItemStore,
-            &m_texturesGLMonsterStore,
-            m_inputDevicesState);
+            m_inputDevicesState)) {
+        return false;
+    }
     m_windowSizeChanged.connect(boost::bind(&GameMapMode::gameWindowSizeChanged, m_gameMapMode.get(), boost::placeholders::_1));
     m_windowUpdate.connect(boost::bind(&GameMapMode::onGameWindowUpdate, m_gameMapMode.get(), boost::placeholders::_1));
     m_windowSizeChanged(m_WindowSize);
@@ -253,24 +242,6 @@ bool GameWindow::initializeGame(const std::string &playerName) {
 }
 
 bool GameWindow::loadResourceFiles() {
-    if (!m_controller.loadItemStore(fmt::format("{0}/items/itemstore.itm", m_controller.getResourcesPath()))) {
-        cerr << "Unable to load the item store : " << m_controller.getLastError() << "\n";
-        return false;
-    }
-    if (!m_controller.loadMonsterStore(fmt::format("{0}/monsters/monsterstore.mon", m_controller.getResourcesPath()))) {
-        cerr << "Unable to load the monster store : " << m_controller.getLastError() << "\n";
-        return false;
-    }
-    if (!m_tileService->initShader(fmt::format("{0}/shaders/tile_330_vs.glsl", m_controller.getResourcesPath()),
-                fmt::format("{0}/shaders/tile_330_fs.glsl", m_controller.getResourcesPath()))) {
-        cerr << m_tileService->getLastError() << "\n";
-        return false;
-    }
-    if (!m_textBox->initShader(fmt::format("{0}/shaders/textbox_330_vs.glsl", m_controller.getResourcesPath()),
-                fmt::format("{0}/shaders/textbox_330_fs.glsl", m_controller.getResourcesPath()))) {
-        cerr << m_textBox->getLastError() << "\n";
-        return false;
-    }
     if (!m_textService->initShader(fmt::format("{0}/shaders/text_330_vs.glsl", m_controller.getResourcesPath()),
                 fmt::format("{0}/shaders/text_330_fs.glsl", m_controller.getResourcesPath()))) {
         cerr << m_textService->getLastError() << "\n";
@@ -286,7 +257,6 @@ bool GameWindow::loadResourceFiles() {
 
 void GameWindow::subscribeEvents() {
     m_windowSizeChanged.connect(boost::bind(&GLTextService::gameWindowSizeChanged, m_textService, boost::placeholders::_1));
-    m_windowSizeChanged.connect(boost::bind(&GLTextBox::gameWindowSizeChanged, m_textBox, boost::placeholders::_1));
 }
 
 void GameWindow::render() {
@@ -312,30 +282,6 @@ void GameWindow::render() {
     SDL_GL_SwapWindow(m_window);
 }
 
-void GameWindow::loadItemStoreTextures() {
-    // Clear existing textures in graphics memory
-    for (auto &glTexture : m_texturesGLItemStore) {
-        glDeleteTextures(1, &glTexture.second);
-    }
-    m_texturesGLItemStore.clear();
-    for (const auto &texture : m_controller.getItemStore()->getTextureContainer().getTextures()) {
-        const auto &textureName { texture.getName() };
-        m_textureService.loadTexture(texture, m_texturesGLItemStore[textureName]);
-    }
-}
-
-void GameWindow::loadMonsterStoreTextures() {
-    // Clear existing textures in graphics memory
-    for (auto &glTexture : m_texturesGLMonsterStore) {
-        glDeleteTextures(1, &glTexture.second);
-    }
-    m_texturesGLMonsterStore.clear();
-    for (const auto &texture : m_controller.getMonsterStore()->getTextureContainer().getTextures()) {
-        const auto &textureName { texture.getName() };
-        m_textureService.loadTexture(texture, m_texturesGLMonsterStore[textureName]);
-    }
-}
-
 void GameWindow::quitRequested() {
     m_mustExit = true;
     Mix_CloseAudio();
@@ -354,6 +300,9 @@ void GameWindow::createNewGame() {
     m_mainMenuMode = nullptr;
     if (initializeGame(m_playerName)) {
         m_interactionMode = InteractionMode::Game;
+    } else {
+        m_mustExit = true;
+        Mix_CloseAudio();
     }
     m_mustCreateNewGame = false;
 }

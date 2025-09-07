@@ -31,7 +31,6 @@ m_newGamePlayerNameScreen(m_textures, m_texturesGL) {
 
 MainMenuMode::~MainMenuMode() {
     unloadMenuTextures();
-    //Release ressources
     Mix_HaltMusic();
 }
 

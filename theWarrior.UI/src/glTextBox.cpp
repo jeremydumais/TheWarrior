@@ -1,8 +1,11 @@
+#include <fmt/format.h>
+#include <map>
+#include <memory>
+#include <stdexcept>
+#include <string>
 #include "glTextBox.hpp"
 #include "itemFoundMessageDTO.hpp"
 #include "point.hpp"
-#include <fmt/format.h>
-#include <stdexcept>
 
 using namespace thewarrior::models;
 using namespace thewarrior::ui::controllers;
@@ -10,34 +13,22 @@ using namespace thewarrior::ui::controllers;
 namespace thewarrior::ui {
 
 GLTextBox::GLTextBox()
-    : GLPopupWindow({ 1.0F, 1.0F }),
-      m_screenSize(1.0F, 1.0F),
-      m_itemStore(nullptr),
-      m_lastError(""),
-      m_messageDTO(nullptr),
-      m_computedTextForDisplay({Size(0.0F, 0.0F), {}})
-{
+: GLPopupWindow({ 1.0F, 1.0F }),
+m_itemStore(nullptr),
+m_messageDTO(nullptr),
+m_computedTextForDisplay({Size<float>(0.0F, 0.0F), {}}) {
 }
 
 void GLTextBox::initialize(const std::string &resourcePath,
                            std::shared_ptr<GLTextService> textService,
                            std::shared_ptr<ItemStore> itemStore,
-                           const std::map<std::string, unsigned int> *texturesGLItemStore)
-{
+                           const std::map<std::string, unsigned int> *texturesGLItemStore) {
     GLPopupWindow::initialize("", resourcePath, textService);
-    m_textureService.setResourcesPath(resourcePath);
-    m_textureService.loadTexture(m_windowGLTexture);
     m_itemStore = itemStore;
     m_texturesGLItemStore = texturesGLItemStore;
 }
 
-const std::string &GLTextBox::getLastError() const
-{
-    return m_lastError;
-}
-
-void GLTextBox::generateMessage(std::shared_ptr<MessageDTO> messageDTO)
-{
+void GLTextBox::generateMessage(std::shared_ptr<MessageDTO> messageDTO) {
     m_messageDTO = messageDTO;
     m_computedTextForDisplay = m_textService->prepareTextForDisplay(m_screenSize, m_messageDTO->message, messageDTO->scale);
     m_windowSize.setSize(m_computedTextForDisplay.textSize.width() + BOXPADDING,
@@ -53,7 +44,7 @@ void GLTextBox::generateMessage(std::shared_ptr<MessageDTO> messageDTO)
         if (!item) {
             throw std::runtime_error(fmt::format("Unable to found the item {0}", itemFoundMsgDTO->itemId));
         }
-        //Find the texture
+        // Find the texture
         auto texture = m_itemStore->getTextureContainer().getTextureByName(item->getTextureName());
         if (!texture.has_value()) {
             throw std::runtime_error(fmt::format("Unable to found the texture {0}", item->getTextureName()));
@@ -68,8 +59,7 @@ void GLTextBox::generateMessage(std::shared_ptr<MessageDTO> messageDTO)
     }
 }
 
-void GLTextBox::draw()
-{
+void GLTextBox::draw() {
     GLPopupWindow::render();
     m_textService->useShader();
     float lineTotal = static_cast<float>(m_computedTextForDisplay.lines.size());
@@ -80,7 +70,7 @@ void GLTextBox::draw()
     if (m_messageDTO->getType() == MessageDTOType::ItemFoundMessage) {
         messagePosition.setY(messagePosition.y() + 20.0F);
     }
-    for(size_t i = 0; i < m_computedTextForDisplay.lines.size(); i++) {
+    for (size_t i = 0; i < m_computedTextForDisplay.lines.size(); i++) {
         m_textService->renderText(m_computedTextForDisplay.lines[i],
                                   messagePosition.x(),
                                   messagePosition.y() - (static_cast<float>(i) * (lineHeight + 10.0F)),
@@ -88,20 +78,17 @@ void GLTextBox::draw()
                                   glm::vec3(1.0f, 1.0f, 1.0f));       // Color
     }
 }
-float GLTextBox::getImageHeight() const
-{
+
+float GLTextBox::getImageHeight() const {
     return (m_messageDTO->getType() == MessageDTOType::ItemFoundMessage) ? ITEMICONSIZE : 0.0F;
 }
 
-void GLTextBox::gameWindowSizeChanged(const Size<> &size)
-{
-    m_screenSize.setSize(static_cast<float>(size.width()),
-                         static_cast<float>(size.height()));
+void GLTextBox::gameWindowSizeChanged(const Size<> &size) {
     GLPopupWindow::gameWindowSizeChanged(size);
-    //Resize currently displayed message
+    // Resize currently displayed message
     if (m_messageDTO) {
         generateMessage(m_messageDTO);
     }
 }
 
-} // namespace thewarrior::ui
+}  // namespace thewarrior::ui

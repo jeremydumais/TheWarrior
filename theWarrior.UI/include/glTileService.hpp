@@ -1,16 +1,15 @@
 #pragma once
 
+#include <memory>
+#include <string>
 #include "glShaderProgram.hpp"
 #include "IShaderService.hpp"
 #include "point.hpp"
-#include <memory>
-#include <string>
 
 namespace thewarrior::ui {
 
-class GLTileService : public IShaderService
-{
-public:
+class GLTileService : public IShaderService {
+ public:
     bool initShader(const std::string &vertexShaderFileName,
                     const std::string &fragmentShaderFileName) override;
     void initShader(const std::shared_ptr<GLShaderProgram> shaderProgram) override;
@@ -21,9 +20,10 @@ public:
                               int windowWidth,
                               int windowHeight,
                               thewarrior::models::Point<float> playerPosition);
-private:
+
+ private:
     std::string m_lastError;
     std::shared_ptr<GLShaderProgram> m_shaderProgram;
 };
 
-} // namespace thewarrior::ui
+}  // namespace thewarrior::ui

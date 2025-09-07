@@ -3,18 +3,15 @@
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
-#include <map>
 #include <memory>
 #include <string>
 #include "fpsCalculator.hpp"
 #include "gameMapMode.hpp"
 #include "gameWindowController.hpp"
-#include "glPlayer.hpp"
 #include <glm/glm.hpp>
 #include "glTextBox.hpp"
 #include "glTextService.hpp"
 #include "glTextureService.hpp"
-#include "glTileService.hpp"
 #include "inputDevicesState.hpp"
 #include "mainMenuMode.hpp"
 #include <size.hpp>
@@ -48,16 +45,12 @@ class GameWindow {
     boost::signals2::signal<void(float deltaTime)> m_windowUpdate;
     bool m_mustExit = false;
     bool m_mustCreateNewGame = false;
-    InteractionMode m_interactionMode = InteractionMode::MainMenu;
+    InteractionMode m_interactionMode = InteractionMode::Game;
     std::unique_ptr<thewarrior::ui::GameMapMode> m_gameMapMode;
     std::unique_ptr<thewarrior::ui::MainMenuMode> m_mainMenuMode;
     std::string m_executablePath;
-    std::shared_ptr<GLTileService> m_tileService = std::make_shared<GLTileService>();
-    std::shared_ptr<GLTextBox> m_textBox = std::make_shared<GLTextBox>();
     std::shared_ptr<GLTextService> m_textService = std::make_shared<GLTextService>();
     GLTextureService m_textureService;
-    std::map<std::string, unsigned int> m_texturesGLItemStore;
-    std::map<std::string, unsigned int> m_texturesGLMonsterStore;
     // FPS variables
     thewarrior::ui::FPSCalculator m_fpsCalculator;
     bool m_toggleFPS = false;
@@ -75,8 +68,6 @@ class GameWindow {
     bool loadResourceFiles();
     void subscribeEvents();
     void render();
-    void loadItemStoreTextures();
-    void loadMonsterStoreTextures();
     void quitRequested();
     void newGameRequested(std::string playerName);
     void createNewGame();

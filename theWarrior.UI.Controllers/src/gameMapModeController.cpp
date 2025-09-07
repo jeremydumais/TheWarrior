@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <memory>
 #include <string>
 #include <utility>
@@ -5,6 +6,9 @@
 #include "gameMapModeController.hpp"
 #include "itemFoundMessage.hpp"
 #include "itemFoundMessageDTO.hpp"
+#include "itemStore.hpp"
+#include "itemStoreStorage.hpp"
+#include "monsterStoreStorage.hpp"
 
 using namespace thewarrior::models;
 using namespace thewarrior::ui::models;
@@ -12,16 +16,29 @@ using namespace thewarrior::ui::models;
 namespace thewarrior::ui::controllers {
 
 GameMapModeController::GameMapModeController()
-    : m_itemStore(nullptr),
-    m_messagePipeline(nullptr) {
+    : m_itemStore(std::make_shared<ItemStore>()),
+    m_monsterStore(std::make_shared<MonsterStore>()),
+    m_messagePipeline(std::make_shared<MessagePipeline>()) {
 }
 
-void GameMapModeController::initialize(std::shared_ptr<ItemStore> itemStore,
-        std::shared_ptr<thewarrior::models::MonsterStore> monsterStore,
-        std::shared_ptr<MessagePipeline> messagePipeline) {
-    m_itemStore = itemStore;
-    m_monsterStore = monsterStore;
-    m_messagePipeline = messagePipeline;
+void GameMapModeController::initialize(const std::string &resourcesPath) {
+    m_resourcesPath = resourcesPath;
+}
+
+const std::string &GameMapModeController::getResourcesPath() const {
+    return m_resourcesPath;
+}
+
+const std::string &GameMapModeController::getLastError() const {
+    return m_lastError;
+}
+
+std::shared_ptr<ItemStore> GameMapModeController::getItemStore() {
+    return m_itemStore;
+}
+
+std::shared_ptr<MonsterStore> GameMapModeController::getMonsterStore() {
+    return m_monsterStore;
 }
 
 bool GameMapModeController::isMessageDisplayed() const {
@@ -52,6 +69,15 @@ bool GameMapModeController::addItemToInventory(Player *player, const std::string
     }
     return player->getInventory()->addItem(item);
 }
+
+std::shared_ptr<MessagePipeline> GameMapModeController::getMessagePipeline() {
+    return m_messagePipeline;
+}
+
+size_t GameMapModeController::getMessageCount() const {
+    return m_messagePipeline->getMessageCount();
+}
+
 
 void GameMapModeController::addMessageToPipeline(std::unique_ptr<MessageDTO> messageDTO) {
     auto message = createMessageFromMessageDTO(std::move(messageDTO));
@@ -142,5 +168,30 @@ void GameMapModeController::addTileActionProcessed(const std::string &mapName, i
         tileIndices.push_back(tileIndex);
     }
 }
+
+bool GameMapModeController::loadItemStore(const std::string &filePath) {
+    storage::ItemStoreStorage storage;
+    try {
+        storage.loadItemStore(filePath, m_itemStore);
+        return true;
+    }
+    catch(const std::exception &err) {
+        m_lastError = err.what();
+    }
+    return false;
+}
+
+bool GameMapModeController::loadMonsterStore(const std::string &filePath) {
+    storage::MonsterStoreStorage storage;
+    try {
+        storage.loadMonsterStore(filePath, m_monsterStore);
+        return true;
+    }
+    catch(const std::exception &err) {
+        m_lastError = err.what();
+    }
+    return false;
+}
+
 
 }  // namespace thewarrior::ui::controllers

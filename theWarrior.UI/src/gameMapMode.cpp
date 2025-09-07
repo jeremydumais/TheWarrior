@@ -6,7 +6,6 @@
 #include <iterator>
 #include <map>
 #include <memory>
-#include <random>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -16,7 +15,6 @@
 #include "gameMapStorage.hpp"
 #include "itemFoundMessageDTO.hpp"
 #include "mapTile.hpp"
-#include "monsterStore.hpp"
 #include "monsterZone.hpp"
 #include "monsterZoneMonsterEncounter.hpp"
 #include "randomUtils.hpp"
@@ -39,38 +37,41 @@ GameMapMode::~GameMapMode() {
     m_glPlayer->unloadGLPlayerObject();
 }
 
-void GameMapMode::initialize(const std::string &resourcesPath,
+bool GameMapMode::initialize(const std::string &resourcesPath,
         const std::string &playerName,
-        std::shared_ptr<ItemStore> itemStore,
-        std::shared_ptr<MonsterStore> monsterStore,
-        std::shared_ptr<MessagePipeline> messagePipeline,
-        std::shared_ptr<GLTileService> tileService,
-        std::shared_ptr<GLTextBox> textBox,
         std::shared_ptr<GLTextService> textService,
-        const std::map<std::string, unsigned int> *texturesGLItemStore,
-        const std::map<std::string, unsigned int> *texturesGLMonsterStore,
         std::shared_ptr<InputDevicesState> inputDevicesState) {
-    m_resourcesPath = resourcesPath;
+    m_controller.initialize(resourcesPath);
+    if (!loadStores()) {
+        return false;
+    }
+    if (!loadShaders()) {
+        return false;
+    }
+    m_textureService.setResourcesPath(resourcesPath);
+    loadItemStoreTextures();
+    loadMonsterStoreTextures();
     m_map = std::make_shared<GameMap>(1, 1);
     m_glPlayer = std::make_shared<GLPlayer>(playerName);
-    m_glPlayer->initialize(m_resourcesPath);
+    m_glPlayer->initialize(resourcesPath);
     m_glPlayer->m_playerMoveCompleted.connect(boost::bind(&GameMapMode::onPlayerMoveCompleted, this));
     m_glFormService->initialize(m_shaderProgram, textService);
-    m_glBattleWindow.initialize(resourcesPath, m_glPlayer, textService, monsterStore, texturesGLMonsterStore, inputDevicesState);
-    m_glCharacterWindow.initialize(resourcesPath, m_glPlayer, textService, itemStore, texturesGLItemStore, inputDevicesState);
-    m_glInventory.initialize(resourcesPath, m_glPlayer, textService, itemStore, texturesGLItemStore, inputDevicesState);
+    m_glBattleWindow.initialize(resourcesPath, m_glPlayer, textService, m_controller.getMonsterStore(), &m_texturesGLMonsterStore, inputDevicesState);
+    m_glCharacterWindow.initialize(resourcesPath, m_glPlayer, textService, m_controller.getItemStore(), &m_texturesGLItemStore, inputDevicesState);
+    m_glInventory.initialize(resourcesPath, m_glPlayer, textService, m_controller.getItemStore(), &m_texturesGLItemStore, inputDevicesState);
     m_glInventory.setInventory(m_glPlayer->getInventory());
-    m_textureService.setResourcesPath(resourcesPath);
-    m_tileService = tileService;
-    m_textBox = textBox;
+    m_textBox->initialize(m_controller.getResourcesPath(),
+            textService,
+            m_controller.getItemStore(),
+            &m_texturesGLItemStore);
     m_inputDevicesState = inputDevicesState;
-    m_controller.initialize(itemStore, monsterStore, messagePipeline);
     m_choicePopup.initialize(resourcesPath, m_glFormService, textService, inputDevicesState);
     loadMap(fmt::format("{0}/maps/Outworld.map", resourcesPath), "Outworld.map");
     loadMapTextures();
     generateGLMapObjects();
     m_glCharacterWindow.onCloseEvent.connect(boost::bind(&GameMapMode::onCharacterWindowClose, this));
     m_glInventory.onCloseEvent.connect(boost::bind(&GameMapMode::onInventoryWindowClose, this));
+    return true;
 }
 
 bool GameMapMode::initShaders(const std::string &resourcesPath) {
@@ -170,6 +171,7 @@ void GameMapMode::gameWindowSizeChanged(const Size<> &size) {
     m_glCharacterWindow.gameWindowSizeChanged(size);
     m_choicePopup.gameWindowLocationChanged({static_cast<float>(size.width()) / 2.0F,
             static_cast<float>(size.height()) / 2.0F});
+    m_textBox->gameWindowSizeChanged(size);
 }
 
 void GameMapMode::onGameWindowUpdate(float delta_time) {
@@ -405,7 +407,7 @@ void GameMapMode::processAction(MapTileTriggerAction action, const std::map<std:
                 m_glPlayer->faceRight();
             }
             m_glPlayer->setGridPosition(Point<>(stoi(properties.at("playerX")), stoi(properties.at("playerY"))));
-            changeMap(fmt::format("{0}/maps/{1}", m_resourcesPath, properties.at("mapFileName")), properties.at("mapFileName"));
+            changeMap(fmt::format("{0}/maps/{1}", m_controller.getResourcesPath(), properties.at("mapFileName")), properties.at("mapFileName"));
             break;
         case MapTileTriggerAction::OpenChest:
             {
@@ -647,6 +649,56 @@ void GameMapMode::loadMapTextures() {
     for (const auto &texture : m_map->getTextures()) {
         const auto &textureName { texture.getName() };
         m_textureService.loadTexture(texture, m_texturesGLMap[textureName]);
+    }
+}
+
+bool GameMapMode::loadStores() {
+    if (!m_controller.loadItemStore(fmt::format("{0}/items/itemstore.itm", m_controller.getResourcesPath()))) {
+        std::cerr << "Unable to load the item store : " << m_controller.getLastError() << "\n";
+        return false;
+    }
+    if (!m_controller.loadMonsterStore(fmt::format("{0}/monsters/monsterstore.mon", m_controller.getResourcesPath()))) {
+        std::cerr << "Unable to load the monster store : " << m_controller.getLastError() << "\n";
+        return false;
+    }
+    return true;
+}
+
+bool GameMapMode::loadShaders() {
+    if (!m_tileService->initShader(fmt::format("{0}/shaders/tile_330_vs.glsl", m_controller.getResourcesPath()),
+                fmt::format("{0}/shaders/tile_330_fs.glsl", m_controller.getResourcesPath()))) {
+        std::cerr << m_tileService->getLastError() << "\n";
+        return false;
+    }
+    if (!m_textBox->initShader(fmt::format("{0}/shaders/textbox_330_vs.glsl", m_controller.getResourcesPath()),
+                fmt::format("{0}/shaders/textbox_330_fs.glsl", m_controller.getResourcesPath()))) {
+        std::cerr << m_textBox->getLastError() << "\n";
+        return false;
+    }
+    return true;
+}
+
+void GameMapMode::loadItemStoreTextures() {
+    // Clear existing textures in graphics memory
+    for (auto &glTexture : m_texturesGLItemStore) {
+        glDeleteTextures(1, &glTexture.second);
+    }
+    m_texturesGLItemStore.clear();
+    for (const auto &texture : m_controller.getItemStore()->getTextureContainer().getTextures()) {
+        const auto &textureName { texture.getName() };
+        m_textureService.loadTexture(texture, m_texturesGLItemStore[textureName]);
+    }
+}
+
+void GameMapMode::loadMonsterStoreTextures() {
+    // Clear existing textures in graphics memory
+    for (auto &glTexture : m_texturesGLMonsterStore) {
+        glDeleteTextures(1, &glTexture.second);
+    }
+    m_texturesGLMonsterStore.clear();
+    for (const auto &texture : m_controller.getMonsterStore()->getTextureContainer().getTextures()) {
+        const auto &textureName { texture.getName() };
+        m_textureService.loadTexture(texture, m_texturesGLMonsterStore[textureName]);
     }
 }
 
