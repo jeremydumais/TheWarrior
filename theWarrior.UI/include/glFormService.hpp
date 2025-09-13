@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+#include <vector>
 #include "glColor.hpp"
 #include "glObjectService.hpp"
 #include "glShaderProgram.hpp"
@@ -7,14 +9,11 @@
 #include "point.hpp"
 #include "size.hpp"
 #include "texture.hpp"
-#include <memory>
-#include <vector>
 
 namespace thewarrior::ui {
 
-class GLFormService
-{
-public:
+class GLFormService {
+ public:
     GLFormService();
     void initialize(std::shared_ptr<GLShaderProgram> shaderProgram,
                     std::shared_ptr<GLTextService> textService);
@@ -35,10 +34,11 @@ public:
     void drawText(const GLTextObject &glTextObject);
     void drawText(const GLTextObject &glTextObject, GLColor color);
     void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
-private:
+
+ private:
     thewarrior::models::Size<float> m_gameWindowSize;
     std::shared_ptr<GLShaderProgram> m_shaderProgram;
     std::shared_ptr<GLTextService> m_textService;
 };
 
-} // namespace thewarrior::ui
+}  // namespace thewarrior::ui

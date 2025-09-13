@@ -4,10 +4,9 @@
 
 namespace thewarrior::ui {
 
-struct GLTexture
-{
+struct GLTexture {
     thewarrior::models::Texture texture;
     unsigned int glTextureId;
 };
 
-} // namespace thewarrior::ui
+}  // namespace thewarrior::ui

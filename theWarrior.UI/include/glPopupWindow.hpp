@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -21,7 +22,7 @@ namespace thewarrior::ui {
 class GLPopupWindow : public IShaderService {
  public:
     explicit GLPopupWindow(thewarrior::models::Size<float> size);
-    virtual ~GLPopupWindow() = default;
+    ~GLPopupWindow() override;
     const std::string &getLastError() const;
     const thewarrior::models::Point<float> &getWindowLocation() const;
     const thewarrior::models::Size<float> &getWindowSize() const;
@@ -32,10 +33,16 @@ class GLPopupWindow : public IShaderService {
     void initialize(const std::string &title,
                     const std::string &resourcePath,
                     std::shared_ptr<GLTextService> textService);
+    void initialize(const std::string &title,
+                    const std::shared_ptr<GLTexture> texture,
+                    std::shared_ptr<GLTextService> textService);
     void setTitle(const std::string &title);
     void generateGLElements();
     void render();
     void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
+    void setTextureBeginId(int value);
+    void setFillCenter(bool value);
+    void setWindowSize(thewarrior::models::Size<float> size);
     boost::signals2::signal<void()> onCloseEvent;
 
  protected:
@@ -49,12 +56,19 @@ class GLPopupWindow : public IShaderService {
     std::shared_ptr<GLTextService> m_textService;
     GLTextureService m_textureService;
     GLTexture m_windowGLTexture;
+    std::shared_ptr<GLTexture> m_texture;
     GLObject m_glwindow;
     GLTextObject m_glTitle;
     bool m_displayTitle;
     std::vector<GLObject> m_windowObjects;
     std::vector<GLObject> m_windowBackgrounds;
     std::vector<GLObject> m_windowTitleObjects;
+    int m_textureBeginId;
+    bool m_fillCenter;
+    std::vector<GLObject> m_glObjects;
+    std::vector<GLTextObject> m_glTextObjects;
+    static void freeGLObjects(std::vector<GLObject> &objects);
+    static void freeGLObjects(std::map<std::string, GLObject> &objects);
     void generateQuad(std::vector<GLObject> &objects,
                       thewarrior::models::Point<float> location,
                       thewarrior::models::Size<float> size,
@@ -82,8 +96,7 @@ class GLPopupWindow : public IShaderService {
                                       float width,
                                       GLColor colorLabel = GLColor::White,
                                       GLColor colorValue = GLColor::White);
-    std::vector<GLObject> m_glObjects;
-    std::vector<GLTextObject> m_glTextObjects;
+    GLTexture *getTexturePtr();
 };
 
 }  // namespace thewarrior::ui

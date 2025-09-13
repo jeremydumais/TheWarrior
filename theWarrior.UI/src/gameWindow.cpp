@@ -1,7 +1,10 @@
-#include "gameWindow.hpp"
+#include <SDL2/SDL_mixer.h>
 #include <fmt/format.h>
 #include <iostream>
+#include <memory>
 #include <string>
+#include <boost/bind/placeholders.hpp>
+#include "gameWindow.hpp"
 
 using namespace std;
 using namespace thewarrior::models;
@@ -11,25 +14,26 @@ namespace thewarrior::ui {
 GameWindow::GameWindow(const string &title,
         int x, int y,
         int width, int height)
-    : m_WindowSize(width, height) {
+    : m_WindowSize(width, height),
+      m_gameMapMode(nullptr),
+      m_mainMenuMode(nullptr) {
     if (!initializeOpenGL(title, x, y, width, height)) {
+        return;
+    }
+    if (!initializeAudio()) {
         return;
     }
     if (!loadResourceFiles()) {
         return;
     }
+    m_inputDevicesState = std::make_shared<InputDevicesState>();
 
     SDL_JoystickEventState(SDL_ENABLE);
     m_joystick = SDL_JoystickOpen(0);
 
     subscribeEvents();
-    m_textBox->initialize(m_controller.getResourcesPath(),
-            m_textService,
-            m_controller.getItemStore(),
-            &m_texturesGLItemStore);
-    m_glPlayer->initialize(m_controller.getResourcesPath());
     // HACK: to remove (Test only)
-    m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("pot001"));
+    /*m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("pot001"));
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("ubd001"));
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("hlm001"));
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("swd003"));
@@ -37,28 +41,26 @@ GameWindow::GameWindow(const string &title,
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("swd002"));
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("shd001"));
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("key001"));
-    /*m_glPlayer->getEquipment().setMainHand(*dynamic_cast<const WeaponItem*>(m_controller.getItemStore()->findItem("swd002").get()));
+    m_glPlayer->getEquipment().setMainHand(*dynamic_cast<const WeaponItem*>(m_controller.getItemStore()->findItem("swd002").get()));
       m_glPlayer->getEquipment().setSecondaryHand(VariantEquipment(*dynamic_cast<const ArmorItem*>(m_controller.getItemStore()->findItem("shd001").get())));
       m_glPlayer->getEquipment().setHead(*dynamic_cast<const ArmorItem*>(m_controller.getItemStore()->findItem("hlm001").get()));
       m_glPlayer->getEquipment().setUpperBody(*dynamic_cast<const ArmorItem*>(m_controller.getItemStore()->findItem("ubd001").get()));*/
-    m_gameMapMode.initialize(m_controller.getResourcesPath(),
-            m_glPlayer,
-            m_controller.getItemStore(),
-            m_controller.getMonsterStore(),
-            m_controller.getMessagePipeline(),
-            m_tileService,
-            m_textBox,
-            m_textService,
-            &m_texturesGLItemStore,
-            &m_texturesGLMonsterStore,
-            m_inputDevicesState);
+    switch (m_interactionMode) {
+        case InteractionMode::MainMenu:
+            if (!initializeMenu()) return;
+            break;
+        case InteractionMode::Game:
+            if (!initializeGame(m_playerName)) return;
+            break;
+    }
+
     m_fpsCalculator.initialize();
     m_windowSizeChanged(m_WindowSize);
 }
 
 GameWindow::~GameWindow() {
-    m_gameMapMode.unloadGLMapObjects();
-    m_glPlayer->unloadGLPlayerObject();
+    if (m_mainMenuMode) m_mainMenuMode->unloadGLMapObjects();
+    if (m_gameMapMode) m_gameMapMode->unloadGLMapObjects();
     SDL_JoystickClose(m_joystick);
     SDL_DestroyWindow(m_window);
     SDL_Quit();
@@ -77,6 +79,14 @@ bool GameWindow::isAlive() const {
 }
 
 void GameWindow::processEvents() {
+    if (m_mustCreateNewGame) {
+        createNewGame();
+        return;
+    }
+    if (m_mustReturnToMainMenu) {
+        returnToMainMenu();
+        return;
+    }
     SDL_Event e;
     m_inputDevicesState->processJoystick(m_joystick);
     while (SDL_PollEvent(&e) != 0) {
@@ -89,8 +99,11 @@ void GameWindow::processEvents() {
             continue;
         }
         switch (m_interactionMode) {
+            case InteractionMode::MainMenu:
+                if (m_mainMenuMode) m_mainMenuMode->processEvents(e);
+                break;
             case InteractionMode::Game:
-                m_gameMapMode.processEvents(e);
+                if (m_gameMapMode) m_gameMapMode->processEvents(e);
                 break;
             default:
                 break;
@@ -102,7 +115,6 @@ void GameWindow::processEvents() {
                 SDL_GetWindowSize(m_window, &screenWidth, &screenHeight);
                 m_WindowSize.setSize(screenWidth, screenHeight);
                 glViewport(0, 0, m_WindowSize.width(), m_WindowSize.height());
-                calculateTileSize();
                 m_windowSizeChanged(m_WindowSize);
             }
         }
@@ -116,8 +128,11 @@ void GameWindow::processEvents() {
         }
     }
     switch (m_interactionMode) {
+        case InteractionMode::MainMenu:
+            if (m_mainMenuMode) m_mainMenuMode->update();
+            break;
         case InteractionMode::Game:
-            m_gameMapMode.update();
+            if (m_gameMapMode) m_gameMapMode->update();
             break;
         default:
             break;
@@ -183,25 +198,55 @@ bool GameWindow::initializeOpenGL(const std::string &title,
     return true;
 }
 
+bool GameWindow::initializeAudio() {
+    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+        cerr << fmt::format("SDL could not initialize! SDL_Error: {0}\n", SDL_GetError());
+        return false;
+    }
+
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        cerr << fmt::format("SDL_mixer could not initialize! SDL_mixer Error: {0}\n", SDL_GetError());
+        return false;
+    }
+    return true;
+}
+
+bool GameWindow::initializeMenu() {
+    m_mainMenuMode = std::make_unique<MainMenuMode>();
+    if (!m_mainMenuMode->initShaders(m_controller.getResourcesPath())) {
+        cerr << m_mainMenuMode->getLastError() << "\n";
+        return false;
+    }
+    m_mainMenuMode->initialize(m_controller.getResourcesPath(),
+            m_textService,
+            m_inputDevicesState);
+    m_windowSizeChanged.connect(boost::bind(&MainMenuMode::gameWindowSizeChanged, m_mainMenuMode.get(), boost::placeholders::_1));
+    m_mainMenuMode->quitRequested.connect(boost::bind(&GameWindow::quitRequested, this));
+    m_mainMenuMode->newGameRequested.connect(boost::bind(&GameWindow::newGameRequested, this, boost::placeholders::_1));
+    m_windowSizeChanged(m_WindowSize);
+    return true;
+}
+
+bool GameWindow::initializeGame(const std::string &playerName) {
+    m_gameMapMode = std::make_unique<GameMapMode>();
+    if (!m_gameMapMode->initShaders(m_controller.getResourcesPath())) {
+        cerr << m_gameMapMode->getLastError() << "\n";
+        return false;
+    }
+    if (!m_gameMapMode->initialize(m_controller.getResourcesPath(),
+            playerName,
+            m_textService,
+            m_inputDevicesState)) {
+        return false;
+    }
+    m_windowSizeChanged.connect(boost::bind(&GameMapMode::gameWindowSizeChanged, m_gameMapMode.get(), boost::placeholders::_1));
+    m_windowUpdate.connect(boost::bind(&GameMapMode::onGameWindowUpdate, m_gameMapMode.get(), boost::placeholders::_1));
+    m_gameMapMode->quitRequested.connect(boost::bind(&GameWindow::quitGameRequested, this));
+    m_windowSizeChanged(m_WindowSize);
+    return true;
+}
+
 bool GameWindow::loadResourceFiles() {
-    if (!m_controller.loadItemStore(fmt::format("{0}/items/itemstore.itm", m_controller.getResourcesPath()))) {
-        cerr << "Unable to load the item store : " << m_controller.getLastError() << "\n";
-        return false;
-    }
-    if (!m_controller.loadMonsterStore(fmt::format("{0}/monsters/monsterstore.mon", m_controller.getResourcesPath()))) {
-        cerr << "Unable to load the monster store : " << m_controller.getLastError() << "\n";
-        return false;
-    }
-    if (!m_tileService->initShader(fmt::format("{0}/shaders/tile_330_vs.glsl", m_controller.getResourcesPath()),
-                fmt::format("{0}/shaders/tile_330_fs.glsl", m_controller.getResourcesPath()))) {
-        cerr << m_tileService->getLastError() << "\n";
-        return false;
-    }
-    if (!m_textBox->initShader(fmt::format("{0}/shaders/textbox_330_vs.glsl", m_controller.getResourcesPath()),
-                fmt::format("{0}/shaders/textbox_330_fs.glsl", m_controller.getResourcesPath()))) {
-        cerr << m_textBox->getLastError() << "\n";
-        return false;
-    }
     if (!m_textService->initShader(fmt::format("{0}/shaders/text_330_vs.glsl", m_controller.getResourcesPath()),
                 fmt::format("{0}/shaders/text_330_fs.glsl", m_controller.getResourcesPath()))) {
         cerr << m_textService->getLastError() << "\n";
@@ -211,30 +256,21 @@ bool GameWindow::loadResourceFiles() {
         cerr << m_textService->getLastError() << "\n";
         return false;
     }
-    if (!m_gameMapMode.initShaders(m_controller.getResourcesPath())) {
-        cerr << m_gameMapMode.getLastError() << "\n";
-        return false;
-    }
     m_textureService.setResourcesPath(m_controller.getResourcesPath());
-    loadItemStoreTextures();
-    loadMonsterStoreTextures();
     return true;
 }
 
 void GameWindow::subscribeEvents() {
-    m_windowSizeChanged.connect(boost::bind(&GameMapMode::gameWindowSizeChanged, &m_gameMapMode, boost::placeholders::_1));
-    m_windowSizeChanged.connect(boost::bind(&GLPlayer::onGameWindowSizeChanged, m_glPlayer, boost::placeholders::_1));
     m_windowSizeChanged.connect(boost::bind(&GLTextService::gameWindowSizeChanged, m_textService, boost::placeholders::_1));
-    m_windowSizeChanged.connect(boost::bind(&GLTextBox::gameWindowSizeChanged, m_textBox, boost::placeholders::_1));
-    m_tileSizeChanged.connect(boost::bind(&GameMapMode::gameWindowTileSizeChanged, &m_gameMapMode, boost::placeholders::_1));
-    m_tileSizeChanged.connect(boost::bind(&GLPlayer::onGameWindowTileSizeChanged, m_glPlayer, boost::placeholders::_1));
-    m_windowUpdate.connect(boost::bind(&GLPlayer::onGameWindowUpdate, m_glPlayer, boost::placeholders::_1));
 }
 
 void GameWindow::render() {
     switch (m_interactionMode) {
+        case InteractionMode::MainMenu:
+            if (m_mainMenuMode) m_mainMenuMode->render();
+            break;
         case InteractionMode::Game:
-            m_gameMapMode.render();
+            if (m_gameMapMode) m_gameMapMode->render();
             break;
         default:
             break;
@@ -251,37 +287,48 @@ void GameWindow::render() {
     SDL_GL_SwapWindow(m_window);
 }
 
-void GameWindow::loadItemStoreTextures() {
-    // Clear existing textures in graphics memory
-    for (auto &glTexture : m_texturesGLItemStore) {
-        glDeleteTextures(1, &glTexture.second);
-    }
-    m_texturesGLItemStore.clear();
-    for (const auto &texture : m_controller.getItemStore()->getTextureContainer().getTextures()) {
-        const auto &textureName { texture.getName() };
-        m_textureService.loadTexture(texture, m_texturesGLItemStore[textureName]);
-    }
+void GameWindow::quitRequested() {
+    m_mustExit = true;
+    Mix_CloseAudio();
 }
 
-void GameWindow::loadMonsterStoreTextures() {
-    // Clear existing textures in graphics memory
-    for (auto &glTexture : m_texturesGLMonsterStore) {
-        glDeleteTextures(1, &glTexture.second);
-    }
-    m_texturesGLMonsterStore.clear();
-    for (const auto &texture : m_controller.getMonsterStore()->getTextureContainer().getTextures()) {
-        const auto &textureName { texture.getName() };
-        m_textureService.loadTexture(texture, m_texturesGLMonsterStore[textureName]);
-    }
+void GameWindow::newGameRequested(std::string playerName) {
+    m_playerName = playerName;
+    m_mustCreateNewGame = true;
 }
 
-void GameWindow::calculateTileSize() {
-    Size<float> screenSizeFloat(static_cast<float>(m_WindowSize.width()), static_cast<float>(m_WindowSize.height()));
+void GameWindow::quitGameRequested() {
+    m_mustReturnToMainMenu = true;
+}
 
-    m_tileSize.tileWidth = (1.0F / (screenSizeFloat.width() / 51.2F)) * 2.0F;
-    m_tileSize.tileHalfWidth = m_tileSize.tileWidth / 2.0F;
-    m_tileSize.tileHalfHeight = (screenSizeFloat.width() * m_tileSize.tileHalfWidth) / screenSizeFloat.height();
-    m_tileSizeChanged(m_tileSize);
+void GameWindow::createNewGame() {
+    m_windowSizeChanged.disconnect_all_slots();
+    m_mainMenuMode->quitRequested.disconnect_all_slots();
+    m_mainMenuMode->newGameRequested.disconnect_all_slots();
+    m_mainMenuMode.reset();
+    m_mainMenuMode = nullptr;
+    if (initializeGame(m_playerName)) {
+        m_interactionMode = InteractionMode::Game;
+    } else {
+        m_mustExit = true;
+        Mix_CloseAudio();
+    }
+    m_mustCreateNewGame = false;
+}
+
+void GameWindow::returnToMainMenu() {
+    m_windowSizeChanged.disconnect_all_slots();
+    m_windowUpdate.disconnect_all_slots();
+    m_gameMapMode->quitRequested.disconnect_all_slots();
+    m_gameMapMode.reset();
+    m_gameMapMode = nullptr;
+    if (initializeMenu()) {
+        m_interactionMode = InteractionMode::MainMenu;
+    } else {
+        m_mustExit = true;
+        Mix_CloseAudio();
+    }
+    m_mustReturnToMainMenu = false;
 }
 
 }  // namespace thewarrior::ui

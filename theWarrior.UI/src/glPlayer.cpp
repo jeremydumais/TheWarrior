@@ -54,7 +54,7 @@ bool GLPlayer::isFacing(PlayerFacing direction) {
 void GLPlayer::initialize(const std::string &resourcePath) {
     m_textureName = "NPC1";
     //HACK: To be changed
-    m_coord = Point<int>(40, 20);
+    m_coord = Point<int>(22, 24);
     m_xMove = 0.0f;
     m_yMove = 0.0f;
     m_baseTextureIndex = 9;
@@ -326,14 +326,11 @@ MovingResult GLPlayer::processMoving(float delta_time) {
     return result;
 }
 
-void GLPlayer::onGameWindowSizeChanged(const Size<> &) {
+void GLPlayer::onGameWindowTileSizeChanged(const TileSize &tileSize) {
+    m_tileSize = tileSize;
     unloadGLPlayerObject();
     generateGLPlayerObject();
     setGLObjectPosition();
-}
-
-void GLPlayer::onGameWindowTileSizeChanged(const TileSize &tileSize) {
-    m_tileSize = tileSize;
 }
 
 void GLPlayer::onGameWindowUpdate(float delta_time) {

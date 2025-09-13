@@ -2,8 +2,13 @@
 set(PROJECT_NAME    "theWarrior.UI")
 
 #find_package(Freetype)
+find_package(SDL2 REQUIRED)
+find_library(SDL2_MIXER_LIBRARY SDL2_mixer REQUIRED)
+
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/include/components
+                    ${CMAKE_CURRENT_SOURCE_DIR}/include/screens
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Storage/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.UI.Models/include
@@ -29,8 +34,17 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glTextureService.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glShaderProgram.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/inputDevicesState.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/mainMenuMode.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/shakingAnimation.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/valueChangeAnimation.cpp)
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/valueChangeAnimation.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glComponentBase.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glMenuButton.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glMenuModalDialog.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glOnScreenKeyboard.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glOnScreenKeyboardButton.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/screens/mainMenuScreen.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/screens/menuScreenBase.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/screens/newGamePlayerNameScreen.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -43,7 +57,7 @@ target_link_libraries(${PROJECT_NAME}
                       theWarrior.Storage
                       theWarrior.Utils
                       theWarrior.UI.Controllers
-                      SDL2 GLU GL GLEW freetype bz2 png16 brotlicommon brotlidec brotlienc z)
+                      SDL2 ${SDL2_MIXER_LIBRARY} GLU GL GLEW freetype bz2 png16 brotlicommon brotlidec brotlienc z)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html

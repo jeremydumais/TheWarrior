@@ -6,7 +6,6 @@
 #include <iterator>
 #include <map>
 #include <memory>
-#include <random>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -16,7 +15,6 @@
 #include "gameMapStorage.hpp"
 #include "itemFoundMessageDTO.hpp"
 #include "mapTile.hpp"
-#include "monsterStore.hpp"
 #include "monsterZone.hpp"
 #include "monsterZoneMonsterEncounter.hpp"
 #include "randomUtils.hpp"
@@ -35,37 +33,46 @@ GameMapMode::GameMapMode() {
     m_glBattleWindow.m_battleCompleted.connect(boost::bind(&GameMapMode::onBattleCompleted, this));
 }
 
-void GameMapMode::initialize(const std::string &resourcesPath,
-        std::shared_ptr<GLPlayer> glPlayer,
-        std::shared_ptr<ItemStore> itemStore,
-        std::shared_ptr<MonsterStore> monsterStore,
-        std::shared_ptr<MessagePipeline> messagePipeline,
-        std::shared_ptr<GLTileService> tileService,
-        std::shared_ptr<GLTextBox> textBox,
+GameMapMode::~GameMapMode() {
+    m_glPlayer->unloadGLPlayerObject();
+    unloadGLMapObjects();
+}
+
+bool GameMapMode::initialize(const std::string &resourcesPath,
+        const std::string &playerName,
         std::shared_ptr<GLTextService> textService,
-        const std::map<std::string, unsigned int> *texturesGLItemStore,
-        const std::map<std::string, unsigned int> *texturesGLMonsterStore,
         std::shared_ptr<InputDevicesState> inputDevicesState) {
-    m_resourcesPath = resourcesPath;
+    m_controller.initialize(resourcesPath);
+    if (!loadStores()) {
+        return false;
+    }
+    if (!loadShaders()) {
+        return false;
+    }
+    m_textureService.setResourcesPath(resourcesPath);
+    loadItemStoreTextures();
+    loadMonsterStoreTextures();
     m_map = std::make_shared<GameMap>(1, 1);
-    m_glPlayer = glPlayer;
+    m_glPlayer = std::make_shared<GLPlayer>(playerName);
+    m_glPlayer->initialize(resourcesPath);
     m_glPlayer->m_playerMoveCompleted.connect(boost::bind(&GameMapMode::onPlayerMoveCompleted, this));
     m_glFormService->initialize(m_shaderProgram, textService);
-    m_glBattleWindow.initialize(resourcesPath, glPlayer, textService, monsterStore, texturesGLMonsterStore, inputDevicesState);
-    m_glCharacterWindow.initialize(resourcesPath, glPlayer, textService, itemStore, texturesGLItemStore, inputDevicesState);
-    m_glInventory.initialize(resourcesPath, glPlayer, textService, itemStore, texturesGLItemStore, inputDevicesState);
+    m_glBattleWindow.initialize(resourcesPath, m_glPlayer, textService, m_controller.getMonsterStore(), &m_texturesGLMonsterStore, inputDevicesState);
+    m_glCharacterWindow.initialize(resourcesPath, m_glPlayer, textService, m_controller.getItemStore(), &m_texturesGLItemStore, inputDevicesState);
+    m_glInventory.initialize(resourcesPath, m_glPlayer, textService, m_controller.getItemStore(), &m_texturesGLItemStore, inputDevicesState);
     m_glInventory.setInventory(m_glPlayer->getInventory());
-    m_textureService.setResourcesPath(resourcesPath);
-    m_tileService = tileService;
-    m_textBox = textBox;
+    m_textBox->initialize(m_controller.getResourcesPath(),
+            textService,
+            m_controller.getItemStore(),
+            &m_texturesGLItemStore);
     m_inputDevicesState = inputDevicesState;
-    m_controller.initialize(itemStore, monsterStore, messagePipeline);
     m_choicePopup.initialize(resourcesPath, m_glFormService, textService, inputDevicesState);
     loadMap(fmt::format("{0}/maps/Outworld.map", resourcesPath), "Outworld.map");
     loadMapTextures();
     generateGLMapObjects();
     m_glCharacterWindow.onCloseEvent.connect(boost::bind(&GameMapMode::onCharacterWindowClose, this));
     m_glInventory.onCloseEvent.connect(boost::bind(&GameMapMode::onInventoryWindowClose, this));
+    return true;
 }
 
 bool GameMapMode::initShaders(const std::string &resourcesPath) {
@@ -155,23 +162,34 @@ void GameMapMode::update() {
 
 void GameMapMode::gameWindowSizeChanged(const Size<> &size) {
     m_screenSize = size;
+    calculateTileSize();
     m_glFormService->gameWindowSizeChanged(size);
     unloadGLMapObjects();
     generateGLMapObjects();
+    m_glPlayer->onGameWindowTileSizeChanged(m_tileSize);
     m_glInventory.gameWindowSizeChanged(size);
     m_glBattleWindow.gameWindowSizeChanged(size);
     m_glCharacterWindow.gameWindowSizeChanged(size);
     m_choicePopup.gameWindowLocationChanged({static_cast<float>(size.width()) / 2.0F,
             static_cast<float>(size.height()) / 2.0F});
+    m_textBox->gameWindowSizeChanged(size);
 }
 
-void GameMapMode::gameWindowTileSizeChanged(const TileSize &tileSize) {
-    m_tileSize = tileSize;
+void GameMapMode::onGameWindowUpdate(float delta_time) {
+    m_glPlayer->onGameWindowUpdate(delta_time);
+}
+
+void GameMapMode::calculateTileSize() {
+    Size<float> screenSizeFloat(static_cast<float>(m_screenSize.width()), static_cast<float>(m_screenSize.height()));
+
+    m_tileSize.tileWidth = (1.0F / (screenSizeFloat.width() / 51.2F)) * 2.0F;
+    m_tileSize.tileHalfWidth = m_tileSize.tileWidth / 2.0F;
+    m_tileSize.tileHalfHeight = (screenSizeFloat.width() * m_tileSize.tileHalfWidth) / screenSizeFloat.height();
 }
 
 void GameMapMode::showMainMenu() {
     m_inputMode = GameMapInputMode::MainMenuPopup;
-    m_choicePopup.preparePopup({"Inventory", "Character", "Back"});
+    m_choicePopup.preparePopup({"Inventory", "Character", "Back", "Save", "Exit Game"});
     m_choicePopup.generateGLElements();
 }
 
@@ -211,15 +229,15 @@ void GameMapMode::render() {
             || item.y < m_tileCoordToDisplay[2] || item.y > m_tileCoordToDisplay[3]) {
             continue;
         }
-        glBindVertexArray(item.glObject.vao);
-        glBindBuffer(GL_ARRAY_BUFFER, item.glObject.vboPosition);
+        glBindVertexArray(item.glMainObject.vao);
+        glBindBuffer(GL_ARRAY_BUFFER, item.glMainObject.vboPosition);
         glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, item.glObject.vboColor);
+        glBindBuffer(GL_ARRAY_BUFFER, item.glMainObject.vboColor);
         glEnableVertexAttribArray(1);
         if (item.tile.hasTexture()) {
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, m_texturesGLMap[item.tile.getTextureName()]);
-            glBindBuffer(GL_ARRAY_BUFFER, item.glObject.vboTexture);
+            glBindBuffer(GL_ARRAY_BUFFER, item.glMainObject.vboTexture);
             glEnableVertexAttribArray(2);
         }
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
@@ -276,12 +294,12 @@ void GameMapMode::render() {
 
 void GameMapMode::drawObjectTile(GLTile &tile) {
     glBindTexture(GL_TEXTURE_2D, m_texturesGLMap[tile.tile.getObjectTextureName()]);
-    glBindVertexArray(tile.vaoObject);
-    glBindBuffer(GL_ARRAY_BUFFER, tile.glObject.vboPosition);
+    glBindVertexArray(tile.vaoSecondObject);
+    glBindBuffer(GL_ARRAY_BUFFER, tile.glMainObject.vboPosition);
     glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, tile.glObject.vboColor);
+    glBindBuffer(GL_ARRAY_BUFFER, tile.glMainObject.vboColor);
     glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, tile.vboTextureObject);
+    glBindBuffer(GL_ARRAY_BUFFER, tile.vboSecondTextureObject);
     glEnableVertexAttribArray(2);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
@@ -390,7 +408,7 @@ void GameMapMode::processAction(MapTileTriggerAction action, const std::map<std:
                 m_glPlayer->faceRight();
             }
             m_glPlayer->setGridPosition(Point<>(stoi(properties.at("playerX")), stoi(properties.at("playerY"))));
-            changeMap(fmt::format("{0}/maps/{1}", m_resourcesPath, properties.at("mapFileName")), properties.at("mapFileName"));
+            changeMap(fmt::format("{0}/maps/{1}", m_controller.getResourcesPath(), properties.at("mapFileName")), properties.at("mapFileName"));
             break;
         case MapTileTriggerAction::OpenChest:
             {
@@ -425,11 +443,11 @@ void GameMapMode::processAction(MapTileTriggerAction action, const std::map<std:
                         calculateGLTileCoord(Point<int>(glTileToUpdate.x, glTileToUpdate.y), tileCoord);
                         auto newChestTexture = m_map->getTextureByName(tile->getObjectTextureName());
                         GenerateGLObjectInfo infoGenObject {
-                            &glTileToUpdate.glObject,
+                            &glTileToUpdate.glMainObject,
                                 newChestTexture.has_value() ? &newChestTexture.value().get() : nullptr,
                                 tile->getObjectTextureIndex(),
-                                &glTileToUpdate.vaoObject,
-                                &glTileToUpdate.vboTextureObject
+                                &glTileToUpdate.vaoSecondObject,
+                                &glTileToUpdate.vboSecondTextureObject
                         };
                         GLObjectService::generateGLObject(infoGenObject, tileCoord, m_texColorBuf);
                     }
@@ -539,6 +557,7 @@ void GameMapMode::changeMap(const std::string &filePath, const std::string &mapN
     unloadGLMapObjects();
     loadMap(filePath, mapName);
     loadMapTextures();
+    unloadGLMapObjects();
     generateGLMapObjects();
     m_glPlayer->generateGLPlayerObject();
     m_glPlayer->setGLObjectPosition();
@@ -605,13 +624,17 @@ void GameMapMode::calculateTilesToDisplay() {
 
 void GameMapMode::unloadGLMapObjects() {
     for (auto &item : m_glTiles) {
-        glDeleteBuffers(1, &item.glObject.vboPosition);
-        glDeleteBuffers(1, &item.glObject.vboColor);
-        glDeleteBuffers(1, &item.glObject.vboTexture);
-        glDeleteBuffers(1, &item.vboTextureObject);
-        glDeleteVertexArrays(1, &item.glObject.vao);
+        if (item.glMainObject.vboPosition) glDeleteBuffers(1, &item.glMainObject.vboPosition);
+        if (item.glMainObject.vboColor) glDeleteBuffers(1, &item.glMainObject.vboColor);
+        if (item.glMainObject.vboTexture) glDeleteBuffers(1, &item.glMainObject.vboTexture);
+        if (item.glMainObject.vao) glDeleteVertexArrays(1, &item.glMainObject.vao);
+        if (item.glSecondObject.vboPosition) glDeleteBuffers(1, &item.glSecondObject.vboPosition);
+        if (item.glSecondObject.vboColor) glDeleteBuffers(1, &item.glSecondObject.vboColor);
+        if (item.glSecondObject.vboTexture) glDeleteBuffers(1, &item.glSecondObject.vboTexture);
+        if (item.glSecondObject.vao)  glDeleteVertexArrays(1, &item.glSecondObject.vao);
+        if (item.vboSecondTextureObject) glDeleteBuffers(1, &item.vboSecondTextureObject);
         if (item.tile.hasObjectTexture()) {
-            glDeleteVertexArrays(1, &item.vaoObject);
+            if (item.vaoSecondObject) glDeleteVertexArrays(1, &item.vaoSecondObject);
         }
     }
     m_glTiles.clear();
@@ -630,6 +653,56 @@ void GameMapMode::loadMapTextures() {
     }
 }
 
+bool GameMapMode::loadStores() {
+    if (!m_controller.loadItemStore(fmt::format("{0}/items/itemstore.itm", m_controller.getResourcesPath()))) {
+        std::cerr << "Unable to load the item store : " << m_controller.getLastError() << "\n";
+        return false;
+    }
+    if (!m_controller.loadMonsterStore(fmt::format("{0}/monsters/monsterstore.mon", m_controller.getResourcesPath()))) {
+        std::cerr << "Unable to load the monster store : " << m_controller.getLastError() << "\n";
+        return false;
+    }
+    return true;
+}
+
+bool GameMapMode::loadShaders() {
+    if (!m_tileService->initShader(fmt::format("{0}/shaders/tile_330_vs.glsl", m_controller.getResourcesPath()),
+                fmt::format("{0}/shaders/tile_330_fs.glsl", m_controller.getResourcesPath()))) {
+        std::cerr << m_tileService->getLastError() << "\n";
+        return false;
+    }
+    if (!m_textBox->initShader(fmt::format("{0}/shaders/textbox_330_vs.glsl", m_controller.getResourcesPath()),
+                fmt::format("{0}/shaders/textbox_330_fs.glsl", m_controller.getResourcesPath()))) {
+        std::cerr << m_textBox->getLastError() << "\n";
+        return false;
+    }
+    return true;
+}
+
+void GameMapMode::loadItemStoreTextures() {
+    // Clear existing textures in graphics memory
+    for (auto &glTexture : m_texturesGLItemStore) {
+        glDeleteTextures(1, &glTexture.second);
+    }
+    m_texturesGLItemStore.clear();
+    for (const auto &texture : m_controller.getItemStore()->getTextureContainer().getTextures()) {
+        const auto &textureName { texture.getName() };
+        m_textureService.loadTexture(texture, m_texturesGLItemStore[textureName]);
+    }
+}
+
+void GameMapMode::loadMonsterStoreTextures() {
+    // Clear existing textures in graphics memory
+    for (auto &glTexture : m_texturesGLMonsterStore) {
+        glDeleteTextures(1, &glTexture.second);
+    }
+    m_texturesGLMonsterStore.clear();
+    for (const auto &texture : m_controller.getMonsterStore()->getTextureContainer().getTextures()) {
+        const auto &textureName { texture.getName() };
+        m_textureService.loadTexture(texture, m_texturesGLMonsterStore[textureName]);
+    }
+}
+
 void GameMapMode::generateGLMapObjects() {
     int indexRow {0};
     for (const auto &row : m_map->getTiles()) {
@@ -643,7 +716,7 @@ void GameMapMode::generateGLMapObjects() {
             calculateGLTileCoord(Point<int>(indexCol, indexRow), tileCoord);
             auto tileTexture = m_map->getTextureByName(tile.getTextureName());
             GenerateGLObjectInfo infoGenTexture {
-                &glTile.glObject,
+                &glTile.glMainObject,
                     tileTexture.has_value() ? &tileTexture.value().get() : nullptr,
                     tile.getTextureIndex()};
             GLObjectService::generateGLObject(infoGenTexture, tileCoord, m_texColorBuf);
@@ -651,11 +724,11 @@ void GameMapMode::generateGLMapObjects() {
             if (glTile.tile.hasObjectTexture()) {
                 auto objectTexture = m_map->getTextureByName(tile.getObjectTextureName());
                 GenerateGLObjectInfo infoGenObject {
-                    &glTile.glObject,
+                    &glTile.glSecondObject,
                         objectTexture.has_value() ? &objectTexture.value().get() : nullptr,
                         tile.getObjectTextureIndex(),
-                        &glTile.vaoObject,
-                        &glTile.vboTextureObject };
+                        &glTile.vaoSecondObject,
+                        &glTile.vboSecondTextureObject };
                 GLObjectService::generateGLObject(infoGenObject, tileCoord, m_texColorBuf);
             }
             indexCol++;
@@ -686,6 +759,11 @@ void GameMapMode::mainMenuPopupClicked(size_t choice) {
         case 2:
             mainMenuPopupCanceled();
             break;
+        case 3:
+            //TODO: Code the save function
+            break;
+        case 4:
+            exitGameAndReturnToMainMenu();
         default:
             break;
     }
@@ -695,9 +773,12 @@ void GameMapMode::mainMenuPopupCanceled() {
     m_inputMode = GameMapInputMode::Map;
 }
 
+void GameMapMode::exitGameAndReturnToMainMenu() {
+    quitRequested();
+}
+
 void GameMapMode::onPlayerMoveCompleted() {
     const auto &tile = m_map->getTileFromCoord(m_glPlayer->getGridPosition());
-    //TODO: Check for the SteppedOn event
     auto steppedOnTrigger = tile.findConstTrigger(MapTileTriggerEvent::SteppedOn);
     if (steppedOnTrigger.has_value()) {
         processAction(steppedOnTrigger->getAction(), steppedOnTrigger->getActionProperties());

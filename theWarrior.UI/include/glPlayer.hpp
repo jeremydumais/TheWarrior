@@ -8,7 +8,6 @@
 #include "glTextureService.hpp"
 #include "player.hpp"
 #include "point.hpp"
-#include "size.hpp"
 #include "texture.hpp"
 #include "tileSize.hpp"
 
@@ -51,7 +50,6 @@ class GLPlayer : public thewarrior::models::Player {
     void enableRunMode();
     void disableRunMode();
     MovingResult processMoving(float delta_time);
-    void onGameWindowSizeChanged(const thewarrior::models::Size<> &);
     void onGameWindowTileSizeChanged(const TileSize &tileSize);
     void onGameWindowUpdate(float delta_time);
     boost::signals2::signal<void()> m_playerMoveCompleted;

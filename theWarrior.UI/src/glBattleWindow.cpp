@@ -149,7 +149,7 @@ void GLBattleWindow::update() {
 
 void GLBattleWindow::generateGLElements() {
     GLPopupWindow::generateGLElements();
-    m_monsterHPBarWindow.clear();
+    GLPopupWindow::freeGLObjects(m_monsterHPBarWindow);
     // Equipments
     auto equipment = m_glPlayer->getEquipment();
     addWindowPanel({260.0F, 60.0F}, {280.0F, 280.0F}, 17);
@@ -191,6 +191,7 @@ void GLBattleWindow::generateGLElements() {
                 510.0F);
         battleLogCopy.pop();
     }
+    GLPopupWindow::freeGLObjects(m_namedObjects);
     std::vector<GLObject> battleObjects = {};
     // More text icon
     m_glFormService->generateQuad(battleObjects,

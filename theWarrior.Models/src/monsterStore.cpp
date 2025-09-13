@@ -1,6 +1,10 @@
+#include <algorithm>
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
 #include "monsterStore.hpp"
 #include <boost/algorithm/string.hpp>
-#include <algorithm>
 #include <boost/algorithm/string/case_conv.hpp>
 
 using namespace std;
@@ -11,27 +15,23 @@ namespace thewarrior::models {
 MonsterStore::MonsterStore()
     : m_lastError(""),
       m_textureContainer(TextureContainer()),
-      m_monsters(unordered_map<string, std::shared_ptr<Monster>>())
-{
+      m_monsters(unordered_map<string, std::shared_ptr<Monster>>()) {
 }
 
-const std::string &MonsterStore::getLastError() const
-{
+const std::string &MonsterStore::getLastError() const {
     return m_lastError;
 }
 
-size_t MonsterStore::getMonsterCount() const
-{
+size_t MonsterStore::getMonsterCount() const {
     return m_monsters.size();
 }
 
-std::vector<std::shared_ptr<Monster>> MonsterStore::getMonsters() const
-{
+std::vector<std::shared_ptr<Monster>> MonsterStore::getMonsters() const {
     std::vector<std::shared_ptr<Monster>> retval {};
     std::transform(m_monsters.begin(),
                    m_monsters.end(),
                    std::back_inserter(retval),
-                   [] (std::pair<const std::string &, std::shared_ptr<Monster>>monster) {
+                   [] (std::pair<const std::string &, std::shared_ptr<Monster>> monster) {
                        return std::reference_wrapper(monster.second);
                    });
     std::sort(retval.begin(), retval.end(), [](std::shared_ptr<Monster> a,
@@ -41,32 +41,26 @@ std::vector<std::shared_ptr<Monster>> MonsterStore::getMonsters() const
     return retval;
 }
 
-const std::shared_ptr<const Monster> MonsterStore::findMonster(const std::string &id) const
-{
+const std::shared_ptr<const Monster> MonsterStore::findMonster(const std::string &id) const {
     const auto iter = m_monsters.find(to_upper_copy(id));
     if (iter != m_monsters.end()) {
         return iter->second;
     }
-    else {
-        return nullptr;
-    }
+    return nullptr;
 }
 
-bool MonsterStore::isMonsterExists(const std::string &id) const
-{
+bool MonsterStore::isMonsterExists(const std::string &id) const {
     return this->findMonster(id) != nullptr;
 }
 
 
-bool MonsterStore::addMonster(std::shared_ptr<Monster> monster)
-{
+bool MonsterStore::addMonster(std::shared_ptr<Monster> monster) {
     bool wasInserted = m_monsters.insert({ to_upper_copy(monster->getId()), monster }).second;
     return wasInserted;
 }
 
-bool MonsterStore::replaceMonster(const string oldId, std::shared_ptr<Monster> monster)
-{
-    //Check if the old monster name specified exist
+bool MonsterStore::replaceMonster(const string &oldId, std::shared_ptr<Monster> monster) {
+    // Check if the old monster name specified exist
     const auto iter = m_monsters.find(to_upper_copy(oldId));
     if (iter == m_monsters.end()) {
         return false;
@@ -78,22 +72,19 @@ bool MonsterStore::replaceMonster(const string oldId, std::shared_ptr<Monster> m
     return wasInserted;
 }
 
-bool MonsterStore::removeMonster(const std::string &id)
-{
+bool MonsterStore::removeMonster(const std::string &id) {
     if (m_monsters.erase(to_upper_copy(id)) == 0) {
         return false;
     }
     return true;
 }
 
-const TextureContainer &MonsterStore::getTextureContainer() const
-{
+const TextureContainer &MonsterStore::getTextureContainer() const {
     return m_textureContainer;
 }
 
-TextureContainer &MonsterStore::getTextureContainerForEdition()
-{
+TextureContainer &MonsterStore::getTextureContainerForEdition() {
     return m_textureContainer;
 }
 
-} // namespace thewarrior::models
+}  // namespace thewarrior::models

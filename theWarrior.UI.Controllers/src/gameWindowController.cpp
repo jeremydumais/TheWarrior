@@ -3,23 +3,13 @@
 #include <libgen.h>         // dirname
 #include <linux/limits.h>   // PATH_MAX
 #include <unistd.h>         // readlink
-#include <memory>
 #include <string>
 #include "gameWindowController.hpp"
-#include "itemStoreStorage.hpp"
-#include "monsterStoreStorage.hpp"
-
-using namespace thewarrior::models;
-using namespace thewarrior::ui::models;
-using namespace thewarrior::storage;
 
 namespace thewarrior::ui::controllers {
 
 GameWindowController::GameWindowController()
-    : m_itemStore(std::make_shared<ItemStore>()),
-      m_monsterStore(std::make_shared<MonsterStore>()),
-      m_messagePipeline(std::make_shared<MessagePipeline>()),
-      m_resourcesPath(""),
+    : m_resourcesPath(""),
       m_lastError("") {
     initializeResourcesPath();
 }
@@ -30,46 +20,6 @@ const std::string &GameWindowController::getResourcesPath() const {
 
 const std::string &GameWindowController::getLastError() const {
     return m_lastError;
-}
-
-std::shared_ptr<ItemStore> GameWindowController::getItemStore() {
-    return m_itemStore;
-}
-
-std::shared_ptr<MonsterStore> GameWindowController::getMonsterStore() {
-    return m_monsterStore;
-}
-
-std::shared_ptr<MessagePipeline> GameWindowController::getMessagePipeline() {
-    return m_messagePipeline;
-}
-
-bool GameWindowController::loadItemStore(const std::string &filePath) {
-    ItemStoreStorage storage;
-    try {
-        storage.loadItemStore(filePath, m_itemStore);
-        return true;
-    }
-    catch(const std::exception &err) {
-        m_lastError = err.what();
-    }
-    return false;
-}
-
-bool GameWindowController::loadMonsterStore(const std::string &filePath) {
-    MonsterStoreStorage storage;
-    try {
-        storage.loadMonsterStore(filePath, m_monsterStore);
-        return true;
-    }
-    catch(const std::exception &err) {
-        m_lastError = err.what();
-    }
-    return false;
-}
-
-size_t GameWindowController::getMessageCount() const {
-    return m_messagePipeline->getMessageCount();
 }
 
 void GameWindowController::initializeResourcesPath() {

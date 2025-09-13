@@ -6,9 +6,8 @@
 
 namespace thewarrior::ui {
 
-class GLShaderProgram
-{
-public:
+class GLShaderProgram {
+ public:
     GLShaderProgram(const std::string &vertexShaderFileName,
                     const std::string &fragmentShaderFileName);
     ~GLShaderProgram();
@@ -17,7 +16,8 @@ public:
     bool compileShaders();
     bool linkShaders(const std::vector<std::string> &attributes);
     void use();
-private:
+
+ private:
     std::string m_lastError;
     std::string m_vertexShaderFileName;
     std::string m_fragmentShaderFileName;
@@ -27,4 +27,4 @@ private:
     std::string loadShaderFile(const std::string &file);
 };
 
-} // namespace thewarrior::ui
+}  // namespace thewarrior::ui

@@ -1,3 +1,4 @@
+#include <memory>
 #include "glFormService.hpp"
 
 using namespace thewarrior::models;
@@ -6,13 +7,11 @@ namespace thewarrior::ui {
 
 GLFormService::GLFormService()
     : m_gameWindowSize(1.0F, 1.0F),
-      m_shaderProgram(nullptr)
-{
+      m_shaderProgram(nullptr) {
 }
 
 void GLFormService::initialize(std::shared_ptr<GLShaderProgram> shaderProgram,
-                               std::shared_ptr<GLTextService> textService)
-{
+                               std::shared_ptr<GLTextService> textService) {
     m_shaderProgram = shaderProgram;
     m_textService = textService;
 }
@@ -22,10 +21,9 @@ void GLFormService::generateQuad(std::vector<GLObject> &objects,
                                  Size<float> size,
                                  const Texture *texture,
                                  int textureId,
-                                 GLuint textureGLId)
-{
+                                 GLuint textureGLId) {
     GLfloat texColorBuf[4][3];
-    //Limits: -1.0F to 1.0F (top left corner: -1.0F, 1.0F - bottom right corner: 1.0F, -1.0F)
+    // Limits: -1.0F to 1.0F (top left corner: -1.0F, 1.0F - bottom right corner: 1.0F, -1.0F)
     auto invLocationX = location.x();
     auto invLocationY = location.y();
     auto gameWinW = m_gameWindowSize.width();
@@ -51,8 +49,7 @@ void GLFormService::generateQuad(std::vector<GLObject> &objects,
             nullptr,
             -1};
         GLObjectService::generateGLObject(infoGenTexture, tileCoord, texColorBuf);
-    }
-    else {
+    } else {
         GenerateGLObjectInfo infoGenTexture {
             &object,
             texture,
@@ -67,59 +64,57 @@ void GLFormService::generateBoxQuad(std::vector<GLObject> &objects,
                                     const Texture *texture,
                                     int textureBeginId,
                                     GLuint textureGLId,
-                                    float blockSize)
-{
-    //Top left corner
+                                    float blockSize) {
+    // Top left corner
     generateQuad(objects,
                  {location.x(), location.y()},
                  { blockSize, blockSize },
                  texture, textureBeginId, textureGLId);
 
-    //Top horizontal middle
+    // Top horizontal middle
     generateQuad(objects,
                  {location.x() + blockSize, location.y()},
                  { size.width() - (blockSize * 2.0F), blockSize },
                  texture, textureBeginId + 1, textureGLId);
 
-    //Top right corner
+    // Top right corner
     generateQuad(objects,
                  {location.x() + (size.width() - blockSize), location.y()},
                  { blockSize, blockSize },
                  texture, textureBeginId + 2, textureGLId);
 
-    //Left vertical middle
+    // Left vertical middle
     generateQuad(objects,
                  {location.x(), location.y() + blockSize},
                  { blockSize, size.height() - (blockSize * 2.0F) },
                  texture, textureBeginId + 3, textureGLId);
 
-    //Right vertical middle
+    // Right vertical middle
     generateQuad(objects,
                  {location.x() + (size.width() - blockSize), location.y() + blockSize},
                  { blockSize, size.height() - (blockSize * 2.0F) },
                  texture, textureBeginId + 4, textureGLId);
 
-    //Bottom left corner
+    // Bottom left corner
     generateQuad(objects,
                  {location.x(), location.y() + (size.height() - blockSize)},
                  { blockSize, blockSize },
                  texture, textureBeginId + 5, textureGLId);
 
-    //Bottom horizontal middle
+    // Bottom horizontal middle
     generateQuad(objects,
                  {location.x() + blockSize, location.y() + (size.height() - blockSize)},
                  { size.width() - (blockSize * 2.0F), blockSize },
                  texture, textureBeginId + 6, textureGLId);
 
-    //Bottom right corner
+    // Bottom right corner
     generateQuad(objects,
                  {location.x() + (size.width() - blockSize), location.y() + (size.height() - blockSize)},
                  { blockSize, blockSize },
                  texture, textureBeginId + 7, textureGLId);
 }
 
-void GLFormService::drawQuad(const GLObject &glObject, GLuint textureGLIndex, float transparency)
-{
+void GLFormService::drawQuad(const GLObject &glObject, GLuint textureGLIndex, float transparency) {
     m_shaderProgram->use();
     GLint uniformTransparency = glGetUniformLocation(m_shaderProgram->getShaderProgramID(), "transparency");
     glUniform1f(uniformTransparency, transparency);
@@ -140,13 +135,11 @@ void GLFormService::drawQuad(const GLObject &glObject, GLuint textureGLIndex, fl
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void GLFormService::drawText(const GLTextObject &glTextObject)
-{
+void GLFormService::drawText(const GLTextObject &glTextObject) {
     drawText(glTextObject, glTextObject.color);
 }
 
-void GLFormService::drawText(const GLTextObject &glTextObject, GLColor color)
-{
+void GLFormService::drawText(const GLTextObject &glTextObject, GLColor color) {
     m_textService->useShader();
     m_textService->renderText(glTextObject.text,
                               glTextObject.position.x(),
@@ -155,10 +148,9 @@ void GLFormService::drawText(const GLTextObject &glTextObject, GLColor color)
                               getVec3FromGLColor(color));       // Color
 }
 
-void GLFormService::gameWindowSizeChanged(const Size<> &size)
-{
+void GLFormService::gameWindowSizeChanged(const Size<> &size) {
     m_gameWindowSize.setSize(static_cast<float>(size.width()),
                              static_cast<float>(size.height()));
 }
 
-} // namespace thewarrior::ui
+}  // namespace thewarrior::ui

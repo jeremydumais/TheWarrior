@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <boost/signals2.hpp>
 #include "gameMap.hpp"
 #include "gameMapModeController.hpp"
 #include "glBattleWindow.hpp"
@@ -40,16 +41,10 @@ enum GameMapInputMode {
 class GameMapMode {
  public:
     GameMapMode();
-    void initialize(const std::string &resourcesPath,
-            std::shared_ptr<GLPlayer> glPlayer,
-            std::shared_ptr<thewarrior::models::ItemStore> itemStore,
-            std::shared_ptr<thewarrior::models::MonsterStore> monsterStore,
-            std::shared_ptr<thewarrior::ui::models::MessagePipeline> messagePipeline,
-            std::shared_ptr<GLTileService> tileService,
-            std::shared_ptr<GLTextBox> textBox,
+    ~GameMapMode();
+    bool initialize(const std::string &resourcesPath,
+            const std::string &playerName,
             std::shared_ptr<GLTextService> textService,
-            const std::map<std::string, unsigned int> *texturesGLItemStore,
-            const std::map<std::string, unsigned int> *texturesGLMonsterStore,
             std::shared_ptr<InputDevicesState> inputDevicesState);
     bool initShaders(const std::string &resourcesPath);
     const std::string &getLastError() const;
@@ -58,21 +53,23 @@ class GameMapMode {
     void render();
     void unloadGLMapObjects();
     void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
-    void gameWindowTileSizeChanged(const TileSize &tileSize);
+    void onGameWindowUpdate(float delta_time);
+    boost::signals2::signal<void()> quitRequested;
 
  private:
     thewarrior::ui::controllers::GameMapModeController m_controller;
     std::string m_lastError = "";
-    std::string m_resourcesPath = "";
     std::string m_currentMapName = "";
     GameMapInputMode m_inputMode = GameMapInputMode::Map;
     std::shared_ptr<thewarrior::models::GameMap> m_map;
-    std::shared_ptr<GLPlayer> m_glPlayer;
-    std::shared_ptr<GLTileService> m_tileService;
+    std::shared_ptr<GLPlayer> m_glPlayer = nullptr;
+    std::shared_ptr<GLTileService> m_tileService = std::make_shared<GLTileService>();
     GLTextureService m_textureService;
-    std::shared_ptr<GLTextBox> m_textBox;
+    std::shared_ptr<GLTextBox> m_textBox = std::make_shared<GLTextBox>();
     std::shared_ptr<GLShaderProgram> m_shaderProgram = nullptr;
     std::shared_ptr<GLFormService> m_glFormService = std::make_shared<GLFormService>();
+    std::map<std::string, unsigned int> m_texturesGLItemStore;
+    std::map<std::string, unsigned int> m_texturesGLMonsterStore;
     GLBattleWindow m_glBattleWindow;
     GLCharacterWindow m_glCharacterWindow;
     GLInventory m_glInventory;
@@ -90,6 +87,7 @@ class GameMapMode {
     bool m_blockKeyDown = false;
     bool m_isCharacterWindowDisplayed = false;
     bool m_isInventoryDisplayed = false;
+    void calculateTileSize();
     void showMainMenu();
     void toggleInventoryWindow();
     void toggleCharacterWindow();
@@ -112,10 +110,15 @@ class GameMapMode {
     void calculateGLTileCoord(const thewarrior::models::Point<> &tilePosition, GLfloat tileCoord[4][2]);
     void calculateTilesToDisplay();
     void loadMapTextures();
+    bool loadStores();
+    bool loadShaders();
+    void loadItemStoreTextures();
+    void loadMonsterStoreTextures();
     void onCharacterWindowClose();
     void onInventoryWindowClose();
     void mainMenuPopupClicked(size_t choice);
     void mainMenuPopupCanceled();
+    void exitGameAndReturnToMainMenu();
     void onPlayerMoveCompleted();
     void onBattleCompleted();
 };
