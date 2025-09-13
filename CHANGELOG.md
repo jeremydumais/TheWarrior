@@ -179,3 +179,16 @@ now supported.
 
 #### Change
 - Ensure that at least one Monster encounter has a ratio of Normal.
+
+## [0.4.0]
+
+### Game
+
+#### New features
+- Add a Exit Game choice in the popup menu of the game.
+- Add a Save choice in the popup menu of the game.
+- Create the main menu screen and implement the New game (choose player name)
+and Quit actions.
+
+
+

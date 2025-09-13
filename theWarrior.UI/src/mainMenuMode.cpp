@@ -64,8 +64,7 @@ void MainMenuMode::initialize(const std::string &resourcesPath,
     m_newGamePlayerNameScreen.initialize(baseInfo);
     m_newGamePlayerNameScreen.backPressed.connect(boost::bind(&MainMenuMode::backToMainMenu, this));
     m_newGamePlayerNameScreen.okPressed.connect(boost::bind(&MainMenuMode::newGameConfirmed, this));
-    //HACK: Uncomment this before release
-    //Mix_PlayMusic(m_backgroundMusic, -1);  // loop forever
+    Mix_PlayMusic(m_backgroundMusic, -1);  // loop forever
 }
 
 bool MainMenuMode::initShaders(const std::string &resourcesPath) {

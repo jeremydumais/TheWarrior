@@ -46,7 +46,7 @@ class GameWindow {
     bool m_mustExit = false;
     bool m_mustCreateNewGame = false;
     bool m_mustReturnToMainMenu = false;
-    InteractionMode m_interactionMode = InteractionMode::Game;
+    InteractionMode m_interactionMode = InteractionMode::MainMenu;
     std::unique_ptr<thewarrior::ui::GameMapMode> m_gameMapMode;
     std::unique_ptr<thewarrior::ui::MainMenuMode> m_mainMenuMode;
     std::string m_executablePath;
