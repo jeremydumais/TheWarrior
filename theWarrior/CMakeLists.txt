@@ -4,6 +4,7 @@ set(PROJECT_NAME    "TheWarrior")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include,
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.UI.Models/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.UI.Storage/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.UI.Controllers/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.UI/include)
 
@@ -18,7 +19,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STRE
 endif()
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${CONAN_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} theWarrior.UI SDL2::SDL2 ${SDL2_MIXER_LIBRARY} ${CONAN_LIBS})
+target_link_libraries(${PROJECT_NAME} theWarrior.UI theWarrior.Storage SDL2::SDL2 ${SDL2_MIXER_LIBRARY} ${CONAN_LIBS})
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html

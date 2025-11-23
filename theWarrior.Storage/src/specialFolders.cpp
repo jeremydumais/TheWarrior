@@ -1,25 +1,52 @@
+#include <fmt/format.h>
+#include <cstdlib>
+#include <string>
 #include "specialFolders.hpp"
 #include <boost/algorithm/string.hpp>
-#include <cstdlib>
-#include <fmt/format.h>
+#include "constants.hpp"
 
 using namespace std;
 
 namespace thewarrior::storage {
 
-const string SpecialFolders::getAppConfigDirectory(const string &appConfigFolder)
-{
+const string SpecialFolders::getAppConfigDirectory(const string &appConfigFolder) {
     #ifdef _WIN32
         return fmt::format("{0}\\{1}\\",
                            getenv("LOCALAPPDATA"),
                            appConfigFolder);
     #else
-        //Linux system
+        // Linux system
         return fmt::format("{0}/.config/{1}/",
                            getenv("HOME"),
                            appConfigFolder);
     #endif
-
 }
 
-} // namespace thewarrior::storage
+const std::string SpecialFolders::getAppDataDirectory(const std::string &appDataFolder) {
+    #ifdef _WIN32
+        return fmt::format("{0}\\{1}\\",
+                           getenv("LOCALAPPDATA"),
+                           appDataFolder);
+    #else
+        // Linux system
+        return fmt::format("{0}/.local/{1}/",
+                           getenv("HOME"),
+                           appDataFolder);
+    #endif
+}
+
+const std::string SpecialFolders::getSaveGameDirectory() {
+    const std::string appDataFolder = fmt::format("{0}/{1}",
+                                                  thewarrior::utils::ORGANIZATIONNAME,
+                                                  thewarrior::utils::APPLICATIONNAME);
+    #ifdef _WIN32
+        return fmt::format("{0}\\Saves",
+                           SpecialFolders::getAppDataDirectory(appDataFolder));
+    #else
+        // Linux system
+        return fmt::format("{0}/Saves",
+                           SpecialFolders::getAppDataDirectory(appDataFolder));
+    #endif
+}
+
+}  // namespace thewarrior::storage
