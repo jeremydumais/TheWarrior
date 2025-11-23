@@ -151,6 +151,7 @@ void GLFormService::drawText(const GLTextObject &glTextObject, GLColor color) {
 void GLFormService::gameWindowSizeChanged(const Size<> &size) {
     m_gameWindowSize.setSize(static_cast<float>(size.width()),
                              static_cast<float>(size.height()));
+    m_textService->gameWindowSizeChanged(size);
 }
 
 }  // namespace thewarrior::ui
