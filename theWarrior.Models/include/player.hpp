@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/serialization/array_wrapper.hpp>
 #include <memory>
 #include <string>
 #include "inventory.hpp"
@@ -45,6 +46,7 @@ class Player {
 
  private:
     friend class boost::serialization::access;
+    friend class SaveGame;
     Player() = default;  // Needed for deserialization
     std::string m_name;
     std::shared_ptr<Inventory> m_inventory = std::make_shared<Inventory>();
@@ -57,8 +59,19 @@ class Player {
     static float getOptionalArmorItemDefense(const boost::optional<ArmorItem> &item);
     // Serialization method
     template<class Archive>
-    void serialize(Archive &, const unsigned int) {
-        // To define
+    void serialize(Archive & ar, const unsigned int) {
+        ar & m_name;
+        ar & m_level;
+        ar & m_maxLevel;
+        ar & m_health;
+        ar & m_maxHealth;
+        ar & m_strength;
+        ar & m_agility;
+        ar & m_bonusHealthFromLevel;
+        ar & m_gold;
+        ar & m_experience;
+        ar & *m_inventory;
+        ar & m_equipment;
     }
 };
 

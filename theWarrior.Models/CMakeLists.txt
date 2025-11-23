@@ -26,6 +26,7 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameMap.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterStore.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterZone.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterZoneMonsterEncounter.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/saveGame.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/rgbItemColor.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})

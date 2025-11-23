@@ -20,9 +20,8 @@ enum class SecondaryHandType {
     Armor
 };
 
-class PlayerEquipment
-{
-public:
+class PlayerEquipment {
+ public:
     PlayerEquipment();
     PlayerEquipment(boost::optional<WeaponItem> mainHand,
                     VariantEquipment secondaryHand,
@@ -46,7 +45,8 @@ public:
     void setLowerBody(boost::optional<ArmorItem> armor);
     void setHands(boost::optional<ArmorItem> armor);
     void setFeet(boost::optional<ArmorItem> armor);
-private:
+
+ private:
     friend class boost::serialization::access;
     boost::optional<WeaponItem> m_mainHand;
     VariantEquipment m_secondaryHand;
@@ -55,11 +55,19 @@ private:
     boost::optional<ArmorItem> m_lowerBody;
     boost::optional<ArmorItem> m_hands;
     boost::optional<ArmorItem> m_feet;
-    //Serialization method
+    // Serialization method
     template<class Archive>
     void serialize(Archive & ar, const unsigned int) {
-        //To code later
+        ar & m_mainHand;
+        ar & m_secondaryHand;
+        ar & m_head;
+        ar & m_upperBody;
+        ar & m_lowerBody;
+        ar & m_hands;
+        ar & m_feet;
     }
 };
 
-} // namespace thewarrior::models
+}  // namespace thewarrior::models
+
+BOOST_CLASS_VERSION(thewarrior::models::PlayerEquipment, 0)
