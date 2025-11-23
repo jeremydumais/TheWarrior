@@ -1,33 +1,28 @@
 #pragma once
 
-#include "glShaderProgram.hpp"
-#include "inventory.hpp"
-#include "itemStore.hpp"
-#include "glColor.hpp"
-#include "glChoicePopup.hpp"
-#include "glFormService.hpp"
-#include "glObjectService.hpp"
-#include "glPlayer.hpp"
-#include "glPopupWindow.hpp"
-#include "glTextService.hpp"
-#include "glTexture.hpp"
-#include "glTextureService.hpp"
-#include "inputDevicesState.hpp"
-#include "point.hpp"
-#include "size.hpp"
-#include "texture.hpp"
-#include <boost/optional.hpp>
 #include <GL/glew.h>
 #include <SDL2/SDL_events.h>
 #include <map>
 #include <memory>
 #include <string>
-#include <vector>
+#include "glShaderProgram.hpp"
+#include "inventory.hpp"
+#include "itemStore.hpp"
+#include "glColor.hpp"
+#include "glChoicePopup.hpp"
+#include "glPlayer.hpp"
+#include "glPopupWindow.hpp"
+#include "glTextService.hpp"
+#include "glTexture.hpp"
+#include "inputDevicesState.hpp"
+#include "point.hpp"
+#include "size.hpp"
+#include "texture.hpp"
+#include <boost/optional.hpp>
 
 namespace thewarrior::ui {
 
-enum InventoryInputMode
-{
+enum InventoryInputMode {
     List,
     ItemPopup,
     StatsItemPopup,
@@ -36,11 +31,10 @@ enum InventoryInputMode
     DropItemPopup
 };
 
-class GLInventory : public GLPopupWindow
-{
-public:
+class GLInventory : public GLPopupWindow {
+ public:
     GLInventory();
-    virtual ~GLInventory() = default;
+    ~GLInventory() override = default;
     void initialize(const std::string &resourcePath,
                     std::shared_ptr<GLPlayer> glPlayer,
                     std::shared_ptr<GLTextService> textService,
@@ -52,7 +46,8 @@ public:
     void generateGLInventory();
     void render();
     void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
-private:
+
+ private:
     std::shared_ptr<thewarrior::models::Inventory> m_inventory = nullptr;
     std::shared_ptr<GLPlayer> m_glPlayer = nullptr;
     size_t m_inventoryCursorPosition = 0;
@@ -111,4 +106,4 @@ private:
     void completeEquipTransaction(const boost::optional<std::string> &currentEquipedId);
 };
 
-} // namespace thewarrior::ui
+}  // namespace thewarrior::ui

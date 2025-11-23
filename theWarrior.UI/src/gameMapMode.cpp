@@ -66,7 +66,7 @@ bool GameMapMode::initialize(const std::string &resourcesPath,
             m_controller.getItemStore(),
             &m_texturesGLItemStore);
     m_inputDevicesState = inputDevicesState;
-    m_choicePopup.initialize(resourcesPath, m_glFormService, textService, inputDevicesState);
+    m_choicePopup.initialize(resourcesPath, textService, inputDevicesState);
     loadMap(fmt::format("{0}/maps/Outworld.map", resourcesPath), "Outworld.map");
     loadMapTextures();
     generateGLMapObjects();
@@ -91,6 +91,7 @@ bool GameMapMode::initShaders(const std::string &resourcesPath) {
         m_lastError = m_glBattleWindow.getLastError();
         return false;
     }
+    m_choicePopup.initShader(m_shaderProgram);
     m_glCharacterWindow.initShader(m_shaderProgram);
     m_glInventory.initShader(m_shaderProgram);
     return true;
@@ -170,8 +171,7 @@ void GameMapMode::gameWindowSizeChanged(const Size<> &size) {
     m_glInventory.gameWindowSizeChanged(size);
     m_glBattleWindow.gameWindowSizeChanged(size);
     m_glCharacterWindow.gameWindowSizeChanged(size);
-    m_choicePopup.gameWindowLocationChanged({static_cast<float>(size.width()) / 2.0F,
-            static_cast<float>(size.height()) / 2.0F});
+    m_choicePopup.gameWindowSizeChanged(size);
     m_textBox->gameWindowSizeChanged(size);
 }
 
@@ -189,7 +189,7 @@ void GameMapMode::calculateTileSize() {
 
 void GameMapMode::showMainMenu() {
     m_inputMode = GameMapInputMode::MainMenuPopup;
-    m_choicePopup.preparePopup({"Inventory", "Character", "Back", "Save", "Exit Game"});
+    m_choicePopup.preparePopup({"Inventory", "Character", "Back", "Save", "Exit Game"}, "Menu");
     m_choicePopup.generateGLElements();
 }
 
