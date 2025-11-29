@@ -21,12 +21,18 @@ GameMapModeController::GameMapModeController()
     m_messagePipeline(std::make_shared<MessagePipeline>()) {
 }
 
-void GameMapModeController::initialize(const std::string &resourcesPath) {
+void GameMapModeController::initialize(const std::string &resourcesPath,
+                                       std::shared_ptr<thewarrior::models::WorldState> worldState) {
     m_resourcesPath = resourcesPath;
+    m_worldState = worldState;
 }
 
 const std::string &GameMapModeController::getResourcesPath() const {
     return m_resourcesPath;
+}
+
+const std::string &GameMapModeController::getCurrentMapName() const {
+    return m_worldState->getCurrentMapName();
 }
 
 const std::string &GameMapModeController::getLastError() const {
@@ -44,6 +50,18 @@ std::shared_ptr<MonsterStore> GameMapModeController::getMonsterStore() {
 bool GameMapModeController::isMessageDisplayed() const {
     auto currentMessage = m_messagePipeline->getCurrentMessage();
     return currentMessage != nullptr && currentMessage->isDisplayed();
+}
+
+const Point<> &GameMapModeController::getPlayerPosition() const {
+    return m_worldState->getPlayerPosition();
+}
+
+void GameMapModeController::setCurrentMapName(const std::string &mapName) const {
+    m_worldState->setCurrentMapName(mapName);
+}
+
+void GameMapModeController::setPlayerPosition(const Point<> &position) {
+    m_worldState->setPlayerPosition(position);
 }
 
 void GameMapModeController::acknowledgeMessage() {
@@ -151,22 +169,11 @@ std::unique_ptr<MessageDTO> GameMapModeController::createMessageDTOFromMessage(s
 }
 
 bool GameMapModeController::isTileActionAlreadyProcessed(const std::string &mapName, int tileIndex) const {
-    if (const auto tilesProcessed = m_mapTileIndexActionAlreadyProcessed.find(mapName);
-            tilesProcessed != m_mapTileIndexActionAlreadyProcessed.end()) {
-        const auto &tileIndices = tilesProcessed->second;
-        return std::find(begin(tileIndices), end(tileIndices), tileIndex) != tileIndices.end();
-    }
-    return false;
+    return m_worldState->isTileActionAlreadyProcessed(mapName, tileIndex);
 }
 
 void GameMapModeController::addTileActionProcessed(const std::string &mapName, int tileIndex) {
-    if (m_mapTileIndexActionAlreadyProcessed.find(mapName) == m_mapTileIndexActionAlreadyProcessed.end()) {
-        m_mapTileIndexActionAlreadyProcessed.insert({mapName, std::vector<int>()});
-    }
-    auto &tileIndices = m_mapTileIndexActionAlreadyProcessed.at(mapName);
-    if (std::find(begin(tileIndices), end(tileIndices), tileIndex) == tileIndices.end()) {
-        tileIndices.push_back(tileIndex);
-    }
+    m_worldState->addTileActionProcessed(mapName, tileIndex);
 }
 
 bool GameMapModeController::loadItemStore(const std::string &filePath) {

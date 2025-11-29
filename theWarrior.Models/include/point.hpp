@@ -1,5 +1,9 @@
 #pragma once
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/version.hpp>
+
 namespace thewarrior::models {
 
 template<typename T = int>
@@ -20,8 +24,18 @@ class Point {
     }
 
  private:
+    friend class boost::serialization::access;
+    Point() = default;  // Needed for deserialization
     T m_x;
     T m_y;
+    // Serialization method
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int) {
+        ar & m_x;
+        ar & m_y;
+    }
 };
 
 }  // namespace thewarrior::models
+
+BOOST_CLASS_VERSION(thewarrior::models::Point<>, 0)

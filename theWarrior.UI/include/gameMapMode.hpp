@@ -27,6 +27,7 @@
 #include "point.hpp"
 #include "size.hpp"
 #include "tileSize.hpp"
+#include "worldState.hpp"
 
 namespace thewarrior::ui {
 
@@ -59,7 +60,6 @@ class GameMapMode {
  private:
     thewarrior::ui::controllers::GameMapModeController m_controller;
     std::string m_lastError = "";
-    std::string m_currentMapName = "";
     GameMapInputMode m_inputMode = GameMapInputMode::Map;
     std::shared_ptr<thewarrior::models::GameMap> m_map;
     std::shared_ptr<GLPlayer> m_glPlayer = nullptr;

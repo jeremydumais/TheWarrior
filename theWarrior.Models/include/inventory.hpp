@@ -29,6 +29,7 @@ class Inventory {
     bool replaceItem(size_t slotIndexDst, std::shared_ptr<const Item> item);
  private:
     friend class boost::serialization::access;
+    friend class Player;
     InventoryArray m_slots;
     // Serialization method
     template<class Archive>

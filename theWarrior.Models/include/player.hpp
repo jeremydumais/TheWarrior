@@ -1,16 +1,18 @@
 #pragma once
 
-#include <boost/serialization/array_wrapper.hpp>
 #include <memory>
 #include <string>
-#include "inventory.hpp"
-#include "playerEquipment.hpp"
-#include "playerStats.hpp"
+#include <boost/serialization/array_wrapper.hpp>
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/version.hpp>
+#include "inventory.hpp"
+#include "playerEquipment.hpp"
+#include "playerStats.hpp"
 
 namespace thewarrior::models {
+
+enum class PlayerFacing { Left, Up, Right, Down };
 
 class Player {
  public:
@@ -24,8 +26,12 @@ class Player {
     bool isDead() const;
     int getGold() const;
     int getExperience() const;
+    bool isFacing(PlayerFacing direction);
+    bool isClimbing() const;
     void setName(const std::string &name);
     void setLevel(unsigned int level);
+    void setFacing(PlayerFacing direction);
+    void setClimbing(bool isPlayerClimbing);
     void incrementLevel();
     void reduceHealth(int amount);
     void restoreHealth(int amount);
@@ -46,11 +52,12 @@ class Player {
 
  private:
     friend class boost::serialization::access;
-    friend class SaveGame;
     Player() = default;  // Needed for deserialization
     std::string m_name;
     std::shared_ptr<Inventory> m_inventory = std::make_shared<Inventory>();
     PlayerEquipment m_equipment;
+    PlayerFacing m_playerFacing = PlayerFacing::Up;
+    bool m_isInClimbingMode = false;
     void validateName(const std::string &name) const;
     int getMaxHealthByLevel(unsigned int level);
     int getStrengthByLevel(unsigned int level);

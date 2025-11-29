@@ -19,7 +19,6 @@
 #include "monsterZone.hpp"
 #include "monsterZoneMonsterEncounter.hpp"
 #include "randomUtils.hpp"
-#include "saveGame.hpp"
 #include "specialFolders.hpp"
 
 using namespace thewarrior::models;
@@ -45,7 +44,8 @@ bool GameMapMode::initialize(const std::string &resourcesPath,
         const std::string &playerName,
         std::shared_ptr<GLTextService> textService,
         std::shared_ptr<InputDevicesState> inputDevicesState) {
-    m_controller.initialize(resourcesPath);
+    auto worldState = std::make_shared<WorldState>();
+    m_controller.initialize(resourcesPath, worldState);
     if (!loadStores()) {
         return false;
     }
@@ -57,7 +57,7 @@ bool GameMapMode::initialize(const std::string &resourcesPath,
     loadMonsterStoreTextures();
     m_map = std::make_shared<GameMap>(1, 1);
     m_glPlayer = std::make_shared<GLPlayer>(playerName);
-    m_glPlayer->initialize(resourcesPath);
+    m_glPlayer->initialize(resourcesPath, worldState);
     m_glPlayer->m_playerMoveCompleted.connect(boost::bind(&GameMapMode::onPlayerMoveCompleted, this));
     m_glFormService->initialize(m_shaderProgram, textService);
     m_glBattleWindow.initialize(resourcesPath, m_glPlayer, textService, m_controller.getMonsterStore(), &m_texturesGLMonsterStore, inputDevicesState);
@@ -319,7 +319,7 @@ void GameMapMode::actionButtonPressed() {
     } else {
         // Check if you are facing a tile with a ActionButton trigger configured.
         if (m_glPlayer->isFacing(PlayerFacing::Up)) {
-            Point<> tilePositionToProcess = m_glPlayer->getGridPosition();
+            Point<> tilePositionToProcess = m_controller.getPlayerPosition();
             tilePositionToProcess.setY(tilePositionToProcess.y() - 1);
             auto &tile = m_map->getTileForEditing(tilePositionToProcess);
             auto actionButtonTrigger = tile.findConstTrigger(MapTileTriggerEvent::ActionButtonPressed);
@@ -332,7 +332,7 @@ void GameMapMode::actionButtonPressed() {
 
 void GameMapMode::moveUpPressed() {
     // Check if there is an action
-    const auto playerCoord = m_glPlayer->getGridPosition();
+    const auto playerCoord = m_controller.getPlayerPosition();
     const auto tile = m_map->getTileFromCoord(playerCoord);
     auto moveUpTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveUpPressed);
     if (moveUpTrigger.has_value()) {
@@ -346,7 +346,7 @@ void GameMapMode::moveUpPressed() {
 
 void GameMapMode::moveDownPressed() {
     // Check if there is an action
-    const auto playerCoord = m_glPlayer->getGridPosition();
+    const auto playerCoord = m_controller.getPlayerPosition();
     const auto tile = m_map->getTileFromCoord(playerCoord);
     auto moveDownTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveDownPressed);
     if (moveDownTrigger.has_value()) {
@@ -364,7 +364,7 @@ void GameMapMode::moveDownPressed() {
 
 void GameMapMode::moveLeftPressed() {
     // Check if there is an action
-    const auto playerCoord = m_glPlayer->getGridPosition();
+    const auto playerCoord = m_controller.getPlayerPosition();
     const auto tile = m_map->getTileFromCoord(playerCoord);
     auto moveLeftTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveLeftPressed);
     if (moveLeftTrigger.has_value()) {
@@ -382,7 +382,7 @@ void GameMapMode::moveLeftPressed() {
 
 void GameMapMode::moveRightPressed() {
     // Check if there is an action
-    const auto playerCoord = m_glPlayer->getGridPosition();
+    const auto playerCoord = m_controller.getPlayerPosition();
     const auto tile = m_map->getTileFromCoord(playerCoord);
     auto moveRightTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveRightPressed);
     if (moveRightTrigger.has_value()) {
@@ -410,14 +410,14 @@ void GameMapMode::processAction(MapTileTriggerAction action, const std::map<std:
             } else if (properties.at("playerFacing") == "3") {
                 m_glPlayer->faceRight();
             }
-            m_glPlayer->setGridPosition(Point<>(stoi(properties.at("playerX")), stoi(properties.at("playerY"))));
+            m_controller.setPlayerPosition(Point<>(stoi(properties.at("playerX")), stoi(properties.at("playerY"))));
             changeMap(fmt::format("{0}/maps/{1}", m_controller.getResourcesPath(), properties.at("mapFileName")), properties.at("mapFileName"));
             break;
         case MapTileTriggerAction::OpenChest:
             {
                 // Check if the item has already been taken
                 auto tileIndex = m_map->getTileIndexFromCoord(tilePosition);
-                if (!m_controller.isTileActionAlreadyProcessed(m_currentMapName, tileIndex)) {
+                if (!m_controller.isTileActionAlreadyProcessed(m_controller.getCurrentMapName(), tileIndex)) {
                     if (properties.find("itemIdInside") != properties.end()) {
                         auto itemIdInside = properties.find("itemIdInside")->second;
                         // Find the item in the item store
@@ -431,7 +431,7 @@ void GameMapMode::processAction(MapTileTriggerAction action, const std::map<std:
                         msg->textureName = item.textureName;
                         m_controller.addMessageToPipeline(std::move(msg));
                     }
-                    m_controller.addTileActionProcessed(m_currentMapName, tileIndex);
+                    m_controller.addTileActionProcessed(m_controller.getCurrentMapName(), tileIndex);
                 }
                 if (tile != nullptr) {
                     tile->setObjectTextureIndex(stoi(properties.at("objectTextureIndexOpenedChest")));
@@ -545,7 +545,7 @@ void GameMapMode::loadMap(const std::string &filePath, const std::string &mapNam
     GameMapStorage mapStorage;
     try {
         mapStorage.loadMap(filePath, m_map);
-        m_currentMapName = mapName;
+        m_controller.setCurrentMapName(mapName);
     }
     catch(std::invalid_argument &err) {
         std::cerr << err.what() << '\n';
@@ -763,41 +763,50 @@ void GameMapMode::mainMenuPopupClicked(size_t choice) {
             mainMenuPopupCanceled();
             break;
         case 3:
-            {
-                const std::string fileName = "saveTest.bkp";
-                SaveGameCreationInfo info { .player = *m_glPlayer };
-                SaveGame gameToSave(info);
-                std::unique_ptr<IBinaryFileStream<thewarrior::models::SaveGame>> bfs;
-                bfs = std::make_unique<BinaryFileStream<thewarrior::models::SaveGame>>(fileName);
-                if (!bfs->open(FileOpenMode::Read)) {
-                    throw std::runtime_error(fmt::format("Unable to open the save game {0}", fileName));
-                }
-                if (!bfs->readAllInto(gameToSave)) {
-                    throw std::runtime_error(fmt::format("Unable to read the content of the save game {0}", fileName));
-                }
-                if (!bfs->close()) {
-                    throw std::runtime_error(fmt::format("Unable to close the save game file {0}", fileName));
-                }
-            }
+            //{
+                //const std::string fileName = "saveTest.bkp";
+                //SaveGameCreationInfo info {
+                    //.mapName = m_currentMapName,
+                    //.player = *m_glPlayer,
+                    //.playerPosition = m_glPlayer->getGridPosition()
+                    ////.playerFacingEnumId = m_glPlayer.get
+                //};
+                //SaveGame gameToSave(info);
+                //std::unique_ptr<IBinaryFileStream<thewarrior::models::SaveGame>> bfs;
+                //bfs = std::make_unique<BinaryFileStream<thewarrior::models::SaveGame>>(fileName);
+                //if (!bfs->open(FileOpenMode::Read)) {
+                    //throw std::runtime_error(fmt::format("Unable to open the save game {0}", fileName));
+                //}
+                //if (!bfs->readAllInto(gameToSave)) {
+                    //throw std::runtime_error(fmt::format("Unable to read the content of the save game {0}", fileName));
+                //}
+                //if (!bfs->close()) {
+                    //throw std::runtime_error(fmt::format("Unable to close the save game file {0}", fileName));
+                //}
+            //}
             break;
         case 4:
             {
                 //TODO: Code the save function
                 //TODO: Move this code away and remove obsolete includes
-                const std::string fileName = "saveTest.bkp";
-                SaveGameCreationInfo info { .player = *m_glPlayer };
-                SaveGame gameToSave(info);
-                std::unique_ptr<IBinaryFileStream<thewarrior::models::SaveGame>> bfs;
-                bfs = std::make_unique<BinaryFileStream<thewarrior::models::SaveGame>>(fileName);
-                if (!bfs->open(FileOpenMode::Write)) {
-                    throw std::runtime_error(fmt::format("Unable to open the file {0}", fileName));
-                }
-                if (!bfs->write(gameToSave)) {
-                    throw std::runtime_error(fmt::format("Unable to write the content of the save game {0}", fileName));
-                }
-                if (!bfs->close()) {
-                    throw std::runtime_error(fmt::format("Unable to close the save game file {0}", fileName));
-                }
+                //const std::string fileName = "saveTest.bkp";
+                //SaveGameCreationInfo info {
+                    //.mapName = m_currentMapName,
+                    //.player = *m_glPlayer,
+                    //.playerPosition = m_glPlayer->getGridPosition()
+                //};
+                //SaveGame gameToSave(info);
+                //std::unique_ptr<IBinaryFileStream<thewarrior::models::SaveGame>> bfs;
+                //bfs = std::make_unique<BinaryFileStream<thewarrior::models::SaveGame>>(fileName);
+                //if (!bfs->open(FileOpenMode::Write)) {
+                    //throw std::runtime_error(fmt::format("Unable to open the file {0}", fileName));
+                //}
+                //if (!bfs->write(gameToSave)) {
+                    //throw std::runtime_error(fmt::format("Unable to write the content of the save game {0}", fileName));
+                //}
+                //if (!bfs->close()) {
+                    //throw std::runtime_error(fmt::format("Unable to close the save game file {0}", fileName));
+                //}
             }
             break;
         case 5:
@@ -816,7 +825,7 @@ void GameMapMode::exitGameAndReturnToMainMenu() {
 }
 
 void GameMapMode::onPlayerMoveCompleted() {
-    const auto &tile = m_map->getTileFromCoord(m_glPlayer->getGridPosition());
+    const auto &tile = m_map->getTileFromCoord(m_controller.getPlayerPosition());
     auto steppedOnTrigger = tile.findConstTrigger(MapTileTriggerEvent::SteppedOn);
     if (steppedOnTrigger.has_value()) {
         processAction(steppedOnTrigger->getAction(), steppedOnTrigger->getActionProperties());
