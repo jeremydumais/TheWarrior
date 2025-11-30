@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <map>
 #include <string>
 #include <vector>
 #include "worldState.hpp"
@@ -7,7 +8,8 @@ namespace thewarrior::models {
 
 WorldState::WorldState()
 : m_currentMapName(""),
-m_playerPosition(0, 0) {}
+m_playerPosition(0, 0),
+m_mapTileIndexActionAlreadyProcessed(std::map<std::string, std::vector<int>>()) {}
 
 const std::string &WorldState::getCurrentMapName() const {
     return m_currentMapName;

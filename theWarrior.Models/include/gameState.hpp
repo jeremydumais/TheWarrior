@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/serialization/array_wrapper.hpp>
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/version.hpp>

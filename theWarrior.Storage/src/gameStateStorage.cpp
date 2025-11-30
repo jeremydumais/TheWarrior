@@ -1,0 +1,49 @@
+#include <fmt/format.h>
+#include <memory>
+#include <string>
+#include <utility>
+#include <boost/algorithm/string.hpp>
+#include <boost/serialization/export.hpp>
+#include "gameStateStorage.hpp"
+#include "binaryFileStream.hpp"
+
+using namespace boost::algorithm;
+using namespace thewarrior::models;
+
+namespace thewarrior::storage {
+
+void GameStateStorage::loadGameState(const std::string &fileName, GameState &gameState) {
+    if (trim_copy(fileName).empty()) {
+        throw std::invalid_argument("The fileName cannot be empty.");
+    }
+    if (!m_bfs->open(FileOpenMode::Read)) {
+        throw std::runtime_error(fmt::format("Unable to open the gameState {0}", fileName));
+    }
+    if (!m_bfs->readAllInto(gameState)) {
+        throw std::runtime_error(fmt::format("Unable to read the content of the gameState {0}", fileName));
+    }
+    if (!m_bfs->close()) {
+        throw std::runtime_error(fmt::format("Unable to close the gameState file {0}", fileName));
+    }
+}
+
+void GameStateStorage::saveGameState(const std::string &fileName, GameState &gameState) {
+    if (trim_copy(fileName).empty()) {
+        throw std::invalid_argument("The fileName cannot be empty.");
+    }
+    if (!m_bfs->open(FileOpenMode::Write)) {
+        throw std::runtime_error(fmt::format("Unable to open the gameState {0}", fileName));
+    }
+    if (!m_bfs->write(gameState)) {
+        throw std::runtime_error(fmt::format("Unable to write the content of the gameState {0}", fileName));
+    }
+    if (!m_bfs->close()) {
+        throw std::runtime_error(fmt::format("Unable to close the gameState file {0}", fileName));
+    }
+}
+
+void GameStateStorage::setFileStream(std::unique_ptr<IBinaryFileStream<GameState>> bfs) {
+    m_bfs = std::move(bfs);
+}
+
+}  // namespace thewarrior::storage
