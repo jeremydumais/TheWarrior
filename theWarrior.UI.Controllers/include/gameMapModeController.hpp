@@ -26,6 +26,7 @@ class GameMapModeController {
     const std::string &getLastError() const;
     std::shared_ptr<thewarrior::models::ItemStore> getItemStore();
     std::shared_ptr<thewarrior::models::MonsterStore> getMonsterStore();
+    std::shared_ptr<thewarrior::models::WorldState> getWorldState();
     bool isMessageDisplayed() const;
     const thewarrior::models::Point<> &getPlayerPosition() const;
     void setCurrentMapName(const std::string &mapName) const;

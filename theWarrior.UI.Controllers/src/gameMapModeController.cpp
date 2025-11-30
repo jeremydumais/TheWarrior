@@ -47,6 +47,10 @@ std::shared_ptr<MonsterStore> GameMapModeController::getMonsterStore() {
     return m_monsterStore;
 }
 
+std::shared_ptr<thewarrior::models::WorldState> GameMapModeController::getWorldState() {
+    return m_worldState;
+}
+
 bool GameMapModeController::isMessageDisplayed() const {
     auto currentMessage = m_messagePipeline->getCurrentMessage();
     return currentMessage != nullptr && currentMessage->isDisplayed();

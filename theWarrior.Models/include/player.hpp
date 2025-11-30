@@ -77,6 +77,8 @@ class Player {
         ar & m_bonusHealthFromLevel;
         ar & m_gold;
         ar & m_experience;
+        ar & m_playerFacing;
+        ar & m_isInClimbingMode;
         ar & *m_inventory;
         ar & m_equipment;
     }

@@ -14,6 +14,7 @@
 #include "binaryFileStream.hpp"
 #include "gameMap.hpp"
 #include "gameMapStorage.hpp"
+#include "gameState.hpp"
 #include "itemFoundMessageDTO.hpp"
 #include "mapTile.hpp"
 #include "monsterZone.hpp"
@@ -763,17 +764,11 @@ void GameMapMode::mainMenuPopupClicked(size_t choice) {
             mainMenuPopupCanceled();
             break;
         case 3:
-            //{
+            {
                 //const std::string fileName = "saveTest.bkp";
-                //SaveGameCreationInfo info {
-                    //.mapName = m_currentMapName,
-                    //.player = *m_glPlayer,
-                    //.playerPosition = m_glPlayer->getGridPosition()
-                    ////.playerFacingEnumId = m_glPlayer.get
-                //};
-                //SaveGame gameToSave(info);
-                //std::unique_ptr<IBinaryFileStream<thewarrior::models::SaveGame>> bfs;
-                //bfs = std::make_unique<BinaryFileStream<thewarrior::models::SaveGame>>(fileName);
+                //GameState gameToSave(*m_glPlayer, *m_controller.getWorldState());
+                //std::unique_ptr<IBinaryFileStream<thewarrior::models::GameState>> bfs;
+                //bfs = std::make_unique<BinaryFileStream<thewarrior::models::GameState>>(fileName);
                 //if (!bfs->open(FileOpenMode::Read)) {
                     //throw std::runtime_error(fmt::format("Unable to open the save game {0}", fileName));
                 //}
@@ -783,21 +778,16 @@ void GameMapMode::mainMenuPopupClicked(size_t choice) {
                 //if (!bfs->close()) {
                     //throw std::runtime_error(fmt::format("Unable to close the save game file {0}", fileName));
                 //}
-            //}
+            }
             break;
         case 4:
             {
                 //TODO: Code the save function
                 //TODO: Move this code away and remove obsolete includes
                 //const std::string fileName = "saveTest.bkp";
-                //SaveGameCreationInfo info {
-                    //.mapName = m_currentMapName,
-                    //.player = *m_glPlayer,
-                    //.playerPosition = m_glPlayer->getGridPosition()
-                //};
-                //SaveGame gameToSave(info);
-                //std::unique_ptr<IBinaryFileStream<thewarrior::models::SaveGame>> bfs;
-                //bfs = std::make_unique<BinaryFileStream<thewarrior::models::SaveGame>>(fileName);
+                //GameState gameToSave(*m_glPlayer, *m_controller.getWorldState());
+                //std::unique_ptr<IBinaryFileStream<thewarrior::models::GameState>> bfs;
+                //bfs = std::make_unique<BinaryFileStream<thewarrior::models::GameState>>(fileName);
                 //if (!bfs->open(FileOpenMode::Write)) {
                     //throw std::runtime_error(fmt::format("Unable to open the file {0}", fileName));
                 //}
@@ -811,6 +801,7 @@ void GameMapMode::mainMenuPopupClicked(size_t choice) {
             break;
         case 5:
             exitGameAndReturnToMainMenu();
+            break;
         default:
             break;
     }
