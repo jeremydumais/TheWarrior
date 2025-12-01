@@ -2,19 +2,22 @@
 #include <memory>
 #include <string>
 #include <utility>
-#include <boost/algorithm/string.hpp>
 #include <boost/serialization/export.hpp>
 #include "gameStateStorage.hpp"
 #include "binaryFileStream.hpp"
+#include "gameState.hpp"
 
-using namespace boost::algorithm;
 using namespace thewarrior::models;
 
 namespace thewarrior::storage {
 
-void GameStateStorage::loadGameState(const std::string &fileName, GameState &gameState) {
-    if (trim_copy(fileName).empty()) {
-        throw std::invalid_argument("The fileName cannot be empty.");
+void GameStateStorage::loadGameState(GameState &gameState) {
+    //if (trim_copy(fileName).empty()) {
+        //throw std::invalid_argument("The fileName cannot be empty.");
+    //}
+    const std::string fileName = "saveTest.bkp";
+    if (m_bfs == nullptr) {
+        m_bfs = std::make_unique<BinaryFileStream<GameState>>(fileName);
     }
     if (!m_bfs->open(FileOpenMode::Read)) {
         throw std::runtime_error(fmt::format("Unable to open the gameState {0}", fileName));
@@ -27,9 +30,10 @@ void GameStateStorage::loadGameState(const std::string &fileName, GameState &gam
     }
 }
 
-void GameStateStorage::saveGameState(const std::string &fileName, GameState &gameState) {
-    if (trim_copy(fileName).empty()) {
-        throw std::invalid_argument("The fileName cannot be empty.");
+void GameStateStorage::saveGameState(GameState &gameState) {
+    const std::string fileName = "saveTest.bkp";
+    if (m_bfs == nullptr) {
+        m_bfs = std::make_unique<BinaryFileStream<GameState>>(fileName);
     }
     if (!m_bfs->open(FileOpenMode::Write)) {
         throw std::runtime_error(fmt::format("Unable to open the gameState {0}", fileName));

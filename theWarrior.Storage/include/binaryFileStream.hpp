@@ -8,6 +8,7 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/archive_exception.hpp>
 
+
 namespace thewarrior::storage {
 
 template<class T>

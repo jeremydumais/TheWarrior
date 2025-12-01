@@ -1,4 +1,8 @@
+#include <string>
 #include "weaponItem.hpp"
+#include <boost/serialization/export.hpp>
+
+BOOST_CLASS_EXPORT_IMPLEMENT(thewarrior::models::WeaponItem)
 
 namespace thewarrior::models {
 

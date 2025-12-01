@@ -12,6 +12,7 @@ class IBinaryFileStream {
     explicit IBinaryFileStream(const std::string &fileName) : m_fileName(fileName) {}
     virtual ~IBinaryFileStream() = default;
     const std::string &getFileName() const { return m_fileName; }
+    const std::string &getLastError() { return m_lastError; }
     void setLastError(const std::string &lastError) { m_lastError = lastError; }
     virtual bool open(FileOpenMode mode) = 0;
     virtual bool close() = 0;

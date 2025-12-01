@@ -2,8 +2,9 @@
 #include <memory>
 #include <string>
 #include <utility>
-#include <vector>
 #include "gameMapModeController.hpp"
+#include "gameState.hpp"
+#include "gameStateStorage.hpp"
 #include "itemFoundMessage.hpp"
 #include "itemFoundMessageDTO.hpp"
 #include "itemStore.hpp"
@@ -11,6 +12,7 @@
 #include "monsterStoreStorage.hpp"
 
 using namespace thewarrior::models;
+using namespace thewarrior::storage;
 using namespace thewarrior::ui::models;
 
 namespace thewarrior::ui::controllers {
@@ -51,25 +53,8 @@ std::shared_ptr<thewarrior::models::WorldState> GameMapModeController::getWorldS
     return m_worldState;
 }
 
-bool GameMapModeController::isMessageDisplayed() const {
-    auto currentMessage = m_messagePipeline->getCurrentMessage();
-    return currentMessage != nullptr && currentMessage->isDisplayed();
-}
-
 const Point<> &GameMapModeController::getPlayerPosition() const {
     return m_worldState->getPlayerPosition();
-}
-
-void GameMapModeController::setCurrentMapName(const std::string &mapName) const {
-    m_worldState->setCurrentMapName(mapName);
-}
-
-void GameMapModeController::setPlayerPosition(const Point<> &position) {
-    m_worldState->setPlayerPosition(position);
-}
-
-void GameMapModeController::acknowledgeMessage() {
-    m_messagePipeline->deleteCurrentMessage();
 }
 
 ItemDTO GameMapModeController::findItem(const std::string &id) const {
@@ -84,6 +69,39 @@ ItemDTO GameMapModeController::findItem(const std::string &id) const {
     return dto;
 }
 
+bool GameMapModeController::isMessageDisplayed() const {
+    auto currentMessage = m_messagePipeline->getCurrentMessage();
+    return currentMessage != nullptr && currentMessage->isDisplayed();
+}
+
+std::shared_ptr<MessageDTO> GameMapModeController::getCurrentMessage() {
+    return createMessageDTOFromMessage(m_messagePipeline->getCurrentMessage());
+}
+
+size_t GameMapModeController::getMessageCount() const {
+    return m_messagePipeline->getMessageCount();
+}
+
+std::shared_ptr<MessagePipeline> GameMapModeController::getMessagePipeline() {
+    return m_messagePipeline;
+}
+
+bool GameMapModeController::isTileActionAlreadyProcessed(const std::string &mapName, int tileIndex) const {
+    return m_worldState->isTileActionAlreadyProcessed(mapName, tileIndex);
+}
+
+void GameMapModeController::setCurrentMapName(const std::string &mapName) const {
+    m_worldState->setCurrentMapName(mapName);
+}
+
+void GameMapModeController::setPlayerPosition(const Point<> &position) {
+    m_worldState->setPlayerPosition(position);
+}
+
+void GameMapModeController::acknowledgeMessage() {
+    m_messagePipeline->deleteCurrentMessage();
+}
+
 bool GameMapModeController::addItemToInventory(Player *player, const std::string &id) {
     auto item = m_itemStore->findItem(id);
     if (player == nullptr || item == nullptr) {
@@ -92,24 +110,11 @@ bool GameMapModeController::addItemToInventory(Player *player, const std::string
     return player->getInventory()->addItem(item);
 }
 
-std::shared_ptr<MessagePipeline> GameMapModeController::getMessagePipeline() {
-    return m_messagePipeline;
-}
-
-size_t GameMapModeController::getMessageCount() const {
-    return m_messagePipeline->getMessageCount();
-}
-
-
 void GameMapModeController::addMessageToPipeline(std::unique_ptr<MessageDTO> messageDTO) {
     auto message = createMessageFromMessageDTO(std::move(messageDTO));
     if (message != nullptr) {
         m_messagePipeline->addMessage(message);
     }
-}
-
-std::shared_ptr<MessageDTO> GameMapModeController::getCurrentMessage() {
-    return createMessageDTOFromMessage(m_messagePipeline->getCurrentMessage());
 }
 
 void GameMapModeController::deleteCurrentMessage() {
@@ -172,10 +177,6 @@ std::unique_ptr<MessageDTO> GameMapModeController::createMessageDTOFromMessage(s
     return retval;
 }
 
-bool GameMapModeController::isTileActionAlreadyProcessed(const std::string &mapName, int tileIndex) const {
-    return m_worldState->isTileActionAlreadyProcessed(mapName, tileIndex);
-}
-
 void GameMapModeController::addTileActionProcessed(const std::string &mapName, int tileIndex) {
     m_worldState->addTileActionProcessed(mapName, tileIndex);
 }
@@ -201,6 +202,13 @@ bool GameMapModeController::loadMonsterStore(const std::string &filePath) {
     catch(const std::exception &err) {
         m_lastError = err.what();
     }
+    return false;
+}
+
+bool GameMapModeController::saveGameState(thewarrior::models::Player &player) {
+    GameStateStorage storage;
+    GameState gameState(player, *m_worldState);
+    storage.saveGameState(gameState);
     return false;
 }
 

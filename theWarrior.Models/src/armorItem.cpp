@@ -1,4 +1,8 @@
+#include <string>
 #include "armorItem.hpp"
+#include <boost/serialization/export.hpp>
+
+BOOST_CLASS_EXPORT_IMPLEMENT(thewarrior::models::ArmorItem)
 
 namespace thewarrior::models {
 

@@ -50,36 +50,16 @@ class GameStateStorageEmptyISStubFS : public ::testing::Test {
     GameStateStorage gameStateStorage;
 };
 
-TEST_F(GameStateStorageDefault, loadGameState_WithEmptyFileName_ThrowInvalidArgument) {
-    try {
-        gameStateStorage.loadGameState("", gameState);
-        FAIL();
-    }
-    catch (const std::invalid_argument &err) {
-        ASSERT_STREQ("The fileName cannot be empty.", err.what());
-    }
-}
-
-TEST_F(GameStateStorageDefault, loadGameState_WithWhiteSpacesFileName_ThrowInvalidArgument) {
-    try {
-        gameStateStorage.loadGameState("  ", gameState);
-        FAIL();
-    }
-    catch (const std::invalid_argument &err) {
-        ASSERT_STREQ("The fileName cannot be empty.", err.what());
-    }
-}
-
 TEST_F(GameStateStorageEmptyISStubFS, loadGameState_FileStreamFailToOpen_ThrowRuntimeError) {
     ON_CALL(*stubBFS, open(_)).WillByDefault(Return(false));
 
     gameStateStorage.setFileStream(std::move(stubBFS));
     try {
-        gameStateStorage.loadGameState("test", gameState);
+        gameStateStorage.loadGameState(gameState);
         FAIL();
     }
     catch(std::runtime_error &err) {
-        ASSERT_STREQ("Unable to open the gameState test", err.what());
+        ASSERT_STREQ("Unable to open the gameState saveTest.bkp", err.what());
     }
 }
 
@@ -88,11 +68,11 @@ TEST_F(GameStateStorageEmptyISStubFS, loadGameState_FileStreamFailToReadAllInto_
 
     gameStateStorage.setFileStream(std::move(stubBFS));
     try {
-        gameStateStorage.loadGameState("test", gameState);
+        gameStateStorage.loadGameState(gameState);
         FAIL();
     }
     catch(std::runtime_error &err) {
-        ASSERT_STREQ("Unable to read the content of the gameState test", err.what());
+        ASSERT_STREQ("Unable to read the content of the gameState saveTest.bkp", err.what());
     }
 }
 
@@ -101,37 +81,17 @@ TEST_F(GameStateStorageEmptyISStubFS, loadGameState_FileStreamFailToClose_ThrowR
 
     gameStateStorage.setFileStream(std::move(stubBFS));
     try {
-        gameStateStorage.loadGameState("test", gameState);
+        gameStateStorage.loadGameState(gameState);
         FAIL();
     }
     catch(std::runtime_error &err) {
-        ASSERT_STREQ("Unable to close the gameState file test", err.what());
+        ASSERT_STREQ("Unable to close the gameState file saveTest.bkp", err.what());
     }
 }
 
 TEST_F(GameStateStorageEmptyISStubFS, loadGameState_FileStreamSucceedToOpen_ReturnSuccess) {
     gameStateStorage.setFileStream(std::move(stubBFS));
-    gameStateStorage.loadGameState("test", gameState);
-}
-
-TEST_F(GameStateStorageDefault, saveGameState_WithEmptyFileName_ThrowInvalidArgument) {
-    try {
-        gameStateStorage.saveGameState("", gameState);
-        FAIL();
-    }
-    catch (const std::invalid_argument &err) {
-        ASSERT_STREQ("The fileName cannot be empty.", err.what());
-    }
-}
-
-TEST_F(GameStateStorageDefault, saveGameState_WithWhiteSpacesFileName_ThrowInvalidArgument) {
-    try {
-        gameStateStorage.saveGameState("  ", gameState);
-        FAIL();
-    }
-    catch (const std::invalid_argument &err) {
-        ASSERT_STREQ("The fileName cannot be empty.", err.what());
-    }
+    gameStateStorage.loadGameState(gameState);
 }
 
 TEST_F(GameStateStorageEmptyISStubFS, saveGameState_FileStreamFailToOpen_ThrowRuntimeError) {
@@ -139,11 +99,11 @@ TEST_F(GameStateStorageEmptyISStubFS, saveGameState_FileStreamFailToOpen_ThrowRu
 
     gameStateStorage.setFileStream(std::move(stubBFS));
     try {
-        gameStateStorage.saveGameState("test", gameState);
+        gameStateStorage.saveGameState(gameState);
         FAIL();
     }
     catch(std::runtime_error &err) {
-        ASSERT_STREQ("Unable to open the gameState test", err.what());
+        ASSERT_STREQ("Unable to open the gameState saveTest.bkp", err.what());
     }
 }
 
@@ -152,11 +112,11 @@ TEST_F(GameStateStorageEmptyISStubFS, saveGameState_FileStreamFailToWrite_ThrowR
 
     gameStateStorage.setFileStream(std::move(stubBFS));
     try {
-        gameStateStorage.saveGameState("test", gameState);
+        gameStateStorage.saveGameState(gameState);
         FAIL();
     }
     catch(std::runtime_error &err) {
-        ASSERT_STREQ("Unable to write the content of the gameState test", err.what());
+        ASSERT_STREQ("Unable to write the content of the gameState saveTest.bkp", err.what());
     }
 }
 
@@ -166,15 +126,15 @@ TEST_F(GameStateStorageEmptyISStubFS, saveGameState_FileStreamFailToClose_ThrowR
 
     gameStateStorage.setFileStream(std::move(stubBFS));
     try {
-        gameStateStorage.saveGameState("test", gameState);
+        gameStateStorage.saveGameState(gameState);
         FAIL();
     }
     catch(std::runtime_error &err) {
-        ASSERT_STREQ("Unable to close the gameState file test", err.what());
+        ASSERT_STREQ("Unable to close the gameState file saveTest.bkp", err.what());
     }
 }
 
 TEST_F(GameStateStorageEmptyISStubFS, saveGameState_FileStreamSucceedToSave_ReturnSuccess) {
     gameStateStorage.setFileStream(std::move(stubBFS));
-    gameStateStorage.saveGameState("test", gameState);
+    gameStateStorage.saveGameState(gameState);
 }

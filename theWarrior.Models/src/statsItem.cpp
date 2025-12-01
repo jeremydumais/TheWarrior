@@ -1,4 +1,7 @@
 #include "statsItem.hpp"
+#include <boost/serialization/export.hpp>
+
+BOOST_CLASS_EXPORT_IMPLEMENT(thewarrior::models::StatsItem)
 
 namespace thewarrior::models {
 

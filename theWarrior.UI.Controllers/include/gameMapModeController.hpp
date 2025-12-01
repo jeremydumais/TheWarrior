@@ -27,23 +27,24 @@ class GameMapModeController {
     std::shared_ptr<thewarrior::models::ItemStore> getItemStore();
     std::shared_ptr<thewarrior::models::MonsterStore> getMonsterStore();
     std::shared_ptr<thewarrior::models::WorldState> getWorldState();
-    bool isMessageDisplayed() const;
     const thewarrior::models::Point<> &getPlayerPosition() const;
+    ItemDTO findItem(const std::string &id) const;
+    bool isMessageDisplayed() const;
+    std::shared_ptr<MessageDTO> getCurrentMessage();
+    size_t getMessageCount() const;
+    std::shared_ptr<thewarrior::ui::models::MessagePipeline> getMessagePipeline();
+    bool isTileActionAlreadyProcessed(const std::string &mapName, int tileIndex) const;
     void setCurrentMapName(const std::string &mapName) const;
     void setPlayerPosition(const thewarrior::models::Point<> &position);
     void acknowledgeMessage();
-    ItemDTO findItem(const std::string &id) const;
     bool addItemToInventory(thewarrior::models::Player *player, const std::string &id);
-    std::shared_ptr<thewarrior::ui::models::MessagePipeline> getMessagePipeline();
-    size_t getMessageCount() const;
     void addMessageToPipeline(std::unique_ptr<MessageDTO> messageDTO);
-    std::shared_ptr<MessageDTO> getCurrentMessage();
     void deleteCurrentMessage();
     void displayCurrentMessage();
-    bool isTileActionAlreadyProcessed(const std::string &mapName, int tileIndex) const;
     void addTileActionProcessed(const std::string &mapName, int tileIndex);
     bool loadItemStore(const std::string &filePath);
     bool loadMonsterStore(const std::string &filePath);
+    bool saveGameState(thewarrior::models::Player &player);
 
  private:
     std::string m_lastError = "";

@@ -4,6 +4,7 @@
 #include "itemType.hpp"
 #include "stats.hpp"
 #include <boost/serialization/access.hpp>
+#include <boost/serialization/export.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/version.hpp>
 
@@ -46,7 +47,7 @@ class StatsItem : public Item {
     // Serialization method
     template<class Archive>
     void serialize(Archive & ar, const unsigned int) {
-        ar & boost::serialization::base_object<Item>(*this);
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Item);
         ar & m_statChanging;
         ar & m_gain;
         ar & m_limitOfOneApplied;
@@ -57,3 +58,4 @@ class StatsItem : public Item {
 }  // namespace thewarrior::models
 
 BOOST_CLASS_VERSION(thewarrior::models::StatsItem, 0)
+BOOST_CLASS_EXPORT_KEY2(thewarrior::models::StatsItem, "SItem")

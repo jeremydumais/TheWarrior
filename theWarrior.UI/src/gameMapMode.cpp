@@ -11,16 +11,13 @@
 #include <utility>
 #include <vector>
 #include "gameMapMode.hpp"
-#include "binaryFileStream.hpp"
 #include "gameMap.hpp"
 #include "gameMapStorage.hpp"
-#include "gameState.hpp"
 #include "itemFoundMessageDTO.hpp"
 #include "mapTile.hpp"
 #include "monsterZone.hpp"
 #include "monsterZoneMonsterEncounter.hpp"
 #include "randomUtils.hpp"
-#include "specialFolders.hpp"
 
 using namespace thewarrior::models;
 using namespace thewarrior::ui::controllers;
@@ -781,23 +778,7 @@ void GameMapMode::mainMenuPopupClicked(size_t choice) {
             }
             break;
         case 4:
-            {
-                //TODO: Code the save function
-                //TODO: Move this code away and remove obsolete includes
-                //const std::string fileName = "saveTest.bkp";
-                //GameState gameToSave(*m_glPlayer, *m_controller.getWorldState());
-                //std::unique_ptr<IBinaryFileStream<thewarrior::models::GameState>> bfs;
-                //bfs = std::make_unique<BinaryFileStream<thewarrior::models::GameState>>(fileName);
-                //if (!bfs->open(FileOpenMode::Write)) {
-                    //throw std::runtime_error(fmt::format("Unable to open the file {0}", fileName));
-                //}
-                //if (!bfs->write(gameToSave)) {
-                    //throw std::runtime_error(fmt::format("Unable to write the content of the save game {0}", fileName));
-                //}
-                //if (!bfs->close()) {
-                    //throw std::runtime_error(fmt::format("Unable to close the save game file {0}", fileName));
-                //}
-            }
+            m_controller.saveGameState(*m_glPlayer);
             break;
         case 5:
             exitGameAndReturnToMainMenu();

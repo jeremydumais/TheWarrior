@@ -14,7 +14,7 @@ class ItemStoreStorage {
     void setFileStream(std::unique_ptr<IBinaryFileStream<thewarrior::models::ItemStore>> bfs);
 
  private:
-    std::unique_ptr<IBinaryFileStream<thewarrior::models::ItemStore>> m_bfs;
+    std::unique_ptr<IBinaryFileStream<thewarrior::models::ItemStore>> m_bfs = nullptr;
 };
 
 }  // namespace thewarrior::storage
