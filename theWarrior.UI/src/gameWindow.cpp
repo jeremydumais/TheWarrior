@@ -54,6 +54,7 @@ GameWindow::GameWindow(const string &title,
             break;
     }
 
+
     m_fpsCalculator.initialize();
     m_windowSizeChanged(m_WindowSize);
     //HACK: Remove this
