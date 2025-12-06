@@ -12,6 +12,7 @@ class IGameStateRepository {
      virtual std::vector<GameStateMetadata> listGameStates() = 0;
      virtual void save(const models::GameState &gameState) = 0;
      virtual void remove(int id) = 0;
+     virtual bool initSchema() = 0;
 };
 
 }  // namespace thewarrior::storage

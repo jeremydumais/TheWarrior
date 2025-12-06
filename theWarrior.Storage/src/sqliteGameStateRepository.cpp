@@ -18,4 +18,7 @@ void SQLiteGameStateRepository::save(const models::GameState &gameState) {
 void SQLiteGameStateRepository::remove(int id) {
 }
 
+bool SQLiteGameStateRepository::initSchema() {
+}
+
 }  // namespace thewarrior::storage

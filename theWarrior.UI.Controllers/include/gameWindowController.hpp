@@ -9,6 +9,7 @@ class GameWindowController {
     GameWindowController();
     const std::string &getResourcesPath() const;
     const std::string &getLastError() const;
+    bool initializeSaveGameRepository();
 
  private:
     std::string m_resourcesPath;

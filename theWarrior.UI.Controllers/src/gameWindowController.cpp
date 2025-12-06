@@ -2,9 +2,15 @@
 #include <GL/glew.h>
 #include <libgen.h>         // dirname
 #include <linux/limits.h>   // PATH_MAX
+#include <memory>
 #include <unistd.h>         // readlink
 #include <string>
 #include "gameWindowController.hpp"
+#include "iGameStateRepository.hpp"
+#include "saveGamePaths.hpp"
+#include "sqliteGameStateRepository.hpp"
+
+using thewarrior::storage::SQLiteGameStateRepository;
 
 namespace thewarrior::ui::controllers {
 
@@ -30,6 +36,13 @@ void GameWindowController::initializeResourcesPath() {
         executablePath = dirname(result);
     }
     m_resourcesPath = fmt::format("{0}/resources/", executablePath);
+}
+
+bool GameWindowController::initializeSaveGameRepository() {
+    std::unique_ptr<storage::IGameStateRepository> saveRepo =
+        std::make_unique<SQLiteGameStateRepository>(storage::SaveGamePaths::getDatabaseFilePath());
+    saveRepo->initSchema();
+    return false;
 }
 
 }  // namespace thewarrior::ui::controllers

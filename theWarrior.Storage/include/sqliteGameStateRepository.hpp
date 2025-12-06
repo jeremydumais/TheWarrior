@@ -14,9 +14,9 @@ class SQLiteGameStateRepository : public IGameStateRepository {
      std::vector<GameStateMetadata> listGameStates() override;
      void save(const models::GameState &gameState) override;
      void remove(int id) override;
+     bool initSchema() override;
  private:
      sqlite3 *m_db = nullptr;
-     void initSchema();
 };
 
 }  // namespace thewarrior::storage

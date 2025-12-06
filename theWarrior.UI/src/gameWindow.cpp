@@ -2,6 +2,7 @@
 #include <fmt/format.h>
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <boost/bind/placeholders.hpp>
 #include "gameWindow.hpp"
@@ -42,7 +43,7 @@ GameWindow::GameWindow(const string &title,
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("shd001"));
     m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("key001"));
     m_glPlayer->getEquipment().setMainHand(*dynamic_cast<const WeaponItem*>(m_controller.getItemStore()->findItem("swd002").get()));
-      m_glPlayer->getEquipment().setSecondaryHand(VariantEquipment(*dynamic_cast<const ArmorItem*>(m_controller.getItemStore()->findItem("shd001").get())));
+m_glPlayer->getEquipment().setSecondaryHand(VariantEquipment(*dynamic_cast<const ArmorItem*>(m_controller.getItemStore()->findItem("shd001").get())));
       m_glPlayer->getEquipment().setHead(*dynamic_cast<const ArmorItem*>(m_controller.getItemStore()->findItem("hlm001").get()));
       m_glPlayer->getEquipment().setUpperBody(*dynamic_cast<const ArmorItem*>(m_controller.getItemStore()->findItem("ubd001").get()));*/
     switch (m_interactionMode) {
@@ -54,7 +55,10 @@ GameWindow::GameWindow(const string &title,
             break;
     }
 
-
+    // Initialize save game repository
+    if (!m_controller.initializeSaveGameRepository()) {
+        throw std::runtime_error("Initialize save game repository error");
+    }
     m_fpsCalculator.initialize();
     m_windowSizeChanged(m_WindowSize);
     //HACK: Remove this

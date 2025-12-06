@@ -14,6 +14,7 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/configurationManager.cp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/jsonFileStream.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/itemStoreStorage.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterStoreStorage.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/saveGamePaths.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/sqliteGameStateRepository.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
