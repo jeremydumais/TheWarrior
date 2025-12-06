@@ -21,7 +21,7 @@ using thewarrior::models::MonsterStore;
 using thewarrior::models::Texture;
 using thewarrior::storage::ConfigurationManager;
 using thewarrior::storage::MonsterStoreStorage;
-using thewarrior::storage::SpecialFolders;
+using thewarrior::utils::SpecialFolders;
 
 namespace mapeditor::controllers {
 

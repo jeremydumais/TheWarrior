@@ -5,7 +5,8 @@ include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../commonEditor.UI/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Storage/include)
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Storage/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Utils/include)
 
                     set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/mainController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/glComponentController.cpp

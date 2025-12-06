@@ -30,7 +30,7 @@ using itemeditor::controllers::MainController;
 using itemeditor::controllers::ItemListDisplay;
 using thewarrior::models::ItemType;
 using thewarrior::storage::ConfigurationManager;
-using thewarrior::storage::SpecialFolders;
+using thewarrior::utils::SpecialFolders;
 
 const std::string MainForm::THEME_PATH{"Display.Theme"};
 const std::string MainForm::RECENT_MAPS{"ItemsDB.Recents"};

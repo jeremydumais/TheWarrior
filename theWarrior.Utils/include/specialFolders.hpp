@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace thewarrior::storage {
+namespace thewarrior::utils {
 
 class SpecialFolders {
  public:
@@ -11,4 +11,4 @@ class SpecialFolders {
     static const std::string getSaveGameDirectory();
 };
 
-}  // namespace thewarrior::storage
+}  // namespace thewarrior::utils

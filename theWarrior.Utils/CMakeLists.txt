@@ -5,7 +5,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/constants.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/floatUtils.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/randomUtils.cpp)
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/randomUtils.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/specialFolders.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")

@@ -5,11 +5,9 @@
 #include <boost/algorithm/string.hpp>
 #include "constants.hpp"
 
-using namespace std;
+namespace thewarrior::utils {
 
-namespace thewarrior::storage {
-
-const string SpecialFolders::getAppConfigDirectory(const string &appConfigFolder) {
+const std::string SpecialFolders::getAppConfigDirectory(const std::string &appConfigFolder) {
     #ifdef _WIN32
         return fmt::format("{0}\\{1}\\",
                            getenv("LOCALAPPDATA"),
@@ -49,4 +47,4 @@ const std::string SpecialFolders::getSaveGameDirectory() {
     #endif
 }
 
-}  // namespace thewarrior::storage
+}  // namespace thewarrior::utils

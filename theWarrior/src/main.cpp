@@ -4,10 +4,10 @@
 #include <boost/filesystem/operations.hpp>
 #include "gameWindow.hpp"
 #include <boost/filesystem.hpp>
-#include "../../theWarrior.Storage/include/specialFolders.hpp"
+#include "../../theWarrior.Utils/include/specialFolders.hpp"
 
 using namespace thewarrior::ui;
-using thewarrior::storage::SpecialFolders;
+using thewarrior::utils::SpecialFolders;
 
 int main(int, char **) {
     // Create the necessary data folders
