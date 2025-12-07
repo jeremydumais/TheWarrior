@@ -1,7 +1,9 @@
+#include <algorithm>
 #include <fmt/chrono.h>
 #include <cstddef>
 #include <filesystem>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include "gameMapModeController.hpp"
@@ -228,14 +230,15 @@ bool GameMapModeController::saveGameState(thewarrior::models::Player &player) {
     // Create the save game file
     GameStateStorage storage;
     GameState gameState(player, *m_worldState);
-    storage.saveGameState(fullPath, gameState);
-    // Persist the save game metadata in the database
-    std::unique_ptr<storage::IGameStateRepository> saveRepo =
-        std::make_unique<SQLiteGameStateRepository>(storage::SaveGamePaths::getDatabaseFilePath());
+    try {
+        storage.saveGameState(fullPath, gameState);
+    } catch (const std::runtime_error &err) {
+        m_lastError = err.what();
+        return false;
+    }
      // Convert the time point to a duration in seconds since the Unix epoch
     auto epoch_seconds = std::chrono::duration_cast<std::chrono::seconds>(
         now.time_since_epoch());
-
     // Get the integer count (the time_t equivalent)
     auto timestamp_int = epoch_seconds.count();
     GameStateMetadata metadata {
@@ -245,8 +248,20 @@ bool GameMapModeController::saveGameState(thewarrior::models::Player &player) {
         .level = player.getLevel(),
         .fileName = filename
     };
-    if (!saveRepo->save(metadata)) {
+    // Persist the save game metadata in the database
+    std::unique_ptr<storage::IGameStateRepository> saveRepo =
+        std::make_unique<SQLiteGameStateRepository>(storage::SaveGamePaths::getDatabaseFilePath());
+    auto result = saveRepo->save(metadata);
+    if (!result.success) {
         m_lastError = saveRepo->getLastError();
+        return false;
+    }
+    // Delete obsolete game state files
+    std::for_each(result.obsoleteFilePaths.begin(), result.obsoleteFilePaths.end(), [](auto &filePath) {
+        filePath = fs::path(utils::SpecialFolders::getSaveGameDirectory()) / filePath;
+    });
+    if (!storage.deleteGameStates(result.obsoleteFilePaths)) {
+        m_lastError = storage.getLastError();
         return false;
     }
     return true;

@@ -18,6 +18,7 @@ class IBinaryFileStream {
     virtual bool close() = 0;
     virtual bool readAllInto(T &obj) = 0;
     virtual bool write(const T &obj) = 0;
+    virtual bool remove() = 0;
 
  private:
     std::string m_fileName;

@@ -796,6 +796,7 @@ void GameMapMode::mainMenuPopupClicked(size_t choice) {
             break;
         case 4:
             if (!m_controller.saveGameState(*m_glPlayer)) {
+                //TODO: Display an on screen message instead of crashing
                 throw std::runtime_error(m_controller.getLastError());
             }
             break;

@@ -1,8 +1,9 @@
+#include <algorithm>
 #include <fmt/format.h>
-#include <iostream>
 #include <memory>
 #include <string>
 #include <utility>
+#include <vector>
 #include <boost/serialization/export.hpp>
 #include "gameStateStorage.hpp"
 #include "binaryFileStream.hpp"
@@ -11,6 +12,10 @@
 using namespace thewarrior::models;
 
 namespace thewarrior::storage {
+
+const std::string &GameStateStorage::getLastError() const {
+    return m_lastError;
+}
 
 void GameStateStorage::loadGameState(GameState &gameState) {
     //if (trim_copy(fileName).empty()) {
@@ -44,6 +49,17 @@ void GameStateStorage::saveGameState(const std::string &filename, GameState &gam
     if (!m_bfs->close()) {
         throw std::runtime_error(fmt::format("Unable to close the gameState file {0}", filename));
     }
+}
+
+bool GameStateStorage::deleteGameStates(const std::vector<std::string> &fileNames) {
+    for (const auto &fileName : fileNames) {
+        auto bfs = std::make_unique<BinaryFileStream<GameState>>(fileName);
+        if (!bfs->remove()) {
+            m_lastError = bfs->getLastError();
+            return false;
+        }
+    }
+    return true;
 }
 
 void GameStateStorage::setFileStream(std::unique_ptr<IBinaryFileStream<GameState>> bfs) {

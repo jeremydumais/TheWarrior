@@ -20,6 +20,7 @@ class StubBinaryFileStream : public IBinaryFileStream<T> {
     MOCK_METHOD(bool, close, (), (override));
     MOCK_METHOD(bool, readAllInto, (T &), (override));
     MOCK_METHOD(bool, write, (const T&), (override));
+    MOCK_METHOD(bool, remove, (), (override));
 };
 
 class GameStateStorageDefault : public ::testing::Test {
