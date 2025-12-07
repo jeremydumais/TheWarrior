@@ -104,12 +104,14 @@ const std::string& GameMapMode::getLastError() const {
 }
 
 void GameMapMode::processEvents(SDL_Event &e) {
-    if (e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_i) {
+    if (e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_i && !m_controller.isMessageDisplayed()) {
         toggleInventoryWindow();
-    } else if (e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_c) {
+    } else if (e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_c && !m_controller.isMessageDisplayed()) {
         toggleCharacterWindow();
     } else if (e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_ESCAPE) {
-        if (m_inputMode == GameMapInputMode::Map) {
+        if (m_controller.isMessageDisplayed()) {
+            m_controller.acknowledgeMessage();
+        } else if (m_inputMode == GameMapInputMode::Map) {
             showMainMenu();
             m_inputDevicesState->reset();
         }
@@ -795,9 +797,12 @@ void GameMapMode::mainMenuPopupClicked(size_t choice) {
             }
             break;
         case 4:
+            m_inputMode = GameMapInputMode::Map;
             if (!m_controller.saveGameState(*m_glPlayer)) {
-                //TODO: Display an on screen message instead of crashing
-                throw std::runtime_error(m_controller.getLastError());
+                auto msg = std::make_unique<MessageDTO>();
+                msg->message = fmt::format("An error occurred while saving the game:\n{0}", m_controller.getLastError());
+                msg->maxDurationInMilliseconds = 20000;
+                m_controller.addMessageToPipeline(std::move(msg));
             }
             break;
         case 5:
