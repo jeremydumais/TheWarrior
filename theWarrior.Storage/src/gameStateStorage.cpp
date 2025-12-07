@@ -1,4 +1,5 @@
 #include <fmt/format.h>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <utility>
@@ -30,19 +31,18 @@ void GameStateStorage::loadGameState(GameState &gameState) {
     }
 }
 
-void GameStateStorage::saveGameState(GameState &gameState) {
-    const std::string fileName = "saveTest.bkp";
+void GameStateStorage::saveGameState(const std::string &filename, GameState &gameState) {
     if (m_bfs == nullptr) {
-        m_bfs = std::make_unique<BinaryFileStream<GameState>>(fileName);
+        m_bfs = std::make_unique<BinaryFileStream<GameState>>(filename);
     }
     if (!m_bfs->open(FileOpenMode::Write)) {
-        throw std::runtime_error(fmt::format("Unable to open the gameState {0}", fileName));
+        throw std::runtime_error(fmt::format("Unable to open the gameState {0}", filename));
     }
     if (!m_bfs->write(gameState)) {
-        throw std::runtime_error(fmt::format("Unable to write the content of the gameState {0}", fileName));
+        throw std::runtime_error(fmt::format("Unable to write the content of the gameState {0}", filename));
     }
     if (!m_bfs->close()) {
-        throw std::runtime_error(fmt::format("Unable to close the gameState file {0}", fileName));
+        throw std::runtime_error(fmt::format("Unable to close the gameState file {0}", filename));
     }
 }
 

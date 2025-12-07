@@ -1,3 +1,4 @@
+#include <chrono>
 #include <fmt/format.h>
 #include <algorithm>
 #include <cmath>
@@ -775,10 +776,28 @@ void GameMapMode::mainMenuPopupClicked(size_t choice) {
                 //if (!bfs->close()) {
                     //throw std::runtime_error(fmt::format("Unable to close the save game file {0}", fileName));
                 //}
+                //long long retrieved_timestamp = 1765072745;
+
+                // Construct a time_point directly from the integer seconds duration
+                //std::chrono::system_clock::time_point retrieved_time_point =
+                    //std::chrono::system_clock::from_time_t(retrieved_timestamp);
+
+                //// 1. Get the local time zone of the system
+                //const auto &local_zone = std::chrono::current_zone();
+
+                //// 2. Convert the UTC system_clock::time_point to a zoned_time (local time)
+                //std::chrono::zoned_time local_zoned_time{local_zone, retrieved_time_point};
+
+
+                //// You can now use C++20 chrono formatting functions for output
+                //// Example: format to ISO 8601 string (C++20 feature)
+                //std::cout << "Event occurred at: " << std::format("{:%Y-%m-%d %H:%M:%S}", local_zoned_time) << std::endl;
             }
             break;
         case 4:
-            m_controller.saveGameState(*m_glPlayer);
+            if (!m_controller.saveGameState(*m_glPlayer)) {
+                throw std::runtime_error(m_controller.getLastError());
+            }
             break;
         case 5:
             exitGameAndReturnToMainMenu();

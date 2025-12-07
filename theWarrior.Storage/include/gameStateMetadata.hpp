@@ -10,6 +10,7 @@ struct GameStateMetadata {
     std::string playerName;
     std::time_t timestamp;
     unsigned int level;
+    std::string fileName;
 };
 
 }  // namespace thewarrior::storage

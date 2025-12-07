@@ -57,7 +57,7 @@ m_glPlayer->getEquipment().setSecondaryHand(VariantEquipment(*dynamic_cast<const
 
     // Initialize save game repository
     if (!m_controller.initializeSaveGameRepository()) {
-        throw std::runtime_error("Initialize save game repository error");
+        throw std::runtime_error(m_controller.getLastError());
     }
     m_fpsCalculator.initialize();
     m_windowSizeChanged(m_WindowSize);

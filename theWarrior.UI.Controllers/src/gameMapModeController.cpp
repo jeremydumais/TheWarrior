@@ -1,19 +1,27 @@
+#include <fmt/chrono.h>
 #include <cstddef>
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <utility>
 #include "gameMapModeController.hpp"
 #include "gameState.hpp"
+#include "gameStateMetadata.hpp"
 #include "gameStateStorage.hpp"
+#include "iGameStateRepository.hpp"
 #include "itemFoundMessage.hpp"
 #include "itemFoundMessageDTO.hpp"
 #include "itemStore.hpp"
 #include "itemStoreStorage.hpp"
 #include "monsterStoreStorage.hpp"
+#include "saveGamePaths.hpp"
+#include "specialFolders.hpp"
+#include "sqliteGameStateRepository.hpp"
 
 using namespace thewarrior::models;
 using namespace thewarrior::storage;
 using namespace thewarrior::ui::models;
+namespace fs = std::filesystem;
 
 namespace thewarrior::ui::controllers {
 
@@ -206,10 +214,42 @@ bool GameMapModeController::loadMonsterStore(const std::string &filePath) {
 }
 
 bool GameMapModeController::saveGameState(thewarrior::models::Player &player) {
+    auto now = std::chrono::system_clock::now();
+    auto t = std::chrono::system_clock::to_time_t(now);
+    std::tm tm{};
+#ifdef _WIN32
+    localtime_s(&tm, &t);
+#else
+    localtime_r(&t, &tm);
+#endif
+    std::string filename = fmt::format("{}_{:%Y-%m-%d-%H-%M-%S}.bak", player.getName(), tm);
+    std::string fullPath = fs::path(utils::SpecialFolders::getSaveGameDirectory()) / filename;
+
+    // Create the save game file
     GameStateStorage storage;
     GameState gameState(player, *m_worldState);
-    storage.saveGameState(gameState);
-    return false;
+    storage.saveGameState(fullPath, gameState);
+    // Persist the save game metadata in the database
+    std::unique_ptr<storage::IGameStateRepository> saveRepo =
+        std::make_unique<SQLiteGameStateRepository>(storage::SaveGamePaths::getDatabaseFilePath());
+     // Convert the time point to a duration in seconds since the Unix epoch
+    auto epoch_seconds = std::chrono::duration_cast<std::chrono::seconds>(
+        now.time_since_epoch());
+
+    // Get the integer count (the time_t equivalent)
+    auto timestamp_int = epoch_seconds.count();
+    GameStateMetadata metadata {
+        .id = 0,
+        .playerName = player.getName(),
+        .timestamp = timestamp_int,
+        .level = player.getLevel(),
+        .fileName = filename
+    };
+    if (!saveRepo->save(metadata)) {
+        m_lastError = saveRepo->getLastError();
+        return false;
+    }
+    return true;
 }
 
 

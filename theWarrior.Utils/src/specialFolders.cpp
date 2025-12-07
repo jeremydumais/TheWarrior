@@ -14,7 +14,7 @@ const std::string SpecialFolders::getAppConfigDirectory(const std::string &appCo
                            appConfigFolder);
     #else
         // Linux system
-        return fmt::format("{0}/.config/{1}/",
+        return fmt::format("{0}/.config/{1}",
                            getenv("HOME"),
                            appConfigFolder);
     #endif
@@ -27,7 +27,7 @@ const std::string SpecialFolders::getAppDataDirectory(const std::string &appData
                            appDataFolder);
     #else
         // Linux system
-        return fmt::format("{0}/.local/{1}/",
+        return fmt::format("{0}/.local/{1}",
                            getenv("HOME"),
                            appDataFolder);
     #endif

@@ -99,7 +99,7 @@ TEST_F(GameStateStorageEmptyISStubFS, saveGameState_FileStreamFailToOpen_ThrowRu
 
     gameStateStorage.setFileStream(std::move(stubBFS));
     try {
-        gameStateStorage.saveGameState(gameState);
+        gameStateStorage.saveGameState("saveTest.bkp", gameState);
         FAIL();
     }
     catch(std::runtime_error &err) {
@@ -112,7 +112,7 @@ TEST_F(GameStateStorageEmptyISStubFS, saveGameState_FileStreamFailToWrite_ThrowR
 
     gameStateStorage.setFileStream(std::move(stubBFS));
     try {
-        gameStateStorage.saveGameState(gameState);
+        gameStateStorage.saveGameState("saveTest.bkp", gameState);
         FAIL();
     }
     catch(std::runtime_error &err) {
@@ -123,10 +123,9 @@ TEST_F(GameStateStorageEmptyISStubFS, saveGameState_FileStreamFailToWrite_ThrowR
 
 TEST_F(GameStateStorageEmptyISStubFS, saveGameState_FileStreamFailToClose_ThrowRuntimeError) {
     ON_CALL(*stubBFS, close()).WillByDefault(Return(false));
-
     gameStateStorage.setFileStream(std::move(stubBFS));
     try {
-        gameStateStorage.saveGameState(gameState);
+        gameStateStorage.saveGameState("saveTest.bkp", gameState);
         FAIL();
     }
     catch(std::runtime_error &err) {
@@ -136,5 +135,5 @@ TEST_F(GameStateStorageEmptyISStubFS, saveGameState_FileStreamFailToClose_ThrowR
 
 TEST_F(GameStateStorageEmptyISStubFS, saveGameState_FileStreamSucceedToSave_ReturnSuccess) {
     gameStateStorage.setFileStream(std::move(stubBFS));
-    gameStateStorage.saveGameState(gameState);
+    gameStateStorage.saveGameState("saveTest.bkp", gameState);
 }
