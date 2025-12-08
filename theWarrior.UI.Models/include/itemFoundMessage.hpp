@@ -1,27 +1,27 @@
 #pragma once
 
+#include <string>
 #include "message.hpp"
 #include "messageType.hpp"
-#include <string>
 
 namespace thewarrior::ui::models {
 
-class ItemFoundMessage : public Message
-{
-public:
+class ItemFoundMessage : public Message {
+ public:
     ItemFoundMessage(const std::string &message,
                      int maxDurationInMilliseconds,
                      const std::string &itemId,
                      const std::string &textureName);
-    virtual ~ItemFoundMessage() = default;
-    virtual MessageType getType() const override;
+    ~ItemFoundMessage() override = default;
+    MessageType getType() const override;
     const std::string &getItemId() const;
     const std::string &getTextureName() const;
     void setItemId(const std::string &id);
     void setTextureName(const std::string &name);
-private:
+
+ private:
     std::string m_itemId;
     std::string m_textureName;
 };
 
-} // namespace thewarrior::ui::models
+}  // namespace thewarrior::ui::models

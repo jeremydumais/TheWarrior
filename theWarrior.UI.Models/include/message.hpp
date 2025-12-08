@@ -1,16 +1,15 @@
 #pragma once
 
-#include "messageType.hpp"
 #include <chrono>
 #include <optional>
 #include <string>
+#include "messageType.hpp"
 
 namespace thewarrior::ui::models {
 
-class Message
-{
-public:
-    Message(const std::string &message, int maxDurationInMilliseconds = -1);
+class Message {
+ public:
+    explicit Message(const std::string &message, int maxDurationInMilliseconds = -1);
     virtual ~Message() = default;
     virtual MessageType getType() const;
     const std::string &getMessage() const;
@@ -21,10 +20,11 @@ public:
     void setMessage(const std::string &message);
     void setMaxDurationInMilliseconds(int value);
     void setDisplayed(std::chrono::_V2::system_clock::time_point startTime);
-private:
+
+ private:
     std::string m_message;
     int m_maxDurationInMilliseconds;
     std::optional<std::chrono::_V2::system_clock::time_point> m_displayStartTime;
 };
 
-} // namespace thewarrior::ui::models
+}  // namespace thewarrior::ui::models
