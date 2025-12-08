@@ -803,6 +803,11 @@ void GameMapMode::mainMenuPopupClicked(size_t choice) {
                 msg->message = fmt::format("An error occurred while saving the game:\n{0}", m_controller.getLastError());
                 msg->maxDurationInMilliseconds = 20000;
                 m_controller.addMessageToPipeline(std::move(msg));
+            } else {
+                auto msg = std::make_unique<MessageDTO>();
+                msg->message = "Game saved successfully!";
+                msg->maxDurationInMilliseconds = 3000;
+                m_controller.addMessageToPipeline(std::move(msg));
             }
             break;
         case 5:

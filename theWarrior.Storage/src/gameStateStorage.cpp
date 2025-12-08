@@ -53,9 +53,13 @@ void GameStateStorage::saveGameState(const std::string &filename, GameState &gam
 
 bool GameStateStorage::deleteGameStates(const std::vector<std::string> &fileNames) {
     for (const auto &fileName : fileNames) {
-        auto bfs = std::make_unique<BinaryFileStream<GameState>>(fileName);
-        if (!bfs->remove()) {
-            m_lastError = bfs->getLastError();
+        if (m_bfs == nullptr) {
+            m_bfs = std::make_unique<BinaryFileStream<GameState>>(fileName);
+        } else {
+            m_bfs->setFileName(fileName);
+        }
+        if (!m_bfs->remove()) {
+            m_lastError = m_bfs->getLastError();
             return false;
         }
     }

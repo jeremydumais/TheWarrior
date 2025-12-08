@@ -16,6 +16,7 @@ template <class T>
 class StubBinaryFileStream : public IBinaryFileStream<T> {
  public:
     StubBinaryFileStream() : IBinaryFileStream<T>("") {}
+    MOCK_METHOD(bool, getLastError, (), ());
     MOCK_METHOD(bool, open, (FileOpenMode), (override));
     MOCK_METHOD(bool, close, (), (override));
     MOCK_METHOD(bool, readAllInto, (T &), (override));
@@ -43,6 +44,7 @@ class GameStateStorageEmptyISStubFS : public ::testing::Test {
         ON_CALL(*stubBFS, readAllInto(_)).WillByDefault(Return(true));
         ON_CALL(*stubBFS, write(_)).WillByDefault(Return(true));
         ON_CALL(*stubBFS, close()).WillByDefault(Return(true));
+        ON_CALL(*stubBFS, remove()).WillByDefault(Return(true));
     }
     std::unique_ptr<NiceMock<StubBinaryFileStream<GameState>>> stubBFS;
     Player player;
@@ -121,7 +123,6 @@ TEST_F(GameStateStorageEmptyISStubFS, saveGameState_FileStreamFailToWrite_ThrowR
     }
 }
 
-
 TEST_F(GameStateStorageEmptyISStubFS, saveGameState_FileStreamFailToClose_ThrowRuntimeError) {
     ON_CALL(*stubBFS, close()).WillByDefault(Return(false));
     gameStateStorage.setFileStream(std::move(stubBFS));
@@ -132,6 +133,22 @@ TEST_F(GameStateStorageEmptyISStubFS, saveGameState_FileStreamFailToClose_ThrowR
     catch(std::runtime_error &err) {
         ASSERT_STREQ("Unable to close the gameState file saveTest.bkp", err.what());
     }
+}
+
+TEST_F(GameStateStorageEmptyISStubFS, removeOneGameState_FileStreamFailToDelete_ReturnFalse) {
+    ON_CALL(*stubBFS, remove()).WillByDefault(Return(false));
+
+    gameStateStorage.setFileStream(std::move(stubBFS));
+    ASSERT_FALSE(gameStateStorage.deleteGameStates({"saveTest.bkp"}));
+}
+
+TEST_F(GameStateStorageEmptyISStubFS, removeTwoGameState_FileStreamSecondFailToDelete_ReturnFalse) {
+    EXPECT_CALL(*stubBFS, remove())
+        .WillOnce(Return(true))    // first call
+        .WillOnce(Return(false));  // second call
+
+    gameStateStorage.setFileStream(std::move(stubBFS));
+    ASSERT_FALSE(gameStateStorage.deleteGameStates({"saveTest.bkp", "saveTest2.bkp"}));
 }
 
 TEST_F(GameStateStorageEmptyISStubFS, saveGameState_FileStreamSucceedToSave_ReturnSuccess) {
