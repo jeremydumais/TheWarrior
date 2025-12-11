@@ -806,7 +806,6 @@ void GameMapMode::mainMenuPopupClicked(size_t choice) {
             } else {
                 auto msg = std::make_unique<MessageDTO>();
                 msg->message = "Game saved successfully!";
-                msg->scale = 0.25F;
                 msg->maxDurationInMilliseconds = 3000;
                 m_controller.addMessageToPipeline(std::move(msg));
             }

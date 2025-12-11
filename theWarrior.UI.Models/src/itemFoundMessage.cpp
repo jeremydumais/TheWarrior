@@ -5,9 +5,10 @@ namespace thewarrior::ui::models {
 
 ItemFoundMessage::ItemFoundMessage(const std::string &message,
                                    int maxDurationInMilliseconds,
+                                   float scale,
                                    const std::string &itemId,
                                    const std::string &textureName)
-: Message(message, maxDurationInMilliseconds),
+: Message(message, maxDurationInMilliseconds, scale),
 m_itemId(itemId),
 m_textureName(textureName) {}
 

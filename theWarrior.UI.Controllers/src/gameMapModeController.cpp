@@ -145,12 +145,13 @@ std::shared_ptr<Message> GameMapModeController::createMessageFromMessageDTO(std:
 
     switch (dto->getType()) {
         case MessageDTOType::Message:
-            return std::make_shared<Message>(dto->message, dto->maxDurationInMilliseconds);
+            return std::make_shared<Message>(dto->message, dto->maxDurationInMilliseconds, dto->scale);
         case MessageDTOType::ItemFoundMessage:
             {
                 ItemFoundMessageDTO *itemFoundMsgDTO = dynamic_cast<ItemFoundMessageDTO *>(dto.get());
                 return std::make_shared<ItemFoundMessage>(itemFoundMsgDTO->message,
                         itemFoundMsgDTO->maxDurationInMilliseconds,
+                        itemFoundMsgDTO->scale,
                         itemFoundMsgDTO->itemId,
                         itemFoundMsgDTO->textureName);
             }
@@ -181,6 +182,7 @@ std::unique_ptr<MessageDTO> GameMapModeController::createMessageDTOFromMessage(s
             break;
     }
     retval->message = message->getMessage();
+    retval->scale = message->getScale();
     retval->isDisplayed = message->isDisplayed();
     retval->isExpired = message->hasMessageExpired(std::chrono::_V2::system_clock::now());
     retval->maxDurationInMilliseconds = message->getMaxDurationInMilliseconds();

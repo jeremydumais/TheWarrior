@@ -3,9 +3,12 @@
 
 namespace thewarrior::ui::models {
 
-Message::Message(const std::string &message, int maxDurationInMilliseconds)
+Message::Message(const std::string &message,
+        int maxDurationInMilliseconds,
+        float scale)
     : m_message(message),
     m_maxDurationInMilliseconds(maxDurationInMilliseconds),
+    m_scale(scale),
     m_displayStartTime(std::nullopt) {
 }
 
@@ -19,6 +22,10 @@ const std::string &Message::getMessage() const {
 
 int Message::getMaxDurationInMilliseconds() const {
     return m_maxDurationInMilliseconds;
+}
+
+float Message::getScale() const {
+    return m_scale;
 }
 
 std::optional<std::chrono::_V2::system_clock::time_point> Message::getDisplayStartTime() const {
@@ -43,6 +50,10 @@ void Message::setMessage(const std::string &message) {
 
 void Message::setMaxDurationInMilliseconds(int value) {
     m_maxDurationInMilliseconds = value;
+}
+
+void Message::setScale(float value) {
+    m_scale = value;
 }
 
 void Message::setDisplayed(std::chrono::_V2::system_clock::time_point startTime) {

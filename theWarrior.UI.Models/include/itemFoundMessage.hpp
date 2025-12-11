@@ -10,6 +10,7 @@ class ItemFoundMessage : public Message {
  public:
     ItemFoundMessage(const std::string &message,
                      int maxDurationInMilliseconds,
+                     float scale,
                      const std::string &itemId,
                      const std::string &textureName);
     ~ItemFoundMessage() override = default;
