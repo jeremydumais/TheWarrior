@@ -11,6 +11,7 @@
 #include "glTexture.hpp"
 #include "glTextureService.hpp"
 #include "inputDevicesState.hpp"
+#include "screens/loadGameScreen.hpp"
 #include "screens/newGamePlayerNameScreen.hpp"
 #include "screens/mainMenuScreen.hpp"
 #include "size.hpp"
@@ -54,6 +55,7 @@ class MainMenuMode {
     std::map<std::string, unsigned int> m_texturesGL;
     std::shared_ptr<GLTexture> m_windowGLTexture;
     screens::MainMenuScreen m_mainScreen;
+    screens::LoadGameScreen m_loadGameScreen;
     screens::NewGamePlayerNameScreen m_newGamePlayerNameScreen;
     Mix_Music* m_backgroundMusic;
     std::shared_ptr<Mix_Chunk> m_menuMoveSound;
@@ -64,9 +66,11 @@ class MainMenuMode {
     void unloadMenuTextures();
     void loadMenuSounds();
     void newGamePressed();
+    void loadGamePressed();
     void quitPressed();
     void backToMainMenu();
     void newGameConfirmed();
+    void loadGameConfirmed();
 };
 
 }  // namespace thewarrior::ui

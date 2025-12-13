@@ -44,6 +44,7 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glOnScreenKeyboardButton.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/screens/mainMenuScreen.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/screens/menuScreenBase.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/screens/loadGameScreen.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/screens/newGamePlayerNameScreen.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})

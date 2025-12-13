@@ -1,7 +1,6 @@
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_timer.h>
 #include <fmt/format.h>
-#include <iostream>
 #include <map>
 #include <memory>
 #include <string>
@@ -133,6 +132,10 @@ void MainMenuScreen::onButtonActionPressed() {
         playClickSound();
         SDL_Delay(500);
         newGamePressed();
+    } else if (m_menuSelectedIndex == 1) {
+        playClickSound();
+        SDL_Delay(500);
+        loadGamePressed();
     } else if (m_menuSelectedIndex == 3) {
         playClickSound();
         SDL_Delay(500);
