@@ -189,7 +189,7 @@ Size<float> GLTextService::getTextSize(const std::string &text, float scale) con
 
 ComputedTextForDisplay GLTextService::prepareTextForDisplay(Size<float> screenSize, const std::string &text, float scale) const {
     const float DISPLAYMAXWIDTH = screenSize.width() - 60.0F;
-    const float DISPLAYMINWIDTH = 100.0F;
+    const float DISPLAYMINWIDTH = 10.0F;
     float lineHeight = 0.0F;
     ComputedTextForDisplay retval { Size<float>(DISPLAYMINWIDTH, 0.0F), {}};
     // Split the string by carriage return \n

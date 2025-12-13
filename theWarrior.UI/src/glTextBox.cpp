@@ -66,7 +66,7 @@ void GLTextBox::draw() {
     float lineHeight = (m_computedTextForDisplay.textSize.height() / lineTotal) - 10.0F;
 
     Point<float> messagePosition((m_screenSize.width() / 2.0F) - (m_computedTextForDisplay.textSize.width() / 2.0F),
-                                 (m_screenSize.height() / 2.0F) + (m_computedTextForDisplay.textSize.height() / 2.0F) - (BOXPADDING / 2.0F));
+                                 (m_screenSize.height() / 2.0F) + (((lineHeight + 10.0F) * lineTotal) / 2.0F) - lineHeight);
     if (m_messageDTO->getType() == MessageDTOType::ItemFoundMessage) {
         messagePosition.setY(messagePosition.y() + 20.0F);
     }
