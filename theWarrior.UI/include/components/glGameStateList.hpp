@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <string>
 #include "glComponentBase.hpp"
+#include "glContext.hpp"
 #include "point.hpp"
 #include "size.hpp"
 #include <boost/signals2.hpp>
@@ -12,7 +13,7 @@ namespace thewarrior::ui::components {
 
 class GLGameStateList : public GLComponentBase {
  public:
-    explicit GLGameStateList(thewarrior::models::Point<float> location);
+    explicit GLGameStateList(GLContext &glContext, thewarrior::models::Point<float> location);
     ~GLGameStateList() override = default;
     void initialize(const GLComponentBaseInfo &info);
     void setCaption(const std::string &title);

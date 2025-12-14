@@ -1,8 +1,6 @@
 #pragma once
 
 #include <SDL2/SDL_events.h>
-#include <map>
-#include <memory>
 #include <string>
 #include <string_view>
 #include <boost/signals2.hpp>
@@ -10,6 +8,7 @@
 #include "components/glMenuModalDialog.hpp"
 #include "components/glComponentBase.hpp"
 #include "components/glLabel.hpp"
+#include "glContext.hpp"
 #include "glTextService.hpp"
 #include "menuScreenBase.hpp"
 #include "point.hpp"
@@ -19,8 +18,8 @@ namespace thewarrior::ui::screens {
 
 class NewGamePlayerNameScreen : public MenuScreenBase {
  public:
-    NewGamePlayerNameScreen(std::map<std::string, std::shared_ptr<thewarrior::models::Texture>> &textures,
-                   std::map<std::string, unsigned int> &texturesGL);
+    NewGamePlayerNameScreen(GLContext &glContext);
+    ~NewGamePlayerNameScreen() override;
     void initialize(const components::GLComponentBaseInfo &info);
     bool loadTextures();
     void processEvents(SDL_Event &e);
@@ -36,6 +35,8 @@ class NewGamePlayerNameScreen : public MenuScreenBase {
  protected:
     components::GLOnScreenKeyboard m_onScreenKeyboard;
     components::GLLabel m_newGameLabel;
+    components::GLLabel m_enterPlayerNameLabel;
+    components::GLLabel m_playerNameLabel;
     GLTextObject m_enterNameObject;
     std::string m_playerName;
     thewarrior::models::Point<float> m_playerNameLocation;

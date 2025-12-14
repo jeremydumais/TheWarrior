@@ -4,6 +4,7 @@
 #include <vector>
 #include <boost/signals2.hpp>
 #include "glComponentBase.hpp"
+#include "glContext.hpp"
 #include "glMenuButton.hpp"
 #include "glPopupWindow.hpp"
 #include "glTextService.hpp"
@@ -14,7 +15,8 @@ namespace thewarrior::ui::components {
 
 class GLMenuModalDialog : public GLComponentBase {
  public:
-    explicit GLMenuModalDialog(thewarrior::models::Point<float> location,
+    explicit GLMenuModalDialog(GLContext &glContext,
+                               thewarrior::models::Point<float> location,
                                thewarrior::models::Size<float> size);
     ~GLMenuModalDialog() override = default;
     void initialize(const GLComponentBaseInfo &info);

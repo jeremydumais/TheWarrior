@@ -11,7 +11,7 @@
 #include "glTexture.hpp"
 #include "texture.hpp"
 #include "textureInfo.hpp"
-#include "screens/mainMenuCommons.hpp"
+#include "mainMenuCommons.hpp"
 
 using namespace thewarrior::models;
 using namespace thewarrior::ui::screens;
@@ -23,9 +23,10 @@ MainMenuMode::MainMenuMode()
 m_glFormService(std::make_shared<GLFormService>()),
 m_textures(std::map<std::string, std::shared_ptr<Texture>>()),
 m_texturesGL(std::map<std::string, unsigned int>()),
-m_mainScreen(m_textures, m_texturesGL),
-m_loadGameScreen(m_textures, m_texturesGL),
-m_newGamePlayerNameScreen(m_textures, m_texturesGL) {
+m_glContext(m_textures, m_texturesGL),
+m_mainScreen(m_glContext),
+m_loadGameScreen(m_glContext),
+m_newGamePlayerNameScreen(m_glContext) {
 }
 
 MainMenuMode::~MainMenuMode() {

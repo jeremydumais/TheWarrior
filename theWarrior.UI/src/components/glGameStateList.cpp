@@ -4,6 +4,7 @@
 #include <boost/algorithm/string.hpp>
 #include "glGameStateList.hpp"
 #include "glComponentBase.hpp"
+#include "glContext.hpp"
 #include "point.hpp"
 #include "size.hpp"
 
@@ -11,8 +12,8 @@ using namespace thewarrior::models;
 
 namespace thewarrior::ui::components {
 
-GLGameStateList::GLGameStateList(Point<float> location)
-: GLComponentBase(location, Size<float>(700.0F, 700.0F)),
+GLGameStateList::GLGameStateList(GLContext &glContext, Point<float> location)
+: GLComponentBase(glContext, location, Size<float>(700.0F, 700.0F)),
 m_focusPosition(0, 0) {}
 
 void GLGameStateList::initialize(const GLComponentBaseInfo &info) {

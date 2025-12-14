@@ -5,6 +5,7 @@
 #include "glMenuButton.hpp"
 #include "glColor.hpp"
 #include "glComponentBase.hpp"
+#include "glContext.hpp"
 #include "point.hpp"
 #include <boost/algorithm/string.hpp>
 
@@ -12,8 +13,8 @@ using namespace thewarrior::models;
 
 namespace thewarrior::ui::components {
 
-GLMenuButton::GLMenuButton(Point<float> location, Size<float> size)
-: GLComponentBase(location, size),
+GLMenuButton::GLMenuButton(GLContext &glContext, Point<float> location, Size<float> size)
+: GLComponentBase(glContext, location, size),
 m_glCaption({"", {1.0F, 1.0F}, 0.6F}),
 m_windowObjects(std::vector<GLObject>()),
 m_windowBackgrounds(std::vector<GLObject>()),

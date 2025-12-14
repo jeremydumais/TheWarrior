@@ -5,6 +5,7 @@
 #include "floatUtils.hpp"
 #include "glColor.hpp"
 #include "glComponentBase.hpp"
+#include "glContext.hpp"
 #include "point.hpp"
 #include <boost/algorithm/string.hpp>
 
@@ -13,8 +14,8 @@ using thewarrior::utils::FloatUtils;
 
 namespace thewarrior::ui::components {
 
-GLOnScreenKeyboardButton::GLOnScreenKeyboardButton(const std::string &caption, Point<float> location, Size<float> size)
-: GLComponentBase(location, size),
+GLOnScreenKeyboardButton::GLOnScreenKeyboardButton(GLContext &glContext, const std::string &caption, Point<float> location, Size<float> size)
+: GLComponentBase(glContext, location, size),
 m_size(size),
 m_glCaption({caption, {1.0F, 1.0F}, 0.6F}),
 m_windowObjects(std::vector<GLObject>()),

@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "glComponentBase.hpp"
+#include "glContext.hpp"
 #include "glObjectService.hpp"
 #include "glTextService.hpp"
 #include "point.hpp"
@@ -14,7 +15,8 @@ namespace thewarrior::ui::components {
 
 class GLMenuButton : public GLComponentBase {
  public:
-    explicit GLMenuButton(thewarrior::models::Point<float> location,
+    explicit GLMenuButton(GLContext &glContext,
+                          thewarrior::models::Point<float> location,
                           thewarrior::models::Size<float> size);
     ~GLMenuButton() override;
     void initialize(const std::string &title,

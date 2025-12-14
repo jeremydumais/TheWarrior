@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "glComponentBase.hpp"
+#include "glContext.hpp"
 #include "glObjectService.hpp"
 #include "glTextService.hpp"
 #include "point.hpp"
@@ -13,7 +14,8 @@ namespace thewarrior::ui::components {
 
 class GLOnScreenKeyboardButton : public GLComponentBase {
  public:
-    GLOnScreenKeyboardButton(const std::string &caption,
+    GLOnScreenKeyboardButton(GLContext &glContext,
+                             const std::string &caption,
                              thewarrior::models::Point<float> location,
                              thewarrior::models::Size<float> size = thewarrior::models::Size<float>(64.0F, 64.0F));
     ~GLOnScreenKeyboardButton() override;

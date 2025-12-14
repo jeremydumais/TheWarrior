@@ -3,6 +3,7 @@
 #include "glLabel.hpp"
 #include "glColor.hpp"
 #include "glComponentBase.hpp"
+#include "glContext.hpp"
 #include "point.hpp"
 #include <boost/algorithm/string.hpp>
 
@@ -10,11 +11,12 @@ using namespace thewarrior::models;
 
 namespace thewarrior::ui::components {
 
-GLLabel::GLLabel(const std::string &caption,
+GLLabel::GLLabel(GLContext &glContext,
+                 const std::string &caption,
                  Point<float> location,
                  const GLColor color,
                  const float scale)
-: GLComponentBase(location),
+: GLComponentBase(glContext, location),
 m_glCaption({caption, {1.0F, 1.0F}, scale, color}) {}
 
 GLLabel::~GLLabel() {
@@ -27,6 +29,10 @@ void GLLabel::initialize(const GLComponentBaseInfo &info) {
 void GLLabel::setCaption(const std::string &title) {
     m_glCaption.text = title;
     generateCaption();
+}
+
+void GLLabel::setColor(GLColor color) {
+    m_glCaption.color = color;
 }
 
 void GLLabel::onGenerateGLElements() {

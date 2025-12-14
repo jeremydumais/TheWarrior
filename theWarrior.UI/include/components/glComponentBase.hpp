@@ -1,9 +1,12 @@
 #pragma once
 
 #include <SDL2/SDL_mixer.h>
+#include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
+#include "glContext.hpp"
 #include "glFormService.hpp"
 #include "glObjectService.hpp"
 #include "glShaderProgram.hpp"
@@ -13,7 +16,7 @@
 #include "inputDevicesState.hpp"
 #include "point.hpp"
 #include "size.hpp"
-#include "texture.hpp"
+#include "textureInfo.hpp"
 
 namespace thewarrior::ui::components {
 
@@ -30,22 +33,37 @@ struct GLComponentBaseInfo {
     std::shared_ptr<Mix_Chunk> menuBackSound;
 };
 
+enum class HorizontalAlignment {
+    Left,
+    Center,
+    Right
+};
+
+enum class VerticalAlignment {
+    Top,
+    Center,
+    Bottom
+};
+
 class GLComponentBase {
  public:
-    explicit GLComponentBase(thewarrior::models::Point<float> location,
-                    thewarrior::models::Size<float> size = thewarrior::models::Size<float>(0.0F, 0.0F));
-    virtual ~GLComponentBase() = default;
+    explicit GLComponentBase(GLContext &glContext,
+                             thewarrior::models::Point<float> location = thewarrior::models::Point<float>(0.0F, 0.0F),
+                             thewarrior::models::Size<float> size = thewarrior::models::Size<float>(0.0F, 0.0F));
+    virtual ~GLComponentBase();
     void initialize(const GLComponentBaseInfo &info);
-     void generateGLElements();
-     void update();
-     void render();
-     void gameWindowSizeChanged(const thewarrior::models::Size<int> &size);
-     thewarrior::models::Size<float> getSize() const;
-     thewarrior::models::Point<float> getLocation() const;
-     void setLocation(thewarrior::models::Point<float> value);
+    const std::string &getLastError() const;
+    void generateGLElements();
+    void update();
+    void render();
+    void gameWindowSizeChanged(const thewarrior::models::Size<int> &size);
+    thewarrior::models::Size<float> getSize() const;
+    thewarrior::models::Point<float> getLocation() const;
+    void setLocation(thewarrior::models::Point<float> value);
 
  protected:
     std::string m_resourcesPath;
+    std::string m_lastError = "";
     thewarrior::models::Point<float> m_location;
     thewarrior::models::Point<float> m_initialLocation;
     thewarrior::models::Size<float> m_size;
@@ -58,6 +76,8 @@ class GLComponentBase {
     std::shared_ptr<InputDevicesState> m_inputDevicesState;
     Uint64 m_lastMoveUpTicks = 0;
     Uint64 m_lastMoveDownTicks = 0;
+    GLContext &m_glContext;
+    std::map<std::string, GLObject> m_namedObjects = {};
     Uint64 m_lastMoveLeftTicks = 0;
     Uint64 m_lastMoveRightTicks = 0;
     std::shared_ptr<Mix_Chunk> m_menuBackSound;
@@ -65,14 +85,21 @@ class GLComponentBase {
     std::shared_ptr<Mix_Chunk> m_menuClickDisableSound;
     std::shared_ptr<Mix_Chunk> m_menuMoveSound;
     static void freeGLObjects(std::vector<GLObject> &objects);
+    static void freeGLObjects(std::map<std::string, GLObject> &objects);
     void playBackSound();
     void playClickSound();
     void playClickDisableSound();
     void playMoveSound();
     thewarrior::models::Size<float> getGLSizeFromPx(thewarrior::models::Size<int> value) const;
     GLComponentBaseInfo getComponentBaseInfo() const;
-    GLObject generateCenteredGLObject(std::shared_ptr<thewarrior::models::Texture> texture,
-                                      unsigned int glTextureId);
+    bool loadTexture(const thewarrior::models::TextureInfo &info);
+    void unloadTexture(const std::string &textureName);
+    void generateGLObject(const std::string &textureName,
+                          std::optional<thewarrior::models::Size<int>> objectSize = std::nullopt,
+                          HorizontalAlignment horizontalAlignment = HorizontalAlignment::Center,
+                          VerticalAlignment verticalAlignment = VerticalAlignment::Center,
+                          thewarrior::models::Point<int> offset = thewarrior::models::Point<int>(0, 0));
+    void drawGLObject(const std::string &textureName);
     virtual void onGenerateGLElements() {}
     virtual void onRender() {}
     virtual void onGameWindowSizeChanged(const thewarrior::models::Size<int> &) {}

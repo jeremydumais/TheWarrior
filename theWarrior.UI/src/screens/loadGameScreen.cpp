@@ -3,33 +3,29 @@
 #include <SDL2/SDL_timer.h>
 #include <fmt/format.h>
 #include <cctype>
-#include <map>
-#include <memory>
 #include <string>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 #include "glColor.hpp"
 #include "glComponentBase.hpp"
 #include "loadGameScreen.hpp"
+#include "glContext.hpp"
 #include "mainMenuCommons.hpp"
 #include "menuScreenBase.hpp"
-#include "texture.hpp"
 
 using namespace thewarrior::models;
 
 namespace thewarrior::ui::screens {
 
-LoadGameScreen::LoadGameScreen(std::map<std::string, std::shared_ptr<Texture>> &textures,
-                               std::map<std::string, unsigned int> &texturesGL)
-: MenuScreenBase(textures, texturesGL),
-m_gameStateList(Point<float>(1.0F, 1.0F)),
-m_loadGameLabel("Load Game", Point<float>(0.0F, -300.0F), GLColor::Brown, 0.9F) {}
+LoadGameScreen::LoadGameScreen(GLContext &glContext)
+: MenuScreenBase(glContext),
+m_gameStateList(glContext, Point<float>(1.0F, 1.0F)),
+m_loadGameLabel(glContext, "Load Game", Point<float>(0.0F, -300.0F), GLColor::Brown, 0.9F) {}
 
 void LoadGameScreen::initialize(const components::GLComponentBaseInfo &info) {
     MenuScreenBase::initializeBase(info);
     m_gameStateList.initialize(info);
     m_loadGameLabel.initialize(info);
-
     generateGLElements();
 }
 
@@ -51,8 +47,7 @@ void LoadGameScreen::update() {
 
 void LoadGameScreen::onRender() {
     MenuScreenBase::onRender();
-    m_glFormService->drawQuad(m_namedObjects[TextureMainMenuLogo], m_texturesGL[TextureMainMenuLogo]);
-    m_glFormService->drawQuad(m_namedObjects[TextureMainMenuPanel], m_texturesGL[TextureMainMenuPanel]);
+    drawGLObject(TextureMainMenuPanel);
     m_loadGameLabel.render();
     //m_gameStateList.render();
 }
@@ -73,8 +68,7 @@ bool LoadGameScreen::loadTextures() {
 
 void LoadGameScreen::onGenerateGLElements() {
     MenuScreenBase::onGenerateGLElements();
-    m_namedObjects[TextureMainMenuPanel] = generateCenteredGLObject(m_textures[TextureMainMenuPanel],
-                                                                    m_texturesGL[TextureMainMenuPanel]);
+    generateGLObject(TextureMainMenuPanel);
     m_gameStateList.generateGLElements();
     m_loadGameLabel.generateGLElements();
 }

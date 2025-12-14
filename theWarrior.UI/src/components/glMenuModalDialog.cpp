@@ -6,6 +6,7 @@
 #include "glMenuModalDialog.hpp"
 #include "glColor.hpp"
 #include "glComponentBase.hpp"
+#include "glContext.hpp"
 #include "glTextService.hpp"
 #include "point.hpp"
 #include "size.hpp"
@@ -14,14 +15,15 @@ using namespace thewarrior::models;
 
 namespace thewarrior::ui::components {
 
-GLMenuModalDialog::GLMenuModalDialog(Point<float> location,
+GLMenuModalDialog::GLMenuModalDialog(GLContext &glContext,
+                                     Point<float> location,
                                      Size<float> size)
-: GLComponentBase(location, size),
+: GLComponentBase(glContext, location, size),
 m_glMessageLines(std::vector<GLTextObject>({{ "", Point<float>(0.0F, 0.0F), 0.6F, GLColor::Gray }})),
 m_visible(false),
 m_autoSize(true),
 m_menuWindow(size),
-m_menuButtonOK(Point<float>(0.0F, -135.0F), Size<float>(250.0F, 75.0F)) {
+m_menuButtonOK(glContext, Point<float>(0.0F, -135.0F), Size<float>(250.0F, 75.0F)) {
 }
 
 void GLMenuModalDialog::initialize(const GLComponentBaseInfo &info) {

@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include <boost/signals2.hpp>
+#include "glContext.hpp"
 #include "glFormService.hpp"
 #include "glShaderProgram.hpp"
 #include "glTextService.hpp"
@@ -53,6 +54,7 @@ class MainMenuMode {
     std::shared_ptr<InputDevicesState> m_inputDevicesState = nullptr;
     std::map<std::string, std::shared_ptr<thewarrior::models::Texture>> m_textures;
     std::map<std::string, unsigned int> m_texturesGL;
+    GLContext m_glContext;
     std::shared_ptr<GLTexture> m_windowGLTexture;
     screens::MainMenuScreen m_mainScreen;
     screens::LoadGameScreen m_loadGameScreen;

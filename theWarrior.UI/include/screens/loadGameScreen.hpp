@@ -1,9 +1,6 @@
 #pragma once
 
 #include <SDL2/SDL_events.h>
-#include <map>
-#include <memory>
-#include <string>
 #include <boost/signals2.hpp>
 #include "components/glComponentBase.hpp"
 #include "components/glGameStateList.hpp"
@@ -15,8 +12,7 @@ namespace thewarrior::ui::screens {
 
 class LoadGameScreen : public MenuScreenBase {
  public:
-    LoadGameScreen(std::map<std::string, std::shared_ptr<thewarrior::models::Texture>> &textures,
-                   std::map<std::string, unsigned int> &texturesGL);
+    LoadGameScreen(GLContext &glContext);
     void initialize(const components::GLComponentBaseInfo &info);
     bool loadTextures();
     void processEvents(SDL_Event &e);

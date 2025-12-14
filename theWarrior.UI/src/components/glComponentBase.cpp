@@ -1,18 +1,23 @@
+#include <fmt/format.h>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_stdinc.h>
+#include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 #include "glComponentBase.hpp"
+#include "glContext.hpp"
 #include "point.hpp"
 #include "size.hpp"
-#include "texture.hpp"
+#include "textureInfo.hpp"
 
 using namespace thewarrior::models;
 
 namespace thewarrior::ui::components {
 
-GLComponentBase::GLComponentBase(Point<float> location,
+GLComponentBase::GLComponentBase(GLContext &glContext,
+                                 Point<float> location,
                                  Size<float> size)
 : m_resourcesPath(""),
 m_location(location),
@@ -22,7 +27,12 @@ m_screenSize(Size<float>(1.0F, 1.0F)),
 m_shaderProgram(nullptr),
 m_textService(nullptr),
 m_glFormService(std::make_unique<GLFormService>()),
-m_inputDevicesState(nullptr) {}
+m_inputDevicesState(nullptr),
+m_glContext(glContext) {}
+
+GLComponentBase::~GLComponentBase() {
+    freeGLObjects(m_namedObjects);
+}
 
 void GLComponentBase::initialize(const GLComponentBaseInfo &info) {
     m_resourcesPath = info.resourcesPath;
@@ -38,7 +48,12 @@ void GLComponentBase::initialize(const GLComponentBaseInfo &info) {
     m_glFormService->initialize(info.shaderProgram, info.textService);
 }
 
+const std::string &GLComponentBase::getLastError() const {
+    return m_lastError;
+}
+
 void GLComponentBase::generateGLElements() {
+    freeGLObjects(m_namedObjects);
     onGenerateGLElements();
 }
 
@@ -135,6 +150,16 @@ void GLComponentBase::freeGLObjects(std::vector<GLObject> &objects) {
     objects.clear();
 }
 
+void GLComponentBase::freeGLObjects(std::map<std::string, GLObject> &objects) {
+    for (auto &item : objects) {
+        if (item.second.vboPosition) glDeleteBuffers(1, &item.second.vboPosition);
+        if (item.second.vboColor) glDeleteBuffers(1, &item.second.vboColor);
+        if (item.second.vboTexture) glDeleteBuffers(1, &item.second.vboTexture);
+        if (item.second.vao) glDeleteVertexArrays(1, &item.second.vao);
+    }
+    objects.clear();
+}
+
 void GLComponentBase::playBackSound() {
     Mix_PlayChannel(-1, m_menuBackSound.get(), 0);
 }
@@ -174,22 +199,67 @@ GLComponentBaseInfo GLComponentBase::getComponentBaseInfo() const {
     return componentInfo;
 }
 
-GLObject GLComponentBase::generateCenteredGLObject(std::shared_ptr<Texture> texture,
-                                                   unsigned int glTextureId) {
+bool GLComponentBase::loadTexture(const TextureInfo &info) {
+    try {
+        m_glContext.textures[info.name] = std::make_shared<Texture>(info);
+        m_textureService->loadTexture(*m_glContext.textures[info.name], m_glContext.texturesGL[info.name]);
+    } catch (const std::invalid_argument &err) {
+        m_lastError = fmt::format("Unable to load the main menu logo texture: {0}", err.what());
+        return false;
+    }
+    return true;
+}
+
+void GLComponentBase::unloadTexture(const std::string &textureName) {
+    m_textureService->unloadTexture(m_glContext.texturesGL[textureName]);
+}
+
+void GLComponentBase::generateGLObject(const std::string &textureName,
+                                       std::optional<Size<int>> objectSize,
+                                       HorizontalAlignment horizontalAlignment,
+                                       VerticalAlignment verticalAlignment,
+                                       Point<int> offset) {
     std::vector<GLObject> menuObjects = {};
     auto screenGLSize = getGLSizeFromPx({
             static_cast<int>(m_screenSize.width()),
             static_cast<int>(m_screenSize.height()) });
-    auto menuGLSize = getGLSizeFromPx(Size<int>(texture->getWidth(), texture->getHeight()));
+    auto texture = m_glContext.textures[textureName];
+    auto objectGLSize = getGLSizeFromPx(objectSize.has_value() ?
+                        objectSize.value() :
+                        Size<int>(texture->getWidth(), texture->getHeight()));
+    // Determine the position
+    float left = 0.0F;
+    float top = 0.0F;
+    switch (horizontalAlignment) {
+        case HorizontalAlignment::Left: break;
+        case HorizontalAlignment::Center:
+            left = (screenGLSize.width() / 2.0F) - (objectGLSize.width() / 2.0F);
+        break;
+        case HorizontalAlignment::Right:
+            left = screenGLSize.width() - objectGLSize.width();
+        break;
+    }
+    switch (verticalAlignment) {
+        case VerticalAlignment::Top: break;
+        case VerticalAlignment::Center:
+            top = (screenGLSize.height() / 2.0F) - (objectGLSize.height() / 2.0F);
+        break;
+        case VerticalAlignment::Bottom:
+            top = screenGLSize.height() - objectGLSize.height();
+        break;
+    }
+    auto glOffset = getGLSizeFromPx({offset.x(), offset.y()});
     m_glFormService->generateQuad(menuObjects,
-                                  { (screenGLSize.width() / 2.0F) - (menuGLSize.width() / 2.0F),
-                                    (screenGLSize.height() / 2.0F) - (menuGLSize.height() / 2.0F) },
-                                  { menuGLSize },
+                                  { left + glOffset.width(), top + glOffset.height() },
+                                  { objectGLSize },
                                   texture.get(),
                                   0,
-                                  glTextureId);
-    return menuObjects.at(0);
+                                  m_glContext.texturesGL[textureName]);
+    m_namedObjects[textureName] = menuObjects.at(0);
 }
 
+void GLComponentBase::drawGLObject(const std::string &textureName) {
+    m_glFormService->drawQuad(m_namedObjects[textureName], m_glContext.texturesGL[textureName]);
+}
 
 }  // namespace thewarrior::ui::components

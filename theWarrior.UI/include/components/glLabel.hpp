@@ -3,6 +3,7 @@
 #include <string>
 #include "glColor.hpp"
 #include "glComponentBase.hpp"
+#include "glContext.hpp"
 #include "glTextService.hpp"
 #include "point.hpp"
 #include "size.hpp"
@@ -12,13 +13,15 @@ namespace thewarrior::ui::components {
 
 class GLLabel : public GLComponentBase {
  public:
-    GLLabel(const std::string &title,
+    GLLabel(GLContext &glContext,
+            const std::string &title,
             thewarrior::models::Point<float> location,
             const GLColor color = GLColor::White,
             const float scale = 0.6F);
     ~GLLabel() override;
     void initialize(const GLComponentBaseInfo &info);
     void setCaption(const std::string &title);
+    void setColor(GLColor color);
     void onGenerateGLElements() override;
     void onRender() override;
     void onGameWindowSizeChanged(const thewarrior::models::Size<int> &) override;

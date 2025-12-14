@@ -1,34 +1,32 @@
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_timer.h>
 #include <fmt/format.h>
-#include <map>
 #include <memory>
+#include <optional>
 #include <string>
-#include <vector>
 #include "glComponentBase.hpp"
+#include "glContext.hpp"
 #include "mainMenuCommons.hpp"
 #include "mainMenuScreen.hpp"
 #include "menuScreenBase.hpp"
 #include "size.hpp"
-#include "texture.hpp"
 
 using namespace thewarrior::models;
 using namespace thewarrior::ui::components;
 
 namespace thewarrior::ui::screens {
 
-MainMenuScreen::MainMenuScreen(std::map<std::string, std::shared_ptr<Texture>> &textures,
-                               std::map<std::string, unsigned int> &texturesGL)
-: MenuScreenBase(textures, texturesGL),
+MainMenuScreen::MainMenuScreen(GLContext &glContext)
+: MenuScreenBase(glContext),
 m_menuWindow(Size<float>(350.0F, 420.0F)),
-m_menuButtonNewGame(Point<float>(0.0F, -135.0F), Size<float>(250.0F, 75.0F)),
-m_menuButtonLoadGame(Point<float>(0.0F, -45.0F), Size<float>(250.0F, 75.0F)),
-m_menuButtonSettings(Point<float>(0.0F, 45.0F), Size<float>(250.0F, 75.0F)),
-m_menuButtonQuit(Point<float>(0.0F, 135.0F), Size<float>(250.0F, 75.0F)) {
+m_menuButtonNewGame(glContext, Point<float>(0.0F, -135.0F), Size<float>(250.0F, 75.0F)),
+m_menuButtonLoadGame(glContext, Point<float>(0.0F, -45.0F), Size<float>(250.0F, 75.0F)),
+m_menuButtonSettings(glContext, Point<float>(0.0F, 45.0F), Size<float>(250.0F, 75.0F)),
+m_menuButtonQuit(glContext, Point<float>(0.0F, 135.0F), Size<float>(250.0F, 75.0F)) {
 }
 
 MainMenuScreen::~MainMenuScreen() {
-    m_textureService->unloadTexture(m_texturesGL[TextureMainMenuLogo]);
+    unloadTexture(TextureMainMenuLogo);
 }
 
 void MainMenuScreen::initialize(const GLComponentBaseInfo &info) {
@@ -41,6 +39,9 @@ void MainMenuScreen::initialize(const GLComponentBaseInfo &info) {
     m_menuButtonLoadGame.initialize("Load Game", info);
     m_menuButtonSettings.initialize("Settings", info);
     m_menuButtonQuit.initialize("Quit", info);
+    if (!loadTextures()) {
+        throw std::runtime_error(getLastError());
+    }
     generateGLElements();
 }
 
@@ -49,7 +50,7 @@ void MainMenuScreen::processEvents(SDL_Event &) {
 
 void MainMenuScreen::onRender() {
     MenuScreenBase::onRender();
-    m_glFormService->drawQuad(m_namedObjects[TextureMainMenuLogo], m_texturesGL[TextureMainMenuLogo]);
+    drawGLObject(TextureMainMenuLogo);
     m_menuWindow.render();
     m_menuButtonNewGame.render();
     m_menuButtonLoadGame.render();
@@ -70,33 +71,22 @@ void MainMenuScreen::onGameWindowSizeChanged(const thewarrior::models::Size<> &s
 
 bool MainMenuScreen::loadTextures() {
     TextureInfo textureMainMenuLogoInfo {
-        .name = "mainmenulogo",
+        .name = TextureMainMenuLogo,
         .filename = "mainmenu_logo.png",
         .width = 324,
         .height = 324,
         .tileWidth = 324,
         .tileHeight = 324
     };
-    try {
-        m_textures[TextureMainMenuLogo] = std::make_shared<Texture>(textureMainMenuLogoInfo);
-        m_textureService->loadTexture(*m_textures[TextureMainMenuLogo], m_texturesGL[TextureMainMenuLogo]);
-    } catch (const std::invalid_argument &err) {
-        m_lastError = fmt::format("Unable to load the main menu logo texture: {0}", err.what());
-        return false;
-    }
-    return true;
+    return loadTexture(textureMainMenuLogoInfo);
 }
 
 void MainMenuScreen::onGenerateGLElements() {
     MenuScreenBase::onGenerateGLElements();
-    std::vector<GLObject> menuObjects = {};
-    m_glFormService->generateQuad(menuObjects,
-                                  { 0.0F, 0.0F },
-                                  { getGLSizeFromPx(Size<int>(324, 324)) },
-                                  m_textures[TextureMainMenuLogo].get(),
-                                  0,
-                                  m_texturesGL[TextureMainMenuLogo]);
-    m_namedObjects[TextureMainMenuLogo] = menuObjects.at(0);
+    generateGLObject(TextureMainMenuLogo,
+            std::nullopt,
+            HorizontalAlignment::Left,
+            VerticalAlignment::Top);
     m_menuWindow.generateGLElements();
     m_menuButtonNewGame.setHasFocus(m_menuSelectedIndex == 0);
     m_menuButtonLoadGame.setHasFocus(m_menuSelectedIndex == 1);

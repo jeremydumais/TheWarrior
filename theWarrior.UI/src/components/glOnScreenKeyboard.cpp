@@ -8,36 +8,65 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string.hpp>
 #include "glOnScreenKeyboard.hpp"
+#include "glColor.hpp"
 #include "glComponentBase.hpp"
-#include "glOnScreenKeyboardButton.hpp"
+#include "glContext.hpp"
+#include "glLabel.hpp"
+#include "mainMenuCommons.hpp"
 #include "point.hpp"
 #include "size.hpp"
+#include "textureInfo.hpp"
 
 using namespace thewarrior::models;
 
 namespace thewarrior::ui::components {
 
-GLOnScreenKeyboard::GLOnScreenKeyboard(Point<float> location)
-: GLComponentBase(location, Size<float>(700.0F, 700.0F)),
+GLOnScreenKeyboard::GLOnScreenKeyboard(GLContext &glContext, Point<float> location)
+: GLComponentBase(glContext, location, Size<float>(700.0F, 700.0F)),
 m_focusPosition(0, 0),
 m_fourthRowLastXPosition(0),
 m_isInCapsMode(false) {
 }
 
+GLOnScreenKeyboard::~GLOnScreenKeyboard() {
+    unloadTexture(TextureMainMenuKeyboard);
+}
+
 void GLOnScreenKeyboard::initialize(const GLComponentBaseInfo &info) {
     GLComponentBase::initialize(info);
+    if (!loadTextures()) {
+        throw std::runtime_error(getLastError());
+    }
+    generateGLElements();
+}
 
-    generateKeyboardItems();
+bool GLOnScreenKeyboard::loadTextures() {
+    TextureInfo textureMainMenuKeyboard {
+        .name = TextureMainMenuKeyboard,
+        .filename = "mainmenu_keyboard.png",
+        .width = 1290,
+        .height = 451,
+        .tileWidth = 1290,
+        .tileHeight = 451
+    };
+    return loadTexture(textureMainMenuKeyboard);
 }
 
 void GLOnScreenKeyboard::onGenerateGLElements() {
+    generateGLObject(TextureMainMenuKeyboard,
+                     Size<>(840, 353),
+                     components::HorizontalAlignment::Center,
+                     components::VerticalAlignment::Center,
+                     Point<>(static_cast<int>(m_initialLocation.x()),
+                             static_cast<int>(m_initialLocation.y())));
+    generateKeyboardItems();
     auto buttonPosition = Point<size_t>(0, 0);
     for (const auto& row : m_buttonRows | std::views::all) {
         for (auto& button : row | std::views::all) {
             if (buttonPosition == m_focusPosition) {
-                button->setHasFocus(true);
+                button->setColor(GLColor::Green);
             } else {
-                button->setHasFocus(false);
+                button->setColor(GLColor::Brown);
             }
             button->generateGLElements();
             buttonPosition.setX(buttonPosition.x() + 1);
@@ -48,6 +77,7 @@ void GLOnScreenKeyboard::onGenerateGLElements() {
 }
 
 void GLOnScreenKeyboard::onRender() {
+    drawGLObject(TextureMainMenuKeyboard);
     for (const auto& row : m_buttonRows | std::views::all) {
         for (auto& button : row | std::views::all) {
             button->render();
@@ -83,9 +113,9 @@ void GLOnScreenKeyboard::buttonDownPress() {
             m_fourthRowLastXPosition = m_focusPosition.x();
             // Move to the right fifth row button depending on where the focus
             // was on the fourth row
-            if (m_focusPosition.x() <= 1) {
+            if (m_focusPosition.x() <= 2) {
                 m_focusPosition.setX(0);
-            } else if (m_focusPosition.x() >= 8) {
+            } else if (m_focusPosition.x() >= 7) {
                 m_focusPosition.setX(2);
             } else {
                 m_focusPosition.setX(1);
@@ -152,31 +182,33 @@ void GLOnScreenKeyboard::generateKeyboardItems() {
     m_buttonRows.at(3).clear();
     m_buttonRows.at(4).clear();
     size_t indexChar = 0;
-    float buttonTop = -150.0F + m_initialLocation.y();
+    float buttonTop = -136.0F + m_initialLocation.y();
     for (size_t i = 0; i < 4; i++) {
-        float buttonLeft = -350.0F + m_initialLocation.x();
+        float buttonLeft = -374.0F + m_initialLocation.x();
         for (size_t j = 0; j < 10; j++) {
             std::string buttonText = std::string(ONSCREENKEYBOARD_BUTTONSTEXT.at(indexChar));
             if (m_isInCapsMode) {
                 buttonText = boost::to_upper_copy(buttonText);
             }
-            auto button = std::make_shared<GLOnScreenKeyboardButton>(buttonText,
-                                                                     Point<float>(buttonLeft, buttonTop));
+            auto button = std::make_shared<GLLabel>(m_glContext,
+                                                    buttonText,
+                                                    Point<float>(buttonLeft, buttonTop),
+                                                    GLColor::Brown);
             m_buttonRows[i].push_back(button);
-            buttonLeft += 77.0F;
+            buttonLeft += 83.0F;
             indexChar++;
         }
-        buttonTop += 77.0F;
+        buttonTop += 62.0F;
     }
-    m_buttonRows[4].push_back(std::make_shared<GLOnScreenKeyboardButton>(std::string(ONSCREENKEYBOARD_BUTTONSTEXT.at(40)),
-                              Point<float>(-318.0F + m_initialLocation.x(), 158.0F + m_initialLocation.y()),
-                              Size<float>(128.0F, 61.5F)));
-    m_buttonRows[4].push_back(std::make_shared<GLOnScreenKeyboardButton>(std::string(ONSCREENKEYBOARD_BUTTONSTEXT.at(41)),
-                              Point<float>(-5.0F + m_initialLocation.x(), 158.0F + m_initialLocation.y()),
-                              Size<float>(470.0F, 61.5F)));
-    m_buttonRows[4].push_back(std::make_shared<GLOnScreenKeyboardButton>(std::string(ONSCREENKEYBOARD_BUTTONSTEXT.at(42)),
-                              Point<float>(311.0F + m_initialLocation.x(), 158.0F + m_initialLocation.y()),
-                              Size<float>(128.0F, 61.5F)));
+    m_buttonRows[4].push_back(std::make_shared<GLLabel>(m_glContext, std::string(ONSCREENKEYBOARD_BUTTONSTEXT.at(40)),
+                              Point<float>(-258.0F + m_initialLocation.x(), 124.0F + m_initialLocation.y()),
+                              GLColor::Brown));
+    m_buttonRows[4].push_back(std::make_shared<GLLabel>(m_glContext, std::string(ONSCREENKEYBOARD_BUTTONSTEXT.at(41)),
+                              Point<float>(0.0F + m_initialLocation.x(), 124.0F + m_initialLocation.y()),
+                              GLColor::Brown));
+    m_buttonRows[4].push_back(std::make_shared<GLLabel>(m_glContext, std::string(ONSCREENKEYBOARD_BUTTONSTEXT.at(42)),
+                              Point<float>(260.0F + m_initialLocation.x(), 124.0F + m_initialLocation.y()),
+                              GLColor::Brown));
     for (const auto& row : m_buttonRows | std::views::all) {
         for (auto& button : row | std::views::all) {
             button->initialize(getComponentBaseInfo());
