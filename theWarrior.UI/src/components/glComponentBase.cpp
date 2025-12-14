@@ -2,9 +2,11 @@
 #include <SDL2/SDL_stdinc.h>
 #include <memory>
 #include <string>
+#include <vector>
 #include "glComponentBase.hpp"
 #include "point.hpp"
 #include "size.hpp"
+#include "texture.hpp"
 
 using namespace thewarrior::models;
 
@@ -149,6 +151,13 @@ void GLComponentBase::playMoveSound() {
     Mix_PlayChannel(-1, m_menuMoveSound.get(), 0);
 }
 
+Size<float> GLComponentBase::getGLSizeFromPx(Size<int> value) const {
+    float pixelX = 1.0F / m_screenSize.width();
+    float pixelY = 1.0F / m_screenSize.height();
+    return Size<float>(static_cast<float>(value.width()) * pixelX,
+                       static_cast<float>(value.height()) * pixelY);
+}
+
 GLComponentBaseInfo GLComponentBase::getComponentBaseInfo() const {
     GLComponentBaseInfo componentInfo {
         .resourcesPath = m_resourcesPath,
@@ -164,5 +173,23 @@ GLComponentBaseInfo GLComponentBase::getComponentBaseInfo() const {
     };
     return componentInfo;
 }
+
+GLObject GLComponentBase::generateCenteredGLObject(std::shared_ptr<Texture> texture,
+                                                   unsigned int glTextureId) {
+    std::vector<GLObject> menuObjects = {};
+    auto screenGLSize = getGLSizeFromPx({
+            static_cast<int>(m_screenSize.width()),
+            static_cast<int>(m_screenSize.height()) });
+    auto menuGLSize = getGLSizeFromPx(Size<int>(texture->getWidth(), texture->getHeight()));
+    m_glFormService->generateQuad(menuObjects,
+                                  { (screenGLSize.width() / 2.0F) - (menuGLSize.width() / 2.0F),
+                                    (screenGLSize.height() / 2.0F) - (menuGLSize.height() / 2.0F) },
+                                  { menuGLSize },
+                                  texture.get(),
+                                  0,
+                                  glTextureId);
+    return menuObjects.at(0);
+}
+
 
 }  // namespace thewarrior::ui::components

@@ -169,6 +169,21 @@ void MainMenuMode::loadMenuTextures() {
     } catch (const std::invalid_argument &err) {
         std::cerr << "Unable to load the main menu background texture: " << err.what() << std::endl;
     }
+    // Menu Panel
+    TextureInfo textureMenuPanelInfo {
+        .name = "menupanel",
+        .filename = "mainmenu_panel.png",
+        .width = 1100,
+        .height = 777,
+        .tileWidth = 1100,
+        .tileHeight = 777
+    };
+    try {
+        m_textures[TextureMainMenuPanel] = std::make_shared<Texture>(textureMenuPanelInfo);
+        m_textureService->loadTexture(*m_textures[TextureMainMenuPanel], m_texturesGL[TextureMainMenuPanel]);
+    } catch (const std::invalid_argument &err) {
+        std::cerr << "Unable to load the main menu panel texture: " << err.what() << std::endl;
+    }
     // Button
     TextureInfo textureInfoWindow {
         .name = "window",

@@ -57,8 +57,8 @@ void GLOnScreenKeyboard::onRender() {
 
 void GLOnScreenKeyboard::onGameWindowSizeChanged(const Size<> &size) {
     m_location = {
-        (m_screenSize.width() / 2.0F) - (m_size.width() / 2.0F),
-        (m_screenSize.height() / 2.0F) - (m_size.height() / 2.0F) };
+        (m_screenSize.width() / 2.0F) - (m_size.width() / 2.0F) + m_initialLocation.x(),
+        (m_screenSize.height() / 2.0F) - (m_size.height() / 2.0F) + m_initialLocation.y() };
     for (const auto& row : m_buttonRows | std::views::all) {
         for (auto& button : row | std::views::all) {
             button->gameWindowSizeChanged(size);
@@ -152,9 +152,9 @@ void GLOnScreenKeyboard::generateKeyboardItems() {
     m_buttonRows.at(3).clear();
     m_buttonRows.at(4).clear();
     size_t indexChar = 0;
-    float buttonTop = -150.0F;
+    float buttonTop = -150.0F + m_initialLocation.y();
     for (size_t i = 0; i < 4; i++) {
-        float buttonLeft = -350.0F;
+        float buttonLeft = -350.0F + m_initialLocation.x();
         for (size_t j = 0; j < 10; j++) {
             std::string buttonText = std::string(ONSCREENKEYBOARD_BUTTONSTEXT.at(indexChar));
             if (m_isInCapsMode) {
@@ -169,13 +169,13 @@ void GLOnScreenKeyboard::generateKeyboardItems() {
         buttonTop += 77.0F;
     }
     m_buttonRows[4].push_back(std::make_shared<GLOnScreenKeyboardButton>(std::string(ONSCREENKEYBOARD_BUTTONSTEXT.at(40)),
-                              Point<float>(-318.0F, 158.0F),
+                              Point<float>(-318.0F + m_initialLocation.x(), 158.0F + m_initialLocation.y()),
                               Size<float>(128.0F, 61.5F)));
     m_buttonRows[4].push_back(std::make_shared<GLOnScreenKeyboardButton>(std::string(ONSCREENKEYBOARD_BUTTONSTEXT.at(41)),
-                              Point<float>(-5.0F, 158.0F),
+                              Point<float>(-5.0F + m_initialLocation.x(), 158.0F + m_initialLocation.y()),
                               Size<float>(470.0F, 61.5F)));
     m_buttonRows[4].push_back(std::make_shared<GLOnScreenKeyboardButton>(std::string(ONSCREENKEYBOARD_BUTTONSTEXT.at(42)),
-                              Point<float>(311.0F, 158.0F),
+                              Point<float>(311.0F + m_initialLocation.x(), 158.0F + m_initialLocation.y()),
                               Size<float>(128.0F, 61.5F)));
     for (const auto& row : m_buttonRows | std::views::all) {
         for (auto& button : row | std::views::all) {

@@ -13,6 +13,7 @@
 #include "inputDevicesState.hpp"
 #include "point.hpp"
 #include "size.hpp"
+#include "texture.hpp"
 
 namespace thewarrior::ui::components {
 
@@ -31,8 +32,8 @@ struct GLComponentBaseInfo {
 
 class GLComponentBase {
  public:
-    GLComponentBase(thewarrior::models::Point<float> location,
-                    thewarrior::models::Size<float> size);
+    explicit GLComponentBase(thewarrior::models::Point<float> location,
+                    thewarrior::models::Size<float> size = thewarrior::models::Size<float>(0.0F, 0.0F));
     virtual ~GLComponentBase() = default;
     void initialize(const GLComponentBaseInfo &info);
      void generateGLElements();
@@ -68,7 +69,10 @@ class GLComponentBase {
     void playClickSound();
     void playClickDisableSound();
     void playMoveSound();
+    thewarrior::models::Size<float> getGLSizeFromPx(thewarrior::models::Size<int> value) const;
     GLComponentBaseInfo getComponentBaseInfo() const;
+    GLObject generateCenteredGLObject(std::shared_ptr<thewarrior::models::Texture> texture,
+                                      unsigned int glTextureId);
     virtual void onGenerateGLElements() {}
     virtual void onRender() {}
     virtual void onGameWindowSizeChanged(const thewarrior::models::Size<int> &) {}

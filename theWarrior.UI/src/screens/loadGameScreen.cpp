@@ -8,11 +8,11 @@
 #include <string>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
+#include "glColor.hpp"
 #include "glComponentBase.hpp"
 #include "loadGameScreen.hpp"
 #include "mainMenuCommons.hpp"
 #include "menuScreenBase.hpp"
-#include "size.hpp"
 #include "texture.hpp"
 
 using namespace thewarrior::models;
@@ -22,14 +22,13 @@ namespace thewarrior::ui::screens {
 LoadGameScreen::LoadGameScreen(std::map<std::string, std::shared_ptr<Texture>> &textures,
                                std::map<std::string, unsigned int> &texturesGL)
 : MenuScreenBase(textures, texturesGL),
-m_menuWindow(Size<float>(850.0F, 620.0F)) {}
+m_gameStateList(Point<float>(1.0F, 1.0F)),
+m_loadGameLabel("Load Game", Point<float>(0.0F, -300.0F), GLColor::Brown, 0.9F) {}
 
 void LoadGameScreen::initialize(const components::GLComponentBaseInfo &info) {
     MenuScreenBase::initializeBase(info);
-    m_menuWindow.initShader(m_shaderProgram);
-    m_menuWindow.initialize("", info.texture, info.textService);
-    m_menuWindow.setTextureBeginId(29);
-    m_menuWindow.setFillCenter(true);
+    m_gameStateList.initialize(info);
+    m_loadGameLabel.initialize(info);
 
     generateGLElements();
 }
@@ -53,7 +52,9 @@ void LoadGameScreen::update() {
 void LoadGameScreen::onRender() {
     MenuScreenBase::onRender();
     m_glFormService->drawQuad(m_namedObjects[TextureMainMenuLogo], m_texturesGL[TextureMainMenuLogo]);
-    m_menuWindow.render();
+    m_glFormService->drawQuad(m_namedObjects[TextureMainMenuPanel], m_texturesGL[TextureMainMenuPanel]);
+    m_loadGameLabel.render();
+    //m_gameStateList.render();
 }
 
 void LoadGameScreen::unloadGLMapObjects() {
@@ -61,7 +62,8 @@ void LoadGameScreen::unloadGLMapObjects() {
 
 void LoadGameScreen::onGameWindowSizeChanged(const thewarrior::models::Size<> &size) {
     MenuScreenBase::onGameWindowSizeChanged(size);
-    m_menuWindow.gameWindowSizeChanged(size);
+    m_gameStateList.gameWindowSizeChanged(size);
+    m_loadGameLabel.gameWindowSizeChanged(size);
     generateGLElements();
 }
 
@@ -71,7 +73,10 @@ bool LoadGameScreen::loadTextures() {
 
 void LoadGameScreen::onGenerateGLElements() {
     MenuScreenBase::onGenerateGLElements();
-    m_menuWindow.generateGLElements();
+    m_namedObjects[TextureMainMenuPanel] = generateCenteredGLObject(m_textures[TextureMainMenuPanel],
+                                                                    m_texturesGL[TextureMainMenuPanel]);
+    m_gameStateList.generateGLElements();
+    m_loadGameLabel.generateGLElements();
 }
 
 void LoadGameScreen::onButtonUpPressed() {

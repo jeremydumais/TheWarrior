@@ -56,11 +56,4 @@ void MenuScreenBase::freeGLObjects(std::map<std::string, GLObject> &objects) {
     objects.clear();
 }
 
-Size<float> MenuScreenBase::getGLSizeFromPx(Size<int> value) const {
-    float pixelX = 1.0F / m_screenSize.width();
-    float pixelY = 1.0F / m_screenSize.height();
-    return Size<float>(static_cast<float>(value.width()) * pixelX,
-                       static_cast<float>(value.height()) * pixelY);
-}
-
 }  // namespace thewarrior::ui::screens

@@ -5,12 +5,10 @@
 #include <memory>
 #include <string>
 #include <boost/signals2.hpp>
-#include "components/glMenuModalDialog.hpp"
 #include "components/glComponentBase.hpp"
-#include "glPopupWindow.hpp"
-#include "glTextService.hpp"
+#include "components/glGameStateList.hpp"
+#include "components/glLabel.hpp"
 #include "menuScreenBase.hpp"
-#include "point.hpp"
 #include "size.hpp"
 
 namespace thewarrior::ui::screens {
@@ -31,7 +29,8 @@ class LoadGameScreen : public MenuScreenBase {
     boost::signals2::signal<void()> okPressed;
 
  protected:
-    GLPopupWindow m_menuWindow;
+    components::GLGameStateList m_gameStateList;
+    components::GLLabel m_loadGameLabel;
     void onButtonUpPressed() override;
     void onButtonDownPressed() override;
     void onButtonLeftPressed() override;

@@ -24,12 +24,12 @@ namespace thewarrior::ui::screens {
 NewGamePlayerNameScreen::NewGamePlayerNameScreen(std::map<std::string, std::shared_ptr<Texture>> &textures,
                                std::map<std::string, unsigned int> &texturesGL)
 : MenuScreenBase(textures, texturesGL),
-m_menuWindow(Size<float>(850.0F, 620.0F)),
-m_onScreenKeyboard(Point<float>(1.0F, 1.0F)),
+m_onScreenKeyboard(Point<float>(0.0F, 60.0F)),
+m_newGameLabel("New Game", Point<float>(0.0F, -300.0F), GLColor::Brown, 0.9F),
 m_enterNameObject({"Enter name:", {0.0F, 0.0F}, 0.8F}),
 m_playerName(""),
 m_playerNameLocation(Point<float>(0.0F, 0.0F)),
-m_playerNameInitialLocation(Point<float>(-300.0F, -230.0F)),
+m_playerNameInitialLocation(Point<float>(-370.0F, -200.0F)),
 m_modalDialog(Point<float>(0.0F, 0.0F), Size<float>(300.0F, 150.0F)) {
     m_onScreenKeyboard.onCharButtonPressed.connect(boost::bind(&NewGamePlayerNameScreen::keyboardCharButtonPressed, this, boost::placeholders::_1));
     m_onScreenKeyboard.onDELButtonPressed.connect(boost::bind(&NewGamePlayerNameScreen::keyboardDELButtonPressed, this));
@@ -38,12 +38,8 @@ m_modalDialog(Point<float>(0.0F, 0.0F), Size<float>(300.0F, 150.0F)) {
 
 void NewGamePlayerNameScreen::initialize(const components::GLComponentBaseInfo &info) {
     MenuScreenBase::initializeBase(info);
-    m_menuWindow.initShader(m_shaderProgram);
-    m_menuWindow.initialize("", info.texture, info.textService);
-    m_menuWindow.setTextureBeginId(29);
-    m_menuWindow.setFillCenter(true);
-
     m_onScreenKeyboard.initialize(info);
+    m_newGameLabel.initialize(info);
     m_modalDialog.initialize(info);
     generateGLElements();
 }
@@ -126,8 +122,9 @@ void NewGamePlayerNameScreen::update() {
 void NewGamePlayerNameScreen::onRender() {
     MenuScreenBase::onRender();
     m_glFormService->drawQuad(m_namedObjects[TextureMainMenuLogo], m_texturesGL[TextureMainMenuLogo]);
-    m_menuWindow.render();
+    m_glFormService->drawQuad(m_namedObjects[TextureMainMenuPanel], m_texturesGL[TextureMainMenuPanel]);
     m_onScreenKeyboard.render();
+    m_newGameLabel.render();
     m_glFormService->drawText(m_enterNameObject);
     m_modalDialog.render();
 }
@@ -140,8 +137,8 @@ void NewGamePlayerNameScreen::onGameWindowSizeChanged(const thewarrior::models::
     m_playerNameLocation = {
         (m_screenSize.width() / 2.0F) ,
         (m_screenSize.height() / 2.0F) };
-    m_menuWindow.gameWindowSizeChanged(size);
     m_onScreenKeyboard.gameWindowSizeChanged(size);
+    m_newGameLabel.gameWindowSizeChanged(size);
     m_modalDialog.gameWindowSizeChanged(size);
     generateGLElements();
 }
@@ -156,12 +153,14 @@ bool NewGamePlayerNameScreen::loadTextures() {
 
 void NewGamePlayerNameScreen::onGenerateGLElements() {
     MenuScreenBase::onGenerateGLElements();
-    m_menuWindow.generateGLElements();
+    m_namedObjects[TextureMainMenuPanel] = generateCenteredGLObject(m_textures[TextureMainMenuPanel],
+                                                                    m_texturesGL[TextureMainMenuPanel]);
     m_onScreenKeyboard.generateGLElements();
+    m_newGameLabel.generateGLElements();
     m_modalDialog.generateGLElements();
     m_enterNameObject.position = {m_playerNameLocation.x() + m_playerNameInitialLocation.x(), -m_playerNameLocation.y() + m_playerNameInitialLocation.y() };
-    m_enterNameObject.text = fmt::format("Enter name: {0}", m_playerName);
-    m_enterNameObject.color = GLColor::Gray;
+    m_enterNameObject.text = fmt::format("Enter your name: {0}", m_playerName);
+    m_enterNameObject.color = GLColor::Brown;
 }
 
 void NewGamePlayerNameScreen::onButtonUpPressed() {

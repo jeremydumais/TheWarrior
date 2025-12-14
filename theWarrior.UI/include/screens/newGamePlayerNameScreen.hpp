@@ -4,12 +4,12 @@
 #include <map>
 #include <memory>
 #include <string>
-#include <boost/signals2.hpp>
 #include <string_view>
+#include <boost/signals2.hpp>
 #include "components/glOnScreenKeyboard.hpp"
 #include "components/glMenuModalDialog.hpp"
 #include "components/glComponentBase.hpp"
-#include "glPopupWindow.hpp"
+#include "components/glLabel.hpp"
 #include "glTextService.hpp"
 #include "menuScreenBase.hpp"
 #include "point.hpp"
@@ -34,8 +34,8 @@ class NewGamePlayerNameScreen : public MenuScreenBase {
     boost::signals2::signal<void()> okPressed;
 
  protected:
-    GLPopupWindow m_menuWindow;
     components::GLOnScreenKeyboard m_onScreenKeyboard;
+    components::GLLabel m_newGameLabel;
     GLTextObject m_enterNameObject;
     std::string m_playerName;
     thewarrior::models::Point<float> m_playerNameLocation;
