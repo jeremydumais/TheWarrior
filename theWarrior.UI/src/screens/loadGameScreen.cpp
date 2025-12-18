@@ -19,7 +19,7 @@ namespace thewarrior::ui::screens {
 
 LoadGameScreen::LoadGameScreen(GLContext &glContext)
 : MenuScreenBase(glContext),
-m_gameStateList(glContext, Point<float>(1.0F, 1.0F)),
+m_gameStateList(glContext, Point<float>(0.0F, 0.0F)),
 m_loadGameLabel(glContext, "Load Game", Point<float>(0.0F, -300.0F), GLColor::Brown, 0.9F) {}
 
 void LoadGameScreen::initialize(const components::GLComponentBaseInfo &info) {
@@ -49,7 +49,7 @@ void LoadGameScreen::onRender() {
     MenuScreenBase::onRender();
     drawGLObject(TextureMainMenuPanel);
     m_loadGameLabel.render();
-    //m_gameStateList.render();
+    m_gameStateList.render();
 }
 
 void LoadGameScreen::unloadGLMapObjects() {

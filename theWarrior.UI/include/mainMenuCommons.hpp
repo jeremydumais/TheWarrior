@@ -7,6 +7,8 @@ constexpr const char* TextureWindow = "textureWindow";
 constexpr const char* TextureMainMenuLogo = "textureMainMenuLogo";
 constexpr const char* TextureMainMenuKeyboard = "textureMainMenuKeyboard";
 constexpr const char* TextureMainMenuTextBox = "textureMainMenuTextBox";
+constexpr const char* TextureMainMenuItemSeparator = "textureMainMenuItemSeparator";
+constexpr const char* TextureMainMenuItemSelected = "textureMainMenuItemSelected";
 constexpr const char* TextureMainMenuPanel = "textureMainMenuPanel";
 
 }  // namespace thewarrior::ui
