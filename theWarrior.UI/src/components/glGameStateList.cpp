@@ -36,7 +36,11 @@ void GLGameStateList::initialize(const GLComponentBaseInfo &info) {
     auto t = std::chrono::system_clock::to_time_t(now);
     m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {1, "Jed", t, 1, "test.bkp"}));
     m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {2, "Ragnar", t, 15, "testRag.bkp"}));
-    m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {3, "Melanie", t, 7, "testMelaanie.bkp"}));
+    m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {3, "Sir Garrett", t, 7, "testGarrett.bkp"}));
+    m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {4, "Lady Elyra", t, 7, "testElyra.bkp"}));
+    m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {5, "Mame Ragnilieah", t, 7, "testMame.bkp"}));
+    m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {6, "This is a test", t, 7, "test1.bkp"}));
+    m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {7, "Also a test", t, 7, "test2.bkp"}));
     std::for_each(m_gameEntries.begin(), m_gameEntries.end(), [&info](auto &entry) {
             entry->initialize(info); });
     if (!loadTextures()) {
