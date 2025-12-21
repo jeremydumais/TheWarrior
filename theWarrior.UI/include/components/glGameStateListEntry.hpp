@@ -15,11 +15,14 @@ class GLGameStateListEntry : public components::GLComponentBase  {
     void onGenerateGLElements() override;
     void onRender() override;
     void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;
+    bool isSelected() const;
+    void setSelected(bool selected);
  private:
     thewarrior::storage::GameStateMetadata m_metadata;
     GLLabel m_playerNameLabel;
     GLLabel m_levelLabel;
     GLLabel m_dateSavedLabel;
+    bool m_selected;
 };
 
 }  // namespace thewarrior::ui::components

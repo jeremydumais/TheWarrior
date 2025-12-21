@@ -82,16 +82,12 @@ void GLGameStateList::onGenerateGLElements() {
                      VerticalAlignment::Center,
                      Point<int>(0, -170));
     float yPos = m_location.y() -130.0F;
-    generateGLObject(TextureMainMenuItemSelected,
-                     std::nullopt,
-                     HorizontalAlignment::Center,
-                     VerticalAlignment::Center,
-                     Point<int>(0, yPos -2));
     std::for_each(m_gameEntries.begin(), m_gameEntries.end(), [&yPos](auto &entry) {
             entry->setLocation({entry->getLocation().x(), yPos});
             entry->generateGLElements();
             yPos += 70.0F;
     });
+    m_gameEntries.at(1)->setSelected(true);
 }
 
 void GLGameStateList::onRender() {
@@ -99,7 +95,6 @@ void GLGameStateList::onRender() {
     m_levelHeaderLabel.render();
     m_dateSavedHeaderLabel.render();
     drawGLObject(TextureMainMenuItemSeparator);
-    drawGLObject(TextureMainMenuItemSelected);
     std::for_each(m_gameEntries.begin(), m_gameEntries.end(), [](auto &entry) {
             entry->render(); });
 }
