@@ -81,12 +81,6 @@ void LoadGameScreen::onButtonDownPressed() {
     m_gameStateList.buttonDownPress();
 }
 
-void LoadGameScreen::onButtonLeftPressed() {
-}
-
-void LoadGameScreen::onButtonRightPressed() {
-}
-
 void LoadGameScreen::onButtonCancelPressed() {
     playBackSound();
     SDL_Delay(500);

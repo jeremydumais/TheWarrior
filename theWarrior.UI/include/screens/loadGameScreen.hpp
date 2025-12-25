@@ -12,7 +12,7 @@ namespace thewarrior::ui::screens {
 
 class LoadGameScreen : public MenuScreenBase {
  public:
-    LoadGameScreen(GLContext &glContext);
+    explicit LoadGameScreen(GLContext &glContext);
     void initialize(const components::GLComponentBaseInfo &info);
     bool loadTextures();
     void processEvents(SDL_Event &e);
@@ -29,8 +29,6 @@ class LoadGameScreen : public MenuScreenBase {
     components::GLLabel m_loadGameLabel;
     void onButtonUpPressed() override;
     void onButtonDownPressed() override;
-    void onButtonLeftPressed() override;
-    void onButtonRightPressed() override;
     void onButtonCancelPressed() override;
     void onButtonActionPressed() override;
     void keyboardOKButtonPressed();

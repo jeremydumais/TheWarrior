@@ -7,7 +7,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Storage/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Utils/include)
 
-set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindowController.cpp
+set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/loadGameScreenController.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindowController.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/gameMapModeController.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
