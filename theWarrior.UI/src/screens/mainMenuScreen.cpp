@@ -70,15 +70,7 @@ void MainMenuScreen::onGameWindowSizeChanged(const thewarrior::models::Size<> &s
 }
 
 bool MainMenuScreen::loadTextures() {
-    TextureInfo textureMainMenuLogoInfo {
-        .name = TextureMainMenuLogo,
-        .filename = "mainmenu_logo.png",
-        .width = 324,
-        .height = 324,
-        .tileWidth = 324,
-        .tileHeight = 324
-    };
-    return loadTexture(textureMainMenuLogoInfo);
+    return loadTexture(TextureMainMenuLogo, "mainmenu_logo.png", 324, 324);
 }
 
 void MainMenuScreen::onGenerateGLElements() {

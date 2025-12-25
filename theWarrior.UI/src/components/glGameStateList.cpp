@@ -4,6 +4,7 @@
 #include <ctime>
 #include <cctype>
 #include <memory>
+#include <ranges>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string.hpp>
 #include "glGameStateList.hpp"
@@ -20,13 +21,16 @@ using namespace thewarrior::models;
 
 namespace thewarrior::ui::components {
 
+constexpr size_t MaxVisibleEntries = 6;
+
 GLGameStateList::GLGameStateList(GLContext &glContext, Point<float> location)
 : GLComponentBase(glContext, location, Size<float>(700.0F, 700.0F)),
 m_focusPosition(0, 0),
 m_playerHeaderLabel(glContext, "Player", Point<float>(-360.0F, -200.0F), GLColor::Brown, 0.6F, TextAlignment::Left),
 m_levelHeaderLabel(glContext, "Level", Point<float>(0.0F, -200.0F), GLColor::Brown),
 m_dateSavedHeaderLabel(glContext, "Date Saved", Point<float>(250.0F, -200.0F), GLColor::Brown),
-m_gameEntries(std::vector<std::unique_ptr<GLGameStateListEntry>>()) {}
+m_gameEntries(std::vector<std::unique_ptr<GLGameStateListEntry>>()),
+m_cursorPosition(0) {}
 
 void GLGameStateList::initialize(const GLComponentBaseInfo &info) {
     GLComponentBase::initialize(info);
@@ -38,10 +42,10 @@ void GLGameStateList::initialize(const GLComponentBaseInfo &info) {
     m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {1, "Jed", t, 1, "test.bkp"}));
     m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {2, "Ragnar", t, 15, "testRag.bkp"}));
     m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {3, "Sir Garrett", t, 7, "testGarrett.bkp"}));
-    m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {4, "Lady Elyra", t, 7, "testElyra.bkp"}));
-    m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {5, "Mame Ragnilieah", t, 7, "testMame.bkp"}));
-    m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {6, "This is a test", t, 7, "test1.bkp"}));
-    m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {7, "Also a test", t, 7, "test2.bkp"}));
+    m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {4, "Lady Elyra", t, 5, "testElyra.bkp"}));
+    m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {5, "Mame Ragnilieah", t, 11, "testMame.bkp"}));
+    m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {6, "This is a test", t, 12, "test1.bkp"}));
+    m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {7, "Also a test", t, 8, "test2.bkp"}));
     std::for_each(m_gameEntries.begin(), m_gameEntries.end(), [&info](auto &entry) {
             entry->initialize(info); });
     if (!loadTextures()) {
@@ -51,26 +55,10 @@ void GLGameStateList::initialize(const GLComponentBaseInfo &info) {
 }
 
 bool GLGameStateList::loadTextures() {
-    TextureInfo textureMainMenuItemSeparator {
-        .name = TextureMainMenuItemSeparator,
-        .filename = "mainmenu_itemseparator.png",
-        .width = 777,
-        .height = 13,
-        .tileWidth = 777,
-        .tileHeight = 13
-    };
-    if (!loadTexture(textureMainMenuItemSeparator)) {
-        return false;
-    }
-    TextureInfo textureMainMenuItemSelected {
-        .name = TextureMainMenuItemSelected,
-        .filename = "mainmenu_itemselected.png",
-        .width = 800,
-        .height = 90,
-        .tileWidth = 800,
-        .tileHeight = 90
-    };
-    return loadTexture(textureMainMenuItemSelected);
+    return loadTexture(TextureMainMenuItemSeparator, "mainmenu_itemseparator.png", 777, 13) &&
+        loadTexture(TextureMainMenuItemSelected, "mainmenu_itemselected.png", 800, 90) &&
+        loadTexture(TextureMainMenuScrollBar, "mainmenu_scrollbar.png", 102, 482) &&
+        loadTexture(TextureMainMenuScrollBarCursor, "mainmenu_scrollbar_cursor.png", 26, 47);
 }
 
 void GLGameStateList::onGenerateGLElements() {
@@ -83,12 +71,17 @@ void GLGameStateList::onGenerateGLElements() {
                      VerticalAlignment::Center,
                      Point<int>(0, -170));
     float yPos = m_location.y() -130.0F;
-    std::for_each(m_gameEntries.begin(), m_gameEntries.end(), [&yPos](auto &entry) {
-            entry->setLocation({entry->getLocation().x(), yPos});
-            entry->generateGLElements();
-            yPos += 70.0F;
-    });
-    m_gameEntries.at(1)->setSelected(true);
+    size_t entryIndex = getFirstEntryToDisplay();
+    for (auto &entry : m_gameEntries | std::views::drop(entryIndex) | std::views::take(MaxVisibleEntries)) {
+        entry->setLocation({entry->getLocation().x(), yPos});
+        entry->setSelected(entryIndex == m_cursorPosition);
+        entry->generateGLElements();
+        yPos += 70.0F;
+        entryIndex++;
+    }
+    if (m_gameEntries.size() > MaxVisibleEntries) {
+        generateScrollBar();
+    }
 }
 
 void GLGameStateList::onRender() {
@@ -96,8 +89,13 @@ void GLGameStateList::onRender() {
     m_levelHeaderLabel.render();
     m_dateSavedHeaderLabel.render();
     drawGLObject(TextureMainMenuItemSeparator);
-    std::for_each(m_gameEntries.begin(), m_gameEntries.end(), [](auto &entry) {
-            entry->render(); });
+    for (auto &entry : m_gameEntries | std::views::drop(getFirstEntryToDisplay()) | std::views::take(MaxVisibleEntries)) {
+        entry->render();
+    }
+    if (m_gameEntries.size() > MaxVisibleEntries) {
+        drawGLObject(TextureMainMenuScrollBar);
+        drawGLObject(TextureMainMenuScrollBarCursor);
+    }
 }
 
 void GLGameStateList::onGameWindowSizeChanged(const Size<> &size) {
@@ -109,21 +107,67 @@ void GLGameStateList::onGameWindowSizeChanged(const Size<> &size) {
 }
 
 void GLGameStateList::buttonUpPress() {
+    if (m_cursorPosition > 0) {
+        m_cursorPosition--;
+        playMoveSound();
+    }
 }
 
 void GLGameStateList::buttonDownPress() {
-}
-
-void GLGameStateList::buttonLeftPress() {
-}
-
-void GLGameStateList::buttonRightPress() {
+    if (m_cursorPosition < m_gameEntries.size() - 1) {
+        m_cursorPosition++;
+        playMoveSound();
+    }
 }
 
 void GLGameStateList::buttonCancelPress() {
 }
 
 void GLGameStateList::buttonActionPress() {
+}
+
+void GLGameStateList::generateScrollBar() {
+    generateGLObject(TextureMainMenuScrollBar,
+                     Size<int>(87, 410),
+                     HorizontalAlignment::Center,
+                     VerticalAlignment::Center,
+                     Point<int>(412, 45));
+    // Calculate the scrollbar cursor height
+    float trackHeightPx   = 296.0F;
+    const float VERTICALOFFSET = 51.0F;
+    float totalEntries = static_cast<float>(m_gameEntries.size());
+    float firstEntryToDisplay = static_cast<float>(getFirstEntryToDisplay());
+    // if everything fits, thumb is full height
+    float thumbHeightPx = trackHeightPx;
+
+    if (totalEntries > MaxVisibleEntries) {
+        float ratio = MaxVisibleEntries / totalEntries;  // 6/7, 6/16, etc.
+        thumbHeightPx = trackHeightPx * ratio;
+    }
+    thumbHeightPx = std::clamp(thumbHeightPx, 24.0f, trackHeightPx);
+    float scrollOffsetPerItem = (trackHeightPx - thumbHeightPx) / (static_cast<float>(totalEntries) - MaxVisibleEntries);
+    if (scrollOffsetPerItem < 0.0F) {
+        scrollOffsetPerItem = 0.0F;
+    }
+    float thumbPosition = -((trackHeightPx / 2.0F) - (thumbHeightPx / 2.0F));
+    generateGLObject(TextureMainMenuScrollBarCursor,
+                     Size<int>(16, static_cast<int>(thumbHeightPx)),
+                     HorizontalAlignment::Center,
+                     VerticalAlignment::Center,
+                     Point<int>(410, static_cast<int>(thumbPosition + VERTICALOFFSET + (scrollOffsetPerItem * firstEntryToDisplay))));
+}
+
+size_t GLGameStateList::getFirstEntryToDisplay() const {
+    constexpr auto MiddleIndex = MaxVisibleEntries / 2;
+    // List will start to scrolling from the middle index
+    if (m_cursorPosition < MiddleIndex || m_gameEntries.size() <= MaxVisibleEntries) {
+        return 0;
+    }
+    if (m_cursorPosition + MiddleIndex > m_gameEntries.size()) {
+        return m_gameEntries.size() - MaxVisibleEntries;
+    } else {
+        return m_cursorPosition - MiddleIndex;
+    }
 }
 
 }  // namespace thewarrior::ui::components

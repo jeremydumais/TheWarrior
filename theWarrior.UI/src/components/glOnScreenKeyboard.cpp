@@ -41,15 +41,7 @@ void GLOnScreenKeyboard::initialize(const GLComponentBaseInfo &info) {
 }
 
 bool GLOnScreenKeyboard::loadTextures() {
-    TextureInfo textureMainMenuKeyboard {
-        .name = TextureMainMenuKeyboard,
-        .filename = "mainmenu_keyboard.png",
-        .width = 1290,
-        .height = 451,
-        .tileWidth = 1290,
-        .tileHeight = 451
-    };
-    return loadTexture(textureMainMenuKeyboard);
+    return loadTexture(TextureMainMenuKeyboard, "mainmenu_keyboard.png", 1290, 451);
 }
 
 void GLOnScreenKeyboard::onGenerateGLElements() {

@@ -92,7 +92,10 @@ class GLComponentBase {
     void playMoveSound();
     thewarrior::models::Size<float> getGLSizeFromPx(thewarrior::models::Size<int> value) const;
     GLComponentBaseInfo getComponentBaseInfo() const;
-    bool loadTexture(const thewarrior::models::TextureInfo &info);
+    bool loadTexture(const std::string &name,
+                     const std::string &filename,
+                     int width,
+                     int height);
     void unloadTexture(const std::string &textureName);
     void generateGLObject(const std::string &textureName,
                           std::optional<thewarrior::models::Size<int>> objectSize = std::nullopt,

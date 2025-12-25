@@ -136,7 +136,6 @@ void NewGamePlayerNameScreen::onRender() {
     m_newGameLabel.render();
     m_enterPlayerNameLabel.render();
     m_playerNameLabel.render();
-    //m_glFormService->drawText(m_enterNameObject);
     m_modalDialog.render();
 }
 
@@ -161,15 +160,7 @@ const std::string &NewGamePlayerNameScreen::getPlayerName() const {
 }
 
 bool NewGamePlayerNameScreen::loadTextures() {
-    TextureInfo textureMainMenuTextBox {
-        .name = TextureMainMenuTextBox,
-        .filename = "mainmenu_textbox.png",
-        .width = 1169,
-        .height = 192,
-        .tileWidth = 1169,
-        .tileHeight = 192
-    };
-    return loadTexture(textureMainMenuTextBox);
+    return loadTexture(TextureMainMenuTextBox, "mainmenu_textbox.png", 1169, 192);
 }
 
 void NewGamePlayerNameScreen::onGenerateGLElements() {

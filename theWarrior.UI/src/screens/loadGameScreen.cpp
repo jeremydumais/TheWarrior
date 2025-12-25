@@ -74,9 +74,11 @@ void LoadGameScreen::onGenerateGLElements() {
 }
 
 void LoadGameScreen::onButtonUpPressed() {
+    m_gameStateList.buttonUpPress();
 }
 
 void LoadGameScreen::onButtonDownPressed() {
+    m_gameStateList.buttonDownPress();
 }
 
 void LoadGameScreen::onButtonLeftPressed() {

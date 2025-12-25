@@ -199,8 +199,19 @@ GLComponentBaseInfo GLComponentBase::getComponentBaseInfo() const {
     return componentInfo;
 }
 
-bool GLComponentBase::loadTexture(const TextureInfo &info) {
+bool GLComponentBase::loadTexture(const std::string &name,
+                                  const std::string &filename,
+                                  int width,
+                                  int height) {
     try {
+        TextureInfo info {
+            .name = name,
+            .filename = filename,
+            .width = width,
+            .height = height,
+            .tileWidth = width,
+            .tileHeight = height
+        };
         m_glContext.textures[info.name] = std::make_shared<Texture>(info);
         m_textureService->loadTexture(*m_glContext.textures[info.name], m_glContext.texturesGL[info.name]);
     } catch (const std::invalid_argument &err) {
