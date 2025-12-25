@@ -3,6 +3,7 @@
 #include "glGameStateListEntry.hpp"
 #include "gameStateMetadata.hpp"
 #include "glComponentBase.hpp"
+#include "glLabel.hpp"
 #include "mainMenuCommons.hpp"
 
 using namespace thewarrior::models;
@@ -14,7 +15,7 @@ GLGameStateListEntry::GLGameStateListEntry(GLContext &glContext,
                                            const GameStateMetadata &gameEntryMetadata)
 : GLComponentBase(glContext),
 m_metadata(gameEntryMetadata),
-m_playerNameLabel(glContext, gameEntryMetadata.playerName, Point<float>(0.0F, 0.0F), GLColor::Brown),
+m_playerNameLabel(glContext, gameEntryMetadata.playerName, Point<float>(0.0F, 0.0F), GLColor::Brown, 0.6F, TextAlignment::Left),
 m_levelLabel(glContext, std::to_string(gameEntryMetadata.level), Point<float>(0.0F, 0.0F), GLColor::Brown),
 m_dateSavedLabel(glContext, "Test", Point<float>(0.0F, 0.0F), GLColor::Brown),
 m_selected(false) {}
@@ -27,7 +28,7 @@ void GLGameStateListEntry::initialize(const GLComponentBaseInfo &info) {
 }
 
 void GLGameStateListEntry::onGenerateGLElements() {
-    m_playerNameLabel.setLocation({m_location.x() - 280.0F, m_location.y()});
+    m_playerNameLabel.setLocation({m_location.x() - 360.0F, m_location.y()});
     m_playerNameLabel.generateGLElements();
     m_levelLabel.setLocation({m_location.x(), m_location.y()});
     m_levelLabel.generateGLElements();

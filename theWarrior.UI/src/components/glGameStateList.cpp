@@ -11,6 +11,7 @@
 #include "glComponentBase.hpp"
 #include "glContext.hpp"
 #include "glGameStateListEntry.hpp"
+#include "glLabel.hpp"
 #include "mainMenuCommons.hpp"
 #include "point.hpp"
 #include "size.hpp"
@@ -22,7 +23,7 @@ namespace thewarrior::ui::components {
 GLGameStateList::GLGameStateList(GLContext &glContext, Point<float> location)
 : GLComponentBase(glContext, location, Size<float>(700.0F, 700.0F)),
 m_focusPosition(0, 0),
-m_playerHeaderLabel(glContext, "Player", Point<float>(-280.0F, -200.0F), GLColor::Brown),
+m_playerHeaderLabel(glContext, "Player", Point<float>(-360.0F, -200.0F), GLColor::Brown, 0.6F, TextAlignment::Left),
 m_levelHeaderLabel(glContext, "Level", Point<float>(0.0F, -200.0F), GLColor::Brown),
 m_dateSavedHeaderLabel(glContext, "Date Saved", Point<float>(250.0F, -200.0F), GLColor::Brown),
 m_gameEntries(std::vector<std::unique_ptr<GLGameStateListEntry>>()) {}

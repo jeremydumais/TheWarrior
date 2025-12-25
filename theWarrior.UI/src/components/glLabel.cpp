@@ -15,9 +15,11 @@ GLLabel::GLLabel(GLContext &glContext,
                  const std::string &caption,
                  Point<float> location,
                  const GLColor color,
-                 const float scale)
+                 const float scale,
+                 const TextAlignment textAlignment)
 : GLComponentBase(glContext, location),
-m_glCaption({caption, {1.0F, 1.0F}, scale, color}) {}
+m_glCaption({caption, {1.0F, 1.0F}, scale, color}),
+m_textAlignment(textAlignment) {}
 
 GLLabel::~GLLabel() {
 }
@@ -26,13 +28,41 @@ void GLLabel::initialize(const GLComponentBaseInfo &info) {
     GLComponentBase::initialize(info);
 }
 
+const std::string &GLLabel::getCaption() const {
+    return m_glCaption.text;
+}
+
+const Point<float> &GLLabel::getPosition() const {
+    return m_glCaption.position;
+}
+
+float GLLabel::getScale() const {
+    return m_glCaption.scale;
+}
+
+GLColor GLLabel::getColor() const {
+    return m_glCaption.color;
+}
+
 void GLLabel::setCaption(const std::string &title) {
     m_glCaption.text = title;
     generateCaption();
 }
 
+void GLLabel::setPosition(const Point<float> &position) {
+    m_glCaption.position = position;
+}
+
+void GLLabel::setScale(float scale) {
+    m_glCaption.scale = scale;
+}
+
 void GLLabel::setColor(GLColor color) {
     m_glCaption.color = color;
+}
+
+void GLLabel::setTextAlignement(TextAlignment textAlignement) {
+    m_textAlignment = textAlignement;
 }
 
 void GLLabel::onGenerateGLElements() {
@@ -52,12 +82,23 @@ void GLLabel::onGameWindowSizeChanged(const Size<int> &size) {
 
 void GLLabel::generateCaption() {
     auto titleSize = m_textService->getTextSize(m_glCaption.text, m_glCaption.scale);
-    m_glCaption.position = {m_location.x() + m_initialLocation.x() +
-        (m_size.width() / 2.0F) -
-            (titleSize.width() / 2.0F),
-            m_location.y() + m_initialLocation.y() +
-                (m_size.height() / 2.0F) +
-                (titleSize.height() / 2.0F)};
+
+    m_glCaption.position = {
+        m_location.x() + m_initialLocation.x() + (m_size.width() / 2.0F),
+        m_location.y() + m_initialLocation.y() + (m_size.height() / 2.0F) + (titleSize.height() / 2.0F)
+    };
+
+    switch (m_textAlignment) {
+        case TextAlignment::Left:
+            m_glCaption.position.setX(m_glCaption.position.x());
+            break;
+        case TextAlignment::Center:
+            m_glCaption.position.setX(m_glCaption.position.x() - (titleSize.width() / 2.0F));
+            break;
+        case TextAlignment::Right:
+            m_glCaption.position.setX(m_glCaption.position.x() - titleSize.width());
+            break;
+    }
 }
 
 }  // namespace thewarrior::ui::components
