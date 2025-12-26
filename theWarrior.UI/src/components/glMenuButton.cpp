@@ -1,5 +1,4 @@
 #include <fmt/format.h>
-#include <iostream>
 #include <string>
 #include <vector>
 #include "glMenuButton.hpp"
@@ -13,13 +12,16 @@ using namespace thewarrior::models;
 
 namespace thewarrior::ui::components {
 
-GLMenuButton::GLMenuButton(GLContext &glContext, Point<float> location, Size<float> size)
+GLMenuButton::GLMenuButton(GLContext &glContext,
+                           Point<float> location,
+                           Size<float> size)
 : GLComponentBase(glContext, location, size),
 m_glCaption({"", {1.0F, 1.0F}, 0.6F}),
 m_windowObjects(std::vector<GLObject>()),
 m_windowBackgrounds(std::vector<GLObject>()),
 m_textureBeginId(38),
-m_hasFocus(false) {}
+m_hasFocus(false),
+m_enabled(true) {}
 
 GLMenuButton::~GLMenuButton() {
     GLComponentBase::freeGLObjects(m_windowObjects);
@@ -32,9 +34,17 @@ void GLMenuButton::initialize(const std::string &caption,
     m_glCaption.text = caption;
 }
 
+bool GLMenuButton::isEnabled() const {
+    return m_enabled;
+}
+
 void GLMenuButton::setCaption(const std::string &title) {
     m_glCaption.text = title;
     generateCaption();
+}
+
+void GLMenuButton::setEnabled(bool enabled) {
+    m_enabled = enabled;
 }
 
 void GLMenuButton::onGenerateGLElements() {
@@ -103,6 +113,8 @@ void GLMenuButton::generateCaption() {
                 (titleSize.height() / 2.0F)};
     if (m_hasFocus) {
         m_glCaption.color = GLColor::Green;
+    } else if (!m_enabled) {
+        m_glCaption.color = GLColor::Gray;
     } else {
         m_glCaption.color = GLColor::White;
     }

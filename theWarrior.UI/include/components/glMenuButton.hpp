@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include "glColor.hpp"
 #include "glComponentBase.hpp"
 #include "glContext.hpp"
 #include "glObjectService.hpp"
@@ -21,7 +22,9 @@ class GLMenuButton : public GLComponentBase {
     ~GLMenuButton() override;
     void initialize(const std::string &title,
                     const GLComponentBaseInfo &info);
+    bool isEnabled() const;
     void setCaption(const std::string &title);
+    void setEnabled(bool enabled);
     void onGenerateGLElements() override;
     void onRender() override;
     void onGameWindowSizeChanged(const thewarrior::models::Size<int> &) override;
@@ -35,6 +38,7 @@ class GLMenuButton : public GLComponentBase {
     std::vector<GLObject> m_windowBackgrounds;
     int m_textureBeginId;
     bool m_hasFocus;
+    bool m_enabled;
     void generateQuad(std::vector<GLObject> &objects,
                       thewarrior::models::Point<float> location,
                       thewarrior::models::Size<float> size,

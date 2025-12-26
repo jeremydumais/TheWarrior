@@ -98,7 +98,6 @@ void MainMenuMode::processEvents(SDL_Event &e) {
             m_newGamePlayerNameScreen.processEvents(e);
             break;
         case MainMenuInputMode::LoadGame:
-            m_loadGameScreen.processEvents(e);
             break;
         case MainMenuInputMode::Settings:
             break;
@@ -245,6 +244,7 @@ void MainMenuMode::newGamePressed() {
 
 void MainMenuMode::loadGamePressed() {
     m_inputMode = MainMenuInputMode::LoadGame;
+    m_loadGameScreen.reset();
 }
 
 void MainMenuMode::quitPressed() {

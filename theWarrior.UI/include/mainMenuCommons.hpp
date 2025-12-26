@@ -12,5 +12,7 @@ constexpr const char* TextureMainMenuItemSelected = "textureMainMenuItemSelected
 constexpr const char* TextureMainMenuScrollBar = "textureMainMenuScrollBar";
 constexpr const char* TextureMainMenuScrollBarCursor = "textureMainMenuScrollBarCursor";
 constexpr const char* TextureMainMenuPanel = "textureMainMenuPanel";
+constexpr const char* TextureMainMenuButtonOkEnabled = "textureMainMenuButtonOkEnabled";
+constexpr const char* TextureMainMenuButtonOkDisabled = "textureMainMenuButtonOkDisabled";
 
 }  // namespace thewarrior::ui

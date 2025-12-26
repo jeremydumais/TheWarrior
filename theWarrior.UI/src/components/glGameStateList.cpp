@@ -28,9 +28,8 @@ constexpr size_t MaxVisibleEntries = 6;
 GLGameStateList::GLGameStateList(GLContext &glContext,
                                  Point<float> location)
 : GLComponentBase(glContext, location, Size<float>(700.0F, 700.0F)),
-m_focusPosition(0, 0),
 m_playerHeaderLabel(glContext, "Player", Point<float>(-360.0F, -200.0F), GLColor::Brown, 0.6F, TextAlignment::Left),
-m_levelHeaderLabel(glContext, "Level", Point<float>(0.0F, -200.0F), GLColor::Brown),
+m_levelHeaderLabel(glContext, "Level", Point<float>(30.0F, -200.0F), GLColor::Brown),
 m_dateSavedHeaderLabel(glContext, "Date Saved", Point<float>(250.0F, -200.0F), GLColor::Brown),
 m_gameEntries(std::vector<std::unique_ptr<GLGameStateListEntry>>()),
 m_cursorPosition(0) {}
@@ -50,6 +49,10 @@ void GLGameStateList::initialize(const GLComponentBaseInfo &info,
         throw std::runtime_error(getLastError());
     }
     generateGLElements();
+}
+
+void GLGameStateList::reset() {
+    m_cursorPosition = 0;
 }
 
 bool GLGameStateList::loadTextures() {
@@ -104,24 +107,26 @@ void GLGameStateList::onGameWindowSizeChanged(const Size<> &size) {
             entry->gameWindowSizeChanged(size); });
 }
 
-void GLGameStateList::buttonUpPress() {
+void GLGameStateList::onButtonUpPressed() {
     if (m_cursorPosition > 0) {
         m_cursorPosition--;
         playMoveSound();
     }
 }
 
-void GLGameStateList::buttonDownPress() {
+void GLGameStateList::onButtonDownPressed() {
     if (m_cursorPosition < m_gameEntries.size() - 1) {
         m_cursorPosition++;
         playMoveSound();
     }
 }
 
-void GLGameStateList::buttonCancelPress() {
+void GLGameStateList::onButtonCancelPressed() {
+    onCancelButtonPressed();
 }
 
-void GLGameStateList::buttonActionPress() {
+void GLGameStateList::onButtonActionPressed() {
+    onOKButtonPressed();
 }
 
 void GLGameStateList::generateScrollBar() {

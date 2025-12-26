@@ -21,19 +21,20 @@ class GLGameStateList : public GLComponentBase {
     ~GLGameStateList() override = default;
     void initialize(const GLComponentBaseInfo &info,
                     const std::vector<thewarrior::storage::GameStateMetadata> &gameStateList);
+    void reset();
     bool loadTextures();
     void setCaption(const std::string &title);
     void onGenerateGLElements() override;
     void onRender() override;
     void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;
-    void buttonUpPress();
-    void buttonDownPress();
-    void buttonCancelPress();
-    void buttonActionPress();
+    void onButtonUpPressed() override;
+    void onButtonDownPressed() override;
+    void onButtonCancelPressed() override;
+    void onButtonActionPressed() override;
+    boost::signals2::signal<void()> onCancelButtonPressed;
     boost::signals2::signal<void()> onOKButtonPressed;
 
  protected:
-    thewarrior::models::Point<size_t> m_focusPosition;
     GLLabel m_playerHeaderLabel;
     GLLabel m_levelHeaderLabel;
     GLLabel m_dateSavedHeaderLabel;
