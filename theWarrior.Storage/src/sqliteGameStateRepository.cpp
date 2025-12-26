@@ -2,9 +2,10 @@
 #include <fmt/format.h>
 #include <sqlite3.h>
 #include <string>
-#include <vector>
+#include <utility>
 #include "sqliteGameStateRepository.hpp"
 #include "gameStateMetadata.hpp"
+#include "iGameStateRepository.hpp"
 
 namespace thewarrior::storage {
 
@@ -17,11 +18,60 @@ const std::string &SQLiteGameStateRepository::getLastError() const {
     return m_lastError;
 }
 
-std::vector<GameStateMetadata> SQLiteGameStateRepository::listGameStates() {
-    return {};
+GameStateRepositoryListResult SQLiteGameStateRepository::getAllGameStates() {
+    int rc = sqlite3_open(m_dbPath.c_str(), &m_db);
+    if (rc != SQLITE_OK) {
+        m_lastError = fmt::format("Cannot open database: {0}", sqlite3_errmsg(m_db));
+        return { false, {}};
+    }
+
+    std::vector<GameStateMetadata> result;
+
+    const char *sql =
+        "SELECT id, playerName, timestamp, level, fileName "
+        "FROM GameStateMetadata "
+        "ORDER BY timestamp DESC, id DESC;";
+
+    sqlite3_stmt *stmt = nullptr;
+    rc = sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        m_lastError = fmt::format("Failed to prepare getAllGameStates: {0}", sqlite3_errmsg(m_db));
+        return { false, {}};
+    }
+
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        GameStateMetadata meta{};
+
+        meta.id = sqlite3_column_int(stmt, 0);
+
+        const unsigned char *playerNameText = sqlite3_column_text(stmt, 1);
+        if (playerNameText) {
+            meta.playerName = reinterpret_cast<const char *>(playerNameText);
+        }
+
+        meta.timestamp = sqlite3_column_int64(stmt, 2);
+        meta.level = static_cast<unsigned int>(sqlite3_column_int(stmt, 3));
+
+        const unsigned char *filePathText = sqlite3_column_text(stmt, 4);
+        if (filePathText) {
+            meta.fileName = reinterpret_cast<const char *>(filePathText);
+        }
+
+        result.push_back(std::move(meta));
+    }
+
+    if (rc != SQLITE_DONE) {
+        m_lastError = fmt::format("Error while reading game states: {0}", sqlite3_errmsg(m_db));
+        return { false, {}};
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(m_db);
+
+    return { true, result};
 }
 
-SaveGameStateRepositoryResult SQLiteGameStateRepository::save(const GameStateMetadata &gameStateMetadata) {
+GameStateRepositorySaveResult SQLiteGameStateRepository::save(const GameStateMetadata &gameStateMetadata) {
     int rc = sqlite3_open(m_dbPath.c_str(), &m_db);
     if (rc != SQLITE_OK) {
         m_lastError = fmt::format("Cannot open database: {0}", sqlite3_errmsg(m_db));
@@ -76,7 +126,7 @@ bool SQLiteGameStateRepository::insertGameStateRow(const GameStateMetadata &game
     return true;
 }
 
-SaveGameStateRepositoryResult SQLiteGameStateRepository::deleteObsoleteGameStates(const std::string &playerName) {
+GameStateRepositorySaveResult SQLiteGameStateRepository::deleteObsoleteGameStates(const std::string &playerName) {
     auto obsoleteGameStateIds = std::vector<int>();
     auto obsoleteFileNames = std::vector<std::string>();
     const char *selectSql =

@@ -3,6 +3,7 @@
 #include <SDL2/SDL_timer.h>
 #include <fmt/format.h>
 #include <cctype>
+#include <stdexcept>
 #include <string>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
@@ -24,8 +25,12 @@ m_loadGameLabel(glContext, "Load Game", Point<float>(0.0F, -300.0F), GLColor::Br
 
 void LoadGameScreen::initialize(const components::GLComponentBaseInfo &info) {
     MenuScreenBase::initializeBase(info);
-    m_gameStateList.initialize(info);
     m_loadGameLabel.initialize(info);
+    const auto entries = m_controller.getGameStateList();
+    if (!entries.success) {
+        throw std::runtime_error(m_controller.getLastError());
+    }
+    m_gameStateList.initialize(info, entries.gameStateList);
     generateGLElements();
 }
 

@@ -1,10 +1,11 @@
 #include <fmt/format.h>
 #include <algorithm>
-#include <chrono>
 #include <ctime>
 #include <cctype>
 #include <memory>
 #include <ranges>
+#include <utility>
+#include <vector>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string.hpp>
 #include "glGameStateList.hpp"
@@ -18,12 +19,14 @@
 #include "size.hpp"
 
 using namespace thewarrior::models;
+using thewarrior::storage::GameStateMetadata;
 
 namespace thewarrior::ui::components {
 
 constexpr size_t MaxVisibleEntries = 6;
 
-GLGameStateList::GLGameStateList(GLContext &glContext, Point<float> location)
+GLGameStateList::GLGameStateList(GLContext &glContext,
+                                 Point<float> location)
 : GLComponentBase(glContext, location, Size<float>(700.0F, 700.0F)),
 m_focusPosition(0, 0),
 m_playerHeaderLabel(glContext, "Player", Point<float>(-360.0F, -200.0F), GLColor::Brown, 0.6F, TextAlignment::Left),
@@ -32,22 +35,17 @@ m_dateSavedHeaderLabel(glContext, "Date Saved", Point<float>(250.0F, -200.0F), G
 m_gameEntries(std::vector<std::unique_ptr<GLGameStateListEntry>>()),
 m_cursorPosition(0) {}
 
-void GLGameStateList::initialize(const GLComponentBaseInfo &info) {
+void GLGameStateList::initialize(const GLComponentBaseInfo &info,
+                                 const std::vector<GameStateMetadata> &gameStateList) {
     GLComponentBase::initialize(info);
     m_playerHeaderLabel.initialize(info);
     m_levelHeaderLabel.initialize(info);
     m_dateSavedHeaderLabel.initialize(info);
-    auto now = std::chrono::system_clock::now();
-    auto t = std::chrono::system_clock::to_time_t(now);
-    m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {1, "Jed", t, 1, "test.bkp"}));
-    m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {2, "Ragnar", t, 15, "testRag.bkp"}));
-    m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {3, "Sir Garrett", t, 7, "testGarrett.bkp"}));
-    m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {4, "Lady Elyra", t, 5, "testElyra.bkp"}));
-    m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {5, "Mame Ragnilieah", t, 11, "testMame.bkp"}));
-    m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {6, "This is a test", t, 12, "test1.bkp"}));
-    m_gameEntries.push_back(std::make_unique<GLGameStateListEntry>(m_glContext, storage::GameStateMetadata {7, "Also a test", t, 8, "test2.bkp"}));
-    std::for_each(m_gameEntries.begin(), m_gameEntries.end(), [&info](auto &entry) {
-            entry->initialize(info); });
+    std::for_each(gameStateList.begin(), gameStateList.end(), [this, &info](const auto &entry) {
+        auto glEntry = std::make_unique<GLGameStateListEntry>(m_glContext, entry);
+        glEntry->initialize(info);
+        m_gameEntries.push_back(std::move(glEntry));
+        });
     if (!loadTextures()) {
         throw std::runtime_error(getLastError());
     }

@@ -2,7 +2,6 @@
 
 #include <sqlite3.h>
 #include <string>
-#include <vector>
 #include "gameStateMetadata.hpp"
 #include "iGameStateRepository.hpp"
 
@@ -15,8 +14,8 @@ class SQLiteGameStateRepository : public IGameStateRepository {
      explicit SQLiteGameStateRepository(const std::string &dbPath);
      ~SQLiteGameStateRepository() override;
      const std::string &getLastError() const override;
-     std::vector<GameStateMetadata> listGameStates() override;
-     SaveGameStateRepositoryResult save(const GameStateMetadata &gameStateMetadata) override;
+     GameStateRepositoryListResult getAllGameStates() override;
+     GameStateRepositorySaveResult save(const GameStateMetadata &gameStateMetadata) override;
      void remove(int id) override;
      bool initSchema() override;
  private:
@@ -24,7 +23,7 @@ class SQLiteGameStateRepository : public IGameStateRepository {
      std::string m_dbPath = "";
      std::string m_lastError = "";
      bool insertGameStateRow(const GameStateMetadata &gameStateMetadata);
-     SaveGameStateRepositoryResult deleteObsoleteGameStates(const std::string &playerName);
+     GameStateRepositorySaveResult deleteObsoleteGameStates(const std::string &playerName);
 };
 
 }  // namespace thewarrior::storage

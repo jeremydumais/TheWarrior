@@ -5,6 +5,7 @@
 #include "components/glComponentBase.hpp"
 #include "components/glGameStateList.hpp"
 #include "components/glLabel.hpp"
+#include "loadGameScreenController.hpp"
 #include "menuScreenBase.hpp"
 #include "size.hpp"
 
@@ -25,6 +26,7 @@ class LoadGameScreen : public MenuScreenBase {
     boost::signals2::signal<void()> okPressed;
 
  protected:
+    controllers::LoadGameScreenController m_controller;
     components::GLGameStateList m_gameStateList;
     components::GLLabel m_loadGameLabel;
     void onButtonUpPressed() override;

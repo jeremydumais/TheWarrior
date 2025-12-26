@@ -16,9 +16,11 @@ namespace thewarrior::ui::components {
 
 class GLGameStateList : public GLComponentBase {
  public:
-    explicit GLGameStateList(GLContext &glContext, thewarrior::models::Point<float> location);
+    explicit GLGameStateList(GLContext &glContext,
+                             thewarrior::models::Point<float> location);
     ~GLGameStateList() override = default;
-    void initialize(const GLComponentBaseInfo &info);
+    void initialize(const GLComponentBaseInfo &info,
+                    const std::vector<thewarrior::storage::GameStateMetadata> &gameStateList);
     bool loadTextures();
     void setCaption(const std::string &title);
     void onGenerateGLElements() override;
