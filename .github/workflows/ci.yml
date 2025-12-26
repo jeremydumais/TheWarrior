@@ -57,7 +57,6 @@ jobs:
       with:
         version: '5.15.2'
         install-deps: 'true'
-        modules: 'qtopengl'
       env:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
 
