@@ -19,6 +19,10 @@ class Player {
  public:
     explicit Player(const std::string &name);
     virtual ~Player() = default;
+    Player(const Player&) = default;
+    Player(Player&&) = default;
+    Player& operator=(const Player&) = default;
+    Player& operator=(Player&&) = default;
     const std::string &getName() const;
     unsigned int getLevel() const;
     std::shared_ptr<Inventory> getInventory();

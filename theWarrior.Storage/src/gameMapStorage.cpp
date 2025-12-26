@@ -1,7 +1,10 @@
-#include "gameMapStorage.hpp"
 #include <fmt/format.h>
+#include <memory>
 #include <stdexcept>
+#include <string>
+#include <utility>
 #include "binaryFileStream.hpp"
+#include "gameMapStorage.hpp"
 #include "gameMap.hpp"
 #include <boost/algorithm/string.hpp>
 

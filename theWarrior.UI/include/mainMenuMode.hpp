@@ -43,6 +43,7 @@ class MainMenuMode {
     void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
     boost::signals2::signal<void()> quitRequested;
     boost::signals2::signal<void(std::string playerName)> newGameRequested;
+    boost::signals2::signal<void(std::string fileName)> loadGameRequested;
 
  private:
     std::string m_lastError = "";

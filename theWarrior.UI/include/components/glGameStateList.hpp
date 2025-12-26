@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <string>
 #include <vector>
+#include "../../theWarrior.Storage/include/gameStateMetadata.hpp"
 #include "glComponentBase.hpp"
 #include "glContext.hpp"
 #include "glGameStateListEntry.hpp"
@@ -31,6 +32,7 @@ class GLGameStateList : public GLComponentBase {
     void onButtonDownPressed() override;
     void onButtonCancelPressed() override;
     void onButtonActionPressed() override;
+    const storage::GameStateMetadata &getSelectedGameState() const;
     boost::signals2::signal<void()> onCancelButtonPressed;
     boost::signals2::signal<void()> onOKButtonPressed;
 

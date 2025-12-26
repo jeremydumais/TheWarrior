@@ -261,6 +261,7 @@ void MainMenuMode::newGameConfirmed() {
 }
 
 void MainMenuMode::loadGameConfirmed() {
+    loadGameRequested(m_loadGameScreen.getSelectedGameStateFileName());
 }
 
 }  // namespace thewarrior::ui

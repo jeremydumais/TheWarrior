@@ -12,6 +12,8 @@ namespace thewarrior::models {
 class GameState {
  public:
     GameState(Player &player, WorldState &worldState);
+    const Player &getPlayer() const;
+    const WorldState &getWorldState() const;
 
  private:
     friend class boost::serialization::access;

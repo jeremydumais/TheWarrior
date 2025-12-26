@@ -18,7 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04]
+        os: [ubuntu-24.04]
 
 
     steps:
@@ -72,7 +72,7 @@ jobs:
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
       run:  |
         source ~/.profile
-        conan install .. --output-folder=. --build=missing
+        conan install .. --output-folder=. --build=missing -s compiler.cppstd=20
         cmake $GITHUB_WORKSPACE -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE
 
     - name: Build

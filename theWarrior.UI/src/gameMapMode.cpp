@@ -1,4 +1,3 @@
-#include <chrono>
 #include <fmt/format.h>
 #include <algorithm>
 #include <cmath>
@@ -14,6 +13,7 @@
 #include "gameMapMode.hpp"
 #include "gameMap.hpp"
 #include "gameMapStorage.hpp"
+#include "gameState.hpp"
 #include "itemFoundMessageDTO.hpp"
 #include "mapTile.hpp"
 #include "monsterZone.hpp"
@@ -40,10 +40,10 @@ GameMapMode::~GameMapMode() {
 }
 
 bool GameMapMode::initialize(const std::string &resourcesPath,
-        const std::string &playerName,
+        const GameState &gameState,
         std::shared_ptr<GLTextService> textService,
         std::shared_ptr<InputDevicesState> inputDevicesState) {
-    auto worldState = std::make_shared<WorldState>();
+    auto worldState = std::make_shared<WorldState>(gameState.getWorldState());
     m_controller.initialize(resourcesPath, worldState);
     if (!loadStores()) {
         return false;
@@ -55,7 +55,7 @@ bool GameMapMode::initialize(const std::string &resourcesPath,
     loadItemStoreTextures();
     loadMonsterStoreTextures();
     m_map = std::make_shared<GameMap>(1, 1);
-    m_glPlayer = std::make_shared<GLPlayer>(playerName);
+    m_glPlayer = std::make_shared<GLPlayer>(gameState.getPlayer());
     m_glPlayer->initialize(resourcesPath, worldState);
     m_glPlayer->m_playerMoveCompleted.connect(boost::bind(&GameMapMode::onPlayerMoveCompleted, this));
     m_glFormService->initialize(m_shaderProgram, textService);
@@ -69,7 +69,8 @@ bool GameMapMode::initialize(const std::string &resourcesPath,
             &m_texturesGLItemStore);
     m_inputDevicesState = inputDevicesState;
     m_choicePopup.initialize(resourcesPath, textService, inputDevicesState);
-    loadMap(fmt::format("{0}/maps/Outworld.map", resourcesPath), "Outworld.map");
+    const auto mapName = worldState->getCurrentMapName();
+    loadMap(fmt::format("{0}/maps/{1}", resourcesPath, mapName), mapName);
     loadMapTextures();
     generateGLMapObjects();
     m_glCharacterWindow.onCloseEvent.connect(boost::bind(&GameMapMode::onCharacterWindowClose, this));
@@ -399,7 +400,7 @@ void GameMapMode::moveRightPressed() {
     m_glPlayer->applyCurrentGLTexture(m_textureService);
 }
 
-void GameMapMode::processAction(MapTileTriggerAction action, const std::map<std::string, std::string> &properties, MapTile *tile, Point<> tilePosition) {
+void GameMapMode::processAction(MapTileTriggerAction action, std::map<std::string, std::string> properties, MapTile *tile, Point<> tilePosition) {
     switch (action) {
         case MapTileTriggerAction::ChangeMap:
             if (properties.at("playerFacing") == "0") {

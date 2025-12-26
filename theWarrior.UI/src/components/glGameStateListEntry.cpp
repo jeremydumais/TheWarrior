@@ -73,6 +73,10 @@ void GLGameStateListEntry::onGameWindowSizeChanged(const thewarrior::models::Siz
     m_dateSavedLabel.gameWindowSizeChanged(size);
 }
 
+const thewarrior::storage::GameStateMetadata &GLGameStateListEntry::getMetadata() {
+    return m_metadata;
+}
+
 bool GLGameStateListEntry::isSelected() const {
     return m_selected;
 }

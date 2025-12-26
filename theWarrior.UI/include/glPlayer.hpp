@@ -23,6 +23,7 @@ struct MovingResult {
 class GLPlayer : public thewarrior::models::Player {
  public:
     explicit GLPlayer(const std::string &name);
+    explicit GLPlayer(const thewarrior::models::Player &player);
     const std::string &getTextureName() const;
     int getTextureIndex() const;
     const thewarrior::models::Texture &getTexture() const;

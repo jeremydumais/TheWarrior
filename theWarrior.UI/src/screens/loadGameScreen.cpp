@@ -87,6 +87,10 @@ void LoadGameScreen::reset() {
     m_gameStateList.reset();
 }
 
+const std::string &LoadGameScreen::getSelectedGameStateFileName() const {
+    return m_gameStateList.getSelectedGameState().fileName;
+}
+
 void LoadGameScreen::onGenerateGLElements() {
     MenuScreenBase::onGenerateGLElements();
     generateGLObject(TextureMainMenuPanel);

@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <memory>
+#include <stdexcept>
 #include <utility>
 #include "gameState.hpp"
 #include "gameStateStorage.hpp"
@@ -53,12 +54,25 @@ class GameStateStorageEmptyISStubFS : public ::testing::Test {
     GameStateStorage gameStateStorage;
 };
 
+TEST_F(GameStateStorageEmptyISStubFS, loadGameState_EmptyFilename_ThrowRuntimeError) {
+    ON_CALL(*stubBFS, open(_)).WillByDefault(Return(false));
+
+    gameStateStorage.setFileStream(std::move(stubBFS));
+    try {
+        gameStateStorage.loadGameState("", gameState);
+        FAIL();
+    }
+    catch(std::invalid_argument &err) {
+        ASSERT_STREQ("The filename cannot be empty.", err.what());
+    }
+}
+
 TEST_F(GameStateStorageEmptyISStubFS, loadGameState_FileStreamFailToOpen_ThrowRuntimeError) {
     ON_CALL(*stubBFS, open(_)).WillByDefault(Return(false));
 
     gameStateStorage.setFileStream(std::move(stubBFS));
     try {
-        gameStateStorage.loadGameState(gameState);
+        gameStateStorage.loadGameState("saveTest.bkp", gameState);
         FAIL();
     }
     catch(std::runtime_error &err) {
@@ -71,7 +85,7 @@ TEST_F(GameStateStorageEmptyISStubFS, loadGameState_FileStreamFailToReadAllInto_
 
     gameStateStorage.setFileStream(std::move(stubBFS));
     try {
-        gameStateStorage.loadGameState(gameState);
+        gameStateStorage.loadGameState("saveTest.bkp", gameState);
         FAIL();
     }
     catch(std::runtime_error &err) {
@@ -84,7 +98,7 @@ TEST_F(GameStateStorageEmptyISStubFS, loadGameState_FileStreamFailToClose_ThrowR
 
     gameStateStorage.setFileStream(std::move(stubBFS));
     try {
-        gameStateStorage.loadGameState(gameState);
+        gameStateStorage.loadGameState("saveTest.bkp", gameState);
         FAIL();
     }
     catch(std::runtime_error &err) {
@@ -94,7 +108,7 @@ TEST_F(GameStateStorageEmptyISStubFS, loadGameState_FileStreamFailToClose_ThrowR
 
 TEST_F(GameStateStorageEmptyISStubFS, loadGameState_FileStreamSucceedToOpen_ReturnSuccess) {
     gameStateStorage.setFileStream(std::move(stubBFS));
-    gameStateStorage.loadGameState(gameState);
+    gameStateStorage.loadGameState("saveTest.bkp", gameState);
 }
 
 TEST_F(GameStateStorageEmptyISStubFS, saveGameState_FileStreamFailToOpen_ThrowRuntimeError) {

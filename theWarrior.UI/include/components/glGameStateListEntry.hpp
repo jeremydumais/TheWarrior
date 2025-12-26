@@ -15,6 +15,7 @@ class GLGameStateListEntry : public components::GLComponentBase  {
     void onGenerateGLElements() override;
     void onRender() override;
     void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;
+    const thewarrior::storage::GameStateMetadata &getMetadata();
     bool isSelected() const;
     void setSelected(bool selected);
  private:

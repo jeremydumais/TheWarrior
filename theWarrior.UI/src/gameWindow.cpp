@@ -1,14 +1,23 @@
 #include <SDL2/SDL_mixer.h>
 #include <fmt/format.h>
+#include <filesystem>
 #include <iostream>
 #include <memory>
+#include <ostream>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <boost/bind/placeholders.hpp>
 #include "gameWindow.hpp"
+#include "gameState.hpp"
+#include "gameStateStorage.hpp"
+#include "player.hpp"
+#include "specialFolders.hpp"
+#include "worldState.hpp"
 
 using namespace std;
 using namespace thewarrior::models;
+namespace fs = std::filesystem;
 
 namespace thewarrior::ui {
 
@@ -33,27 +42,7 @@ GameWindow::GameWindow(const string &title,
     m_joystick = SDL_JoystickOpen(0);
 
     subscribeEvents();
-    // HACK: to remove (Test only)
-    /*m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("pot001"));
-    m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("ubd001"));
-    m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("hlm001"));
-    m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("swd003"));
-    m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("swd001"));
-    m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("swd002"));
-    m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("shd001"));
-    m_glPlayer->getInventory()->addItem(m_controller.getItemStore()->findItem("key001"));
-    m_glPlayer->getEquipment().setMainHand(*dynamic_cast<const WeaponItem*>(m_controller.getItemStore()->findItem("swd002").get()));
-m_glPlayer->getEquipment().setSecondaryHand(VariantEquipment(*dynamic_cast<const ArmorItem*>(m_controller.getItemStore()->findItem("shd001").get())));
-      m_glPlayer->getEquipment().setHead(*dynamic_cast<const ArmorItem*>(m_controller.getItemStore()->findItem("hlm001").get()));
-      m_glPlayer->getEquipment().setUpperBody(*dynamic_cast<const ArmorItem*>(m_controller.getItemStore()->findItem("ubd001").get()));*/
-    switch (m_interactionMode) {
-        case InteractionMode::MainMenu:
-            if (!initializeMenu()) return;
-            break;
-        case InteractionMode::Game:
-            if (!initializeGame(m_playerName)) return;
-            break;
-    }
+    if (!initializeMenu()) return;
 
     // Initialize save game repository
     if (!m_controller.initializeSaveGameRepository()) {
@@ -61,8 +50,6 @@ m_glPlayer->getEquipment().setSecondaryHand(VariantEquipment(*dynamic_cast<const
     }
     m_fpsCalculator.initialize();
     m_windowSizeChanged(m_WindowSize);
-    //HACK: Remove this
-    //m_mustCreateNewGame = true;
 }
 
 GameWindow::~GameWindow() {
@@ -86,13 +73,10 @@ bool GameWindow::isAlive() const {
 }
 
 void GameWindow::processEvents() {
-    if (m_mustCreateNewGame) {
-        createNewGame();
-        return;
-    }
-    if (m_mustReturnToMainMenu) {
-        returnToMainMenu();
-        return;
+    if (m_nextAction) {
+        auto action = std::move(*m_nextAction);
+        m_nextAction.reset();
+        action();
     }
     SDL_Event e;
     m_inputDevicesState->processJoystick(m_joystick);
@@ -230,18 +214,19 @@ bool GameWindow::initializeMenu() {
     m_windowSizeChanged.connect(boost::bind(&MainMenuMode::gameWindowSizeChanged, m_mainMenuMode.get(), boost::placeholders::_1));
     m_mainMenuMode->quitRequested.connect(boost::bind(&GameWindow::quitRequested, this));
     m_mainMenuMode->newGameRequested.connect(boost::bind(&GameWindow::newGameRequested, this, boost::placeholders::_1));
+    m_mainMenuMode->loadGameRequested.connect(boost::bind(&GameWindow::loadGameRequested, this, boost::placeholders::_1));
     m_windowSizeChanged(m_WindowSize);
     return true;
 }
 
-bool GameWindow::initializeGame(const std::string &playerName) {
+bool GameWindow::initializeGame(const GameState &gameState) {
     m_gameMapMode = std::make_unique<GameMapMode>();
     if (!m_gameMapMode->initShaders(m_controller.getResourcesPath())) {
         cerr << m_gameMapMode->getLastError() << "\n";
         return false;
     }
     if (!m_gameMapMode->initialize(m_controller.getResourcesPath(),
-            playerName,
+            gameState,
             m_textService,
             m_inputDevicesState)) {
         return false;
@@ -294,33 +279,86 @@ void GameWindow::render() {
     SDL_GL_SwapWindow(m_window);
 }
 
+template <class Fn>
+void GameWindow::setNextAction(Fn&& fn) {
+    m_nextAction = std::forward<Fn>(fn);
+}
+
 void GameWindow::quitRequested() {
     m_mustExit = true;
     Mix_CloseAudio();
 }
 
-void GameWindow::newGameRequested(std::string playerName) {
-    m_playerName = playerName;
-    m_mustCreateNewGame = true;
+void GameWindow::newGameRequested(const std::string &playerName) {
+    setNextAction([this, playerName]() {
+        createNewGame(playerName);
+    });
+}
+
+void GameWindow::loadGameRequested(const std::string &fileName) {
+    setNextAction([this, fileName]() {
+        loadGame(fileName);
+    });
 }
 
 void GameWindow::quitGameRequested() {
-    m_mustReturnToMainMenu = true;
+    setNextAction([this]() {
+        returnToMainMenu();
+    });
 }
 
-void GameWindow::createNewGame() {
+void GameWindow::createNewGame(std::string playerName) {
     m_windowSizeChanged.disconnect_all_slots();
     m_mainMenuMode->quitRequested.disconnect_all_slots();
     m_mainMenuMode->newGameRequested.disconnect_all_slots();
     m_mainMenuMode.reset();
     m_mainMenuMode = nullptr;
-    if (initializeGame(m_playerName)) {
+    Player player(playerName);
+    WorldState worldState;
+    worldState.setCurrentMapName("Outworld.map");
+    worldState.setPlayerPosition(Point<int>(22, 24));
+    GameState newGameState(player, worldState);
+    if (initializeGame(newGameState)) {
         m_interactionMode = InteractionMode::Game;
     } else {
         m_mustExit = true;
         Mix_CloseAudio();
     }
     m_mustCreateNewGame = false;
+}
+
+void GameWindow::loadGame(std::string fileName) {
+    m_windowSizeChanged.disconnect_all_slots();
+    m_mainMenuMode->quitRequested.disconnect_all_slots();
+    m_mainMenuMode->newGameRequested.disconnect_all_slots();
+    m_mainMenuMode.reset();
+    m_mainMenuMode = nullptr;
+    Player player("Ragnar");
+    WorldState worldState;
+    GameState loadedGameState(player, worldState);
+    storage::GameStateStorage gameStateStorage;
+    try {
+        std::string fullPath = fs::path(thewarrior::utils::SpecialFolders::getSaveGameDirectory()) / fileName;
+        gameStateStorage.loadGameState(fullPath, loadedGameState);
+    } catch (const std::invalid_argument &err) {
+        std::cerr << err.what() << std::endl;
+        m_mustExit = true;
+        Mix_CloseAudio();
+        return;
+    } catch (const std::runtime_error &err) {
+        std::cerr << err.what() << std::endl;
+        m_mustExit = true;
+        Mix_CloseAudio();
+        return;
+    }
+
+    if (initializeGame(loadedGameState)) {
+        m_interactionMode = InteractionMode::Game;
+    } else {
+        m_mustExit = true;
+        Mix_CloseAudio();
+    }
+    m_mustLoadGame = false;
 }
 
 void GameWindow::returnToMainMenu() {

@@ -19,6 +19,11 @@ elseif(LOWERCASE_CMAKE_BUILD_TYPE MATCHES "^(release)$")
 endif()
 set(CMAKE_CXX_STANDARD 20)
 
+if(ENABLE_ASAN)
+  add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer -g)
+  add_link_options(-fsanitize=address,undefined)
+endif()
+
 # Fix to consider Conan libraries as system and ignore compiler flags
 include_directories(SYSTEM ${CMAKE_INCLUDE_PATH})
 link_directories(${CMAKE_LIBRARY_PATH})

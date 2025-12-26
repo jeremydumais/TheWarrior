@@ -129,6 +129,10 @@ void GLGameStateList::onButtonActionPressed() {
     onOKButtonPressed();
 }
 
+const storage::GameStateMetadata &GLGameStateList::getSelectedGameState() const {
+    return m_gameEntries.at(m_cursorPosition)->getMetadata();
+}
+
 void GLGameStateList::generateScrollBar() {
     generateGLObject(TextureMainMenuScrollBar,
                      Size<int>(87, 410),

@@ -15,8 +15,15 @@ m_xMove(0.0F),
 m_yMove(0.0F),
 m_tileSize({ 1.0F, 1.0F, 1.0F }),
 m_isInRunningMode(false),
-m_texture(nullptr) {
-}
+m_texture(nullptr) {}
+
+GLPlayer::GLPlayer(const thewarrior::models::Player &player)
+: Player(player),
+m_xMove(0.0F),
+m_yMove(0.0F),
+m_tileSize({ 1.0F, 1.0F, 1.0F }),
+m_isInRunningMode(false),
+m_texture(nullptr) {}
 
 const string& GLPlayer::getTextureName() const {
     return m_textureName;
@@ -48,8 +55,6 @@ void GLPlayer::initialize(const std::string &resourcePath,
                           std::shared_ptr<WorldState> worldState) {
     m_worldState = worldState;
     m_textureName = "NPC1";
-    //HACK: To be changed
-    worldState->setPlayerPosition(Point<int>(22, 24));
     m_xMove = 0.0f;
     m_yMove = 0.0f;
     m_baseTextureIndex = 9;

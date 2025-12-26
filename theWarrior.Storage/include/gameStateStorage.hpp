@@ -11,7 +11,7 @@ namespace thewarrior::storage {
 class GameStateStorage {
  public:
     const std::string &getLastError() const;
-    void loadGameState(thewarrior::models::GameState &gameState);
+    void loadGameState(const std::string &filename, thewarrior::models::GameState &gameState);
     void saveGameState(const std::string &filename, thewarrior::models::GameState &gameState);
     bool deleteGameStates(const std::vector<std::string> &fileNames);
     void setFileStream(std::unique_ptr<IBinaryFileStream<thewarrior::models::GameState>> bfs);

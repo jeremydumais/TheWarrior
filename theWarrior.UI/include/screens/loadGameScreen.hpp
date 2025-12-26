@@ -1,13 +1,12 @@
 #pragma once
 
 #include <SDL2/SDL_events.h>
-#include <vector>
+#include <string>
 #include <boost/signals2.hpp>
 #include "components/glComponentBase.hpp"
 #include "components/glGameStateList.hpp"
 #include "components/glLabel.hpp"
 #include "components/glMenuButton.hpp"
-#include "../../theWarrior.Storage/include/gameStateMetadata.hpp"
 #include "loadGameScreenController.hpp"
 #include "menuScreenBase.hpp"
 #include "size.hpp"
@@ -25,6 +24,7 @@ class LoadGameScreen : public MenuScreenBase {
     void unloadGLMapObjects();
     void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;
     void reset();
+    const std::string &getSelectedGameStateFileName() const;
     boost::signals2::signal<void()> backPressed;
     boost::signals2::signal<void()> okPressed;
 

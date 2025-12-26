@@ -7,9 +7,9 @@
 #include <string>
 #include "fpsCalculator.hpp"
 #include "gameMapMode.hpp"
+#include "gameState.hpp"
 #include "gameWindowController.hpp"
 #include <glm/glm.hpp>
-#include "glTextBox.hpp"
 #include "glTextService.hpp"
 #include "glTextureService.hpp"
 #include "inputDevicesState.hpp"
@@ -45,6 +45,7 @@ class GameWindow {
     boost::signals2::signal<void(float deltaTime)> m_windowUpdate;
     bool m_mustExit = false;
     bool m_mustCreateNewGame = false;
+    bool m_mustLoadGame = false;
     bool m_mustReturnToMainMenu = false;
     InteractionMode m_interactionMode = InteractionMode::MainMenu;
     std::unique_ptr<thewarrior::ui::GameMapMode> m_gameMapMode;
@@ -59,20 +60,24 @@ class GameWindow {
     std::shared_ptr<InputDevicesState> m_inputDevicesState = nullptr;
     bool m_blockKeyDown = false;
     SDL_Joystick *m_joystick = nullptr;
-    std::string m_playerName = "Ragnar";
+    std::optional<std::function<void()>> m_nextAction;
     bool initializeOpenGL(const std::string &title,
                           int x, int y,
                           int width, int height);
     bool initializeAudio();
     bool initializeMenu();
-    bool initializeGame(const std::string &playerName);
+    bool initializeGame(const thewarrior::models::GameState &gameState);
     bool loadResourceFiles();
     void subscribeEvents();
     void render();
+    template <class Fn>
+    void setNextAction(Fn&& fn);
     void quitRequested();
-    void newGameRequested(std::string playerName);
+    void newGameRequested(const std::string &playerName);
+    void loadGameRequested(const std::string &fileName);
     void quitGameRequested();
-    void createNewGame();
+    void createNewGame(std::string playerName);
+    void loadGame(std::string fileName);
     void returnToMainMenu();
 };
 
