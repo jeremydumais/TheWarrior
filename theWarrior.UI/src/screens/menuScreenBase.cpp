@@ -14,10 +14,6 @@ namespace thewarrior::ui::screens {
 MenuScreenBase::MenuScreenBase(GLContext &glContext)
 : components::GLComponentBase(glContext) {}
 
-void MenuScreenBase::initializeBase(const components::GLComponentBaseInfo &info) {
-    components::GLComponentBase::initialize(info);
-}
-
 void MenuScreenBase::onGenerateGLElements() {
     generateGLObject(TextureBackground, Size<int>(static_cast<int>(m_screenSize.width()),
                                                           static_cast<int>(m_screenSize.height())));

@@ -19,7 +19,9 @@ namespace thewarrior::ui::components {
 GLComponentBase::GLComponentBase(GLContext &glContext,
                                  Point<float> location,
                                  Size<float> size)
-: m_resourcesPath(""),
+: m_registeredComponents({}),
+m_initializationInfo(nullptr),
+m_resourcesPath(""),
 m_location(location),
 m_initialLocation(location),
 m_size(size),
@@ -35,6 +37,7 @@ GLComponentBase::~GLComponentBase() {
 }
 
 void GLComponentBase::initialize(const GLComponentBaseInfo &info) {
+    m_initializationInfo = std::make_unique<GLComponentBaseInfo>(info);
     m_resourcesPath = info.resourcesPath;
     m_glTexture = info.texture;
     m_shaderProgram = info.shaderProgram;
@@ -46,6 +49,15 @@ void GLComponentBase::initialize(const GLComponentBaseInfo &info) {
     m_menuClickDisableSound = info.menuClickDisableSound;
     m_menuMoveSound = info.menuMoveSound;
     m_glFormService->initialize(info.shaderProgram, info.textService);
+    for (auto *component : m_registeredComponents) {
+        component->initialize(info);
+    }
+    onInitialize(info);
+    generateGLElements();
+}
+
+void GLComponentBase::registerComponent(GLComponentBase *component) {
+    m_registeredComponents.push_back(component);
 }
 
 const std::string &GLComponentBase::getLastError() const {
@@ -54,6 +66,9 @@ const std::string &GLComponentBase::getLastError() const {
 
 void GLComponentBase::generateGLElements() {
     freeGLObjects(m_namedObjects);
+    for (auto *component : m_registeredComponents) {
+        component->generateGLElements();
+    }
     onGenerateGLElements();
 }
 
@@ -119,7 +134,11 @@ void GLComponentBase::render() {
 void GLComponentBase::gameWindowSizeChanged(const thewarrior::models::Size<int> &size) {
     m_screenSize = Size<float>(static_cast<float>(size.width()),
             static_cast<float>(size.height()));
+    for (auto *component : m_registeredComponents) {
+        component->gameWindowSizeChanged(size);
+    }
     onGameWindowSizeChanged(size);
+    generateGLElements();
 }
 
 Size<float> GLComponentBase::getSize() const {

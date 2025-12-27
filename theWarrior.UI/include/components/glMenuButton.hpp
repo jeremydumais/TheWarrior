@@ -2,7 +2,6 @@
 
 #include <string>
 #include <vector>
-#include "glColor.hpp"
 #include "glComponentBase.hpp"
 #include "glContext.hpp"
 #include "glObjectService.hpp"
@@ -17,11 +16,10 @@ namespace thewarrior::ui::components {
 class GLMenuButton : public GLComponentBase {
  public:
     explicit GLMenuButton(GLContext &glContext,
+                          const std::string &title,
                           thewarrior::models::Point<float> location,
                           thewarrior::models::Size<float> size);
     ~GLMenuButton() override;
-    void initialize(const std::string &title,
-                    const GLComponentBaseInfo &info);
     bool isEnabled() const;
     void setCaption(const std::string &title);
     void setEnabled(bool enabled);

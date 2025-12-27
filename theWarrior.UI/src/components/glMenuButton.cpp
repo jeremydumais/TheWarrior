@@ -13,10 +13,11 @@ using namespace thewarrior::models;
 namespace thewarrior::ui::components {
 
 GLMenuButton::GLMenuButton(GLContext &glContext,
+                           const std::string &caption,
                            Point<float> location,
                            Size<float> size)
 : GLComponentBase(glContext, location, size),
-m_glCaption({"", {1.0F, 1.0F}, 0.6F}),
+m_glCaption({caption, {1.0F, 1.0F}, 0.6F}),
 m_windowObjects(std::vector<GLObject>()),
 m_windowBackgrounds(std::vector<GLObject>()),
 m_textureBeginId(38),
@@ -26,12 +27,6 @@ m_enabled(true) {}
 GLMenuButton::~GLMenuButton() {
     GLComponentBase::freeGLObjects(m_windowObjects);
     GLComponentBase::freeGLObjects(m_windowBackgrounds);
-}
-
-void GLMenuButton::initialize(const std::string &caption,
-                              const GLComponentBaseInfo &info) {
-    GLComponentBase::initialize(info);
-    m_glCaption.text = caption;
 }
 
 bool GLMenuButton::isEnabled() const {

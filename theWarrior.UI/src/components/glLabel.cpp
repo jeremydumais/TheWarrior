@@ -24,10 +24,6 @@ m_textAlignment(textAlignment) {}
 GLLabel::~GLLabel() {
 }
 
-void GLLabel::initialize(const GLComponentBaseInfo &info) {
-    GLComponentBase::initialize(info);
-}
-
 const std::string &GLLabel::getCaption() const {
     return m_glCaption.text;
 }

@@ -26,7 +26,6 @@ class GLLabel : public GLComponentBase {
             const float scale = 0.6F,
             const TextAlignment textAlignment = TextAlignment::Center);
     ~GLLabel() override;
-    void initialize(const GLComponentBaseInfo &info);
     const std::string &getCaption() const;
     const thewarrior::models::Point<float> &getPosition() const;
     float getScale() const;

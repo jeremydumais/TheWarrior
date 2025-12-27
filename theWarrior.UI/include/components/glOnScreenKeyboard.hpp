@@ -10,7 +10,6 @@
 #include "glComponentBase.hpp"
 #include "glContext.hpp"
 #include "glLabel.hpp"
-#include "glOnScreenKeyboardButton.hpp"
 #include "point.hpp"
 #include "size.hpp"
 #include <boost/signals2.hpp>
@@ -29,7 +28,7 @@ class GLOnScreenKeyboard : public GLComponentBase {
  public:
     explicit GLOnScreenKeyboard(GLContext &glContext, thewarrior::models::Point<float> location);
     ~GLOnScreenKeyboard() override;
-    void initialize(const GLComponentBaseInfo &info);
+    void onInitialize(const GLComponentBaseInfo &info) override;
     bool loadTextures();
     void setCaption(const std::string &title);
     void onGenerateGLElements() override;

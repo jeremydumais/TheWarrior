@@ -11,7 +11,6 @@
 #include "glContext.hpp"
 #include "glTextService.hpp"
 #include "menuScreenBase.hpp"
-#include "point.hpp"
 #include "size.hpp"
 
 namespace thewarrior::ui::screens {
@@ -20,7 +19,7 @@ class NewGamePlayerNameScreen : public MenuScreenBase {
  public:
     NewGamePlayerNameScreen(GLContext &glContext);
     ~NewGamePlayerNameScreen() override;
-    void initialize(const components::GLComponentBaseInfo &info);
+    void onInitialize(const components::GLComponentBaseInfo &info) override;
     bool loadTextures();
     void processEvents(SDL_Event &e);
     void update();
@@ -39,8 +38,6 @@ class NewGamePlayerNameScreen : public MenuScreenBase {
     components::GLLabel m_playerNameLabel;
     GLTextObject m_enterNameObject;
     std::string m_playerName;
-    thewarrior::models::Point<float> m_playerNameLocation;
-    thewarrior::models::Point<float> m_playerNameInitialLocation;
     components::GLMenuModalDialog m_modalDialog;
     void onButtonUpPressed() override;
     void onButtonDownPressed() override;

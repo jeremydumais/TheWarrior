@@ -194,7 +194,7 @@ void GameMapMode::calculateTileSize() {
 
 void GameMapMode::showMainMenu() {
     m_inputMode = GameMapInputMode::MainMenuPopup;
-    m_choicePopup.preparePopup({"Inventory", "Character", "Back", "Load", "Save", "Exit Game"}, "Menu");
+    m_choicePopup.preparePopup({"Inventory", "Character", "Back", "Save", "Exit Game"}, "Menu");
     m_choicePopup.generateGLElements();
 }
 
@@ -765,8 +765,6 @@ void GameMapMode::mainMenuPopupClicked(size_t choice) {
             mainMenuPopupCanceled();
             break;
         case 3:
-            break;
-        case 4:
             m_inputMode = GameMapInputMode::Map;
             if (!m_controller.saveGameState(*m_glPlayer)) {
                 auto msg = std::make_unique<MessageDTO>();
@@ -780,7 +778,7 @@ void GameMapMode::mainMenuPopupClicked(size_t choice) {
                 m_controller.addMessageToPipeline(std::move(msg));
             }
             break;
-        case 5:
+        case 4:
             exitGameAndReturnToMainMenu();
             break;
         default:

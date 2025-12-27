@@ -2,7 +2,6 @@
 
 #include <SDL2/SDL_mixer.h>
 #include <cstddef>
-#include <string>
 #include <vector>
 #include "../../theWarrior.Storage/include/gameStateMetadata.hpp"
 #include "glComponentBase.hpp"
@@ -20,11 +19,10 @@ class GLGameStateList : public GLComponentBase {
     explicit GLGameStateList(GLContext &glContext,
                              thewarrior::models::Point<float> location);
     ~GLGameStateList() override = default;
-    void initialize(const GLComponentBaseInfo &info,
-                    const std::vector<thewarrior::storage::GameStateMetadata> &gameStateList);
+    void onInitialize(const GLComponentBaseInfo &info) override;
     void reset();
     bool loadTextures();
-    void setCaption(const std::string &title);
+    void setGameStates(const std::vector<storage::GameStateMetadata> &gameStateList);
     void onGenerateGLElements() override;
     void onRender() override;
     void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;

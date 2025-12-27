@@ -32,23 +32,16 @@ m_playerHeaderLabel(glContext, "Player", Point<float>(-360.0F, -200.0F), GLColor
 m_levelHeaderLabel(glContext, "Level", Point<float>(30.0F, -200.0F), GLColor::Brown),
 m_dateSavedHeaderLabel(glContext, "Date Saved", Point<float>(250.0F, -200.0F), GLColor::Brown),
 m_gameEntries(std::vector<std::unique_ptr<GLGameStateListEntry>>()),
-m_cursorPosition(0) {}
+m_cursorPosition(0) {
+    registerComponent(&m_playerHeaderLabel);
+    registerComponent(&m_levelHeaderLabel);
+    registerComponent(&m_dateSavedHeaderLabel);
+}
 
-void GLGameStateList::initialize(const GLComponentBaseInfo &info,
-                                 const std::vector<GameStateMetadata> &gameStateList) {
-    GLComponentBase::initialize(info);
-    m_playerHeaderLabel.initialize(info);
-    m_levelHeaderLabel.initialize(info);
-    m_dateSavedHeaderLabel.initialize(info);
-    std::for_each(gameStateList.begin(), gameStateList.end(), [this, &info](const auto &entry) {
-        auto glEntry = std::make_unique<GLGameStateListEntry>(m_glContext, entry);
-        glEntry->initialize(info);
-        m_gameEntries.push_back(std::move(glEntry));
-        });
+void GLGameStateList::onInitialize(const GLComponentBaseInfo &) {
     if (!loadTextures()) {
         throw std::runtime_error(getLastError());
     }
-    generateGLElements();
 }
 
 void GLGameStateList::reset() {
@@ -62,10 +55,15 @@ bool GLGameStateList::loadTextures() {
         loadTexture(TextureMainMenuScrollBarCursor, "mainmenu_scrollbar_cursor.png", 26, 47);
 }
 
+void GLGameStateList::setGameStates(const std::vector<GameStateMetadata> &gameStateList) {
+    std::for_each(gameStateList.begin(), gameStateList.end(), [this](const auto &entry) {
+        auto glEntry = std::make_unique<GLGameStateListEntry>(m_glContext, entry);
+        glEntry->initialize(*m_initializationInfo);
+        m_gameEntries.push_back(std::move(glEntry));
+        });
+}
+
 void GLGameStateList::onGenerateGLElements() {
-    m_playerHeaderLabel.generateGLElements();
-    m_levelHeaderLabel.generateGLElements();
-    m_dateSavedHeaderLabel.generateGLElements();
     generateGLObject(TextureMainMenuItemSeparator,
                      std::nullopt,
                      HorizontalAlignment::Center,
@@ -100,9 +98,6 @@ void GLGameStateList::onRender() {
 }
 
 void GLGameStateList::onGameWindowSizeChanged(const Size<> &size) {
-    m_playerHeaderLabel.gameWindowSizeChanged(size);
-    m_levelHeaderLabel.gameWindowSizeChanged(size);
-    m_dateSavedHeaderLabel.gameWindowSizeChanged(size);
     std::for_each(m_gameEntries.begin(), m_gameEntries.end(), [&size](auto &entry) {
             entry->gameWindowSizeChanged(size); });
 }

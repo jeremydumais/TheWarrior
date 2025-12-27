@@ -24,28 +24,27 @@ LoadGameScreen::LoadGameScreen(GLContext &glContext)
 : MenuScreenBase(glContext),
 m_gameStateList(glContext, Point<float>(0.0F, 0.0F)),
 m_loadGameLabel(glContext, "Load Game", Point<float>(0.0F, -300.0F), GLColor::Brown, 0.9F),
-m_menuButtonLoad(glContext, Point<float>(270.0F, 300.0F), Size<float>(250.0F, 75.0F)),
+m_menuButtonLoad(glContext, "Load", Point<float>(270.0F, 300.0F), Size<float>(250.0F, 75.0F)),
 m_gameStates({}),
 m_focusElement(FocusElement::GameStateList) {
+    registerComponent(&m_gameStateList);
+    registerComponent(&m_loadGameLabel);
+    registerComponent(&m_menuButtonLoad);
     m_gameStateList.onOKButtonPressed.connect(boost::bind(&LoadGameScreen::gameStateListOKButtonPressed, this));
     m_gameStateList.onCancelButtonPressed.connect(boost::bind(&LoadGameScreen::gameStateListCancelButtonPressed, this));
 }
 
-void LoadGameScreen::initialize(const components::GLComponentBaseInfo &info) {
-    MenuScreenBase::initializeBase(info);
-    m_loadGameLabel.initialize(info);
-    m_menuButtonLoad.initialize("Load", info);
+void LoadGameScreen::onInitialize(const components::GLComponentBaseInfo &) {
     m_menuButtonLoad.setEnabled(false);
     const auto entries = m_controller.getGameStateList();
     if (!entries.success) {
         throw std::runtime_error(m_controller.getLastError());
     }
     m_gameStates = entries.gameStateList;
-    m_gameStateList.initialize(info, m_gameStates);
+    m_gameStateList.setGameStates(m_gameStates);
     if (!loadTextures()) {
         throw std::runtime_error(getLastError());
     }
-    generateGLElements();
 }
 
 bool LoadGameScreen::loadTextures() {
@@ -69,17 +68,6 @@ void LoadGameScreen::onRender() {
     m_menuButtonLoad.render();
 }
 
-void LoadGameScreen::unloadGLMapObjects() {
-}
-
-void LoadGameScreen::onGameWindowSizeChanged(const thewarrior::models::Size<> &size) {
-    MenuScreenBase::onGameWindowSizeChanged(size);
-    m_gameStateList.gameWindowSizeChanged(size);
-    m_loadGameLabel.gameWindowSizeChanged(size);
-    m_menuButtonLoad.gameWindowSizeChanged(size);
-    generateGLElements();
-}
-
 void LoadGameScreen::reset() {
     m_focusElement = FocusElement::GameStateList;
     m_menuButtonLoad.setEnabled(false);
@@ -94,9 +82,6 @@ const std::string &LoadGameScreen::getSelectedGameStateFileName() const {
 void LoadGameScreen::onGenerateGLElements() {
     MenuScreenBase::onGenerateGLElements();
     generateGLObject(TextureMainMenuPanel);
-    m_gameStateList.generateGLElements();
-    m_loadGameLabel.generateGLElements();
-    m_menuButtonLoad.generateGLElements();
 }
 
 void LoadGameScreen::onButtonCancelPressed() {

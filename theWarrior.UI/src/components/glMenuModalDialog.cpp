@@ -23,16 +23,15 @@ m_glMessageLines(std::vector<GLTextObject>({{ "", Point<float>(0.0F, 0.0F), 0.6F
 m_visible(false),
 m_autoSize(true),
 m_menuWindow(size),
-m_menuButtonOK(glContext, Point<float>(0.0F, -135.0F), Size<float>(250.0F, 75.0F)) {
+m_menuButtonOK(glContext, "OK", Point<float>(0.0F, -135.0F), Size<float>(250.0F, 75.0F)) {
 }
 
-void GLMenuModalDialog::initialize(const GLComponentBaseInfo &info) {
-    GLComponentBase::initialize(info);
+void GLMenuModalDialog::onInitialize(const GLComponentBaseInfo &info) {
     m_menuWindow.initShader(m_shaderProgram);
     m_menuWindow.initialize("", m_glTexture, m_textService);
     m_menuWindow.setTextureBeginId(29);
     m_menuWindow.setFillCenter(true);
-    m_menuButtonOK.initialize("OK", info);
+    m_menuButtonOK.initialize(info);
     m_menuButtonOK.setHasFocus(true);
 }
 
@@ -63,7 +62,7 @@ void GLMenuModalDialog::setMessage(const std::string &message) {
     std::string line;
     while (std::getline(iss, line)) {
         if (!line.empty() && line.back() == '\r') line.pop_back();
-        m_glMessageLines.push_back({ std::move(line), Point<float>(0.0F, 0.0F), 0.6F, GLColor::Gray });
+        m_glMessageLines.push_back({ std::move(line), Point<float>(0.0F, 0.0F), 0.6F, GLColor::Brown });
     }
     generateGLElements();
 }

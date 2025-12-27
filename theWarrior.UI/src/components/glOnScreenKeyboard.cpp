@@ -15,7 +15,6 @@
 #include "mainMenuCommons.hpp"
 #include "point.hpp"
 #include "size.hpp"
-#include "textureInfo.hpp"
 
 using namespace thewarrior::models;
 
@@ -32,12 +31,10 @@ GLOnScreenKeyboard::~GLOnScreenKeyboard() {
     unloadTexture(TextureMainMenuKeyboard);
 }
 
-void GLOnScreenKeyboard::initialize(const GLComponentBaseInfo &info) {
-    GLComponentBase::initialize(info);
+void GLOnScreenKeyboard::onInitialize(const GLComponentBaseInfo &) {
     if (!loadTextures()) {
         throw std::runtime_error(getLastError());
     }
-    generateGLElements();
 }
 
 bool GLOnScreenKeyboard::loadTextures() {

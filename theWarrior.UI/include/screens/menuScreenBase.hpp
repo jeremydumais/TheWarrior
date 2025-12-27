@@ -7,8 +7,7 @@ namespace thewarrior::ui::screens {
 
 class MenuScreenBase : public components::GLComponentBase {
  public:
-    MenuScreenBase(GLContext &glContext);
-    void initializeBase(const components::GLComponentBaseInfo &info);
+    explicit MenuScreenBase(GLContext &glContext);
     void onGenerateGLElements() override;
     void onRender() override;
 };

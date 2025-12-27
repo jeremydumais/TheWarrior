@@ -11,10 +11,9 @@ class GLGameStateListEntry : public components::GLComponentBase  {
     explicit GLGameStateListEntry(GLContext &glContext,
                                   const thewarrior::storage::GameStateMetadata &gameEntryMetadata);
     ~GLGameStateListEntry() override = default;
-    void initialize(const GLComponentBaseInfo &info);
+    void onInitialize(const GLComponentBaseInfo &info) override;
     void onGenerateGLElements() override;
     void onRender() override;
-    void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;
     const thewarrior::storage::GameStateMetadata &getMetadata();
     bool isSelected() const;
     void setSelected(bool selected);

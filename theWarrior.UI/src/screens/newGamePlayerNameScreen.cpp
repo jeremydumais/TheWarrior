@@ -28,9 +28,12 @@ m_enterPlayerNameLabel(glContext, "Enter Your Name:", Point<float>(0.0F, -200.0F
 m_playerNameLabel(glContext, "", Point<float>(0.0F, -137.0F), GLColor::Brown, 0.8F),
 m_enterNameObject({"Enter name:", {0.0F, 0.0F}, 0.8F}),
 m_playerName(""),
-m_playerNameLocation(Point<float>(0.0F, 0.0F)),
-m_playerNameInitialLocation(Point<float>(-370.0F, -180.0F)),
 m_modalDialog(glContext, Point<float>(0.0F, 0.0F), Size<float>(300.0F, 150.0F)) {
+    registerComponent(&m_onScreenKeyboard);
+    registerComponent(&m_newGameLabel);
+    registerComponent(&m_enterPlayerNameLabel);
+    registerComponent(&m_playerNameLabel);
+    registerComponent(&m_modalDialog);
     m_onScreenKeyboard.onCharButtonPressed.connect(boost::bind(&NewGamePlayerNameScreen::keyboardCharButtonPressed, this, boost::placeholders::_1));
     m_onScreenKeyboard.onDELButtonPressed.connect(boost::bind(&NewGamePlayerNameScreen::keyboardDELButtonPressed, this));
     m_onScreenKeyboard.onOKButtonPressed.connect(boost::bind(&NewGamePlayerNameScreen::keyboardOKButtonPressed, this));
@@ -40,17 +43,10 @@ NewGamePlayerNameScreen::~NewGamePlayerNameScreen() {
     unloadTexture(TextureMainMenuTextBox);
 }
 
-void NewGamePlayerNameScreen::initialize(const components::GLComponentBaseInfo &info) {
-    MenuScreenBase::initializeBase(info);
-    m_onScreenKeyboard.initialize(info);
-    m_newGameLabel.initialize(info);
-    m_enterPlayerNameLabel.initialize(info);
-    m_playerNameLabel.initialize(info);
-    m_modalDialog.initialize(info);
+void NewGamePlayerNameScreen::onInitialize(const components::GLComponentBaseInfo &) {
     if (!loadTextures()) {
         throw std::runtime_error(getLastError());
     }
-    generateGLElements();
 }
 
 void NewGamePlayerNameScreen::processEvents(SDL_Event &e) {
@@ -144,15 +140,6 @@ void NewGamePlayerNameScreen::unloadGLMapObjects() {
 
 void NewGamePlayerNameScreen::onGameWindowSizeChanged(const thewarrior::models::Size<> &size) {
     MenuScreenBase::onGameWindowSizeChanged(size);
-    m_playerNameLocation = {
-        (m_screenSize.width() / 2.0F) ,
-        (m_screenSize.height() / 2.0F) };
-    m_onScreenKeyboard.gameWindowSizeChanged(size);
-    m_newGameLabel.gameWindowSizeChanged(size);
-    m_enterPlayerNameLabel.gameWindowSizeChanged(size);
-    m_playerNameLabel.gameWindowSizeChanged(size);
-    m_modalDialog.gameWindowSizeChanged(size);
-    generateGLElements();
 }
 
 const std::string &NewGamePlayerNameScreen::getPlayerName() const {
@@ -171,14 +158,6 @@ void NewGamePlayerNameScreen::onGenerateGLElements() {
                      components::HorizontalAlignment::Center,
                      components::VerticalAlignment::Center,
                      Point<int>(0, -130));
-    m_onScreenKeyboard.generateGLElements();
-    m_newGameLabel.generateGLElements();
-    m_enterPlayerNameLabel.generateGLElements();
-    m_playerNameLabel.generateGLElements();
-    m_modalDialog.generateGLElements();
-    m_enterNameObject.position = {m_playerNameLocation.x() + m_playerNameInitialLocation.x(), -m_playerNameLocation.y() + m_playerNameInitialLocation.y() };
-    m_enterNameObject.text = fmt::format("Enter your name: {0}", m_playerName);
-    m_enterNameObject.color = GLColor::Brown;
 }
 
 void NewGamePlayerNameScreen::onButtonUpPressed() {

@@ -15,12 +15,11 @@ class MainMenuScreen : public MenuScreenBase {
  public:
     MainMenuScreen(GLContext &glContext);
     ~MainMenuScreen() override;
-    void initialize(const components::GLComponentBaseInfo &info);
+    void onInitialize(const components::GLComponentBaseInfo &info) override;
     bool loadTextures();
     void processEvents(SDL_Event &);
     void onGenerateGLElements() override;
     void onRender() override;
-    void unloadGLMapObjects();
     void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;
     boost::signals2::signal<void()> newGamePressed;
     boost::signals2::signal<void()> loadGamePressed;

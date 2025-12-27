@@ -19,14 +19,14 @@ class GLMenuModalDialog : public GLComponentBase {
                                thewarrior::models::Point<float> location,
                                thewarrior::models::Size<float> size);
     ~GLMenuModalDialog() override = default;
-    void initialize(const GLComponentBaseInfo &info);
+    void onInitialize(const GLComponentBaseInfo &info) override;
     bool isVisible() const;
     bool isAutoSize() const;
     void show();
     void hide();
     void setAutoSize(bool value);
     void setMessage(const std::string &message);
-    boost::signals2::signal<void()> onOKButtonPressed;
+    boost::signals2::signal<void()> onClosed;
 
  private:
     std::vector<GLTextObject> m_glMessageLines;

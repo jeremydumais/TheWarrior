@@ -2,6 +2,7 @@
 
 #include <SDL2/SDL_events.h>
 #include <string>
+#include <vector>
 #include <boost/signals2.hpp>
 #include "components/glComponentBase.hpp"
 #include "components/glGameStateList.hpp"
@@ -9,20 +10,17 @@
 #include "components/glMenuButton.hpp"
 #include "loadGameScreenController.hpp"
 #include "menuScreenBase.hpp"
-#include "size.hpp"
 
 namespace thewarrior::ui::screens {
 
 class LoadGameScreen : public MenuScreenBase {
  public:
     explicit LoadGameScreen(GLContext &glContext);
-    void initialize(const components::GLComponentBaseInfo &info);
+    void onInitialize(const components::GLComponentBaseInfo &info) override;
     bool loadTextures();
     void update();
     void onGenerateGLElements() override;
     void onRender() override;
-    void unloadGLMapObjects();
-    void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;
     void reset();
     const std::string &getSelectedGameStateFileName() const;
     boost::signals2::signal<void()> backPressed;

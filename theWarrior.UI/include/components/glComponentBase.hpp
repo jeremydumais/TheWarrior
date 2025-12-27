@@ -16,7 +16,6 @@
 #include "inputDevicesState.hpp"
 #include "point.hpp"
 #include "size.hpp"
-#include "textureInfo.hpp"
 
 namespace thewarrior::ui::components {
 
@@ -52,6 +51,7 @@ class GLComponentBase {
                              thewarrior::models::Size<float> size = thewarrior::models::Size<float>(0.0F, 0.0F));
     virtual ~GLComponentBase();
     void initialize(const GLComponentBaseInfo &info);
+    void registerComponent(GLComponentBase *component);
     const std::string &getLastError() const;
     void generateGLElements();
     void update();
@@ -62,6 +62,8 @@ class GLComponentBase {
     void setLocation(thewarrior::models::Point<float> value);
 
  protected:
+    std::vector<GLComponentBase *> m_registeredComponents;
+    std::unique_ptr<GLComponentBaseInfo> m_initializationInfo;
     std::string m_resourcesPath;
     std::string m_lastError = "";
     thewarrior::models::Point<float> m_location;
@@ -103,6 +105,7 @@ class GLComponentBase {
                           VerticalAlignment verticalAlignment = VerticalAlignment::Center,
                           thewarrior::models::Point<int> offset = thewarrior::models::Point<int>(0, 0));
     void drawGLObject(const std::string &textureName);
+    virtual void onInitialize(const GLComponentBaseInfo &) {}
     virtual void onGenerateGLElements() {}
     virtual void onRender() {}
     virtual void onGameWindowSizeChanged(const thewarrior::models::Size<int> &) {}
