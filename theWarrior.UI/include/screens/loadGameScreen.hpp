@@ -38,6 +38,9 @@ class LoadGameScreen : public MenuScreenBase {
     controllers::LoadGameScreenController m_controller;
     components::GLGameStateList m_gameStateList;
     components::GLLabel m_loadGameLabel;
+    components::GLLabel m_noSavedGameLabel;
+    components::GLLabel m_noSavedGameInstructionsLabel1;
+    components::GLLabel m_noSavedGameInstructionsLabel2;
     components::GLMenuButton m_menuButtonLoad;
     std::vector<storage::GameStateMetadata> m_gameStates;
     FocusElement m_focusElement;
