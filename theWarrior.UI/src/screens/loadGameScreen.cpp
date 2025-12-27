@@ -24,6 +24,9 @@ LoadGameScreen::LoadGameScreen(GLContext &glContext)
 : MenuScreenBase(glContext),
 m_gameStateList(glContext, Point<float>(0.0F, 0.0F)),
 m_loadGameLabel(glContext, "Load Game", Point<float>(0.0F, -300.0F), GLColor::Brown, 0.9F),
+m_noSavedGameLabel(glContext, "No saved adventures found", Point<float>(0.0F, -100.0F), GLColor::Gray, 0.7F),
+m_noSavedGameInstructionsLabel1(glContext, "Your journey has yet to begin.", Point<float>(0.0F, -30.0F), GLColor::Gray, 0.46F),
+m_noSavedGameInstructionsLabel2(glContext, "Start a new game to create your first save.", Point<float>(0.0F, 40.0F), GLColor::Gray, 0.46F),
 m_menuButtonLoad(glContext, Point<float>(270.0F, 300.0F), Size<float>(250.0F, 75.0F)),
 m_gameStates({}),
 m_focusElement(FocusElement::GameStateList) {
@@ -34,6 +37,9 @@ m_focusElement(FocusElement::GameStateList) {
 void LoadGameScreen::initialize(const components::GLComponentBaseInfo &info) {
     MenuScreenBase::initializeBase(info);
     m_loadGameLabel.initialize(info);
+    m_noSavedGameLabel.initialize(info);
+    m_noSavedGameInstructionsLabel1.initialize(info);
+    m_noSavedGameInstructionsLabel2.initialize(info);
     m_menuButtonLoad.initialize("Load", info);
     m_menuButtonLoad.setEnabled(false);
     const auto entries = m_controller.getGameStateList();
@@ -65,8 +71,14 @@ void LoadGameScreen::onRender() {
     MenuScreenBase::onRender();
     drawGLObject(TextureMainMenuPanel);
     m_loadGameLabel.render();
-    m_gameStateList.render();
-    m_menuButtonLoad.render();
+    if (!m_gameStates.empty()) {
+        m_gameStateList.render();
+        m_menuButtonLoad.render();
+    } else {
+        m_noSavedGameLabel.render();
+        m_noSavedGameInstructionsLabel1.render();
+        m_noSavedGameInstructionsLabel2.render();
+    }
 }
 
 void LoadGameScreen::unloadGLMapObjects() {
@@ -76,6 +88,9 @@ void LoadGameScreen::onGameWindowSizeChanged(const thewarrior::models::Size<> &s
     MenuScreenBase::onGameWindowSizeChanged(size);
     m_gameStateList.gameWindowSizeChanged(size);
     m_loadGameLabel.gameWindowSizeChanged(size);
+    m_noSavedGameLabel.gameWindowSizeChanged(size);
+    m_noSavedGameInstructionsLabel1.gameWindowSizeChanged(size);
+    m_noSavedGameInstructionsLabel2.gameWindowSizeChanged(size);
     m_menuButtonLoad.gameWindowSizeChanged(size);
     generateGLElements();
 }
@@ -96,6 +111,9 @@ void LoadGameScreen::onGenerateGLElements() {
     generateGLObject(TextureMainMenuPanel);
     m_gameStateList.generateGLElements();
     m_loadGameLabel.generateGLElements();
+    m_noSavedGameLabel.generateGLElements();
+    m_noSavedGameInstructionsLabel1.generateGLElements();
+    m_noSavedGameInstructionsLabel2.generateGLElements();
     m_menuButtonLoad.generateGLElements();
 }
 

@@ -36,6 +36,10 @@ GameWindow::GameWindow(const string &title,
     if (!loadResourceFiles()) {
         return;
     }
+    // Initialize save game repository
+    if (!m_controller.initializeSaveGameRepository()) {
+        throw std::runtime_error(m_controller.getLastError());
+    }
     m_inputDevicesState = std::make_shared<InputDevicesState>();
 
     SDL_JoystickEventState(SDL_ENABLE);
@@ -44,10 +48,6 @@ GameWindow::GameWindow(const string &title,
     subscribeEvents();
     if (!initializeMenu()) return;
 
-    // Initialize save game repository
-    if (!m_controller.initializeSaveGameRepository()) {
-        throw std::runtime_error(m_controller.getLastError());
-    }
     m_fpsCalculator.initialize();
     m_windowSizeChanged(m_WindowSize);
 }
