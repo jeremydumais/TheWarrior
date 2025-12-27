@@ -4,8 +4,10 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include "glColor.hpp"
 #include "glComponentBase.hpp"
 #include "glContext.hpp"
+#include "glLabel.hpp"
 #include "mainMenuCommons.hpp"
 #include "mainMenuScreen.hpp"
 #include "menuScreenBase.hpp"
@@ -22,11 +24,13 @@ m_menuWindow(Size<float>(350.0F, 420.0F)),
 m_menuButtonNewGame(glContext, "New Game", Point<float>(0.0F, -135.0F), Size<float>(250.0F, 75.0F)),
 m_menuButtonLoadGame(glContext, "Load Game", Point<float>(0.0F, -45.0F), Size<float>(250.0F, 75.0F)),
 m_menuButtonSettings(glContext, "Settings", Point<float>(0.0F, 45.0F), Size<float>(250.0F, 75.0F)),
-m_menuButtonQuit(glContext, "Quit", Point<float>(0.0F, 135.0F), Size<float>(250.0F, 75.0F)) {
+m_menuButtonQuit(glContext, "Quit", Point<float>(0.0F, 135.0F), Size<float>(250.0F, 75.0F)),
+m_label(glContext, "This is a test of\na multiline\nstring.", Point<float>(0.0F, 0.0F), GLColor::White, 0.6F, TextAlignment::Center) {
     registerComponent(&m_menuButtonNewGame);
     registerComponent(&m_menuButtonLoadGame);
     registerComponent(&m_menuButtonSettings);
     registerComponent(&m_menuButtonQuit);
+    registerComponent(&m_label);
 }
 
 MainMenuScreen::~MainMenuScreen() {
@@ -54,6 +58,7 @@ void MainMenuScreen::onRender() {
     m_menuButtonLoadGame.render();
     m_menuButtonSettings.render();
     m_menuButtonQuit.render();
+    m_label.render();
 }
 
 void MainMenuScreen::onGameWindowSizeChanged(const thewarrior::models::Size<> &size) {

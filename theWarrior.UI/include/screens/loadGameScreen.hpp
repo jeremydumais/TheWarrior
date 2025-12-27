@@ -16,17 +16,17 @@ namespace thewarrior::ui::screens {
 class LoadGameScreen : public MenuScreenBase {
  public:
     explicit LoadGameScreen(GLContext &glContext);
-    void onInitialize(const components::GLComponentBaseInfo &info) override;
     bool loadTextures();
     void update();
-    void onGenerateGLElements() override;
-    void onRender() override;
     void reset();
     const std::string &getSelectedGameStateFileName() const;
     boost::signals2::signal<void()> backPressed;
     boost::signals2::signal<void()> okPressed;
 
  protected:
+    void onInitialize(const components::GLComponentBaseInfo &info) override;
+    void onGenerateGLElements() override;
+    void onRender() override;
     void onButtonCancelPressed() override;
     void onButtonActionPressed() override;
 

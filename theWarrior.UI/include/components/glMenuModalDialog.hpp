@@ -19,7 +19,6 @@ class GLMenuModalDialog : public GLComponentBase {
                                thewarrior::models::Point<float> location,
                                thewarrior::models::Size<float> size);
     ~GLMenuModalDialog() override = default;
-    void onInitialize(const GLComponentBaseInfo &info) override;
     bool isVisible() const;
     bool isAutoSize() const;
     void show();
@@ -28,12 +27,13 @@ class GLMenuModalDialog : public GLComponentBase {
     void setMessage(const std::string &message);
     boost::signals2::signal<void()> onClosed;
 
- private:
+ protected:
     std::vector<GLTextObject> m_glMessageLines;
     bool m_visible;
     bool m_autoSize;
     GLPopupWindow m_menuWindow;
     GLMenuButton m_menuButtonOK;
+    void onInitialize(const GLComponentBaseInfo &info) override;
     void onGenerateGLElements() override;
     void onRender() override;
     void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;

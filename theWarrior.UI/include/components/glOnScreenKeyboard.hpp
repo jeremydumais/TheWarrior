@@ -28,12 +28,8 @@ class GLOnScreenKeyboard : public GLComponentBase {
  public:
     explicit GLOnScreenKeyboard(GLContext &glContext, thewarrior::models::Point<float> location);
     ~GLOnScreenKeyboard() override;
-    void onInitialize(const GLComponentBaseInfo &info) override;
     bool loadTextures();
     void setCaption(const std::string &title);
-    void onGenerateGLElements() override;
-    void onRender() override;
-    void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;
     void buttonUpPress();
     void buttonDownPress();
     void buttonLeftPress();
@@ -49,6 +45,10 @@ class GLOnScreenKeyboard : public GLComponentBase {
     thewarrior::models::Point<size_t> m_focusPosition;
     size_t m_fourthRowLastXPosition;
     bool m_isInCapsMode;
+    void onInitialize(const GLComponentBaseInfo &info) override;
+    void onGenerateGLElements() override;
+    void onRender() override;
+    void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;
     void generateKeyboardItems();
 
  private:

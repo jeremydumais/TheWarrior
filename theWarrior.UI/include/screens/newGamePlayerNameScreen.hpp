@@ -19,14 +19,9 @@ class NewGamePlayerNameScreen : public MenuScreenBase {
  public:
     NewGamePlayerNameScreen(GLContext &glContext);
     ~NewGamePlayerNameScreen() override;
-    void onInitialize(const components::GLComponentBaseInfo &info) override;
     bool loadTextures();
     void processEvents(SDL_Event &e);
     void update();
-    void onGenerateGLElements() override;
-    void onRender() override;
-    void unloadGLMapObjects();
-    void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;
     const std::string &getPlayerName() const;
     boost::signals2::signal<void()> backPressed;
     boost::signals2::signal<void()> okPressed;
@@ -39,6 +34,10 @@ class NewGamePlayerNameScreen : public MenuScreenBase {
     GLTextObject m_enterNameObject;
     std::string m_playerName;
     components::GLMenuModalDialog m_modalDialog;
+    void onInitialize(const components::GLComponentBaseInfo &info) override;
+    void onGenerateGLElements() override;
+    void onRender() override;
+    void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;
     void onButtonUpPressed() override;
     void onButtonDownPressed() override;
     void onButtonLeftPressed() override;

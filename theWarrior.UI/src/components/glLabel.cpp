@@ -1,5 +1,7 @@
 #include <fmt/format.h>
+#include <sstream>
 #include <string>
+#include <utility>
 #include "glLabel.hpp"
 #include "glColor.hpp"
 #include "glComponentBase.hpp"
@@ -18,7 +20,8 @@ GLLabel::GLLabel(GLContext &glContext,
                  const float scale,
                  const TextAlignment textAlignment)
 : GLComponentBase(glContext, location),
-m_glCaption({caption, {1.0F, 1.0F}, scale, color}),
+m_glCaption({caption, location, scale, color}),
+m_glMessageLines({}),
 m_textAlignment(textAlignment) {}
 
 GLLabel::~GLLabel() {
@@ -40,8 +43,8 @@ GLColor GLLabel::getColor() const {
     return m_glCaption.color;
 }
 
-void GLLabel::setCaption(const std::string &title) {
-    m_glCaption.text = title;
+void GLLabel::setCaption(const std::string &caption) {
+    m_glCaption.text = caption;
     generateCaption();
 }
 
@@ -61,12 +64,18 @@ void GLLabel::setTextAlignement(TextAlignment textAlignement) {
     m_textAlignment = textAlignement;
 }
 
+void GLLabel::onInitialize(const GLComponentBaseInfo &) {
+    setCaption(m_glCaption.text);
+}
+
 void GLLabel::onGenerateGLElements() {
     generateCaption();
 }
 
 void GLLabel::onRender() {
-    m_glFormService->drawText(m_glCaption);
+    for (const auto &lines : m_glMessageLines) {
+        m_glFormService->drawText(lines);
+    }
 }
 
 void GLLabel::onGameWindowSizeChanged(const Size<int> &size) {
@@ -77,23 +86,42 @@ void GLLabel::onGameWindowSizeChanged(const Size<int> &size) {
 }
 
 void GLLabel::generateCaption() {
-    auto titleSize = m_textService->getTextSize(m_glCaption.text, m_glCaption.scale);
+    const float LINESPACING = 10.0F;
+    // Split the message with \r
+    m_glMessageLines.clear();
+    std::istringstream iss(m_glCaption.text);
+    std::string line;
+    size_t lineIndex = 0;
+    float totalHeight = 0.0F;
+    while (std::getline(iss, line)) {
+        if (!line.empty() && line.back() == '\r') line.pop_back();
+        auto titleSize = m_textService->getTextSize(line, m_glCaption.scale);
 
-    m_glCaption.position = {
-        m_location.x() + m_initialLocation.x() + (m_size.width() / 2.0F),
-        m_location.y() + m_initialLocation.y() + (m_size.height() / 2.0F) + (titleSize.height() / 2.0F)
-    };
-
-    switch (m_textAlignment) {
-        case TextAlignment::Left:
-            m_glCaption.position.setX(m_glCaption.position.x());
-            break;
-        case TextAlignment::Center:
-            m_glCaption.position.setX(m_glCaption.position.x() - (titleSize.width() / 2.0F));
-            break;
-        case TextAlignment::Right:
-            m_glCaption.position.setX(m_glCaption.position.x() - titleSize.width());
-            break;
+        if (lineIndex > 0) {
+            totalHeight += LINESPACING;
+        }
+        Point<float> position = {
+            m_location.x() + m_initialLocation.x(),
+            m_location.y() + m_initialLocation.y() + totalHeight + (titleSize.height())
+        };
+        switch (m_textAlignment) {
+            case TextAlignment::Left:
+                position.setX(position.x());
+                break;
+            case TextAlignment::Center:
+                position.setX(position.x() - (titleSize.width() / 2.0F));
+                break;
+            case TextAlignment::Right:
+                position.setX(position.x() - titleSize.width());
+                break;
+        }
+        m_glMessageLines.push_back({ std::move(line), position, m_glCaption.scale, m_glCaption.color });
+        totalHeight += titleSize.height();
+        lineIndex++;
+    }
+    // Recenter vertically every lines
+    for (auto &messageLine : m_glMessageLines) {
+        messageLine.position.setY(messageLine.position.y() - (totalHeight / 2.0F));
     }
 }
 

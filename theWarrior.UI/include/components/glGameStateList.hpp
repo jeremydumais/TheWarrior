@@ -19,17 +19,9 @@ class GLGameStateList : public GLComponentBase {
     explicit GLGameStateList(GLContext &glContext,
                              thewarrior::models::Point<float> location);
     ~GLGameStateList() override = default;
-    void onInitialize(const GLComponentBaseInfo &info) override;
     void reset();
     bool loadTextures();
     void setGameStates(const std::vector<storage::GameStateMetadata> &gameStateList);
-    void onGenerateGLElements() override;
-    void onRender() override;
-    void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;
-    void onButtonUpPressed() override;
-    void onButtonDownPressed() override;
-    void onButtonCancelPressed() override;
-    void onButtonActionPressed() override;
     const storage::GameStateMetadata &getSelectedGameState() const;
     boost::signals2::signal<void()> onCancelButtonPressed;
     boost::signals2::signal<void()> onOKButtonPressed;
@@ -40,6 +32,14 @@ class GLGameStateList : public GLComponentBase {
     GLLabel m_dateSavedHeaderLabel;
     std::vector<std::unique_ptr<GLGameStateListEntry>> m_gameEntries;
     size_t m_cursorPosition;
+    void onInitialize(const GLComponentBaseInfo &info) override;
+    void onGenerateGLElements() override;
+    void onRender() override;
+    void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;
+    void onButtonUpPressed() override;
+    void onButtonDownPressed() override;
+    void onButtonCancelPressed() override;
+    void onButtonActionPressed() override;
 
  private:
     void generateScrollBar();

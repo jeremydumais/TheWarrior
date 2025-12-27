@@ -2,7 +2,6 @@
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_timer.h>
 #include <fmt/format.h>
-#include <cctype>
 #include <string>
 #include <string_view>
 #include <boost/algorithm/string/trim.hpp>
@@ -133,9 +132,6 @@ void NewGamePlayerNameScreen::onRender() {
     m_enterPlayerNameLabel.render();
     m_playerNameLabel.render();
     m_modalDialog.render();
-}
-
-void NewGamePlayerNameScreen::unloadGLMapObjects() {
 }
 
 void NewGamePlayerNameScreen::onGameWindowSizeChanged(const thewarrior::models::Size<> &size) {

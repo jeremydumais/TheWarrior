@@ -1,13 +1,7 @@
-#include <SDL2/SDL_events.h>
-#include <SDL2/SDL_keycode.h>
-#include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_timer.h>
 #include <fmt/format.h>
-#include <cctype>
 #include <stdexcept>
 #include <string>
-#include <boost/algorithm/string/trim.hpp>
-#include <boost/algorithm/string/case_conv.hpp>
 #include "glColor.hpp"
 #include "glComponentBase.hpp"
 #include "loadGameScreen.hpp"

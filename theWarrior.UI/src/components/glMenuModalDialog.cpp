@@ -1,3 +1,4 @@
+#include <SDL2/SDL_timer.h>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -24,14 +25,14 @@ m_visible(false),
 m_autoSize(true),
 m_menuWindow(size),
 m_menuButtonOK(glContext, "OK", Point<float>(0.0F, -135.0F), Size<float>(250.0F, 75.0F)) {
+    registerComponent(&m_menuButtonOK);
 }
 
-void GLMenuModalDialog::onInitialize(const GLComponentBaseInfo &info) {
+void GLMenuModalDialog::onInitialize(const GLComponentBaseInfo &) {
     m_menuWindow.initShader(m_shaderProgram);
     m_menuWindow.initialize("", m_glTexture, m_textService);
     m_menuWindow.setTextureBeginId(29);
     m_menuWindow.setFillCenter(true);
-    m_menuButtonOK.initialize(info);
     m_menuButtonOK.setHasFocus(true);
 }
 
@@ -101,7 +102,6 @@ void GLMenuModalDialog::onGenerateGLElements() {
     m_menuWindow.generateGLElements();
     m_menuButtonOK.setLocation(Point<float>(m_menuButtonOK.getLocation().x(),
                                             (contentHeight / 2.0F) - (m_menuButtonOK.getSize().height() / 2.0F) - MARGINSPACING));
-    m_menuButtonOK.generateGLElements();
 }
 
 void GLMenuModalDialog::onRender() {
@@ -116,18 +116,21 @@ void GLMenuModalDialog::onRender() {
 
 void GLMenuModalDialog::onGameWindowSizeChanged(const thewarrior::models::Size<> &size) {
     m_menuWindow.gameWindowSizeChanged(size);
-    m_menuButtonOK.gameWindowSizeChanged(size);
     m_glFormService->gameWindowSizeChanged(size);
 }
 
 void GLMenuModalDialog::onButtonActionPressed() {
     hide();
     playClickSound();
+    SDL_Delay(200);
+    onClosed();
 }
 
 void GLMenuModalDialog::onButtonCancelPressed() {
     hide();
     playBackSound();
+    SDL_Delay(200);
+    onClosed();
 }
 
 }  // namespace thewarrior::ui::components

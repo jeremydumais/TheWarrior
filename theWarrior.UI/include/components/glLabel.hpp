@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include "glColor.hpp"
 #include "glComponentBase.hpp"
 #include "glContext.hpp"
@@ -30,17 +31,19 @@ class GLLabel : public GLComponentBase {
     const thewarrior::models::Point<float> &getPosition() const;
     float getScale() const;
     GLColor getColor() const;
-    void setCaption(const std::string &title);
+    void setCaption(const std::string &caption);
     void setPosition(const thewarrior::models::Point<float> &position);
     void setScale(float scale);
     void setColor(GLColor color);
     void setTextAlignement(TextAlignment textAlignement);
+    void onInitialize(const GLComponentBaseInfo &info) override;
     void onGenerateGLElements() override;
     void onRender() override;
     void onGameWindowSizeChanged(const thewarrior::models::Size<int> &) override;
 
  protected:
     GLTextObject m_glCaption;
+    std::vector<GLTextObject> m_glMessageLines;
     TextAlignment m_textAlignment;
     void generateCaption();
 };
