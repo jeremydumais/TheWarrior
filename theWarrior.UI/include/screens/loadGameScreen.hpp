@@ -18,7 +18,7 @@ class LoadGameScreen : public MenuScreenBase {
  public:
     explicit LoadGameScreen(GLContext &glContext);
     bool loadTextures();
-    void update();
+    void update() override;
     void reset();
     const std::string &getSelectedGameStateFileName() const;
     boost::signals2::signal<void()> backPressed;

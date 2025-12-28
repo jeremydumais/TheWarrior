@@ -20,6 +20,7 @@ class GLMenuButton : public GLComponentBase {
                           thewarrior::models::Size<float> size);
     ~GLMenuButton() override;
     bool isEnabled() const;
+    bool hasFocus() const;
     void setCaption(const std::string &title);
     void setEnabled(bool enabled);
     void onGenerateGLElements() override;

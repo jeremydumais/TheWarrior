@@ -31,7 +31,6 @@ m_menuButtonOK(glContext, "OK", Point<float>(0.0F, 0.0F), Size<float>(250.0F, 75
 }
 
 void GLMessageDialog::onInitialize(const GLComponentBaseInfo &) {
-    m_messageLabel.setAutoSize(true);
     m_menuButtonOK.setHasFocus(true);
 }
 
@@ -53,16 +52,22 @@ void GLMessageDialog::setMessage(const std::string &message) {
 
 void GLMessageDialog::onGenerateGLElements() {
     const float MARGINSPACING = 40.0F;
-    const auto labelSize = m_messageLabel.getSize();
+    const auto LABELSIZE = m_messageLabel.getSize();
+    const auto MINIMUMPANELWIDTH = m_menuButtonOK.getSize().width() + (MARGINSPACING * 2.0F);
+    Size<float> newPanelSize = {
+        LABELSIZE.width() + (MARGINSPACING * 2.0F),
+        LABELSIZE.height() + MARGINSPACING + m_menuButtonOK.getSize().height() + 60.0F
+    };
 
-    m_menuPanel.setSize({
-            labelSize.width() + (MARGINSPACING * 2.0F),
-            labelSize.height() + MARGINSPACING + m_menuButtonOK.getSize().height() + 60.0F
-            });
-    m_messageLabel.setLocation({ (m_menuPanel.getSize().width() / 2.0F) - MARGINSPACING,
-                                 -labelSize.height() / 2.0F });
+    if (newPanelSize.width() < MINIMUMPANELWIDTH) {
+        newPanelSize.setWidth(MINIMUMPANELWIDTH);
+    }
+
+    m_menuPanel.setSize(newPanelSize);
+    m_messageLabel.setLocation({ m_messageLabel.getLocation().x(),
+                                 -(LABELSIZE.height() / 2.0F) - (MARGINSPACING / 2.0F) });
     m_menuButtonOK.setLocation({ m_menuButtonOK.getLocation().x(),
-                                 (labelSize.height() / 2.0F) + (MARGINSPACING / 2.0F) });
+                                 (LABELSIZE.height() / 2.0F) + (MARGINSPACING / 2.0F) });
 }
 
 void GLMessageDialog::onRender() {

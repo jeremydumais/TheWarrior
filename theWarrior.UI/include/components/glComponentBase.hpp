@@ -58,10 +58,10 @@ class GLComponentBase {
     HorizontalAlignment getHorizontalAlignment() const;
     VerticalAlignment getVerticalAlignment() const;
     void generateGLElements();
-    void update();
+    virtual void update();
     void render();
     void gameWindowSizeChanged(const thewarrior::models::Size<int> &size);
-    thewarrior::models::Size<float> getSize() const;
+    virtual thewarrior::models::Size<float> getSize() const;
     thewarrior::models::Point<float> getLocation() const;
     void setLocation(thewarrior::models::Point<float> value);
     void setSize(thewarrior::models::Size<float> value);

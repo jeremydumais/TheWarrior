@@ -23,7 +23,7 @@ GLLabel::GLLabel(GLContext &glContext,
 m_glCaption({caption, location, scale, color}),
 m_glMessageLines({}),
 m_textAlignment(textAlignment),
-m_autoSize(false) {}
+m_labelSize({0.0F, 0.0F}) {}
 
 const std::string &GLLabel::getCaption() const {
     return m_glCaption.text;
@@ -37,8 +37,8 @@ GLColor GLLabel::getColor() const {
     return m_glCaption.color;
 }
 
-bool GLLabel::getAutoSize() const {
-    return m_autoSize;
+Size<float> GLLabel::getSize() const {
+    return m_labelSize;
 }
 
 void GLLabel::setCaption(const std::string &caption) {
@@ -56,10 +56,6 @@ void GLLabel::setColor(GLColor color) {
 
 void GLLabel::setTextAlignement(TextAlignment textAlignement) {
     m_textAlignment = textAlignement;
-}
-
-void GLLabel::setAutoSize(bool value) {
-    m_autoSize = value;
 }
 
 void GLLabel::onInitialize(const GLComponentBaseInfo &) {
@@ -99,9 +95,10 @@ void GLLabel::generateCaption() {
         if (lineIndex > 0) {
             totalHeight += LINESPACING;
         }
+        totalHeight += lineSize.height();
         Point<float> position = {
             m_location.x() + m_initialLocation.x(),
-            m_location.y() + m_initialLocation.y() + totalHeight + (lineSize.height())
+            m_location.y() + m_initialLocation.y() + totalHeight
         };
         switch (m_textAlignment) {
             case TextAlignment::Left:
@@ -115,18 +112,21 @@ void GLLabel::generateCaption() {
                 break;
         }
         m_glMessageLines.push_back({ std::move(line), position, m_glCaption.scale, m_glCaption.color });
-        totalHeight += lineSize.height();
         if (lineSize.width() > longerLineWidth) {
             longerLineWidth = lineSize.width();
         }
         lineIndex++;
     }
+    m_labelSize = { longerLineWidth, totalHeight };
     // Recenter vertically every lines
-    for (auto &messageLine : m_glMessageLines) {
-        messageLine.position.setY(messageLine.position.y() - (totalHeight / 2.0F));
-    }
-    if (m_autoSize) {
-        m_size = { longerLineWidth, totalHeight };
+    if (m_glMessageLines.size() == 1) {
+        for (auto &messageLine : m_glMessageLines) {
+            messageLine.position.setY(messageLine.position.y() - (totalHeight / 2.0F));
+        }
+    } else {
+        for (auto &messageLine : m_glMessageLines) {
+            messageLine.position.setY(messageLine.position.y() + LINESPACING);
+        }
     }
 }
 

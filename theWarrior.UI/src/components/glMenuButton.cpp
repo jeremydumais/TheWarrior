@@ -33,6 +33,10 @@ bool GLMenuButton::isEnabled() const {
     return m_enabled;
 }
 
+bool GLMenuButton::hasFocus() const {
+    return m_hasFocus;
+}
+
 void GLMenuButton::setCaption(const std::string &title) {
     m_glCaption.text = title;
     generateCaption();

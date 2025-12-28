@@ -38,6 +38,7 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/shakingAnimation.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/valueChangeAnimation.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glComponentBase.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glConfirmationDialog.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glGameStateList.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glGameStateListEntry.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glLabel.cpp
