@@ -64,6 +64,7 @@ class GLComponentBase {
     thewarrior::models::Size<float> getSize() const;
     thewarrior::models::Point<float> getLocation() const;
     void setLocation(thewarrior::models::Point<float> value);
+    void setSize(thewarrior::models::Size<float> value);
     void setHorizontalAlignment(HorizontalAlignment horizontalAlignment);
     void setVerticalAlignment(VerticalAlignment verticalAlignment);
 

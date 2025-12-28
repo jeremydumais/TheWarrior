@@ -28,19 +28,20 @@ class GLLabel : public GLComponentBase {
             const TextAlignment textAlignment = TextAlignment::Center);
     ~GLLabel() override = default;
     const std::string &getCaption() const;
-    const thewarrior::models::Point<float> &getPosition() const;
     float getScale() const;
     GLColor getColor() const;
+    bool getAutoSize() const;
     void setCaption(const std::string &caption);
-    void setPosition(const thewarrior::models::Point<float> &position);
     void setScale(float scale);
     void setColor(GLColor color);
     void setTextAlignement(TextAlignment textAlignement);
+    void setAutoSize(bool value);
 
  protected:
     GLTextObject m_glCaption;
     std::vector<GLTextObject> m_glMessageLines;
     TextAlignment m_textAlignment;
+    bool m_autoSize;
     void onInitialize(const GLComponentBaseInfo &info) override;
     void onGenerateGLElements() override;
     void onRender() override;

@@ -43,7 +43,7 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glLabel.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glPanel.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glMenuButton.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glMenuModalDialog.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glMessageDialog.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glOnScreenKeyboard.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/screens/mainMenuScreen.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/screens/menuScreenBase.cpp

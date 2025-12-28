@@ -5,7 +5,7 @@
 #include <string_view>
 #include <boost/signals2.hpp>
 #include "components/glOnScreenKeyboard.hpp"
-#include "components/glMenuModalDialog.hpp"
+#include "components/glMessageDialog.hpp"
 #include "components/glComponentBase.hpp"
 #include "components/glLabel.hpp"
 #include "components/glPanel.hpp"
@@ -35,7 +35,7 @@ class NewGamePlayerNameScreen : public MenuScreenBase {
     components::GLPanel m_menuPanel;
     GLTextObject m_enterNameObject;
     std::string m_playerName;
-    components::GLMenuModalDialog m_modalDialog;
+    components::GLMessageDialog m_modalDialog;
     void onInitialize(const components::GLComponentBaseInfo &info) override;
     void onGenerateGLElements() override;
     void onRender() override;

@@ -171,6 +171,10 @@ void GLComponentBase::setLocation(thewarrior::models::Point<float> value) {
     });
 }
 
+void GLComponentBase::setSize(thewarrior::models::Size<float> value) {
+    m_size = value;
+}
+
 void GLComponentBase::setHorizontalAlignment(HorizontalAlignment horizontalAlignment) {
     m_horizontalAlignment = horizontalAlignment;
 }
