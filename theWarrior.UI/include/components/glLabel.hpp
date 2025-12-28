@@ -26,7 +26,7 @@ class GLLabel : public GLComponentBase {
             const GLColor color = GLColor::White,
             const float scale = 0.6F,
             const TextAlignment textAlignment = TextAlignment::Center);
-    ~GLLabel() override;
+    ~GLLabel() override = default;
     const std::string &getCaption() const;
     const thewarrior::models::Point<float> &getPosition() const;
     float getScale() const;
@@ -36,15 +36,15 @@ class GLLabel : public GLComponentBase {
     void setScale(float scale);
     void setColor(GLColor color);
     void setTextAlignement(TextAlignment textAlignement);
-    void onInitialize(const GLComponentBaseInfo &info) override;
-    void onGenerateGLElements() override;
-    void onRender() override;
-    void onGameWindowSizeChanged(const thewarrior::models::Size<int> &) override;
 
  protected:
     GLTextObject m_glCaption;
     std::vector<GLTextObject> m_glMessageLines;
     TextAlignment m_textAlignment;
+    void onInitialize(const GLComponentBaseInfo &info) override;
+    void onGenerateGLElements() override;
+    void onRender() override;
+    void onGameWindowSizeChanged(const thewarrior::models::Size<int> &) override;
     void generateCaption();
 };
 

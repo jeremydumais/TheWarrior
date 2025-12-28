@@ -8,6 +8,7 @@
 #include "components/glGameStateList.hpp"
 #include "components/glLabel.hpp"
 #include "components/glMenuButton.hpp"
+#include "components/glPanel.hpp"
 #include "loadGameScreenController.hpp"
 #include "menuScreenBase.hpp"
 
@@ -42,6 +43,7 @@ class LoadGameScreen : public MenuScreenBase {
     components::GLLabel m_noSavedGameInstructionsLabel1;
     components::GLLabel m_noSavedGameInstructionsLabel2;
     components::GLMenuButton m_menuButtonLoad;
+    components::GLPanel m_menuPanel;
     std::vector<storage::GameStateMetadata> m_gameStates;
     FocusElement m_focusElement;
     void gameStateListOKButtonPressed();

@@ -22,6 +22,8 @@ m_noSavedGameLabel(glContext, "No saved adventures found", Point<float>(0.0F, -1
 m_noSavedGameInstructionsLabel1(glContext, "Your journey has yet to begin.", Point<float>(0.0F, -30.0F), GLColor::Gray, 0.46F),
 m_noSavedGameInstructionsLabel2(glContext, "Start a new game to create your first save.", Point<float>(0.0F, 40.0F), GLColor::Gray, 0.46F),
 m_menuButtonLoad(glContext, "Load", Point<float>(270.0F, 300.0F), Size<float>(250.0F, 75.0F)),
+m_menuPanel(glContext, Size<float>(1100.0F, 777.0F), {
+        .skin = components::SingleTextureSkin { .textureName = TextureMainMenuPanel }}),
 m_gameStates({}),
 m_focusElement(FocusElement::GameStateList) {
     registerComponent(&m_gameStateList);
@@ -30,6 +32,7 @@ m_focusElement(FocusElement::GameStateList) {
     registerComponent(&m_noSavedGameLabel);
     registerComponent(&m_noSavedGameInstructionsLabel1);
     registerComponent(&m_noSavedGameInstructionsLabel2);
+    registerComponent(&m_menuPanel);
     m_gameStateList.onOKButtonPressed.connect(boost::bind(&LoadGameScreen::gameStateListOKButtonPressed, this));
     m_gameStateList.onCancelButtonPressed.connect(boost::bind(&LoadGameScreen::gameStateListCancelButtonPressed, this));
 }
@@ -62,7 +65,7 @@ void LoadGameScreen::update() {
 
 void LoadGameScreen::onRender() {
     MenuScreenBase::onRender();
-    drawGLObject(TextureMainMenuPanel);
+    m_menuPanel.render();
     m_loadGameLabel.render();
     if (!m_gameStates.empty()) {
         m_gameStateList.render();
@@ -87,7 +90,6 @@ const std::string &LoadGameScreen::getSelectedGameStateFileName() const {
 
 void LoadGameScreen::onGenerateGLElements() {
     MenuScreenBase::onGenerateGLElements();
-    generateGLObject(TextureMainMenuPanel);
 }
 
 void LoadGameScreen::onButtonCancelPressed() {

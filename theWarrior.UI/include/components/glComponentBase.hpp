@@ -48,11 +48,15 @@ class GLComponentBase {
  public:
     explicit GLComponentBase(GLContext &glContext,
                              thewarrior::models::Point<float> location = thewarrior::models::Point<float>(0.0F, 0.0F),
-                             thewarrior::models::Size<float> size = thewarrior::models::Size<float>(0.0F, 0.0F));
+                             thewarrior::models::Size<float> size = thewarrior::models::Size<float>(0.0F, 0.0F),
+                             HorizontalAlignment horizontalAlignment = HorizontalAlignment::Center,
+                             VerticalAlignment verticalAlignment = VerticalAlignment::Center);
     virtual ~GLComponentBase();
     void initialize(const GLComponentBaseInfo &info);
     void registerComponent(GLComponentBase *component);
     const std::string &getLastError() const;
+    HorizontalAlignment getHorizontalAlignment() const;
+    VerticalAlignment getVerticalAlignment() const;
     void generateGLElements();
     void update();
     void render();
@@ -60,6 +64,8 @@ class GLComponentBase {
     thewarrior::models::Size<float> getSize() const;
     thewarrior::models::Point<float> getLocation() const;
     void setLocation(thewarrior::models::Point<float> value);
+    void setHorizontalAlignment(HorizontalAlignment horizontalAlignment);
+    void setVerticalAlignment(VerticalAlignment verticalAlignment);
 
  protected:
     std::vector<GLComponentBase *> m_registeredComponents;
@@ -80,6 +86,8 @@ class GLComponentBase {
     Uint64 m_lastMoveDownTicks = 0;
     GLContext &m_glContext;
     std::map<std::string, GLObject> m_namedObjects = {};
+    HorizontalAlignment m_horizontalAlignment;
+    VerticalAlignment m_verticalAlignment;
     Uint64 m_lastMoveLeftTicks = 0;
     Uint64 m_lastMoveRightTicks = 0;
     std::shared_ptr<Mix_Chunk> m_menuBackSound;
@@ -94,6 +102,7 @@ class GLComponentBase {
     void playMoveSound();
     thewarrior::models::Size<float> getGLSizeFromPx(thewarrior::models::Size<int> value) const;
     GLComponentBaseInfo getComponentBaseInfo() const;
+    thewarrior::models::Point<float> getRelativeCenterPosition() const;
     bool loadTexture(const std::string &name,
                      const std::string &filename,
                      int width,
@@ -105,6 +114,19 @@ class GLComponentBase {
                           VerticalAlignment verticalAlignment = VerticalAlignment::Center,
                           thewarrior::models::Point<int> offset = thewarrior::models::Point<int>(0, 0));
     void drawGLObject(const std::string &textureName);
+    void generateQuad(std::vector<GLObject> &objects,
+                      thewarrior::models::Point<float> location,
+                      thewarrior::models::Size<float> size,
+                      const thewarrior::models::Texture *texture,
+                      int textureId,
+                      GLuint textureGLId = 0);
+    void generateBoxQuad(std::vector<GLObject> &objects,
+                         thewarrior::models::Point<float> location,
+                         thewarrior::models::Size<float> size,
+                         const thewarrior::models::Texture *texture,
+                         int textureBeginId,
+                         GLuint textureGLId = 0,
+                         float blockSize = 32.0F);
     virtual void onInitialize(const GLComponentBaseInfo &) {}
     virtual void onGenerateGLElements() {}
     virtual void onRender() {}

@@ -10,6 +10,7 @@
 #include "glComponentBase.hpp"
 #include "newGamePlayerNameScreen.hpp"
 #include "glContext.hpp"
+#include "glPanel.hpp"
 #include "mainMenuCommons.hpp"
 #include "menuScreenBase.hpp"
 #include "point.hpp"
@@ -25,6 +26,8 @@ m_onScreenKeyboard(glContext, Point<float>(0.0F, 130.0F)),
 m_newGameLabel(glContext, "New Game", Point<float>(0.0F, -300.0F), GLColor::Brown, 0.9F),
 m_enterPlayerNameLabel(glContext, "Enter Your Name:", Point<float>(0.0F, -200.0F), GLColor::Brown),
 m_playerNameLabel(glContext, "", Point<float>(0.0F, -137.0F), GLColor::Brown, 0.8F),
+m_menuPanel(glContext, Size<float>(1100.0F, 777.0F), {
+        .skin = components::SingleTextureSkin { .textureName = TextureMainMenuPanel }}),
 m_enterNameObject({"Enter name:", {0.0F, 0.0F}, 0.8F}),
 m_playerName(""),
 m_modalDialog(glContext, Point<float>(0.0F, 0.0F), Size<float>(300.0F, 150.0F)) {
@@ -33,6 +36,7 @@ m_modalDialog(glContext, Point<float>(0.0F, 0.0F), Size<float>(300.0F, 150.0F)) 
     registerComponent(&m_enterPlayerNameLabel);
     registerComponent(&m_playerNameLabel);
     registerComponent(&m_modalDialog);
+    registerComponent(&m_menuPanel);
     m_onScreenKeyboard.onCharButtonPressed.connect(boost::bind(&NewGamePlayerNameScreen::keyboardCharButtonPressed, this, boost::placeholders::_1));
     m_onScreenKeyboard.onDELButtonPressed.connect(boost::bind(&NewGamePlayerNameScreen::keyboardDELButtonPressed, this));
     m_onScreenKeyboard.onOKButtonPressed.connect(boost::bind(&NewGamePlayerNameScreen::keyboardOKButtonPressed, this));
@@ -125,7 +129,7 @@ void NewGamePlayerNameScreen::update() {
 
 void NewGamePlayerNameScreen::onRender() {
     MenuScreenBase::onRender();
-    drawGLObject(TextureMainMenuPanel);
+    m_menuPanel.render();
     m_onScreenKeyboard.render();
     drawGLObject(TextureMainMenuTextBox);
     m_newGameLabel.render();
@@ -148,7 +152,6 @@ bool NewGamePlayerNameScreen::loadTextures() {
 
 void NewGamePlayerNameScreen::onGenerateGLElements() {
     MenuScreenBase::onGenerateGLElements();
-    generateGLObject(TextureMainMenuPanel);
     generateGLObject(TextureMainMenuTextBox,
                      Size<>(540, 100),
                      components::HorizontalAlignment::Center,

@@ -18,7 +18,9 @@ namespace thewarrior::ui::components {
 
 GLComponentBase::GLComponentBase(GLContext &glContext,
                                  Point<float> location,
-                                 Size<float> size)
+                                 Size<float> size,
+                                 HorizontalAlignment horizontalAlignment,
+                                 VerticalAlignment verticalAlignement)
 : m_registeredComponents({}),
 m_initializationInfo(nullptr),
 m_resourcesPath(""),
@@ -30,7 +32,9 @@ m_shaderProgram(nullptr),
 m_textService(nullptr),
 m_glFormService(std::make_unique<GLFormService>()),
 m_inputDevicesState(nullptr),
-m_glContext(glContext) {}
+m_glContext(glContext),
+m_horizontalAlignment(horizontalAlignment),
+m_verticalAlignment(verticalAlignement) {}
 
 GLComponentBase::~GLComponentBase() {
     freeGLObjects(m_namedObjects);
@@ -62,6 +66,14 @@ void GLComponentBase::registerComponent(GLComponentBase *component) {
 
 const std::string &GLComponentBase::getLastError() const {
     return m_lastError;
+}
+
+HorizontalAlignment GLComponentBase::getHorizontalAlignment() const {
+    return m_horizontalAlignment;
+}
+
+VerticalAlignment GLComponentBase::getVerticalAlignment() const {
+    return m_verticalAlignment;
 }
 
 void GLComponentBase::generateGLElements() {
@@ -159,6 +171,15 @@ void GLComponentBase::setLocation(thewarrior::models::Point<float> value) {
     });
 }
 
+void GLComponentBase::setHorizontalAlignment(HorizontalAlignment horizontalAlignment) {
+    m_horizontalAlignment = horizontalAlignment;
+}
+
+void GLComponentBase::setVerticalAlignment(VerticalAlignment verticalAlignment) {
+    m_verticalAlignment = verticalAlignment;
+}
+
+
 void GLComponentBase::freeGLObjects(std::vector<GLObject> &objects) {
     for (auto &item : objects) {
         if (item.vboPosition) glDeleteBuffers(1, &item.vboPosition);
@@ -216,6 +237,33 @@ GLComponentBaseInfo GLComponentBase::getComponentBaseInfo() const {
         .menuBackSound = m_menuBackSound
     };
     return componentInfo;
+}
+
+thewarrior::models::Point<float> GLComponentBase::getRelativeCenterPosition() const {
+    float left = 0.0F;
+    float top = 0.0F;
+    //TODO: FIX m_location on each choice
+    switch (m_horizontalAlignment) {
+        case HorizontalAlignment::Left:
+            left = (m_size.width() / 2.0F);
+            break;
+        case HorizontalAlignment::Center:
+            left = (m_screenSize.width() / 2.0F) + m_location.x();
+        break;
+        case HorizontalAlignment::Right:
+            left = m_screenSize.width() - m_size.width();
+        break;
+    }
+    switch (m_verticalAlignment) {
+        case VerticalAlignment::Top: break;
+        case VerticalAlignment::Center:
+            top = (m_screenSize.height() / 2.0F) + m_location.y();
+        break;
+        case VerticalAlignment::Bottom:
+            top = m_screenSize.height() - m_size.height() + m_location.y();
+        break;
+    }
+    return { left, top };
 }
 
 bool GLComponentBase::loadTexture(const std::string &name,
@@ -291,5 +339,66 @@ void GLComponentBase::generateGLObject(const std::string &textureName,
 void GLComponentBase::drawGLObject(const std::string &textureName) {
     m_glFormService->drawQuad(m_namedObjects[textureName], m_glContext.texturesGL[textureName]);
 }
+
+void GLComponentBase::generateQuad(std::vector<GLObject> &objects,
+        Point<float> location, Size<float> size,
+        const Texture *texture, int textureId,
+        GLuint textureGLId) {
+    // Determine the position
+    float left = 0.0F;
+    float top = 0.0F;
+    switch (m_horizontalAlignment) {
+        case HorizontalAlignment::Left: break;
+        case HorizontalAlignment::Center:
+            left = (m_screenSize.width() / 2.0F) - (size.width() / 2.0F);
+        break;
+        case HorizontalAlignment::Right:
+            left = m_screenSize.width() - size.width();
+        break;
+    }
+    switch (m_verticalAlignment) {
+        case VerticalAlignment::Top: break;
+        case VerticalAlignment::Center:
+            top = (m_screenSize.height() / 2.0F) - (size.height() / 2.0F);
+        break;
+        case VerticalAlignment::Bottom:
+            top = m_screenSize.height() - size.height();
+        break;
+    }
+    m_glFormService->generateQuad(
+            objects, {left + location.x(), top + location.y()},
+            size, texture, textureId, textureGLId);
+}
+
+void GLComponentBase::generateBoxQuad(std::vector<GLObject> &objects,
+        Point<float> location, Size<float> size,
+        const Texture *texture, int textureBeginId,
+        GLuint textureGLId, float blockSize) {
+    // Determine the position
+    float left = 0.0F;
+    float top = 0.0F;
+    switch (m_horizontalAlignment) {
+        case HorizontalAlignment::Left: break;
+        case HorizontalAlignment::Center:
+            left = (m_screenSize.width() / 2.0F) - (size.width() / 2.0F);
+        break;
+        case HorizontalAlignment::Right:
+            left = m_screenSize.width() - size.width();
+        break;
+    }
+    switch (m_verticalAlignment) {
+        case VerticalAlignment::Top: break;
+        case VerticalAlignment::Center:
+            top = (m_screenSize.height() / 2.0F) - (size.height() / 2.0F);
+        break;
+        case VerticalAlignment::Bottom:
+            top = m_screenSize.height() - size.height();
+        break;
+    }
+    m_glFormService->generateBoxQuad(
+            objects, { left + location.x(), top + location.y()},
+            size, texture, textureBeginId, textureGLId, blockSize);
+}
+
 
 }  // namespace thewarrior::ui::components

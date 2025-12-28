@@ -8,7 +8,6 @@
 #include "glTextService.hpp"
 #include "point.hpp"
 #include "size.hpp"
-#include "texture.hpp"
 #include <boost/signals2.hpp>
 
 namespace thewarrior::ui::components {
@@ -37,19 +36,6 @@ class GLMenuButton : public GLComponentBase {
     int m_textureBeginId;
     bool m_hasFocus;
     bool m_enabled;
-    void generateQuad(std::vector<GLObject> &objects,
-                      thewarrior::models::Point<float> location,
-                      thewarrior::models::Size<float> size,
-                      const thewarrior::models::Texture *texture,
-                      int textureId,
-                      GLuint textureGLId = 0);
-    void generateBoxQuad(std::vector<GLObject> &objects,
-                         thewarrior::models::Point<float> location,
-                         thewarrior::models::Size<float> size,
-                         const thewarrior::models::Texture *texture,
-                         int textureBeginId,
-                         GLuint textureGLId = 0,
-                         float blockSize = 32.0F);
     void generateCaption();
 };
 

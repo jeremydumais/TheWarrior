@@ -66,9 +66,6 @@ void GLMenuButton::onRender() {
 }
 
 void GLMenuButton::onGameWindowSizeChanged(const Size<int> &size) {
-    m_location = {
-        (m_screenSize.width() / 2.0F) - (m_size.width() / 2.0F),
-        (m_screenSize.height() / 2.0F) - (m_size.height() / 2.0F) };
     m_glFormService->gameWindowSizeChanged(size);
 }
 
@@ -80,32 +77,14 @@ void GLMenuButton::setHasFocus(bool value) {
     m_hasFocus = value;
 }
 
-void GLMenuButton::generateQuad(std::vector<GLObject> &objects,
-        Point<float> location, Size<float> size,
-        const Texture *texture, int textureId,
-        GLuint textureGLId) {
-    m_glFormService->generateQuad(
-            objects, {m_initialLocation.x() + location.x(), m_initialLocation.y() + location.y()},
-            size, texture, textureId, textureGLId);
-}
-
-void GLMenuButton::generateBoxQuad(std::vector<GLObject> &objects,
-        Point<float> location, Size<float> size,
-        const Texture *texture, int textureBeginId,
-        GLuint textureGLId, float blockSize) {
-    m_glFormService->generateBoxQuad(
-            objects, {m_initialLocation.x() + location.x(), m_initialLocation.y() + location.y()},
-            size, texture, textureBeginId, textureGLId, blockSize);
-}
-
 void GLMenuButton::generateCaption() {
+    auto componentCenter = getRelativeCenterPosition();
     auto titleSize = m_textService->getTextSize(m_glCaption.text, 0.6F);
-    m_glCaption.position = {m_location.x() + m_initialLocation.x() +
-        (m_size.width() / 2.0F) -
-            (titleSize.width() / 2.0F),
-            m_location.y() + m_initialLocation.y() +
-                (m_size.height() / 2.0F) +
-                (titleSize.height() / 2.0F)};
+
+    m_glCaption.position = {
+        componentCenter.x() - (titleSize.width() / 2.0F),
+        componentCenter.y() + (titleSize.height() / 2.0F)
+    };
     if (m_hasFocus) {
         m_glCaption.color = GLColor::Green;
     } else if (!m_enabled) {

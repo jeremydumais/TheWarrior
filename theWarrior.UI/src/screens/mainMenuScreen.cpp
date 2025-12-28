@@ -1,13 +1,11 @@
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_timer.h>
 #include <fmt/format.h>
-#include <memory>
 #include <optional>
 #include <string>
-#include "glColor.hpp"
 #include "glComponentBase.hpp"
 #include "glContext.hpp"
-#include "glLabel.hpp"
+#include "glPanel.hpp"
 #include "mainMenuCommons.hpp"
 #include "mainMenuScreen.hpp"
 #include "menuScreenBase.hpp"
@@ -20,28 +18,23 @@ namespace thewarrior::ui::screens {
 
 MainMenuScreen::MainMenuScreen(GLContext &glContext)
 : MenuScreenBase(glContext),
-m_menuWindow(Size<float>(350.0F, 420.0F)),
 m_menuButtonNewGame(glContext, "New Game", Point<float>(0.0F, -135.0F), Size<float>(250.0F, 75.0F)),
 m_menuButtonLoadGame(glContext, "Load Game", Point<float>(0.0F, -45.0F), Size<float>(250.0F, 75.0F)),
 m_menuButtonSettings(glContext, "Settings", Point<float>(0.0F, 45.0F), Size<float>(250.0F, 75.0F)),
 m_menuButtonQuit(glContext, "Quit", Point<float>(0.0F, 135.0F), Size<float>(250.0F, 75.0F)),
-m_label(glContext, "This is a test of\na multiline\nstring.", Point<float>(0.0F, 0.0F), GLColor::White, 0.6F, TextAlignment::Center) {
+m_menuPanel(glContext, Size<float>(350.0F, 420.0F)) {
     registerComponent(&m_menuButtonNewGame);
     registerComponent(&m_menuButtonLoadGame);
     registerComponent(&m_menuButtonSettings);
     registerComponent(&m_menuButtonQuit);
-    registerComponent(&m_label);
+    registerComponent(&m_menuPanel);
 }
 
 MainMenuScreen::~MainMenuScreen() {
     unloadTexture(TextureMainMenuLogo);
 }
 
-void MainMenuScreen::onInitialize(const GLComponentBaseInfo &info) {
-    m_menuWindow.initShader(m_shaderProgram);
-    m_menuWindow.initialize("", info.texture, info.textService);
-    m_menuWindow.setTextureBeginId(29);
-    m_menuWindow.setFillCenter(true);
+void MainMenuScreen::onInitialize(const GLComponentBaseInfo &) {
     if (!loadTextures()) {
         throw std::runtime_error(getLastError());
     }
@@ -53,16 +46,11 @@ void MainMenuScreen::processEvents(SDL_Event &) {
 void MainMenuScreen::onRender() {
     MenuScreenBase::onRender();
     drawGLObject(TextureMainMenuLogo);
-    m_menuWindow.render();
+    m_menuPanel.render();
     m_menuButtonNewGame.render();
     m_menuButtonLoadGame.render();
     m_menuButtonSettings.render();
     m_menuButtonQuit.render();
-    m_label.render();
-}
-
-void MainMenuScreen::onGameWindowSizeChanged(const thewarrior::models::Size<> &size) {
-    m_menuWindow.gameWindowSizeChanged(size);
 }
 
 bool MainMenuScreen::loadTextures() {
@@ -75,7 +63,6 @@ void MainMenuScreen::onGenerateGLElements() {
             std::nullopt,
             HorizontalAlignment::Left,
             VerticalAlignment::Top);
-    m_menuWindow.generateGLElements();
     m_menuButtonNewGame.setHasFocus(m_menuSelectedIndex == 0);
     m_menuButtonLoadGame.setHasFocus(m_menuSelectedIndex == 1);
     m_menuButtonSettings.setHasFocus(m_menuSelectedIndex == 2);

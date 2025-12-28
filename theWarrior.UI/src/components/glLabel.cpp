@@ -24,9 +24,6 @@ m_glCaption({caption, location, scale, color}),
 m_glMessageLines({}),
 m_textAlignment(textAlignment) {}
 
-GLLabel::~GLLabel() {
-}
-
 const std::string &GLLabel::getCaption() const {
     return m_glCaption.text;
 }

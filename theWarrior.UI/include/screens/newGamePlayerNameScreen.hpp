@@ -8,6 +8,7 @@
 #include "components/glMenuModalDialog.hpp"
 #include "components/glComponentBase.hpp"
 #include "components/glLabel.hpp"
+#include "components/glPanel.hpp"
 #include "glContext.hpp"
 #include "glTextService.hpp"
 #include "menuScreenBase.hpp"
@@ -31,6 +32,7 @@ class NewGamePlayerNameScreen : public MenuScreenBase {
     components::GLLabel m_newGameLabel;
     components::GLLabel m_enterPlayerNameLabel;
     components::GLLabel m_playerNameLabel;
+    components::GLPanel m_menuPanel;
     GLTextObject m_enterNameObject;
     std::string m_playerName;
     components::GLMenuModalDialog m_modalDialog;
