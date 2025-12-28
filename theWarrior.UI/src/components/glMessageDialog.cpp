@@ -65,7 +65,7 @@ void GLMessageDialog::onGenerateGLElements() {
 
     m_menuPanel.setSize(newPanelSize);
     m_messageLabel.setLocation({ m_messageLabel.getLocation().x(),
-                                 -(LABELSIZE.height() / 2.0F) - (MARGINSPACING / 2.0F) });
+                                 -LABELSIZE.height() - (MARGINSPACING / 2.0F) });
     m_menuButtonOK.setLocation({ m_menuButtonOK.getLocation().x(),
                                  (LABELSIZE.height() / 2.0F) + (MARGINSPACING / 2.0F) });
 }

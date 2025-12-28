@@ -1,14 +1,17 @@
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_timer.h>
+#include <boost/bind/bind.hpp>
+#include <boost/bind/placeholders.hpp>
+#include <fmt/core.h>
 #include <fmt/format.h>
 #include <string>
-#include <string_view>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 #include "glColor.hpp"
 #include "glComponentBase.hpp"
 #include "newGamePlayerNameScreen.hpp"
+#include "glConfirmationDialog.hpp"
 #include "glContext.hpp"
 #include "glPanel.hpp"
 #include "mainMenuCommons.hpp"
@@ -30,16 +33,19 @@ m_menuPanel(glContext, Size<float>(1100.0F, 777.0F), {
         .skin = components::SingleTextureSkin { .textureName = TextureMainMenuPanel }}),
 m_enterNameObject({"Enter name:", {0.0F, 0.0F}, 0.8F}),
 m_playerName(""),
-m_modalDialog(glContext, Point<float>(0.0F, 0.0F), Size<float>(300.0F, 150.0F)) {
+m_modalDialog(glContext, Point<float>(0.0F, 0.0F), Size<float>(300.0F, 150.0F)),
+m_confirmationPlayerExistDialog(glContext, Point<float>(0.0F, 0.0F), Size<float>(300.0F, 150.0F)) {
+    registerComponent(&m_menuPanel);
     registerComponent(&m_onScreenKeyboard);
     registerComponent(&m_newGameLabel);
     registerComponent(&m_enterPlayerNameLabel);
     registerComponent(&m_playerNameLabel);
     registerComponent(&m_modalDialog);
-    registerComponent(&m_menuPanel);
+    registerComponent(&m_confirmationPlayerExistDialog);
     m_onScreenKeyboard.onCharButtonPressed.connect(boost::bind(&NewGamePlayerNameScreen::keyboardCharButtonPressed, this, boost::placeholders::_1));
     m_onScreenKeyboard.onDELButtonPressed.connect(boost::bind(&NewGamePlayerNameScreen::keyboardDELButtonPressed, this));
     m_onScreenKeyboard.onOKButtonPressed.connect(boost::bind(&NewGamePlayerNameScreen::keyboardOKButtonPressed, this));
+    m_confirmationPlayerExistDialog.onClosed.connect(boost::bind(&NewGamePlayerNameScreen::confirmationPlayerExistClosed, this, boost::placeholders::_1));
 }
 
 NewGamePlayerNameScreen::~NewGamePlayerNameScreen() {
@@ -50,6 +56,7 @@ void NewGamePlayerNameScreen::onInitialize(const components::GLComponentBaseInfo
     if (!loadTextures()) {
         throw std::runtime_error(getLastError());
     }
+    m_confirmationPlayerExistDialog.setOkButtonText("Continue");
 }
 
 void NewGamePlayerNameScreen::processEvents(SDL_Event &e) {
@@ -122,6 +129,8 @@ void NewGamePlayerNameScreen::processEvents(SDL_Event &e) {
 void NewGamePlayerNameScreen::update() {
     if (m_modalDialog.isVisible()) {
         m_modalDialog.update();
+    } else if (m_confirmationPlayerExistDialog.isVisible()) {
+        m_confirmationPlayerExistDialog.update();
     } else {
         MenuScreenBase::update();
     }
@@ -136,6 +145,7 @@ void NewGamePlayerNameScreen::onRender() {
     m_enterPlayerNameLabel.render();
     m_playerNameLabel.render();
     m_modalDialog.render();
+    m_confirmationPlayerExistDialog.render();
 }
 
 void NewGamePlayerNameScreen::onGameWindowSizeChanged(const thewarrior::models::Size<> &size) {
@@ -226,7 +236,7 @@ void NewGamePlayerNameScreen::keyboardOKButtonPressed() {
     if (boost::trim_copy(m_playerName).empty()) {
         m_modalDialog.setMessage("The name of the player\ncannot be empty!");
         error = true;
-    } else if (!hasAtLeastTwoAlphaAscii(m_playerName)) {
+    } else if (!m_controller.hasAtLeastTwoAlphaAscii(m_playerName)) {
         m_modalDialog.setMessage("The name of the player must\ncontain at least 2 letters!");
         error = true;
     }
@@ -234,18 +244,24 @@ void NewGamePlayerNameScreen::keyboardOKButtonPressed() {
         m_modalDialog.show();
         generateGLElements();
     } else {
-        okPressed();
+        // Check if there's save games for that player name
+        auto result = m_controller.hasGameStatesForPlayer(m_playerName);
+        if (!result.success) {
+            m_modalDialog.setMessage(fmt::format("Error: {0}", m_controller.getLastError()));
+            m_modalDialog.show();
+        } else if (result.hasGameState) {
+            m_confirmationPlayerExistDialog.setMessage(fmt::format("Player {0} already has saved games.\nContinuing will gradually replace older saves with new ones.", m_playerName));
+            m_confirmationPlayerExistDialog.show();
+        } else {
+            okPressed();
+        }
     }
 }
 
-bool NewGamePlayerNameScreen::hasAtLeastTwoAlphaAscii(std::string_view value) {
-    int count = 0;
-    for (char ch : value) {
-        if (std::isalpha(ch)) {
-            if (++count == 2) return true;
-        }
+void NewGamePlayerNameScreen::confirmationPlayerExistClosed(components::ConfirmationDialogResult result) {
+    if (result == components::ConfirmationDialogResult::OK) {
+        okPressed();
     }
-    return false;
 }
 
 }  // namespace thewarrior::ui::screens

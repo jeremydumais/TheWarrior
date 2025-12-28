@@ -2,9 +2,9 @@
 
 #include <SDL2/SDL_events.h>
 #include <string>
-#include <string_view>
 #include <boost/signals2.hpp>
 #include "components/glOnScreenKeyboard.hpp"
+#include "components/glConfirmationDialog.hpp"
 #include "components/glMessageDialog.hpp"
 #include "components/glComponentBase.hpp"
 #include "components/glLabel.hpp"
@@ -12,17 +12,18 @@
 #include "glContext.hpp"
 #include "glTextService.hpp"
 #include "menuScreenBase.hpp"
+#include "newGamePlayerNameScreenController.hpp"
 #include "size.hpp"
 
 namespace thewarrior::ui::screens {
 
 class NewGamePlayerNameScreen : public MenuScreenBase {
  public:
-    NewGamePlayerNameScreen(GLContext &glContext);
+    explicit NewGamePlayerNameScreen(GLContext &glContext);
     ~NewGamePlayerNameScreen() override;
     bool loadTextures();
     void processEvents(SDL_Event &e);
-    void update();
+    void update() override;
     const std::string &getPlayerName() const;
     boost::signals2::signal<void()> backPressed;
     boost::signals2::signal<void()> okPressed;
@@ -36,6 +37,7 @@ class NewGamePlayerNameScreen : public MenuScreenBase {
     GLTextObject m_enterNameObject;
     std::string m_playerName;
     components::GLMessageDialog m_modalDialog;
+    components::GLConfirmationDialog m_confirmationPlayerExistDialog;
     void onInitialize(const components::GLComponentBaseInfo &info) override;
     void onGenerateGLElements() override;
     void onRender() override;
@@ -51,7 +53,10 @@ class NewGamePlayerNameScreen : public MenuScreenBase {
     void keyboardCharButtonPressed(char c);
     void keyboardDELButtonPressed();
     void keyboardOKButtonPressed();
-    bool hasAtLeastTwoAlphaAscii(std::string_view value);
+    void confirmationPlayerExistClosed(components::ConfirmationDialogResult result);
+
+ private:
+    controllers::NewGamePlayerNameScreenController m_controller;
 };
 
 }  // namespace thewarrior::ui::screens

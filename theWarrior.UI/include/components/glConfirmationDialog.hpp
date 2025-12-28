@@ -29,6 +29,7 @@ class GLConfirmationDialog : public GLComponentBase {
     void show();
     void hide();
     void setMessage(const std::string &message);
+    void setOkButtonText(const std::string &buttonText);
     boost::signals2::signal<void(ConfirmationDialogResult)> onClosed;
 
  protected:

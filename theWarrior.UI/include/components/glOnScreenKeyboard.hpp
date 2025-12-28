@@ -20,7 +20,7 @@ constexpr std::array<std::string_view, 43> ONSCREENKEYBOARD_BUTTONSTEXT = {
     "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
     "q", "w", "e", "r", "t", "y", "u", "i", "o", "p",
     "a", "s", "d", "f", "g", "h", "j", "k", "l", "-",
-    "z", "x", "c", "v", "b", "n", "m", "'", " .", "DEL",
+    "z", "x", "c", "v", "b", "n", "m", "'", ".", "DEL",
     "SHIFT", "SPACE", "OK"
 };
 

@@ -46,6 +46,11 @@ class GLLabel : public GLComponentBase {
     void onRender() override;
     void onGameWindowSizeChanged(const thewarrior::models::Size<int> &) override;
     void generateCaption();
+
+ private:
+    std::vector<std::string> wrapLineByWidth(const std::string &input,
+                                             float maxWidth,
+                                             float scale) const;
 };
 
 }  // namespace thewarrior::ui::components

@@ -41,6 +41,8 @@ bool GLConfirmationDialog::isVisible() const {
 }
 
 void GLConfirmationDialog::show() {
+    m_menuButtonCancel.setHasFocus(false);
+    m_menuButtonOK.setHasFocus(true);
     m_visible = true;
 }
 
@@ -51,6 +53,10 @@ void GLConfirmationDialog::hide() {
 void GLConfirmationDialog::setMessage(const std::string &message) {
     m_messageLabel.setCaption(message);
     generateGLElements();
+}
+
+void GLConfirmationDialog::setOkButtonText(const std::string &buttonText) {
+    m_menuButtonOK.setCaption(buttonText);
 }
 
 void GLConfirmationDialog::onGenerateGLElements() {
@@ -68,7 +74,7 @@ void GLConfirmationDialog::onGenerateGLElements() {
 
     m_menuPanel.setSize(newPanelSize);
     m_messageLabel.setLocation({ m_messageLabel.getLocation().x(),
-                                 -(LABELSIZE.height()) - (MARGINSPACING / 2.0F) });
+                                 -LABELSIZE.height() - (MARGINSPACING / 2.0F) });
     m_menuButtonOK.setLocation({ (m_menuButtonOK.getSize().width() / 2.0F) + (MARGINSPACING / 2.0F),
                                  (LABELSIZE.height() / 2.0F) + (MARGINSPACING / 2.0F) });
     m_menuButtonCancel.setLocation({ -(m_menuButtonCancel.getSize().width() / 2.0F) - (MARGINSPACING / 2.0F),
