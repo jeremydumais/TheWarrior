@@ -5,12 +5,14 @@
 #include <memory>
 #include <string>
 #include <boost/signals2.hpp>
+#include "glContext.hpp"
 #include "glFormService.hpp"
 #include "glShaderProgram.hpp"
 #include "glTextService.hpp"
 #include "glTexture.hpp"
 #include "glTextureService.hpp"
 #include "inputDevicesState.hpp"
+#include "screens/loadGameScreen.hpp"
 #include "screens/newGamePlayerNameScreen.hpp"
 #include "screens/mainMenuScreen.hpp"
 #include "size.hpp"
@@ -41,6 +43,7 @@ class MainMenuMode {
     void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
     boost::signals2::signal<void()> quitRequested;
     boost::signals2::signal<void(std::string playerName)> newGameRequested;
+    boost::signals2::signal<void(std::string fileName)> loadGameRequested;
 
  private:
     std::string m_lastError = "";
@@ -52,8 +55,10 @@ class MainMenuMode {
     std::shared_ptr<InputDevicesState> m_inputDevicesState = nullptr;
     std::map<std::string, std::shared_ptr<thewarrior::models::Texture>> m_textures;
     std::map<std::string, unsigned int> m_texturesGL;
+    GLContext m_glContext;
     std::shared_ptr<GLTexture> m_windowGLTexture;
     screens::MainMenuScreen m_mainScreen;
+    screens::LoadGameScreen m_loadGameScreen;
     screens::NewGamePlayerNameScreen m_newGamePlayerNameScreen;
     Mix_Music* m_backgroundMusic;
     std::shared_ptr<Mix_Chunk> m_menuMoveSound;
@@ -64,9 +69,11 @@ class MainMenuMode {
     void unloadMenuTextures();
     void loadMenuSounds();
     void newGamePressed();
+    void loadGamePressed();
     void quitPressed();
     void backToMainMenu();
     void newGameConfirmed();
+    void loadGameConfirmed();
 };
 
 }  // namespace thewarrior::ui

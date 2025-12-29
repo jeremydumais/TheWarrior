@@ -8,7 +8,8 @@
 #include <string_view>
 #include <vector>
 #include "glComponentBase.hpp"
-#include "glOnScreenKeyboardButton.hpp"
+#include "glContext.hpp"
+#include "glLabel.hpp"
 #include "point.hpp"
 #include "size.hpp"
 #include <boost/signals2.hpp>
@@ -25,13 +26,10 @@ constexpr std::array<std::string_view, 43> ONSCREENKEYBOARD_BUTTONSTEXT = {
 
 class GLOnScreenKeyboard : public GLComponentBase {
  public:
-    explicit GLOnScreenKeyboard(thewarrior::models::Point<float> location);
-    ~GLOnScreenKeyboard() override = default;
-    void initialize(const GLComponentBaseInfo &info);
+    explicit GLOnScreenKeyboard(GLContext &glContext, thewarrior::models::Point<float> location);
+    ~GLOnScreenKeyboard() override;
+    bool loadTextures();
     void setCaption(const std::string &title);
-    void onGenerateGLElements() override;
-    void onRender() override;
-    void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;
     void buttonUpPress();
     void buttonDownPress();
     void buttonLeftPress();
@@ -43,10 +41,14 @@ class GLOnScreenKeyboard : public GLComponentBase {
     boost::signals2::signal<void(char c)> onCharButtonPressed;
 
  protected:
-    std::array<std::vector<std::shared_ptr<GLOnScreenKeyboardButton>>, 5> m_buttonRows;
+    std::array<std::vector<std::shared_ptr<GLLabel>>, 5> m_buttonRows;
     thewarrior::models::Point<size_t> m_focusPosition;
     size_t m_fourthRowLastXPosition;
     bool m_isInCapsMode;
+    void onInitialize(const GLComponentBaseInfo &info) override;
+    void onGenerateGLElements() override;
+    void onRender() override;
+    void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;
     void generateKeyboardItems();
 
  private:

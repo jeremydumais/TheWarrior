@@ -24,7 +24,7 @@ using commoneditor::ui::ErrorMessage;
 using monstereditor::controllers::MainController;
 using monstereditor::controllers::MonsterListDisplay;
 using thewarrior::storage::ConfigurationManager;
-using thewarrior::storage::SpecialFolders;
+using thewarrior::utils::SpecialFolders;
 
 const std::string MainForm::THEME_PATH{"Display.Theme"};
 const std::string MainForm::RECENT_DB{"MonsterDB.Recents"};

@@ -1,12 +1,13 @@
 #pragma once
 
-#include <item.hpp>
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/version.hpp>
 #include <array>
 #include <map>
 #include <memory>
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/array_wrapper.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/version.hpp>
+#include <item.hpp>
 
 namespace thewarrior::models {
 
@@ -14,9 +15,8 @@ namespace thewarrior::models {
 
 typedef std::array<std::shared_ptr<const Item>, INVENTORY_MAX> InventoryArray;
 
-class Inventory
-{
-public:
+class Inventory {
+ public:
     Inventory();
     const InventoryArray &getAllSlots() const;
     size_t getSlotCount() const;
@@ -27,16 +27,17 @@ public:
     bool dropItem(size_t slotIndex);
     bool moveItem(size_t slotIndexSrc, size_t slotIndexDst);
     bool replaceItem(size_t slotIndexDst, std::shared_ptr<const Item> item);
-private:
+ private:
     friend class boost::serialization::access;
+    friend class Player;
     InventoryArray m_slots;
-    //Serialization method
+    // Serialization method
     template<class Archive>
-    void serialize(Archive &, const unsigned int) {
-        //To define
+    void serialize(Archive & ar, const unsigned int) {
+        ar & boost::serialization::make_array(m_slots.data(), m_slots.size());
     }
 };
 
-} // namespace thewarrior::models
+}  // namespace thewarrior::models
 
 BOOST_CLASS_VERSION(thewarrior::models::Inventory, 0)

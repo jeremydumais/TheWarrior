@@ -13,6 +13,7 @@
 #include "gameMapMode.hpp"
 #include "gameMap.hpp"
 #include "gameMapStorage.hpp"
+#include "gameState.hpp"
 #include "itemFoundMessageDTO.hpp"
 #include "mapTile.hpp"
 #include "monsterZone.hpp"
@@ -39,10 +40,11 @@ GameMapMode::~GameMapMode() {
 }
 
 bool GameMapMode::initialize(const std::string &resourcesPath,
-        const std::string &playerName,
+        const GameState &gameState,
         std::shared_ptr<GLTextService> textService,
         std::shared_ptr<InputDevicesState> inputDevicesState) {
-    m_controller.initialize(resourcesPath);
+    auto worldState = std::make_shared<WorldState>(gameState.getWorldState());
+    m_controller.initialize(resourcesPath, worldState);
     if (!loadStores()) {
         return false;
     }
@@ -53,8 +55,8 @@ bool GameMapMode::initialize(const std::string &resourcesPath,
     loadItemStoreTextures();
     loadMonsterStoreTextures();
     m_map = std::make_shared<GameMap>(1, 1);
-    m_glPlayer = std::make_shared<GLPlayer>(playerName);
-    m_glPlayer->initialize(resourcesPath);
+    m_glPlayer = std::make_shared<GLPlayer>(gameState.getPlayer());
+    m_glPlayer->initialize(resourcesPath, worldState);
     m_glPlayer->m_playerMoveCompleted.connect(boost::bind(&GameMapMode::onPlayerMoveCompleted, this));
     m_glFormService->initialize(m_shaderProgram, textService);
     m_glBattleWindow.initialize(resourcesPath, m_glPlayer, textService, m_controller.getMonsterStore(), &m_texturesGLMonsterStore, inputDevicesState);
@@ -66,8 +68,9 @@ bool GameMapMode::initialize(const std::string &resourcesPath,
             m_controller.getItemStore(),
             &m_texturesGLItemStore);
     m_inputDevicesState = inputDevicesState;
-    m_choicePopup.initialize(resourcesPath, m_glFormService, textService, inputDevicesState);
-    loadMap(fmt::format("{0}/maps/Outworld.map", resourcesPath), "Outworld.map");
+    m_choicePopup.initialize(resourcesPath, textService, inputDevicesState);
+    const auto mapName = worldState->getCurrentMapName();
+    loadMap(fmt::format("{0}/maps/{1}", resourcesPath, mapName), mapName);
     loadMapTextures();
     generateGLMapObjects();
     m_glCharacterWindow.onCloseEvent.connect(boost::bind(&GameMapMode::onCharacterWindowClose, this));
@@ -91,6 +94,7 @@ bool GameMapMode::initShaders(const std::string &resourcesPath) {
         m_lastError = m_glBattleWindow.getLastError();
         return false;
     }
+    m_choicePopup.initShader(m_shaderProgram);
     m_glCharacterWindow.initShader(m_shaderProgram);
     m_glInventory.initShader(m_shaderProgram);
     return true;
@@ -101,12 +105,14 @@ const std::string& GameMapMode::getLastError() const {
 }
 
 void GameMapMode::processEvents(SDL_Event &e) {
-    if (e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_i) {
+    if (e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_i && !m_controller.isMessageDisplayed()) {
         toggleInventoryWindow();
-    } else if (e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_c) {
+    } else if (e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_c && !m_controller.isMessageDisplayed()) {
         toggleCharacterWindow();
     } else if (e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_ESCAPE) {
-        if (m_inputMode == GameMapInputMode::Map) {
+        if (m_controller.isMessageDisplayed()) {
+            m_controller.acknowledgeMessage();
+        } else if (m_inputMode == GameMapInputMode::Map) {
             showMainMenu();
             m_inputDevicesState->reset();
         }
@@ -170,8 +176,7 @@ void GameMapMode::gameWindowSizeChanged(const Size<> &size) {
     m_glInventory.gameWindowSizeChanged(size);
     m_glBattleWindow.gameWindowSizeChanged(size);
     m_glCharacterWindow.gameWindowSizeChanged(size);
-    m_choicePopup.gameWindowLocationChanged({static_cast<float>(size.width()) / 2.0F,
-            static_cast<float>(size.height()) / 2.0F});
+    m_choicePopup.gameWindowSizeChanged(size);
     m_textBox->gameWindowSizeChanged(size);
 }
 
@@ -189,7 +194,7 @@ void GameMapMode::calculateTileSize() {
 
 void GameMapMode::showMainMenu() {
     m_inputMode = GameMapInputMode::MainMenuPopup;
-    m_choicePopup.preparePopup({"Inventory", "Character", "Back", "Save", "Exit Game"});
+    m_choicePopup.preparePopup({"Inventory", "Character", "Back", "Save", "Exit Game"}, "Menu");
     m_choicePopup.generateGLElements();
 }
 
@@ -316,7 +321,7 @@ void GameMapMode::actionButtonPressed() {
     } else {
         // Check if you are facing a tile with a ActionButton trigger configured.
         if (m_glPlayer->isFacing(PlayerFacing::Up)) {
-            Point<> tilePositionToProcess = m_glPlayer->getGridPosition();
+            Point<> tilePositionToProcess = m_controller.getPlayerPosition();
             tilePositionToProcess.setY(tilePositionToProcess.y() - 1);
             auto &tile = m_map->getTileForEditing(tilePositionToProcess);
             auto actionButtonTrigger = tile.findConstTrigger(MapTileTriggerEvent::ActionButtonPressed);
@@ -329,7 +334,7 @@ void GameMapMode::actionButtonPressed() {
 
 void GameMapMode::moveUpPressed() {
     // Check if there is an action
-    const auto playerCoord = m_glPlayer->getGridPosition();
+    const auto playerCoord = m_controller.getPlayerPosition();
     const auto tile = m_map->getTileFromCoord(playerCoord);
     auto moveUpTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveUpPressed);
     if (moveUpTrigger.has_value()) {
@@ -343,7 +348,7 @@ void GameMapMode::moveUpPressed() {
 
 void GameMapMode::moveDownPressed() {
     // Check if there is an action
-    const auto playerCoord = m_glPlayer->getGridPosition();
+    const auto playerCoord = m_controller.getPlayerPosition();
     const auto tile = m_map->getTileFromCoord(playerCoord);
     auto moveDownTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveDownPressed);
     if (moveDownTrigger.has_value()) {
@@ -361,7 +366,7 @@ void GameMapMode::moveDownPressed() {
 
 void GameMapMode::moveLeftPressed() {
     // Check if there is an action
-    const auto playerCoord = m_glPlayer->getGridPosition();
+    const auto playerCoord = m_controller.getPlayerPosition();
     const auto tile = m_map->getTileFromCoord(playerCoord);
     auto moveLeftTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveLeftPressed);
     if (moveLeftTrigger.has_value()) {
@@ -379,7 +384,7 @@ void GameMapMode::moveLeftPressed() {
 
 void GameMapMode::moveRightPressed() {
     // Check if there is an action
-    const auto playerCoord = m_glPlayer->getGridPosition();
+    const auto playerCoord = m_controller.getPlayerPosition();
     const auto tile = m_map->getTileFromCoord(playerCoord);
     auto moveRightTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveRightPressed);
     if (moveRightTrigger.has_value()) {
@@ -395,7 +400,7 @@ void GameMapMode::moveRightPressed() {
     m_glPlayer->applyCurrentGLTexture(m_textureService);
 }
 
-void GameMapMode::processAction(MapTileTriggerAction action, const std::map<std::string, std::string> &properties, MapTile *tile, Point<> tilePosition) {
+void GameMapMode::processAction(MapTileTriggerAction action, std::map<std::string, std::string> properties, MapTile *tile, Point<> tilePosition) {
     switch (action) {
         case MapTileTriggerAction::ChangeMap:
             if (properties.at("playerFacing") == "0") {
@@ -407,14 +412,14 @@ void GameMapMode::processAction(MapTileTriggerAction action, const std::map<std:
             } else if (properties.at("playerFacing") == "3") {
                 m_glPlayer->faceRight();
             }
-            m_glPlayer->setGridPosition(Point<>(stoi(properties.at("playerX")), stoi(properties.at("playerY"))));
+            m_controller.setPlayerPosition(Point<>(stoi(properties.at("playerX")), stoi(properties.at("playerY"))));
             changeMap(fmt::format("{0}/maps/{1}", m_controller.getResourcesPath(), properties.at("mapFileName")), properties.at("mapFileName"));
             break;
         case MapTileTriggerAction::OpenChest:
             {
                 // Check if the item has already been taken
                 auto tileIndex = m_map->getTileIndexFromCoord(tilePosition);
-                if (!m_controller.isTileActionAlreadyProcessed(m_currentMapName, tileIndex)) {
+                if (!m_controller.isTileActionAlreadyProcessed(m_controller.getCurrentMapName(), tileIndex)) {
                     if (properties.find("itemIdInside") != properties.end()) {
                         auto itemIdInside = properties.find("itemIdInside")->second;
                         // Find the item in the item store
@@ -428,7 +433,7 @@ void GameMapMode::processAction(MapTileTriggerAction action, const std::map<std:
                         msg->textureName = item.textureName;
                         m_controller.addMessageToPipeline(std::move(msg));
                     }
-                    m_controller.addTileActionProcessed(m_currentMapName, tileIndex);
+                    m_controller.addTileActionProcessed(m_controller.getCurrentMapName(), tileIndex);
                 }
                 if (tile != nullptr) {
                     tile->setObjectTextureIndex(stoi(properties.at("objectTextureIndexOpenedChest")));
@@ -542,7 +547,7 @@ void GameMapMode::loadMap(const std::string &filePath, const std::string &mapNam
     GameMapStorage mapStorage;
     try {
         mapStorage.loadMap(filePath, m_map);
-        m_currentMapName = mapName;
+        m_controller.setCurrentMapName(mapName);
     }
     catch(std::invalid_argument &err) {
         std::cerr << err.what() << '\n';
@@ -760,10 +765,22 @@ void GameMapMode::mainMenuPopupClicked(size_t choice) {
             mainMenuPopupCanceled();
             break;
         case 3:
-            //TODO: Code the save function
+            m_inputMode = GameMapInputMode::Map;
+            if (!m_controller.saveGameState(*m_glPlayer)) {
+                auto msg = std::make_unique<MessageDTO>();
+                msg->message = fmt::format("An error occurred while saving the game:\n{0}", m_controller.getLastError());
+                msg->maxDurationInMilliseconds = 20000;
+                m_controller.addMessageToPipeline(std::move(msg));
+            } else {
+                auto msg = std::make_unique<MessageDTO>();
+                msg->message = "Game saved successfully!";
+                msg->maxDurationInMilliseconds = 3000;
+                m_controller.addMessageToPipeline(std::move(msg));
+            }
             break;
         case 4:
             exitGameAndReturnToMainMenu();
+            break;
         default:
             break;
     }
@@ -778,7 +795,7 @@ void GameMapMode::exitGameAndReturnToMainMenu() {
 }
 
 void GameMapMode::onPlayerMoveCompleted() {
-    const auto &tile = m_map->getTileFromCoord(m_glPlayer->getGridPosition());
+    const auto &tile = m_map->getTileFromCoord(m_controller.getPlayerPosition());
     auto steppedOnTrigger = tile.findConstTrigger(MapTileTriggerEvent::SteppedOn);
     if (steppedOnTrigger.has_value()) {
         processAction(steppedOnTrigger->getAction(), steppedOnTrigger->getActionProperties());

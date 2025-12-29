@@ -1,46 +1,47 @@
 #pragma once
 
 #include <SDL2/SDL_events.h>
-#include <map>
-#include <memory>
 #include <string>
 #include <boost/signals2.hpp>
-#include <string_view>
 #include "components/glOnScreenKeyboard.hpp"
-#include "components/glMenuModalDialog.hpp"
+#include "components/glConfirmationDialog.hpp"
+#include "components/glMessageDialog.hpp"
 #include "components/glComponentBase.hpp"
-#include "glPopupWindow.hpp"
+#include "components/glLabel.hpp"
+#include "components/glPanel.hpp"
+#include "glContext.hpp"
 #include "glTextService.hpp"
 #include "menuScreenBase.hpp"
-#include "point.hpp"
+#include "newGamePlayerNameScreenController.hpp"
 #include "size.hpp"
 
 namespace thewarrior::ui::screens {
 
 class NewGamePlayerNameScreen : public MenuScreenBase {
  public:
-    NewGamePlayerNameScreen(std::map<std::string, std::shared_ptr<thewarrior::models::Texture>> &textures,
-                   std::map<std::string, unsigned int> &texturesGL);
-    void initialize(const components::GLComponentBaseInfo &info);
+    explicit NewGamePlayerNameScreen(GLContext &glContext);
+    ~NewGamePlayerNameScreen() override;
     bool loadTextures();
     void processEvents(SDL_Event &e);
-    void update();
-    void onGenerateGLElements() override;
-    void onRender() override;
-    void unloadGLMapObjects();
-    void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;
+    void update() override;
     const std::string &getPlayerName() const;
     boost::signals2::signal<void()> backPressed;
     boost::signals2::signal<void()> okPressed;
 
  protected:
-    GLPopupWindow m_menuWindow;
     components::GLOnScreenKeyboard m_onScreenKeyboard;
+    components::GLLabel m_newGameLabel;
+    components::GLLabel m_enterPlayerNameLabel;
+    components::GLLabel m_playerNameLabel;
+    components::GLPanel m_menuPanel;
     GLTextObject m_enterNameObject;
     std::string m_playerName;
-    thewarrior::models::Point<float> m_playerNameLocation;
-    thewarrior::models::Point<float> m_playerNameInitialLocation;
-    components::GLMenuModalDialog m_modalDialog;
+    components::GLMessageDialog m_modalDialog;
+    components::GLConfirmationDialog m_confirmationPlayerExistDialog;
+    void onInitialize(const components::GLComponentBaseInfo &info) override;
+    void onGenerateGLElements() override;
+    void onRender() override;
+    void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;
     void onButtonUpPressed() override;
     void onButtonDownPressed() override;
     void onButtonLeftPressed() override;
@@ -52,7 +53,10 @@ class NewGamePlayerNameScreen : public MenuScreenBase {
     void keyboardCharButtonPressed(char c);
     void keyboardDELButtonPressed();
     void keyboardOKButtonPressed();
-    bool hasAtLeastTwoAlphaAscii(std::string_view value);
+    void confirmationPlayerExistClosed(components::ConfirmationDialogResult result);
+
+ private:
+    controllers::NewGamePlayerNameScreenController m_controller;
 };
 
 }  // namespace thewarrior::ui::screens

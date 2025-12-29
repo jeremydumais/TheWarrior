@@ -1,41 +1,42 @@
+#include <string>
 #include "message.hpp"
 
 namespace thewarrior::ui::models {
 
-Message::Message(const std::string &message, int maxDurationInMilliseconds)
+Message::Message(const std::string &message,
+        int maxDurationInMilliseconds,
+        float scale)
     : m_message(message),
     m_maxDurationInMilliseconds(maxDurationInMilliseconds),
-    m_displayStartTime(std::nullopt)
-{
+    m_scale(scale),
+    m_displayStartTime(std::nullopt) {
 }
 
-MessageType Message::getType() const
-{
+MessageType Message::getType() const {
     return MessageType::Message;
 }
 
-const std::string &Message::getMessage() const
-{
+const std::string &Message::getMessage() const {
     return m_message;
 }
 
-int Message::getMaxDurationInMilliseconds() const
-{
+int Message::getMaxDurationInMilliseconds() const {
     return m_maxDurationInMilliseconds;
 }
 
-std::optional<std::chrono::_V2::system_clock::time_point> Message::getDisplayStartTime() const
-{
+float Message::getScale() const {
+    return m_scale;
+}
+
+std::optional<std::chrono::_V2::system_clock::time_point> Message::getDisplayStartTime() const {
     return m_displayStartTime;
 }
 
-bool Message::isDisplayed() const
-{
+bool Message::isDisplayed() const {
     return m_displayStartTime.has_value();
 }
 
-bool Message::hasMessageExpired(std::chrono::_V2::system_clock::time_point currentTime) const
-{
+bool Message::hasMessageExpired(std::chrono::_V2::system_clock::time_point currentTime) const {
     if (m_maxDurationInMilliseconds < 0 || !m_displayStartTime.has_value()) {
         return false;
     }
@@ -43,19 +44,20 @@ bool Message::hasMessageExpired(std::chrono::_V2::system_clock::time_point curre
     return currentTime >= expirationTime;
 }
 
-void Message::setMessage(const std::string &message)
-{
+void Message::setMessage(const std::string &message) {
     m_message = message;
 }
 
-void Message::setMaxDurationInMilliseconds(int value)
-{
+void Message::setMaxDurationInMilliseconds(int value) {
     m_maxDurationInMilliseconds = value;
 }
 
-void Message::setDisplayed(std::chrono::_V2::system_clock::time_point startTime)
-{
+void Message::setScale(float value) {
+    m_scale = value;
+}
+
+void Message::setDisplayed(std::chrono::_V2::system_clock::time_point startTime) {
     m_displayStartTime = startTime;
 }
 
-} // namespace thewarrior::ui::models
+}  // namespace thewarrior::ui::models

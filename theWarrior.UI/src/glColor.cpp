@@ -18,6 +18,8 @@ glm::vec3 getVec3FromGLColor(GLColor color) {
         return glm::vec3(0.0f, 1.0f, 0.0f);
     case GLColor::Red:
         return glm::vec3(1.0f, 0.0f, 0.0f);
+    case GLColor::Brown:
+        return glm::vec3(0.27f, 0.12f, 0.01f);
     }
     return glm::vec3(0.0f, 0.0f, 0.0f);
 }

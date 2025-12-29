@@ -50,9 +50,9 @@ void GLTextBox::generateMessage(std::shared_ptr<MessageDTO> messageDTO) {
             throw std::runtime_error(fmt::format("Unable to found the texture {0}", item->getTextureName()));
         }
         m_glFormService->generateQuad(m_glObjects,
-                                     { m_windowLocation.x() + (m_windowSize.width() / 2.0F) - (ITEMICONSIZE / 2.0F),
-                                       m_windowLocation.y() + m_windowSize.height() - ITEMICONSIZE - 10.0F },
-                                     { ITEMICONSIZE, ITEMICONSIZE },
+                                     { m_windowLocation.x() + (m_windowSize.width() / 2.0F) - (getImageHeight() / 2.0F),
+                                       m_windowLocation.y() + m_windowSize.height() - getImageHeight() - 10.0F },
+                                     { getImageHeight(), getImageHeight() },
                                      &texture.value().get(),
                                      item->getTextureIndex(),
                                      (*m_texturesGLItemStore).at(item->getTextureName()));
@@ -66,7 +66,7 @@ void GLTextBox::draw() {
     float lineHeight = (m_computedTextForDisplay.textSize.height() / lineTotal) - 10.0F;
 
     Point<float> messagePosition((m_screenSize.width() / 2.0F) - (m_computedTextForDisplay.textSize.width() / 2.0F),
-                                 (m_screenSize.height() / 2.0F) + (m_computedTextForDisplay.textSize.height() / 2.0F) - (BOXPADDING / 2.0F));
+                                 (m_screenSize.height() / 2.0F) + (((lineHeight + 10.0F) * lineTotal) / 2.0F) - lineHeight);
     if (m_messageDTO->getType() == MessageDTOType::ItemFoundMessage) {
         messagePosition.setY(messagePosition.y() + 20.0F);
     }

@@ -4,39 +4,50 @@
 #include <vector>
 #include <boost/signals2.hpp>
 #include "glComponentBase.hpp"
+#include "glContext.hpp"
+#include "glLabel.hpp"
 #include "glMenuButton.hpp"
-#include "glPopupWindow.hpp"
+#include "glPanel.hpp"
 #include "glTextService.hpp"
 #include "point.hpp"
 #include "size.hpp"
 
 namespace thewarrior::ui::components {
 
-class GLMenuModalDialog : public GLComponentBase {
+enum class ConfirmationDialogResult {
+    OK,
+    Cancel
+};
+
+class GLConfirmationDialog : public GLComponentBase {
  public:
-    explicit GLMenuModalDialog(thewarrior::models::Point<float> location,
+    explicit GLConfirmationDialog(GLContext &glContext,
+                               thewarrior::models::Point<float> location,
                                thewarrior::models::Size<float> size);
-    ~GLMenuModalDialog() override = default;
-    void initialize(const GLComponentBaseInfo &info);
+    ~GLConfirmationDialog() override = default;
     bool isVisible() const;
-    bool isAutoSize() const;
     void show();
     void hide();
-    void setAutoSize(bool value);
     void setMessage(const std::string &message);
-    boost::signals2::signal<void()> onOKButtonPressed;
+    void setOkButtonText(const std::string &buttonText);
+    boost::signals2::signal<void(ConfirmationDialogResult)> onClosed;
 
- private:
+ protected:
     std::vector<GLTextObject> m_glMessageLines;
     bool m_visible;
-    bool m_autoSize;
-    GLPopupWindow m_menuWindow;
+    GLPanel m_menuPanel;
+    GLLabel m_messageLabel;
     GLMenuButton m_menuButtonOK;
+    GLMenuButton m_menuButtonCancel;
+    void onInitialize(const GLComponentBaseInfo &info) override;
     void onGenerateGLElements() override;
     void onRender() override;
     void onGameWindowSizeChanged(const thewarrior::models::Size<> &size) override;
+    void onButtonLeftPressed() override;
+    void onButtonRightPressed() override;
     void onButtonActionPressed() override;
     void onButtonCancelPressed() override;
+    void cancelAction();
 };
 
 }  // namespace thewarrior::ui::components

@@ -25,7 +25,6 @@ m_textService(nullptr),
 m_windowGLTexture({ Texture(TextureInfo { "window", "window.png", 256, 256, 32, 32 }), 0 }),
 m_texture(nullptr),
 m_glTitle({ "", { 1.0F, 1.0F }, 0.6F }),
-m_displayTitle(false),
 m_windowObjects(std::vector<GLObject>()),
 m_windowBackgrounds(std::vector<GLObject>()),
 m_windowTitleObjects(std::vector<GLObject>()),
@@ -127,7 +126,7 @@ void GLPopupWindow::render() {
     for (const auto &obj : m_windowObjects) {
         m_glFormService->drawQuad(obj, getTexturePtr()->glTextureId);
     }
-    if (m_displayTitle) {
+    if (isTitleDisplayed()) {
         for (const auto &obj : m_windowTitleObjects) {
             m_glFormService->drawQuad(obj, getTexturePtr()->glTextureId);
         }
@@ -206,9 +205,8 @@ void GLPopupWindow::generateBoxQuad(std::vector<GLObject> &objects,
 
 void GLPopupWindow::generateTitleBox() {
     freeGLObjects(m_windowTitleObjects);
-    m_displayTitle = !m_glTitle.text.empty();
     auto titleSize = m_textService->getTextSize(m_glTitle.text, 0.6F);
-    m_glTitle.position = { getWindowLocation().x() + 15.0F + (getWindowSize().width() / 2.0F) - (titleSize.width() / 2.0F),
+    m_glTitle.position = { getWindowLocation().x() + (getWindowSize().width() / 2.0F) - (titleSize.width() / 2.0F),
                            getWindowLocation().y() + 40.0F };
     m_glFormService->generateBoxQuad(m_windowTitleObjects,
                                     {m_glTitle.position.x() - 35.0F, m_glTitle.position.y() - 30.0F},
@@ -269,6 +267,10 @@ GLTexture *GLPopupWindow::getTexturePtr() {
         return m_texture.get();
     }
     return &m_windowGLTexture;
+}
+
+bool GLPopupWindow::isTitleDisplayed() const {
+    return !m_glTitle.text.empty();
 }
 
 }  // namespace thewarrior::ui

@@ -8,6 +8,7 @@ include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/src
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Storage/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Utils/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/../monsterEditor.Controllers/include)
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)

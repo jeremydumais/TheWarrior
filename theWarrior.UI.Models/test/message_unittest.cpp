@@ -3,17 +3,15 @@
 
 using namespace thewarrior::ui::models;
 
-class MessageSample : public ::testing::Test
-{
-public:
+class MessageSample : public ::testing::Test {
+ public:
     MessageSample()
         : msg("Test", 2000)
     {}
     Message msg;
 };
 
-TEST(Message_MinimalConstructor, WithTestOnly_ReturnSuccess)
-{
+TEST(Message_MinimalConstructor, WithTestOnly_ReturnSuccess) {
     auto message = "test";
     Message msg(message);
     ASSERT_EQ(message, msg.getMessage());
@@ -21,36 +19,34 @@ TEST(Message_MinimalConstructor, WithTestOnly_ReturnSuccess)
     ASSERT_EQ(std::nullopt, msg.getDisplayStartTime());
 }
 
-TEST(Message_GetType, ReturnMessage)
-{
+TEST(Message_GetType, ReturnMessage) {
     Message msg("test");
     ASSERT_EQ(MessageType::Message, msg.getType());
 }
 
-TEST_F(MessageSample, getMessage_ReturnMessage)
-{
+TEST_F(MessageSample, getMessage_ReturnMessage) {
     ASSERT_EQ("Test", msg.getMessage());
 }
 
-TEST_F(MessageSample, getMaxDurationInMilliseconds_Return2000)
-{
+TEST_F(MessageSample, getMaxDurationInMilliseconds_Return2000) {
     ASSERT_EQ(2000, msg.getMaxDurationInMilliseconds());
 }
 
-TEST_F(MessageSample, isDisplayed_ReturnFalse)
-{
+TEST_F(MessageSample, getScale_Return0_6) {
+    ASSERT_FLOAT_EQ(0.6F, msg.getScale());
+}
+
+TEST_F(MessageSample, isDisplayed_ReturnFalse) {
     ASSERT_FALSE(msg.isDisplayed());
 }
 
-TEST_F(MessageSample, hasMessageExpired_WithNotDisplayedMessage_ReturnFalse)
-{
+TEST_F(MessageSample, hasMessageExpired_WithNotDisplayedMessage_ReturnFalse) {
     auto currentTime = std::chrono::_V2::system_clock::now();
     ASSERT_FALSE(msg.isDisplayed());
     ASSERT_FALSE(msg.hasMessageExpired(currentTime));
 }
 
-TEST_F(MessageSample, hasMessageExpired_WithUnlimitedDuration_ReturnFalse)
-{
+TEST_F(MessageSample, hasMessageExpired_WithUnlimitedDuration_ReturnFalse) {
     auto currentTime = std::chrono::_V2::system_clock::now();
     auto epoch = std::chrono::_V2::system_clock::from_time_t(0);
     msg.setMaxDurationInMilliseconds(-1);
@@ -59,16 +55,14 @@ TEST_F(MessageSample, hasMessageExpired_WithUnlimitedDuration_ReturnFalse)
     ASSERT_FALSE(msg.hasMessageExpired(currentTime));
 }
 
-TEST_F(MessageSample, hasMessageExpired_WithDurationOf2000MsNotExpired_ReturnFalse)
-{
+TEST_F(MessageSample, hasMessageExpired_WithDurationOf2000MsNotExpired_ReturnFalse) {
     auto currentTime = std::chrono::_V2::system_clock::now();
     msg.setDisplayed(currentTime);
     ASSERT_TRUE(msg.isDisplayed());
     ASSERT_FALSE(msg.hasMessageExpired(currentTime));
 }
 
-TEST_F(MessageSample, hasMessageExpired_WithDurationOf2000MsNotExpiredBy1Ms_ReturnFalse)
-{
+TEST_F(MessageSample, hasMessageExpired_WithDurationOf2000MsNotExpiredBy1Ms_ReturnFalse) {
     auto currentTime = std::chrono::_V2::system_clock::now();
     auto initialTime = currentTime - std::chrono::milliseconds(1999);
     msg.setDisplayed(initialTime);
@@ -76,8 +70,7 @@ TEST_F(MessageSample, hasMessageExpired_WithDurationOf2000MsNotExpiredBy1Ms_Retu
     ASSERT_FALSE(msg.hasMessageExpired(currentTime));
 }
 
-TEST_F(MessageSample, hasMessageExpired_WithDurationOf2000MsExpiredBy0Ms_ReturnTrue)
-{
+TEST_F(MessageSample, hasMessageExpired_WithDurationOf2000MsExpiredBy0Ms_ReturnTrue) {
     auto currentTime = std::chrono::_V2::system_clock::now();
     auto initialTime = currentTime - std::chrono::milliseconds(2000);
     msg.setDisplayed(initialTime);
@@ -85,22 +78,25 @@ TEST_F(MessageSample, hasMessageExpired_WithDurationOf2000MsExpiredBy0Ms_ReturnT
     ASSERT_TRUE(msg.hasMessageExpired(currentTime));
 }
 
-TEST_F(MessageSample, setMessage_WithANewMsg_ReturnSuccess)
-{
+TEST_F(MessageSample, setMessage_WithANewMsg_ReturnSuccess) {
     auto expected = "A new msg";
     msg.setMessage(expected);
     ASSERT_EQ(expected, msg.getMessage());
 }
 
-TEST_F(MessageSample, setMaxDurationInMilliseconds_Minus1_ReturnSuccess)
-{
+TEST_F(MessageSample, setMaxDurationInMilliseconds_Minus1_ReturnSuccess) {
     auto expected = -1;
     msg.setMaxDurationInMilliseconds(expected);
     ASSERT_EQ(expected, msg.getMaxDurationInMilliseconds());
 }
 
-TEST_F(MessageSample, setDisplayed_WithCurrentTime_ReturnSuccess)
-{
+TEST_F(MessageSample, setScale_1_6F_ReturnSuccess) {
+    auto expected = 1.6F;
+    msg.setScale(expected);
+    ASSERT_EQ(expected, msg.getScale());
+}
+
+TEST_F(MessageSample, setDisplayed_WithCurrentTime_ReturnSuccess) {
     msg.setDisplayed(std::chrono::_V2::system_clock::now());
     ASSERT_TRUE(msg.isDisplayed());
 }

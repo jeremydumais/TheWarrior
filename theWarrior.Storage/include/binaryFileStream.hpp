@@ -1,5 +1,7 @@
 #pragma once
 
+#include <fmt/format.h>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -7,6 +9,7 @@
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/archive_exception.hpp>
+
 
 namespace thewarrior::storage {
 
@@ -71,6 +74,20 @@ class BinaryFileStream : public IBinaryFileStream<T> {
             return false;
         }
         return true;
+    }
+
+    bool remove() override {
+        try {
+            if (std::filesystem::remove(this->getFileName())) {
+                return true;
+            } else {
+                this->setLastError(fmt::format("File '{0}' not found or could not be deleted.", this->getFileName()));
+                return false;
+            }
+        } catch (const std::filesystem::filesystem_error& e) {
+            this->setLastError(fmt::format("Error deleting file: {0}", e.what()));
+            return false;
+        }
     }
 
  private:

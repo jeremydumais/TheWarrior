@@ -10,11 +10,11 @@
 #include "point.hpp"
 #include "texture.hpp"
 #include "tileSize.hpp"
+#include "worldState.hpp"
 
 namespace thewarrior::ui {
 
 enum class PlayerMovement { None, MoveLeft, MoveRight, MoveUp, MoveDown };
-enum class PlayerFacing { Left, Up, Right, Down };
 
 struct MovingResult {
     bool needToRefreshTexture;
@@ -23,20 +23,19 @@ struct MovingResult {
 class GLPlayer : public thewarrior::models::Player {
  public:
     explicit GLPlayer(const std::string &name);
+    explicit GLPlayer(const thewarrior::models::Player &player);
     const std::string &getTextureName() const;
     int getTextureIndex() const;
     const thewarrior::models::Texture &getTexture() const;
-    thewarrior::models::Point<> getGridPosition() const;
     thewarrior::models::Point<float> getGLObjectPositionWithMovement() const;
     bool isInMovement() const;
     bool isRunning() const;
-    bool isFacing(PlayerFacing direction);
-    void initialize(const std::string &resourcesPath);
+    void initialize(const std::string &resourcesPath,
+                    std::shared_ptr<thewarrior::models::WorldState> worldState);
     void generateGLPlayerObject();
     void unloadGLPlayerObject();
     void setTexture(const thewarrior::models::TextureInfo &textureInfo);
     void applyCurrentGLTexture(const GLTextureService &textureService);
-    void setGridPosition(thewarrior::models::Point<> position);
     void setGLObjectPosition();
     void draw();
     void moveUp();
@@ -55,15 +54,13 @@ class GLPlayer : public thewarrior::models::Player {
     boost::signals2::signal<void()> m_playerMoveCompleted;
 
  private:
+    std::shared_ptr<thewarrior::models::WorldState> m_worldState = nullptr;
     GLObject glObject;
     unsigned int glTextureId;
-    thewarrior::models::Point<> m_coord;
     float m_xMove;
     float m_yMove;
     TileSize m_tileSize;
     PlayerMovement m_playerMovement;
-    PlayerFacing m_playerFacing;
-    bool m_isInClimbingMode;
     bool m_isInRunningMode;
     std::string m_textureName;
     int m_baseTextureIndex;

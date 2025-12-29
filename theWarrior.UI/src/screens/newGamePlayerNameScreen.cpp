@@ -1,51 +1,62 @@
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_timer.h>
+#include <boost/bind/bind.hpp>
+#include <boost/bind/placeholders.hpp>
+#include <fmt/core.h>
 #include <fmt/format.h>
-#include <cctype>
-#include <map>
-#include <memory>
 #include <string>
-#include <string_view>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
+#include "glColor.hpp"
 #include "glComponentBase.hpp"
 #include "newGamePlayerNameScreen.hpp"
+#include "glConfirmationDialog.hpp"
+#include "glContext.hpp"
+#include "glPanel.hpp"
 #include "mainMenuCommons.hpp"
 #include "menuScreenBase.hpp"
 #include "point.hpp"
 #include "size.hpp"
-#include "texture.hpp"
 
 using namespace thewarrior::models;
 
 namespace thewarrior::ui::screens {
 
-NewGamePlayerNameScreen::NewGamePlayerNameScreen(std::map<std::string, std::shared_ptr<Texture>> &textures,
-                               std::map<std::string, unsigned int> &texturesGL)
-: MenuScreenBase(textures, texturesGL),
-m_menuWindow(Size<float>(850.0F, 620.0F)),
-m_onScreenKeyboard(Point<float>(1.0F, 1.0F)),
+NewGamePlayerNameScreen::NewGamePlayerNameScreen(GLContext &glContext)
+: MenuScreenBase(glContext),
+m_onScreenKeyboard(glContext, Point<float>(0.0F, 130.0F)),
+m_newGameLabel(glContext, "New Game", Point<float>(0.0F, -300.0F), GLColor::Brown, 0.9F),
+m_enterPlayerNameLabel(glContext, "Enter Your Name:", Point<float>(0.0F, -200.0F), GLColor::Brown),
+m_playerNameLabel(glContext, "", Point<float>(0.0F, -137.0F), GLColor::Brown, 0.8F),
+m_menuPanel(glContext, Size<float>(1100.0F, 777.0F), {
+        .skin = components::SingleTextureSkin { .textureName = TextureMainMenuPanel }}),
 m_enterNameObject({"Enter name:", {0.0F, 0.0F}, 0.8F}),
 m_playerName(""),
-m_playerNameLocation(Point<float>(0.0F, 0.0F)),
-m_playerNameInitialLocation(Point<float>(-300.0F, -230.0F)),
-m_modalDialog(Point<float>(0.0F, 0.0F), Size<float>(300.0F, 150.0F)) {
+m_modalDialog(glContext, Point<float>(0.0F, 0.0F), Size<float>(300.0F, 150.0F)),
+m_confirmationPlayerExistDialog(glContext, Point<float>(0.0F, 0.0F), Size<float>(300.0F, 150.0F)) {
+    registerComponent(&m_menuPanel);
+    registerComponent(&m_onScreenKeyboard);
+    registerComponent(&m_newGameLabel);
+    registerComponent(&m_enterPlayerNameLabel);
+    registerComponent(&m_playerNameLabel);
+    registerComponent(&m_modalDialog);
+    registerComponent(&m_confirmationPlayerExistDialog);
     m_onScreenKeyboard.onCharButtonPressed.connect(boost::bind(&NewGamePlayerNameScreen::keyboardCharButtonPressed, this, boost::placeholders::_1));
     m_onScreenKeyboard.onDELButtonPressed.connect(boost::bind(&NewGamePlayerNameScreen::keyboardDELButtonPressed, this));
     m_onScreenKeyboard.onOKButtonPressed.connect(boost::bind(&NewGamePlayerNameScreen::keyboardOKButtonPressed, this));
+    m_confirmationPlayerExistDialog.onClosed.connect(boost::bind(&NewGamePlayerNameScreen::confirmationPlayerExistClosed, this, boost::placeholders::_1));
 }
 
-void NewGamePlayerNameScreen::initialize(const components::GLComponentBaseInfo &info) {
-    MenuScreenBase::initializeBase(info);
-    m_menuWindow.initShader(m_shaderProgram);
-    m_menuWindow.initialize("", info.texture, info.textService);
-    m_menuWindow.setTextureBeginId(29);
-    m_menuWindow.setFillCenter(true);
+NewGamePlayerNameScreen::~NewGamePlayerNameScreen() {
+    unloadTexture(TextureMainMenuTextBox);
+}
 
-    m_onScreenKeyboard.initialize(info);
-    m_modalDialog.initialize(info);
-    generateGLElements();
+void NewGamePlayerNameScreen::onInitialize(const components::GLComponentBaseInfo &) {
+    if (!loadTextures()) {
+        throw std::runtime_error(getLastError());
+    }
+    m_confirmationPlayerExistDialog.setOkButtonText("Continue");
 }
 
 void NewGamePlayerNameScreen::processEvents(SDL_Event &e) {
@@ -118,6 +129,8 @@ void NewGamePlayerNameScreen::processEvents(SDL_Event &e) {
 void NewGamePlayerNameScreen::update() {
     if (m_modalDialog.isVisible()) {
         m_modalDialog.update();
+    } else if (m_confirmationPlayerExistDialog.isVisible()) {
+        m_confirmationPlayerExistDialog.update();
     } else {
         MenuScreenBase::update();
     }
@@ -125,25 +138,18 @@ void NewGamePlayerNameScreen::update() {
 
 void NewGamePlayerNameScreen::onRender() {
     MenuScreenBase::onRender();
-    m_glFormService->drawQuad(m_namedObjects[TextureMainMenuLogo], m_texturesGL[TextureMainMenuLogo]);
-    m_menuWindow.render();
+    m_menuPanel.render();
     m_onScreenKeyboard.render();
-    m_glFormService->drawText(m_enterNameObject);
+    drawGLObject(TextureMainMenuTextBox);
+    m_newGameLabel.render();
+    m_enterPlayerNameLabel.render();
+    m_playerNameLabel.render();
     m_modalDialog.render();
-}
-
-void NewGamePlayerNameScreen::unloadGLMapObjects() {
+    m_confirmationPlayerExistDialog.render();
 }
 
 void NewGamePlayerNameScreen::onGameWindowSizeChanged(const thewarrior::models::Size<> &size) {
     MenuScreenBase::onGameWindowSizeChanged(size);
-    m_playerNameLocation = {
-        (m_screenSize.width() / 2.0F) ,
-        (m_screenSize.height() / 2.0F) };
-    m_menuWindow.gameWindowSizeChanged(size);
-    m_onScreenKeyboard.gameWindowSizeChanged(size);
-    m_modalDialog.gameWindowSizeChanged(size);
-    generateGLElements();
 }
 
 const std::string &NewGamePlayerNameScreen::getPlayerName() const {
@@ -151,17 +157,16 @@ const std::string &NewGamePlayerNameScreen::getPlayerName() const {
 }
 
 bool NewGamePlayerNameScreen::loadTextures() {
-    return true;
+    return loadTexture(TextureMainMenuTextBox, "mainmenu_textbox.png", 1169, 192);
 }
 
 void NewGamePlayerNameScreen::onGenerateGLElements() {
     MenuScreenBase::onGenerateGLElements();
-    m_menuWindow.generateGLElements();
-    m_onScreenKeyboard.generateGLElements();
-    m_modalDialog.generateGLElements();
-    m_enterNameObject.position = {m_playerNameLocation.x() + m_playerNameInitialLocation.x(), -m_playerNameLocation.y() + m_playerNameInitialLocation.y() };
-    m_enterNameObject.text = fmt::format("Enter name: {0}", m_playerName);
-    m_enterNameObject.color = GLColor::Gray;
+    generateGLObject(TextureMainMenuTextBox,
+                     Size<>(540, 100),
+                     components::HorizontalAlignment::Center,
+                     components::VerticalAlignment::Center,
+                     Point<int>(0, -130));
 }
 
 void NewGamePlayerNameScreen::onButtonUpPressed() {
@@ -197,6 +202,7 @@ void NewGamePlayerNameScreen::onButtonActionPressed() {
 bool NewGamePlayerNameScreen::addPlayerNameChar(char c) {
     if (m_playerName.size() < 15) {
         m_playerName.push_back(c);
+        m_playerNameLabel.setCaption(m_playerName);
         generateGLElements();
         playClickSound();
         return true;
@@ -208,6 +214,7 @@ bool NewGamePlayerNameScreen::addPlayerNameChar(char c) {
 bool NewGamePlayerNameScreen::removePlayerNameChar() {
     if (!m_playerName.empty()) {
         m_playerName.pop_back();
+        m_playerNameLabel.setCaption(m_playerName);
         generateGLElements();
         playClickDisableSound();
         return true;
@@ -229,7 +236,7 @@ void NewGamePlayerNameScreen::keyboardOKButtonPressed() {
     if (boost::trim_copy(m_playerName).empty()) {
         m_modalDialog.setMessage("The name of the player\ncannot be empty!");
         error = true;
-    } else if (!hasAtLeastTwoAlphaAscii(m_playerName)) {
+    } else if (!m_controller.hasAtLeastTwoAlphaAscii(m_playerName)) {
         m_modalDialog.setMessage("The name of the player must\ncontain at least 2 letters!");
         error = true;
     }
@@ -237,18 +244,24 @@ void NewGamePlayerNameScreen::keyboardOKButtonPressed() {
         m_modalDialog.show();
         generateGLElements();
     } else {
-        okPressed();
+        // Check if there's save games for that player name
+        auto result = m_controller.hasGameStatesForPlayer(m_playerName);
+        if (!result.success) {
+            m_modalDialog.setMessage(fmt::format("Error: {0}", m_controller.getLastError()));
+            m_modalDialog.show();
+        } else if (result.hasGameState) {
+            m_confirmationPlayerExistDialog.setMessage(fmt::format("Player {0} already has saved games.\nContinuing will gradually replace older saves with new ones.", m_playerName));
+            m_confirmationPlayerExistDialog.show();
+        } else {
+            okPressed();
+        }
     }
 }
 
-bool NewGamePlayerNameScreen::hasAtLeastTwoAlphaAscii(std::string_view value) {
-    int count = 0;
-    for (char ch : value) {
-        if (std::isalpha(ch)) {
-            if (++count == 2) return true;
-        }
+void NewGamePlayerNameScreen::confirmationPlayerExistClosed(components::ConfirmationDialogResult result) {
+    if (result == components::ConfirmationDialogResult::OK) {
+        okPressed();
     }
-    return false;
 }
 
 }  // namespace thewarrior::ui::screens

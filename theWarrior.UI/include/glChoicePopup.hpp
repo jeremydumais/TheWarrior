@@ -5,36 +5,34 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "glFormService.hpp"
 #include "glObjectService.hpp"
+#include "glPopupWindow.hpp"
 #include "glTextService.hpp"
 #include "glTexture.hpp"
 #include "glTextureService.hpp"
 #include "inputDevicesState.hpp"
+#include "size.hpp"
 #include <boost/signals2.hpp>
 
 namespace thewarrior::ui {
 
-class GLChoicePopup {
+class GLChoicePopup: public GLPopupWindow {
  public:
     GLChoicePopup();
     void initialize(const std::string &resourcePath,
-                    std::shared_ptr<GLFormService> glFormService,
                     std::shared_ptr<GLTextService> textService,
                     std::shared_ptr<InputDevicesState> inputDevicesState);
-    void preparePopup(std::vector<std::string> choices);
+    void preparePopup(std::vector<std::string> choices,
+                      const std::string &title = "");
     void update();
     void render();
     void generateGLElements();
-    void gameWindowLocationChanged(const thewarrior::models::Point<float> &windowCenter);
+    void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
     boost::signals2::signal<void(size_t choice)> m_choiceClicked;
     boost::signals2::signal<void()> m_cancelClicked;
 
  private:
-    std::shared_ptr<GLFormService> m_glFormService;
-    std::shared_ptr<GLTextService> m_textService;
     std::shared_ptr<InputDevicesState> m_inputDevicesState = nullptr;
-    thewarrior::models::Point<float> m_windowCenter;
     size_t m_menuCursorPosition;
     size_t m_menuItemCount;
     //TODO: Code the Optional question

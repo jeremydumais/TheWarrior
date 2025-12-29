@@ -38,12 +38,17 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/shakingAnimation.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/valueChangeAnimation.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glComponentBase.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glConfirmationDialog.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glGameStateList.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glGameStateListEntry.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glLabel.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glPanel.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glMenuButton.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glMenuModalDialog.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glMessageDialog.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glOnScreenKeyboard.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/glOnScreenKeyboardButton.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/screens/mainMenuScreen.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/screens/menuScreenBase.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/screens/loadGameScreen.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/screens/newGamePlayerNameScreen.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})

@@ -1,14 +1,16 @@
 #include <memory>
 #include <string>
 #include "glChoicePopup.hpp"
+#include "size.hpp"
 
 using namespace thewarrior::models;
 
 namespace thewarrior::ui {
 
+constexpr float ChoicesTopMargin = 30.0F;
+
 GLChoicePopup::GLChoicePopup()
-: m_glFormService(nullptr),
-m_windowCenter(1.0F, 1.0F),
+: GLPopupWindow({ 300.0F, 600.0F }),
 m_menuCursorPosition(0),
 m_menuItemCount(0),
 m_popupGLTexture({ Texture(TextureInfo { "inventoryWindow", "window.png", 256, 256, 32, 32 }), 0 }),
@@ -17,23 +19,29 @@ m_glTextChoices(std::vector<GLTextObject>()) {
 }
 
 void GLChoicePopup::initialize(const std::string &resourcePath,
-                               std::shared_ptr<GLFormService> glFormService,
                                std::shared_ptr<GLTextService> textService,
                                std::shared_ptr<InputDevicesState> inputDevicesState) {
-    m_glFormService = glFormService;
+    GLPopupWindow::initialize("", resourcePath, textService);
     m_textService = textService;
     m_inputDevicesState = inputDevicesState;
     m_textureService.setResourcesPath(resourcePath);
     m_textureService.loadTexture(m_popupGLTexture);
 }
 
-void GLChoicePopup::preparePopup(std::vector<std::string> choices) {
+void GLChoicePopup::preparePopup(std::vector<std::string> choices,
+                                 const std::string &title) {
+    setTitle(title);
     m_glTextChoices.clear();
     for (const auto &choice : choices) {
         m_glTextChoices.push_back({ choice, { 1.0F, 1.0F }, 0.6F });
     }
     m_menuItemCount = choices.size();
     m_menuCursorPosition = 0;
+
+    float topMargin = isTitleDisplayed() ? ChoicesTopMargin : 0;
+    m_windowSize.setHeight((70.0F * static_cast<float>(m_glTextChoices.size())) + 50.0F + topMargin);
+    // Since the height of the windows is dynamic, we need to recalculate the windows location on screen.
+    GLPopupWindow::gameWindowSizeChanged({static_cast<int>(m_screenSize.width()), static_cast<int>(m_screenSize.height())});
 }
 
 void GLChoicePopup::update() {
@@ -68,39 +76,26 @@ void GLChoicePopup::update() {
 }
 
 void GLChoicePopup::render() {
-    for (const auto &obj : m_menuObjects) {
-        m_glFormService->drawQuad(obj, m_popupGLTexture.glTextureId);
-    }
+    GLPopupWindow::render();
     for (size_t i = 0; i < m_glTextChoices.size(); i++) {
         m_glFormService->drawText(m_glTextChoices[i], i == m_menuCursorPosition ? GLColor::White : GLColor::Gray);
     }
 }
 
 void GLChoicePopup::generateGLElements() {
-    const Size<float> POPUP_SIZE(300.0F, (70.0F * static_cast<float>(m_glTextChoices.size())) + 50.0F);
-    const Point<float> POPUP_LOCATION(m_windowCenter.x() - (POPUP_SIZE.width() / 2.0F),
-                                      m_windowCenter.y() - (POPUP_SIZE.height() / 2.0F));
-    const float BLOCKSIZE = 32.0F;
-    m_menuObjects.push_back(GLObject {});
-    m_glFormService->generateQuad(m_menuObjects,
-                                { POPUP_LOCATION.x() + BLOCKSIZE, POPUP_LOCATION.y() + BLOCKSIZE },
-                                { POPUP_SIZE.width() - (BLOCKSIZE * 2.0F), POPUP_SIZE.height() - (BLOCKSIZE * 2.0F) },
-                                &m_popupGLTexture.texture,
-                                16);
-    m_glFormService->generateBoxQuad(m_menuObjects,
-                                    { POPUP_LOCATION.x(), POPUP_LOCATION.y() },
-                                    { POPUP_SIZE.width(), POPUP_SIZE.height() },
-                                    &m_popupGLTexture.texture,
-                                    8);
+    GLPopupWindow::generateGLElements();
+    m_menuObjects.clear();
+    float topMargin = isTitleDisplayed() ? ChoicesTopMargin : 0;
     for (size_t i = 0; i < m_glTextChoices.size(); i++) {
         auto textSize = m_textService->getTextSize(m_glTextChoices[i].text, 0.6F);
-        m_glTextChoices[i].position = { POPUP_LOCATION.x() + (POPUP_SIZE.width() / 2.0F) - (textSize.width() / 2.0F),
-                                        POPUP_LOCATION.y() + 70.0F + (70.0F * static_cast<float>(i)) };
+        m_glTextChoices[i].position = { m_windowLocation.x() + (m_windowSize.width() / 2.0F) - (textSize.width() / 2.0F),
+                                        m_windowLocation.y() + 70.0F + topMargin + (70.0F * static_cast<float>(i)) };
     }
 }
 
-void GLChoicePopup::gameWindowLocationChanged(const Point<float> &windowCenter) {
-    m_windowCenter = windowCenter;
+void GLChoicePopup::gameWindowSizeChanged(const Size<> &size) {
+    GLPopupWindow::gameWindowSizeChanged(size);
+    generateGLElements();
 }
 
 void GLChoicePopup::moveUpPressed() {

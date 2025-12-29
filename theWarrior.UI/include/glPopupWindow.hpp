@@ -59,7 +59,6 @@ class GLPopupWindow : public IShaderService {
     std::shared_ptr<GLTexture> m_texture;
     GLObject m_glwindow;
     GLTextObject m_glTitle;
-    bool m_displayTitle;
     std::vector<GLObject> m_windowObjects;
     std::vector<GLObject> m_windowBackgrounds;
     std::vector<GLObject> m_windowTitleObjects;
@@ -97,6 +96,7 @@ class GLPopupWindow : public IShaderService {
                                       GLColor colorLabel = GLColor::White,
                                       GLColor colorValue = GLColor::White);
     GLTexture *getTexturePtr();
+    bool isTitleDisplayed() const;
 };
 
 }  // namespace thewarrior::ui

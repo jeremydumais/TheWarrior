@@ -1,6 +1,9 @@
 #include "item.hpp"
 #include <stdexcept>
 #include <boost/algorithm/string.hpp>
+#include <boost/serialization/export.hpp>
+
+BOOST_CLASS_EXPORT_GUID(thewarrior::models::Item, "Item")
 
 using boost::algorithm::trim_copy;
 

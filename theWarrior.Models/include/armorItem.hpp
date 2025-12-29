@@ -4,6 +4,7 @@
 #include "item.hpp"
 #include "itemType.hpp"
 #include <boost/serialization/access.hpp>
+#include <boost/serialization/export.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/version.hpp>
 
@@ -47,7 +48,7 @@ class ArmorItem : public Item {
     // Serialization method
     template<class Archive>
     void serialize(Archive & ar, const unsigned int) {
-        ar & boost::serialization::base_object<Item>(*this);
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Item);
         ar & m_defenseGain;
         ar & m_slotInBodyPart;
     }
@@ -56,3 +57,4 @@ class ArmorItem : public Item {
 }  // namespace thewarrior::models
 
 BOOST_CLASS_VERSION(thewarrior::models::ArmorItem, 0)
+BOOST_CLASS_EXPORT_KEY2(thewarrior::models::ArmorItem, "AItem")

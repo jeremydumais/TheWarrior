@@ -1,10 +1,10 @@
 #include <fmt/format.h>
-#include <iostream>
 #include <string>
 #include <vector>
 #include "glMenuButton.hpp"
 #include "glColor.hpp"
 #include "glComponentBase.hpp"
+#include "glContext.hpp"
 #include "point.hpp"
 #include <boost/algorithm/string.hpp>
 
@@ -12,28 +12,38 @@ using namespace thewarrior::models;
 
 namespace thewarrior::ui::components {
 
-GLMenuButton::GLMenuButton(Point<float> location, Size<float> size)
-: GLComponentBase(location, size),
-m_glCaption({"", {1.0F, 1.0F}, 0.6F}),
+GLMenuButton::GLMenuButton(GLContext &glContext,
+                           const std::string &caption,
+                           Point<float> location,
+                           Size<float> size)
+: GLComponentBase(glContext, location, size),
+m_glCaption({caption, {1.0F, 1.0F}, 0.6F}),
 m_windowObjects(std::vector<GLObject>()),
 m_windowBackgrounds(std::vector<GLObject>()),
 m_textureBeginId(38),
-m_hasFocus(false) {}
+m_hasFocus(false),
+m_enabled(true) {}
 
 GLMenuButton::~GLMenuButton() {
     GLComponentBase::freeGLObjects(m_windowObjects);
     GLComponentBase::freeGLObjects(m_windowBackgrounds);
 }
 
-void GLMenuButton::initialize(const std::string &caption,
-                              const GLComponentBaseInfo &info) {
-    GLComponentBase::initialize(info);
-    m_glCaption.text = caption;
+bool GLMenuButton::isEnabled() const {
+    return m_enabled;
+}
+
+bool GLMenuButton::hasFocus() const {
+    return m_hasFocus;
 }
 
 void GLMenuButton::setCaption(const std::string &title) {
     m_glCaption.text = title;
     generateCaption();
+}
+
+void GLMenuButton::setEnabled(bool enabled) {
+    m_enabled = enabled;
 }
 
 void GLMenuButton::onGenerateGLElements() {
@@ -60,9 +70,6 @@ void GLMenuButton::onRender() {
 }
 
 void GLMenuButton::onGameWindowSizeChanged(const Size<int> &size) {
-    m_location = {
-        (m_screenSize.width() / 2.0F) - (m_size.width() / 2.0F),
-        (m_screenSize.height() / 2.0F) - (m_size.height() / 2.0F) };
     m_glFormService->gameWindowSizeChanged(size);
 }
 
@@ -74,34 +81,18 @@ void GLMenuButton::setHasFocus(bool value) {
     m_hasFocus = value;
 }
 
-void GLMenuButton::generateQuad(std::vector<GLObject> &objects,
-        Point<float> location, Size<float> size,
-        const Texture *texture, int textureId,
-        GLuint textureGLId) {
-    m_glFormService->generateQuad(
-            objects, {m_initialLocation.x() + location.x(), m_initialLocation.y() + location.y()},
-            size, texture, textureId, textureGLId);
-}
-
-void GLMenuButton::generateBoxQuad(std::vector<GLObject> &objects,
-        Point<float> location, Size<float> size,
-        const Texture *texture, int textureBeginId,
-        GLuint textureGLId, float blockSize) {
-    m_glFormService->generateBoxQuad(
-            objects, {m_initialLocation.x() + location.x(), m_initialLocation.y() + location.y()},
-            size, texture, textureBeginId, textureGLId, blockSize);
-}
-
 void GLMenuButton::generateCaption() {
+    auto componentCenter = getRelativeCenterPosition();
     auto titleSize = m_textService->getTextSize(m_glCaption.text, 0.6F);
-    m_glCaption.position = {m_location.x() + m_initialLocation.x() +
-        (m_size.width() / 2.0F) -
-            (titleSize.width() / 2.0F),
-            m_location.y() + m_initialLocation.y() +
-                (m_size.height() / 2.0F) +
-                (titleSize.height() / 2.0F)};
+
+    m_glCaption.position = {
+        componentCenter.x() - (titleSize.width() / 2.0F),
+        componentCenter.y() + (titleSize.height() / 2.0F)
+    };
     if (m_hasFocus) {
         m_glCaption.color = GLColor::Green;
+    } else if (!m_enabled) {
+        m_glCaption.color = GLColor::Gray;
     } else {
         m_glCaption.color = GLColor::White;
     }

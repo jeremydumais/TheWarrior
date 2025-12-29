@@ -2,19 +2,27 @@
 
 #include <memory>
 #include <string>
+#include <boost/serialization/array_wrapper.hpp>
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/version.hpp>
 #include "inventory.hpp"
 #include "playerEquipment.hpp"
 #include "playerStats.hpp"
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/version.hpp>
 
 namespace thewarrior::models {
+
+enum class PlayerFacing { Left, Up, Right, Down };
 
 class Player {
  public:
     explicit Player(const std::string &name);
     virtual ~Player() = default;
+    Player(const Player&) = default;
+    Player(Player&&) = default;
+    Player& operator=(const Player&) = default;
+    Player& operator=(Player&&) = default;
     const std::string &getName() const;
     unsigned int getLevel() const;
     std::shared_ptr<Inventory> getInventory();
@@ -23,8 +31,12 @@ class Player {
     bool isDead() const;
     int getGold() const;
     int getExperience() const;
+    bool isFacing(PlayerFacing direction);
+    bool isClimbing() const;
     void setName(const std::string &name);
     void setLevel(unsigned int level);
+    void setFacing(PlayerFacing direction);
+    void setClimbing(bool isPlayerClimbing);
     void incrementLevel();
     void reduceHealth(int amount);
     void restoreHealth(int amount);
@@ -49,6 +61,8 @@ class Player {
     std::string m_name;
     std::shared_ptr<Inventory> m_inventory = std::make_shared<Inventory>();
     PlayerEquipment m_equipment;
+    PlayerFacing m_playerFacing = PlayerFacing::Up;
+    bool m_isInClimbingMode = false;
     void validateName(const std::string &name) const;
     int getMaxHealthByLevel(unsigned int level);
     int getStrengthByLevel(unsigned int level);
@@ -57,8 +71,21 @@ class Player {
     static float getOptionalArmorItemDefense(const boost::optional<ArmorItem> &item);
     // Serialization method
     template<class Archive>
-    void serialize(Archive &, const unsigned int) {
-        // To define
+    void serialize(Archive & ar, const unsigned int) {
+        ar & m_name;
+        ar & m_level;
+        ar & m_maxLevel;
+        ar & m_health;
+        ar & m_maxHealth;
+        ar & m_strength;
+        ar & m_agility;
+        ar & m_bonusHealthFromLevel;
+        ar & m_gold;
+        ar & m_experience;
+        ar & m_playerFacing;
+        ar & m_isInClimbingMode;
+        ar & *m_inventory;
+        ar & m_equipment;
     }
 };
 

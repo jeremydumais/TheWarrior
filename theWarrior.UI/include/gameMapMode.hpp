@@ -9,6 +9,7 @@
 #include <boost/signals2.hpp>
 #include "gameMap.hpp"
 #include "gameMapModeController.hpp"
+#include "gameState.hpp"
 #include "glBattleWindow.hpp"
 #include "glCharacterWindow.hpp"
 #include "glChoicePopup.hpp"
@@ -43,7 +44,7 @@ class GameMapMode {
     GameMapMode();
     ~GameMapMode();
     bool initialize(const std::string &resourcesPath,
-            const std::string &playerName,
+            const thewarrior::models::GameState &gameState,
             std::shared_ptr<GLTextService> textService,
             std::shared_ptr<InputDevicesState> inputDevicesState);
     bool initShaders(const std::string &resourcesPath);
@@ -59,7 +60,6 @@ class GameMapMode {
  private:
     thewarrior::ui::controllers::GameMapModeController m_controller;
     std::string m_lastError = "";
-    std::string m_currentMapName = "";
     GameMapInputMode m_inputMode = GameMapInputMode::Map;
     std::shared_ptr<thewarrior::models::GameMap> m_map;
     std::shared_ptr<GLPlayer> m_glPlayer = nullptr;
@@ -99,7 +99,7 @@ class GameMapMode {
     void moveLeftPressed();
     void moveRightPressed();
     void processAction(thewarrior::models::MapTileTriggerAction action,
-                       const std::map<std::string, std::string> &properties,
+                       std::map<std::string, std::string> properties,
                        thewarrior::models::MapTile *tile = nullptr,
                        thewarrior::models::Point<int> tilePosition = thewarrior::models::Point<int>(0, 0));
     void checkForMonsterEncounter(const thewarrior::models::MapTile &tile);

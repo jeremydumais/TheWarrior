@@ -6,14 +6,12 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
-#include <vector>
 #include "mainMenuMode.hpp"
 #include "glComponentBase.hpp"
 #include "glTexture.hpp"
-#include "size.hpp"
 #include "texture.hpp"
 #include "textureInfo.hpp"
-#include "screens/mainMenuCommons.hpp"
+#include "mainMenuCommons.hpp"
 
 using namespace thewarrior::models;
 using namespace thewarrior::ui::screens;
@@ -25,8 +23,10 @@ MainMenuMode::MainMenuMode()
 m_glFormService(std::make_shared<GLFormService>()),
 m_textures(std::map<std::string, std::shared_ptr<Texture>>()),
 m_texturesGL(std::map<std::string, unsigned int>()),
-m_mainScreen(m_textures, m_texturesGL),
-m_newGamePlayerNameScreen(m_textures, m_texturesGL) {
+m_glContext(m_textures, m_texturesGL),
+m_mainScreen(m_glContext),
+m_loadGameScreen(m_glContext),
+m_newGamePlayerNameScreen(m_glContext) {
 }
 
 MainMenuMode::~MainMenuMode() {
@@ -60,10 +60,14 @@ void MainMenuMode::initialize(const std::string &resourcesPath,
         throw std::runtime_error(m_mainScreen.getLastError());
     }
     m_mainScreen.newGamePressed.connect(boost::bind(&MainMenuMode::newGamePressed, this));
+    m_mainScreen.loadGamePressed.connect(boost::bind(&MainMenuMode::loadGamePressed, this));
     m_mainScreen.quitPressed.connect(boost::bind(&MainMenuMode::quitPressed, this));
     m_newGamePlayerNameScreen.initialize(baseInfo);
     m_newGamePlayerNameScreen.backPressed.connect(boost::bind(&MainMenuMode::backToMainMenu, this));
     m_newGamePlayerNameScreen.okPressed.connect(boost::bind(&MainMenuMode::newGameConfirmed, this));
+    m_loadGameScreen.initialize(baseInfo);
+    m_loadGameScreen.backPressed.connect(boost::bind(&MainMenuMode::backToMainMenu, this));
+    m_loadGameScreen.okPressed.connect(boost::bind(&MainMenuMode::loadGameConfirmed, this));
     Mix_PlayMusic(m_backgroundMusic, -1);  // loop forever
 }
 
@@ -111,6 +115,7 @@ void MainMenuMode::update() {
             m_newGamePlayerNameScreen.update();
             break;
         case MainMenuInputMode::LoadGame:
+            m_loadGameScreen.update();
             break;
         case MainMenuInputMode::Settings:
             break;
@@ -128,6 +133,7 @@ void MainMenuMode::render() {
             m_newGamePlayerNameScreen.render();
             break;
         case MainMenuInputMode::LoadGame:
+            m_loadGameScreen.render();
             break;
         case MainMenuInputMode::Settings:
             break;
@@ -143,6 +149,7 @@ void MainMenuMode::gameWindowSizeChanged(const thewarrior::models::Size<> &size)
     m_glFormService->gameWindowSizeChanged(size);
     m_mainScreen.gameWindowSizeChanged(size);
     m_newGamePlayerNameScreen.gameWindowSizeChanged(size);
+    m_loadGameScreen.gameWindowSizeChanged(size);
 }
 
 void MainMenuMode::loadMenuTextures() {
@@ -161,6 +168,21 @@ void MainMenuMode::loadMenuTextures() {
         m_textureService->loadTexture(*m_textures[TextureBackground], m_texturesGL[TextureBackground]);
     } catch (const std::invalid_argument &err) {
         std::cerr << "Unable to load the main menu background texture: " << err.what() << std::endl;
+    }
+    // Menu Panel
+    TextureInfo textureMenuPanelInfo {
+        .name = "menupanel",
+        .filename = "mainmenu_panel.png",
+        .width = 1100,
+        .height = 777,
+        .tileWidth = 1100,
+        .tileHeight = 777
+    };
+    try {
+        m_textures[TextureMainMenuPanel] = std::make_shared<Texture>(textureMenuPanelInfo);
+        m_textureService->loadTexture(*m_textures[TextureMainMenuPanel], m_texturesGL[TextureMainMenuPanel]);
+    } catch (const std::invalid_argument &err) {
+        std::cerr << "Unable to load the main menu panel texture: " << err.what() << std::endl;
     }
     // Button
     TextureInfo textureInfoWindow {
@@ -220,6 +242,11 @@ void MainMenuMode::newGamePressed() {
     m_inputMode = MainMenuInputMode::NewGamePlayerName;
 }
 
+void MainMenuMode::loadGamePressed() {
+    m_inputMode = MainMenuInputMode::LoadGame;
+    m_loadGameScreen.reset();
+}
+
 void MainMenuMode::quitPressed() {
     quitRequested();
     Mix_FreeMusic(m_backgroundMusic);
@@ -231,6 +258,10 @@ void MainMenuMode::backToMainMenu() {
 
 void MainMenuMode::newGameConfirmed() {
     newGameRequested(m_newGamePlayerNameScreen.getPlayerName());
+}
+
+void MainMenuMode::loadGameConfirmed() {
+    loadGameRequested(m_loadGameScreen.getSelectedGameStateFileName());
 }
 
 }  // namespace thewarrior::ui

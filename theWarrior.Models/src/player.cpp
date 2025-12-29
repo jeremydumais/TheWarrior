@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <string>
 #include "player.hpp"
-#include "boost/algorithm/string.hpp"
+#include <boost/algorithm/string.hpp>
 
 namespace thewarrior::models {
 
@@ -67,6 +67,14 @@ int Player::getExperience() const {
     return m_experience;
 }
 
+bool Player::isFacing(PlayerFacing direction) {
+    return m_playerFacing == direction;
+}
+
+bool Player::isClimbing() const {
+    return m_isInClimbingMode;
+}
+
 float Player::getOptionalArmorItemDefense(const boost::optional<ArmorItem> &item) {
     return item.has_value() ? item->getDefenseGain() : 0.0F;
 }
@@ -78,6 +86,14 @@ void Player::setName(const std::string &name) {
 
 void Player::setLevel(unsigned int level) {
     m_level = level;
+}
+
+void Player::setFacing(PlayerFacing direction) {
+    m_playerFacing = direction;
+}
+
+void Player::setClimbing(bool isPlayerClimbing) {
+    m_isInClimbingMode = isPlayerClimbing;
 }
 
 void Player::incrementLevel() {

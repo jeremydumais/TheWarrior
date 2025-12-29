@@ -1,10 +1,12 @@
+#include <fmt/format.h>
+#include <map>
+#include <memory>
+#include <string>
 #include "glInventory.hpp"
 #include "armorItem.hpp"
 #include "point.hpp"
 #include "statsItem.hpp"
 #include "weaponItem.hpp"
-#include <fmt/format.h>
-#include <iostream>
 
 using namespace thewarrior::models;
 
@@ -17,8 +19,7 @@ const float ITEMSIZE = 70.0F;
 const Size<float> DETAILSBOXSIZE = { 324.0F, 448.0F };
 
 GLInventory::GLInventory()
-    : GLPopupWindow({ 1000.0F, 570.0F })
-{
+    : GLPopupWindow({ 1000.0F, 570.0F }) {
     m_choicePopup.m_choiceClicked.connect(boost::bind(&GLInventory::itemActionPopupClicked, this, boost::placeholders::_1));
     m_choicePopup.m_cancelClicked.connect(boost::bind(&GLInventory::itemActionPopupCanceled, this));
 }
@@ -28,8 +29,7 @@ void GLInventory::initialize(const std::string &resourcePath,
                              std::shared_ptr<GLTextService> textService,
                              std::shared_ptr<ItemStore> itemStore,
                              const std::map<std::string, unsigned int> *texturesGLItemStore,
-                             std::shared_ptr<InputDevicesState> inputDevicesState)
-{
+                             std::shared_ptr<InputDevicesState> inputDevicesState) {
     GLPopupWindow::initialize("Inventory", resourcePath, textService);
     m_glPlayer = glPlayer;
     m_textureService.loadTexture(m_slotsGLTexture);
@@ -37,18 +37,17 @@ void GLInventory::initialize(const std::string &resourcePath,
     m_itemStore = itemStore;
     m_texturesGLItemStore = texturesGLItemStore;
     m_inputDevicesState = inputDevicesState;
-    m_choicePopup.initialize(resourcePath, m_glFormService, textService, inputDevicesState);
+    m_choicePopup.initShader(m_shaderProgram);
+    m_choicePopup.initialize(resourcePath, textService, inputDevicesState);
 }
 
-void GLInventory::setInventory(std::shared_ptr<Inventory> inventory)
-{
+void GLInventory::setInventory(std::shared_ptr<Inventory> inventory) {
     m_inventory = inventory;
 }
 
-void GLInventory::generateGLInventory()
-{
+void GLInventory::generateGLInventory() {
     GLPopupWindow::generateGLElements();
-    //Detail box
+    // Detail box
     generateBoxQuad(m_glObjects,
                     m_detailsBoxPosition,
                     DETAILSBOXSIZE,
@@ -58,8 +57,8 @@ void GLInventory::generateGLInventory()
 
     generateSlots();
 
-    //Inventory objects
-    for(const auto &itemMap : m_inventory->getItemsWithIndex()) {
+    // Inventory objects
+    for (const auto &itemMap : m_inventory->getItemsWithIndex()) {
         const auto rowAndCol = getRowAndColFromInventoryIndex(itemMap.first);
         generateQuad(m_glObjects,
                      { 365.0F + (rowAndCol.x() * SLOTSIZE) + (rowAndCol.x() * SPACING),
@@ -86,9 +85,8 @@ void GLInventory::generateGLInventory()
     }
 }
 
-void GLInventory::generateSlots()
-{
-    for(size_t index = 0; index < INVENTORY_MAX; index++) {
+void GLInventory::generateSlots() {
+    for (size_t index = 0; index < INVENTORY_MAX; index++) {
         const auto rowAndCol = getRowAndColFromInventoryIndex(index);
         const int textureIndex([this, index]() -> int {
             if (this->m_inputMode != InventoryInputMode::MoveItem && index == this->m_inventoryCursorPosition) {
@@ -97,8 +95,7 @@ void GLInventory::generateSlots()
             if (this->m_inputMode == InventoryInputMode::MoveItem) {
                 if (index == this->m_inventoryMoveSrc) {
                     return 1;
-                }
-                else if(index == this->m_inventoryCursorPosition) {
+                } else if (index == this->m_inventoryCursorPosition) {
                     return 2;
                 }
             }
@@ -115,16 +112,15 @@ void GLInventory::generateSlots()
     }
 }
 
-void GLInventory::generateDetailsInfo()
-{
+void GLInventory::generateDetailsInfo() {
     addXCenteredTextObject({"Details", {0.0F, m_detailsBoxPosition.y() + 36}, 0.5F}, m_detailsBoxPosition.x(), DETAILSBOXSIZE.width());
     auto item = m_inventory->getItem(m_inventoryCursorPosition);
     if (item != nullptr) {
-        //Display icon
+        // Display icon
         auto iconTexture = &m_itemStore->getTextureContainer().getTextureByName(item->getTextureName()).value().get();
         m_glDetailsIconTextureId = m_texturesGLItemStore->at(item->getTextureName());
-        Point<float> iconPosition( m_detailsBoxPosition.x() + (DETAILSBOXSIZE.width() / 2.0F) - (SLOTSIZE / 2.0F),
-                                   m_detailsBoxPosition.y() + 60.0F);
+        Point<float> iconPosition(m_detailsBoxPosition.x() + (DETAILSBOXSIZE.width() / 2.0F) - (SLOTSIZE / 2.0F),
+                                  m_detailsBoxPosition.y() + 60.0F);
         generateQuad(m_glObjects,
                      iconPosition,
                      {SLOTSIZE, SLOTSIZE},
@@ -135,14 +131,13 @@ void GLInventory::generateDetailsInfo()
         int index = 0;
         if (!item->getOptionalDescription().empty()) {
             auto result = m_textService->prepareTextForDisplay(DETAILSBOXSIZE, item->getOptionalDescription(), 0.4F);
-            for(const auto &str : result.lines) {
+            for (const auto &str : result.lines) {
                 generateDetailLabelXCentered(str, 200.0F + (static_cast<float>(index) * 25.0F), 0.4F);
                 index++;
             }
         }
         float nextItemAfterDescY = index > 0 ? 200.0F + (static_cast<float>(index) * 25.0F) + 25.0F : 200.0F;
-        switch (item->getType())
-        {
+        switch (item->getType()) {
         case ItemType::Armor:
             generateArmorDetails(item, nextItemAfterDescY);
             break;
@@ -155,14 +150,12 @@ void GLInventory::generateDetailsInfo()
         default:
             break;
         }
-    }
-    else {
+    } else {
         m_glDetailsIconTextureId = 0;
     }
 }
 
-void GLInventory::generateWeaponDetails(std::shared_ptr<const Item> item, float yPosition)
-{
+void GLInventory::generateWeaponDetails(std::shared_ptr<const Item> item, float yPosition) {
     const auto *weapon = dynamic_cast<const WeaponItem*>(item.get());
     if (weapon) {
         const auto &equipment = m_glPlayer->getEquipment();
@@ -174,8 +167,7 @@ void GLInventory::generateWeaponDetails(std::shared_ptr<const Item> item, float 
                 if (currentWeapon.has_value()) {
                     return currentWeapon->getAttackGain();
                 }
-            }
-            else if (weapon->getSlotInBodyPart() == WeaponBodyPart::SecondaryHand &&
+            } else if (weapon->getSlotInBodyPart() == WeaponBodyPart::SecondaryHand &&
                      equipment.getSecondaryHandType() == SecondaryHandType::Weapon) {
                 auto currentWeapon = equipment.getSecondaryHand();
                 return boost::get<WeaponItem>(currentWeapon.get()).getAttackGain();
@@ -200,7 +192,7 @@ void GLInventory::generateWeaponDetails(std::shared_ptr<const Item> item, float 
         generateTwoColumnsLabels("Attack: ", attackValueStr, yPosition, 0.4F,
                                  GLColor::White, valueColor);
         float nextSectionY = 25.0F;
-        if(showDefenseLossSection) {
+        if (showDefenseLossSection) {
             generateTwoColumnsLabels("Defense: ", fmt::format("{0}", defenseLoss), yPosition + nextSectionY, 0.4F,
                                      GLColor::White, GLColor::Red);
             nextSectionY += 25.0F;
@@ -209,16 +201,14 @@ void GLInventory::generateWeaponDetails(std::shared_ptr<const Item> item, float 
     }
 }
 
-void GLInventory::generateArmorDetails(std::shared_ptr<const Item> item, float yPosition)
-{
+void GLInventory::generateArmorDetails(std::shared_ptr<const Item> item, float yPosition) {
     const auto *armor = dynamic_cast<const ArmorItem*>(item.get());
     if (armor) {
         const auto &equipment = m_glPlayer->getEquipment();
         bool showAttackLossSection = false;
         float attackLoss = 0.0F;
         auto currentDefenseGain = [armor, equipment]() {
-            switch (armor->getSlotInBodyPart())
-            {
+            switch (armor->getSlotInBodyPart()) {
             case ArmorBodyPart::SecondaryHand:
                 return equipment.getSecondaryHandType() != SecondaryHandType::Armor ?
                       0.0F :
@@ -254,7 +244,7 @@ void GLInventory::generateArmorDetails(std::shared_ptr<const Item> item, float y
         generateTwoColumnsLabels("Defense: ", defenseValueStr, yPosition, 0.4F,
                                  GLColor::White, valueColor);
         float nextSectionY = 25.0F;
-        if(showAttackLossSection) {
+        if (showAttackLossSection) {
             generateTwoColumnsLabels("Attack: ", fmt::format("{0}", attackLoss), yPosition + nextSectionY, 0.4F,
                                      GLColor::White, GLColor::Red);
             nextSectionY += 25.0F;
@@ -263,8 +253,7 @@ void GLInventory::generateArmorDetails(std::shared_ptr<const Item> item, float y
     }
 }
 
-void GLInventory::generateStatsItemDetails(std::shared_ptr<const Item> item, float yPosition)
-{
+void GLInventory::generateStatsItemDetails(std::shared_ptr<const Item> item, float yPosition) {
     const auto *statsItem = dynamic_cast<const StatsItem *>(item.get());
     if (statsItem && statsItem->getLimitOfOneApplied()) {
         generateDetailLabelXCentered("Limit of one applied.", yPosition, 0.4F, GLColor::LightGray);
@@ -279,15 +268,9 @@ void GLInventory::generateDetailLabel(const std::string &text,
                                       float xOffsetFromCenter,
                                       float yPosition,
                                       float scale,
-                                      GLColor color)
-{
+                                      GLColor color) {
     float detailBoxXCenter = m_detailsBoxPosition.x() + (DETAILSBOXSIZE.width() / 2.0F);
     auto labelSize = m_textService->getTextSize(text, scale);
-    /*m_glTextObjects.emplace_back(GLTextObject({ text,
-                                                { detailBoxXCenter + xOffsetFromCenter - (labelSize.width() / 2.0F),
-                                                    m_windowLocation.y() + m_detailsBoxPosition.y() + yPosition },
-                                                scale,
-                                                color }));*/
     addTextObject({text,
                    {detailBoxXCenter + xOffsetFromCenter - (labelSize.width() / 2.0F),
                     m_detailsBoxPosition.y() + yPosition},
@@ -298,8 +281,7 @@ void GLInventory::generateDetailLabel(const std::string &text,
 void GLInventory::generateDetailLabelXCentered(const std::string &text,
                                                float yPosition,
                                                float scale,
-                                               GLColor color)
-{
+                                               GLColor color) {
     addXCenteredTextObject({text, {0.0F, m_detailsBoxPosition.y() + yPosition}, scale, color},
                            m_detailsBoxPosition.x(),
                            DETAILSBOXSIZE.width());
@@ -310,8 +292,7 @@ void GLInventory::generateTwoColumnsLabels(const std::string &label,
                                            float yPosition,
                                            float scale,
                                            GLColor colorLabel,
-                                           GLColor colorValue)
-{
+                                           GLColor colorValue) {
     auto labelStrSize = m_textService->getTextSize(label, scale);
     auto labelAndValueSize = m_textService->getTextSize(fmt::format("{0}{1}", label, value), scale);
 
@@ -321,14 +302,12 @@ void GLInventory::generateTwoColumnsLabels(const std::string &label,
                         yPosition, scale, colorValue);
 }
 
-Point<float> GLInventory::getRowAndColFromInventoryIndex(size_t index) const
-{
+Point<float> GLInventory::getRowAndColFromInventoryIndex(size_t index) const {
     return Point<float>(static_cast<float>(index % COL_MAX),
                         static_cast<float>(index / COL_MAX));
 }
 
-void GLInventory::render()
-{
+void GLInventory::render() {
     GLPopupWindow::render();
     if (m_inputMode == InventoryInputMode::StatsItemPopup ||
         m_inputMode == InventoryInputMode::ItemPopup ||
@@ -338,25 +317,21 @@ void GLInventory::render()
     }
 }
 
-void GLInventory::gameWindowSizeChanged(const Size<> &size)
-{
+void GLInventory::gameWindowSizeChanged(const Size<> &size) {
     GLPopupWindow::gameWindowSizeChanged(size);
+    m_choicePopup.gameWindowSizeChanged(size);
     m_detailsBoxPosition = { 16.0F,
                              80.0F };
-    m_choicePopup.gameWindowLocationChanged(getWindowCenter());
     generateGLInventory();
 }
 
-void GLInventory::changeMode(InventoryInputMode mode)
-{
+void GLInventory::changeMode(InventoryInputMode mode) {
     m_inputMode = mode;
     generateGLInventory();
 }
 
-void GLInventory::update()
-{
-    switch (m_inputMode)
-    {
+void GLInventory::update() {
+    switch (m_inputMode) {
         case InventoryInputMode::List:
             updateListMode();
             break;
@@ -378,30 +353,25 @@ void GLInventory::update()
     }
 }
 
-void GLInventory::updateListMode()
-{
+void GLInventory::updateListMode() {
     updateInventoryMoveKeys();
-    if(m_inputDevicesState->getButtonAState() == InputElementState::Released) {
+    if (m_inputDevicesState->getButtonAState() == InputElementState::Released) {
         inventoryActionButtonPressed();
-    }
-    else if (m_inputDevicesState->getButtonBState() == InputElementState::Released) {
+    } else if (m_inputDevicesState->getButtonBState() == InputElementState::Released) {
         onCloseEvent();
     }
 }
 
-void GLInventory::updateMoveMode()
-{
+void GLInventory::updateMoveMode() {
     updateInventoryMoveKeys();
-    if(m_inputDevicesState->getButtonAState() == InputElementState::Released) {
+    if (m_inputDevicesState->getButtonAState() == InputElementState::Released) {
         completeMoveActionButtonPressed();
-    }
-    else if(m_inputDevicesState->getButtonBState() == InputElementState::Released) {
+    } else if (m_inputDevicesState->getButtonBState() == InputElementState::Released) {
         changeMode(InventoryInputMode::List);
     }
 }
 
-void GLInventory::updateInventoryMoveKeys()
-{
+void GLInventory::updateInventoryMoveKeys() {
     const Uint64 MS_BETWEEN_SELECTION_CHANGE = 110;
     auto inputUpTicks = m_inputDevicesState->getUpPressedTicks();
 
@@ -411,8 +381,7 @@ void GLInventory::updateInventoryMoveKeys()
         inventoryMoveUpPressed();
         lastMoveUpTicks = inputUpTicks.value();
         return;
-    }
-    else if (!m_inputDevicesState->getUpPressed()) {
+    } else if (!m_inputDevicesState->getUpPressed()) {
         lastMoveUpTicks = 0;
     }
 
@@ -424,8 +393,7 @@ void GLInventory::updateInventoryMoveKeys()
         inventoryMoveDownPressed();
         lastMoveDownTicks = inputDownTicks.value();
         return;
-    }
-    else if (!m_inputDevicesState->getDownPressed()) {
+    } else if (!m_inputDevicesState->getDownPressed()) {
         lastMoveDownTicks = 0;
     }
 
@@ -436,8 +404,7 @@ void GLInventory::updateInventoryMoveKeys()
         inventoryMoveLeftPressed();
         lastMoveLeftTicks = inputLeftTicks.value();
         return;
-    }
-    else if (!m_inputDevicesState->getLeftPressed()) {
+    } else if (!m_inputDevicesState->getLeftPressed()) {
         lastMoveLeftTicks = 0;
     }
 
@@ -448,62 +415,53 @@ void GLInventory::updateInventoryMoveKeys()
         inventoryMoveRightPressed();
         lastMoveRightTicks = inputRightTicks.value();
         return;
-    }
-    else if (!m_inputDevicesState->getRightPressed()) {
+    } else if (!m_inputDevicesState->getRightPressed()) {
         lastMoveRightTicks = 0;
     }
 }
 
-void GLInventory::inventoryMoveUpPressed()
-{
+void GLInventory::inventoryMoveUpPressed() {
     if (m_inventoryCursorPosition >= COL_MAX) {
         m_inventoryCursorPosition -= COL_MAX;
         generateGLInventory();
     }
 }
 
-void GLInventory::inventoryMoveDownPressed()
-{
+void GLInventory::inventoryMoveDownPressed() {
     if (m_inventoryCursorPosition + COL_MAX < INVENTORY_MAX) {
         m_inventoryCursorPosition += COL_MAX;
         generateGLInventory();
     }
 }
 
-void GLInventory::inventoryMoveLeftPressed()
-{
+void GLInventory::inventoryMoveLeftPressed() {
     if (m_inventoryCursorPosition > 0) {
         m_inventoryCursorPosition--;
         generateGLInventory();
     }
 }
 
-void GLInventory::inventoryMoveRightPressed()
-{
+void GLInventory::inventoryMoveRightPressed() {
     if (m_inventoryCursorPosition + 1 != INVENTORY_MAX) {
         m_inventoryCursorPosition++;
         generateGLInventory();
     }
 }
 
-void GLInventory::inventoryActionButtonPressed()
-{
-    switch (m_inputMode)
-    {
+void GLInventory::inventoryActionButtonPressed() {
+    switch (m_inputMode) {
     case InventoryInputMode::List:
         {
-            //Check if the cell contains an Item
+            // Check if the cell contains an Item
             auto item = m_inventory->getItem(m_inventoryCursorPosition);
             if (item) {
                 if (item->getType() == ItemType::StatsItem) {
                     m_choicePopup.preparePopup({ "Use", "Move", "Drop" });
                     changeMode(InventoryInputMode::StatsItemPopup);
-                }
-                else if (item->getType() == ItemType::Armor || item->getType() == ItemType::Weapon) {
+                } else if (item->getType() == ItemType::Armor || item->getType() == ItemType::Weapon) {
                     m_choicePopup.preparePopup({ "Equip", "Move", "Drop" });
                     changeMode(InventoryInputMode::WeaponOrArmorPopup);
-                }
-                else if (item->getType() == ItemType::Item) {
+                } else if (item->getType() == ItemType::Item) {
                     m_choicePopup.preparePopup({ "Move", "Drop" });
                     changeMode(InventoryInputMode::ItemPopup);
                 }
@@ -515,42 +473,35 @@ void GLInventory::inventoryActionButtonPressed()
     }
 }
 
-void GLInventory::itemActionPopupClicked(size_t choice)
-{
-    switch (m_inputMode)
-    {
+void GLInventory::itemActionPopupClicked(size_t choice) {
+    switch (m_inputMode) {
     case InventoryInputMode::StatsItemPopup:
         if (choice == 1) {
             prepareMoveItemMode();
-        }
-        else if (choice == 2) {
+        } else if (choice == 2) {
             prepareDropItemPopup();
         }
         break;
     case InventoryInputMode::ItemPopup:
         if (choice == 0) {
             prepareMoveItemMode();
-        }
-        else if (choice == 1) {
+        } else if (choice == 1) {
             prepareDropItemPopup();
         }
         break;
     case InventoryInputMode::WeaponOrArmorPopup:
         if (choice == 0) {
             equipCurrentElement();
-        }
-        else if (choice == 1) {
+        } else if (choice == 1) {
             prepareMoveItemMode();
-        }
-        else if (choice == 2) {
+        } else if (choice == 2) {
             prepareDropItemPopup();
         }
         break;
     case InventoryInputMode::DropItemPopup :
         if (choice == 0) {
             changeMode(InventoryInputMode::List);
-        }
-        else if (choice == 1) {
+        } else if (choice == 1) {
             m_inventory->dropItem(m_inventoryCursorPosition);
             changeMode(InventoryInputMode::List);
         }
@@ -558,33 +509,29 @@ void GLInventory::itemActionPopupClicked(size_t choice)
     default:
         break;
     }
-
 }
-void GLInventory::itemActionPopupCanceled()
-{
+
+void GLInventory::itemActionPopupCanceled() {
     changeMode(InventoryInputMode::List);
 }
 
-void GLInventory::completeMoveActionButtonPressed()
-{
+void GLInventory::completeMoveActionButtonPressed() {
     m_inventory->moveItem(m_inventoryMoveSrc, m_inventoryCursorPosition);
     changeMode(InventoryInputMode::List);
 }
 
-void GLInventory::prepareMoveItemMode()
-{
+void GLInventory::prepareMoveItemMode() {
     m_inventoryMoveSrc = m_inventoryCursorPosition;
     changeMode(InventoryInputMode::MoveItem);
 }
 
-void GLInventory::prepareDropItemPopup()
-{
-    m_choicePopup.preparePopup({ "No", "Yes" });
+void GLInventory::prepareDropItemPopup() {
+    m_choicePopup.preparePopup({ "No", "Yes" }, "Drop?");
+    m_choicePopup.setTitle("Drop?");
     changeMode(InventoryInputMode::DropItemPopup);
 }
 
-void GLInventory::equipCurrentElement()
-{
+void GLInventory::equipCurrentElement() {
     auto item = m_inventory->getItem(m_inventoryCursorPosition);
     auto &equipment = m_glPlayer->getEquipment();
     if (item != nullptr) {
@@ -596,38 +543,31 @@ void GLInventory::equipCurrentElement()
                                         boost::none;
                 equipment.setMainHand(*weapon);
                 completeEquipTransaction(currentEquipedId);
-            }
-            else if (weapon != nullptr && weapon->getSlotInBodyPart() == WeaponBodyPart::SecondaryHand) {
+            } else if (weapon != nullptr && weapon->getSlotInBodyPart() == WeaponBodyPart::SecondaryHand) {
                 auto currentEquipedId = getSecondaryHandEquipId(equipment);
                 equipment.setSecondaryHand(VariantEquipment(*weapon));
                 completeEquipTransaction(currentEquipedId);
             }
-        }
-        else if (item->getType() == ItemType::Armor) {
+        } else if (item->getType() == ItemType::Armor) {
             auto *armor = dynamic_cast<const ArmorItem*>(item.get());
             if (armor != nullptr) {
                 boost::optional<std::string> currentEquipedId = boost::none;
                 if (armor->getSlotInBodyPart() == ArmorBodyPart::SecondaryHand) {
                     currentEquipedId = getSecondaryHandEquipId(equipment);
                     equipment.setSecondaryHand(VariantEquipment(*armor));
-                }
-                else if (armor->getSlotInBodyPart() == ArmorBodyPart::Head) {
+                }  else if (armor->getSlotInBodyPart() == ArmorBodyPart::Head) {
                     currentEquipedId = getArmorItemEquipId(equipment.getHead());
                     equipment.setHead(*armor);
-                }
-                else if (armor->getSlotInBodyPart() == ArmorBodyPart::UpperBody) {
+                } else if (armor->getSlotInBodyPart() == ArmorBodyPart::UpperBody) {
                     currentEquipedId = getArmorItemEquipId(equipment.getUpperBody());
                     equipment.setUpperBody(*armor);
-                }
-                else if (armor->getSlotInBodyPart() == ArmorBodyPart::LowerBody) {
+                } else if (armor->getSlotInBodyPart() == ArmorBodyPart::LowerBody) {
                     currentEquipedId = getArmorItemEquipId(equipment.getLowerBody());
                     equipment.setLowerBody(*armor);
-                }
-                else if (armor->getSlotInBodyPart() == ArmorBodyPart::Hands) {
+                } else if (armor->getSlotInBodyPart() == ArmorBodyPart::Hands) {
                     currentEquipedId = getArmorItemEquipId(equipment.getHands());
                     equipment.setHands(*armor);
-                }
-                else if (armor->getSlotInBodyPart() == ArmorBodyPart::Feet) {
+                } else if (armor->getSlotInBodyPart() == ArmorBodyPart::Feet) {
                     currentEquipedId = getArmorItemEquipId(equipment.getFeet());
                     equipment.setFeet(*armor);
                 }
@@ -637,8 +577,7 @@ void GLInventory::equipCurrentElement()
     }
 }
 
-boost::optional<std::string> GLInventory::getSecondaryHandEquipId(const PlayerEquipment &equipment) const
-{
+boost::optional<std::string> GLInventory::getSecondaryHandEquipId(const PlayerEquipment &equipment) const {
     if (equipment.getSecondaryHandType() == SecondaryHandType::Weapon) {
         return boost::optional<std::string>(boost::get<WeaponItem>(equipment.getSecondaryHand().get()).getId());
     }
@@ -648,20 +587,17 @@ boost::optional<std::string> GLInventory::getSecondaryHandEquipId(const PlayerEq
     return boost::none;
 }
 
-boost::optional<std::string> GLInventory::getArmorItemEquipId(const boost::optional<ArmorItem> &armor) const
-{
+boost::optional<std::string> GLInventory::getArmorItemEquipId(const boost::optional<ArmorItem> &armor) const {
     return armor.has_value() ? boost::optional<std::string>(armor->getId()) : boost::none;
 }
 
-void GLInventory::completeEquipTransaction(const boost::optional<std::string> &currentEquipedId)
-{
+void GLInventory::completeEquipTransaction(const boost::optional<std::string> &currentEquipedId) {
     if (currentEquipedId.has_value()) {
         m_inventory->replaceItem(m_inventoryCursorPosition, m_itemStore->findItem(currentEquipedId.get()));
-    }
-    else {
+    } else {
         m_inventory->dropItem(m_inventoryCursorPosition);
     }
     changeMode(InventoryInputMode::List);
 }
 
-} // namespace thewarrior::ui
+}  // namespace thewarrior::ui

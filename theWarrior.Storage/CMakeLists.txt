@@ -2,16 +2,20 @@
 set(PROJECT_NAME    "theWarrior.Storage")
 
 find_package(Boost REQUIRED serialization filesystem system)
+find_package(SQLite3 REQUIRED)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include)
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Models/include
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../theWarrior.Utils/include)
 
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/configurationManager.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/specialFolders.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/gameMapStorage.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/gameStateStorage.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/jsonFileStream.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/itemStoreStorage.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterStoreStorage.cpp)
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterStoreStorage.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/saveGamePaths.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/sqliteGameStateRepository.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -19,7 +23,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STRE
 endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
-target_link_libraries(${PROJECT_NAME} theWarrior.Models fmt boost_serialization boost_system boost_filesystem)
+target_link_libraries(${PROJECT_NAME} theWarrior.Models theWarrior.Utils fmt boost_serialization boost_system boost_filesystem sqlite3)
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${CONAN_INCLUDE_DIRS})
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc

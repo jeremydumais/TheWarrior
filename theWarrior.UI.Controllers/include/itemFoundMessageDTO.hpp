@@ -1,16 +1,15 @@
 #pragma once
 
-#include "messageDTO.hpp"
 #include <string>
+#include "messageDTO.hpp"
 
 namespace thewarrior::ui::controllers {
 
-struct ItemFoundMessageDTO : public MessageDTO
-{
+struct ItemFoundMessageDTO : public MessageDTO {
     std::string itemId;
     std::string textureName;
-    virtual ~ItemFoundMessageDTO() = default;
-    virtual MessageDTOType getType() { return MessageDTOType::ItemFoundMessage; };
+    ~ItemFoundMessageDTO() override = default;
+    MessageDTOType getType() override { return MessageDTOType::ItemFoundMessage; }
 };
 
-} // namespace thewarrior::ui::controllers
+}  // namespace thewarrior::ui::controllers
