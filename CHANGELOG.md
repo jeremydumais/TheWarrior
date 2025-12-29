@@ -190,5 +190,17 @@ now supported.
 - Create the main menu screen and implement the New game (choose player name)
 and Quit actions.
 
+## [0.5.0]
 
+### Game
 
+#### New features
+- Added save and load game functionality.
+
+#### Change
+- Reworked the visuals of the New Game and Load Game menus.
+
+#### Bug fixes
+- Fixed an issue where main menu text elements were incorrectly positioned after returning from the game.
+- Fixed text misalignment in the game menu when resizing the window while the menu was visible.
+- Fixed the scale property not being applied correctly in the Message Pipeline.
