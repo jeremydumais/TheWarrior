@@ -1,8 +1,13 @@
 #pragma once
 
+#include <cstddef>
 #include <string>
 #include <vector>
 #include "point.hpp"
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/version.hpp>
 
 namespace thewarrior::models {
 
@@ -20,35 +25,50 @@ struct NPCCreationInfo {
 
 class NPC {
  public:
-     explicit NPC(const NPCCreationInfo &info);
-     const std::string &getId() const;
-     const std::string &getName() const;
-     const Point<size_t> &getSpawnPosition() const;
-     const std::vector<Point<size_t>> &getWanderZone() const;
-     const::std::vector<std::string> &getDialogueLines() const;
-     NPCFacing getDefaultFacing() const;
-     NPCFacing getCurrentFacing() const;
-     void setId(const std::string &id);
-     void setName(const std::string &name);
-     void setSpawnPosition(const Point<size_t> &position);
-     void setWanderZone(const std::vector<Point<size_t>> &zone);
-     void clearWanderZone();
-     void addToWanderZone(const std::vector<Point<size_t>> &zone);
-     void removeFromWanderZone(const std::vector<Point<size_t>> &zone);
-     void setDialogueLines(const::std::vector<std::string> &lines);
-     void setDefaultFacing(NPCFacing value);
-     void setCurrentFacing(NPCFacing value);
+    explicit NPC(const NPCCreationInfo &info);
+    const std::string &getId() const;
+    const std::string &getName() const;
+    const Point<size_t> &getSpawnPosition() const;
+    const std::vector<Point<size_t>> &getWanderZone() const;
+    const::std::vector<std::string> &getDialogueLines() const;
+    NPCFacing getDefaultFacing() const;
+    NPCFacing getCurrentFacing() const;
+    void setId(const std::string &id);
+    void setName(const std::string &name);
+    void setSpawnPosition(const Point<size_t> &position);
+    void setWanderZone(const std::vector<Point<size_t>> &zone);
+    void clearWanderZone();
+    void addToWanderZone(const std::vector<Point<size_t>> &zone);
+    void removeFromWanderZone(const std::vector<Point<size_t>> &zone);
+    void setDialogueLines(const::std::vector<std::string> &lines);
+    void setDefaultFacing(NPCFacing value);
+    void setCurrentFacing(NPCFacing value);
 
  private:
-     std::string m_id;
-     std::string m_name;
-     Point<size_t> m_spawnPosition;
-     std::vector<Point<size_t>> m_wanderZone;
-     std::vector<std::string> m_dialogueLines;
-     NPCFacing m_defaultFacing;
-     NPCFacing m_currentFacing;
-     void validateId(const std::string &id);
-     void validateName(const std::string &name);
+    friend class boost::serialization::access;
+    NPC() = default;   // Needed for deserialization
+    std::string m_id = "";
+    std::string m_name = "";
+    Point<size_t> m_spawnPosition = Point<size_t>(0, 0);
+    std::vector<Point<size_t>> m_wanderZone = {};
+    std::vector<std::string> m_dialogueLines = {};
+    NPCFacing m_defaultFacing = NPCFacing::Down;
+    NPCFacing m_currentFacing = NPCFacing::Down;
+    void validateId(const std::string &id);
+    void validateName(const std::string &name);
+    // Serialization method
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int) {
+        ar & m_id;
+        ar & m_name;
+        ar & m_spawnPosition;
+        ar & m_wanderZone;
+        ar & m_dialogueLines;
+        ar & m_defaultFacing;
+        ar & m_currentFacing;
+    }
 };
 
 }  // namespace thewarrior::models
+
+BOOST_CLASS_VERSION(thewarrior::models::NPC, 1)

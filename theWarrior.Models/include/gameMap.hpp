@@ -6,6 +6,7 @@
 #include <vector>
 #include "mapTile.hpp"
 #include "monsterZone.hpp"
+#include "npc.hpp"
 #include "point.hpp"
 #include "texture.hpp"
 #include "textureContainer.hpp"
@@ -18,6 +19,7 @@
 namespace thewarrior::models {
 
 typedef std::optional<std::reference_wrapper<const MonsterZone>> OptMonsterZoneConstRef;
+typedef std::optional<std::reference_wrapper<const NPC>> OptNPCConstRef;
 
 class GameMap {
  public:
@@ -54,12 +56,18 @@ class GameMap {
                    int offsetBottom);
     bool setUseOnlyOneMonsterZone(bool value);
     void unassignMonsterZoneOnAllTiles(int zoneIndex);
+    const std::vector<NPC> &getNPCs() const;
+    OptNPCConstRef getNPCById(const std::string &id) const;
+    bool addNPC(const NPC &npc);
+    bool replaceNPC(const std::string &npcId, const NPC &npc);
+    bool removeNPC(const std::string &npcId);
 
  private:
     friend class boost::serialization::access;
     std::string m_lastError;
     std::vector<std::vector<MapTile>> m_tiles;
     std::vector<MonsterZone> m_monsterZones;
+    std::vector<NPC> m_npcs;
     TextureContainer m_textureContainer;
     bool m_useOnlyOneMonsterZone;
     bool _isShrinkMapFromLeftImpactAssignedTiles(int offset) const;
@@ -71,6 +79,7 @@ class GameMap {
     void _resizeMapFromRight(int offset);
     void _resizeMapFromBottom(int offset);
     std::vector<MonsterZone>::iterator getMonsterZoneIterator(const std::string &name);
+    std::vector<NPC>::iterator getNPCIterator(const std::string &npcId);
     // Serialization method
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version) {
@@ -82,9 +91,12 @@ class GameMap {
         if (version > 2) {
             ar & m_useOnlyOneMonsterZone;
         }
+        if (version > 3) {
+            ar & m_npcs;
+        }
     }
 };
 
 }  // namespace thewarrior::models
 
-BOOST_CLASS_VERSION(thewarrior::models::GameMap, 3)
+BOOST_CLASS_VERSION(thewarrior::models::GameMap, 4)
