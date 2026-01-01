@@ -52,7 +52,8 @@ bool ConfigurationManager::getBoolValue(const std::string &path, bool defaultVal
 }
 
 boost::property_tree::ptree ConfigurationManager::getPTreeNode(const std::string &path) const {
-    return m_config.get_child(path, ptree());
+    ptree pTreeValue;
+    return m_config.get_child(path, pTreeValue);
 }
 
 void ConfigurationManager::setStringValue(const std::string &path, const std::string &value) {

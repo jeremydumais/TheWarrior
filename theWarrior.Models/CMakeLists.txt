@@ -1,7 +1,7 @@
 # Set project name
 set(PROJECT_NAME    "theWarrior.Models")
 
-find_package(Boost REQUIRED)
+find_package(Boost CONFIG REQUIRED)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 

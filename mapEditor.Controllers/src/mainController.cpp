@@ -1,4 +1,5 @@
 #include "mainController.hpp"
+#include <filesystem>
 #include <fmt/format.h>
 #include <linux/limits.h>   // PATH_MAX
 #include <libgen.h>         // dirname
@@ -115,13 +116,14 @@ bool MainController::loadConfigurationFile() {
             return false;
         }
     }
-    auto fullConfigFilePath = m_userConfigFolder + m_configFilename;
+
+    auto fullConfigFilePath = std::filesystem::path(m_userConfigFolder) / m_configFilename;
     try {
         m_configManager = std::make_unique<ConfigurationManager>(fullConfigFilePath);
     }
     catch (std::invalid_argument &err) {
         m_lastError = fmt::format("Config file {0} error: {1}",
-                                  fullConfigFilePath,
+                                  fullConfigFilePath.string(),
                                   err.what());
         return false;
     }

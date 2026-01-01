@@ -25,15 +25,15 @@ ptree string_toPTree(const std::string &value) {
 }
 
 std::string getOneMonsterStoreString() {
-    return R"({"":{"name":"disp1","filename":"filename1"}})"s + "\n"s;
+    return R"({"":{"name":"disp1","filename":"filename1"}})"s;
 }
 
 std::string getTwoMonsterStoresString() {
-    return R"({"":{"name":"d1","filename":"f1"},"":{"name":"d2","filename":"f2"}})"s + "\n"s;
+    return R"({"":{"name":"d1","filename":"f1"},"":{"name":"d2","filename":"f2"}})"s;
 }
 
 TEST(MonsterStoreInfoJSONSerializer_Serialize, WithEmptyVector_ReturnEmptyTree) {
-    ASSERT_EQ("{}\n", ptree_toString(MonsterStoreInfoJSONSerializer::serialize({})));
+    ASSERT_EQ("{}", ptree_toString(MonsterStoreInfoJSONSerializer::serialize({})));
 }
 
 TEST(MonsterStoreInfoJSONSerializer_Serialize, WithOneMonsterStoreInfo_ReturnOneMonsterTree) {
@@ -52,7 +52,7 @@ TEST(MonsterStoreInfoJSONSerializer_Serialize, WithTwoMonsterStoreInfos_ReturnTw
 }
 
 TEST(MonsterStoreInfoJSONSerializer_Deserialize, WithEmptyPTree_ReturnEmptyVector) {
-    auto node = string_toPTree("{}\n");
+    auto node = string_toPTree("{}");
     auto actual = MonsterStoreInfoJSONSerializer::deserialize(node);
     ASSERT_EQ(0, actual.size());
 }

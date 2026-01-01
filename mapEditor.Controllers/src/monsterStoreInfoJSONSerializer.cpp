@@ -1,3 +1,6 @@
+#include <string>
+#include <vector>
+#include <utility>
 #include "monsterStoreInfoJSONSerializer.hpp"
 
 using boost::property_tree::ptree;

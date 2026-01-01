@@ -27,12 +27,12 @@ ptree string_toPTree(const std::string &value) {
 
 std::string getOneDockedToolbarString() {
     return R"({"":{"id":"TextureSelection","isVisible":"true","dockLocation":"Left",)"s
-    R"("vIndex":"0","width":"400","height":"200"}})"s + "\n"s;
+    R"("vIndex":"0","width":"400","height":"200"}})"s;
 }
 
 std::string getOneNotDockedToolbarString() {
     return R"({"":{"id":"TextureSelection","isVisible":"true","dockLocation":"None",)"s
-    R"("left":"200","top":"100","width":"400","height":"500"}})"s + "\n"s;
+    R"("left":"200","top":"100","width":"400","height":"500"}})"s;
 }
 
 std::string getTwoToolbarsStringOneDockedOneNot() {
@@ -42,11 +42,11 @@ std::string getTwoToolbarsStringOneDockedOneNot() {
     R"("left":"200","top":"100","width":"400","height":"500"},)"s
     // Second toolbar
     R"("":{"id":"MapProperties","isVisible":"true","dockLocation":"Right",)"s
-    R"("vIndex":"0","width":"400","height":"200"}})"s + "\n"s;
+    R"("vIndex":"0","width":"400","height":"200"}})"s;
 }
 
 TEST(ToolBarStateInfoJSONSerializer_Serialize, WithEmptyVector_ReturnEmptyTree) {
-    ASSERT_EQ("{}\n", ptree_toString(ToolBarStateInfoJSONSerializer::serialize({})));
+    ASSERT_EQ("{}", ptree_toString(ToolBarStateInfoJSONSerializer::serialize({})));
 }
 
 TEST(ToolBarStateInfoJSONSerializer_Serialize, WithOneDockedToolBar_ReturnOneSerializedToolBar) {

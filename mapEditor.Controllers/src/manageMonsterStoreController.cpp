@@ -1,7 +1,10 @@
 #include <fmt/core.h>
 #include <fmt/format.h>
+#include <filesystem>
 #include <optional>
 #include <stdexcept>
+#include <string>
+#include <vector>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/trim.hpp>
@@ -124,7 +127,8 @@ bool ManageMonsterStoreController::deleteMonsterStore(const std::string &monster
 }
 
 bool ManageMonsterStoreController::loadMonsterStore() {
-    ConfigurationManager configManager(m_userConfigFolder + "config.json");
+    const auto filePath = (std::filesystem::path(m_userConfigFolder) / "config.json").string();
+    ConfigurationManager configManager(filePath);
     if (configManager.load()) {
         auto ptreeNode = configManager.getPTreeNode(ManageMonsterStoreController::MONSTERSTORES_PATH);
         m_monsterStores = MonsterStoreInfoJSONSerializer::deserialize(ptreeNode);
@@ -137,7 +141,8 @@ bool ManageMonsterStoreController::loadMonsterStore() {
 }
 
 bool ManageMonsterStoreController::saveMonsterStore() {
-    ConfigurationManager configManager(m_userConfigFolder + "config.json");
+    const auto filePath = (std::filesystem::path(m_userConfigFolder) / "config.json").string();
+    ConfigurationManager configManager(filePath);
     if (configManager.load()) {
         configManager.setPTreeNode(ManageMonsterStoreController::MONSTERSTORES_PATH,
                                    MonsterStoreInfoJSONSerializer::serialize(m_monsterStores));

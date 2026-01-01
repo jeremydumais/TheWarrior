@@ -53,7 +53,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
     "-Wduplicated-branches" # (only in GCC >= 7.0) warn if if / else branches have duplicated code
     "-Wlogical-op" # (only in GCC) warn about logical operations being used where bitwise were probably wanted
     "-Wnull-dereference" # (only in GCC >= 6.0) warn if a null dereference is detected
-    "-Wuseless-cast" # (only in GCC >= 4.8) warn if you perform a cast to the same type
+    "-Wno-useless-cast" # (only in GCC >= 4.8) warn if you perform a cast to the same type
     "-Wdouble-promotion" # (GCC >= 4.6, Clang >= 3.8) warn if float is implicit promoted to double
     "-Wformat=2" # warn on security issues around functions that format output (ie printf)
     )

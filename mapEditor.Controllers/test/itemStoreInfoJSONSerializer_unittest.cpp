@@ -25,15 +25,15 @@ ptree string_toPTree(const std::string &value) {
 }
 
 std::string getOneItemString() {
-    return R"({"":{"name":"disp1","filename":"filename1"}})"s + "\n"s;
+    return R"({"":{"name":"disp1","filename":"filename1"}})"s;
 }
 
 std::string getTwoItemString() {
-    return R"({"":{"name":"d1","filename":"f1"},"":{"name":"d2","filename":"f2"}})"s + "\n"s;
+    return R"({"":{"name":"d1","filename":"f1"},"":{"name":"d2","filename":"f2"}})"s;
 }
 
 TEST(ItemStoreInfoJSONSerializer_Serialize, WithEmptyVector_ReturnEmptyTree) {
-    ASSERT_EQ("{}\n", ptree_toString(ItemStoreInfoJSONSerializer::serialize({})));
+    ASSERT_EQ("{}", ptree_toString(ItemStoreInfoJSONSerializer::serialize({})));
 }
 
 TEST(ItemStoreInfoJSONSerializer_Serialize, WithOneItemStoreInfo_ReturnOneItemTree) {
