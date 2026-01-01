@@ -15,13 +15,6 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QCheckBox" name="checkBoxOneNPCForAllTheMap">
-     <property name="text">
-      <string>Use only one monster zone for all the map</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QTableWidget" name="tableWidgetNPC">
      <property name="editTriggers">
       <set>QAbstractItemView::NoEditTriggers</set>

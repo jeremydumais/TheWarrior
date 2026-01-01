@@ -13,6 +13,7 @@
 #include "components/mainForm_GLComponent.hpp"
 #include "components/mapPropsComponent.hpp"
 #include "components/monsterZoneListComponent.hpp"
+#include "components/npcListComponent.hpp"
 #include "components/textureListComponent.hpp"
 #include "components/textureSelectionDockWidget.hpp"
 #include "components/tilePropsComponent.hpp"
@@ -38,6 +39,7 @@ Q_OBJECT
     std::shared_ptr<MapPropsComponent> m_mapPropsComponent = nullptr;
     std::shared_ptr<TilePropsComponent> m_tilePropsComponent = nullptr;
     std::shared_ptr<MonsterZoneListComponent> m_monsterZoneListComponent = nullptr;
+    std::shared_ptr<NPCListComponent> m_npcListComponent = nullptr;
     std::shared_ptr<TextureListComponent> m_textureListComponent = nullptr;
     std::shared_ptr<TextureSelectionDockWidget> m_textureSelectionDockWidget = nullptr;
     std::shared_ptr<DebugInfoDockWidget> m_debugInfoDockWidget = nullptr;

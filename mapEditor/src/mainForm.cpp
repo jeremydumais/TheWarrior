@@ -124,6 +124,14 @@ void MainForm::componentInitialization() {
     m_monsterZoneListComponent->setMonsterStores(m_controller.getMonsterStores());
     m_monsterZoneListComponent->setResourcesPath(m_controller.getResourcesPath());
     ui.toolBox->addItem(m_monsterZoneListComponent.get(), "Monster zones");
+
+
+    m_npcListComponent = std::make_shared<NPCListComponent>(this,
+            &m_glComponent,
+            m_glComponent.getControllerPtr());
+    m_npcListComponent->setResourcesPath(m_controller.getResourcesPath());
+    ui.toolBox->addItem(m_npcListComponent.get(), "NPC list");
+
     ui.toolBox->removeItem(0);
 
     m_textureSelectionDockWidget = std::make_shared<TextureSelectionDockWidget>(this,
