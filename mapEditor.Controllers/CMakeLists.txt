@@ -17,6 +17,7 @@ include_directories(${QT_INCLUDE_PATH}
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/editMapTileTriggerFormController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterZoneFormController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterEncounterFormController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/editNPCFormController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/mapTileDTOUtils.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/mapTileTriggerDTOUtils.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterPickerFormController.cpp

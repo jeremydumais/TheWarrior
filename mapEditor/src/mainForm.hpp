@@ -19,6 +19,7 @@
 #include "components/tilePropsComponent.hpp"
 #include "mapTileDTO.hpp"
 #include "monsterZoneDTO.hpp"
+#include "point.hpp"
 #include "selectionMode.hpp"
 #include "ui_mainForm.h"
 
@@ -109,6 +110,8 @@ Q_OBJECT
     void onEditHistoryChanged();
     void onClipboardChanged();
     void onZoomChanged(int zoomPercentage);
+    void onNPCSpawnPositionPickerModeChanged(bool enabled);
+    void onNPCSpawnPositionPickerTileSelected(const thewarrior::models::Point<> &position);
     void onTextureAdded(commoneditor::ui::TextureDTO textureDTO);
     void onTextureUpdated(const std::string &name, commoneditor::ui::TextureDTO textureDTO);
     void onTextureDeleted(const std::string &name);

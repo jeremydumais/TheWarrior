@@ -1,12 +1,17 @@
-#include "npcListComponent.hpp"
 #include <QStyle>
+#include <memory>
 #include <qwidget.h>
 #include <qcheckbox.h>
 #include <qnamespace.h>
 #include <fmt/format.h>
 #include <string>
+#include "npcListComponent.hpp"
+#include "editNPCForm.hpp"
+#include "point.hpp"
+#include "uiUtils.hpp"
 
 using mapeditor::controllers::GLComponentController;
+using thewarrior::models::Point;
 
 NPCListComponent::NPCListComponent(QWidget *parent,
         MainForm_GLComponent *glComponent,
@@ -42,8 +47,30 @@ void NPCListComponent::setResourcesPath(const std::string &resourcesPath) {
     m_resourcesPath = resourcesPath;
 }
 
+void NPCListComponent::restoreEditForm(const Point<> &position) {
+    m_editForm->restoreFromPicker(position);
+    commoneditor::ui::UIUtils::centerToScreen(m_editForm.get());
+    if (m_editForm->exec() == QDialog::Accepted) {
+        if (m_editForm->isSpawnPositionPickerModeEnabled()) {
+            m_glComponent->npcSpawnPositionPickerModeChanged(true);
+        } else {
+            //TODO: 0.6.0 Regular OK action
+        }
+    }
+}
+
 void NPCListComponent::onPushButtonAddNPCClick() {
     m_glComponent->stopAutoUpdate();
+    m_editForm = std::make_unique<EditNPCForm>(this,
+            m_resourcesPath);
+    commoneditor::ui::UIUtils::centerToScreen(m_editForm.get());
+    if (m_editForm->exec() == QDialog::Accepted) {
+        if (m_editForm->isSpawnPositionPickerModeEnabled()) {
+            m_glComponent->npcSpawnPositionPickerModeChanged(true);
+        } else {
+            //TODO: 0.6.0 Regular OK action
+        }
+    }
     m_glComponent->startAutoUpdate();
 }
 

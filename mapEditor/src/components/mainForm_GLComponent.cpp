@@ -8,9 +8,12 @@
 #include "mapTileDTO.hpp"
 #include "monsterZoneDTO.hpp"
 #include "pickerToolSelection.hpp"
+#include "point.hpp"
+#include "selectionMode.hpp"
 
 using commoneditor::ui::ErrorMessage;
 using thewarrior::models::GameMap;
+using thewarrior::models::Point;
 using thewarrior::models::Texture;
 using mapeditor::controllers::GLComponentController;
 using mapeditor::controllers::MapTileDTO;
@@ -52,6 +55,10 @@ void MainForm_GLComponent::connectUIActions() {
             &MapOpenGLWidget::onClipboardPasted,
             this,
             &MainForm_GLComponent::onClipboardPasted);
+    connect(this->m_glWidget,
+            &MapOpenGLWidget::onNPCSpawnPositionPickerToolTileSelected,
+            this,
+            &MainForm_GLComponent::onNPCSpawnPositionPickerToolTileSelected);
 }
 
 const std::string &MainForm_GLComponent::getResourcesPath() const {
@@ -214,6 +221,10 @@ void MainForm_GLComponent::onClipboardPasted() {
     emit editHistoryChanged();
 }
 
+void MainForm_GLComponent::onNPCSpawnPositionPickerToolTileSelected(const Point<> &position) {
+        emit npcSpawnPositionPickerTileSelected(position);
+}
+
 void MainForm_GLComponent::clearEditHistory() {
     m_controller.clearEditHistory();
     emit editHistoryChanged();
@@ -300,6 +311,10 @@ bool MainForm_GLComponent::setUseOnlyOneMonsterZone(bool value) {
     bool retval = m_controller.setUseOnlyOneMonsterZone(value);
     emit editHistoryChanged();
     return retval;
+}
+
+void MainForm_GLComponent::setNPCSpawnPositionPickerMode(bool value) {
+    emit npcSpawnPositionPickerModeChanged(value);
 }
 
 std::vector<MonsterZoneDTO> MainForm_GLComponent::getMonsterZones() const {

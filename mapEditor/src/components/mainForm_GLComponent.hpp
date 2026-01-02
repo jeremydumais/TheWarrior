@@ -13,6 +13,7 @@
 #include "mapTileDTO.hpp"
 #include "monsterZoneDTO.hpp"
 #include "pickerToolSelection.hpp"
+#include "point.hpp"
 #include "selectionMode.hpp"
 
 
@@ -78,6 +79,7 @@ class MainForm_GLComponent : public QWidget {
     void applyMonsterZone();
     void clearMonsterZone();
     bool setUseOnlyOneMonsterZone(bool value);
+    void setNPCSpawnPositionPickerMode(bool value);
 
  signals:
     void tileSelected(std::vector<mapeditor::controllers::MapTileDTO> tiles);
@@ -88,12 +90,16 @@ class MainForm_GLComponent : public QWidget {
     void editHistoryChanged();
     void clipboardChanged();
     void zoomChanged(int zoomPercentage);
+    void npcSpawnPositionPickerModeChanged(bool enabled);
+    void npcSpawnPositionPickerTileSelected(const thewarrior::models::Point<> &position);
+
 
  private:
     MapOpenGLWidget *m_glWidget;
     mapeditor::controllers::GLComponentController m_controller;
     void onTileClicked(const std::set<int> &tileIndices, int, int);
     void onPickerToolTileSelected(const PickerToolSelection &selection);
+    void onNPCSpawnPositionPickerToolTileSelected(const thewarrior::models::Point<> &position);
     void onZoomChanged(int zoomPercentage);
     void onClipboardPasted();
 };

@@ -32,6 +32,7 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterEncounterForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterStoreForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterZoneForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/editNPCForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editTextureForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editMapTileTriggerForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editTileActionChangeMapPropertiesForm.cpp

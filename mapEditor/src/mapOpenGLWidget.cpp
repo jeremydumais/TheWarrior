@@ -336,6 +336,12 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event) {
             m_pasteResultIndices = {};
         }
         m_pasteDragInProgress = false;
+    } else if (m_selectionMode == SelectionMode::NPCSpawnPositionPickerTool) {
+        auto currentTileIndex = getTileIndex(event->pos().x(), event->pos().y());
+        if (currentTileIndex != -1) {
+            const auto position = m_currentMap->getCoordFromTileIndex(currentTileIndex);
+            emit onNPCSpawnPositionPickerToolTileSelected(position);
+        }
     }
     if (m_oldSelectionMode.has_value()) {
         m_selectionMode = m_oldSelectionMode.value();

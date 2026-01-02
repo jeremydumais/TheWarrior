@@ -3,11 +3,14 @@
 #include <QtWidgets/QTableWidget>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QWidget>
+#include <memory>
 #include <qcheckbox.h>
 #include <string>
+#include "editNPCForm.hpp"
 #include "glComponentController.hpp"
 #include "mainForm_GLComponent.hpp"
 #include "npcListComponentController.hpp"
+#include "point.hpp"
 #include "qTableWidgetKeyPressWatcher.h"
 #include "ui_npcListComponent.h"
 
@@ -22,6 +25,7 @@ class NPCListComponent : public QWidget {
     void connectUIActions();
     void refreshNPCs();
     void setResourcesPath(const std::string &resourcesPath);
+    void restoreEditForm(const thewarrior::models::Point<> &position);
  signals:
     //void npcAdded(mapeditor::controllers::NPCDTO npcDTO);
     //void npcUpdated(const std::string &name, mapeditor::controllers::NPCDTO npcDTO);
@@ -33,6 +37,7 @@ class NPCListComponent : public QWidget {
     std::string m_resourcesPath;
     QTableWidgetKeyPressWatcher tableWidgetNPCKeyWatcher;
     MainForm_GLComponent *m_glComponent;
+    std::unique_ptr<EditNPCForm> m_editForm = nullptr;
     void onPushButtonAddNPCClick();
     void onPushButtonEditNPCClick();
     void onPushButtonDeleteNPCClick();

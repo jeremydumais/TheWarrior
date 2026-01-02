@@ -21,6 +21,7 @@
 #include "manageMonsterStoreForm.hpp"
 #include "mapView.hpp"
 #include "monsterZoneDTO.hpp"
+#include "point.hpp"
 #include "selectionMode.hpp"
 #include "textureDTO.hpp"
 
@@ -28,6 +29,7 @@ using commoneditor::ui::ErrorMessage;
 using commoneditor::ui::TextureDTO;
 using mapeditor::controllers::MapTileDTO;
 using mapeditor::controllers::MonsterZoneDTO;
+using thewarrior::models::Point;
 using thewarrior::storage::GameMapStorage;
 
 MainForm::MainForm(QWidget *parent,
@@ -133,6 +135,8 @@ void MainForm::componentInitialization() {
     ui.toolBox->addItem(m_npcListComponent.get(), "NPC list");
 
     ui.toolBox->removeItem(0);
+    //HACK: TO REMOVE BEFORE PUSHING TO PROD
+    ui.toolBox->setCurrentIndex(4);
 
     m_textureSelectionDockWidget = std::make_shared<TextureSelectionDockWidget>(this,
             &m_glComponent);
@@ -195,6 +199,8 @@ void MainForm::connectUIActions() {
     connect(&m_glComponent, &MainForm_GLComponent::editHistoryChanged, this, &MainForm::onEditHistoryChanged);
     connect(&m_glComponent, &MainForm_GLComponent::clipboardChanged, this, &MainForm::onClipboardChanged);
     connect(&m_glComponent, &MainForm_GLComponent::zoomChanged, this, &MainForm::onZoomChanged);
+    connect(&m_glComponent, &MainForm_GLComponent::npcSpawnPositionPickerModeChanged, this, &MainForm::onNPCSpawnPositionPickerModeChanged);
+    connect(&m_glComponent, &MainForm_GLComponent::npcSpawnPositionPickerTileSelected, this, &MainForm::onNPCSpawnPositionPickerTileSelected);
     connect(m_textureListComponent.get(), &TextureListComponent::textureAdded, this, &MainForm::onTextureAdded);
     connect(m_textureListComponent.get(), &TextureListComponent::textureUpdated, this, &MainForm::onTextureUpdated);
     connect(m_textureListComponent.get(), &TextureListComponent::textureDeleted, this, &MainForm::onTextureDeleted);
@@ -646,6 +652,30 @@ void MainForm::onClipboardChanged() {
 
 void MainForm::onZoomChanged(int zoomPercentage) {
     sliderZoom->setValue(zoomPercentage);
+}
+
+void MainForm::onNPCSpawnPositionPickerModeChanged(bool enabled) {
+    ui.toolBar->setEnabled(!enabled);
+    ui.toolBox->setEnabled(!enabled);
+    ui.menubar->setEnabled(!enabled);
+    m_mapPropsComponent->setEnabled(!enabled);
+    m_tilePropsComponent->setEnabled(!enabled);
+    m_textureListComponent->setEnabled(!enabled);
+    m_monsterZoneListComponent->setEnabled(!enabled);
+    m_npcListComponent->setEnabled(!enabled);
+    m_textureSelectionDockWidget->setEnabled(!enabled);
+    m_debugInfoDockWidget->setEnabled(!enabled);
+    if (enabled) {
+        //TODO: 0.6.0 Remember last selected mode
+        m_glComponent.setSelectionMode(SelectionMode::NPCSpawnPositionPickerTool);
+    } else {
+        //TODO: 0.6.0 Set back the previously selection mode
+    }
+}
+
+void MainForm::onNPCSpawnPositionPickerTileSelected(const Point<> &position) {
+    onNPCSpawnPositionPickerModeChanged(false);
+    m_npcListComponent->restoreEditForm(position);
 }
 
 void MainForm::onTextureAdded(TextureDTO textureDTO) {

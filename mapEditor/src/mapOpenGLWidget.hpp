@@ -137,6 +137,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
     void onTileMouseMoveEvent(bool mousePressed, int tileIndex);
     void onMapMoved(float translationX, float translationY);
     void onPickerToolTileSelected(PickerToolSelection selection);
+    void onNPCSpawnPositionPickerToolTileSelected(const thewarrior::models::Point<> &coordinate);
     void onZoomChanged(int zoomPercentage);
     void onClipboardPasted();
 };
