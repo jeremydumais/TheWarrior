@@ -1,6 +1,7 @@
 #pragma once
 
 #include <qpixmap.h>
+#include <memory>
 #include <string>
 #include <vector>
 #include "iTexturePixmapProvider.hpp"
@@ -12,7 +13,7 @@ class SelectNPCTextureFormController {
  public:
     struct AvailableNPC {
         int baseTextureIndex;
-        QPixmap icon;
+        std::shared_ptr<QPixmap> icon;
     };
 
     struct AvailableNPCResult {

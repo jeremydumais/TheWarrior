@@ -49,7 +49,7 @@ void SelectNPCTextureForm::onComboBoxTextureNameChanged(int index) {
             size_t indexNPC = 1;
             for (const auto &npcResult : availableNPC.result) {
                 auto* item = new QStandardItem(fmt::format("NPC {0}", indexNPC).c_str());
-                item->setData(npcResult.icon, Qt::DecorationRole);
+                item->setData(*npcResult.icon.get(), Qt::DecorationRole);
                 item->setData(npcResult.baseTextureIndex, Qt::UserRole + 1);
                 reinterpret_cast<QStandardItemModel *>(ui.listViewNPCAvailable->model())->appendRow(item);
                 indexNPC++;

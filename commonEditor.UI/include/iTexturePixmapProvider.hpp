@@ -1,6 +1,7 @@
 #pragma once
 
 #include <qpixmap.h>
+#include <memory>
 #include <string>
 
 namespace commoneditor::ui {
@@ -8,7 +9,7 @@ namespace commoneditor::ui {
 class ITexturePixmapProvider {
  public:
      virtual ~ITexturePixmapProvider() = default;
-     virtual QPixmap loadPixmap(const std::string &path) = 0;
+     virtual std::shared_ptr<QPixmap> loadPixmap(const std::string &path) = 0;
 };
 
 }  // namespace commoneditor::ui

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <iterator>
+#include <memory>
 #include <string>
 #include <vector>
 #include "selectNPCTextureFormController.hpp"
@@ -63,19 +64,23 @@ SelectNPCTextureFormController::AvailableNPCResult SelectNPCTextureFormControlle
     auto completeTexturePath = std::filesystem::path(m_resourcesPath) / "textures" / iter->getFilename();
     std::vector<AvailableNPC> npcResult {};
     const auto tilesPerRow = iter->getWidth() / iter->getTileWidth();
-       for (int rowFirstTileIndex = 3 * tilesPerRow;
+        for (int rowFirstTileIndex = 3 * tilesPerRow;
             rowFirstTileIndex <= ((iter->getHeight() / iter->getTileHeight()) * tilesPerRow);
             rowFirstTileIndex += (4 * tilesPerRow)) {
-           for (int columnIndex = 1; columnIndex < tilesPerRow; columnIndex += 3) {
-               QPixmap pixmap = m_pixmapProvider.loadPixmap(completeTexturePath);
-               const auto finalTileIndex = rowFirstTileIndex + columnIndex;
-               // The base index is the first tile of the NPC (lower left)
-               const auto npcBaseIndex = finalTileIndex - 1 - (tilesPerRow * 3);
-               auto iconPixmap = commoneditor::ui::TextureUtils::getTextureTileImageFromTexture(&pixmap, finalTileIndex, *iter);
-               npcResult.push_back({npcBaseIndex, iconPixmap});
+            for (int columnIndex = 1; columnIndex < tilesPerRow; columnIndex += 3) {
+                std::shared_ptr<QPixmap> pixmap = m_pixmapProvider.loadPixmap(completeTexturePath);
+                std::shared_ptr<QPixmap> iconPixmap = nullptr;
+
+                const auto finalTileIndex = rowFirstTileIndex + columnIndex;
+                // The base index is the first tile of the NPC (lower left)
+                const auto npcBaseIndex = finalTileIndex - 1 - (tilesPerRow * 3);
+                if (pixmap) {
+                    iconPixmap = std::make_shared<QPixmap>(commoneditor::ui::TextureUtils::getTextureTileImageFromTexture(pixmap.get(), finalTileIndex, *iter));
+                }
+                npcResult.push_back({npcBaseIndex, iconPixmap});
            }
        }
-    return { true, npcResult};
+    return { true, npcResult };
 }
 
 SelectNPCTextureFormController::NPCAnimation SelectNPCTextureFormController::getNPCAnimationTiles(const std::string &textureName,
@@ -90,12 +95,12 @@ SelectNPCTextureFormController::NPCAnimation SelectNPCTextureFormController::get
         return { false };
     }
     auto completeTexturePath = std::filesystem::path(m_resourcesPath) / "textures" / iter->getFilename();
-    QPixmap pixmap = m_pixmapProvider.loadPixmap(completeTexturePath);
+    std::shared_ptr<QPixmap> pixmap = m_pixmapProvider.loadPixmap(completeTexturePath);
     const auto tilesPerRow = iter->getWidth() / iter->getTileWidth();
-    result.walkUp = getNPCMovementsByBaseIndex(&pixmap, baseNPCIndex, *iter);
-    result.walkRight = getNPCMovementsByBaseIndex(&pixmap, baseNPCIndex + tilesPerRow, *iter);
-    result.walkLeft = getNPCMovementsByBaseIndex(&pixmap, baseNPCIndex + (tilesPerRow * 2), *iter);
-    result.walkDown = getNPCMovementsByBaseIndex(&pixmap, baseNPCIndex + (tilesPerRow * 3), *iter);
+    result.walkUp = getNPCMovementsByBaseIndex(pixmap.get(), baseNPCIndex, *iter);
+    result.walkRight = getNPCMovementsByBaseIndex(pixmap.get(), baseNPCIndex + tilesPerRow, *iter);
+    result.walkLeft = getNPCMovementsByBaseIndex(pixmap.get(), baseNPCIndex + (tilesPerRow * 2), *iter);
+    result.walkDown = getNPCMovementsByBaseIndex(pixmap.get(), baseNPCIndex + (tilesPerRow * 3), *iter);
     result.success = true;
     return result;
 }

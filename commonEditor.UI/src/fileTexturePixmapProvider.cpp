@@ -1,12 +1,13 @@
 #include <qchar.h>
 #include <qpixmap.h>
+#include <memory>
 #include <string>
 #include "fileTexturePixmapProvider.hpp"
 
 namespace commoneditor::ui {
 
-QPixmap FileTexturePixmapProvider::loadPixmap(const std::string &path) {
-    return QPixmap(QString::fromStdString(path));
+std::shared_ptr<QPixmap> FileTexturePixmapProvider::loadPixmap(const std::string &path) {
+    return std::make_shared<QPixmap>(QString::fromStdString(path));
 }
 
 FileTexturePixmapProvider::~FileTexturePixmapProvider() {}

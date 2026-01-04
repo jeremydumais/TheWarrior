@@ -1,6 +1,6 @@
 #include <fmt/format.h>
 #include <gtest/gtest.h>
-#include <qguiapplication.h>
+#include <memory>
 #include <string>
 #include <vector>
 #include "iTexturePixmapProvider.hpp"
@@ -16,10 +16,8 @@ namespace mapeditor::controllers::selectnpctextureformcontroller::unittest {
 
 class FakeTexturePixmapProvider final : public ITexturePixmapProvider {
  public:
-    QPixmap loadPixmap(const std::string &) override {
-        QPixmap pm(96, 128);
-        pm.fill(Qt::transparent);
-        return pm;
+    std::shared_ptr<QPixmap> loadPixmap(const std::string &) override {
+        return nullptr;
     }
     ~FakeTexturePixmapProvider() override;
 };
@@ -46,15 +44,11 @@ class SelectNPCTextureFormControllerWith3Textures : public ::testing::Test {
                 32, 32
                 }),
         }),
-    controller("", textures, texturePixmapProvider),
-    app(argc, argv) {}
+    controller("", textures, texturePixmapProvider) {}
     ~SelectNPCTextureFormControllerWith3Textures() override;
     std::vector<Texture> textures;
     FakeTexturePixmapProvider texturePixmapProvider;
     SelectNPCTextureFormController controller;
-    int argc = 1;
-    char **argv = nullptr;
-    QGuiApplication app;
 };
 
 SelectNPCTextureFormControllerWith3Textures::~SelectNPCTextureFormControllerWith3Textures() {}
