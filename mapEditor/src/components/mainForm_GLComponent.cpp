@@ -1,10 +1,11 @@
-#include "mainForm_GLComponent.hpp"
 #include <optional>
 #include <set>
 #include <string>
 #include <vector>
 #include "errorMessage.hpp"
 #include "glComponentController.hpp"
+#include "mainForm_GLComponent.hpp"
+#include "mapTile.hpp"
 #include "mapTileDTO.hpp"
 #include "monsterZoneDTO.hpp"
 #include "pickerToolSelection.hpp"
@@ -13,6 +14,7 @@
 
 using commoneditor::ui::ErrorMessage;
 using thewarrior::models::GameMap;
+using thewarrior::models::MapTile;
 using thewarrior::models::Point;
 using thewarrior::models::Texture;
 using mapeditor::controllers::GLComponentController;
@@ -59,6 +61,10 @@ void MainForm_GLComponent::connectUIActions() {
             &MapOpenGLWidget::onNPCSpawnPositionPickerToolTileSelected,
             this,
             &MainForm_GLComponent::onNPCSpawnPositionPickerToolTileSelected);
+    connect(this->m_glWidget,
+            &MapOpenGLWidget::onNPCSpawnPositionPickerToolCanceled,
+            this,
+            &MainForm_GLComponent::onNPCSpawnPositionPickerToolCanceled);
 }
 
 const std::string &MainForm_GLComponent::getResourcesPath() const {
@@ -102,6 +108,14 @@ void MainForm_GLComponent::setResourcesPath(const std::string &path) {
 
 void MainForm_GLComponent::setSelectionMode(SelectionMode mode) {
     this->m_glWidget->setSelectionMode(mode);
+}
+
+void MainForm_GLComponent::restorePreviousSelectionMode() {
+    this->m_glWidget->restorePreviousSelectionMode();
+}
+
+void MainForm_GLComponent::setMapFocus() {
+    this->m_glWidget->setFocus();
 }
 
 void MainForm_GLComponent::setMapView(MapView view) {
@@ -221,8 +235,17 @@ void MainForm_GLComponent::onClipboardPasted() {
     emit editHistoryChanged();
 }
 
-void MainForm_GLComponent::onNPCSpawnPositionPickerToolTileSelected(const Point<> &position) {
+void MainForm_GLComponent::onNPCSpawnPositionPickerToolTileSelected(const MapTile &tile,
+                                                                    const Point<> &position) {
+    if (!tile.canPlayerSteppedOn()) {
+        ErrorMessage::show("You must select a tile that can be stepped on");
+    } else {
         emit npcSpawnPositionPickerTileSelected(position);
+    }
+}
+
+void MainForm_GLComponent::onNPCSpawnPositionPickerToolCanceled() {
+    emit npcSpawnPositionPickerTileSelected(Point<>(-1, -1));
 }
 
 void MainForm_GLComponent::clearEditHistory() {

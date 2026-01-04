@@ -22,6 +22,7 @@
 #include "mapView.hpp"
 #include "monsterZoneDTO.hpp"
 #include "point.hpp"
+#include "selectNPCTextureForm.hpp"
 #include "selectionMode.hpp"
 #include "textureDTO.hpp"
 
@@ -261,6 +262,9 @@ MainForm::~MainForm() {
 
 void MainForm::functionAfterShown() {
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
+    //HACK: TO REMOVE BEFORE PROD
+    SelectNPCTextureForm form(this, m_controller.getResourcesPath(), m_controller.getTextures());
+    form.exec();
 }
 
 bool MainForm::event(QEvent *event) {
@@ -666,10 +670,10 @@ void MainForm::onNPCSpawnPositionPickerModeChanged(bool enabled) {
     m_textureSelectionDockWidget->setEnabled(!enabled);
     m_debugInfoDockWidget->setEnabled(!enabled);
     if (enabled) {
-        //TODO: 0.6.0 Remember last selected mode
         m_glComponent.setSelectionMode(SelectionMode::NPCSpawnPositionPickerTool);
+        m_glComponent.setMapFocus();
     } else {
-        //TODO: 0.6.0 Set back the previously selection mode
+        m_glComponent.restorePreviousSelectionMode();
     }
 }
 

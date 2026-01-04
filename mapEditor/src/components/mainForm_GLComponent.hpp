@@ -9,6 +9,7 @@
 #include "gameMap.hpp"
 #include "../mapOpenGLWidget.hpp"
 #include "glComponentController.hpp"
+#include "mapTile.hpp"
 #include "mapView.hpp"
 #include "mapTileDTO.hpp"
 #include "monsterZoneDTO.hpp"
@@ -35,6 +36,8 @@ class MainForm_GLComponent : public QWidget {
     void setCurrentMap(std::shared_ptr<thewarrior::models::GameMap> map);
     void setResourcesPath(const std::string &path);
     void setSelectionMode(SelectionMode mode);
+    void restorePreviousSelectionMode();
+    void setMapFocus();
     void setMapView(MapView view);
     std::vector<mapeditor::controllers::MapTileDTO> getCurrentMapTiles();
     bool isSelectedMapTiles() const;
@@ -48,7 +51,7 @@ class MainForm_GLComponent : public QWidget {
     void startAutoUpdate();
     void resetMapMovePosition();
     void updateGL();
-    const std::vector<thewarrior::models::Texture>& getTextures() const;
+    const std::vector<thewarrior::models::Texture> &getTextures() const;
     std::optional<std::reference_wrapper<const thewarrior::models::Texture>> getTextureByName(const std::string &name) const;
     std::vector<std::string> getAlreadyUsedTextureNames() const;
     bool isTextureUsedInMap(const std::string &name);
@@ -99,7 +102,9 @@ class MainForm_GLComponent : public QWidget {
     mapeditor::controllers::GLComponentController m_controller;
     void onTileClicked(const std::set<int> &tileIndices, int, int);
     void onPickerToolTileSelected(const PickerToolSelection &selection);
-    void onNPCSpawnPositionPickerToolTileSelected(const thewarrior::models::Point<> &position);
+    void onNPCSpawnPositionPickerToolTileSelected(const thewarrior::models::MapTile &tile,
+                                                  const thewarrior::models::Point<> &position);
+    void onNPCSpawnPositionPickerToolCanceled();
     void onZoomChanged(int zoomPercentage);
     void onClipboardPasted();
 };

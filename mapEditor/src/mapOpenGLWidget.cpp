@@ -1,6 +1,7 @@
 #include "mapOpenGLWidget.hpp"
 #include <GL/gl.h>
 #include <qnamespace.h>
+#include <stdexcept>
 #define STB_IMAGE_IMPLEMENTATION
 #include <GL/glut.h>
 #include <QtWidgets>
@@ -140,7 +141,13 @@ SelectionMode MapOpenGLWidget::getSelectionMode() const {
 }
 
 void MapOpenGLWidget::setSelectionMode(SelectionMode mode) {
+    m_previousSelectionMode = m_selectionMode;
     m_selectionMode = mode;
+}
+
+void MapOpenGLWidget::restorePreviousSelectionMode() {
+    m_selectionMode = m_previousSelectionMode.value_or(SelectionMode::Select);
+    m_previousSelectionMode.reset();
 }
 
 void MapOpenGLWidget::setMapView(MapView view) {
@@ -227,11 +234,19 @@ void MapOpenGLWidget::wheelEvent(QWheelEvent *event) {
     recalculateTileSize();
 }
 
+void MapOpenGLWidget::keyPressEvent(QKeyEvent *event) {
+    if (event->key() == Qt::Key_Escape) {
+        emit onNPCSpawnPositionPickerToolCanceled();
+    } else {
+        QOpenGLWidget::keyPressEvent(event);
+    }
+}
+
 void MapOpenGLWidget::mousePressEvent(QMouseEvent *event) {
     this->setFocus();
     bool altPressed = QGuiApplication::keyboardModifiers().testFlag(Qt::AltModifier);
     if (altPressed) {
-        m_oldSelectionMode = m_selectionMode;
+        m_preMapDragSelectionMode = m_selectionMode;
         m_selectionMode = SelectionMode::MoveMap;
     } else if (!m_mousePressed &&
          m_selectionMode == SelectionMode::MoveMap) {
@@ -339,13 +354,14 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event) {
     } else if (m_selectionMode == SelectionMode::NPCSpawnPositionPickerTool) {
         auto currentTileIndex = getTileIndex(event->pos().x(), event->pos().y());
         if (currentTileIndex != -1) {
+            const auto &tile = m_currentMap->getTileForEditing(currentTileIndex);
             const auto position = m_currentMap->getCoordFromTileIndex(currentTileIndex);
-            emit onNPCSpawnPositionPickerToolTileSelected(position);
+            emit onNPCSpawnPositionPickerToolTileSelected(tile, position);
         }
     }
-    if (m_oldSelectionMode.has_value()) {
-        m_selectionMode = m_oldSelectionMode.value();
-        m_oldSelectionMode = {};
+    if (m_preMapDragSelectionMode.has_value()) {
+        m_selectionMode = m_preMapDragSelectionMode.value();
+        m_preMapDragSelectionMode = {};
     }
 }
 
@@ -464,7 +480,7 @@ void MapOpenGLWidget::draw() {
         yIndexPos++;
     }
     glPopMatrix();
-    if (m_selectionMode == SelectionMode::Paste || m_oldSelectionMode == SelectionMode::Paste) {
+    if (m_selectionMode == SelectionMode::Paste || m_preMapDragSelectionMode == SelectionMode::Paste) {
         drawPasteResult();
     }
     glPopMatrix();

@@ -1,10 +1,10 @@
 #pragma once
 
+#include <qcheckbox.h>
 #include <QtWidgets/QTableWidget>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QWidget>
 #include <memory>
-#include <qcheckbox.h>
 #include <string>
 #include "editNPCForm.hpp"
 #include "glComponentController.hpp"
@@ -42,4 +42,5 @@ class NPCListComponent : public QWidget {
     void onPushButtonEditNPCClick();
     void onPushButtonDeleteNPCClick();
     void onTableWidgetNPCKeyPressEvent(int key, int, int);
+    void showEditForm();
 };

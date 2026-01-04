@@ -58,7 +58,14 @@
      <item row="1" column="1">
       <widget class="QLineEdit" name="lineEditName"/>
      </item>
-     <item row="2" column="0">
+     <item row="3" column="0">
+      <widget class="QLabel" name="labelTexturePicker">
+       <property name="text">
+        <string>Texture : </string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
       <widget class="QLabel" name="labelSpawnPosition">
        <property name="minimumSize">
         <size>
@@ -74,10 +81,16 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
+     <item row="5" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_4">
        <item>
         <widget class="QLabel" name="labelSpawnPositionValue">
+         <property name="minimumSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
+         </property>
          <property name="text">
           <string>     </string>
          </property>
@@ -94,33 +107,67 @@
          </property>
          <property name="iconSize">
           <size>
-           <width>32</width>
-           <height>32</height>
+           <width>24</width>
+           <height>24</height>
           </size>
          </property>
         </widget>
        </item>
       </layout>
      </item>
-     <item row="3" column="1">
-      <widget class="QPlainTextEdit" name="plainTextEdit"/>
-     </item>
-     <item row="3" column="0">
+     <item row="6" column="0">
       <widget class="QLabel" name="labelDialogueLines">
        <property name="text">
         <string>Dialogue lines :</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="0">
+     <item row="6" column="1">
+      <widget class="QPlainTextEdit" name="plainTextEdit"/>
+     </item>
+     <item row="7" column="0">
       <widget class="QLabel" name="labelDefaultFacing">
        <property name="text">
         <string>Default Facing :</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
+     <item row="7" column="1">
       <widget class="QComboBox" name="comboBoxDefaultFacing"/>
+     </item>
+     <item row="3" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QLabel" name="labelNPCTexture">
+         <property name="minimumSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButtonSelectTexture">
+         <property name="text">
+          <string>Select Texture...</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../res/global.qrc">
+           <normaloff>:/texture.png</normaloff>:/texture.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>24</width>
+           <height>24</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
@@ -199,6 +246,7 @@
  <tabstops>
   <tabstop>lineEditId</tabstop>
   <tabstop>lineEditName</tabstop>
+  <tabstop>pushButtonSelectTexture</tabstop>
   <tabstop>pushButtonSpawnPositionPicker</tabstop>
   <tabstop>plainTextEdit</tabstop>
   <tabstop>comboBoxDefaultFacing</tabstop>

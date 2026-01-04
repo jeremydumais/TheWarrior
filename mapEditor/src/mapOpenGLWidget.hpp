@@ -43,6 +43,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
     void setResourcesPath(const std::string &path);
     SelectionMode getSelectionMode() const;
     void setSelectionMode(SelectionMode mode);
+    void restorePreviousSelectionMode();
     void setMapView(MapView view);
     unsigned int getMapWidth() const;
     unsigned int getMapHeight() const;
@@ -51,6 +52,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
     void stopAutoUpdate();
     void resetMapMovePosition();
     void wheelEvent(QWheelEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
     void pasteClipboard(const std::vector<thewarrior::models::MapTile> &tiles,
                         const std::set<int> &clipboardSelectedTileIndices);
 
@@ -73,7 +75,9 @@ class MapOpenGLWidget : public QOpenGLWidget {
     int m_zoomPercentageMin;
     int m_zoomPercentageMax;
     SelectionMode m_selectionMode;
-    boost::optional<SelectionMode> m_oldSelectionMode = {}; // Used when using alt key to move the map
+    // Used to restore the selection mode after a temporary mode like NPC Spawn Picker
+    boost::optional<SelectionMode> m_previousSelectionMode = {};
+    boost::optional<SelectionMode> m_preMapDragSelectionMode = {};  // Used when using alt key to move the map
     MapView m_mapView;
     std::string m_resourcesPath;
     bool m_mousePressed;
@@ -137,7 +141,9 @@ class MapOpenGLWidget : public QOpenGLWidget {
     void onTileMouseMoveEvent(bool mousePressed, int tileIndex);
     void onMapMoved(float translationX, float translationY);
     void onPickerToolTileSelected(PickerToolSelection selection);
-    void onNPCSpawnPositionPickerToolTileSelected(const thewarrior::models::Point<> &coordinate);
+    void onNPCSpawnPositionPickerToolTileSelected(const thewarrior::models::MapTile &tile,
+                                                  const thewarrior::models::Point<> &coordinate);
+    void onNPCSpawnPositionPickerToolCanceled();
     void onZoomChanged(int zoomPercentage);
     void onClipboardPasted();
 };

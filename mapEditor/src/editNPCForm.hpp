@@ -4,7 +4,9 @@
 
 #include <qdialog.h>
 #include <string>
+#include <vector>
 #include "point.hpp"
+#include "texture.hpp"
 #include "ui_editNPCForm.h"
 #include "editNPCFormController.hpp"
 
@@ -13,7 +15,8 @@ Q_OBJECT
 
  public:
     EditNPCForm(QWidget *parent,
-                const std::string &resourcesPath);
+                const std::string &resourcesPath,
+                const std::vector<thewarrior::models::Texture> &textures);
     bool isSpawnPositionPickerModeEnabled() const;
     void restoreFromPicker(const thewarrior::models::Point<> &position);
  private:
@@ -25,6 +28,7 @@ Q_OBJECT
     void refreshPositionLabel();
     void onPushButtonCancelClick();
     void onPushButtonOKClick();
+    void onPushButtonSelectTextureClick();
     void onPushButtonSpawnPositionPickerClick();
 };
 

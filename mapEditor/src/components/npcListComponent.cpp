@@ -1,9 +1,9 @@
-#include <QStyle>
-#include <memory>
 #include <qwidget.h>
 #include <qcheckbox.h>
 #include <qnamespace.h>
 #include <fmt/format.h>
+#include <QStyle>
+#include <memory>
 #include <string>
 #include "npcListComponent.hpp"
 #include "editNPCForm.hpp"
@@ -48,30 +48,18 @@ void NPCListComponent::setResourcesPath(const std::string &resourcesPath) {
 }
 
 void NPCListComponent::restoreEditForm(const Point<> &position) {
-    m_editForm->restoreFromPicker(position);
-    commoneditor::ui::UIUtils::centerToScreen(m_editForm.get());
-    if (m_editForm->exec() == QDialog::Accepted) {
-        if (m_editForm->isSpawnPositionPickerModeEnabled()) {
-            m_glComponent->npcSpawnPositionPickerModeChanged(true);
-        } else {
-            //TODO: 0.6.0 Regular OK action
-        }
+    // Make sure you did not cancel with th ESC key
+    if (position != Point<>(-1, -1)) {
+        m_editForm->restoreFromPicker(position);
     }
+    showEditForm();
 }
 
 void NPCListComponent::onPushButtonAddNPCClick() {
-    m_glComponent->stopAutoUpdate();
     m_editForm = std::make_unique<EditNPCForm>(this,
-            m_resourcesPath);
-    commoneditor::ui::UIUtils::centerToScreen(m_editForm.get());
-    if (m_editForm->exec() == QDialog::Accepted) {
-        if (m_editForm->isSpawnPositionPickerModeEnabled()) {
-            m_glComponent->npcSpawnPositionPickerModeChanged(true);
-        } else {
-            //TODO: 0.6.0 Regular OK action
-        }
-    }
-    m_glComponent->startAutoUpdate();
+                                               m_resourcesPath,
+                                               m_glComponent->getTextures());
+    showEditForm();
 }
 
 void NPCListComponent::onPushButtonEditNPCClick() {
@@ -86,5 +74,18 @@ void NPCListComponent::onTableWidgetNPCKeyPressEvent(int key, int, int) {
     if (key == Qt::Key_Delete) {
         onPushButtonDeleteNPCClick();
     }
+}
+
+void NPCListComponent::showEditForm() {
+    m_glComponent->stopAutoUpdate();
+    commoneditor::ui::UIUtils::centerToScreen(m_editForm.get());
+    if (m_editForm->exec() == QDialog::Accepted) {
+        if (m_editForm->isSpawnPositionPickerModeEnabled()) {
+            m_glComponent->npcSpawnPositionPickerModeChanged(true);
+        } else {
+            //TODO: 0.6.0 Regular OK action
+        }
+    }
+    m_glComponent->startAutoUpdate();
 }
 
