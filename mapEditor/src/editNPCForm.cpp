@@ -16,7 +16,7 @@ EditNPCForm::EditNPCForm(QWidget *parent,
                          const std::vector<thewarrior::models::Texture> &textures)
     : QDialog(parent),
     ui(Ui::editNPCFormClass()),
-    m_controller(resourcesPath, textures) {
+    m_controller(resourcesPath, textures, m_texturePixmapProvider) {
     ui.setupUi(this);
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
     this->setFixedSize(this->geometry().size());
@@ -34,6 +34,7 @@ bool EditNPCForm::isSpawnPositionPickerModeEnabled() const {
 }
 
 void EditNPCForm::restoreFromPicker(const thewarrior::models::Point<> &position) {
+    m_spawnPositionPickerModeEnabled = false;
     m_spawnPosition = position;
     refreshPositionLabel();
 }
@@ -78,8 +79,23 @@ void EditNPCForm::onPushButtonOKClick() {
 }
 
 void EditNPCForm::onPushButtonSelectTextureClick() {
-    SelectNPCTextureForm formSelectTexture(this, m_controller.getResourcesPath(), m_controller.getTextures());
-    formSelectTexture.exec();
+    SelectNPCTextureForm formSelectTexture(this,
+                                           m_controller.getResourcesPath(),
+                                           m_controller.getTextures());
+    if (formSelectTexture.exec() == QDialog::Accepted) {
+        const auto textureResult = formSelectTexture.getResult();
+        m_result.textureName = textureResult.textureName;
+        m_result.baseTextureIndex = textureResult.baseTextureIndex;
+        const auto npcTextureResult = m_controller.getNPCPixmap(m_result.textureName,
+                                                                m_result.baseTextureIndex);
+        if (npcTextureResult.success) {
+            ui.labelNPCTexture->setPixmap(*npcTextureResult.result);
+        } else {
+            ui.labelNPCTexture->clear();
+            ErrorMessage::show(fmt::format("Unable to load the NPC image. {0}",
+                                           m_controller.getLastError()));
+        }
+    }
 }
 
 void EditNPCForm::onPushButtonSpawnPositionPickerClick() {

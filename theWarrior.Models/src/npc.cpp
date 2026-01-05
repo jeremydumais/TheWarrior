@@ -9,6 +9,8 @@ namespace thewarrior::models {
 NPC::NPC(const NPCCreationInfo &info)
 : m_id(info.id),
 m_name(info.name),
+m_textureName(info.textureName),
+m_baseTextureIndex(info.baseTextureIndex),
 m_spawnPosition(info.spawnPosition),
 m_wanderZone(info.wanderZone),
 m_dialogueLines(info.dialogueLines),
@@ -24,6 +26,14 @@ const std::string &NPC::getId() const {
 
 const std::string &NPC::getName() const {
     return m_name;
+}
+
+const std::string &NPC::getTextureName() const {
+    return m_textureName;
+}
+
+int NPC::getBaseTextureIndex() const {
+    return m_baseTextureIndex;
 }
 
 const Point<size_t> &NPC::getSpawnPosition() const {
@@ -54,6 +64,15 @@ void NPC::setId(const std::string &id) {
 void NPC::setName(const std::string &name) {
     validateName(name);
     m_name = name;
+}
+
+
+void NPC::setTextureName(const std::string &textureName) {
+    m_textureName = textureName;
+}
+
+void NPC::setBaseTextureIndex(const int index) {
+    m_baseTextureIndex = index;
 }
 
 void NPC::setSpawnPosition(const Point<size_t> &position) {

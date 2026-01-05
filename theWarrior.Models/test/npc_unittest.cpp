@@ -14,6 +14,8 @@ NPCCreationInfo getNPCInfoSample1() {
     return {
         "npc001",
         "Joe Blow",
+        "Texture1",
+        9,
         Point<size_t>(1, 2),
         {
             Point<size_t>(1, 2),
@@ -79,6 +81,14 @@ TEST_F(NPCSample1, getId_ReturnNPC001) {
 
 TEST_F(NPCSample1, getName_ReturnJoeBlow) {
     ASSERT_EQ("Joe Blow", npc.getName());
+}
+
+TEST_F(NPCSample1, getTextureName_ReturnTexture1) {
+    ASSERT_EQ("Texture1", npc.getTextureName());
+}
+
+TEST_F(NPCSample1, getBaseTextureIndex_Return9) {
+    ASSERT_EQ(9, npc.getBaseTextureIndex());
 }
 
 TEST_F(NPCSample1, getSpawnPosition_ReturnJoeBlow) {
@@ -177,6 +187,18 @@ TEST_F(NPCSample1, setName_WithTest_ReturnSuccess) {
     std::string expected("Test");
     npc.setName(expected);
     ASSERT_EQ(expected, npc.getName());
+}
+
+TEST_F(NPCSample1, setTextureName_WithTest_ReturnSuccess) {
+    std::string expected("Test");
+    npc.setTextureName(expected);
+    ASSERT_EQ(expected, npc.getTextureName());
+}
+
+TEST_F(NPCSample1, setBaseTextureIndex_With8_ReturnSuccess) {
+    int expected = 8;
+    npc.setBaseTextureIndex(expected);
+    ASSERT_EQ(expected, npc.getBaseTextureIndex());
 }
 
 TEST_F(NPCSample1, setSpawnPosition_With8_9_ReturnSuccess) {

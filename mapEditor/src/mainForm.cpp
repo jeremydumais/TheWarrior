@@ -22,7 +22,6 @@
 #include "mapView.hpp"
 #include "monsterZoneDTO.hpp"
 #include "point.hpp"
-#include "selectNPCTextureForm.hpp"
 #include "selectionMode.hpp"
 #include "textureDTO.hpp"
 
@@ -262,9 +261,6 @@ MainForm::~MainForm() {
 
 void MainForm::functionAfterShown() {
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
-    //HACK: TO REMOVE BEFORE PROD
-    SelectNPCTextureForm form(this, m_controller.getResourcesPath(), m_controller.getTextures());
-    form.exec();
 }
 
 bool MainForm::event(QEvent *event) {

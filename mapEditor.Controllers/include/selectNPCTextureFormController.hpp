@@ -22,7 +22,7 @@ class SelectNPCTextureFormController {
     };
 
     struct NPCAnimation {
-        bool success;
+        bool success = false;
         std::vector<QPixmap> walkDown {};
         std::vector<QPixmap> walkLeft {};
         std::vector<QPixmap> walkRight {};

@@ -5,6 +5,8 @@
 #include <qdialog.h>
 #include <string>
 #include <vector>
+#include "fileTexturePixmapProvider.hpp"
+#include "npcDTO.hpp"
 #include "point.hpp"
 #include "texture.hpp"
 #include "ui_editNPCForm.h"
@@ -22,8 +24,10 @@ Q_OBJECT
  private:
     Ui::editNPCFormClass ui;
     mapeditor::controllers::EditNPCFormController m_controller;
+    commoneditor::ui::FileTexturePixmapProvider m_texturePixmapProvider;
     bool m_spawnPositionPickerModeEnabled = false;
     thewarrior::models::Point<> m_spawnPosition = thewarrior::models::Point<>(-1, -1);
+    mapeditor::controllers::NPCDTO m_result;
     void connectUIActions();
     void refreshPositionLabel();
     void onPushButtonCancelClick();

@@ -11,9 +11,10 @@
 SelectNPCTextureForm::SelectNPCTextureForm(QWidget *parent,
                                            const std::string &resourcesPath,
                                            const std::vector<thewarrior::models::Texture> &textures)
-    : QDialog(parent),
-    ui(Ui::selectNPCTextureFormClass()),
-    m_controller(resourcesPath, textures, m_texturePixmapProvider) {
+: QDialog(parent),
+ui(Ui::selectNPCTextureFormClass()),
+m_controller(resourcesPath, textures, m_texturePixmapProvider),
+m_timerAnimateNPC(this) {
     ui.setupUi(this);
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
     this->setFixedSize(this->geometry().size());
@@ -26,11 +27,16 @@ SelectNPCTextureForm::SelectNPCTextureForm(QWidget *parent,
     onComboBoxTextureNameChanged(ui.comboBoxTextureName->currentIndex());
 }
 
+SelectNPCTextureForm::SelectNPCTextureResult SelectNPCTextureForm::getResult() const {
+    return m_result;
+}
+
 void SelectNPCTextureForm::connectUIActions() {
     connect(ui.pushButtonCancel, &QPushButton::clicked, this, &SelectNPCTextureForm::onPushButtonCancelClick);
     connect(ui.pushButtonOK, &QPushButton::clicked, this, &SelectNPCTextureForm::onPushButtonOKClick);
     connect(ui.comboBoxTextureName, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &SelectNPCTextureForm::onComboBoxTextureNameChanged);
     connect(ui.listViewNPCAvailable->selectionModel(), &QItemSelectionModel::currentChanged, this, &SelectNPCTextureForm::onListViewNPCAvailableCurrentChanged);
+    connect(&m_timerAnimateNPC, &QTimer::timeout, this, &SelectNPCTextureForm::ontimerAnimateNPCTimeout);
 }
 
 void SelectNPCTextureForm::onPushButtonCancelClick() {
@@ -38,7 +44,12 @@ void SelectNPCTextureForm::onPushButtonCancelClick() {
 }
 
 void SelectNPCTextureForm::onPushButtonOKClick() {
-    accept();
+    const auto qIndex = ui.listViewNPCAvailable->currentIndex();
+    if (qIndex.isValid()) {
+        m_result.baseTextureIndex = qIndex.data(Qt::UserRole + 1).toInt();
+        m_result.textureName = ui.comboBoxTextureName->currentText().toStdString();
+        accept();
+    }
 }
 
 void SelectNPCTextureForm::onComboBoxTextureNameChanged(int index) {
@@ -55,22 +66,54 @@ void SelectNPCTextureForm::onComboBoxTextureNameChanged(int index) {
                 indexNPC++;
             }
         } else {
+            m_timerAnimateNPC.stop();
             ui.labelErrorLoading->setText(m_controller.getLastError().c_str());
+            reinterpret_cast<QStandardItemModel *>(ui.listViewNPCAvailable->model())->clear();
+            ui.labelNPCUp->clear();
+            ui.labelNPCRight->clear();
+            ui.labelNPCLeft->clear();
+            ui.labelNPCDown->clear();
         }
     }
 }
 
 void SelectNPCTextureForm::onListViewNPCAvailableCurrentChanged(const QModelIndex &current,
                                                                 const QModelIndex &) {
-    const int baseTextureIndex = current.data(Qt::UserRole + 1).toInt();
-    const auto animationResult = m_controller.getNPCAnimationTiles(ui.comboBoxTextureName->currentText().toStdString(),
-                                                                   baseTextureIndex);
-    if (animationResult.success) {
-        ui.labelNPCUp->setPixmap(animationResult.walkUp.at(0));
-        ui.labelNPCRight->setPixmap(animationResult.walkRight.at(0));
-        ui.labelNPCLeft->setPixmap(animationResult.walkLeft.at(0));
-        ui.labelNPCDown->setPixmap(animationResult.walkDown.at(0));
+    if (current.isValid()) {
+        const int baseTextureIndex = current.data(Qt::UserRole + 1).toInt();
+        m_animationNPC = m_controller.getNPCAnimationTiles(ui.comboBoxTextureName->currentText().toStdString(),
+                                                           baseTextureIndex);
+        if (m_animationNPC.success) {
+            ui.labelNPCUp->setPixmap(m_animationNPC.walkUp.at(0));
+            ui.labelNPCRight->setPixmap(m_animationNPC.walkRight.at(0));
+            ui.labelNPCLeft->setPixmap(m_animationNPC.walkLeft.at(0));
+            ui.labelNPCDown->setPixmap(m_animationNPC.walkDown.at(0));
+            m_animationNPCIndex = 0;
+            m_animationDecrease = false;
+            m_timerAnimateNPC.start(200);
+            //TODO: store the selected texture and base index
+        } else {
+            commoneditor::ui::ErrorMessage::show("Error");
+        }
     } else {
-        commoneditor::ui::ErrorMessage::show("Error");
+        m_timerAnimateNPC.stop();
+    }
+}
+
+void SelectNPCTextureForm::ontimerAnimateNPCTimeout() {
+    if (m_animationNPCIndex >= 2) {
+        m_animationDecrease = true;
+    }
+    if (!m_animationDecrease) {
+        m_animationNPCIndex++;
+    } else {
+        m_animationNPCIndex--;
+    }
+    ui.labelNPCUp->setPixmap(m_animationNPC.walkUp.at(m_animationNPCIndex));
+    ui.labelNPCRight->setPixmap(m_animationNPC.walkRight.at(m_animationNPCIndex));
+    ui.labelNPCLeft->setPixmap(m_animationNPC.walkLeft.at(m_animationNPCIndex));
+    ui.labelNPCDown->setPixmap(m_animationNPC.walkDown.at(m_animationNPCIndex));
+    if (m_animationNPCIndex == 0) {
+        m_animationDecrease = false;
     }
 }
