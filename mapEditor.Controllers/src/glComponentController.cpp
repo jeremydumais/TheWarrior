@@ -1,4 +1,3 @@
-#include "glComponentController.hpp"
 #include <fmt/format.h>
 #include <algorithm>
 #include <iterator>
@@ -8,12 +7,16 @@
 #include <vector>
 #include <boost/optional/optional.hpp>
 #include "gameMap.hpp"
+#include "glComponentController.hpp"
 #include "mapTile.hpp"
 #include "mapTileDTOUtils.hpp"
 #include "mapTileTrigger.hpp"
 #include "mapTileTriggerEventConverter.hpp"
 #include "monsterZone.hpp"
 #include "monsterZoneDTOUtils.hpp"
+#include "npc.hpp"
+#include "npcDTO.hpp"
+#include "npcDTOUtils.hpp"
 #include "point.hpp"
 #include "texture.hpp"
 #include "textureDTO.hpp"
@@ -22,6 +25,7 @@
 using commoneditor::ui::TextureDTO;
 using commoneditor::ui::TextureUtils;
 using thewarrior::models::MonsterZone;
+using thewarrior::models::NPC;
 using thewarrior::models::Texture;
 using thewarrior::models::GameMap;
 using thewarrior::models::MapTile;
@@ -33,6 +37,7 @@ using thewarrior::models::MapTileTriggerEventConverter;
 using thewarrior::models::MapTileTriggerAction;
 using thewarrior::models::Point;
 using mapeditor::controllers::MonsterZoneDTO;
+using mapeditor::controllers::NPCDTO;
 
 namespace mapeditor::controllers {
 
@@ -121,6 +126,17 @@ bool GLComponentController::isUseOnlyOneMonsterZone() const {
     return m_map->useOnlyOneMonsterZone();
 }
 
+std::vector<std::string> GLComponentController::getAlreadyUsedNPCIds() const {
+    std::vector<std::string> alreadyUsedNPCIds;
+    if (m_map != nullptr) {
+        std::transform(m_map->getNPCs().begin(),
+                       m_map->getNPCs().end(),
+                       back_inserter(alreadyUsedNPCIds),
+                       [](NPC const& x) { return x.getId(); });
+    }
+    return alreadyUsedNPCIds;
+}
+
 bool isTextureNameUsedInTile(const std::string &name, const MapTile &tile) {
     return tile.getTextureName() == name ||
            tile.getObjectTextureName() == name;
@@ -171,6 +187,14 @@ OptMonsterZoneDTOConst GLComponentController::getMonsterZoneByName(const std::st
         return OptMonsterZoneDTOConst { zoneDTO };
     }
     return std::nullopt;
+}
+
+std::vector<NPCDTO> GLComponentController::getNPCs() const {
+    std::vector<NPCDTO> retval = {};
+    std::ranges::transform(m_map->getNPCs(),
+                           std::back_inserter(retval),
+                           NPCDTOUtils::fromNPC);
+    return retval;
 }
 
 boost::optional<Point<int>> GLComponentController::getCoordFromSingleSelectedTile() const {
@@ -444,6 +468,19 @@ bool GLComponentController::removeMonsterZone(const std::string &name) {
 
 bool GLComponentController::setUseOnlyOneMonsterZone(bool value) {
     return (m_map->setUseOnlyOneMonsterZone(value));
+}
+
+bool GLComponentController::addNPC(const NPCDTO &npcDTO) {
+    const auto conversionResult = NPCDTOUtils::toNPC(npcDTO);
+    if (!conversionResult.success()) {
+        m_lastError = conversionResult.errorMessage;
+        return false;
+    }
+    if (!m_map->addNPC(conversionResult.npc.value())) {
+        m_lastError = m_map->getLastError();
+        return false;
+    }
+    return true;
 }
 
 }  // namespace mapeditor::controllers

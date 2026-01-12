@@ -19,6 +19,7 @@
 #include "components/tilePropsComponent.hpp"
 #include "mapTileDTO.hpp"
 #include "monsterZoneDTO.hpp"
+#include "npcDTO.hpp"
 #include "point.hpp"
 #include "selectionMode.hpp"
 #include "ui_mainForm.h"
@@ -122,6 +123,8 @@ Q_OBJECT
     void refreshMonsterZones();
     void toggleMonsterZoneAssignationControls();
     void useOnlyOneMonsterZoneChanged(bool value);
+    void refreshNPCs();
+    void onNPCAdded(mapeditor::controllers::NPCDTO npcDTO);
     void onMapPropsComponentBeforeChange();
 };
 

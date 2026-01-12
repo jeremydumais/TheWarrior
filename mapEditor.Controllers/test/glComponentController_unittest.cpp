@@ -4,6 +4,7 @@
 #include "mainController.hpp"
 #include "mapTileTrigger.hpp"
 #include "monsterZone.hpp"
+#include "npc.hpp"
 #include "rgbItemColor.hpp"
 
 using thewarrior::models::MapTileTrigger;
@@ -35,6 +36,8 @@ class SampleGLComponentController : public ::testing::Test {
                 });
         map->addMonsterZone(MonsterZone("Zone1", RGBItemColor("Black", "#000000")));
         map->setUseOnlyOneMonsterZone(true);
+        map->addNPC(thewarrior::models::NPC({"NPC001", "Joe Blow", "Tex1", 0}));
+        map->addNPC(thewarrior::models::NPC({"NPC002", "Jane Doe", "Tex1", 16}));
         auto &tile { map->getTileForEditing(0) };
         tile.setTextureName("tex1");
         tile.setTextureIndex(0);
@@ -56,9 +59,12 @@ class SampleGLComponentController : public ::testing::Test {
                     {{"a", "b"}}));
         glComponentController.setCurrentMap(map);
     }
+    ~SampleGLComponentController() override;
     MainController mainController;
     GLComponentController glComponentController;
 };
+
+SampleGLComponentController::~SampleGLComponentController() {}
 
 
 // N = Not assigned, A = Assigned
@@ -97,9 +103,12 @@ class SampleGLComponentControllerWithTilesAssigned : public ::testing::Test {
         tile28.setObjectTextureName("tex1");
         glComponentController.setCurrentMap(map);
     }
+    ~SampleGLComponentControllerWithTilesAssigned() override;
     MainController mainController;
     GLComponentController glComponentController;
 };
+
+SampleGLComponentControllerWithTilesAssigned::~SampleGLComponentControllerWithTilesAssigned() {}
 
 TEST(GLComponentController_getAlreadyUsedTextureNames, DefaultConstructor_ReturnEmptyVector) {
     GLComponentController glComponentController;
@@ -111,13 +120,26 @@ TEST(GLComponentController_getAlreadyUsedMonsterZoneNames, DefaultConstructor_Re
     ASSERT_EQ(0, glComponentController.getAlreadyUsedMonsterZoneNames().size());
 }
 
+TEST(GLComponentController_getAlreadyUsedNPCIds, DefaultConstructor_ReturnEmptyVector) {
+    GLComponentController glComponentController;
+    ASSERT_EQ(0, glComponentController.getAlreadyUsedNPCIds().size());
+}
+
 TEST_F(SampleGLComponentController, getAlreadyUsedTextureNames_WithTwoTexture_ReturnVectorSizeTwo) {
     ASSERT_EQ(2, glComponentController.getAlreadyUsedTextureNames().size());
 }
 
 TEST_F(SampleGLComponentController, getAlreadyUsedMonsterZoneNames_WithOneZone_ReturnVectorSizeOne) {
-    ASSERT_EQ(1, glComponentController.getAlreadyUsedMonsterZoneNames().size());
-    ASSERT_EQ("Zone1", glComponentController.getAlreadyUsedMonsterZoneNames()[0]);
+    const auto npcIds = glComponentController.getAlreadyUsedMonsterZoneNames();
+    ASSERT_EQ(1, npcIds.size());
+    ASSERT_EQ("Zone1", npcIds[0]);
+}
+
+TEST_F(SampleGLComponentController, getAlreadyUsedNPCIds_WithTwoZones_ReturnVectorSizeTwo) {
+    const auto npcIds = glComponentController.getAlreadyUsedNPCIds();
+    ASSERT_EQ(2, npcIds.size());
+    ASSERT_EQ("NPC001", npcIds[0]);
+    ASSERT_EQ("NPC002", npcIds[1]);
 }
 
 TEST_F(SampleGLComponentController, isTextureUsedInMap_WithUnusedTexture_ReturnFalse) {

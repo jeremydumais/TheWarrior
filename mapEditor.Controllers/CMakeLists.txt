@@ -23,6 +23,7 @@ include_directories(${QT_INCLUDE_PATH}
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterPickerFormController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterZoneDTOUtils.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterZoneListComponentController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/npcDTOUtils.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/npcListComponentController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/selectNPCTextureFormController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/tilePropsComponentController.cpp

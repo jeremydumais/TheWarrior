@@ -4,6 +4,7 @@
 #include <fmt/format.h>
 #include <QStyle>
 #include <memory>
+#include <optional>
 #include <string>
 #include "npcListComponent.hpp"
 #include "editNPCForm.hpp"
@@ -41,6 +42,14 @@ void NPCListComponent::connectUIActions() {
 }
 
 void NPCListComponent::refreshNPCs() {
+    ui.tableWidgetNPC->model()->removeRows(0, ui.tableWidgetNPC->rowCount());
+    int index {0};
+    for (const auto &npc : m_controller.getNPCs()) {
+        ui.tableWidgetNPC->insertRow(index);
+        ui.tableWidgetNPC->setItem(index, 0, new QTableWidgetItem(npc.id.c_str()));
+        ui.tableWidgetNPC->setItem(index, 1, new QTableWidgetItem(npc.name.c_str()));
+        index++;
+    }
 }
 
 void NPCListComponent::setResourcesPath(const std::string &resourcesPath) {
@@ -56,9 +65,12 @@ void NPCListComponent::restoreEditForm(const Point<> &position) {
 }
 
 void NPCListComponent::onPushButtonAddNPCClick() {
+    const auto alreadyUsedNPCIds = m_controller.getAlreadyUsedNPCIds();
     m_editForm = std::make_unique<EditNPCForm>(this,
                                                m_resourcesPath,
-                                               m_glComponent->getTextures());
+                                               m_glComponent->getTextures(),
+                                               std::nullopt,
+                                               alreadyUsedNPCIds);
     showEditForm();
 }
 
@@ -83,7 +95,9 @@ void NPCListComponent::showEditForm() {
         if (m_editForm->isSpawnPositionPickerModeEnabled()) {
             m_glComponent->npcSpawnPositionPickerModeChanged(true);
         } else {
-            //TODO: 0.6.0 Regular OK action
+            if (!m_editForm->isEditMode()) {
+                emit npcAdded(m_editForm->getResult());
+            } else {}
         }
     }
     m_glComponent->startAutoUpdate();

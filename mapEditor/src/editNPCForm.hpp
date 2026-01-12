@@ -18,9 +18,14 @@ Q_OBJECT
  public:
     EditNPCForm(QWidget *parent,
                 const std::string &resourcesPath,
-                const std::vector<thewarrior::models::Texture> &textures);
+                const std::vector<thewarrior::models::Texture> &textures,
+                const std::optional<mapeditor::controllers::NPCDTO> selectedNPC,
+                const std::vector<std::string> &alreadyUsedNPCIds);
+    bool isEditMode() const;
     bool isSpawnPositionPickerModeEnabled() const;
     void restoreFromPicker(const thewarrior::models::Point<> &position);
+    const mapeditor::controllers::NPCDTO &getResult() const;
+
  private:
     Ui::editNPCFormClass ui;
     mapeditor::controllers::EditNPCFormController m_controller;

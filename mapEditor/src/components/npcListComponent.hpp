@@ -27,7 +27,7 @@ class NPCListComponent : public QWidget {
     void setResourcesPath(const std::string &resourcesPath);
     void restoreEditForm(const thewarrior::models::Point<> &position);
  signals:
-    //void npcAdded(mapeditor::controllers::NPCDTO npcDTO);
+    void npcAdded(mapeditor::controllers::NPCDTO npcDTO);
     //void npcUpdated(const std::string &name, mapeditor::controllers::NPCDTO npcDTO);
     //void npcDeleted(const std::string &name);
 

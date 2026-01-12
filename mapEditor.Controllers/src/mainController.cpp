@@ -233,6 +233,15 @@ bool MainController::loadConfiguredMonsterStores() {
     return true;
 }
 
+bool MainController::addNPC(const NPCDTO &npcDTO) {
+    m_glComponentController->pushCurrentStateToHistory();
+    if (!m_glComponentController->addNPC(npcDTO)) {
+        this->m_lastError = m_glComponentController->getLastError();
+        return false;
+    }
+    return true;
+}
+
 std::vector<std::string> MainController::getRecentMapsFromConfig() const {
     return m_configManager->getVectorOfStringValue(RecentMapsConfigItem);
 }

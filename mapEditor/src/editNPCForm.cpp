@@ -5,18 +5,27 @@
 #include "editNPCForm.hpp"
 #include "editNPCFormController.hpp"
 #include "errorMessage.hpp"
+#include "npc.hpp"
+#include "npcDTO.hpp"
 #include "point.hpp"
 #include "selectNPCTextureForm.hpp"
+#include "texture.hpp"
 
 using commoneditor::ui::ErrorMessage;
+using mapeditor::controllers::EditNPCFormController;
+using mapeditor::controllers::NPCDTO;
+using thewarrior::models::NPCFacing;
 using thewarrior::models::Point;
+using thewarrior::models::Texture;
 
 EditNPCForm::EditNPCForm(QWidget *parent,
                          const std::string &resourcesPath,
-                         const std::vector<thewarrior::models::Texture> &textures)
+                         const std::vector<Texture> &textures,
+                         const std::optional<NPCDTO> selectedNPC,
+                         const std::vector<std::string> &alreadyUsedNPCIds)
     : QDialog(parent),
     ui(Ui::editNPCFormClass()),
-    m_controller(resourcesPath, textures, m_texturePixmapProvider) {
+    m_controller(resourcesPath, textures, m_texturePixmapProvider, selectedNPC, alreadyUsedNPCIds) {
     ui.setupUi(this);
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
     this->setFixedSize(this->geometry().size());
@@ -29,14 +38,22 @@ EditNPCForm::EditNPCForm(QWidget *parent,
     refreshPositionLabel();
 }
 
+bool EditNPCForm::isEditMode() const {
+    return m_controller.isEditMode();
+}
+
 bool EditNPCForm::isSpawnPositionPickerModeEnabled() const {
     return m_spawnPositionPickerModeEnabled;
 }
 
-void EditNPCForm::restoreFromPicker(const thewarrior::models::Point<> &position) {
+void EditNPCForm::restoreFromPicker(const Point<> &position) {
     m_spawnPositionPickerModeEnabled = false;
     m_spawnPosition = position;
     refreshPositionLabel();
+}
+
+const NPCDTO &EditNPCForm::getResult() const {
+    return m_result;
 }
 
 void EditNPCForm::connectUIActions() {
@@ -69,12 +86,30 @@ void EditNPCForm::onPushButtonOKClick() {
         ErrorMessage::show("The name is required.");
         return;
     }
+    if (m_result.textureName.empty() || m_result.baseTextureIndex == -1) {
+        ErrorMessage::show("The NPC texture is required.");
+        return;
+    }
     if (m_spawnPosition == Point<>(-1, -1)) {
         ErrorMessage::show("The spawn position is required.");
         return;
     }
-
-    //TODO: 0.6.0 Ensure the ID is unique
+    const auto npcId = ui.lineEditId->text().trimmed().toStdString();
+    if (m_controller.isNPCIdAlreadyUsed(npcId)) {
+        ErrorMessage::show(fmt::format("The NPC Id {} already exists in the list.", npcId));
+        return;
+    }
+    m_result.id = npcId;
+    m_result.name = ui.lineEditName->text().trimmed().toStdString();
+    m_result.spawnPosition = Point<size_t>(static_cast<size_t>(m_spawnPosition.x()),
+                                          static_cast<size_t>(m_spawnPosition.y()));
+    m_result.dialogueLines = EditNPCFormController::convertPlainTextToLines(ui.plainTextDialogue->toPlainText());
+    m_result.defaultFacing = static_cast<NPCFacing>(ui.comboBoxDefaultFacing->currentIndex());
+    m_result.currentFacing = m_result.defaultFacing;
+    if (!m_controller.isDTOValid(m_result)) {
+        ErrorMessage::show(m_controller.getLastError());
+        return;
+    }
     accept();
 }
 

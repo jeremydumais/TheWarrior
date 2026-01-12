@@ -9,6 +9,7 @@
 #include "mapTile.hpp"
 #include "mapTileDTO.hpp"
 #include "monsterZoneDTO.hpp"
+#include "npcDTO.hpp"
 #include "point.hpp"
 #include "textureDTO.hpp"
 
@@ -27,6 +28,7 @@ class GLComponentController {
     std::vector<std::string> getAlreadyUsedTextureNames() const;
     virtual std::vector<std::string> getAlreadyUsedMonsterZoneNames() const;
     bool isUseOnlyOneMonsterZone() const;
+    std::vector<std::string> getAlreadyUsedNPCIds() const;
     bool isTextureUsedInMap(const std::string &name);
     bool isShrinkMapImpactAssignedTiles(int offsetLeft,
                                         int offsetTop,
@@ -34,6 +36,7 @@ class GLComponentController {
                                         int offsetBottom) const;
     virtual std::vector<mapeditor::controllers::MonsterZoneDTO> getMonsterZones() const;
     virtual OptMonsterZoneDTOConst getMonsterZoneByName(const std::string &name) const;
+    std::vector<mapeditor::controllers::NPCDTO> getNPCs() const;
     boost::optional<thewarrior::models::Point<int>> getCoordFromSingleSelectedTile() const;
     size_t getHistoryCurrentIndex() const;
     size_t getHistoryCount() const;
@@ -71,6 +74,7 @@ class GLComponentController {
     bool replaceMonsterZone(const std::string &name, const MonsterZoneDTO &monsterZoneDTO);
     bool removeMonsterZone(const std::string &name);
     bool setUseOnlyOneMonsterZone(bool value);
+    bool addNPC(const NPCDTO &npcDTO);
 
  private:
     std::shared_ptr<thewarrior::models::GameMap> m_map;

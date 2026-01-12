@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 #include "editTextureFormController.hpp"
 #include "textureDTO.hpp"
@@ -17,9 +18,12 @@ class EditTextureFormControllerNullOriginalSample : public ::testing::Test {
         : nameSamples(getAllTextureNamesSample()),
           controller(nullptr, nameSamples, "fakeResPath") {
     }
+    ~EditTextureFormControllerNullOriginalSample() override;
     std::vector<std::string> nameSamples;
     EditTextureFormController controller;
 };
+
+EditTextureFormControllerNullOriginalSample::~EditTextureFormControllerNullOriginalSample() {}
 
 TEST(EditTextureFormController_getOriginalTexture, ReturnTextureDTO) {
     EditTextureFormController controller(std::unique_ptr<TextureDTO>(new TextureDTO {

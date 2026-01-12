@@ -8,6 +8,7 @@
 #include "gameMap.hpp"
 #include "glComponentController.hpp"
 #include "monsterZoneDTO.hpp"
+#include "npcDTO.hpp"
 #include "textureDTO.hpp"
 #include "types.hpp"
 
@@ -40,6 +41,7 @@ class MainController {
     bool replaceMonsterZone(const std::string &name, const MonsterZoneDTO &monsterZoneDTO);
     bool removeMonsterZone(const std::string &name);
     bool loadConfiguredMonsterStores();
+    bool addNPC(const NPCDTO &npcDTO);
     std::vector<std::string> getRecentMapsFromConfig() const;
     bool addNewRecentMap(const std::string &filePath);
     bool getDisplayGridConfigState() const;

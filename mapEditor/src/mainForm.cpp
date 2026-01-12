@@ -14,6 +14,7 @@
 #include "aboutBoxForm.hpp"
 #include "components/debugInfoDockWidget.hpp"
 #include "components/mapPropsComponent.hpp"
+#include "components/npcListComponent.hpp"
 #include "constants.hpp"
 #include "errorMessage.hpp"
 #include "gameMapStorage.hpp"
@@ -21,6 +22,7 @@
 #include "manageMonsterStoreForm.hpp"
 #include "mapView.hpp"
 #include "monsterZoneDTO.hpp"
+#include "npcDTO.hpp"
 #include "point.hpp"
 #include "selectionMode.hpp"
 #include "textureDTO.hpp"
@@ -29,6 +31,7 @@ using commoneditor::ui::ErrorMessage;
 using commoneditor::ui::TextureDTO;
 using mapeditor::controllers::MapTileDTO;
 using mapeditor::controllers::MonsterZoneDTO;
+using mapeditor::controllers::NPCDTO;
 using thewarrior::models::Point;
 using thewarrior::storage::GameMapStorage;
 
@@ -208,6 +211,7 @@ void MainForm::connectUIActions() {
     connect(m_monsterZoneListComponent.get(), &MonsterZoneListComponent::monsterZoneUpdated, this, &MainForm::onMonsterZoneUpdated);
     connect(m_monsterZoneListComponent.get(), &MonsterZoneListComponent::monsterZoneDeleted, this, &MainForm::onMonsterZoneDeleted);
     connect(m_monsterZoneListComponent.get(), &MonsterZoneListComponent::useOnlyOneMonsterZoneChanged, this, &MainForm::useOnlyOneMonsterZoneChanged);
+    connect(m_npcListComponent.get(), &NPCListComponent::npcAdded, this, &MainForm::onNPCAdded);
 }
 
 void MainForm::action_Open_Click() {
@@ -784,6 +788,20 @@ void MainForm::useOnlyOneMonsterZoneChanged(bool value) {
     }
     toggleMonsterZoneAssignationControls();
     refreshMonsterZones();
+    refreshUndoControls();
+    m_tilePropsComponent->enableFieldsChangeEvent();
+}
+
+void MainForm::refreshNPCs() {
+    m_npcListComponent->refreshNPCs();
+}
+
+void MainForm::onNPCAdded(NPCDTO npcDTO) {
+    m_tilePropsComponent->disableFieldsChangeEvent();
+    if (!m_controller.addNPC(npcDTO)) {
+        ErrorMessage::show(m_controller.getLastError());
+    }
+    refreshNPCs();
     refreshUndoControls();
     m_tilePropsComponent->enableFieldsChangeEvent();
 }
