@@ -34,6 +34,19 @@ EditNPCForm::EditNPCForm(QWidget *parent,
     ui.comboBoxDefaultFacing->addItem("Right");
     ui.comboBoxDefaultFacing->addItem("Down");
     ui.comboBoxDefaultFacing->setCurrentIndex(3);
+    if (selectedNPC.has_value()) {
+        ui.lineEditId->setText(selectedNPC->id.c_str());
+        ui.lineEditName->setText(selectedNPC->name.c_str());
+        m_spawnPosition = Point<>(static_cast<int>(selectedNPC->spawnPosition.x()),
+                                  static_cast<int>(selectedNPC->spawnPosition.y()));
+        m_result.textureName = selectedNPC->textureName;
+        m_result.baseTextureIndex = selectedNPC->baseTextureIndex;
+        for (const auto &line : selectedNPC->dialogueLines) {
+            ui.plainTextDialogue->appendPlainText(line.c_str());
+        }
+        ui.comboBoxDefaultFacing->setCurrentIndex(static_cast<int>(selectedNPC->defaultFacing));
+        refreshNPCTile();
+    }
     connectUIActions();
     refreshPositionLabel();
 }
@@ -70,6 +83,18 @@ void EditNPCForm::refreshPositionLabel() {
         ui.labelSpawnPositionValue->setText(fmt::format("({0}, {1})",
                                                         m_spawnPosition.x(),
                                                         m_spawnPosition.y()).c_str());
+    }
+}
+
+void EditNPCForm::refreshNPCTile() {
+    const auto npcTextureResult = m_controller.getNPCPixmap(m_result.textureName,
+                                                            m_result.baseTextureIndex);
+    if (npcTextureResult.success) {
+        ui.labelNPCTexture->setPixmap(*npcTextureResult.result);
+    } else {
+        ui.labelNPCTexture->clear();
+        ErrorMessage::show(fmt::format("Unable to load the NPC image. {0}",
+                                       m_controller.getLastError()));
     }
 }
 
@@ -121,15 +146,7 @@ void EditNPCForm::onPushButtonSelectTextureClick() {
         const auto textureResult = formSelectTexture.getResult();
         m_result.textureName = textureResult.textureName;
         m_result.baseTextureIndex = textureResult.baseTextureIndex;
-        const auto npcTextureResult = m_controller.getNPCPixmap(m_result.textureName,
-                                                                m_result.baseTextureIndex);
-        if (npcTextureResult.success) {
-            ui.labelNPCTexture->setPixmap(*npcTextureResult.result);
-        } else {
-            ui.labelNPCTexture->clear();
-            ErrorMessage::show(fmt::format("Unable to load the NPC image. {0}",
-                                           m_controller.getLastError()));
-        }
+        refreshNPCTile();
     }
 }
 

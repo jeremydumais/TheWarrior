@@ -1,3 +1,4 @@
+#include <optional>
 #include <string>
 #include <vector>
 #include "npcListComponentController.hpp"
@@ -21,6 +22,18 @@ const std::vector<std::string> NPCListComponentController::getAlreadyUsedNPCIds(
 
 const std::vector<NPCDTO> NPCListComponentController::getNPCs() const {
     return m_glComponentController->getNPCs();
+}
+
+const std::optional<NPCDTO> NPCListComponentController::getNPCById(const std::string &name) const {
+    return m_glComponentController->getNPCById(name);
+}
+
+const std::string &NPCListComponentController::getEditedId() const {
+    return m_editedId;
+}
+
+void NPCListComponentController::setEditedId(const std::string &id) {
+    m_editedId = id;
 }
 
 }  // namespace mapeditor::controllers

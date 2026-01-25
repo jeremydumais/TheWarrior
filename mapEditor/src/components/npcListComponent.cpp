@@ -8,10 +8,12 @@
 #include <string>
 #include "npcListComponent.hpp"
 #include "editNPCForm.hpp"
+#include "npcDTO.hpp"
 #include "point.hpp"
 #include "uiUtils.hpp"
 
 using mapeditor::controllers::GLComponentController;
+using mapeditor::controllers::NPCDTO;
 using thewarrior::models::Point;
 
 NPCListComponent::NPCListComponent(QWidget *parent,
@@ -52,6 +54,18 @@ void NPCListComponent::refreshNPCs() {
     }
 }
 
+std::optional<const NPCDTO> NPCListComponent::getSelectedNPC() const {
+    if (ui.tableWidgetNPC->selectionModel()->hasSelection()) {
+        // Find the selected NPC
+        const auto selectedRow = ui.tableWidgetNPC->selectionModel()->selectedRows()[0];
+        auto selectedItemId { selectedRow.sibling(selectedRow.row(), 0).data().toString().toStdString() };
+        return m_controller.getNPCById(selectedItemId);
+    } else {
+        return std::nullopt;
+    }
+}
+
+
 void NPCListComponent::setResourcesPath(const std::string &resourcesPath) {
     m_resourcesPath = resourcesPath;
 }
@@ -76,6 +90,17 @@ void NPCListComponent::onPushButtonAddNPCClick() {
 
 void NPCListComponent::onPushButtonEditNPCClick() {
     m_glComponent->stopAutoUpdate();
+    auto selectedNPC = getSelectedNPC();
+    if (selectedNPC.has_value()) {
+        m_controller.setEditedId(selectedNPC->id);
+        auto alreadyUsedNPCIds = m_controller.getAlreadyUsedNPCIds();
+        m_editForm = std::make_unique<EditNPCForm>(this,
+                                                   m_resourcesPath,
+                                                   m_glComponent->getTextures(),
+                                                   selectedNPC,
+                                                   alreadyUsedNPCIds);
+        showEditForm();
+    }
     m_glComponent->startAutoUpdate();
 }
 
@@ -97,7 +122,9 @@ void NPCListComponent::showEditForm() {
         } else {
             if (!m_editForm->isEditMode()) {
                 emit npcAdded(m_editForm->getResult());
-            } else {}
+            } else {
+                emit npcUpdated(m_controller.getEditedId(), m_editForm->getResult());
+            }
         }
     }
     m_glComponent->startAutoUpdate();

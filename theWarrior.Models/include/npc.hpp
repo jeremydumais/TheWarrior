@@ -69,6 +69,8 @@ class NPC {
     void serialize(Archive & ar, const unsigned int) {
         ar & m_id;
         ar & m_name;
+        ar & m_textureName;
+        ar & m_baseTextureIndex;
         ar & m_spawnPosition;
         ar & m_wanderZone;
         ar & m_dialogueLines;

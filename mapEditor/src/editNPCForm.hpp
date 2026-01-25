@@ -35,6 +35,7 @@ Q_OBJECT
     mapeditor::controllers::NPCDTO m_result;
     void connectUIActions();
     void refreshPositionLabel();
+    void refreshNPCTile();
     void onPushButtonCancelClick();
     void onPushButtonOKClick();
     void onPushButtonSelectTextureClick();

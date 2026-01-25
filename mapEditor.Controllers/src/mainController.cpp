@@ -242,6 +242,15 @@ bool MainController::addNPC(const NPCDTO &npcDTO) {
     return true;
 }
 
+bool MainController::replaceNPC(const std::string &id, const NPCDTO &npcDTO) {
+    m_glComponentController->pushCurrentStateToHistory();
+    if (!m_glComponentController->replaceNPC(id, npcDTO)) {
+        this->m_lastError = m_glComponentController->getLastError();
+        return false;
+    }
+    return true;
+}
+
 std::vector<std::string> MainController::getRecentMapsFromConfig() const {
     return m_configManager->getVectorOfStringValue(RecentMapsConfigItem);
 }

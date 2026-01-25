@@ -5,10 +5,12 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QWidget>
 #include <memory>
+#include <optional>
 #include <string>
 #include "editNPCForm.hpp"
 #include "glComponentController.hpp"
 #include "mainForm_GLComponent.hpp"
+#include "npcDTO.hpp"
 #include "npcListComponentController.hpp"
 #include "point.hpp"
 #include "qTableWidgetKeyPressWatcher.h"
@@ -24,12 +26,13 @@ class NPCListComponent : public QWidget {
     void initializeUIObjects();
     void connectUIActions();
     void refreshNPCs();
+    std::optional<const mapeditor::controllers::NPCDTO> getSelectedNPC() const;
     void setResourcesPath(const std::string &resourcesPath);
     void restoreEditForm(const thewarrior::models::Point<> &position);
  signals:
     void npcAdded(mapeditor::controllers::NPCDTO npcDTO);
-    //void npcUpdated(const std::string &name, mapeditor::controllers::NPCDTO npcDTO);
-    //void npcDeleted(const std::string &name);
+    void npcUpdated(const std::string &id, mapeditor::controllers::NPCDTO npcDTO);
+    //void npcDeleted(const std::string &id);
 
  private:
     Ui::NPCListComponent ui;

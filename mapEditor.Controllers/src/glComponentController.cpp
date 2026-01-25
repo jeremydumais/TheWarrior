@@ -197,6 +197,15 @@ std::vector<NPCDTO> GLComponentController::getNPCs() const {
     return retval;
 }
 
+OptNPCDTOConst GLComponentController::getNPCById(const std::string &name) const {
+    const auto npcOpt = m_map->getNPCById(name);
+    if (npcOpt.has_value()) {
+        const auto npcDTO = NPCDTOUtils::fromNPC(npcOpt->get());
+        return OptNPCDTOConst { npcDTO };
+    }
+    return std::nullopt;
+}
+
 boost::optional<Point<int>> GLComponentController::getCoordFromSingleSelectedTile() const {
     const auto tiles = getSelectedMapTiles();
     if (tiles.size() == 1) {
@@ -478,6 +487,24 @@ bool GLComponentController::addNPC(const NPCDTO &npcDTO) {
     }
     if (!m_map->addNPC(conversionResult.npc.value())) {
         m_lastError = m_map->getLastError();
+        return false;
+    }
+    return true;
+}
+
+bool GLComponentController::replaceNPC(const std::string &id, const NPCDTO &npcDTO) {
+    try {
+        const auto conversionResult = NPCDTOUtils::toNPC(npcDTO);
+        if (!conversionResult.success()) {
+            this->m_lastError = conversionResult.errorMessage;
+            return false;
+        }
+        if (!m_map->replaceNPC(id, conversionResult.npc.value())) {
+            this->m_lastError = m_map->getLastError();
+            return false;
+        }
+    } catch(const std::invalid_argument &err) {
+        this->m_lastError = err.what();
         return false;
     }
     return true;

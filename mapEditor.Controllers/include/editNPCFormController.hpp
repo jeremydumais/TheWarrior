@@ -38,7 +38,7 @@ class EditNPCFormController {
     const std::vector<thewarrior::models::Texture> &m_textures;
     commoneditor::ui::ITexturePixmapProvider &m_texturePixmapProvider;
     const std::optional<mapeditor::controllers::NPCDTO> m_selectedNPC;
-    const std::vector<std::string> &m_alreadyUsedNPCIds;
+    const std::vector<std::string> m_alreadyUsedNPCIds;
 };
 
 }  // namespace mapeditor::controllers

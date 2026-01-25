@@ -16,6 +16,7 @@
 namespace mapeditor::controllers {
 
 typedef std::optional<const mapeditor::controllers::MonsterZoneDTO> OptMonsterZoneDTOConst;
+typedef std::optional<const mapeditor::controllers::NPCDTO> OptNPCDTOConst;
 
 class GLComponentController {
  public:
@@ -37,6 +38,7 @@ class GLComponentController {
     virtual std::vector<mapeditor::controllers::MonsterZoneDTO> getMonsterZones() const;
     virtual OptMonsterZoneDTOConst getMonsterZoneByName(const std::string &name) const;
     std::vector<mapeditor::controllers::NPCDTO> getNPCs() const;
+    OptNPCDTOConst getNPCById(const std::string &name) const;
     boost::optional<thewarrior::models::Point<int>> getCoordFromSingleSelectedTile() const;
     size_t getHistoryCurrentIndex() const;
     size_t getHistoryCount() const;
@@ -75,6 +77,7 @@ class GLComponentController {
     bool removeMonsterZone(const std::string &name);
     bool setUseOnlyOneMonsterZone(bool value);
     bool addNPC(const NPCDTO &npcDTO);
+    bool replaceNPC(const std::string &id, const NPCDTO &npcDTO);
 
  private:
     std::shared_ptr<thewarrior::models::GameMap> m_map;

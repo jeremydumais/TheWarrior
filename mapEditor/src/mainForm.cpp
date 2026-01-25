@@ -104,6 +104,7 @@ MainForm::MainForm(QWidget *parent,
     refreshClipboardControls();
     refreshTextureList();
     refreshMonsterZones();
+    refreshNPCs();
     m_mapPropsComponent->reset();
     action_SelectClick();
     tabWidgetMapViewChanged(static_cast<int>(MapView::Standard));
@@ -212,6 +213,7 @@ void MainForm::connectUIActions() {
     connect(m_monsterZoneListComponent.get(), &MonsterZoneListComponent::monsterZoneDeleted, this, &MainForm::onMonsterZoneDeleted);
     connect(m_monsterZoneListComponent.get(), &MonsterZoneListComponent::useOnlyOneMonsterZoneChanged, this, &MainForm::useOnlyOneMonsterZoneChanged);
     connect(m_npcListComponent.get(), &NPCListComponent::npcAdded, this, &MainForm::onNPCAdded);
+    connect(m_npcListComponent.get(), &NPCListComponent::npcUpdated, this, &MainForm::onNPCUpdated);
 }
 
 void MainForm::action_Open_Click() {
@@ -394,6 +396,7 @@ void MainForm::action_UndoClick() {
     m_glComponent.undo();
     refreshTextureList();
     refreshMonsterZones();
+    refreshNPCs();
     m_mapPropsComponent->refresh();
     m_tilePropsComponent->refresh();
     m_monsterZoneListComponent->enableFieldsChangeEvent();
@@ -406,6 +409,7 @@ void MainForm::action_RedoClick() {
     m_glComponent.redo();
     refreshTextureList();
     refreshMonsterZones();
+    refreshNPCs();
     m_mapPropsComponent->refresh();
     m_tilePropsComponent->refresh();
     m_monsterZoneListComponent->enableFieldsChangeEvent();
@@ -536,6 +540,7 @@ void MainForm::openMap(const std::string &filePath) {
     refreshClipboardControls();
     refreshTextureList();
     refreshMonsterZones();
+    refreshNPCs();
     m_tilePropsComponent->reset();
     m_mapPropsComponent->reset();
 }
@@ -799,6 +804,16 @@ void MainForm::refreshNPCs() {
 void MainForm::onNPCAdded(NPCDTO npcDTO) {
     m_tilePropsComponent->disableFieldsChangeEvent();
     if (!m_controller.addNPC(npcDTO)) {
+        ErrorMessage::show(m_controller.getLastError());
+    }
+    refreshNPCs();
+    refreshUndoControls();
+    m_tilePropsComponent->enableFieldsChangeEvent();
+}
+
+void MainForm::onNPCUpdated(const std::string &id, NPCDTO npcDTO) {
+    m_tilePropsComponent->disableFieldsChangeEvent();
+    if (!m_controller.replaceNPC(id, npcDTO)) {
         ErrorMessage::show(m_controller.getLastError());
     }
     refreshNPCs();

@@ -125,6 +125,7 @@ Q_OBJECT
     void useOnlyOneMonsterZoneChanged(bool value);
     void refreshNPCs();
     void onNPCAdded(mapeditor::controllers::NPCDTO npcDTO);
+    void onNPCUpdated(const std::string &id, mapeditor::controllers::NPCDTO npcDTO);
     void onMapPropsComponentBeforeChange();
 };
 
