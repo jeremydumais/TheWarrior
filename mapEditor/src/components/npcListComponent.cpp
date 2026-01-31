@@ -105,6 +105,17 @@ void NPCListComponent::onPushButtonEditNPCClick() {
 }
 
 void NPCListComponent::onPushButtonDeleteNPCClick() {
+    auto selectedNPC = getSelectedNPC();
+    if (selectedNPC.has_value()) {
+        QMessageBox msgBox;
+        msgBox.setText(fmt::format("Are you sure you want to delete the NPC {0}?", selectedNPC->name).c_str());
+        msgBox.setWindowTitle("Confirmation");
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::Cancel);
+        if (msgBox.exec() == QMessageBox::Yes) {
+            emit npcDeleted(selectedNPC->id);
+        }
+    }
 }
 
 void NPCListComponent::onTableWidgetNPCKeyPressEvent(int key, int, int) {

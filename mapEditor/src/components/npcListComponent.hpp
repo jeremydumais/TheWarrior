@@ -32,7 +32,7 @@ class NPCListComponent : public QWidget {
  signals:
     void npcAdded(mapeditor::controllers::NPCDTO npcDTO);
     void npcUpdated(const std::string &id, mapeditor::controllers::NPCDTO npcDTO);
-    //void npcDeleted(const std::string &id);
+    void npcDeleted(const std::string &id);
 
  private:
     Ui::NPCListComponent ui;

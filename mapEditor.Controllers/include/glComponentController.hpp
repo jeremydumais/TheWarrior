@@ -78,6 +78,7 @@ class GLComponentController {
     bool setUseOnlyOneMonsterZone(bool value);
     bool addNPC(const NPCDTO &npcDTO);
     bool replaceNPC(const std::string &id, const NPCDTO &npcDTO);
+    bool removeNPC(const std::string &id);
 
  private:
     std::shared_ptr<thewarrior::models::GameMap> m_map;

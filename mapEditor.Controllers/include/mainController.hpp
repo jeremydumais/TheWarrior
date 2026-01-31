@@ -43,6 +43,7 @@ class MainController {
     bool loadConfiguredMonsterStores();
     bool addNPC(const NPCDTO &npcDTO);
     bool replaceNPC(const std::string &id, const NPCDTO &npcDTO);
+    bool removeNPC(const std::string &id);
     std::vector<std::string> getRecentMapsFromConfig() const;
     bool addNewRecentMap(const std::string &filePath);
     bool getDisplayGridConfigState() const;

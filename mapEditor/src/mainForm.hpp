@@ -126,6 +126,7 @@ Q_OBJECT
     void refreshNPCs();
     void onNPCAdded(mapeditor::controllers::NPCDTO npcDTO);
     void onNPCUpdated(const std::string &id, mapeditor::controllers::NPCDTO npcDTO);
+    void onNPCDeleted(const std::string &id);
     void onMapPropsComponentBeforeChange();
 };
 

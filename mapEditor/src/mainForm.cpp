@@ -214,6 +214,7 @@ void MainForm::connectUIActions() {
     connect(m_monsterZoneListComponent.get(), &MonsterZoneListComponent::useOnlyOneMonsterZoneChanged, this, &MainForm::useOnlyOneMonsterZoneChanged);
     connect(m_npcListComponent.get(), &NPCListComponent::npcAdded, this, &MainForm::onNPCAdded);
     connect(m_npcListComponent.get(), &NPCListComponent::npcUpdated, this, &MainForm::onNPCUpdated);
+    connect(m_npcListComponent.get(), &NPCListComponent::npcDeleted, this, &MainForm::onNPCDeleted);
 }
 
 void MainForm::action_Open_Click() {
@@ -284,7 +285,6 @@ void MainForm::closeEvent(QCloseEvent *event) {
     settings.setValue(WINDOWSTATEGEOMETRY, saveGeometry());
     settings.setValue(WINDOWSTATESTATE, saveState());
     event->accept();
-
 }
 
 void MainForm::action_About_Click() {
@@ -814,6 +814,17 @@ void MainForm::onNPCAdded(NPCDTO npcDTO) {
 void MainForm::onNPCUpdated(const std::string &id, NPCDTO npcDTO) {
     m_tilePropsComponent->disableFieldsChangeEvent();
     if (!m_controller.replaceNPC(id, npcDTO)) {
+        ErrorMessage::show(m_controller.getLastError());
+    }
+    refreshNPCs();
+    refreshUndoControls();
+    m_tilePropsComponent->enableFieldsChangeEvent();
+}
+
+void MainForm::onNPCDeleted(const std::string &id) {
+    m_tilePropsComponent->disableFieldsChangeEvent();
+    if (m_controller.removeNPC(id)) {
+    } else {
         ErrorMessage::show(m_controller.getLastError());
     }
     refreshNPCs();

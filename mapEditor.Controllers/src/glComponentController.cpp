@@ -510,4 +510,12 @@ bool GLComponentController::replaceNPC(const std::string &id, const NPCDTO &npcD
     return true;
 }
 
+bool GLComponentController::removeNPC(const std::string &id) {
+    if (!m_map->removeNPC(id)) {
+        m_lastError = m_map->getLastError();
+        return false;
+    }
+    return true;
+}
+
 }  // namespace mapeditor::controllers
