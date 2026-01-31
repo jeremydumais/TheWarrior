@@ -10,6 +10,7 @@
 #include <memory>
 #include <set>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include <boost/optional/optional.hpp>
 #include <glm/glm.hpp>
@@ -36,6 +37,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
     explicit MapOpenGLWidget(QWidget *parent = nullptr);
     void setCurrentMap(std::shared_ptr<thewarrior::models::GameMap> map);
     void setGridEnabled(bool enabled);
+    void setShowNPCsEnabled(bool enabled);
     void setZoom(int zoomPercentage);
     void setZoomLimit(int min, int max);
     void resizeGL(int width, int height) override;
@@ -71,6 +73,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
     int m_width = 0;
     int m_height = 0;
     bool m_isGridEnabled;
+    bool m_showNPCsEnabled;
     int m_zoomPercentage = 100;
     int m_zoomPercentageMin;
     int m_zoomPercentageMax;
@@ -117,7 +120,10 @@ class MapOpenGLWidget : public QOpenGLWidget {
     void recalculateTileSize();
     void updateCursor(QMouseEvent *event);
     void draw();
-    void drawTile(const thewarrior::models::MapTile &tile, int index, const std::vector<std::string> &zoneColors);
+    void drawTile(const thewarrior::models::MapTile &tile,
+                  int index,
+                  const std::vector<std::string> &zoneColors,
+                  const std::unordered_map<int, const thewarrior::models::NPC *> &npcsBySpawnLocation);
     void drawTileWithTexture(const std::string &textureName, int textureIndex);
     void drawColoredTile() const;
     void drawSelectionZone() const;

@@ -6,6 +6,8 @@
 #include <boost/signals2.hpp>
 #include "glObjectService.hpp"
 #include "glTextureService.hpp"
+#include "direction.hpp"
+#include "movementResult.hpp"
 #include "player.hpp"
 #include "point.hpp"
 #include "texture.hpp"
@@ -13,12 +15,6 @@
 #include "worldState.hpp"
 
 namespace thewarrior::ui {
-
-enum class PlayerMovement { None, MoveLeft, MoveRight, MoveUp, MoveDown };
-
-struct MovingResult {
-    bool needToRefreshTexture;
-};
 
 class GLPlayer : public thewarrior::models::Player {
  public:
@@ -48,7 +44,7 @@ class GLPlayer : public thewarrior::models::Player {
     void faceRight();
     void enableRunMode();
     void disableRunMode();
-    MovingResult processMoving(float delta_time);
+    MovementResult processMoving(float delta_time);
     void onGameWindowTileSizeChanged(const TileSize &tileSize);
     void onGameWindowUpdate(float delta_time);
     boost::signals2::signal<void()> m_playerMoveCompleted;
@@ -60,7 +56,7 @@ class GLPlayer : public thewarrior::models::Player {
     float m_xMove;
     float m_yMove;
     TileSize m_tileSize;
-    PlayerMovement m_playerMovement;
+    thewarrior::models::Direction m_direction;
     bool m_isInRunningMode;
     std::string m_textureName;
     int m_baseTextureIndex;

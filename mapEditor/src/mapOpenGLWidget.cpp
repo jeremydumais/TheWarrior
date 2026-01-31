@@ -1,19 +1,22 @@
-#include "mapOpenGLWidget.hpp"
-#include <GL/gl.h>
-#include <qnamespace.h>
-#include <stdexcept>
 #define STB_IMAGE_IMPLEMENTATION
 #include <GL/glut.h>
 #include <QtWidgets>
 #include <fmt/format.h>
 #include <stb_image.h>
+#include <GL/gl.h>
+#include <qnamespace.h>
 #include <algorithm>
+#include <cstddef>
 #include <iterator>
 #include <map>
 #include <set>
+#include <stdexcept>
 #include <string>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 #include "glColor.hpp"
+#include "mapOpenGLWidget.hpp"
 #include "mapView.hpp"
 #include "monsterZone.hpp"
 #include "pickerToolSelection.hpp"
@@ -26,6 +29,7 @@ using thewarrior::ui::getVec3FromRGBString;
 MapOpenGLWidget::MapOpenGLWidget(QWidget *parent)
     : QOpenGLWidget(parent),
     m_isGridEnabled(true),
+    m_showNPCsEnabled(true),
     m_selectionMode(SelectionMode::Select),
     m_mapView(MapView::Standard),
     m_resourcesPath(""),
@@ -50,7 +54,7 @@ MapOpenGLWidget::MapOpenGLWidget(QWidget *parent)
     setMouseTracking(true);
     setAutoFillBackground(false);
     QSurfaceFormat fmt;
-    fmt.setSwapInterval(1); // Enable VSync
+    fmt.setSwapInterval(1);  // Enable VSync
     setFormat(fmt);
 }
 
@@ -68,6 +72,10 @@ void MapOpenGLWidget::setCurrentMap(std::shared_ptr<GameMap> map) {
 
 void MapOpenGLWidget::setGridEnabled(bool enabled) {
     this->m_isGridEnabled = enabled;
+}
+
+void MapOpenGLWidget::setShowNPCsEnabled(bool enabled) {
+    this->m_showNPCsEnabled = enabled;
 }
 
 void MapOpenGLWidget::setZoom(int zoomPercentage) {
@@ -451,6 +459,21 @@ void MapOpenGLWidget::draw() {
                    std::back_inserter(zoneColors),
                    [](const MonsterZone &zone) -> std::string { return zone.getColor().getValue(); });
 
+    // Load the npcs in an unordered_map to be able to find them by spawn positition O(1)
+    // spawn position will be converted to TileIndex
+    const auto npcs = m_currentMap->getNPCs();
+    std::unordered_map<int, const NPC *> npcsBySpawnLocation {};
+    std::transform(npcs.begin(),
+                   npcs.end(),
+                   std::inserter(npcsBySpawnLocation, npcsBySpawnLocation.end()),
+                   [this](const NPC &npc) -> std::pair<int, const NPC *> {
+                        const auto &spawnPosition = npc.getSpawnPosition();
+                        const auto spawnPositionConverted = Point<int>(static_cast<int>(spawnPosition.x()),
+                                                                       static_cast<int>(spawnPosition.y()));
+                        const auto tileIndex = m_currentMap->getTileIndexFromCoord(spawnPositionConverted);
+                        return std::make_pair(tileIndex, &npc);
+                   });
+
     if (m_selectionMode == SelectionMode::Select || m_selectionMode == SelectionMode::Paste) {
         updateSelectedTileColor();
     }
@@ -465,12 +488,12 @@ void MapOpenGLWidget::draw() {
         for (const auto &tile : row) {
             if (yIndexPos >= firstVerticalTileToDisplay && yIndexPos <= lastVerticalTileToDisplay &&
                 xIndexPos >= firstHorizontalTileToDisplay && xIndexPos <= lastHorizontalTileToDisplay) {
-                drawTile(tile, index, zoneColors);
+                drawTile(tile, index, zoneColors, npcsBySpawnLocation);
             }
-
             x += m_glTileWidth + TILESPACING;
             glTranslatef(m_glTileWidth + TILESPACING, 0, 0);
             glBindTexture(GL_TEXTURE_2D, 0);
+
             index++;
             xIndexPos++;
         }
@@ -492,7 +515,10 @@ void MapOpenGLWidget::draw() {
     glDisable(GL_TEXTURE_2D);
 }
 
-void MapOpenGLWidget::drawTile(const MapTile &tile, int index, const std::vector<std::string> &zoneColors) {
+void MapOpenGLWidget::drawTile(const MapTile &tile,
+                               int index,
+                               const std::vector<std::string> &zoneColors,
+                               const std::unordered_map<int, const NPC *> &npcsBySpawnLocation) {
     bool hasTexture { false };
     if (m_texturesGLMap.find(tile.getTextureName()) != m_texturesGLMap.end()) {
         hasTexture = true;
@@ -546,6 +572,20 @@ void MapOpenGLWidget::drawTile(const MapTile &tile, int index, const std::vector
         glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight, 0);
         glEnd();
         glPopMatrix();
+    }
+    // Display the NPC in the configured direction
+    if (m_showNPCsEnabled) {
+        if (npcsBySpawnLocation.contains(index)) {
+            const auto &npc = npcsBySpawnLocation.at(index);
+            if (m_texturesGLMap.find(npc->getTextureName()) != m_texturesGLMap.end()) {
+                glBindTexture(GL_TEXTURE_2D, m_texturesGLMap[npc->getTextureName()]);
+                glPushMatrix();
+                const int baseTextureIndex = npc->getCurrentFacingTextureIndex();
+                drawTileWithTexture(npc->getTextureName(), baseTextureIndex);
+                glPopMatrix();
+                glBindTexture(GL_TEXTURE_2D, 0);
+            }
+        }
     }
 
     // Filter to apply/clear monster zone
@@ -660,7 +700,7 @@ void MapOpenGLWidget::drawPasteResult() {
         glPushMatrix();
         glTranslatef(static_cast<float>(point.x()) * (m_glTileWidth + TILESPACING),
                 static_cast<float>(point.y()) * -(m_glTileHeight + TILESPACING), 0.0f);
-        drawTile(tile, tileIndice, {});
+        drawTile(tile, tileIndice, {}, {});
         glPopMatrix();
         index++;
     }

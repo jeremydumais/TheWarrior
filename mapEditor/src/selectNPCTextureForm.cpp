@@ -91,7 +91,6 @@ void SelectNPCTextureForm::onListViewNPCAvailableCurrentChanged(const QModelInde
             m_animationNPCIndex = 0;
             m_animationDecrease = false;
             m_timerAnimateNPC.start(200);
-            //TODO: store the selected texture and base index
         } else {
             commoneditor::ui::ErrorMessage::show("Error");
         }

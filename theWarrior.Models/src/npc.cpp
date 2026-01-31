@@ -44,6 +44,10 @@ const std::vector<Point<size_t>> &NPC::getWanderZone() const {
     return m_wanderZone;
 }
 
+const::std::vector<std::string> &NPC::getDialogueLines() const {
+    return m_dialogueLines;
+}
+
 NPCFacing NPC::getDefaultFacing() const {
     return m_defaultFacing;
 }
@@ -52,8 +56,17 @@ NPCFacing NPC::getCurrentFacing() const {
     return m_currentFacing;
 }
 
-const::std::vector<std::string> &NPC::getDialogueLines() const {
-    return m_dialogueLines;
+int NPC::getCurrentFacingTextureIndex() const {
+    switch (m_currentFacing) {
+        case NPCFacing::Left:
+            return m_baseTextureIndex + 25;
+        case NPCFacing::Right:
+            return m_baseTextureIndex + 13;
+        case NPCFacing::Up:
+            return m_baseTextureIndex + 1;
+        default:
+            return m_baseTextureIndex + 37;
+    }
 }
 
 void NPC::setId(const std::string &id) {

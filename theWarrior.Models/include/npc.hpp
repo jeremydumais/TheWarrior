@@ -28,6 +28,11 @@ struct NPCCreationInfo {
 class NPC {
  public:
     explicit NPC(const NPCCreationInfo &info);
+    virtual ~NPC() = default;
+    NPC(const NPC&) = default;
+    NPC(NPC&&) = default;
+    NPC& operator=(const NPC&) = default;
+    NPC& operator=(NPC&&) = default;
     const std::string &getId() const;
     const std::string &getName() const;
     const std::string &getTextureName() const;
@@ -37,6 +42,7 @@ class NPC {
     const::std::vector<std::string> &getDialogueLines() const;
     NPCFacing getDefaultFacing() const;
     NPCFacing getCurrentFacing() const;
+    int getCurrentFacingTextureIndex() const;
     void setId(const std::string &id);
     void setName(const std::string &name);
     void setTextureName(const std::string &textureName);
@@ -62,6 +68,7 @@ class NPC {
     std::vector<std::string> m_dialogueLines = {};
     NPCFacing m_defaultFacing = NPCFacing::Down;
     NPCFacing m_currentFacing = NPCFacing::Down;
+
     void validateId(const std::string &id);
     void validateName(const std::string &name);
     // Serialization method

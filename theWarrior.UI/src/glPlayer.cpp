@@ -1,6 +1,8 @@
 #include <memory>
 #include <string>
+#include "direction.hpp"
 #include "glPlayer.hpp"
+#include "movementResult.hpp"
 #include "player.hpp"
 #include "worldState.hpp"
 
@@ -44,7 +46,7 @@ Point<float> GLPlayer::getGLObjectPositionWithMovement() const {
 }
 
 bool GLPlayer::isInMovement() const {
-    return m_playerMovement != PlayerMovement::None;
+    return m_direction != Direction::None;
 }
 
 bool GLPlayer::isRunning() const {
@@ -59,7 +61,7 @@ void GLPlayer::initialize(const std::string &resourcePath,
     m_yMove = 0.0f;
     m_baseTextureIndex = 9;
     m_currentMovementTextureIndex = m_baseTextureIndex + 1;
-    m_playerMovement = PlayerMovement::None;
+    m_direction = Direction::None;
     m_textureService.setResourcesPath(resourcePath);
 
     setTexture({ "playerTexture", "tileNPC1.png", 384, 256, 32, 32 });
@@ -169,14 +171,14 @@ void GLPlayer::draw() {
 }
 
 void GLPlayer::moveUp() {
-    m_playerMovement = PlayerMovement::MoveUp;
+    m_direction = Direction::MoveUp;
     m_worldState->movePlayerUp();
     m_yMove = 1.0f;
     m_currentMovementTextureIndex = m_baseTextureIndex;
 }
 
 void GLPlayer::moveDown(bool isInClimbingMode) {
-    m_playerMovement = PlayerMovement::MoveDown;
+    m_direction = Direction::MoveDown;
     setClimbing(isInClimbingMode);
     m_worldState->movePlayerDown();
     m_yMove = -1.0f;
@@ -189,14 +191,14 @@ void GLPlayer::moveDown(bool isInClimbingMode) {
 }
 
 void GLPlayer::moveLeft() {
-    m_playerMovement = PlayerMovement::MoveLeft;
+    m_direction = Direction::MoveLeft;
     m_worldState->movePlayerLeft();
     m_xMove = 1.0f;
     m_currentMovementTextureIndex = m_baseTextureIndex + 24;
 }
 
 void GLPlayer::moveRight() {
-    m_playerMovement = PlayerMovement::MoveRight;
+    m_direction = Direction::MoveRight;
     m_worldState->movePlayerRight();
     m_xMove = -1.0f;
     m_currentMovementTextureIndex = m_baseTextureIndex + 12;
@@ -229,93 +231,93 @@ void GLPlayer::disableRunMode() {
     m_isInRunningMode = false;
 }
 
-MovingResult GLPlayer::processMoving(float delta_time) {
-    MovingResult result { false };
+MovementResult GLPlayer::processMoving(float delta_time) {
+    MovementResult result { false };
     const float SPEED = m_isInRunningMode ? 11.0f : 7.0f;
-    if (m_playerMovement == PlayerMovement::MoveUp) {
+    if (m_direction == Direction::MoveUp) {
         m_yMove -= SPEED * delta_time;
         if (m_yMove < 0.0f) {
             m_yMove = 0.0f;
-            m_playerMovement = PlayerMovement::None;
+            m_direction = Direction::None;
             setClimbing(false);
             m_playerMoveCompleted();
         } else if (m_yMove < 0.3f) {
             if (m_currentMovementTextureIndex != 1) {
                 m_currentMovementTextureIndex = m_baseTextureIndex + 1;
-                result.needToRefreshTexture = true;
+                result.positionChanged = true;
             }
         } else if (m_yMove < 0.6f) {
             if (m_currentMovementTextureIndex != 2) {
                 m_currentMovementTextureIndex = m_baseTextureIndex + 2;
-                result.needToRefreshTexture = true;
+                result.positionChanged = true;
             }
         }
-    } else if (m_playerMovement == PlayerMovement::MoveDown) {
+    } else if (m_direction == Direction::MoveDown) {
         m_yMove += SPEED * delta_time;
         if (m_yMove > 0.0f) {
             m_yMove = 0.0f;
-            m_playerMovement = PlayerMovement::None;
+            m_direction = Direction::None;
             setClimbing(false);
             m_playerMoveCompleted();
         } else if (m_yMove > -0.3f) {
             if (isClimbing()) {
                 if (m_currentMovementTextureIndex != 1) {
                     m_currentMovementTextureIndex = m_baseTextureIndex + 1;
-                    result.needToRefreshTexture = true;
+                    result.positionChanged = true;
                 }
             } else {
                 if (m_currentMovementTextureIndex != m_baseTextureIndex + 37) {
                     m_currentMovementTextureIndex = m_baseTextureIndex + 37;
-                    result.needToRefreshTexture = true;
+                    result.positionChanged = true;
                 }
             }
         } else if (m_yMove > -0.6f) {
             if (isClimbing()) {
                 if (m_currentMovementTextureIndex != 2) {
                     m_currentMovementTextureIndex = m_baseTextureIndex + 2;
-                    result.needToRefreshTexture = true;
+                    result.positionChanged = true;
                 }
             } else {
                 if (m_currentMovementTextureIndex != m_baseTextureIndex + 38) {
                     m_currentMovementTextureIndex = m_baseTextureIndex + 38;
-                    result.needToRefreshTexture = true;
+                    result.positionChanged = true;
                 }
             }
         }
-    } else if (m_playerMovement == PlayerMovement::MoveLeft) {
+    } else if (m_direction == Direction::MoveLeft) {
         m_xMove -= SPEED * delta_time;
         if (m_xMove < 0.0f) {
             m_xMove = 0.0f;
-            m_playerMovement = PlayerMovement::None;
+            m_direction = Direction::None;
             setClimbing(false);
             m_playerMoveCompleted();
         } else if (m_xMove < 0.3f) {
             if (m_currentMovementTextureIndex != m_baseTextureIndex + 25) {
                 m_currentMovementTextureIndex = m_baseTextureIndex + 25;
-                result.needToRefreshTexture = true;
+                result.positionChanged = true;
             }
         } else if (m_xMove < 0.6f) {
             if (m_currentMovementTextureIndex != m_baseTextureIndex + 26) {
                 m_currentMovementTextureIndex = m_baseTextureIndex + 26;
-                result.needToRefreshTexture = true;
+                result.positionChanged = true;
             }
         }
-    } else if (m_playerMovement == PlayerMovement::MoveRight) {
+    } else if (m_direction == Direction::MoveRight) {
         m_xMove += SPEED * delta_time;
         if (m_xMove > 0.0f) {
             m_xMove = 0.0f;
-            m_playerMovement = PlayerMovement::None;
+            m_direction = Direction::None;
             setClimbing(false);
             m_playerMoveCompleted();
         } else if (m_xMove > -0.3f) {
             if (m_currentMovementTextureIndex != m_baseTextureIndex + 13) {
                 m_currentMovementTextureIndex = m_baseTextureIndex + 13;
-                result.needToRefreshTexture = true;
+                result.positionChanged = true;
             }
         } else if (m_xMove > -0.6f) {
             if (m_currentMovementTextureIndex != m_baseTextureIndex + 14) {
                 m_currentMovementTextureIndex = m_baseTextureIndex + 14;
-                result.needToRefreshTexture = true;
+                result.positionChanged = true;
             }
         }
     }
@@ -331,8 +333,8 @@ void GLPlayer::onGameWindowTileSizeChanged(const TileSize &tileSize) {
 
 void GLPlayer::onGameWindowUpdate(float delta_time) {
     if (isInMovement()) {
-        MovingResult result { processMoving(delta_time) };
-        if (result.needToRefreshTexture) {
+        MovementResult result { processMoving(delta_time) };
+        if (result.positionChanged) {
             applyCurrentGLTexture(m_textureService);
         }
         setGLObjectPosition();
