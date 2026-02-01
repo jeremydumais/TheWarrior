@@ -70,6 +70,7 @@ Q_OBJECT
     void action_LightTheme_Click();
     void action_DarkTheme_Click();
     void action_DisplayGrid_Click();
+    void action_DisplayNPCs_Click();
     void action_ManageItemStore_Click();
     void action_ManageMonsterStore_Click();
     void setActiveToolbarActionChecked(SelectionMode mode);

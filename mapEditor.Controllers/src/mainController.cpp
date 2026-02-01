@@ -30,6 +30,7 @@ namespace mapeditor::controllers {
 
 static constexpr const char DisplayThemeConfigItem[] = "Display.Theme";
 static constexpr const char DisplayGridConfigItem[] = "Display.Grid";
+static constexpr const char DisplayNPCsConfigItem[] = "Display.NPCs";
 static constexpr const char DisplayToolbarsMapConfigItem[] = "Display.Toolbars.MapConfiguration";
 static constexpr const char DisplayToolbarsTextureSelectionItem[] = "Display.Toolbars.TextureSelection";
 static constexpr const char DisplayToolbarsDebuggingInfoItem[] = "Display.Toolbars.DebuggingInfo";
@@ -286,6 +287,15 @@ bool MainController::getDisplayGridConfigState() const {
 
 bool MainController::setDisplayGridConfigState(bool value) {
     m_configManager->setBoolValue(DisplayGridConfigItem, value);
+    return saveConfigurationFile();
+}
+
+bool MainController::getDisplayNPCsConfigState() const {
+    return m_configManager->getBoolValue(DisplayNPCsConfigItem, true);
+}
+
+bool MainController::setDisplayNPCsConfigState(bool value) {
+    m_configManager->setBoolValue(DisplayNPCsConfigItem, value);
     return saveConfigurationFile();
 }
 

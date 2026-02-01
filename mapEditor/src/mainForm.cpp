@@ -171,6 +171,7 @@ void MainForm::connectUIActions() {
     connect(ui.action_LightTheme, &QAction::triggered, this, &MainForm::action_LightTheme_Click);
     connect(ui.action_DarkTheme, &QAction::triggered, this, &MainForm::action_DarkTheme_Click);
     connect(ui.action_DisplayGrid, &QAction::triggered, this, &MainForm::action_DisplayGrid_Click);
+    connect(ui.action_DisplayNPCs, &QAction::triggered, this, &MainForm::action_DisplayNPCs_Click);
     connect(ui.action_ItemStore, &QAction::triggered, this, &MainForm::action_ManageItemStore_Click);
     connect(ui.action_MonsterStore, &QAction::triggered, this, &MainForm::action_ManageMonsterStore_Click);
     connect(ui.action_Select, &QAction::triggered, this, &MainForm::action_SelectClick);
@@ -354,6 +355,14 @@ void MainForm::action_DisplayGrid_Click() {
     bool isGridDisplayed = ui.action_DisplayGrid->isChecked();
     ui.mapOpenGLWidget->setGridEnabled(isGridDisplayed);
     if (!m_controller.setDisplayGridConfigState(isGridDisplayed)) {
+        ErrorMessage::show(m_controller.getLastError());
+    }
+}
+
+void MainForm::action_DisplayNPCs_Click() {
+    bool isNPCsDisplayed = ui.action_DisplayNPCs->isChecked();
+    ui.mapOpenGLWidget->setShowNPCsEnabled(isNPCsDisplayed);
+    if (!m_controller.setDisplayNPCsConfigState(isNPCsDisplayed)) {
         ErrorMessage::show(m_controller.getLastError());
     }
 }
@@ -594,6 +603,7 @@ void MainForm::addNewRecentMap(const std::string &filePath) {
 
 void MainForm::restorePersistedMenuState() {
     ui.action_DisplayGrid->setChecked(m_controller.getDisplayGridConfigState());
+    ui.action_DisplayNPCs->setChecked(m_controller.getDisplayNPCsConfigState());
     ui.actionView_MapConfig->setChecked(m_controller.getDisplayToolbarsMapConfigState());
     ui.dockWidgetMapConfig->setVisible(m_controller.getDisplayToolbarsMapConfigState());
     ui.actionView_TextureSelection->setChecked(m_controller.getDisplayToolbarsTextureSelectionState());
@@ -601,6 +611,7 @@ void MainForm::restorePersistedMenuState() {
     ui.actionView_DebuggingInfo->setChecked(m_controller.getDisplayToolbarsDebuggingInfoState());
     m_debugInfoDockWidget->setVisible(m_controller.getDisplayToolbarsDebuggingInfoState());
     ui.mapOpenGLWidget->setGridEnabled(ui.action_DisplayGrid->isChecked());
+    ui.mapOpenGLWidget->setShowNPCsEnabled(ui.action_DisplayNPCs->isChecked());
     setAppStylesheet(m_controller.getThemeConfigValue());
 }
 

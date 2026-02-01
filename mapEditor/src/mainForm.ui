@@ -107,8 +107,8 @@
    <widget class="QMenu" name="menu_File">
     <property name="geometry">
      <rect>
-      <x>267</x>
-      <y>187</y>
+      <x>2187</x>
+      <y>183</y>
       <width>260</width>
       <height>230</height>
      </rect>
@@ -166,7 +166,7 @@
     </widget>
     <widget class="QMenu" name="menuToolbars">
      <property name="title">
-      <string>Toolbars</string>
+      <string>&amp;Toolbars</string>
      </property>
      <addaction name="actionView_MapConfig"/>
      <addaction name="actionView_TextureSelection"/>
@@ -175,6 +175,7 @@
     <addaction name="menuToolbars"/>
     <addaction name="menu_Color_theme"/>
     <addaction name="action_DisplayGrid"/>
+    <addaction name="action_DisplayNPCs"/>
    </widget>
    <widget class="QMenu" name="menu_Settings">
     <property name="title">
@@ -680,6 +681,17 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+V</string>
+   </property>
+  </action>
+  <action name="action_DisplayNPCs">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Display &amp;NPCs</string>
    </property>
   </action>
  </widget>

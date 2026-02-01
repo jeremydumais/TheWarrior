@@ -48,6 +48,8 @@ class MainController {
     bool addNewRecentMap(const std::string &filePath);
     bool getDisplayGridConfigState() const;
     bool setDisplayGridConfigState(bool value);
+    bool getDisplayNPCsConfigState() const;
+    bool setDisplayNPCsConfigState(bool value);
     std::string getThemeConfigValue() const;
     bool setThemeConfigValue(const std::string &theme);
     bool getDisplayToolbarsMapConfigState() const;
