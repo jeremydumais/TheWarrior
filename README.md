@@ -5,7 +5,7 @@
 *A retro-inspired RPG built from scratch in modern C++*
 
 [![Build](https://github.com/jeremydumais/TheWarrior/actions/workflows/ci.yml/badge.svg)](https://github.com/jeremydumais/TheWarrior/actions/workflows/cmake.yml)
-![Latest version](https://img.shields.io/badge/version-0.5.0-brightgreen)
+![Latest version](https://img.shields.io/badge/version-0.6.0-brightgreen)
 ![Status](https://img.shields.io/badge/status-active_development-blue)
 
 ---
@@ -27,7 +27,7 @@ The project focuses on:
 
 ## 🚀 Current Version
 
-**v0.5.0**
+**v0.6.0**
 
 - Core engine foundation in place
 - Functional editors (Map, Item, Monster)
