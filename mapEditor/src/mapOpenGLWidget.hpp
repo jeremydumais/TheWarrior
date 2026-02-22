@@ -125,6 +125,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
                   const std::vector<std::string> &zoneColors,
                   const std::unordered_map<int, const thewarrior::models::NPC *> &npcsBySpawnLocation);
     void drawTileWithTexture(const std::string &textureName, int textureIndex);
+    void drawTileSilhouette(const std::string &textureName, int textureIndex);
     void drawColoredTile() const;
     void drawSelectionZone() const;
     void drawPasteResult();

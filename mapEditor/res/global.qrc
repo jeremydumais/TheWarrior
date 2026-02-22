@@ -1,5 +1,7 @@
 <RCC>
   <qresource>
+    <file>applyNPCWanderingZone.png</file>
+    <file>clearNPCWanderingZone.png</file>
     <file>undoDisabled.png</file>
     <file>redoDisabled.png</file>
     <file>undo.png</file>

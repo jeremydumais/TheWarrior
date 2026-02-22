@@ -7,6 +7,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <vector>
 #include "editNPCForm.hpp"
 #include "glComponentController.hpp"
 #include "mainForm_GLComponent.hpp"
@@ -26,6 +27,8 @@ class NPCListComponent : public QWidget {
     void initializeUIObjects();
     void connectUIActions();
     void refreshNPCs();
+    bool isNPCListEmpty() const;
+    std::vector<mapeditor::controllers::NPCDTO> getNPCs() const;
     std::optional<const mapeditor::controllers::NPCDTO> getSelectedNPC() const;
     void setResourcesPath(const std::string &resourcesPath);
     void restoreEditForm(const thewarrior::models::Point<> &position);

@@ -48,6 +48,7 @@ Q_OBJECT
     mapeditor::controllers::MainController m_controller;
     std::shared_ptr<QComboBox> comboBoxToolbarMonsterZone = nullptr;
     std::shared_ptr<QLabel> labelToolbarMonsterZoneColor = nullptr;
+    std::shared_ptr<QComboBox> comboBoxToolbarNPCWanderingZone = nullptr;
     std::shared_ptr<QLabel> labelToolbarZoom = nullptr;
     std::shared_ptr<QSlider> sliderZoom = nullptr;
     std::shared_ptr<QLabel> labelToolbarZoomValue = nullptr;
@@ -93,6 +94,7 @@ Q_OBJECT
     void onComboBoxToolbarMonsterZoneCurrentIndexChanged();
     void action_ApplyMonsterZone();
     void action_ClearMonsterZone();
+    void onComboBoxToolbarNPCWanderingZoneCurrentIndexChanged();
     void sliderZoomValueChanged(int value);
     void tabWidgetMapViewChanged(int index);
     void openMap(const std::string &filePath);
@@ -125,6 +127,7 @@ Q_OBJECT
     void toggleMonsterZoneAssignationControls();
     void useOnlyOneMonsterZoneChanged(bool value);
     void refreshNPCs();
+    void toggleNPCAssignationControls();
     void onNPCAdded(mapeditor::controllers::NPCDTO npcDTO);
     void onNPCUpdated(const std::string &id, mapeditor::controllers::NPCDTO npcDTO);
     void onNPCDeleted(const std::string &id);

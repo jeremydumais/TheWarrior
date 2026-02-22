@@ -69,6 +69,8 @@ MainForm::MainForm(QWidget *parent,
     ui.toolBar->insertWidget(ui.action_ApplyMonsterZone, labelToolbarMonsterZoneColor.get());
     comboBoxToolbarMonsterZone = std::make_shared<QComboBox>(this);
     ui.toolBar->insertWidget(ui.action_ApplyMonsterZone, comboBoxToolbarMonsterZone.get());
+    comboBoxToolbarNPCWanderingZone = std::make_shared<QComboBox>(this);
+    ui.toolBarNPCWanderingZone->insertWidget(ui.action_ApplyNPCWanderingZone, comboBoxToolbarNPCWanderingZone.get());
     labelToolbarZoom = std::make_shared<QLabel>(this);
     labelToolbarZoom->setText("Zoom: ");
     labelToolbarZoom->setMargin(10);
@@ -193,6 +195,7 @@ void MainForm::connectUIActions() {
     connect(comboBoxToolbarMonsterZone.get(), static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm::onComboBoxToolbarMonsterZoneCurrentIndexChanged);
     connect(ui.action_ApplyMonsterZone, &QAction::triggered, this, &MainForm::action_ApplyMonsterZone);
     connect(ui.action_ClearMonsterZone, &QAction::triggered, this, &MainForm::action_ClearMonsterZone);
+    connect(comboBoxToolbarNPCWanderingZone.get(), static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm::onComboBoxToolbarNPCWanderingZoneCurrentIndexChanged);
     connect(sliderZoom.get(), &QSlider::valueChanged, this, &MainForm::sliderZoomValueChanged);
     connect(ui.tabWidgetMapView, &QTabWidget::currentChanged, this, &MainForm::tabWidgetMapViewChanged);
     connect(ui.dockWidgetMapConfig, &QClosableDockWidget::onCloseEvent, this, &MainForm::widgetMapConfigClosed);
@@ -500,6 +503,9 @@ void MainForm::action_ApplyMonsterZone() {
 void MainForm::action_ClearMonsterZone() {
     m_glComponent.clearMonsterZone();
     ui.tabWidgetMapView->setCurrentIndex(3);
+}
+
+void MainForm::onComboBoxToolbarNPCWanderingZoneCurrentIndexChanged() {
 }
 
 void MainForm::sliderZoomValueChanged(int value) {
@@ -810,6 +816,33 @@ void MainForm::useOnlyOneMonsterZoneChanged(bool value) {
 
 void MainForm::refreshNPCs() {
     m_npcListComponent->refreshNPCs();
+    auto npcs = m_npcListComponent->getNPCs();
+    // Refresh NPCs toolbar combobox
+    int selectedComboBoxIndex = comboBoxToolbarNPCWanderingZone->currentIndex();
+    comboBoxToolbarNPCWanderingZone->model()->removeRows(0, comboBoxToolbarNPCWanderingZone->count());
+    int i = 0;
+    for (const auto &npc : npcs) {
+        comboBoxToolbarNPCWanderingZone->insertItem(i, npc.id.c_str());
+        i++;
+    }
+    if (selectedComboBoxIndex != -1 && selectedComboBoxIndex < comboBoxToolbarNPCWanderingZone->count()) {
+        comboBoxToolbarNPCWanderingZone->setCurrentIndex(selectedComboBoxIndex);
+    }
+    //TODO: NPC CODE THIS
+    //const int selectedNPCIndex = comboBoxToolbarNPCWanderingZone->currentIndex();
+    //if (selectedNPCIndex != -1) {
+        //m_glComponent.setLastSelectedMonsterZone(selectedNPCIndex);
+    //} else {
+        //m_glComponent.clearLastSelectedMonsterZone();
+    //}
+    toggleNPCAssignationControls();
+}
+
+void MainForm::toggleNPCAssignationControls() {
+    bool active = !m_npcListComponent->isNPCListEmpty();
+    comboBoxToolbarNPCWanderingZone->setEnabled(active);
+    ui.action_ApplyNPCWanderingZone->setEnabled(active);
+    ui.action_ClearNPCWanderingZone->setEnabled(active);
 }
 
 void MainForm::onNPCAdded(NPCDTO npcDTO) {

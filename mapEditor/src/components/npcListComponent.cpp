@@ -6,6 +6,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <vector>
 #include "npcListComponent.hpp"
 #include "editNPCForm.hpp"
 #include "npcDTO.hpp"
@@ -52,6 +53,14 @@ void NPCListComponent::refreshNPCs() {
         ui.tableWidgetNPC->setItem(index, 1, new QTableWidgetItem(npc.name.c_str()));
         index++;
     }
+}
+
+bool NPCListComponent::isNPCListEmpty() const {
+    return m_controller.getNPCs().empty();
+}
+
+std::vector<NPCDTO> NPCListComponent::getNPCs() const {
+    return m_controller.getNPCs();
 }
 
 std::optional<const NPCDTO> NPCListComponent::getSelectedNPC() const {

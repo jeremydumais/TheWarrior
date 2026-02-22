@@ -474,6 +474,8 @@ void MapOpenGLWidget::draw() {
                         return std::make_pair(tileIndex, &npc);
                    });
 
+    //TODO: NPC Update selected NPC glow outline width
+
     if (m_selectionMode == SelectionMode::Select || m_selectionMode == SelectionMode::Paste) {
         updateSelectedTileColor();
     }
@@ -581,6 +583,7 @@ void MapOpenGLWidget::drawTile(const MapTile &tile,
                 glBindTexture(GL_TEXTURE_2D, m_texturesGLMap[npc->getTextureName()]);
                 glPushMatrix();
                 const int baseTextureIndex = npc->getCurrentFacingTextureIndex();
+                drawTileSilhouette(npc->getTextureName(), baseTextureIndex);
                 drawTileWithTexture(npc->getTextureName(), baseTextureIndex);
                 glPopMatrix();
                 glBindTexture(GL_TEXTURE_2D, 0);
@@ -658,6 +661,46 @@ void MapOpenGLWidget::drawTileWithTexture(const std::string &textureName, int te
     glVertex3f(-m_glTileHalfWidth, m_glTileHalfHeight, 0);
     glEnd();
     glPopMatrix();
+}
+
+void MapOpenGLWidget::drawTileSilhouette(const std::string &textureName, int textureIndex) {
+    glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_TEXTURE_BIT | GL_LINE_BIT | GL_DEPTH_BUFFER_BIT);
+    glDisable(GL_DEPTH_TEST);
+
+    const float onePixelX = (2.0f * m_glTileHalfWidth)  / static_cast<float>(ONSCREENTILESIZE);
+    const float onePixelY = (2.0f * m_glTileHalfHeight) / static_cast<float>(ONSCREENTILESIZE);
+    const float outlinePx = 2.0f;
+    const float ox = onePixelX * outlinePx;
+    const float oy = onePixelY * outlinePx;
+
+    // Force RGB to constant, keep alpha from texture
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+
+    glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
+    glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_CONSTANT);
+
+    glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+    glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_TEXTURE);  // alpha from texture
+
+    const GLfloat red[4] = {1.f, 0.f, 0.f, 1.f};
+    glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, red);
+
+    const float offsets[8][2] = {
+        {-ox, 0}, {ox, 0}, {0, -oy}, {0, oy},
+        {-ox, -oy}, {-ox, oy}, {ox, -oy}, {ox, oy}
+    };
+
+    for (int i = 0; i < 8; ++i) {
+        glPushMatrix();
+        glTranslatef(offsets[i][0], offsets[i][1], 0.0f);
+        drawTileWithTexture(textureName, textureIndex);
+        glPopMatrix();
+    }
+
+    // Restore defaults
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    glEnable(GL_DEPTH_TEST);
+    glPopAttrib();
 }
 
 void MapOpenGLWidget::drawColoredTile() const {
