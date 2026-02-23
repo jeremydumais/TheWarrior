@@ -47,6 +47,8 @@ class MainForm_GLComponent : public QWidget {
     void clearLastSelectedObject();
     void setLastSelectedMonsterZone(int index);
     void clearLastSelectedMonsterZone();
+    void setLastSelectedNPC(const std::string &npcName);
+    void clearLastSelectedNPC();
     void stopAutoUpdate();
     void startAutoUpdate();
     void resetMapMovePosition();

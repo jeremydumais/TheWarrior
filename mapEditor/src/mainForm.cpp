@@ -506,6 +506,11 @@ void MainForm::action_ClearMonsterZone() {
 }
 
 void MainForm::onComboBoxToolbarNPCWanderingZoneCurrentIndexChanged() {
+    if (comboBoxToolbarNPCWanderingZone->currentIndex() != -1) {
+        m_glComponent.setLastSelectedNPC(comboBoxToolbarNPCWanderingZone->currentText().toStdString());
+    } else {
+        m_glComponent.clearLastSelectedNPC();
+    }
 }
 
 void MainForm::sliderZoomValueChanged(int value) {
@@ -828,13 +833,12 @@ void MainForm::refreshNPCs() {
     if (selectedComboBoxIndex != -1 && selectedComboBoxIndex < comboBoxToolbarNPCWanderingZone->count()) {
         comboBoxToolbarNPCWanderingZone->setCurrentIndex(selectedComboBoxIndex);
     }
-    //TODO: NPC CODE THIS
-    //const int selectedNPCIndex = comboBoxToolbarNPCWanderingZone->currentIndex();
-    //if (selectedNPCIndex != -1) {
-        //m_glComponent.setLastSelectedMonsterZone(selectedNPCIndex);
-    //} else {
-        //m_glComponent.clearLastSelectedMonsterZone();
-    //}
+    if (comboBoxToolbarNPCWanderingZone->currentIndex() != -1) {
+        const std::string selectedNPCId = comboBoxToolbarNPCWanderingZone->currentText().toStdString();
+        m_glComponent.setLastSelectedNPC(selectedNPCId);
+    } else {
+        m_glComponent.clearLastSelectedNPC();
+    }
     toggleNPCAssignationControls();
 }
 

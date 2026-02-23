@@ -49,7 +49,9 @@ MapOpenGLWidget::MapOpenGLWidget(QWidget *parent)
     m_pasteResult({}),
     m_pasteDragInProgress(false),
     m_pasteDragStartPosition(QPoint(0, 0)),
-    m_pasteDragEndPosition(QPoint(0, 0)) {
+    m_pasteDragEndPosition(QPoint(0, 0)),
+    m_selectedNPCId(""),
+    m_selectedNPCGlowAnimation(0.0F, 4.0F, 0.5F) {
     connect(&m_repaintTimer, SIGNAL(timeout()), this, SLOT(update()));
     setMouseTracking(true);
     setAutoFillBackground(false);
@@ -160,6 +162,14 @@ void MapOpenGLWidget::restorePreviousSelectionMode() {
 
 void MapOpenGLWidget::setMapView(MapView view) {
     m_mapView = view;
+}
+
+void MapOpenGLWidget::setSelectedNPC(const std::string &npcId) {
+    m_selectedNPCId = npcId;
+}
+
+void MapOpenGLWidget::clearSelectedNPC() {
+    m_selectedNPCId.clear();
 }
 
 unsigned int MapOpenGLWidget::getMapWidth() const {
@@ -474,7 +484,7 @@ void MapOpenGLWidget::draw() {
                         return std::make_pair(tileIndex, &npc);
                    });
 
-    //TODO: NPC Update selected NPC glow outline width
+    m_selectedNPCGlowAnimation.process();
 
     if (m_selectionMode == SelectionMode::Select || m_selectionMode == SelectionMode::Paste) {
         updateSelectedTileColor();
@@ -583,7 +593,9 @@ void MapOpenGLWidget::drawTile(const MapTile &tile,
                 glBindTexture(GL_TEXTURE_2D, m_texturesGLMap[npc->getTextureName()]);
                 glPushMatrix();
                 const int baseTextureIndex = npc->getCurrentFacingTextureIndex();
-                drawTileSilhouette(npc->getTextureName(), baseTextureIndex);
+                if (npc->getId() == m_selectedNPCId) {
+                    drawTileSilhouette(npc->getTextureName(), baseTextureIndex, m_selectedNPCGlowAnimation.getValue());
+                }
                 drawTileWithTexture(npc->getTextureName(), baseTextureIndex);
                 glPopMatrix();
                 glBindTexture(GL_TEXTURE_2D, 0);
@@ -663,13 +675,13 @@ void MapOpenGLWidget::drawTileWithTexture(const std::string &textureName, int te
     glPopMatrix();
 }
 
-void MapOpenGLWidget::drawTileSilhouette(const std::string &textureName, int textureIndex) {
+void MapOpenGLWidget::drawTileSilhouette(const std::string &textureName, int textureIndex, float outlineWidth) {
     glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_TEXTURE_BIT | GL_LINE_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable(GL_DEPTH_TEST);
 
     const float onePixelX = (2.0f * m_glTileHalfWidth)  / static_cast<float>(ONSCREENTILESIZE);
     const float onePixelY = (2.0f * m_glTileHalfHeight) / static_cast<float>(ONSCREENTILESIZE);
-    const float outlinePx = 2.0f;
+    const float outlinePx = outlineWidth;
     const float ox = onePixelX * outlinePx;
     const float oy = onePixelY * outlinePx;
 
@@ -682,7 +694,7 @@ void MapOpenGLWidget::drawTileSilhouette(const std::string &textureName, int tex
     glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
     glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_TEXTURE);  // alpha from texture
 
-    const GLfloat red[4] = {1.f, 0.f, 0.f, 1.f};
+    const GLfloat red[4] = {1.f, 1.f, 1.f, 1.f};
     glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, red);
 
     const float offsets[8][2] = {

@@ -156,6 +156,14 @@ void MainForm_GLComponent::clearLastSelectedMonsterZone() {
     m_controller.clearLastSelectedMonsterZone();
 }
 
+void MainForm_GLComponent::setLastSelectedNPC(const std::string &npcName) {
+    m_glWidget->setSelectedNPC(npcName);
+}
+
+void MainForm_GLComponent::clearLastSelectedNPC() {
+    m_glWidget->clearSelectedNPC();
+}
+
 void MainForm_GLComponent::stopAutoUpdate() {
     m_glWidget->stopAutoUpdate();
 }

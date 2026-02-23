@@ -14,6 +14,7 @@
 #include <vector>
 #include <boost/optional/optional.hpp>
 #include <glm/glm.hpp>
+#include "fadeLoopAnimation.hpp"
 #include "gameMap.hpp"
 #include "mapTile.hpp"
 #include "mapView.hpp"
@@ -47,6 +48,8 @@ class MapOpenGLWidget : public QOpenGLWidget {
     void setSelectionMode(SelectionMode mode);
     void restorePreviousSelectionMode();
     void setMapView(MapView view);
+    void setSelectedNPC(const std::string &npcId);
+    void clearSelectedNPC();
     unsigned int getMapWidth() const;
     unsigned int getMapHeight() const;
     void reloadTextures();
@@ -115,6 +118,9 @@ class MapOpenGLWidget : public QOpenGLWidget {
     QPoint m_pasteDragEndPosition;
     QPoint m_pasteSelectionStartPosition;
     QPoint m_pasteSelectionEndPosition;
+    // NPC section
+    std::string m_selectedNPCId;
+    FadeLoopAnimation m_selectedNPCGlowAnimation;
     // ------------------
     bool isMultiTileSelectionMode() const;
     void recalculateTileSize();
@@ -125,7 +131,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
                   const std::vector<std::string> &zoneColors,
                   const std::unordered_map<int, const thewarrior::models::NPC *> &npcsBySpawnLocation);
     void drawTileWithTexture(const std::string &textureName, int textureIndex);
-    void drawTileSilhouette(const std::string &textureName, int textureIndex);
+    void drawTileSilhouette(const std::string &textureName, int textureIndex, float outlineWidth);
     void drawColoredTile() const;
     void drawSelectionZone() const;
     void drawPasteResult();
