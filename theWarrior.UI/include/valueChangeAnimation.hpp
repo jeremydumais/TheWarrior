@@ -7,7 +7,7 @@ class ValueChangeAnimation : public thewarrior::ui::IAnimation {
     ValueChangeAnimation(float from, float to, float step);
     ~ValueChangeAnimation() override = default;
     void process() override;
-    float getValue() override;
+    float getValue() const override;
     bool isCompleted() override;
 
 

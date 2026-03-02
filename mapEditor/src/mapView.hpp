@@ -4,5 +4,6 @@ enum class MapView {
     Standard = 0,
     CanStep,
     BlockedBorders,
-    MonsterZones
+    MonsterZones,
+    NPCWanderingZones
 };

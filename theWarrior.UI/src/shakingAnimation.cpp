@@ -37,7 +37,7 @@ void ShakingAnimation::process() {
     }
 }
 
-float ShakingAnimation::getValue() {
+float ShakingAnimation::getValue() const {
     return m_currentValue;
 }
 

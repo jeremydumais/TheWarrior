@@ -71,45 +71,89 @@ class MapOpenGLWidget : public QOpenGLWidget {
     void mouseReleaseEvent(QMouseEvent *event) override;
     void leaveEvent(QEvent *event) override;
 
+ private slots:
+      void updateFrameState();
+
  private:
+    struct ViewportMetrics {
+        int width = 0;
+        int height = 0;
+
+        float glOrthoSize = 4.0F;
+        float onScreenTileSizePx = 40.0F;
+        float tileSpacing = 0.0F;
+
+        float glTileWidth = 0.0F;
+        float glTileHeight = 0.0F;
+        float glTileHalfWidth = 0.0F;
+        float glTileHalfHeight = 0.0F;
+
+        float translationXToPixel = 0.0F;
+        float translationYToPixel = 0.0F;
+    };
+
+    struct CameraState {
+        float translationX = 0.0F;
+        float translationY = 0.0F;
+
+        float dragAndDropX = 0.0F;
+        float dragAndDropY = 0.0F;
+
+        float translationXGL = 0.0F;
+        float translationYGL = 0.0F;
+    };
+
+    struct InputState {
+        bool mousePressed = false;
+        QPoint lastCursorPosition = QPoint(0, 0);
+        QPoint currentCursorPosition = QPoint(0, 0);
+    };
+
+    struct SelectionState {
+        SelectionMode currentMode = SelectionMode::Select;
+
+        // Used to restore the selection mode after a temporary mode like NPC Spawn Picker
+        boost::optional<SelectionMode> previousMode = {};
+        // Used when using alt key to move the map
+        boost::optional<SelectionMode> preMapDragMode = {};
+
+        std::set<int> selectedTileIndices = {};
+        GLubyte selectedTileColor = 0;
+        bool selectedTileColorGrowing = false;
+
+        std::string selectedNPCId = "";
+    };
+
+    struct WidgetConfig {
+        MapView mapView = MapView::Standard;
+
+        bool gridEnabled = true;
+        bool showNPCEnabled = true;
+
+        int zoomPercentage = 100;
+        int zoomMin = 20;
+        int zoomMax = 250;
+    };
+
+    struct MapRendererContext {
+        std::vector<std::string> zoneColors = {};
+        std::unordered_map<int, const thewarrior::models::NPC *> npcsBySpawnLocation = {};
+        FadeLoopAnimation selectedNPCGlowAnimation = FadeLoopAnimation(0.0F, 4.0F, 0.5F);
+    };
+
     QTimer m_repaintTimer;
-    int m_width = 0;
-    int m_height = 0;
-    bool m_isGridEnabled;
-    bool m_showNPCsEnabled;
-    int m_zoomPercentage = 100;
-    int m_zoomPercentageMin;
-    int m_zoomPercentageMax;
-    SelectionMode m_selectionMode;
-    // Used to restore the selection mode after a temporary mode like NPC Spawn Picker
-    boost::optional<SelectionMode> m_previousSelectionMode = {};
-    boost::optional<SelectionMode> m_preMapDragSelectionMode = {};  // Used when using alt key to move the map
-    MapView m_mapView;
+    ViewportMetrics m_metrics;
+    CameraState m_camera;
+    InputState m_input;
+    SelectionState m_selection;
+    WidgetConfig m_config;
+    MapRendererContext m_frame;
+
     std::string m_resourcesPath;
-    bool m_mousePressed;
-    float m_translationX;
-    float m_translationDragAndDropX;
-    float m_translationY;
-    float m_translationDragAndDropY;
-    std::set<int> m_selectedTileIndices;
-    GLubyte m_selectedTileColor;
-    bool m_selectedTileColorGrowing;
     std::map<std::string, unsigned int> m_texturesGLMap;  // Mapping between texture name and OpenGL texture id
     std::map<std::string, const thewarrior::models::Texture &> m_texturesObjMap;  // Mapping between texture name and texture object
     std::shared_ptr<thewarrior::models::GameMap> m_currentMap;
-    QPoint m_lastCursorPosition;
-    QPoint m_currentCursorPosition;
-    const float GLORTHOSIZE { 4.0F };
-    float m_glTileWidth { 0.0F };
-    float m_glTileHeight { 0.0F };
-    float m_glTileHalfWidth { m_glTileWidth / 2.0F };
-    float m_glTileHalfHeight { m_glTileHeight / 2.0F };
-    float ONSCREENTILESIZE { 40.0F };
-    float m_translationXToPixel { 0.0F };
-    float m_translationYToPixel { 0.0F };
-    float m_translationXGL { 0.0F };
-    float m_translationYGL { 0.0F };
-    const float TILESPACING { 0.0F };
+    //
     // Copy paste section
     std::vector<thewarrior::models::MapTile> m_pasteResult;
     std::set<int> m_pasteResultIndices;
@@ -118,18 +162,14 @@ class MapOpenGLWidget : public QOpenGLWidget {
     QPoint m_pasteDragEndPosition;
     QPoint m_pasteSelectionStartPosition;
     QPoint m_pasteSelectionEndPosition;
-    // NPC section
-    std::string m_selectedNPCId;
-    FadeLoopAnimation m_selectedNPCGlowAnimation;
-    // ------------------
+
     bool isMultiTileSelectionMode() const;
     void recalculateTileSize();
     void updateCursor(QMouseEvent *event);
     void draw();
     void drawTile(const thewarrior::models::MapTile &tile,
                   int index,
-                  const std::vector<std::string> &zoneColors,
-                  const std::unordered_map<int, const thewarrior::models::NPC *> &npcsBySpawnLocation);
+                  const MapRendererContext &ctx);
     void drawTileWithTexture(const std::string &textureName, int textureIndex);
     void drawTileSilhouette(const std::string &textureName, int textureIndex, float outlineWidth);
     void drawColoredTile() const;

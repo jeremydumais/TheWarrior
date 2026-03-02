@@ -89,6 +89,15 @@
           <string>Monster zones</string>
          </attribute>
         </widget>
+        <widget class="QWidget" name="tabMapViewNPCWanderingZones">
+         <attribute name="icon">
+          <iconset resource="../res/global.qrc">
+           <normaloff>:/applyNPCWanderingZone.png</normaloff>:/applyNPCWanderingZone.png</iconset>
+         </attribute>
+         <attribute name="title">
+          <string>NPC Wandering zones</string>
+         </attribute>
+        </widget>
        </widget>
       </item>
      </layout>

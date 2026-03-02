@@ -532,6 +532,9 @@ void MainForm::tabWidgetMapViewChanged(int index) {
         case 3:
             m_glComponent.setMapView(MapView::MonsterZones);
             break;
+        case 4:
+            m_glComponent.setMapView(MapView::NPCWanderingZones);
+            break;
         default:
             break;
     }

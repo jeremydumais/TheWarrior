@@ -18,7 +18,7 @@ void ValueChangeAnimation::process() {
     }
 }
 
-float ValueChangeAnimation::getValue() {
+float ValueChangeAnimation::getValue() const {
     return m_currentValue;
 }
 

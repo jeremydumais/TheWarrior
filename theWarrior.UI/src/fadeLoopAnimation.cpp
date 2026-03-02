@@ -22,7 +22,7 @@ void FadeLoopAnimation::process() {
     }
 }
 
-float FadeLoopAnimation::getValue() {
+float FadeLoopAnimation::getValue() const {
     return m_currentValue;
 }
 
