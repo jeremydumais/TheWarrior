@@ -1,0 +1,10 @@
+Checks: >
+  -*,
+  bugprone-*,
+  performance-*,
+  readability-*,
+  modernize-*,
+  -bugprone-switch-missing-default-case,
+  -readability-function-cognitive-complexity,
+  -modernize-use-trailing-return-type,
+  -readability-magic-numbers

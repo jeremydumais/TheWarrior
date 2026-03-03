@@ -86,6 +86,8 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
     "-Wnull-dereference" # (only in GCC >= 6.0) warn if a null dereference is detected
     "-Wdouble-promotion" # (GCC >= 4.6, Clang >= 3.8) warn if float is implicit promoted to double
     "-Wformat=2" # warn on security issues around functions that format output (ie printf)
+    "-Wswitch"
+    "-Wswitch-enum"
     )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   target_compile_options(${PROJECT_NAME}

@@ -36,15 +36,15 @@ class MapOpenGLWidget : public QOpenGLWidget {
 
  public:
     explicit MapOpenGLWidget(QWidget *parent = nullptr);
+    const std::string &getResourcesPath() const;
+    SelectionMode getSelectionMode() const;
     void setCurrentMap(std::shared_ptr<thewarrior::models::GameMap> map);
     void setGridEnabled(bool enabled);
     void setShowNPCsEnabled(bool enabled);
     void setZoom(int zoomPercentage);
     void setZoomLimit(int min, int max);
     void resizeGL(int width, int height) override;
-    const std::string &getResourcesPath() const;
     void setResourcesPath(const std::string &path);
-    SelectionMode getSelectionMode() const;
     void setSelectionMode(SelectionMode mode);
     void restorePreviousSelectionMode();
     void setMapView(MapView view);
@@ -72,9 +72,17 @@ class MapOpenGLWidget : public QOpenGLWidget {
     void leaveEvent(QEvent *event) override;
 
  private slots:
-      void updateFrameState();
+    void updateScene();
 
  private:
+    struct RenderResources {
+        std::string resourcesPath;
+        std::shared_ptr<thewarrior::models::GameMap> currentMap = nullptr;
+
+        std::map<std::string, unsigned int> texturesGLMap;  // Mapping between texture name and OpenGL texture id
+        std::map<std::string, const thewarrior::models::Texture &> texturesObjMap;  // Mapping between texture name and texture object
+    };
+
     struct ViewportMetrics {
         int width = 0;
         int height = 0;
@@ -113,22 +121,34 @@ class MapOpenGLWidget : public QOpenGLWidget {
         SelectionMode currentMode = SelectionMode::Select;
 
         // Used to restore the selection mode after a temporary mode like NPC Spawn Picker
-        boost::optional<SelectionMode> previousMode = {};
+        boost::optional<SelectionMode> previousMode;
         // Used when using alt key to move the map
-        boost::optional<SelectionMode> preMapDragMode = {};
+        boost::optional<SelectionMode> preMapDragMode;
 
-        std::set<int> selectedTileIndices = {};
+        std::set<int> selectedTileIndices;
         GLubyte selectedTileColor = 0;
         bool selectedTileColorGrowing = false;
 
-        std::string selectedNPCId = "";
+        std::string selectedNPCId;
+    };
+
+    struct PasteState {
+        std::vector<thewarrior::models::MapTile> pasteResult;
+        std::set<int> pasteResultIndices;
+
+        bool dragInProgress = false;
+        QPoint dragStartPosition = QPoint(0, 0);
+        QPoint dragEndPosition = QPoint(0, 0);
+
+        QPoint selectionStartPosition = QPoint(0, 0);
+        QPoint selectionEndPosition = QPoint(0, 0);
     };
 
     struct WidgetConfig {
         MapView mapView = MapView::Standard;
 
         bool gridEnabled = true;
-        bool showNPCEnabled = true;
+        bool showNPCsEnabled = true;
 
         int zoomPercentage = 100;
         int zoomMin = 20;
@@ -136,54 +156,42 @@ class MapOpenGLWidget : public QOpenGLWidget {
     };
 
     struct MapRendererContext {
-        std::vector<std::string> zoneColors = {};
-        std::unordered_map<int, const thewarrior::models::NPC *> npcsBySpawnLocation = {};
+        std::vector<std::string> zoneColors;
+        std::unordered_map<int, const thewarrior::models::NPC *> npcsBySpawnLocation;
         FadeLoopAnimation selectedNPCGlowAnimation = FadeLoopAnimation(0.0F, 4.0F, 0.5F);
     };
 
     QTimer m_repaintTimer;
+    RenderResources m_resources;
     ViewportMetrics m_metrics;
     CameraState m_camera;
     InputState m_input;
     SelectionState m_selection;
+    PasteState m_paste;
     WidgetConfig m_config;
     MapRendererContext m_frame;
 
-    std::string m_resourcesPath;
-    std::map<std::string, unsigned int> m_texturesGLMap;  // Mapping between texture name and OpenGL texture id
-    std::map<std::string, const thewarrior::models::Texture &> m_texturesObjMap;  // Mapping between texture name and texture object
-    std::shared_ptr<thewarrior::models::GameMap> m_currentMap;
-    //
-    // Copy paste section
-    std::vector<thewarrior::models::MapTile> m_pasteResult;
-    std::set<int> m_pasteResultIndices;
-    bool m_pasteDragInProgress;
-    QPoint m_pasteDragStartPosition;
-    QPoint m_pasteDragEndPosition;
-    QPoint m_pasteSelectionStartPosition;
-    QPoint m_pasteSelectionEndPosition;
-
     bool isMultiTileSelectionMode() const;
-    void recalculateTileSize();
-    void updateCursor(QMouseEvent *event);
-    void draw();
+    void recomputeTileMetrics();
+    void updateCursorShape(QMouseEvent *event);
+    void renderScene();
     void drawTile(const thewarrior::models::MapTile &tile,
                   int index,
                   const MapRendererContext &ctx);
     void drawTileWithTexture(const std::string &textureName, int textureIndex);
-    void drawTileSilhouette(const std::string &textureName, int textureIndex, float outlineWidth);
-    void drawColoredTile() const;
-    void drawSelectionZone() const;
-    void drawPasteResult();
+    void drawTileOutlinePass(const std::string &textureName, int textureIndex, float outlineWidth);
+    void drawTileOverlayQuad() const;
+    void drawSelectionRectOverlay() const;
+    void drawPastePreview();
     void drawGrid() const;
-    void drawBlockBorderLeft();
-    void drawBlockBorderTop();
-    void drawBlockBorderRight();
-    void drawBlockBorderBottom();
-    int getTileIndex(int onScreenX, int onScreenY);
-    QPoint getTileLeftUpperCornerScreenCoord(int tileIndex) const;
-    QPoint getTileRightLowerCornerScreenCoord(int tileIndex) const;
-    glm::vec2 convertScreenCoordToGlCoord(QPoint coord) const;
+    void drawBlockedEdgeLeft() const;
+    void drawBlockedEdgeTop() const;
+    void drawBlockedEdgeRight() const;
+    void drawBlockedEdgeBottom() const;
+    int tileIndexAtScreenPos(int onScreenX, int onScreenY);
+    QPoint tileTopLeftScreenPos(int tileIndex) const;
+    QPoint tileBottomRightScreenPos(int tileIndex) const;
+    glm::vec2 screenCoordToWorld(QPoint coord) const;
     void updateSelectedTileColor();
     void calculatePasteSelectionZone(QPoint dragEndPosition, bool initialCalculation = false);
     bool isCursorInPasteSelectionZone(QPoint cursorPosition) const;
