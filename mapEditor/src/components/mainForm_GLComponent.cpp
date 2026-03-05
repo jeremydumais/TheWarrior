@@ -67,6 +67,10 @@ void MainForm_GLComponent::connectUIActions() {
             &MainForm_GLComponent::onNPCSpawnPositionPickerToolCanceled);
 }
 
+const std::string &MainForm_GLComponent::getLastError() const {
+    return m_lastError;
+}
+
 const std::string &MainForm_GLComponent::getResourcesPath() const {
     return this->m_glWidget->getResourcesPath();
 }
@@ -346,6 +350,22 @@ bool MainForm_GLComponent::setUseOnlyOneMonsterZone(bool value) {
 
 void MainForm_GLComponent::setNPCSpawnPositionPickerMode(bool value) {
     emit npcSpawnPositionPickerModeChanged(value);
+}
+
+bool MainForm_GLComponent::applyNPCWanderingZone() {
+    m_controller.pushCurrentStateToHistory();
+    if (!m_controller.applyNPCWanderingZone(m_glWidget->getLastSelectedNPC())) {
+        m_lastError = m_controller.getLastError();
+        return false;
+    }
+    emit editHistoryChanged();
+    return true;
+}
+
+void MainForm_GLComponent::clearNPCWanderingZone() {
+    m_controller.pushCurrentStateToHistory();
+    m_controller.clearNPCWanderingZone();
+    emit editHistoryChanged();
 }
 
 std::vector<MonsterZoneDTO> MainForm_GLComponent::getMonsterZones() const {

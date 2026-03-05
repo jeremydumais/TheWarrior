@@ -399,6 +399,22 @@ void GLComponentController::clearMonsterZone() {
     }
 }
 
+bool GLComponentController::applyNPCWanderingZone(const std::string &selectedNPCId) {
+    if (!m_map->addNPCWanderingZone(selectedNPCId, m_selectedIndices)) {
+        m_lastError = m_map->getLastError();
+        return false;
+    }
+    return true;
+}
+
+void GLComponentController::clearNPCWanderingZone() {
+    auto tiles = getCurrentMapTiles();
+    for (auto *tile : tiles) {
+        //TODO: v0.6 TO complete
+        //tile->setNPCWanderingZoneIndex(-1);
+    }
+}
+
 bool GLComponentController::addTexture(const TextureDTO &textureDTO) {
     if (!m_map->addTexture(TextureUtils::TextureDTOToTextureInfo(textureDTO))) {
         this->m_lastError = m_map->getLastError();

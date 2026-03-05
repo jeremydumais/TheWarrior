@@ -195,6 +195,8 @@ void MainForm::connectUIActions() {
     connect(comboBoxToolbarMonsterZone.get(), static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm::onComboBoxToolbarMonsterZoneCurrentIndexChanged);
     connect(ui.action_ApplyMonsterZone, &QAction::triggered, this, &MainForm::action_ApplyMonsterZone);
     connect(ui.action_ClearMonsterZone, &QAction::triggered, this, &MainForm::action_ClearMonsterZone);
+    connect(ui.action_ApplyNPCWanderingZone, &QAction::triggered, this, &MainForm::action_ApplyNPCWanderingZone);
+    connect(ui.action_ClearNPCWanderingZone, &QAction::triggered, this, &MainForm::action_ClearNPCWanderingZone);
     connect(comboBoxToolbarNPCWanderingZone.get(), static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm::onComboBoxToolbarNPCWanderingZoneCurrentIndexChanged);
     connect(sliderZoom.get(), &QSlider::valueChanged, this, &MainForm::sliderZoomValueChanged);
     connect(ui.tabWidgetMapView, &QTabWidget::currentChanged, this, &MainForm::tabWidgetMapViewChanged);
@@ -484,7 +486,7 @@ void MainForm::action_ClearBlockedBordersClick() {
 void MainForm::onComboBoxToolbarMonsterZoneCurrentIndexChanged() {
     const auto zoneName = comboBoxToolbarMonsterZone->currentText().toStdString();
     const auto colorValue = m_monsterZoneListComponent->getMonsterZoneColor(zoneName);
-    const auto defaultStyle = "margin-right: 8px; border-radius: 5px; border: 1px solid black";
+    const auto *const defaultStyle = "margin-right: 8px; border-radius: 5px; border: 1px solid black";
     if (!colorValue.empty()) {
         labelToolbarMonsterZoneColor->setStyleSheet(fmt::format("background-color: {0}; {1}",
                     colorValue,
@@ -511,6 +513,20 @@ void MainForm::onComboBoxToolbarNPCWanderingZoneCurrentIndexChanged() {
     } else {
         m_glComponent.clearLastSelectedNPC();
     }
+}
+
+void MainForm::action_ApplyNPCWanderingZone() {
+    if (!m_glComponent.applyNPCWanderingZone()) {
+        ErrorMessage::show(m_glComponent.getLastError());
+        return;
+    }
+    ui.tabWidgetMapView->setCurrentIndex(4);
+}
+
+void MainForm::action_ClearNPCWanderingZone() {
+    //TODO: v0.6 Complete this
+    m_glComponent.clearNPCWanderingZone();
+    ui.tabWidgetMapView->setCurrentIndex(4);
 }
 
 void MainForm::sliderZoomValueChanged(int value) {

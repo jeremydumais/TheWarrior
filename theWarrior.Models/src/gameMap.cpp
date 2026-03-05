@@ -1,3 +1,5 @@
+#include <cstddef>
+#include <fmt/core.h>
 #include <fmt/format.h>
 #include <algorithm>
 #include <cstdint>
@@ -286,6 +288,36 @@ bool GameMap::removeNPC(const std::string &npcId) {
         return false;
     }
     m_npcs.erase(npcToRemoveIter);
+    return true;
+}
+
+bool GameMap::addNPCWanderingZone(const std::string &npcId, const std::set<int> &selectedTilesIndices) {
+    const auto npcIter = getNPCIterator(npcId);
+    if (npcIter == m_npcs.end()) {
+        m_lastError = fmt::format("Unable to find the NPC {0} to assign wandering zones.", npcId);
+        return false;
+    }
+    // Prepare a list of coordinates that are allow to be used as wandering zone
+    std::vector<Point<size_t>> pointsToAdd;
+    for (auto indice : selectedTilesIndices) {
+        try {
+            const auto coordInt = getCoordFromTileIndex(indice);
+            const auto coord = Point<size_t>(static_cast<size_t>(coordInt.x()),
+                                             static_cast<size_t>(coordInt.y()));
+            const auto &tile = getTileFromCoord(coordInt);
+            if (!tile.canPlayerSteppedOn()) {
+                m_lastError = fmt::format("Cannot assign the tile at position ({0}, {1}) because it has been marked as 'cannot step on'",
+                                          coordInt.x(), coordInt.y());
+                return false;
+            }
+            pointsToAdd.push_back(coord);
+        } catch (const std::invalid_argument &err) {
+            m_lastError = err.what();
+            return false;
+        }
+    }
+
+    npcIter->addToWanderZone(pointsToAdd);
     return true;
 }
 

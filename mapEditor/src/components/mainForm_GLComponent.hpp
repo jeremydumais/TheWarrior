@@ -26,6 +26,7 @@ class MainForm_GLComponent : public QWidget {
     mapeditor::controllers::GLComponentController *getControllerPtr();
     void initializeUIObjects(MapOpenGLWidget *glWidget);
     void connectUIActions();
+    const std::string &getLastError() const;
     const std::string &getResourcesPath() const;
     SelectionMode getSelectionMode() const;
     unsigned int getMapWidth() const;
@@ -85,6 +86,8 @@ class MainForm_GLComponent : public QWidget {
     void clearMonsterZone();
     bool setUseOnlyOneMonsterZone(bool value);
     void setNPCSpawnPositionPickerMode(bool value);
+    bool applyNPCWanderingZone();
+    void clearNPCWanderingZone();
 
  signals:
     void tileSelected(std::vector<mapeditor::controllers::MapTileDTO> tiles);
@@ -102,6 +105,7 @@ class MainForm_GLComponent : public QWidget {
  private:
     MapOpenGLWidget *m_glWidget;
     mapeditor::controllers::GLComponentController m_controller;
+    std::string m_lastError;
     void onTileClicked(const std::set<int> &tileIndices, int, int);
     void onPickerToolTileSelected(const PickerToolSelection &selection);
     void onNPCSpawnPositionPickerToolTileSelected(const thewarrior::models::MapTile &tile,

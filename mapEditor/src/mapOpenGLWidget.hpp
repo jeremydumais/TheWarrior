@@ -38,6 +38,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
     explicit MapOpenGLWidget(QWidget *parent = nullptr);
     const std::string &getResourcesPath() const;
     SelectionMode getSelectionMode() const;
+    const std::string &getLastSelectedNPC() const;
     void setCurrentMap(std::shared_ptr<thewarrior::models::GameMap> map);
     void setGridEnabled(bool enabled);
     void setShowNPCsEnabled(bool enabled);

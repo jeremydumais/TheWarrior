@@ -44,6 +44,10 @@ SelectionMode MapOpenGLWidget::getSelectionMode() const {
     return m_selection.currentMode;
 }
 
+const std::string &MapOpenGLWidget::getLastSelectedNPC() const {
+    return m_selection.selectedNPCId;
+}
+
 void MapOpenGLWidget::setCurrentMap(std::shared_ptr<GameMap> map) {
     m_resources.currentMap = std::move(map);
     m_selection.selectedTileIndices = {};

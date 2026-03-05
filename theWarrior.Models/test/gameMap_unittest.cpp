@@ -4,6 +4,7 @@
 #include "gameMap.hpp"
 #include "monsterZone.hpp"
 #include "npc.hpp"
+#include "point.hpp"
 #include "rgbItemColor.hpp"
 
 using thewarrior::models::GameMap;
@@ -33,6 +34,7 @@ class SampleGameMap5x6WithTwoTextures : public ::testing::Test {
         tileIndex0.setTextureIndex(0);
         tileIndex0.setObjectTextureName(firstTexture.getName());
         tileIndex0.setObjectTextureIndex(0);
+        tileIndex0.setCanPlayerSteppedOn(false);
         map.addMonsterZone(MonsterZone("Zone1", RGBItemColor("Green", "#00FF00")));
         map.addMonsterZone(MonsterZone("Zone2", RGBItemColor("Blue", "#0000FF")));
         map.addNPC(NPC({"npc001", "Joe Blow"}));
@@ -867,5 +869,41 @@ TEST_F(SampleGameMap5x6WithTwoTextures, removeNPC_withExistingSourceDifferentCas
     ASSERT_TRUE(map.removeNPC("NPC002"));
     ASSERT_EQ(1, map.getNPCs().size());
     ASSERT_EQ("npc001", map.getNPCs().at(0).getId());
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, addNPCWanderingZone_withNonExistingNPC_ReturnFalse) {
+    ASSERT_FALSE(map.addNPCWanderingZone("Not", {1}));
+    ASSERT_EQ("Unable to find the NPC Not to assign wandering zones.", map.getLastError());
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, addNPCWanderingZone_withNPC001AndOneIndice_ReturnTrue) {
+    const std::string npcId = "npc001";
+    ASSERT_TRUE(map.addNPCWanderingZone(npcId, {2}));
+    const auto npc = map.getNPCById(npcId);
+    if (!npc.has_value()) {
+        FAIL();
+    }
+    const auto &wanderZone = npc->get().getWanderZone();
+    ASSERT_EQ(1, wanderZone.size());
+    ASSERT_EQ(Point<size_t>(2, 0), wanderZone.at(0));
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, addNPCWanderingZone_withNPC001AndTwoIndices_ReturnTrue) {
+    const std::string npcId = "npc001";
+    ASSERT_TRUE(map.addNPCWanderingZone(npcId, {2, 3}));
+    const auto npc = map.getNPCById(npcId);
+    if (!npc.has_value()) {
+        FAIL();
+    }
+    const auto &wanderZone = npc->get().getWanderZone();
+    ASSERT_EQ(2, wanderZone.size());
+    ASSERT_EQ(Point<size_t>(2, 0), wanderZone.at(0));
+    ASSERT_EQ(Point<size_t>(3, 0), wanderZone.at(1));
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, addNPCWanderingZone_withNPC001And1IndiceCannotStepOn_ReturnFalse) {
+    const std::string npcId = "npc001";
+    ASSERT_FALSE(map.addNPCWanderingZone(npcId, {2, 0}));
+    ASSERT_EQ("Cannot assign the tile at position (0, 0) because it has been marked as 'cannot step on'", map.getLastError());
 }
 

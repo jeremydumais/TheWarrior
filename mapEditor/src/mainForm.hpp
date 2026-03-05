@@ -95,6 +95,8 @@ Q_OBJECT
     void action_ApplyMonsterZone();
     void action_ClearMonsterZone();
     void onComboBoxToolbarNPCWanderingZoneCurrentIndexChanged();
+    void action_ApplyNPCWanderingZone();
+    void action_ClearNPCWanderingZone();
     void sliderZoomValueChanged(int value);
     void tabWidgetMapViewChanged(int index);
     void openMap(const std::string &filePath);
