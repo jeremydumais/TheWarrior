@@ -70,7 +70,7 @@ class GLComponentController {
     void applyMonsterZone();
     void clearMonsterZone();
     bool applyNPCWanderingZone(const std::string &selectedNPCId);
-    void clearNPCWanderingZone();
+    bool clearNPCWanderingZone(const std::string &selectedNPCId);
     bool addTexture(const commoneditor::ui::TextureDTO &textureDTO);
     bool replaceTexture(const std::string &name, const commoneditor::ui::TextureDTO &textureDTO);
     bool removeTexture(const std::string &name);

@@ -524,8 +524,10 @@ void MainForm::action_ApplyNPCWanderingZone() {
 }
 
 void MainForm::action_ClearNPCWanderingZone() {
-    //TODO: v0.6 Complete this
-    m_glComponent.clearNPCWanderingZone();
+    if (!m_glComponent.clearNPCWanderingZone()) {
+        ErrorMessage::show(m_glComponent.getLastError());
+        return;
+    }
     ui.tabWidgetMapView->setCurrentIndex(4);
 }
 

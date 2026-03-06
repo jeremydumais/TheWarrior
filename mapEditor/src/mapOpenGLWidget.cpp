@@ -1,3 +1,4 @@
+#include <fmt/core.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include <GL/glut.h>
 #include <QtWidgets>

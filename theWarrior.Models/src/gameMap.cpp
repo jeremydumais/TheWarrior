@@ -321,6 +321,30 @@ bool GameMap::addNPCWanderingZone(const std::string &npcId, const std::set<int> 
     return true;
 }
 
+bool GameMap::removeNPCWanderingZone(const std::string &npcId, const std::set<int> &selectedTilesIndices) {
+    const auto npcIter = getNPCIterator(npcId);
+    if (npcIter == m_npcs.end()) {
+        m_lastError = fmt::format("Unable to find the NPC {0} to unassign wandering zones.", npcId);
+        return false;
+    }
+
+    // Prepare a list of coordinates to unassign of the wandering zone
+    std::vector<Point<size_t>> pointsToAdd;
+    for (auto indice : selectedTilesIndices) {
+        try {
+            const auto coordInt = getCoordFromTileIndex(indice);
+            const auto coord = Point<size_t>(static_cast<size_t>(coordInt.x()),
+                                             static_cast<size_t>(coordInt.y()));
+            pointsToAdd.push_back(coord);
+        } catch (const std::invalid_argument &err) {
+            m_lastError = err.what();
+            return false;
+        }
+    }
+    npcIter->removeFromWanderZone(pointsToAdd);
+    return true;
+}
+
 bool GameMap::isShrinkMapImpactAssignedTiles(int offsetLeft, int offsetTop,
         int offsetRight,
         int offsetBottom) const {

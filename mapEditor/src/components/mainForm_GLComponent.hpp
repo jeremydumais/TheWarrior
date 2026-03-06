@@ -87,7 +87,7 @@ class MainForm_GLComponent : public QWidget {
     bool setUseOnlyOneMonsterZone(bool value);
     void setNPCSpawnPositionPickerMode(bool value);
     bool applyNPCWanderingZone();
-    void clearNPCWanderingZone();
+    bool clearNPCWanderingZone();
 
  signals:
     void tileSelected(std::vector<mapeditor::controllers::MapTileDTO> tiles);

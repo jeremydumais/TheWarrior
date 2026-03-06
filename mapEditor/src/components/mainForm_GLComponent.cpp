@@ -362,10 +362,14 @@ bool MainForm_GLComponent::applyNPCWanderingZone() {
     return true;
 }
 
-void MainForm_GLComponent::clearNPCWanderingZone() {
+bool MainForm_GLComponent::clearNPCWanderingZone() {
     m_controller.pushCurrentStateToHistory();
-    m_controller.clearNPCWanderingZone();
+    if (!m_controller.clearNPCWanderingZone(m_glWidget->getLastSelectedNPC())) {
+        m_lastError = m_controller.getLastError();
+        return false;
+    }
     emit editHistoryChanged();
+    return true;
 }
 
 std::vector<MonsterZoneDTO> MainForm_GLComponent::getMonsterZones() const {

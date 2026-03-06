@@ -407,12 +407,12 @@ bool GLComponentController::applyNPCWanderingZone(const std::string &selectedNPC
     return true;
 }
 
-void GLComponentController::clearNPCWanderingZone() {
-    auto tiles = getCurrentMapTiles();
-    for (auto *tile : tiles) {
-        //TODO: v0.6 TO complete
-        //tile->setNPCWanderingZoneIndex(-1);
+bool GLComponentController::clearNPCWanderingZone(const std::string &selectedNPCId) {
+    if (!m_map->removeNPCWanderingZone(selectedNPCId, m_selectedIndices)) {
+        m_lastError = m_map->getLastError();
+        return false;
     }
+    return true;
 }
 
 bool GLComponentController::addTexture(const TextureDTO &textureDTO) {

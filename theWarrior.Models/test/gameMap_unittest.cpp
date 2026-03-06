@@ -18,15 +18,15 @@ class SampleGameMap5x6WithTwoTextures : public ::testing::Test {
     SampleGameMap5x6WithTwoTextures()
         : map(5, 6) {
         map.addTexture({
-                "a", "a.png",
-                512, 512,
-                32, 32
+                .name = "a", .filename = "a.png",
+                .width = 512, .height = 512,
+                .tileWidth = 32, .tileHeight = 32
                 });
 
         map.addTexture({
-                "b", "b.png",
-                512, 512,
-                32, 32
+                .name = "b", .filename = "b.png",
+                .width = 512, .height = 512,
+                .tileWidth = 32, .tileHeight = 32
                 });
         const auto &firstTexture = map.getTextures()[0];
         auto &tileIndex0 = map.getTileForEditing(0);
@@ -37,14 +37,18 @@ class SampleGameMap5x6WithTwoTextures : public ::testing::Test {
         tileIndex0.setCanPlayerSteppedOn(false);
         map.addMonsterZone(MonsterZone("Zone1", RGBItemColor("Green", "#00FF00")));
         map.addMonsterZone(MonsterZone("Zone2", RGBItemColor("Blue", "#0000FF")));
-        map.addNPC(NPC({"npc001", "Joe Blow"}));
-        map.addNPC(NPC({"npc002", "Jane Doe"}));
+        map.addNPC(NPC({.id = "npc001", .name = "Joe Blow"}));
+        map.addNPC(NPC({
+                    .id = "npc002", .name = "Jane Doe",
+                    .textureName = "Tex1", .baseTextureIndex = 1,
+                    .spawnPosition = {0, 0}, .wanderZone = { {0, 0}, {1, 0} }
+                   }));
     }
     ~SampleGameMap5x6WithTwoTextures() override;
     GameMap map;
 };
 
-SampleGameMap5x6WithTwoTextures::~SampleGameMap5x6WithTwoTextures() {}
+SampleGameMap5x6WithTwoTextures::~SampleGameMap5x6WithTwoTextures() = default;
 
 // Texture assignation                    MonsterZone Indexes
 // N = Not assigned, A = Assigned
@@ -61,10 +65,10 @@ class SampleGameMapWithTilesAssigned : public ::testing::Test {
     SampleGameMapWithTilesAssigned()
         : map(6, 6) {
             map.addTexture({
-                    "tex1",
-                    "tex1.png",
-                    512, 256,
-                    32, 32
+                    .name = "tex1",
+                    .filename = "tex1.png",
+                    .width = 512, .height = 256,
+                    .tileWidth = 32, .tileHeight = 32
                     });
             map.addMonsterZone(MonsterZone("Zone1", RGBItemColor("Green", "#00FF00")));
             map.addMonsterZone(MonsterZone("Zone2", RGBItemColor("Blue", "#0000FF")));
@@ -93,7 +97,7 @@ class SampleGameMapWithTilesAssigned : public ::testing::Test {
     GameMap map;
 };
 
-SampleGameMapWithTilesAssigned::~SampleGameMapWithTilesAssigned() {}
+SampleGameMapWithTilesAssigned::~SampleGameMapWithTilesAssigned() = default;
 
 class SampleGameMap5x6WithOneMonsterZone : public ::testing::Test {
  public:
@@ -105,7 +109,7 @@ class SampleGameMap5x6WithOneMonsterZone : public ::testing::Test {
     GameMap map;
 };
 
-SampleGameMap5x6WithOneMonsterZone::~SampleGameMap5x6WithOneMonsterZone() {}
+SampleGameMap5x6WithOneMonsterZone::~SampleGameMap5x6WithOneMonsterZone() = default;
 
 TEST(GameMap_Constructor, ZeroWidth_ThrowInvalidArgument) {
     try {
@@ -905,5 +909,44 @@ TEST_F(SampleGameMap5x6WithTwoTextures, addNPCWanderingZone_withNPC001And1Indice
     const std::string npcId = "npc001";
     ASSERT_FALSE(map.addNPCWanderingZone(npcId, {2, 0}));
     ASSERT_EQ("Cannot assign the tile at position (0, 0) because it has been marked as 'cannot step on'", map.getLastError());
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, removeNPCWanderingZone_withNPC001And1NotExistantIndice_ReturnTrue) {
+    const std::string npcId = "npc002";
+    ASSERT_TRUE(map.removeNPCWanderingZone(npcId, {4, 4}));
+    const auto npc = map.getNPCById(npcId);
+    if (!npc.has_value()) {
+        FAIL();
+    }
+    const auto &wanderZone = npc->get().getWanderZone();
+    ASSERT_EQ(2, wanderZone.size());
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, removeNPCWanderingZone_withNonExistingNPC_ReturnFalse) {
+    ASSERT_FALSE(map.removeNPCWanderingZone("Not", {1}));
+    ASSERT_EQ("Unable to find the NPC Not to unassign wandering zones.", map.getLastError());
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, removeNPCWanderingZone_withNPC002AndOneIndice_ReturnTrue) {
+    const std::string npcId = "npc002";
+    ASSERT_TRUE(map.removeNPCWanderingZone(npcId, {0}));
+    const auto npc = map.getNPCById(npcId);
+    if (!npc.has_value()) {
+        FAIL();
+    }
+    const auto &wanderZone = npc->get().getWanderZone();
+    ASSERT_EQ(1, wanderZone.size());
+    ASSERT_EQ(Point<size_t>(1, 0), wanderZone.at(0));
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, removeNPCWanderingZone_withNPC001AndTwoIndices_ReturnTrue) {
+    const std::string npcId = "npc002";
+    ASSERT_TRUE(map.removeNPCWanderingZone(npcId, {0, 1}));
+    const auto npc = map.getNPCById(npcId);
+    if (!npc.has_value()) {
+        FAIL();
+    }
+    const auto &wanderZone = npc->get().getWanderZone();
+    ASSERT_EQ(0, wanderZone.size());
 }
 

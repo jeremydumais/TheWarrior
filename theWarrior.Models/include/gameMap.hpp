@@ -62,6 +62,7 @@ class GameMap {
     bool replaceNPC(const std::string &npcId, const NPC &npc);
     bool removeNPC(const std::string &npcId);
     bool addNPCWanderingZone(const std::string &npcId, const std::set<int> &selectedTilesIndices);
+    bool removeNPCWanderingZone(const std::string &npcId, const std::set<int> &selectedTilesIndices);
 
  private:
     friend class boost::serialization::access;
