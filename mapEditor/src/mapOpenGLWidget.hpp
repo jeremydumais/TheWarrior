@@ -157,8 +157,9 @@ class MapOpenGLWidget : public QOpenGLWidget {
     };
 
     struct MapRendererContext {
-        std::vector<std::string> zoneColors;
+        std::vector<std::string> monsterZoneColors;
         std::unordered_map<int, const thewarrior::models::NPC *> npcsBySpawnLocation;
+        std::set<size_t> selectedNPCWanderingZoneMapIndices;
         FadeLoopAnimation selectedNPCGlowAnimation = FadeLoopAnimation(0.0F, 4.0F, 0.5F);
     };
 

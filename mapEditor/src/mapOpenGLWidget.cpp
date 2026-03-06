@@ -11,6 +11,7 @@
 #include <iterator>
 #include <map>
 #include <set>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -135,7 +136,7 @@ void MapOpenGLWidget::updateScene() {
                            [](const MonsterZone &zone) -> std::string {
                                return zone.getColor().getValue();
                            });
-    m_frame.zoneColors = zoneColors;
+    m_frame.monsterZoneColors = zoneColors;
 
     // Load the npcs in an unordered_map to be able to find them by spawn positition O(1)
     // spawn position will be converted to TileIndex
@@ -151,6 +152,21 @@ void MapOpenGLWidget::updateScene() {
                         return std::make_pair(tileIndex, &npc);
                    });
     m_frame.npcsBySpawnLocation = npcsBySpawnLocation;
+
+    // Load the selected NPC wandering zones and convert the coords in indices
+    const auto selectedNPC = m_resources.currentMap->getNPCById(m_selection.selectedNPCId);
+    std::set<size_t> npcWanderingZoneMapIndices;
+    if (selectedNPC.has_value()) {
+        for (const auto &point : selectedNPC->get().getWanderZone()) {
+            try {
+                const auto coordInt = Point<int>(static_cast<int>(point.x()),
+                                                 static_cast<int>(point.y()));
+                npcWanderingZoneMapIndices.emplace(m_resources.currentMap->getTileIndexFromCoord(coordInt));
+            } catch (const std::invalid_argument &err) {}
+        }
+    }
+    m_frame.selectedNPCWanderingZoneMapIndices = npcWanderingZoneMapIndices;
+
     this->update();
 }
 
@@ -534,8 +550,10 @@ void MapOpenGLWidget::drawTile(const MapTile &tile,
             glColor4f(1.0F, 1.0F, 1.0F, 0.5F);
             break;
         case MapView::NPCWanderingZones:
-            transparency = 0.2F;
-            glColor4f(1.0F, 1.0F, 1.0F, 0.2F);
+            if (!m_frame.selectedNPCWanderingZoneMapIndices.contains(static_cast<size_t>(index))) {
+                transparency = 0.2F;
+                glColor4f(1.0F, 1.0F, 1.0F, 0.2F);
+            }
             break;
         case MapView::Standard:
         case MapView::BlockedBorders:
@@ -588,6 +606,7 @@ void MapOpenGLWidget::drawTile(const MapTile &tile,
                 glPushMatrix();
                 const int baseTextureIndex = npc->getCurrentFacingTextureIndex();
                 if (npc->getId() == m_selection.selectedNPCId) {
+                    glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
                     drawTileOutlinePass(npc->getTextureName(), baseTextureIndex, ctx.selectedNPCGlowAnimation.getValue());
                 }
                 drawTileWithTexture(npc->getTextureName(), baseTextureIndex);
@@ -598,14 +617,12 @@ void MapOpenGLWidget::drawTile(const MapTile &tile,
     }
 
     // Filter to apply/clear monster zone
-    if (m_config.mapView == MapView::MonsterZones) {
-        if (tile.getMonsterZoneIndex() != -1) {
-            const auto zoneColor = getVec3FromRGBString(ctx.zoneColors[static_cast<size_t>(tile.getMonsterZoneIndex())]);
-            glColor4f(zoneColor.r, zoneColor.g, zoneColor.b, 0.4F);
-            drawTileOverlayQuad();
-        }
+    if (m_config.mapView == MapView::MonsterZones && tile.getMonsterZoneIndex() != -1) {
+        const auto zoneColor = getVec3FromRGBString(ctx.monsterZoneColors[static_cast<size_t>(tile.getMonsterZoneIndex())]);
+        glColor4f(zoneColor.r, zoneColor.g, zoneColor.b, 0.4F);
+        drawTileOverlayQuad();
     }
-    //TODO: v0.6 Detect if the tile is part of the NPC Wandering zones
+
     // Filter to enable/disable can step on tile
     if (m_config.mapView == MapView::CanStep) {
         if (tile.canPlayerSteppedOn()) {

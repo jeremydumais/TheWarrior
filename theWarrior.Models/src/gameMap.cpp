@@ -297,7 +297,7 @@ bool GameMap::addNPCWanderingZone(const std::string &npcId, const std::set<int> 
         m_lastError = fmt::format("Unable to find the NPC {0} to assign wandering zones.", npcId);
         return false;
     }
-    // Prepare a list of coordinates that are allow to be used as wandering zone
+    // Prepare a list of coordinates that are allowed to be used as wandering zone
     std::vector<Point<size_t>> pointsToAdd;
     for (auto indice : selectedTilesIndices) {
         try {
