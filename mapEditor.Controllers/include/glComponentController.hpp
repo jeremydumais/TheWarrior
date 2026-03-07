@@ -32,6 +32,7 @@ class GLComponentController {
     bool isUseOnlyOneMonsterZone() const;
     std::vector<std::string> getAlreadyUsedNPCIds() const;
     bool isTextureUsedInMap(const std::string &name);
+    bool isTextureUsedByNPCs(const std::string &name);
     bool isShrinkMapImpactAssignedTiles(int offsetLeft,
                                         int offsetTop,
                                         int offsetRight,

@@ -152,6 +152,12 @@ bool GLComponentController::isTextureUsedInMap(const std::string &name) {
     return false;
 }
 
+bool GLComponentController::isTextureUsedByNPCs(const std::string &name) {
+    return std::ranges::any_of(m_map->getNPCs(), [&name](const NPC &npc) {
+        return npc.getTextureName() == name;
+    });
+}
+
 bool GLComponentController::isShrinkMapImpactAssignedTiles(int offsetLeft,
         int offsetTop,
         int offsetRight,

@@ -58,6 +58,7 @@ class MainForm_GLComponent : public QWidget {
     std::optional<std::reference_wrapper<const thewarrior::models::Texture>> getTextureByName(const std::string &name) const;
     std::vector<std::string> getAlreadyUsedTextureNames() const;
     bool isTextureUsedInMap(const std::string &name);
+    bool isTextureUsedByNPCs(const std::string &name);
     void reloadTextures();
     bool isShrinkMapImpactAssignedTiles(int offsetLeft,
             int offsetTop,

@@ -201,6 +201,10 @@ bool MainForm_GLComponent::isTextureUsedInMap(const std::string &name) {
     return m_controller.isTextureUsedInMap(name);
 }
 
+bool MainForm_GLComponent::isTextureUsedByNPCs(const std::string &name) {
+    return m_controller.isTextureUsedByNPCs(name);
+}
+
 void MainForm_GLComponent::reloadTextures() {
     m_glWidget->reloadTextures();
 }

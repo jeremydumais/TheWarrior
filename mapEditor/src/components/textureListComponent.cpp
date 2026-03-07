@@ -1,6 +1,7 @@
 #include <fmt/format.h>
 #include <QStyle>
 #include <algorithm>
+#include <string>
 #include "textureListComponent.hpp"
 #include "editTextureForm.hpp"
 #include "texture.hpp"
@@ -114,10 +115,19 @@ void TextureListComponent::onPushButtonDeleteTextureClick() {
         msgBox.setDefaultButton(QMessageBox::Cancel);
         if (msgBox.exec() == QMessageBox::Yes) {
             // Check if the texture is used in the map
-            msgBox.setText(fmt::format("The texture {0} is used by some map tiles.\nAre you sure you want to proceed?",
-                        selectedTexture->get().getName()).c_str());
-            bool isUsed = m_glComponent->isTextureUsedInMap(selectedTexture->get().getName());
-            if (!isUsed || msgBox.exec() == QMessageBox::Yes) {
+            bool isUsedOnMapTiles = m_glComponent->isTextureUsedInMap(selectedTexture->get().getName());
+            bool isUsedByNPC = m_glComponent->isTextureUsedByNPCs(selectedTexture->get().getName());
+            std::string elements;
+            if (isUsedOnMapTiles) {
+                elements += "- Map tiles\n";
+            }
+            if (isUsedByNPC) {
+                elements += "- NPCs\n";
+            }
+            msgBox.setText(fmt::format("The texture {0} is used by these elements:\n{1}\nAre you sure you want to proceed?",
+                                       selectedTexture->get().getName(),
+                                       elements).c_str());
+            if ((!isUsedOnMapTiles && !isUsedByNPC) || msgBox.exec() == QMessageBox::Yes) {
                 emit textureDeleted(selectedTexture->get().getName());
             }
         }
