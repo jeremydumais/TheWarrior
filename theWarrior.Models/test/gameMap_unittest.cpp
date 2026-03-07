@@ -301,6 +301,15 @@ TEST_F(SampleGameMapWithTilesAssigned, isShrinkMapImpactAssignedTiles_WithMinusO
     ASSERT_FALSE(map.isShrinkMapImpactAssignedTiles(-1, 0, 0, 0));
 }
 
+TEST_F(SampleGameMapWithTilesAssigned, isShrinkMapImpactAssignedTiles_WithMinusOneOnLeftAndNPCAssignedOnFirstTile_ReturnTrue) {
+    map.addNPC(NPC({
+                .id = "npc001", .name = "Jane Doe",
+                .textureName = "Tex1", .baseTextureIndex = 1,
+                .spawnPosition = {0, 0}, .wanderZone = { {0, 0}, {1, 0} }
+               }));
+    ASSERT_TRUE(map.isShrinkMapImpactAssignedTiles(-1, 0, 0, 0));
+}
+
 TEST_F(SampleGameMapWithTilesAssigned, isShrinkMapImpactAssignedTiles_WithMinusTwoOnLeft_ReturnTrue) {
     ASSERT_TRUE(map.isShrinkMapImpactAssignedTiles(-2, 0, 0, 0));
 }
@@ -309,12 +318,30 @@ TEST_F(SampleGameMapWithTilesAssigned, isShrinkMapImpactAssignedTiles_WithMinusO
     ASSERT_FALSE(map.isShrinkMapImpactAssignedTiles(0, -1, 0, 0));
 }
 
+TEST_F(SampleGameMapWithTilesAssigned, isShrinkMapImpactAssignedTiles_WithMinusOneOnTopAndNPCAssignedOnFirstTile_ReturnTrue) {
+    map.addNPC(NPC({
+                .id = "npc001", .name = "Jane Doe",
+                .textureName = "Tex1", .baseTextureIndex = 1,
+                .spawnPosition = {0, 0}, .wanderZone = { {0, 0}, {1, 0} }
+               }));
+    ASSERT_TRUE(map.isShrinkMapImpactAssignedTiles(0, -1, 0, 0));
+}
+
 TEST_F(SampleGameMapWithTilesAssigned, isShrinkMapImpactAssignedTiles_WithMinusTwoOnTop_ReturnTrue) {
     ASSERT_TRUE(map.isShrinkMapImpactAssignedTiles(0, -2, 0, 0));
 }
 
 TEST_F(SampleGameMapWithTilesAssigned, isShrinkMapImpactAssignedTiles_WithMinusOneOnRight_ReturnFalse) {
     ASSERT_FALSE(map.isShrinkMapImpactAssignedTiles(0, 0, -1, 0));
+}
+
+TEST_F(SampleGameMapWithTilesAssigned, isShrinkMapImpactAssignedTiles_WithMinusOneOnRightAndNPCAssignedOnLastTile_ReturnTrue) {
+    map.addNPC(NPC({
+                .id = "npc001", .name = "Jane Doe",
+                .textureName = "Tex1", .baseTextureIndex = 1,
+                .spawnPosition = {5, 0}, .wanderZone = { {4, 0}, {5, 0} }
+               }));
+    ASSERT_TRUE(map.isShrinkMapImpactAssignedTiles(0, 0, -1, 0));
 }
 
 TEST_F(SampleGameMapWithTilesAssigned, isShrinkMapImpactAssignedTiles_WithMinusTwoOnRight_ReturnTrue) {
@@ -327,6 +354,15 @@ TEST_F(SampleGameMapWithTilesAssigned, isShrinkMapImpactAssignedTiles_WithMinusO
 
 TEST_F(SampleGameMapWithTilesAssigned, isShrinkMapImpactAssignedTiles_WithMinusTwoOnBottom_ReturnTrue) {
     ASSERT_TRUE(map.isShrinkMapImpactAssignedTiles(0, 0, 0, -2));
+}
+
+TEST_F(SampleGameMapWithTilesAssigned, isShrinkMapImpactAssignedTiles_WithMinusOneOnBottomAndNPCAssignedOnLastRow_ReturnTrue) {
+    map.addNPC(NPC({
+                .id = "npc001", .name = "Jane Doe",
+                .textureName = "Tex1", .baseTextureIndex = 1,
+                .spawnPosition = {0, 5}, .wanderZone = { {0, 4}, {0, 5} }
+               }));
+    ASSERT_TRUE(map.isShrinkMapImpactAssignedTiles(0, 0, 0, -1));
 }
 
 TEST_F(SampleGameMapWithTilesAssigned, resizeMap_WithZeroOnLeft_ReturnSuccess) {
@@ -365,6 +401,30 @@ TEST_F(SampleGameMapWithTilesAssigned, resizeMap_WithMinusTwoOnLeft_ReturnSucces
     ASSERT_FALSE(map.getTiles()[5][0].isAssigned());
 }
 
+TEST_F(SampleGameMapWithTilesAssigned, resizeMap_WithMinusTwoOnLeftUpdateNPCPositions_ReturnSuccess) {
+    map.addNPC(NPC({
+                .id = "npc001", .name = "Jane Doe",
+                .textureName = "Tex1", .baseTextureIndex = 1,
+                .spawnPosition = {2, 0}, .wanderZone = { {2, 0}, {3, 0} }
+               }));
+    map.resizeMap(-2, 0, 0, 0);
+    ASSERT_EQ(4, map.getWidth());
+    ASSERT_EQ(6, map.getHeight());
+    // Check the new first column
+    ASSERT_FALSE(map.getTiles()[0][0].isAssigned());
+    ASSERT_TRUE(map.getTiles()[1][0].isAssigned());
+    ASSERT_TRUE(map.getTiles()[2][0].isAssigned());
+    ASSERT_TRUE(map.getTiles()[3][0].isAssigned());
+    ASSERT_FALSE(map.getTiles()[4][0].isAssigned());
+    ASSERT_FALSE(map.getTiles()[5][0].isAssigned());
+    // Check the NPC position
+    const auto npc = map.getNPCById("npc001");
+    ASSERT_EQ(Point<size_t>(0, 0), npc->get().getSpawnPosition());
+    const auto wanderZone = npc->get().getWanderZone();
+    ASSERT_EQ(Point<size_t>(0, 0), wanderZone.at(0));
+    ASSERT_EQ(Point<size_t>(1, 0), wanderZone.at(1));
+}
+
 TEST_F(SampleGameMapWithTilesAssigned, resizeMap_WithPlusOneOnLeft_ReturnSuccess) {
     map.resizeMap(1, 0, 0, 0);
     ASSERT_EQ(7, map.getWidth());
@@ -386,6 +446,29 @@ TEST_F(SampleGameMapWithTilesAssigned, resizeMap_WithPlusTwoOnLeft_ReturnSuccess
         ASSERT_FALSE(row[1].isAssigned());
         ASSERT_FALSE(row[2].isAssigned());
     }
+}
+
+TEST_F(SampleGameMapWithTilesAssigned, resizeMap_WithPlusTwoOnLeftUpdateNPCPositions_ReturnSuccess) {
+    map.addNPC(NPC({
+                .id = "npc001", .name = "Jane Doe",
+                .textureName = "Tex1", .baseTextureIndex = 1,
+                .spawnPosition = {2, 0}, .wanderZone = { {2, 0}, {3, 0} }
+               }));
+    map.resizeMap(2, 0, 0, 0);
+    ASSERT_EQ(8, map.getWidth());
+    ASSERT_EQ(6, map.getHeight());
+    // Check the new first column
+    for (const auto &row : map.getTiles()) {
+        ASSERT_FALSE(row[0].isAssigned());
+        ASSERT_FALSE(row[1].isAssigned());
+        ASSERT_FALSE(row[2].isAssigned());
+    }
+    // Check the NPC position
+    const auto npc = map.getNPCById("npc001");
+    ASSERT_EQ(Point<size_t>(4, 0), npc->get().getSpawnPosition());
+    const auto wanderZone = npc->get().getWanderZone();
+    ASSERT_EQ(Point<size_t>(4, 0), wanderZone.at(0));
+    ASSERT_EQ(Point<size_t>(5, 0), wanderZone.at(1));
 }
 
 TEST_F(SampleGameMapWithTilesAssigned, resizeMap_WithZeroOnTop_ReturnSuccess) {
@@ -411,6 +494,30 @@ TEST_F(SampleGameMapWithTilesAssigned, resizeMap_WithMinusOneOnTop_ReturnSuccess
     ASSERT_FALSE(map.getTiles()[0][5].isAssigned());
 }
 
+TEST_F(SampleGameMapWithTilesAssigned, resizeMap_WithMinusOneOnTopUpdateNPCPositions_ReturnSuccess) {
+    map.addNPC(NPC({
+                .id = "npc001", .name = "Jane Doe",
+                .textureName = "Tex1", .baseTextureIndex = 1,
+                .spawnPosition = {2, 1}, .wanderZone = { {2, 1}, {3, 1} }
+               }));
+    map.resizeMap(0, -1, 0, 0);
+    ASSERT_EQ(6, map.getWidth());
+    ASSERT_EQ(5, map.getHeight());
+    // Check the new first row
+    ASSERT_FALSE(map.getTiles()[0][0].isAssigned());
+    ASSERT_FALSE(map.getTiles()[0][1].isAssigned());
+    ASSERT_TRUE(map.getTiles()[0][2].isAssigned());
+    ASSERT_FALSE(map.getTiles()[0][3].isAssigned());
+    ASSERT_FALSE(map.getTiles()[0][4].isAssigned());
+    ASSERT_FALSE(map.getTiles()[0][5].isAssigned());
+    // Check the NPC position
+    const auto npc = map.getNPCById("npc001");
+    ASSERT_EQ(Point<size_t>(2, 0), npc->get().getSpawnPosition());
+    const auto wanderZone = npc->get().getWanderZone();
+    ASSERT_EQ(Point<size_t>(2, 0), wanderZone.at(0));
+    ASSERT_EQ(Point<size_t>(3, 0), wanderZone.at(1));
+}
+
 TEST_F(SampleGameMapWithTilesAssigned, resizeMap_WithMinusTwoOnTop_ReturnSuccess) {
     map.resizeMap(0, -2, 0, 0);
     ASSERT_EQ(6, map.getWidth());
@@ -433,6 +540,28 @@ TEST_F(SampleGameMapWithTilesAssigned, resizeMap_WithPlusOneOnTop_ReturnSuccess)
         ASSERT_FALSE(map.getTiles()[0][i].isAssigned());
         ASSERT_FALSE(map.getTiles()[1][i].isAssigned());
     }
+}
+
+TEST_F(SampleGameMapWithTilesAssigned, resizeMap_WithPlusTwoOnTopUpdateNPCPositions_ReturnSuccess) {
+    map.addNPC(NPC({
+                .id = "npc001", .name = "Jane Doe",
+                .textureName = "Tex1", .baseTextureIndex = 1,
+                .spawnPosition = {2, 1}, .wanderZone = { {2, 1}, {3, 1} }
+               }));
+    map.resizeMap(0, 2, 0, 0);
+    ASSERT_EQ(6, map.getWidth());
+    ASSERT_EQ(8, map.getHeight());
+    // Check the new first row
+    for (size_t i=0; i < map.getWidth(); i++) {
+        ASSERT_FALSE(map.getTiles()[0][i].isAssigned());
+        ASSERT_FALSE(map.getTiles()[1][i].isAssigned());
+    }
+    // Check the NPC position
+    const auto npc = map.getNPCById("npc001");
+    ASSERT_EQ(Point<size_t>(2, 3), npc->get().getSpawnPosition());
+    const auto wanderZone = npc->get().getWanderZone();
+    ASSERT_EQ(Point<size_t>(2, 3), wanderZone.at(0));
+    ASSERT_EQ(Point<size_t>(3, 3), wanderZone.at(1));
 }
 
 TEST_F(SampleGameMapWithTilesAssigned, resizeMap_WithZeroOnRight_ReturnSuccess) {
@@ -772,6 +901,31 @@ TEST_F(SampleGameMapWithTilesAssigned, unassignMonsterZoneOnAllTiles_withZone2_R
     ASSERT_EQ(1, map.getTileForEditing(13).getMonsterZoneIndex());
     ASSERT_EQ(1, map.getTileForEditing(14).getMonsterZoneIndex());
     ASSERT_EQ(1, map.getTileForEditing(28).getMonsterZoneIndex());
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, isTileUsedByNPC_WithUnusedSpawnAndWanderingZone_ReturnFalse) {
+    Point<size_t> location(1, 1);
+    ASSERT_FALSE(map.isTileUsedByNPC(location));
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, isTileUsedByNPC_WithUsedSpawnLocation_ReturnTrue) {
+    Point<size_t> location(2, 0);
+    map.replaceNPC("npc002", NPC({
+                    .id = "npc002", .name = "Jane Doe",
+                    .textureName = "Tex1", .baseTextureIndex = 1,
+                    .spawnPosition = {2, 0}, .wanderZone = { {0, 0}, {1, 0} }
+                   }));
+    ASSERT_TRUE(map.isTileUsedByNPC(location));
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, isTileUsedByNPC_WithUsedWanderingZone_ReturnTrue) {
+    Point<size_t> location(1, 0);
+    ASSERT_TRUE(map.isTileUsedByNPC(location));
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, isTileUsedByNPC_WithUsedSpawnAndWanderingZone_ReturnTrue) {
+    Point<size_t> location(0, 0);
+    ASSERT_TRUE(map.isTileUsedByNPC(location));
 }
 
 TEST_F(SampleGameMap5x6WithTwoTextures, getNPCs_ReturnTwoNPCs) {

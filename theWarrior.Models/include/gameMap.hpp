@@ -44,18 +44,21 @@ class GameMap {
             int offsetTop,
             int offsetRight,
             int offsetBottom) const;
-    bool addTexture(const TextureInfo &textureInfo);
-    bool replaceTexture(const std::string &name, const TextureInfo &textureInfo);
-    bool removeTexture(const std::string &name);
-    bool addMonsterZone(const MonsterZone &zone);
-    bool replaceMonsterZone(const std::string &name, const MonsterZone &zone);
-    bool removeMonsterZone(const std::string &name);
     void resizeMap(int offsetLeft,
                    int offsetTop,
                    int offsetRight,
                    int offsetBottom);
+    bool addTexture(const TextureInfo &textureInfo);
+    bool replaceTexture(const std::string &name, const TextureInfo &textureInfo);
+    bool removeTexture(const std::string &name);
+    // Monster zone methods
+    bool addMonsterZone(const MonsterZone &zone);
+    bool replaceMonsterZone(const std::string &name, const MonsterZone &zone);
+    bool removeMonsterZone(const std::string &name);
     bool setUseOnlyOneMonsterZone(bool value);
     void unassignMonsterZoneOnAllTiles(int zoneIndex);
+    // NPC methods
+    bool isTileUsedByNPC(const Point<size_t> &coord) const;
     const std::vector<NPC> &getNPCs() const;
     OptNPCConstRef getNPCById(const std::string &id) const;
     bool addNPC(const NPC &npc);

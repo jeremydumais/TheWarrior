@@ -11,6 +11,7 @@
 #include <vector>
 #include "gameMap.hpp"
 #include "monsterZone.hpp"
+#include "npc.hpp"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/trim.hpp>
@@ -238,6 +239,16 @@ void GameMap::unassignMonsterZoneOnAllTiles(int zoneIndex) {
     }
 }
 
+bool GameMap::isTileUsedByNPC(const Point<size_t> &coord) const {
+    return std::ranges::any_of(m_npcs, [coord](const NPC &npc) {
+        bool usedInWanderingZone = std::ranges::any_of(npc.getWanderZone(),
+                [coord](const Point<size_t> &zoneCoord) {
+                    return zoneCoord == coord;
+                });
+        return npc.getSpawnPosition() == coord || usedInWanderingZone;
+    });
+}
+
 const std::vector<NPC> &GameMap::getNPCs() const {
     return m_npcs;
 }
@@ -356,12 +367,16 @@ bool GameMap::isShrinkMapImpactAssignedTiles(int offsetLeft, int offsetTop,
 
 bool GameMap::_isShrinkMapFromLeftImpactAssignedTiles(int offset) const {
     if (offset < 0) {
-        size_t col{0};
+        size_t col = 0;
         for (int index = offset; index < 0; index++) {
-            if (std::ranges::any_of(m_tiles, [col](const auto &row) {
-                        return row[col].isAssigned();
-                        })) {
-                return true;
+            for (size_t rowIndex = 0; rowIndex < getHeight(); rowIndex++) {
+                if (m_tiles[rowIndex][col].isAssigned()) {
+                    return true;
+                }
+
+                if (isTileUsedByNPC({col, rowIndex})) {
+                    return true;
+                }
             }
             col++;
         }
@@ -374,9 +389,14 @@ bool GameMap::_isShrinkMapFromTopImpactAssignedTiles(int offset) const {
         size_t rowIndex{0};
         for (int index = offset; index < 0; index++) {
             // Check all tiles of the column
-            if (std::any_of(m_tiles[rowIndex].begin(), m_tiles[rowIndex].end(),
-                        [](const auto &row) { return row.isAssigned(); })) {
-                return true;
+            for (size_t col = 0; col < getWidth(); col++) {
+                if (m_tiles[rowIndex][col].isAssigned()) {
+                    return true;
+                }
+
+                if (isTileUsedByNPC({col, rowIndex})) {
+                    return true;
+                }
             }
             rowIndex++;
         }
@@ -389,10 +409,14 @@ bool GameMap::_isShrinkMapFromRightImpactAssignedTiles(int offset) const {
         size_t col{m_tiles[0].size() - 1};
         for (int index = offset; index < 0; index++) {
             // Check all tiles of the column
-            if (std::ranges::any_of(m_tiles, [col](const auto &row) {
-                        return row[col].isAssigned();
-                        })) {
-                return true;
+            for (size_t rowIndex = 0; rowIndex < getHeight(); rowIndex++) {
+                if (m_tiles[rowIndex][col].isAssigned()) {
+                    return true;
+                }
+
+                if (isTileUsedByNPC({col, rowIndex})) {
+                    return true;
+                }
             }
             col--;
         }
@@ -405,9 +429,14 @@ bool GameMap::_isShrinkMapFromBottomImpactAssignedTiles(int offset) const {
         size_t rowIndex{m_tiles.size() - 1};
         for (int index = offset; index < 0; index++) {
             // Check all tiles of the column
-            if (std::any_of(m_tiles[rowIndex].begin(), m_tiles[rowIndex].end(),
-                        [](const auto &row) { return row.isAssigned(); })) {
-                return true;
+            for (size_t col = 0; col < getWidth(); col++) {
+                if (m_tiles[rowIndex][col].isAssigned()) {
+                    return true;
+                }
+
+                if (isTileUsedByNPC({col, rowIndex})) {
+                    return true;
+                }
             }
             rowIndex--;
         }
@@ -453,6 +482,11 @@ void GameMap::_resizeMapFromLeft(int offset) {
             row.insert(row.begin(), static_cast<size_t>(offset), MapTile{});
         }
     }
+
+    // Add the offset to the NPCs Spawn location and Wandering zone
+    for (auto &npc : m_npcs) {
+        npc.applyCoordinateOffset(offset, 0);
+    }
 }
 
 void GameMap::_resizeMapFromTop(int offset) {
@@ -465,6 +499,10 @@ void GameMap::_resizeMapFromTop(int offset) {
             std::vector<MapTile> newRow(getWidth());
             m_tiles.insert(m_tiles.begin(), newRow);
         }
+    }
+    // Add the offset to the NPCs Spawn location and Wandering zone
+    for (auto &npc : m_npcs) {
+        npc.applyCoordinateOffset(0, offset);
     }
 }
 

@@ -16,11 +16,11 @@ enum class NPCFacing { Left, Up, Right, Down };
 struct NPCCreationInfo {
     std::string id;
     std::string name;
-    std::string textureName = "";
+    std::string textureName;
     int baseTextureIndex = -1;
     Point<size_t> spawnPosition = Point<size_t>(0, 0);
-    std::vector<Point<size_t>> wanderZone {};
-    std::vector<std::string> dialogueLines {};
+    std::vector<Point<size_t>> wanderZone;
+    std::vector<std::string> dialogueLines;
     NPCFacing defaultFacing = NPCFacing::Down;
     NPCFacing currentFacing = NPCFacing::Down;
 };
@@ -46,7 +46,7 @@ class NPC {
     void setId(const std::string &id);
     void setName(const std::string &name);
     void setTextureName(const std::string &textureName);
-    void setBaseTextureIndex(const int index);
+    void setBaseTextureIndex(int index);
     void setSpawnPosition(const Point<size_t> &position);
     void setWanderZone(const std::vector<Point<size_t>> &zone);
     void clearWanderZone();
@@ -55,17 +55,18 @@ class NPC {
     void setDialogueLines(const::std::vector<std::string> &lines);
     void setDefaultFacing(NPCFacing value);
     void setCurrentFacing(NPCFacing value);
+    void applyCoordinateOffset(int offsetX, int offsetY);
 
  private:
     friend class boost::serialization::access;
     NPC() = default;   // Needed for deserialization
-    std::string m_id = "";
-    std::string m_name = "";
-    std::string m_textureName = "";
+    std::string m_id;
+    std::string m_name;
+    std::string m_textureName;
     int m_baseTextureIndex = -1;
     Point<size_t> m_spawnPosition = Point<size_t>(0, 0);
-    std::vector<Point<size_t>> m_wanderZone = {};
-    std::vector<std::string> m_dialogueLines = {};
+    std::vector<Point<size_t>> m_wanderZone;
+    std::vector<std::string> m_dialogueLines;
     NPCFacing m_defaultFacing = NPCFacing::Down;
     NPCFacing m_currentFacing = NPCFacing::Down;
 

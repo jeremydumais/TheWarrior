@@ -1,4 +1,6 @@
 #include <algorithm>
+#include <cstddef>
+#include <cstdint>
 #include <string>
 #include <vector>
 #include "npc.hpp"
@@ -84,7 +86,7 @@ void NPC::setTextureName(const std::string &textureName) {
     m_textureName = textureName;
 }
 
-void NPC::setBaseTextureIndex(const int index) {
+void NPC::setBaseTextureIndex(int index) {
     m_baseTextureIndex = index;
 }
 
@@ -101,7 +103,7 @@ void NPC::clearWanderZone() {
 }
 
 void NPC::addToWanderZone(const std::vector<Point<size_t>> &zone) {
-    std::for_each(zone.begin(), zone.end(), [this](const auto &zonePoint) {
+    std::ranges::for_each(zone, [this](const auto &zonePoint) {
         if (std::find(m_wanderZone.begin(), m_wanderZone.end(), zonePoint) == m_wanderZone.end()) {
             this->m_wanderZone.push_back(zonePoint);
         }
@@ -109,7 +111,7 @@ void NPC::addToWanderZone(const std::vector<Point<size_t>> &zone) {
 }
 
 void NPC::removeFromWanderZone(const std::vector<Point<size_t>> &zone) {
-    std::for_each(zone.begin(), zone.end(), [this](const auto &zonePoint) {
+    std::ranges::for_each(zone, [this](const auto &zonePoint) {
         if (const auto &pointFound = std::find(m_wanderZone.begin(), m_wanderZone.end(), zonePoint); pointFound != m_wanderZone.end()) {
             this->m_wanderZone.erase(pointFound);
         }
@@ -126,6 +128,16 @@ void NPC::setDefaultFacing(NPCFacing value) {
 
 void NPC::setCurrentFacing(NPCFacing value) {
     m_currentFacing = value;
+}
+
+void NPC::applyCoordinateOffset(int offsetX, int offsetY) {
+    m_spawnPosition.setX(static_cast<size_t>(static_cast<std::int64_t>(m_spawnPosition.x()) + offsetX));
+    m_spawnPosition.setY(static_cast<size_t>(static_cast<std::int64_t>(m_spawnPosition.y()) + offsetY));
+
+    for (auto &point : m_wanderZone) {
+        point.setX(static_cast<size_t>(static_cast<std::int64_t>(point.x()) + offsetX));
+        point.setY(static_cast<size_t>(static_cast<std::int64_t>(point.y()) + offsetY));
+    }
 }
 
 void NPC::validateId(const std::string &id) {

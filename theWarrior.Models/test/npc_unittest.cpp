@@ -12,23 +12,23 @@ using thewarrior::models::Point;
 
 NPCCreationInfo getNPCInfoSample1() {
     return {
-        "npc001",
-        "Joe Blow",
-        "Texture1",
-        9,
-        Point<size_t>(1, 2),
-        {
+        .id = "npc001",
+        .name = "Joe Blow",
+        .textureName = "Texture1",
+        .baseTextureIndex = 9,
+        .spawnPosition = Point<size_t>(1, 2),
+        .wanderZone = {
             Point<size_t>(1, 2),
             Point<size_t>(2, 2),
             Point<size_t>(2, 3),
             Point<size_t>(3, 3)
         },
-        {
+        .dialogueLines = {
             "Hello my name is Joe Blow",
             "How are you today?"
         },
-        NPCFacing::Left,
-        NPCFacing::Right
+        .defaultFacing = NPCFacing::Left,
+        .currentFacing = NPCFacing::Right
     };
 }
 
@@ -40,11 +40,11 @@ class NPCSample1 : public ::testing::Test {
     NPC npc;
 };
 
-NPCSample1::~NPCSample1() {}
+NPCSample1::~NPCSample1() = default;
 
 TEST(NPC_Constructor, With5CharsID_ThrowInvalidArgument) {
     try {
-        NPC npc1({"NPC01", "Joe Blow"});
+        NPC npc1({.id = "NPC01", .name = "Joe Blow"});
         FAIL();
     } catch (const std::invalid_argument &err) {
         ASSERT_STREQ("id must be 6 characters long.", err.what());
@@ -55,7 +55,7 @@ TEST(NPC_Constructor, With5CharsID_ThrowInvalidArgument) {
 
 TEST(NPC_Constructor, WithEmptyName_ThrowInvalidArgument) {
     try {
-        NPC npc1({"NPC001", ""});
+        NPC npc1({.id = "NPC001", .name = ""});
         FAIL();
     } catch (const std::invalid_argument &err) {
         ASSERT_STREQ("name cannot be empty.", err.what());
@@ -66,7 +66,7 @@ TEST(NPC_Constructor, WithEmptyName_ThrowInvalidArgument) {
 
 TEST(NPC_Constructor, WithWhiteSpacesName_ThrowInvalidArgument) {
     try {
-        NPC npc1({"NPC001", " "});
+        NPC npc1({.id = "NPC001", .name = " "});
         FAIL();
     } catch (const std::invalid_argument &err) {
         ASSERT_STREQ("name cannot be empty.", err.what());
@@ -328,3 +328,42 @@ TEST_F(NPCSample1, setCurrentFacing_WithUp_ReturnSuccess) {
     ASSERT_EQ(NPCFacing::Up, npc.getCurrentFacing());
 }
 
+TEST_F(NPCSample1, applyCoordinateOffset_WithXMinus1_ReturnSuccess) {
+    npc.applyCoordinateOffset(-1, 0);
+    ASSERT_EQ(Point<size_t>(0, 2), npc.getSpawnPosition());
+    const auto wanderZone = npc.getWanderZone();
+    ASSERT_EQ(Point<size_t>(0, 2), wanderZone.at(0));
+    ASSERT_EQ(Point<size_t>(1, 2), wanderZone.at(1));
+    ASSERT_EQ(Point<size_t>(1, 3), wanderZone.at(2));
+    ASSERT_EQ(Point<size_t>(2, 3), wanderZone.at(3));
+}
+
+TEST_F(NPCSample1, applyCoordinateOffset_WithXPlus2_ReturnSuccess) {
+    npc.applyCoordinateOffset(2, 0);
+    ASSERT_EQ(Point<size_t>(3, 2), npc.getSpawnPosition());
+    const auto wanderZone = npc.getWanderZone();
+    ASSERT_EQ(Point<size_t>(3, 2), wanderZone.at(0));
+    ASSERT_EQ(Point<size_t>(4, 2), wanderZone.at(1));
+    ASSERT_EQ(Point<size_t>(4, 3), wanderZone.at(2));
+    ASSERT_EQ(Point<size_t>(5, 3), wanderZone.at(3));
+}
+
+TEST_F(NPCSample1, applyCoordinateOffset_WithYMinus1_ReturnSuccess) {
+    npc.applyCoordinateOffset(0, -1);
+    ASSERT_EQ(Point<size_t>(1, 1), npc.getSpawnPosition());
+    const auto wanderZone = npc.getWanderZone();
+    ASSERT_EQ(Point<size_t>(1, 1), wanderZone.at(0));
+    ASSERT_EQ(Point<size_t>(2, 1), wanderZone.at(1));
+    ASSERT_EQ(Point<size_t>(2, 2), wanderZone.at(2));
+    ASSERT_EQ(Point<size_t>(3, 2), wanderZone.at(3));
+}
+
+TEST_F(NPCSample1, applyCoordinateOffset_WithYPlus2_ReturnSuccess) {
+    npc.applyCoordinateOffset(0, 2);
+    ASSERT_EQ(Point<size_t>(1, 4), npc.getSpawnPosition());
+    const auto wanderZone = npc.getWanderZone();
+    ASSERT_EQ(Point<size_t>(1, 4), wanderZone.at(0));
+    ASSERT_EQ(Point<size_t>(2, 4), wanderZone.at(1));
+    ASSERT_EQ(Point<size_t>(2, 5), wanderZone.at(2));
+    ASSERT_EQ(Point<size_t>(3, 5), wanderZone.at(3));
+}
