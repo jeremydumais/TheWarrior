@@ -19,6 +19,7 @@ class TilePropsComponentController {
     std::set<MapTileTriggerDTO> getTilesCommonTriggers() const;
     boost::optional<MapTileTriggerDTO> findMapTileTriggerByEvent(const std::string &event);
     boost::optional<thewarrior::models::Point<int>> getCoordFromSingleSelectedTile() const;
+    bool canDisableCanSteppedOnForSelectedTiles() const;
     void setTilesTextureName(const std::string &name);
     void setTilesTextureIndex(int index);
     void setTilesObjectTextureName(const std::string &name);
@@ -33,7 +34,7 @@ class TilePropsComponentController {
     bool deleteTilesTrigger(const MapTileTriggerDTO &triggerDTO);
  private:
     GLComponentController *m_glComponentController = nullptr;
-    std::string m_lastError = "";
+    std::string m_lastError;
 };
 
 }  // namespace mapeditor::controllers

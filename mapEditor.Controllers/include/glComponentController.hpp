@@ -26,6 +26,7 @@ class GLComponentController {
     const std::string &getLastError() const;
     std::vector<thewarrior::models::MapTile *> getCurrentMapTiles();
     std::vector<MapTileDTO> getSelectedMapTiles() const;
+    const std::set<int> &getSelectedMapTilesIndices() const;
     std::vector<std::string> getAlreadyUsedTextureNames() const;
     virtual std::vector<std::string> getAlreadyUsedMonsterZoneNames() const;
     bool isUseOnlyOneMonsterZone() const;
@@ -39,6 +40,7 @@ class GLComponentController {
     virtual OptMonsterZoneDTOConst getMonsterZoneByName(const std::string &name) const;
     std::vector<mapeditor::controllers::NPCDTO> getNPCs() const;
     OptNPCDTOConst getNPCById(const std::string &name) const;
+    bool canDisableCanSteppedOnForSelectedTiles() const;
     boost::optional<thewarrior::models::Point<int>> getCoordFromSingleSelectedTile() const;
     size_t getHistoryCurrentIndex() const;
     size_t getHistoryCount() const;

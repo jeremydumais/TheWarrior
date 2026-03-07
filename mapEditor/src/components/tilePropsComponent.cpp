@@ -1,5 +1,6 @@
 #include <fmt/format.h>
 #include <qcombobox.h>
+#include <qnamespace.h>
 #include <qtablewidget.h>
 #include <algorithm>
 #include <set>
@@ -197,16 +198,15 @@ void updateUIField(const std::vector<MapTileDTO> &tiles,
     }
 }
 void TilePropsComponent::onTileSelected(std::vector<MapTileDTO> tiles) {
-    if (tiles.size() == 0) {
+    if (tiles.empty()) {
         onTileUnselected();
         return;
+    }
+    auto coord = m_controller.getCoordFromSingleSelectedTile();
+    if (!coord.has_value()) {
+        ui.labelTileCoordXY->setText("X: <multi>, Y: <multi>");
     } else {
-        auto coord = m_controller.getCoordFromSingleSelectedTile();
-        if (!coord.has_value()) {
-            ui.labelTileCoordXY->setText("X: <multi>, Y: <multi>");
-        } else {
-            ui.labelTileCoordXY->setText(fmt::format("X: {0}, Y: {1}", coord->x(), coord->y()).c_str());
-        }
+        ui.labelTileCoordXY->setText(fmt::format("X: {0}, Y: {1}", coord->x(), coord->y()).c_str());
     }
 
     m_disableFieldsChangedEvent = true;
@@ -264,29 +264,35 @@ void TilePropsComponent::onTileTriggerChanged() {
 }
 
 void setEnabledWidgetsInLayout(QLayout *layout, bool enabled) {
-    if (layout == nullptr)
+    if (layout == nullptr) {
         return;
+    }
 
     QWidget *pw = layout->parentWidget();
-    if (pw == nullptr)
+    if (pw == nullptr) {
         return;
+    }
 
     foreach(QWidget *w, pw->findChildren<QWidget*>()) {
-        if (isChildWidgetOfAnyLayout(layout, w))
+        if (isChildWidgetOfAnyLayout(layout, w)) {
             w->setEnabled(enabled);
+        }
     }
 }
 
 bool isChildWidgetOfAnyLayout(QLayout *layout, QWidget *widget) {
-    if (layout == nullptr || widget == nullptr)
+    if (layout == nullptr || widget == nullptr) {
         return false;
+    }
 
-    if (layout->indexOf(widget) >= 0)
+    if (layout->indexOf(widget) >= 0) {
         return true;
+    }
 
     foreach(QObject *o, layout->children()) {
-        if (isChildWidgetOfAnyLayout(qobject_cast<QLayout *>(o), widget))
+        if (isChildWidgetOfAnyLayout(qobject_cast<QLayout *>(o), widget)) {
             return true;
+        }
     }
 
     return false;
@@ -354,6 +360,14 @@ void TilePropsComponent::onCheckBoxObjectAbovePlayerChanged(int state) {
 
 void TilePropsComponent::onCheckBoxTileCanSteppedOnChanged(int state) {
     if (!m_disableFieldsChangedEvent) {
+        // Check if NPCs occupy some of the selected tiles
+        if (state == Qt::Unchecked && !m_controller.canDisableCanSteppedOnForSelectedTiles()) {
+            m_disableFieldsChangedEvent = true;
+            ui.checkBoxTileCanSteppedOn->setCheckState(Qt::Checked);
+            m_disableFieldsChangedEvent = false;
+            ErrorMessage::show("Cannot disable the 'Can player step on' option for the selected tiles because one or more NPCs are assigned to them.");
+            return;
+        }
         m_glComponent->pushCurrentStateToHistory();
         m_controller.setTilesCanSteppedOn(state == Qt::Checked);
         m_glComponent->updateGL();
@@ -386,9 +400,8 @@ boost::optional<MapTileTriggerDTO> TilePropsComponent::getSelectedTrigger() {
         // Find the selected trigger
         auto selectedItemName = ui.tableWidgetMapTileTriggers->selectionModel()->selectedRows()[0].data().toString().toStdString();
         return m_controller.findMapTileTriggerByEvent(selectedItemName);
-    } else {
-        return {};
     }
+    return {};
 }
 
 void TilePropsComponent::onPushButtonClearMonsterZoneClick() {
@@ -403,7 +416,7 @@ void TilePropsComponent::onPushButtonClearMonsterZoneClick() {
 void TilePropsComponent::onPushButtonAddTileEventClick() {
     m_glComponent->stopAutoUpdate();
     auto selectedMapTiles = m_controller.getSelectedTiles();
-    if (selectedMapTiles.size() > 0) {
+    if (!selectedMapTiles.empty()) {
         // Create a flat list of all tiles triggers
         std::vector<MapTileTriggerDTO> combinedTriggers = {};
         for (const auto &tile : selectedMapTiles) {
@@ -428,7 +441,7 @@ void TilePropsComponent::onPushButtonAddTileEventClick() {
 void TilePropsComponent::onPushButtonEditTileEventClick() {
     m_glComponent->stopAutoUpdate();
     auto selectedMapTiles = m_controller.getSelectedTiles();
-    if (selectedMapTiles.size() > 0) {
+    if (!selectedMapTiles.empty()) {
         // Create a flat list of all tiles triggers
         std::vector<MapTileTriggerDTO> combinedTriggers = {};
         for (const auto &tile : selectedMapTiles) {
@@ -461,7 +474,7 @@ void TilePropsComponent::onPushButtonEditTileEventClick() {
 void TilePropsComponent::onPushButtonDeleteTileEventClick() {
     m_glComponent->stopAutoUpdate();
     auto selectedMapTiles = m_controller.getSelectedTiles();
-    if (selectedMapTiles.size() > 0) {
+    if (!selectedMapTiles.empty()) {
         // Create a flat list of all tiles triggers
         std::vector<MapTileTriggerDTO> combinedTriggers = {};
         for (const auto &tile : selectedMapTiles) {

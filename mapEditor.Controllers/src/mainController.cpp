@@ -68,6 +68,10 @@ const std::shared_ptr<ContainerOfMonsterStore> &MainController::getMonsterStores
     return m_monsterStores;
 }
 
+bool MainController::canDisableCanSteppedOnForSelectedTiles() const {
+    return m_glComponentController->canDisableCanSteppedOnForSelectedTiles();
+}
+
 void MainController::setGLComponentController(GLComponentController *controller) {
     m_glComponentController = controller;
 }

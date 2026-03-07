@@ -96,6 +96,10 @@ std::vector<MapTileDTO> GLComponentController::getSelectedMapTiles() const {
     return retval;
 }
 
+const std::set<int> &GLComponentController::getSelectedMapTilesIndices() const {
+    return m_selectedIndices;
+}
+
 std::vector<std::string> GLComponentController::getAlreadyUsedTextureNames() const {
     std::vector<std::string> alreadyUsedTextureNames;
     if (m_map != nullptr) {
@@ -200,6 +204,10 @@ OptNPCDTOConst GLComponentController::getNPCById(const std::string &name) const 
         return OptNPCDTOConst { npcDTO };
     }
     return std::nullopt;
+}
+
+bool GLComponentController::canDisableCanSteppedOnForSelectedTiles() const {
+    return !m_map->isTilesIndicesUsedByNPC(m_selectedIndices);
 }
 
 boost::optional<Point<int>> GLComponentController::getCoordFromSingleSelectedTile() const {

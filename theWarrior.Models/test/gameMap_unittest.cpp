@@ -928,6 +928,26 @@ TEST_F(SampleGameMap5x6WithTwoTextures, isTileUsedByNPC_WithUsedSpawnAndWanderin
     ASSERT_TRUE(map.isTileUsedByNPC(location));
 }
 
+TEST_F(SampleGameMap5x6WithTwoTextures, isTilesIndicesUsedByNPC_With0_ReturnTrue) {
+    const std::set<int> indices {0};
+    ASSERT_TRUE(map.isTilesIndicesUsedByNPC(indices));
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, isTilesIndicesUsedByNPC_With1_ReturnTrue) {
+    const std::set<int> indices {1};
+    ASSERT_TRUE(map.isTilesIndicesUsedByNPC(indices));
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, isTilesIndicesUsedByNPC_With2_ReturnFalse) {
+    const std::set<int> indices {2};
+    ASSERT_FALSE(map.isTilesIndicesUsedByNPC(indices));
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, isTilesIndicesUsedByNPC_With1And2_ReturnTrue) {
+    const std::set<int> indices {1, 2};
+    ASSERT_TRUE(map.isTilesIndicesUsedByNPC(indices));
+}
+
 TEST_F(SampleGameMap5x6WithTwoTextures, getNPCs_ReturnTwoNPCs) {
     const auto npcs = map.getNPCs();
     ASSERT_EQ(2, npcs.size());

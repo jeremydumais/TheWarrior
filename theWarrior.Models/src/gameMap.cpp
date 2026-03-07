@@ -249,6 +249,16 @@ bool GameMap::isTileUsedByNPC(const Point<size_t> &coord) const {
     });
 }
 
+bool GameMap::isTilesIndicesUsedByNPC(const std::set<int> &indices) const {
+    return std::ranges::any_of(indices, [this](int index) {
+        try {
+            const auto coord = getCoordFromTileIndex(index);
+            return isTileUsedByNPC(Point<size_t>(static_cast<size_t>(coord.x()),
+                                                 static_cast<size_t>(coord.y())));
+        } catch (const std::invalid_argument &err) { return true; }
+    });
+}
+
 const std::vector<NPC> &GameMap::getNPCs() const {
     return m_npcs;
 }

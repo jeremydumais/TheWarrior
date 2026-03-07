@@ -59,6 +59,7 @@ class GameMap {
     void unassignMonsterZoneOnAllTiles(int zoneIndex);
     // NPC methods
     bool isTileUsedByNPC(const Point<size_t> &coord) const;
+    bool isTilesIndicesUsedByNPC(const std::set<int> &indices) const;
     const std::vector<NPC> &getNPCs() const;
     OptNPCConstRef getNPCById(const std::string &id) const;
     bool addNPC(const NPC &npc);

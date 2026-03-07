@@ -451,6 +451,11 @@ void MainForm::action_EnableCanStepClick() {
 }
 
 void MainForm::action_DisableCanStepClick() {
+    // Check if NPCs occupy some of the selected tiles
+    if (!m_controller.canDisableCanSteppedOnForSelectedTiles()) {
+        ErrorMessage::show("Cannot disable the 'Can player step on' option for the selected tiles because one or more NPCs are assigned to them.");
+        return;
+    }
     m_glComponent.applyCanStep(false);
     ui.tabWidgetMapView->setCurrentIndex(1);
 }

@@ -24,6 +24,7 @@ class MainController {
     const std::string &getUserConfigFolder() const;
     const std::vector<thewarrior::models::Texture>& getTextures() const;
     const std::shared_ptr<ContainerOfMonsterStore> &getMonsterStores() const;
+    bool canDisableCanSteppedOnForSelectedTiles() const;
     void setGLComponentController(GLComponentController *controller);
     bool createMap(unsigned int width, unsigned int height);
     void saveMap(const std::string &filePath);
@@ -62,11 +63,11 @@ class MainController {
 
  private:
     friend class boost::serialization::access;
-    std::string m_lastError = "";
-    std::string m_executablePath = "";
-    std::string m_resourcesPath = "";
-    std::string m_userConfigFolder = "";
-    std::string m_configFilename = "";
+    std::string m_lastError;
+    std::string m_executablePath;
+    std::string m_resourcesPath;
+    std::string m_userConfigFolder;
+    std::string m_configFilename;
     std::unique_ptr<thewarrior::storage::ConfigurationManager> m_configManager = nullptr;
     GLComponentController *m_glComponentController = nullptr;
     std::shared_ptr<thewarrior::models::GameMap> m_map = nullptr;
