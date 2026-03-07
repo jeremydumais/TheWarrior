@@ -82,9 +82,9 @@ class GameMap {
     void _resizeMapFromBottom(int offset);
     std::vector<MonsterZone>::iterator getMonsterZoneIterator(const std::string &name);
     std::vector<NPC>::iterator getNPCIterator(const std::string &npcId);
-    // Serialization method
+    // Serialization methods
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
+    void save(Archive& ar, const unsigned int version) const {
         ar & m_tiles;
         ar & m_textureContainer;
         if (version > 1) {
@@ -97,6 +97,27 @@ class GameMap {
             ar & m_npcs;
         }
     }
+    template<class Archive>
+    void load(Archive& ar, const unsigned int version) {
+        m_monsterZones.clear();
+        m_useOnlyOneMonsterZone = false;
+        m_npcs.clear();
+
+        ar & m_tiles;
+        ar & m_textureContainer;
+
+        if (version > 1) {
+            ar & m_monsterZones;
+        }
+        if (version > 2) {
+            ar & m_useOnlyOneMonsterZone;
+        }
+        if (version > 3) {
+            ar & m_npcs;
+        }
+    }
+
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
 
 }  // namespace thewarrior::models
