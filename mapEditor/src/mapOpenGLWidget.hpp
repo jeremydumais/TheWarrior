@@ -163,6 +163,13 @@ class MapOpenGLWidget : public QOpenGLWidget {
         FadeLoopAnimation selectedNPCGlowAnimation = FadeLoopAnimation(0.0F, 4.0F, 0.5F);
     };
 
+    struct VisibleTileBounds {
+        int firstColumn;
+        int lastColumn;
+        int firstRow;
+        int lastRow;
+    };
+
     QTimer m_repaintTimer;
     RenderResources m_resources;
     ViewportMetrics m_metrics;
@@ -177,12 +184,16 @@ class MapOpenGLWidget : public QOpenGLWidget {
     void recomputeTileMetrics();
     void updateCursorShape(QMouseEvent *event);
     void renderScene();
+    void renderVisibleTiles(const VisibleTileBounds &bounds);
+    VisibleTileBounds computeVisibleTileBounds() const;
     void drawTile(const thewarrior::models::MapTile &tile,
                   int index,
                   const MapRendererContext &ctx);
-    void drawTileWithTexture(const std::string &textureName, int textureIndex);
-    void drawTileOutlinePass(const std::string &textureName, int textureIndex, float outlineWidth);
+    void drawTileWithTexture(const std::string &textureName, int textureIndex) const;
+    void drawTileOutlinePass(const std::string &textureName, int textureIndex, float outlineWidth) const;
     void drawTileOverlayQuad() const;
+    float getTileBaseTransparency(int index) const;
+    void applyTileBaseColor(int index) const;
     void drawSelectionRectOverlay() const;
     void drawPastePreview();
     void drawGrid() const;
@@ -190,6 +201,9 @@ class MapOpenGLWidget : public QOpenGLWidget {
     void drawBlockedEdgeTop() const;
     void drawBlockedEdgeRight() const;
     void drawBlockedEdgeBottom() const;
+    void drawNpcOverlay(int index, const MapRendererContext &ctx) const;
+    void drawMapViewOverlay(const thewarrior::models::MapTile &tile, const MapRendererContext &ctx);
+    void drawBlockedBordersOverlay(const thewarrior::models::MapTile &tile) const;
     int tileIndexAtScreenPos(int onScreenX, int onScreenY);
     QPoint tileTopLeftScreenPos(int tileIndex) const;
     QPoint tileBottomRightScreenPos(int tileIndex) const;
