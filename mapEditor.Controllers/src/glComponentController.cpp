@@ -4,6 +4,7 @@
 #include <memory>
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 #include <boost/optional/optional.hpp>
 #include "gameMap.hpp"
@@ -45,19 +46,15 @@ GLComponentController::GLComponentController()
     : m_map(nullptr),
 m_currentMapTiles({}),
 m_selectedIndices({}),
-m_editHistory(),
 m_historyCurrentIndex(0),
 m_clipboard({}),
 m_clipboardSelectedIndices({}),
-m_lastError(""),
-m_lastSelectedTextureName(""),
-m_lastSelectedObjectName(""),
 m_lastSelectedTextureIndex(-1),
 m_lastSelectedObjectIndex(-1),
 m_lastSelectedMonsterZoneIndex(-1) {
 }
 
-const std::shared_ptr<GameMap> GLComponentController::getMap() const {
+std::shared_ptr<GameMap> GLComponentController::getMap() const {
     return m_map;
 }
 
@@ -66,7 +63,7 @@ const std::string &GLComponentController::getLastError() const {
 }
 
 void GLComponentController::setCurrentMap(std::shared_ptr<GameMap> map) {
-    m_map = map;
+    m_map = std::move(map);
     m_currentMapTiles.clear();
     m_selectedIndices.clear();
     m_editHistory.clear();
@@ -92,8 +89,7 @@ std::vector<thewarrior::models::MapTile *> GLComponentController::getCurrentMapT
 
 std::vector<MapTileDTO> GLComponentController::getSelectedMapTiles() const {
     std::vector<MapTileDTO> retval = {};
-    std::for_each(m_currentMapTiles.begin(),
-            m_currentMapTiles.end(),
+    std::ranges::for_each(m_currentMapTiles,
             [&retval](const MapTile *tile) {
         retval.push_back(MapTileDTOUtils::fromMapTile(*tile));
     });
@@ -144,7 +140,7 @@ bool isTextureNameUsedInTile(const std::string &name, const MapTile &tile) {
 
 bool GLComponentController::isTextureUsedInMap(const std::string &name) {
     for (const auto &row : m_map->getTiles()) {
-        if (std::any_of(row.begin(), row.end(), [&name](const auto &tile) {
+        if (std::ranges::any_of(row, [&name](const auto &tile) {
                 return isTextureNameUsedInTile(name, tile); })) {
             return true;
         }
@@ -210,9 +206,8 @@ boost::optional<Point<int>> GLComponentController::getCoordFromSingleSelectedTil
     const auto tiles = getSelectedMapTiles();
     if (tiles.size() == 1) {
         return m_map->getCoordFromTileIndex(*m_selectedIndices.begin());
-    } else {
-        return {};
     }
+    return {};
 }
 
 size_t GLComponentController::getHistoryCurrentIndex() const {
@@ -273,7 +268,7 @@ void GLComponentController::clearEditHistory() {
 void GLComponentController::undo() {
     if (m_historyCurrentIndex > 0) {
         if (m_historyCurrentIndex == m_editHistory.size()) {
-            m_editHistory.push_back(std::make_shared<GameMap>(*m_map.get()));
+            m_editHistory.push_back(std::make_shared<GameMap>(*m_map));
         }
         auto mapToRestore = m_editHistory.at(m_historyCurrentIndex - 1);
         *m_map = *mapToRestore;
@@ -291,8 +286,7 @@ void GLComponentController::redo() {
 
 void GLComponentController::copySelectionInClipboard() {
     m_clipboard.clear();
-    std::transform(m_currentMapTiles.begin(),
-            m_currentMapTiles.end(),
+    std::ranges::transform(m_currentMapTiles,
             std::back_inserter(m_clipboard),
             [](auto elem) -> auto { return *elem; });
     m_clipboardSelectedIndices.clear();
@@ -305,7 +299,7 @@ void GLComponentController::pushCurrentStateToHistory() {
         std::advance(iter, m_historyCurrentIndex);
         m_editHistory.erase(iter, m_editHistory.end());
     }
-    m_editHistory.push_back(std::make_shared<GameMap>(*m_map.get()));
+    m_editHistory.push_back(std::make_shared<GameMap>(*m_map));
     m_historyCurrentIndex++;
 }
 
@@ -425,14 +419,13 @@ bool GLComponentController::addTexture(const TextureDTO &textureDTO) {
 
 bool GLComponentController::replaceTexture(const std::string &name,
         const TextureDTO &textureDTO) {
-    std::string oldTextureName { name };
     if (!m_map->replaceTexture(name, TextureUtils::TextureDTOToTextureInfo(textureDTO))) {
         m_lastError = m_map->getLastError();
         return false;
     }
     // If the texture name has changed, update all tiles that was using the old texture name
-    if (oldTextureName != textureDTO.name) {
-        replaceTilesTextureName(oldTextureName, textureDTO.name);
+    if (name != textureDTO.name) {
+        replaceTilesTextureName(name, textureDTO.name);
     }
     return true;
 }

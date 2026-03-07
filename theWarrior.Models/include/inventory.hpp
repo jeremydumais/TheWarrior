@@ -13,7 +13,7 @@ namespace thewarrior::models {
 
 #define INVENTORY_MAX 35
 
-typedef std::array<std::shared_ptr<const Item>, INVENTORY_MAX> InventoryArray;
+using InventoryArray = std::array<std::shared_ptr<const Item>, INVENTORY_MAX>;
 
 class Inventory {
  public:

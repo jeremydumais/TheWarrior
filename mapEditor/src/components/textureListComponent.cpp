@@ -1,6 +1,7 @@
-#include "textureListComponent.hpp"
-#include <QStyle>
 #include <fmt/format.h>
+#include <QStyle>
+#include <algorithm>
+#include "textureListComponent.hpp"
 #include "editTextureForm.hpp"
 #include "texture.hpp"
 #include "uiUtils.hpp"
@@ -61,9 +62,8 @@ std::optional<std::reference_wrapper<const Texture>> TextureListComponent::getSe
             ui.tableWidgetTextures->selectionModel()->selectedRows()[0].data().toString().toStdString()
         };
         return m_glComponent->getTextureByName(selectedItemName);
-    } else {
-        return std::nullopt;
     }
+    return std::nullopt;
 }
 
 void TextureListComponent::onPushButtonAddTextureClick() {
@@ -86,9 +86,8 @@ void TextureListComponent::onPushButtonEditTextureClick() {
     if (selectedTexture.has_value()) {
         auto alreadyUsedTextureNames = m_glComponent->getAlreadyUsedTextureNames();
         // Remove the actual selected texture name
-        auto iter = std::find(alreadyUsedTextureNames.begin(),
-                alreadyUsedTextureNames.end(),
-                selectedTexture->get().getName());
+        auto iter = std::ranges::find(alreadyUsedTextureNames,
+                                      selectedTexture->get().getName());
         if (iter != alreadyUsedTextureNames.end()) {
             alreadyUsedTextureNames.erase(iter);
         }

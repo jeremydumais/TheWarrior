@@ -34,7 +34,7 @@ class MainForm_GLComponent : public QWidget {
     size_t getHistoryCurrentIndex() const;
     size_t getHistoryCount() const;
     bool isClipboardEmpty() const;
-    void setCurrentMap(std::shared_ptr<thewarrior::models::GameMap> map);
+    void setCurrentMap(const std::shared_ptr<thewarrior::models::GameMap> &map);
     void setResourcesPath(const std::string &path);
     void setSelectionMode(SelectionMode mode);
     void restorePreviousSelectionMode();

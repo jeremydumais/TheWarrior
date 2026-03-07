@@ -237,7 +237,7 @@ void MainForm::action_Open_Click() {
 }
 
 void MainForm::action_OpenRecentMap_Click() {
-    QAction *recentAction = qobject_cast<QAction *>(sender());
+    auto *recentAction = qobject_cast<QAction *>(sender());
     std::string filename = recentAction->text().toStdString();
     ui.mapOpenGLWidget->stopAutoUpdate();
     openMap(filename);
@@ -246,7 +246,7 @@ void MainForm::action_OpenRecentMap_Click() {
 }
 
 void MainForm::action_Save_Click() {
-    if (m_currentFilePath == "") {
+    if (m_currentFilePath.empty()) {
         action_SaveAs_Click();
     } else {
         m_controller.saveMap(m_currentFilePath);
@@ -267,9 +267,6 @@ void MainForm::action_SaveAs_Click() {
     }
     refreshWindowTitle();
     ui.mapOpenGLWidget->startAutoUpdate();
-}
-
-MainForm::~MainForm() {
 }
 
 void MainForm::functionAfterShown() {
@@ -341,7 +338,7 @@ void MainForm::changeViewDebuggingInfoVisibility(bool visible) {
 }
 
 void MainForm::action_LightTheme_Click() {
-    std::string theme = "";
+    std::string theme;
     if (!m_controller.setThemeConfigValue(theme)) {
         ErrorMessage::show(m_controller.getLastError());
     }
@@ -587,7 +584,7 @@ void MainForm::openMap(const std::string &filePath) {
 }
 
 void MainForm::refreshWindowTitle() {
-    if (m_currentFilePath == "") {
+    if (m_currentFilePath.empty()) {
         setWindowTitle("MapEditor");
     } else {
         setWindowTitle(fmt::format("MapEditor - {0}", m_currentFilePath).c_str());
@@ -730,7 +727,7 @@ void MainForm::onNPCSpawnPositionPickerTileSelected(const Point<> &position) {
     m_npcListComponent->restoreEditForm(position);
 }
 
-void MainForm::onTextureAdded(TextureDTO textureDTO) {
+void MainForm::onTextureAdded(const TextureDTO &textureDTO) {
     if (!m_controller.addTexture(textureDTO)) {
         ErrorMessage::show(m_controller.getLastError());
     }
@@ -738,7 +735,7 @@ void MainForm::onTextureAdded(TextureDTO textureDTO) {
     refreshUndoControls();
 }
 
-void MainForm::onTextureUpdated(const std::string &name, TextureDTO textureDTO) {
+void MainForm::onTextureUpdated(const std::string &name, const TextureDTO &textureDTO) {
     if (!m_controller.replaceTexture(name, textureDTO)) {
         ErrorMessage::show(m_controller.getLastError());
     }
@@ -760,7 +757,7 @@ void MainForm::refreshTextureList() {
     m_glComponent.reloadTextures();
 }
 
-void MainForm::onMonsterZoneAdded(MonsterZoneDTO monsterZoneDTO) {
+void MainForm::onMonsterZoneAdded(const MonsterZoneDTO &monsterZoneDTO) {
     m_tilePropsComponent->disableFieldsChangeEvent();
     if (m_controller.addMonsterZone(monsterZoneDTO)) {
         m_monsterZoneListComponent->confirmValidityOfOneMonsterZoneCheckBox();
@@ -772,7 +769,7 @@ void MainForm::onMonsterZoneAdded(MonsterZoneDTO monsterZoneDTO) {
     m_tilePropsComponent->enableFieldsChangeEvent();
 }
 
-void MainForm::onMonsterZoneUpdated(const std::string &name, MonsterZoneDTO monsterZoneDTO) {
+void MainForm::onMonsterZoneUpdated(const std::string &name, const MonsterZoneDTO &monsterZoneDTO) {
     m_tilePropsComponent->disableFieldsChangeEvent();
     if (!m_controller.replaceMonsterZone(name, monsterZoneDTO)) {
         ErrorMessage::show(m_controller.getLastError());
@@ -870,7 +867,7 @@ void MainForm::toggleNPCAssignationControls() {
     ui.action_ClearNPCWanderingZone->setEnabled(active);
 }
 
-void MainForm::onNPCAdded(NPCDTO npcDTO) {
+void MainForm::onNPCAdded(const NPCDTO &npcDTO) {
     m_tilePropsComponent->disableFieldsChangeEvent();
     if (!m_controller.addNPC(npcDTO)) {
         ErrorMessage::show(m_controller.getLastError());
@@ -880,7 +877,7 @@ void MainForm::onNPCAdded(NPCDTO npcDTO) {
     m_tilePropsComponent->enableFieldsChangeEvent();
 }
 
-void MainForm::onNPCUpdated(const std::string &id, NPCDTO npcDTO) {
+void MainForm::onNPCUpdated(const std::string &id, const NPCDTO &npcDTO) {
     m_tilePropsComponent->disableFieldsChangeEvent();
     if (!m_controller.replaceNPC(id, npcDTO)) {
         ErrorMessage::show(m_controller.getLastError());

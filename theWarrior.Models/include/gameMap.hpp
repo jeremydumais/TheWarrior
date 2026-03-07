@@ -18,8 +18,8 @@
 
 namespace thewarrior::models {
 
-typedef std::optional<std::reference_wrapper<const MonsterZone>> OptMonsterZoneConstRef;
-typedef std::optional<std::reference_wrapper<const NPC>> OptNPCConstRef;
+using OptMonsterZoneConstRef = std::optional<std::reference_wrapper<const MonsterZone>>;
+using OptNPCConstRef = std::optional<std::reference_wrapper<const NPC>>;
 
 class GameMap {
  public:
@@ -28,15 +28,15 @@ class GameMap {
     const std::vector<std::vector<MapTile>> &getTiles() const;
     MapTile &getTileForEditing(int index);
     MapTile &getTileForEditing(Point<> coord);
-    const std::vector<MapTile *> getTilesForEditing(const std::set<int> &indices);
+    std::vector<MapTile *> getTilesForEditing(const std::set<int> &indices);
     const MapTile &getTileFromCoord(Point<> coord) const;
     unsigned int getWidth() const;
     unsigned int getHeight() const;
-    Point<> getCoordFromTileIndex(int index);
-    int getTileIndexFromCoord(Point<> coord);
+    Point<> getCoordFromTileIndex(int index) const;
+    int getTileIndexFromCoord(Point<> coord) const;
     const std::vector<Texture> &getTextures() const;
     std::optional<std::reference_wrapper<const Texture>> getTextureByName(const std::string &name) const;
-    bool canSteppedOnTile(Point<> playerCoord);
+    bool canSteppedOnTile(Point<> playerCoord) const;
     bool useOnlyOneMonsterZone() const;
     const std::vector<MonsterZone> &getMonsterZones() const;
     OptMonsterZoneConstRef getMonsterZoneByName(const std::string &zoneName) const;

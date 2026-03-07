@@ -30,7 +30,7 @@ Q_OBJECT
  public:
     explicit MainForm(QWidget *parent = nullptr,
             const std::string &currentFilePath = "");
-    ~MainForm() override;
+    ~MainForm() override = default;
     bool event(QEvent *event) override;
     void closeEvent(QCloseEvent *event) override;
     void functionAfterShown();
@@ -52,7 +52,7 @@ Q_OBJECT
     std::shared_ptr<QLabel> labelToolbarZoom = nullptr;
     std::shared_ptr<QSlider> sliderZoom = nullptr;
     std::shared_ptr<QLabel> labelToolbarZoomValue = nullptr;
-    std::string m_currentFilePath = "";
+    std::string m_currentFilePath;
     bool m_functionAfterShownCalled = false;
     bool m_closeFormRequested = false;
     void componentInitialization();
@@ -118,20 +118,20 @@ Q_OBJECT
     void onZoomChanged(int zoomPercentage);
     void onNPCSpawnPositionPickerModeChanged(bool enabled);
     void onNPCSpawnPositionPickerTileSelected(const thewarrior::models::Point<> &position);
-    void onTextureAdded(commoneditor::ui::TextureDTO textureDTO);
-    void onTextureUpdated(const std::string &name, commoneditor::ui::TextureDTO textureDTO);
+    void onTextureAdded(const commoneditor::ui::TextureDTO &textureDTO);
+    void onTextureUpdated(const std::string &name, const commoneditor::ui::TextureDTO &textureDTO);
     void onTextureDeleted(const std::string &name);
     void refreshTextureList();
-    void onMonsterZoneAdded(mapeditor::controllers::MonsterZoneDTO monsterZoneDTO);
-    void onMonsterZoneUpdated(const std::string &name, mapeditor::controllers::MonsterZoneDTO monsterZoneDTO);
+    void onMonsterZoneAdded(const mapeditor::controllers::MonsterZoneDTO &monsterZoneDTO);
+    void onMonsterZoneUpdated(const std::string &name, const mapeditor::controllers::MonsterZoneDTO &monsterZoneDTO);
     void onMonsterZoneDeleted(const std::string &name);
     void refreshMonsterZones();
     void toggleMonsterZoneAssignationControls();
     void useOnlyOneMonsterZoneChanged(bool value);
     void refreshNPCs();
     void toggleNPCAssignationControls();
-    void onNPCAdded(mapeditor::controllers::NPCDTO npcDTO);
-    void onNPCUpdated(const std::string &id, mapeditor::controllers::NPCDTO npcDTO);
+    void onNPCAdded(const mapeditor::controllers::NPCDTO &npcDTO);
+    void onNPCUpdated(const std::string &id, const mapeditor::controllers::NPCDTO &npcDTO);
     void onNPCDeleted(const std::string &id);
     void onMapPropsComponentBeforeChange();
 };

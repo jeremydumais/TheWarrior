@@ -1,3 +1,4 @@
+#include <memory>
 #include <optional>
 #include <set>
 #include <string>
@@ -96,10 +97,10 @@ size_t MainForm_GLComponent::getHistoryCount() const {
 }
 
 bool MainForm_GLComponent::isClipboardEmpty() const {
-    return m_controller.getClipboard().size() == 0;
+    return m_controller.getClipboard().empty();
 }
 
-void MainForm_GLComponent::setCurrentMap(std::shared_ptr<GameMap> map) {
+void MainForm_GLComponent::setCurrentMap(const std::shared_ptr<GameMap> &map) {
     this->m_controller.setCurrentMap(map);
     this->m_glWidget->setCurrentMap(map);
     clearLastSelectedTexture();
@@ -131,7 +132,7 @@ std::vector<MapTileDTO> MainForm_GLComponent::getCurrentMapTiles() {
 }
 
 bool MainForm_GLComponent::isSelectedMapTiles() const {
-    return m_controller.getSelectedMapTiles().size() > 0;
+    return !m_controller.getSelectedMapTiles().empty();
 }
 
 void MainForm_GLComponent::setLastSelectedTexture(const std::string &name,
@@ -225,7 +226,7 @@ void MainForm_GLComponent::resizeMap(int offsetLeft,
 }
 
 void MainForm_GLComponent::onTileClicked(const std::set<int> &tileIndices, int, int) {
-    if (m_glWidget->getSelectionMode() == SelectionMode::Select && tileIndices.size() != 0) {
+    if (m_glWidget->getSelectionMode() == SelectionMode::Select && !tileIndices.empty()) {
         m_controller.selectTilesForEditing(tileIndices);
         emit tileSelected(m_controller.getSelectedMapTiles());
     } else {

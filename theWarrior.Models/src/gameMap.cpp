@@ -1,7 +1,7 @@
-#include <cstddef>
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <iterator>
 #include <optional>
@@ -20,8 +20,10 @@ using boost::algorithm::to_upper_copy;
 namespace thewarrior::models {
 
 GameMap::GameMap(unsigned int width, unsigned int height)
-: m_lastError(""), m_tiles({}), m_monsterZones({}), m_npcs({}),
-m_textureContainer(), m_useOnlyOneMonsterZone(false) {
+: m_tiles({}),
+m_monsterZones({}),
+m_npcs({}),
+m_useOnlyOneMonsterZone(false) {
     if (width == 0) {
         throw std::invalid_argument("width must be greater than zero.");
     }
@@ -64,9 +66,9 @@ MapTile &GameMap::getTileForEditing(Point<> coord) {
         .at(static_cast<size_t>(coord.x()));
 }
 
-const std::vector<MapTile *> GameMap::getTilesForEditing(const std::set<int> &indices) {
+std::vector<MapTile *> GameMap::getTilesForEditing(const std::set<int> &indices) {
     std::vector<MapTile *> retval = {};
-    std::for_each(indices.cbegin(), indices.cend(),
+    std::ranges::for_each(indices,
             [&retval, this](const int index) {
             if (index < 0) {
             return;
@@ -108,17 +110,17 @@ unsigned int GameMap::getHeight() const {
     return static_cast<unsigned int>(heightSize);
 }
 
-Point<> GameMap::getCoordFromTileIndex(int index) {
+Point<> GameMap::getCoordFromTileIndex(int index) const {
     if (index < 0) {
         throw std::invalid_argument("index must be a positive number");
     }
     auto indexConverted{static_cast<unsigned int>(index)};
     int x = static_cast<int>(indexConverted % getWidth());
     int y = static_cast<int>(indexConverted / getWidth());
-    return Point<int>(x, y);
+    return {x, y};
 }
 
-int GameMap::getTileIndexFromCoord(Point<> coord) {
+int GameMap::getTileIndexFromCoord(Point<> coord) const {
     if (coord.x() < 0) {
         throw std::invalid_argument("x must be a positive number");
     }
@@ -166,13 +168,13 @@ const std::vector<MonsterZone> &GameMap::getMonsterZones() const {
 }
 
 OptMonsterZoneConstRef GameMap::getMonsterZoneByName(const std::string &zoneName) const {
-    auto it = std::find_if(m_monsterZones.begin(), m_monsterZones.end(),
+    auto it = std::ranges::find_if(m_monsterZones,
             [zoneName](const MonsterZone &zone) {
             return to_upper_copy(zone.getName()) ==
             to_upper_copy(zoneName);
             });
     if (it != m_monsterZones.end()) {
-        return OptMonsterZoneConstRef(*it);
+        return {*it};
     }
     return std::nullopt;
 }
@@ -227,10 +229,9 @@ bool GameMap::removeMonsterZone(const std::string &name) {
 }
 
 void GameMap::unassignMonsterZoneOnAllTiles(int zoneIndex) {
-    for (unsigned int i = 0; i < m_tiles.size(); i++) {
-        for (unsigned int j = 0; j < m_tiles[i].size(); j++) {
-            auto &tile = m_tiles.at(i).at(j);
-            if (tile.getMonsterZoneIndex() == zoneIndex) {
+    for (auto & m_tile : m_tiles) {
+        for (auto & tile : m_tile) {
+             if (tile.getMonsterZoneIndex() == zoneIndex) {
                 tile.setMonsterZoneIndex(-1);
             }
         }
@@ -242,18 +243,17 @@ const std::vector<NPC> &GameMap::getNPCs() const {
 }
 
 OptNPCConstRef GameMap::getNPCById(const std::string &id) const {
-    const auto iter = std::find_if(m_npcs.begin(), m_npcs.end(), [&id](const auto &npc) {
+    const auto iter = std::ranges::find_if(m_npcs, [&id](const auto &npc) {
         return to_upper_copy(npc.getId()) == to_upper_copy(id);
     });
     if (iter == m_npcs.end()) {
         return std::nullopt;
     }
-    return OptNPCConstRef(*iter);
+    return {*iter};
 }
 
 bool GameMap::addNPC(const NPC &npc) {
-    if (std::any_of(
-                m_npcs.begin(), m_npcs.end(), [&npc](const auto &existingNPC) {
+    if (std::ranges::any_of(m_npcs, [&npc](const auto &existingNPC) {
                 return boost::trim_copy(boost::to_lower_copy(npc.getId())) ==
                 boost::trim_copy(boost::to_lower_copy(existingNPC.getId()));
                 })) {
@@ -358,7 +358,7 @@ bool GameMap::_isShrinkMapFromLeftImpactAssignedTiles(int offset) const {
     if (offset < 0) {
         size_t col{0};
         for (int index = offset; index < 0; index++) {
-            if (std::any_of(m_tiles.begin(), m_tiles.end(), [col](const auto &row) {
+            if (std::ranges::any_of(m_tiles, [col](const auto &row) {
                         return row[col].isAssigned();
                         })) {
                 return true;
@@ -389,7 +389,7 @@ bool GameMap::_isShrinkMapFromRightImpactAssignedTiles(int offset) const {
         size_t col{m_tiles[0].size() - 1};
         for (int index = offset; index < 0; index++) {
             // Check all tiles of the column
-            if (std::any_of(m_tiles.begin(), m_tiles.end(), [col](const auto &row) {
+            if (std::ranges::any_of(m_tiles, [col](const auto &row) {
                         return row[col].isAssigned();
                         })) {
                 return true;
@@ -442,7 +442,7 @@ void GameMap::resizeMap(int offsetLeft, int offsetTop, int offsetRight,
 
 void GameMap::_resizeMapFromLeft(int offset) {
     if (offset < 0) {
-        const size_t k = static_cast<size_t>(-offset);
+        const auto k = static_cast<size_t>(-offset);
         for (auto &row : m_tiles) {
             const size_t eraseCount = std::min(k, row.size());
             row.erase(row.begin(),
@@ -497,7 +497,7 @@ void GameMap::_resizeMapFromBottom(int offset) {
     }
 }
 
-bool GameMap::canSteppedOnTile(Point<> playerCoord) {
+bool GameMap::canSteppedOnTile(Point<> playerCoord) const {
     return (playerCoord.x() >= 0 &&
             static_cast<unsigned int>(playerCoord.x()) < getWidth() &&
             playerCoord.y() >= 0 &&
@@ -506,14 +506,13 @@ bool GameMap::canSteppedOnTile(Point<> playerCoord) {
 }
 
 std::vector<MonsterZone>::iterator GameMap::getMonsterZoneIterator(const std::string &name) {
-    return std::find_if(
-            m_monsterZones.begin(), m_monsterZones.end(), [&name](const auto &zone) {
+    return std::ranges::find_if(m_monsterZones, [&name](const auto &zone) {
             return to_upper_copy(zone.getName()) == to_upper_copy(name);
             });
 }
 
 std::vector<NPC>::iterator GameMap::getNPCIterator(const std::string &npcId) {
-    return std::find_if(m_npcs.begin(), m_npcs.end(), [&npcId](const auto &npc) {
+    return std::ranges::find_if(m_npcs, [&npcId](const auto &npc) {
             return to_upper_copy(npc.getId()) == to_upper_copy(npcId);
             });
 }

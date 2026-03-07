@@ -15,14 +15,14 @@
 
 namespace mapeditor::controllers {
 
-typedef std::optional<const mapeditor::controllers::MonsterZoneDTO> OptMonsterZoneDTOConst;
-typedef std::optional<const mapeditor::controllers::NPCDTO> OptNPCDTOConst;
+using OptMonsterZoneDTOConst = std::optional<const mapeditor::controllers::MonsterZoneDTO>;
+using OptNPCDTOConst = std::optional<const mapeditor::controllers::NPCDTO>;
 
 class GLComponentController {
  public:
     GLComponentController();
     virtual ~GLComponentController() = default;
-    const std::shared_ptr<thewarrior::models::GameMap> getMap() const;
+    std::shared_ptr<thewarrior::models::GameMap> getMap() const;
     const std::string &getLastError() const;
     std::vector<thewarrior::models::MapTile *> getCurrentMapTiles();
     std::vector<MapTileDTO> getSelectedMapTiles() const;
