@@ -108,6 +108,10 @@ void GameMapModeController::setPlayerPosition(const Point<> &position) {
     m_worldState->setPlayerPosition(position);
 }
 
+void GameMapModeController::clearNPCsWorldState() {
+    m_worldState->clearNPCsState();
+}
+
 void GameMapModeController::acknowledgeMessage() {
     m_messagePipeline->deleteCurrentMessage();
 }

@@ -557,7 +557,9 @@ void GameMapMode::loadMap(const std::string &filePath, const std::string &mapNam
     try {
         mapStorage.loadMap(filePath, m_map);
         m_controller.setCurrentMapName(mapName);
+        m_controller.clearNPCsWorldState();
         loadMapTextures();
+
         m_glNPCs.clear();
         for (const auto &npc : m_map->getNPCs()) {
             // Find the related texture
@@ -567,7 +569,7 @@ void GameMapMode::loadMap(const std::string &filePath, const std::string &mapNam
             }
             GLNPC glNPC(npc, textureResult->get());
             glNPC.setGLTextureId(m_texturesGLMap[npc.getTextureName()]);
-            glNPC.initialize(m_tileSize);
+            glNPC.initialize(m_tileSize, m_controller.getWorldState());
             m_glNPCs.push_back(glNPC);
         }
     }

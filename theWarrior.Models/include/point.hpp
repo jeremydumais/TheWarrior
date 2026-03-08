@@ -9,6 +9,7 @@ namespace thewarrior::models {
 template<typename T = int>
 class Point {
  public:
+    Point() = default;
     Point(T x, T y)
         : m_x(x), m_y(y) {}
     T x() const { return m_x; }
@@ -25,9 +26,8 @@ class Point {
 
  private:
     friend class boost::serialization::access;
-    Point() = default;  // Needed for deserialization
-    T m_x;
-    T m_y;
+    T m_x{};
+    T m_y{};
     // Serialization method
     template<class Archive>
     void serialize(Archive & ar, const unsigned int) {

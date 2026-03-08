@@ -1,3 +1,5 @@
+#include <memory>
+#include <utility>
 #include "glNPC.hpp"
 #include "direction.hpp"
 #include "npc.hpp"
@@ -12,9 +14,13 @@ namespace thewarrior::ui {
 GLNPC::GLNPC(const NPC &npc, const thewarrior::models::Texture &texture)
     : NPC(npc), m_texture(texture), m_direction(Direction::None) {}
 
-void GLNPC::initialize(const TileSize &tileSize) {
+void GLNPC::initialize(const TileSize &tileSize,
+                       std::shared_ptr<thewarrior::models::WorldState> worldState) {
   m_tileSize = tileSize;
+  m_worldState = std::move(worldState);
   m_direction = Direction::None;
+  m_worldState->setNPCPosition(getId(), getSpawnPosition());
+  setFacing(getDefaultFacing());
   generateGLObject();
   setGLObjectPosition();
 }
@@ -94,8 +100,7 @@ void GLNPC::setGLObjectPosition() const {
   m_tileCoordBuf[3][0] = -tileHalfWidth + startPosX + tileWidth;
   m_tileCoordBuf[3][1] = -tileHalfHeight + startPosY - tileHalfHeight;
 
-  // auto playerPosition = m_worldState->getPlayerPosition();
-  auto npcPosition = getSpawnPosition();
+  auto npcPosition = getPosition();
   for (int i = 0; i < 4; i++) {
       m_tileCoordBuf[i][0] += (static_cast<float>(npcPosition.x()) - 1.0F) * tileWidth;
       m_tileCoordBuf[i][1] -= (static_cast<float>(npcPosition.y()) * tileHeight) - tileHalfHeight;
@@ -112,6 +117,19 @@ void GLNPC::onGameWindowTileSizeChanged(const TileSize &tileSize) {
   unloadGLObject();
   generateGLObject();
   setGLObjectPosition();
+}
+
+const thewarrior::models::Point<size_t> &GLNPC::getPosition() const {
+    return m_worldState->getNPCPosition(getId());
+}
+
+thewarrior::models::NPCFacing GLNPC::getFacing() {
+    return getCurrentFacing();
+}
+
+void GLNPC::setFacing(thewarrior::models::NPCFacing facing) {
+  setCurrentFacing(facing);
+  m_worldState->setNPCFacing(getId(), facing);
 }
 
 }  // namespace thewarrior::ui
