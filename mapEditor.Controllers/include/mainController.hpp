@@ -53,12 +53,16 @@ class MainController {
     bool setDisplayNPCsConfigState(bool value);
     std::string getThemeConfigValue() const;
     bool setThemeConfigValue(const std::string &theme);
-    bool getDisplayToolbarsMapConfigState() const;
-    bool setDisplayToolbarsMapConfigState(bool value);
-    bool getDisplayToolbarsTextureSelectionState() const;
-    bool setDisplayToolbarsTextureSelectionState(bool value);
-    bool getDisplayToolbarsDebuggingInfoState() const;
-    bool setDisplayToolbarsDebuggingInfoState(bool value);
+    bool getDisplayEditorsMapConfigState() const;
+    bool setDisplayEditorsMapConfigState(bool value);
+    bool getDisplayEditorsTextureSelectionState() const;
+    bool setDisplayEditorsTextureSelectionState(bool value);
+    bool getDisplayEditorsDebuggingInfoState() const;
+    bool setDisplayEditorsDebuggingInfoState(bool value);
+    bool getDisplayToolbarsNPCWanderingZoneState() const;
+    bool setDisplayToolbarsNPCWanderingZoneState(bool value);
+    bool getDisplayToolbarsMonsterZoneState() const;
+    bool setDisplayToolbarsMonsterZoneState(bool value);
     bool setCustomKey(const std::string &path, const std::string &s);
 
  private:

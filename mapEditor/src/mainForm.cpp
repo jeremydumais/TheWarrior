@@ -66,9 +66,9 @@ MainForm::MainForm(QWidget *parent,
     labelToolbarMonsterZoneColor = std::make_shared<QLabel>(this);
     labelToolbarMonsterZoneColor->setFixedWidth(40);
     labelToolbarMonsterZoneColor->setFixedHeight(32);
-    ui.toolBar->insertWidget(ui.action_ApplyMonsterZone, labelToolbarMonsterZoneColor.get());
+    ui.toolBarMonsterZone->insertWidget(ui.action_ApplyMonsterZone, labelToolbarMonsterZoneColor.get());
     comboBoxToolbarMonsterZone = std::make_shared<QComboBox>(this);
-    ui.toolBar->insertWidget(ui.action_ApplyMonsterZone, comboBoxToolbarMonsterZone.get());
+    ui.toolBarMonsterZone->insertWidget(ui.action_ApplyMonsterZone, comboBoxToolbarMonsterZone.get());
     comboBoxToolbarNPCWanderingZone = std::make_shared<QComboBox>(this);
     ui.toolBarNPCWanderingZone->insertWidget(ui.action_ApplyNPCWanderingZone, comboBoxToolbarNPCWanderingZone.get());
     labelToolbarZoom = std::make_shared<QLabel>(this);
@@ -170,6 +170,8 @@ void MainForm::connectUIActions() {
     connect(ui.actionView_MapConfig, &QAction::triggered, this, &MainForm::toggleViewMapConfiguration);
     connect(ui.actionView_TextureSelection, &QAction::triggered, this, &MainForm::toggleViewTextureSelection);
     connect(ui.actionView_DebuggingInfo, &QAction::triggered, this, &MainForm::toggleViewDebuggingInfo);
+    connect(ui.actionView_NPCWanderingZone, &QAction::triggered, this, &MainForm::toggleViewNPCWanderingZone);
+    connect(ui.actionView_MonsterZone, &QAction::triggered, this, &MainForm::toggleViewMonsterZone);
     connect(ui.action_LightTheme, &QAction::triggered, this, &MainForm::action_LightTheme_Click);
     connect(ui.action_DarkTheme, &QAction::triggered, this, &MainForm::action_DarkTheme_Click);
     connect(ui.action_DisplayGrid, &QAction::triggered, this, &MainForm::action_DisplayGrid_Click);
@@ -303,7 +305,7 @@ void MainForm::toggleViewMapConfiguration() {
 void MainForm::changeViewMapConfigurationVisibility(bool visible) {
     if (!m_closeFormRequested) {
         ui.dockWidgetMapConfig->setVisible(visible);
-        if (!m_controller.setDisplayToolbarsMapConfigState(visible)) {
+        if (!m_controller.setDisplayEditorsMapConfigState(visible)) {
             ErrorMessage::show(m_controller.getLastError());
         }
     }
@@ -317,7 +319,7 @@ void MainForm::toggleViewTextureSelection() {
 void MainForm::changeViewTextureSelectionVisibility(bool visible) {
     if (!m_closeFormRequested) {
         m_textureSelectionDockWidget->setVisible(visible);
-        if (!m_controller.setDisplayToolbarsTextureSelectionState(visible)) {
+        if (!m_controller.setDisplayEditorsTextureSelectionState(visible)) {
             ErrorMessage::show(m_controller.getLastError());
         }
     }
@@ -331,7 +333,27 @@ void MainForm::toggleViewDebuggingInfo() {
 void MainForm::changeViewDebuggingInfoVisibility(bool visible) {
     if (!m_closeFormRequested) {
         m_debugInfoDockWidget->setVisible(visible);
-        if (!m_controller.setDisplayToolbarsDebuggingInfoState(visible)) {
+        if (!m_controller.setDisplayEditorsDebuggingInfoState(visible)) {
+            ErrorMessage::show(m_controller.getLastError());
+        }
+    }
+}
+
+void MainForm::toggleViewNPCWanderingZone() {
+    bool newVisibleState = !ui.toolBarNPCWanderingZone->isVisible();
+    if (!m_closeFormRequested) {
+        ui.toolBarNPCWanderingZone->setVisible(newVisibleState);
+        if (!m_controller.setDisplayToolbarsNPCWanderingZoneState(newVisibleState)) {
+            ErrorMessage::show(m_controller.getLastError());
+        }
+    }
+}
+
+void MainForm::toggleViewMonsterZone() {
+    bool newVisibleState = !ui.toolBarMonsterZone->isVisible();
+    if (!m_closeFormRequested) {
+        ui.toolBarMonsterZone->setVisible(newVisibleState);
+        if (!m_controller.setDisplayToolbarsMonsterZoneState(newVisibleState)) {
             ErrorMessage::show(m_controller.getLastError());
         }
     }
@@ -638,12 +660,16 @@ void MainForm::addNewRecentMap(const std::string &filePath) {
 void MainForm::restorePersistedMenuState() {
     ui.action_DisplayGrid->setChecked(m_controller.getDisplayGridConfigState());
     ui.action_DisplayNPCs->setChecked(m_controller.getDisplayNPCsConfigState());
-    ui.actionView_MapConfig->setChecked(m_controller.getDisplayToolbarsMapConfigState());
-    ui.dockWidgetMapConfig->setVisible(m_controller.getDisplayToolbarsMapConfigState());
-    ui.actionView_TextureSelection->setChecked(m_controller.getDisplayToolbarsTextureSelectionState());
-    m_textureSelectionDockWidget->setVisible(m_controller.getDisplayToolbarsTextureSelectionState());
-    ui.actionView_DebuggingInfo->setChecked(m_controller.getDisplayToolbarsDebuggingInfoState());
-    m_debugInfoDockWidget->setVisible(m_controller.getDisplayToolbarsDebuggingInfoState());
+    ui.actionView_MapConfig->setChecked(m_controller.getDisplayEditorsMapConfigState());
+    ui.dockWidgetMapConfig->setVisible(m_controller.getDisplayEditorsMapConfigState());
+    ui.actionView_TextureSelection->setChecked(m_controller.getDisplayEditorsTextureSelectionState());
+    m_textureSelectionDockWidget->setVisible(m_controller.getDisplayEditorsTextureSelectionState());
+    ui.actionView_DebuggingInfo->setChecked(m_controller.getDisplayEditorsDebuggingInfoState());
+    m_debugInfoDockWidget->setVisible(m_controller.getDisplayEditorsDebuggingInfoState());
+    ui.actionView_MonsterZone->setChecked(m_controller.getDisplayToolbarsMonsterZoneState());
+    ui.toolBarMonsterZone->setVisible(m_controller.getDisplayToolbarsMonsterZoneState());
+    ui.actionView_NPCWanderingZone->setChecked(m_controller.getDisplayToolbarsNPCWanderingZoneState());
+    ui.toolBarNPCWanderingZone->setVisible(m_controller.getDisplayToolbarsNPCWanderingZoneState());
     ui.mapOpenGLWidget->setGridEnabled(ui.action_DisplayGrid->isChecked());
     ui.mapOpenGLWidget->setShowNPCsEnabled(ui.action_DisplayNPCs->isChecked());
     setAppStylesheet(m_controller.getThemeConfigValue());

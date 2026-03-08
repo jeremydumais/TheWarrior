@@ -3,8 +3,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include "toolbarStateInfo.hpp"
-#include "toolbarStateInfoJSONSerializer.hpp"
+#include "editorStateInfo.hpp"
+#include "editorStateInfoJSONSerializer.hpp"
 #include <boost/property_tree/json_parser.hpp>
 
 using boost::property_tree::ptree;
@@ -46,13 +46,13 @@ std::string getTwoToolbarsStringOneDockedOneNot() {
 }
 
 TEST(ToolBarStateInfoJSONSerializer_Serialize, WithEmptyVector_ReturnEmptyTree) {
-    ASSERT_EQ("{}", ptree_toString(ToolBarStateInfoJSONSerializer::serialize({})));
+    ASSERT_EQ("{}", ptree_toString(EditorStateInfoJSONSerializer::serialize({})));
 }
 
 TEST(ToolBarStateInfoJSONSerializer_Serialize, WithOneDockedToolBar_ReturnOneSerializedToolBar) {
     std::string expected = getOneDockedToolbarString();
-    ASSERT_EQ(expected, ptree_toString(ToolBarStateInfoJSONSerializer::serialize({{
-                    ToolBarId::TextureSelection,
+    ASSERT_EQ(expected, ptree_toString(EditorStateInfoJSONSerializer::serialize({{
+                    EditorId::TextureSelection,
                     true,
                     DockLocation::Left,
                     0,
@@ -65,8 +65,8 @@ TEST(ToolBarStateInfoJSONSerializer_Serialize, WithOneDockedToolBar_ReturnOneSer
 
 TEST(ToolBarStateInfoJSONSerializer_Serialize, WithOneNotDockedToolBar_ReturnOneSerializedToolBar) {
     std::string expected = getOneNotDockedToolbarString();
-    ASSERT_EQ(expected, ptree_toString(ToolBarStateInfoJSONSerializer::serialize({{
-                    ToolBarId::TextureSelection,
+    ASSERT_EQ(expected, ptree_toString(EditorStateInfoJSONSerializer::serialize({{
+                    EditorId::TextureSelection,
                     true,
                     DockLocation::None,
                     0,
@@ -79,9 +79,9 @@ TEST(ToolBarStateInfoJSONSerializer_Serialize, WithOneNotDockedToolBar_ReturnOne
 
 TEST(ToolBarStateInfoJSONSerializer_Serialize, WithTwoToolBarsOneDockedOneNot_ReturnTwoSerializedToolBars) {
     std::string expected = getTwoToolbarsStringOneDockedOneNot();
-    ASSERT_EQ(expected, ptree_toString(ToolBarStateInfoJSONSerializer::serialize({
+    ASSERT_EQ(expected, ptree_toString(EditorStateInfoJSONSerializer::serialize({
                     {
-                        ToolBarId::DebuggingInfo,
+                        EditorId::DebuggingInfo,
                         false,
                         DockLocation::None,
                         0,
@@ -91,7 +91,7 @@ TEST(ToolBarStateInfoJSONSerializer_Serialize, WithTwoToolBarsOneDockedOneNot_Re
                         500
                     },
                     {
-                        ToolBarId::MapProperties,
+                        EditorId::MapProperties,
                         true,
                         DockLocation::Right,
                         0,
@@ -105,15 +105,15 @@ TEST(ToolBarStateInfoJSONSerializer_Serialize, WithTwoToolBarsOneDockedOneNot_Re
 
 TEST(ToolBarStateInfoJSONSerializer_Deserialize, WithEmptyPTree_ReturnEmptyVector) {
     auto node = string_toPTree("{}\n");
-    auto actual = ToolBarStateInfoJSONSerializer::deserialize(node);
+    auto actual = EditorStateInfoJSONSerializer::deserialize(node);
     ASSERT_EQ(0, actual.size());
 }
 
 TEST(ToolBarStateInfoJSONSerializer_Deserialize, WithOneDockedToolBar_ReturnOneToolBar) {
     auto node = string_toPTree(getOneDockedToolbarString());
-    auto actual = ToolBarStateInfoJSONSerializer::deserialize(node);
+    auto actual = EditorStateInfoJSONSerializer::deserialize(node);
     ASSERT_EQ(1, actual.size());
-    ASSERT_EQ(ToolBarId::TextureSelection, actual[0].id);
+    ASSERT_EQ(EditorId::TextureSelection, actual[0].id);
     ASSERT_TRUE(actual[0].isVisible);
     ASSERT_EQ(DockLocation::Left, actual[0].dockLocation);
     ASSERT_EQ(0, actual[0].vIndex);
@@ -125,9 +125,9 @@ TEST(ToolBarStateInfoJSONSerializer_Deserialize, WithOneDockedToolBar_ReturnOneT
 
 TEST(ToolBarStateInfoJSONSerializer_Deserialize, WithOneNotDockedToolBar_ReturnOneToolBar) {
     auto node = string_toPTree(getOneNotDockedToolbarString());
-    auto actual = ToolBarStateInfoJSONSerializer::deserialize(node);
+    auto actual = EditorStateInfoJSONSerializer::deserialize(node);
     ASSERT_EQ(1, actual.size());
-    ASSERT_EQ(ToolBarId::TextureSelection, actual[0].id);
+    ASSERT_EQ(EditorId::TextureSelection, actual[0].id);
     ASSERT_TRUE(actual[0].isVisible);
     ASSERT_EQ(DockLocation::None, actual[0].dockLocation);
     ASSERT_EQ(0, actual[0].vIndex);
@@ -139,9 +139,9 @@ TEST(ToolBarStateInfoJSONSerializer_Deserialize, WithOneNotDockedToolBar_ReturnO
 
 TEST(ToolBarStateInfoJSONSerializer_Deserialize, WithTwoToolBars_ReturnTwoToolBars) {
     auto node = string_toPTree(getTwoToolbarsStringOneDockedOneNot());
-    auto actual = ToolBarStateInfoJSONSerializer::deserialize(node);
+    auto actual = EditorStateInfoJSONSerializer::deserialize(node);
     ASSERT_EQ(2, actual.size());
-    ASSERT_EQ(ToolBarId::DebuggingInfo, actual[0].id);
+    ASSERT_EQ(EditorId::DebuggingInfo, actual[0].id);
     ASSERT_FALSE(actual[0].isVisible);
     ASSERT_EQ(DockLocation::None, actual[0].dockLocation);
     ASSERT_EQ(0, actual[0].vIndex);
@@ -149,7 +149,7 @@ TEST(ToolBarStateInfoJSONSerializer_Deserialize, WithTwoToolBars_ReturnTwoToolBa
     ASSERT_EQ(100, actual[0].top);
     ASSERT_EQ(400, actual[0].width);
     ASSERT_EQ(500, actual[0].height);
-    ASSERT_EQ(ToolBarId::MapProperties, actual[1].id);
+    ASSERT_EQ(EditorId::MapProperties, actual[1].id);
     ASSERT_TRUE(actual[1].isVisible);
     ASSERT_EQ(DockLocation::Right, actual[1].dockLocation);
     ASSERT_EQ(0, actual[1].vIndex);

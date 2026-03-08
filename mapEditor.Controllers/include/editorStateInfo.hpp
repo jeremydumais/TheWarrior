@@ -2,7 +2,7 @@
 
 namespace mapeditor::controllers {
 
-enum class ToolBarId {
+enum class EditorId {
     MapProperties,
     TextureSelection,
     DebuggingInfo
@@ -14,8 +14,8 @@ enum class DockLocation {
     Right
 };
 
-struct ToolBarStateInfo {
-    ToolBarId id;
+struct EditorStateInfo {
+    EditorId id;
     bool isVisible;
     DockLocation dockLocation;
     int vIndex;

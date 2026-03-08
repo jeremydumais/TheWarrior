@@ -68,6 +68,8 @@ Q_OBJECT
     void changeViewTextureSelectionVisibility(bool visible);
     void toggleViewDebuggingInfo();
     void changeViewDebuggingInfoVisibility(bool visible);
+    void toggleViewNPCWanderingZone();
+    void toggleViewMonsterZone();
     void action_LightTheme_Click();
     void action_DarkTheme_Click();
     void action_DisplayGrid_Click();
