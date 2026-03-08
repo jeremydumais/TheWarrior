@@ -23,7 +23,8 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/errorMessage.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/qClickableLabel.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/qClosableDockWidget.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/qTableWidgetKeyPressWatcher.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/textureUtils.cpp)
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/textureUtils.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/warningMessage.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")

@@ -5,6 +5,7 @@
 #include "editNPCForm.hpp"
 #include "editNPCFormController.hpp"
 #include "errorMessage.hpp"
+#include "warningMessage.hpp"
 #include "npc.hpp"
 #include "npcDTO.hpp"
 #include "point.hpp"
@@ -12,6 +13,7 @@
 #include "texture.hpp"
 
 using commoneditor::ui::ErrorMessage;
+using commoneditor::ui::WarningMessage;
 using mapeditor::controllers::EditNPCFormController;
 using mapeditor::controllers::NPCDTO;
 using thewarrior::models::NPCFacing;
@@ -123,6 +125,9 @@ void EditNPCForm::onPushButtonOKClick() {
     if (m_controller.isNPCIdAlreadyUsed(npcId)) {
         ErrorMessage::show(fmt::format("The NPC Id {} already exists in the list.", npcId));
         return;
+    }
+    if (ui.plainTextDialogue->toPlainText().trimmed().isEmpty()) {
+        WarningMessage::show("Since the dialogue is empty, nothing will happen if you try to talk to the NPC.");
     }
     m_result.id = npcId;
     m_result.name = ui.lineEditName->text().trimmed().toStdString();
