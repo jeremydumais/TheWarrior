@@ -141,16 +141,15 @@ void MapOpenGLWidget::updateScene() {
 
     // Load the npcs in an unordered_map to be able to find them by spawn positition O(1)
     // spawn position will be converted to TileIndex
-    const auto &npcs = m_resources.currentMap->getNPCs();
-    std::unordered_map<int, const NPC *> npcsBySpawnLocation {};
-    std::ranges::transform(npcs,
+    std::unordered_map<int, NPC> npcsBySpawnLocation;
+    std::ranges::transform(m_resources.currentMap->getNPCs(),
                    std::inserter(npcsBySpawnLocation, npcsBySpawnLocation.end()),
-                   [this](const NPC &npc) -> std::pair<int, const NPC *> {
+                   [this](const NPC &npc) -> std::pair<int, NPC> {
                         const auto &spawnPosition = npc.getSpawnPosition();
                         const auto spawnPositionConverted = Point<int>(static_cast<int>(spawnPosition.x()),
                                                                        static_cast<int>(spawnPosition.y()));
                         const auto tileIndex = m_resources.currentMap->getTileIndexFromCoord(spawnPositionConverted);
-                        return std::make_pair(tileIndex, &npc);
+                        return std::make_pair(tileIndex, npc);
                    });
     m_frame.npcsBySpawnLocation = npcsBySpawnLocation;
 
@@ -893,15 +892,15 @@ void MapOpenGLWidget::drawNpcOverlay(int index, const MapRendererContext &ctx) c
     if (m_config.showNPCsEnabled) {
         if (ctx.npcsBySpawnLocation.contains(index)) {
             const auto &npc = ctx.npcsBySpawnLocation.at(index);
-            if (m_resources.texturesGLMap.contains(npc->getTextureName())) {
-                glBindTexture(GL_TEXTURE_2D, m_resources.texturesGLMap.at(npc->getTextureName()));
+            if (m_resources.texturesGLMap.contains(npc.getTextureName())) {
+                glBindTexture(GL_TEXTURE_2D, m_resources.texturesGLMap.at(npc.getTextureName()));
                 glPushMatrix();
-                const int baseTextureIndex = npc->getCurrentFacingTextureIndex();
-                if (npc->getId() == m_selection.selectedNPCId) {
+                const int baseTextureIndex = npc.getCurrentFacingTextureIndex();
+                if (npc.getId() == m_selection.selectedNPCId) {
                     glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-                    drawTileOutlinePass(npc->getTextureName(), baseTextureIndex, ctx.selectedNPCGlowAnimation.getValue());
+                    drawTileOutlinePass(npc.getTextureName(), baseTextureIndex, ctx.selectedNPCGlowAnimation.getValue());
                 }
-                drawTileWithTexture(npc->getTextureName(), baseTextureIndex);
+                drawTileWithTexture(npc.getTextureName(), baseTextureIndex);
                 glPopMatrix();
                 glBindTexture(GL_TEXTURE_2D, 0);
             }

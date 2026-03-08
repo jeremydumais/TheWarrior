@@ -141,8 +141,6 @@ void MainForm::componentInitialization() {
     ui.toolBox->addItem(m_npcListComponent.get(), "NPC list");
 
     ui.toolBox->removeItem(0);
-    //HACK: TO REMOVE BEFORE PUSHING TO PROD
-    ui.toolBox->setCurrentIndex(4);
 
     m_textureSelectionDockWidget = std::make_shared<TextureSelectionDockWidget>(this,
             &m_glComponent);
