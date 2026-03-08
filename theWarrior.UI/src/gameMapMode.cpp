@@ -350,8 +350,13 @@ void GameMapMode::moveUpPressed() {
     auto moveUpTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveUpPressed);
     if (moveUpTrigger.has_value()) {
         processAction(moveUpTrigger->getAction(), moveUpTrigger->getActionProperties());
-    } else if (m_map->canSteppedOnTile(Point<int>(playerCoord.x(), playerCoord.y() - 1))) {
-        m_glPlayer->moveUp();
+    } else {
+        const auto targetCoord = Point<int>(playerCoord.x(), playerCoord.y() - 1);
+        // Check if there an NPC on the tile we are planning to move
+        const bool isTileOccupyByNPC = m_controller.isTileOccupyByNPC(targetCoord);
+        if (m_map->canSteppedOnTile(targetCoord) && !isTileOccupyByNPC) {
+            m_glPlayer->moveUp();
+        }
     }
     m_glPlayer->faceUp();
     m_glPlayer->applyCurrentGLTexture(m_textureService);
@@ -364,8 +369,13 @@ void GameMapMode::moveDownPressed() {
     auto moveDownTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveDownPressed);
     if (moveDownTrigger.has_value()) {
         processAction(moveDownTrigger->getAction(), moveDownTrigger->getActionProperties());
-    } else if (m_map->canSteppedOnTile(Point<int>(playerCoord.x(), playerCoord.y() + 1))) {
-        m_glPlayer->moveDown(tile.getIsWallToClimb());
+    } else {
+        const auto targetCoord = Point<int>(playerCoord.x(), playerCoord.y() + 1);
+        // Check if there an NPC on the tile we are planning to move
+        const bool isTileOccupyByNPC = m_controller.isTileOccupyByNPC(targetCoord);
+        if (m_map->canSteppedOnTile(targetCoord) && !isTileOccupyByNPC) {
+            m_glPlayer->moveDown(tile.getIsWallToClimb());
+        }
     }
     if (tile.getIsWallToClimb()) {
         m_glPlayer->faceUp();
@@ -382,8 +392,13 @@ void GameMapMode::moveLeftPressed() {
     auto moveLeftTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveLeftPressed);
     if (moveLeftTrigger.has_value()) {
         processAction(moveLeftTrigger->getAction(), moveLeftTrigger->getActionProperties());
-    } else if (m_map->canSteppedOnTile(Point<int>(playerCoord.x() - 1, playerCoord.y()))) {
-        m_glPlayer->moveLeft();
+    } else {
+        const auto targetCoord = Point<int>(playerCoord.x() - 1, playerCoord.y());
+        // Check if there an NPC on the tile we are planning to move
+        const bool isTileOccupyByNPC = m_controller.isTileOccupyByNPC(targetCoord);
+        if (m_map->canSteppedOnTile(targetCoord) && !isTileOccupyByNPC) {
+            m_glPlayer->moveLeft();
+        }
     }
     if (tile.getIsWallToClimb()) {
         m_glPlayer->faceUp();
@@ -400,8 +415,13 @@ void GameMapMode::moveRightPressed() {
     auto moveRightTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveRightPressed);
     if (moveRightTrigger.has_value()) {
         processAction(moveRightTrigger->getAction(), moveRightTrigger->getActionProperties());
-    } else if (m_map->canSteppedOnTile(Point<int>(playerCoord.x() + 1, playerCoord.y()))) {
-        m_glPlayer->moveRight();
+    } else {
+        const auto targetCoord = Point<int>(playerCoord.x() + 1, playerCoord.y());
+        // Check if there an NPC on the tile we are planning to move
+        const bool isTileOccupyByNPC = m_controller.isTileOccupyByNPC(targetCoord);
+        if (m_map->canSteppedOnTile(targetCoord) && !isTileOccupyByNPC) {
+            m_glPlayer->moveRight();
+        }
     }
     if (tile.getIsWallToClimb()) {
         m_glPlayer->faceUp();

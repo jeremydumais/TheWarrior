@@ -27,6 +27,7 @@ class WorldState {
     void movePlayerUp();
     void movePlayerDown();
     void movePlayerRight();
+    std::vector<Point<size_t>> getAllNPCPositions() const;
     const Point<size_t> &getNPCPosition(const std::string &npcId) const;
     NPCFacing getNPCFacing(const std::string &npcId) const;
     void clearNPCsState();

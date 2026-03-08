@@ -1,7 +1,9 @@
 #include <algorithm>
 #include <cstddef>
+#include <iterator>
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 #include "worldState.hpp"
 
@@ -61,6 +63,16 @@ void WorldState::movePlayerDown() {
 
 void WorldState::movePlayerRight() {
     m_playerPosition.setX(m_playerPosition.x() + 1);
+}
+
+std::vector<Point<size_t>> WorldState::getAllNPCPositions() const {
+    std::vector<Point<size_t>> retval;
+    std::ranges::transform(m_npcsPositionByName,
+                           std::back_inserter(retval),
+                           [](const std::pair<std::string, Point<size_t>> &item) {
+                                return item.second;
+                           });
+    return retval;
 }
 
 const Point<size_t> &WorldState::getNPCPosition(const std::string &npcId) const {

@@ -32,6 +32,7 @@ class GameMapModeController {
     size_t getMessageCount() const;
     std::shared_ptr<thewarrior::ui::models::MessagePipeline> getMessagePipeline();
     bool isTileActionAlreadyProcessed(const std::string &mapName, int tileIndex) const;
+    bool isTileOccupyByNPC(const thewarrior::models::Point<> &position);
     void setCurrentMapName(const std::string &mapName) const;
     void setPlayerPosition(const thewarrior::models::Point<> &position);
     void clearNPCsWorldState();
@@ -44,6 +45,7 @@ class GameMapModeController {
     bool loadItemStore(const std::string &filePath);
     bool loadMonsterStore(const std::string &filePath);
     bool saveGameState(thewarrior::models::Player &player);
+
 
  private:
     std::string m_lastError;

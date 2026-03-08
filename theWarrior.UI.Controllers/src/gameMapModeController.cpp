@@ -100,6 +100,13 @@ bool GameMapModeController::isTileActionAlreadyProcessed(const std::string &mapN
     return m_worldState->isTileActionAlreadyProcessed(mapName, tileIndex);
 }
 
+bool GameMapModeController::isTileOccupyByNPC(const thewarrior::models::Point<> &position) {
+    return std::ranges::any_of(m_worldState->getAllNPCPositions(), [position](const Point<size_t> &coord) {
+        return coord == Point<size_t>(static_cast<size_t>(position.x()),
+                                      static_cast<size_t>(position.y()));
+    });
+}
+
 void GameMapModeController::setCurrentMapName(const std::string &mapName) const {
     m_worldState->setCurrentMapName(mapName);
 }
