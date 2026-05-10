@@ -265,7 +265,6 @@ void GameMapMode::render() {
     }
     // Render the player
     m_glPlayer->draw();
-    //TODO: v0.6 Render the NPC
     for (const auto &npc : m_glNPCs) {
         npc.draw();
     }

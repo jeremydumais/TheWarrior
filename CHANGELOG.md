@@ -213,3 +213,11 @@ and Quit actions.
 - Added the NPC management feature to the editor.
 - NPCs can be shown or hidden on the map.
 - NPCs are persisted in the map file.
+
+#### Change
+- Revamp the View main menu.
+
+### Game
+
+#### New features
+- Display the NPCs on the map at their spawn location.

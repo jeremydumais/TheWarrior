@@ -33,12 +33,13 @@ The project focuses on:
 - Functional editors (Map, Item, Monster)
 - Early combat system
 - UI & menu system actively evolving
+- Early NPC system
 
 ---
 
 ## 🧭 Next Sprint — NPC Development
 
-The next development sprint focuses on bringing the world to life through **Non-Playable Characters (NPCs)**.
+The next development sprint focuses on adding more features on the **Non-Playable Characters (NPCs)**.
 
 <p align="center">
   <img src="https://github.com/jeremydumais/TheWarrior/blob/medias/NextSprintNPC.png?raw=true" alt="Next Sprint - NPC Development" />
@@ -58,7 +59,7 @@ The next development sprint focuses on bringing the world to life through **Non-
 |-----|--------|--------|
 | **Core Gameplay** | Game Engine | ✅ Done |
 | | Combat System | 🟡 In progress |
-| | NPC | ⏳ Planned |
+| | NPC | 🟡 In progress |
 | | Trading | ⏳ Not started |
 | | Story & Quests | ⏳ Not started |
 | **Game Presentation** | Audio & Music | 🟡 In progress |
