@@ -9,31 +9,39 @@
 #include "mapTile.hpp"
 #include "mapTileDTO.hpp"
 #include "monsterZoneDTO.hpp"
+#include "npcDTO.hpp"
 #include "point.hpp"
 #include "textureDTO.hpp"
 
 namespace mapeditor::controllers {
 
-typedef std::optional<const mapeditor::controllers::MonsterZoneDTO> OptMonsterZoneDTOConst;
+using OptMonsterZoneDTOConst = std::optional<const mapeditor::controllers::MonsterZoneDTO>;
+using OptNPCDTOConst = std::optional<const mapeditor::controllers::NPCDTO>;
 
 class GLComponentController {
  public:
     GLComponentController();
     virtual ~GLComponentController() = default;
-    const std::shared_ptr<thewarrior::models::GameMap> getMap() const;
+    std::shared_ptr<thewarrior::models::GameMap> getMap() const;
     const std::string &getLastError() const;
     std::vector<thewarrior::models::MapTile *> getCurrentMapTiles();
     std::vector<MapTileDTO> getSelectedMapTiles() const;
+    const std::set<int> &getSelectedMapTilesIndices() const;
     std::vector<std::string> getAlreadyUsedTextureNames() const;
     virtual std::vector<std::string> getAlreadyUsedMonsterZoneNames() const;
     bool isUseOnlyOneMonsterZone() const;
+    std::vector<std::string> getAlreadyUsedNPCIds() const;
     bool isTextureUsedInMap(const std::string &name);
+    bool isTextureUsedByNPCs(const std::string &name);
     bool isShrinkMapImpactAssignedTiles(int offsetLeft,
                                         int offsetTop,
                                         int offsetRight,
                                         int offsetBottom) const;
     virtual std::vector<mapeditor::controllers::MonsterZoneDTO> getMonsterZones() const;
     virtual OptMonsterZoneDTOConst getMonsterZoneByName(const std::string &name) const;
+    std::vector<mapeditor::controllers::NPCDTO> getNPCs() const;
+    OptNPCDTOConst getNPCById(const std::string &name) const;
+    bool canDisableCanSteppedOnForSelectedTiles() const;
     boost::optional<thewarrior::models::Point<int>> getCoordFromSingleSelectedTile() const;
     size_t getHistoryCurrentIndex() const;
     size_t getHistoryCount() const;
@@ -64,6 +72,8 @@ class GLComponentController {
     void clearDenyZones();
     void applyMonsterZone();
     void clearMonsterZone();
+    bool applyNPCWanderingZone(const std::string &selectedNPCId);
+    bool clearNPCWanderingZone(const std::string &selectedNPCId);
     bool addTexture(const commoneditor::ui::TextureDTO &textureDTO);
     bool replaceTexture(const std::string &name, const commoneditor::ui::TextureDTO &textureDTO);
     bool removeTexture(const std::string &name);
@@ -71,6 +81,9 @@ class GLComponentController {
     bool replaceMonsterZone(const std::string &name, const MonsterZoneDTO &monsterZoneDTO);
     bool removeMonsterZone(const std::string &name);
     bool setUseOnlyOneMonsterZone(bool value);
+    bool addNPC(const NPCDTO &npcDTO);
+    bool replaceNPC(const std::string &id, const NPCDTO &npcDTO);
+    bool removeNPC(const std::string &id);
 
  private:
     std::shared_ptr<thewarrior::models::GameMap> m_map;

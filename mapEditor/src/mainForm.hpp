@@ -13,11 +13,14 @@
 #include "components/mainForm_GLComponent.hpp"
 #include "components/mapPropsComponent.hpp"
 #include "components/monsterZoneListComponent.hpp"
+#include "components/npcListComponent.hpp"
 #include "components/textureListComponent.hpp"
 #include "components/textureSelectionDockWidget.hpp"
 #include "components/tilePropsComponent.hpp"
 #include "mapTileDTO.hpp"
 #include "monsterZoneDTO.hpp"
+#include "npcDTO.hpp"
+#include "point.hpp"
 #include "selectionMode.hpp"
 #include "ui_mainForm.h"
 
@@ -27,7 +30,7 @@ Q_OBJECT
  public:
     explicit MainForm(QWidget *parent = nullptr,
             const std::string &currentFilePath = "");
-    ~MainForm() override;
+    ~MainForm() override = default;
     bool event(QEvent *event) override;
     void closeEvent(QCloseEvent *event) override;
     void functionAfterShown();
@@ -38,16 +41,18 @@ Q_OBJECT
     std::shared_ptr<MapPropsComponent> m_mapPropsComponent = nullptr;
     std::shared_ptr<TilePropsComponent> m_tilePropsComponent = nullptr;
     std::shared_ptr<MonsterZoneListComponent> m_monsterZoneListComponent = nullptr;
+    std::shared_ptr<NPCListComponent> m_npcListComponent = nullptr;
     std::shared_ptr<TextureListComponent> m_textureListComponent = nullptr;
     std::shared_ptr<TextureSelectionDockWidget> m_textureSelectionDockWidget = nullptr;
     std::shared_ptr<DebugInfoDockWidget> m_debugInfoDockWidget = nullptr;
     mapeditor::controllers::MainController m_controller;
     std::shared_ptr<QComboBox> comboBoxToolbarMonsterZone = nullptr;
     std::shared_ptr<QLabel> labelToolbarMonsterZoneColor = nullptr;
+    std::shared_ptr<QComboBox> comboBoxToolbarNPCWanderingZone = nullptr;
     std::shared_ptr<QLabel> labelToolbarZoom = nullptr;
     std::shared_ptr<QSlider> sliderZoom = nullptr;
     std::shared_ptr<QLabel> labelToolbarZoomValue = nullptr;
-    std::string m_currentFilePath = "";
+    std::string m_currentFilePath;
     bool m_functionAfterShownCalled = false;
     bool m_closeFormRequested = false;
     void componentInitialization();
@@ -63,9 +68,12 @@ Q_OBJECT
     void changeViewTextureSelectionVisibility(bool visible);
     void toggleViewDebuggingInfo();
     void changeViewDebuggingInfoVisibility(bool visible);
+    void toggleViewNPCWanderingZone();
+    void toggleViewMonsterZone();
     void action_LightTheme_Click();
     void action_DarkTheme_Click();
     void action_DisplayGrid_Click();
+    void action_DisplayNPCs_Click();
     void action_ManageItemStore_Click();
     void action_ManageMonsterStore_Click();
     void setActiveToolbarActionChecked(SelectionMode mode);
@@ -88,6 +96,9 @@ Q_OBJECT
     void onComboBoxToolbarMonsterZoneCurrentIndexChanged();
     void action_ApplyMonsterZone();
     void action_ClearMonsterZone();
+    void onComboBoxToolbarNPCWanderingZoneCurrentIndexChanged();
+    void action_ApplyNPCWanderingZone();
+    void action_ClearNPCWanderingZone();
     void sliderZoomValueChanged(int value);
     void tabWidgetMapViewChanged(int index);
     void openMap(const std::string &filePath);
@@ -107,16 +118,23 @@ Q_OBJECT
     void onEditHistoryChanged();
     void onClipboardChanged();
     void onZoomChanged(int zoomPercentage);
-    void onTextureAdded(commoneditor::ui::TextureDTO textureDTO);
-    void onTextureUpdated(const std::string &name, commoneditor::ui::TextureDTO textureDTO);
+    void onNPCSpawnPositionPickerModeChanged(bool enabled);
+    void onNPCSpawnPositionPickerTileSelected(const thewarrior::models::Point<> &position);
+    void onTextureAdded(const commoneditor::ui::TextureDTO &textureDTO);
+    void onTextureUpdated(const std::string &name, const commoneditor::ui::TextureDTO &textureDTO);
     void onTextureDeleted(const std::string &name);
     void refreshTextureList();
-    void onMonsterZoneAdded(mapeditor::controllers::MonsterZoneDTO monsterZoneDTO);
-    void onMonsterZoneUpdated(const std::string &name, mapeditor::controllers::MonsterZoneDTO monsterZoneDTO);
+    void onMonsterZoneAdded(const mapeditor::controllers::MonsterZoneDTO &monsterZoneDTO);
+    void onMonsterZoneUpdated(const std::string &name, const mapeditor::controllers::MonsterZoneDTO &monsterZoneDTO);
     void onMonsterZoneDeleted(const std::string &name);
     void refreshMonsterZones();
     void toggleMonsterZoneAssignationControls();
     void useOnlyOneMonsterZoneChanged(bool value);
+    void refreshNPCs();
+    void toggleNPCAssignationControls();
+    void onNPCAdded(const mapeditor::controllers::NPCDTO &npcDTO);
+    void onNPCUpdated(const std::string &id, const mapeditor::controllers::NPCDTO &npcDTO);
+    void onNPCDeleted(const std::string &id);
     void onMapPropsComponentBeforeChange();
 };
 

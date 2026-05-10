@@ -1,10 +1,8 @@
 #pragma once
 
 #include <cstddef>
-#include <map>
 #include <memory>
 #include <string>
-#include <vector>
 #include "player.hpp"
 #include "itemDTO.hpp"
 #include "itemStore.hpp"
@@ -34,8 +32,10 @@ class GameMapModeController {
     size_t getMessageCount() const;
     std::shared_ptr<thewarrior::ui::models::MessagePipeline> getMessagePipeline();
     bool isTileActionAlreadyProcessed(const std::string &mapName, int tileIndex) const;
+    bool isTileOccupyByNPC(const thewarrior::models::Point<> &position);
     void setCurrentMapName(const std::string &mapName) const;
     void setPlayerPosition(const thewarrior::models::Point<> &position);
+    void clearNPCsWorldState();
     void acknowledgeMessage();
     bool addItemToInventory(thewarrior::models::Player *player, const std::string &id);
     void addMessageToPipeline(std::unique_ptr<MessageDTO> messageDTO);
@@ -46,9 +46,10 @@ class GameMapModeController {
     bool loadMonsterStore(const std::string &filePath);
     bool saveGameState(thewarrior::models::Player &player);
 
+
  private:
-    std::string m_lastError = "";
-    std::string m_resourcesPath = "";
+    std::string m_lastError;
+    std::string m_resourcesPath;
     std::shared_ptr<thewarrior::models::WorldState> m_worldState = nullptr;
     std::shared_ptr<thewarrior::models::ItemStore> m_itemStore;
     std::shared_ptr<thewarrior::models::MonsterStore> m_monsterStore;

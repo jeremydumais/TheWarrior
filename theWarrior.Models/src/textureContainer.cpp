@@ -1,43 +1,36 @@
-#include "textureContainer.hpp"
 #include <fmt/format.h>
+#include <algorithm>
 #include <stdexcept>
-
-using namespace std;
+#include <string>
+#include <utility>
+#include <vector>
+#include "textureContainer.hpp"
 
 namespace thewarrior::models {
 
-TextureContainer::TextureContainer()
-    : m_textures(vector<Texture>())
-{
-}
-const std::string &TextureContainer::getLastError() const
-{
+const std::string &TextureContainer::getLastError() const {
     return m_lastError;
 }
 
-const vector<Texture>& TextureContainer::getTextures() const
-{
+const std::vector<Texture>& TextureContainer::getTextures() const {
     return m_textures;
 }
 
-size_t TextureContainer::getCount() const
-{
+size_t TextureContainer::getCount() const {
     return m_textures.size();
 }
 
-optional<reference_wrapper<const Texture>> TextureContainer::getTextureByName(const std::string &name) const
-{
-    for(const auto &texture : m_textures) {
+std::optional<std::reference_wrapper<const Texture>> TextureContainer::getTextureByName(const std::string &name) const {
+    for (const auto &texture : m_textures) {
         if (texture.getName() == name) {
-            return optional<reference_wrapper<const Texture>>{texture};
+            return std::optional<std::reference_wrapper<const Texture>>{texture};
         }
     }
-    return nullopt;
+    return std::nullopt;
 }
 
-bool TextureContainer::addTexture(const TextureInfo &textureInfo)
-{
-    //Check that name doesn't already exist in the list
+bool TextureContainer::addTexture(const TextureInfo &textureInfo) {
+    // Check that name doesn't already exist in the list
     if (getTextureByName(textureInfo.name).has_value()) {
         m_lastError = fmt::format("The texture name {0} already exist in the list", textureInfo.name);
         return false;
@@ -45,41 +38,39 @@ bool TextureContainer::addTexture(const TextureInfo &textureInfo)
     try {
         m_textures.emplace_back(textureInfo);
     }
-    catch(invalid_argument &err) {
+    catch(std::invalid_argument &err) {
         m_lastError = err.what();
         return false;
     }
     return true;
 }
 
-bool TextureContainer::replaceTexture(const std::string &name, const TextureInfo &textureInfo)
-{
-    //Find the texture to replace
+bool TextureContainer::replaceTexture(const std::string &name, const TextureInfo &textureInfo) {
+    // Find the texture to replace
     auto iter { getTextureIterator(name) };
     if (iter == m_textures.end()) {
         m_lastError = fmt::format("Unable to find the texture {0} in the texture list.", name);
         return false;
     }
-    //Ensure the new name doesn't exist
+    // Ensure the new name doesn't exist
     if (name != textureInfo.name && getTextureIterator(textureInfo.name) != m_textures.end()) {
         m_lastError = fmt::format("The texture {0} already exist in the texture list.", textureInfo.name);
         return false;
     }
-    //Try to construct the new texture
+    // Try to construct the new texture
     try {
         Texture newTexture(textureInfo);
-        swap(*iter, newTexture);
+        std::swap(*iter, newTexture);
     }
-    catch(invalid_argument &err) {
+    catch(std::invalid_argument &err) {
         m_lastError = err.what();
         return false;
     }
     return true;
 }
 
-bool TextureContainer::removeTexture(const std::string &name)
-{
-    //Find the texture to delete
+bool TextureContainer::removeTexture(const std::string &name) {
+    // Find the texture to delete
     auto iter { getTextureIterator(name) };
     if (iter == m_textures.end()) {
         m_lastError = fmt::format("Unable to find the texture {0} in the texture list.", name);
@@ -89,11 +80,10 @@ bool TextureContainer::removeTexture(const std::string &name)
     return true;
 }
 
-vector<Texture>::iterator TextureContainer::getTextureIterator(const string &name)
-{
-    return find_if(m_textures.begin(), m_textures.end(), [&name](const Texture &x) {
+std::vector<Texture>::iterator TextureContainer::getTextureIterator(const std::string &name) {
+    return std::ranges::find_if(m_textures, [&name](const Texture &x) {
         return x.getName() == name;
     });
 }
 
-} // namespace thewarrior::models
+}  // namespace thewarrior::models

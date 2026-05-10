@@ -4,5 +4,6 @@ enum class SelectionMode {
     Select,
     MoveMap,
     PickerTool,
-    Paste
+    Paste,
+    NPCSpawnPositionPickerTool
 };

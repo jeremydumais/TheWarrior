@@ -9,10 +9,12 @@
 #include "gameMap.hpp"
 #include "../mapOpenGLWidget.hpp"
 #include "glComponentController.hpp"
+#include "mapTile.hpp"
 #include "mapView.hpp"
 #include "mapTileDTO.hpp"
 #include "monsterZoneDTO.hpp"
 #include "pickerToolSelection.hpp"
+#include "point.hpp"
 #include "selectionMode.hpp"
 
 
@@ -24,6 +26,7 @@ class MainForm_GLComponent : public QWidget {
     mapeditor::controllers::GLComponentController *getControllerPtr();
     void initializeUIObjects(MapOpenGLWidget *glWidget);
     void connectUIActions();
+    const std::string &getLastError() const;
     const std::string &getResourcesPath() const;
     SelectionMode getSelectionMode() const;
     unsigned int getMapWidth() const;
@@ -31,9 +34,11 @@ class MainForm_GLComponent : public QWidget {
     size_t getHistoryCurrentIndex() const;
     size_t getHistoryCount() const;
     bool isClipboardEmpty() const;
-    void setCurrentMap(std::shared_ptr<thewarrior::models::GameMap> map);
+    void setCurrentMap(const std::shared_ptr<thewarrior::models::GameMap> &map);
     void setResourcesPath(const std::string &path);
     void setSelectionMode(SelectionMode mode);
+    void restorePreviousSelectionMode();
+    void setMapFocus();
     void setMapView(MapView view);
     std::vector<mapeditor::controllers::MapTileDTO> getCurrentMapTiles();
     bool isSelectedMapTiles() const;
@@ -43,14 +48,17 @@ class MainForm_GLComponent : public QWidget {
     void clearLastSelectedObject();
     void setLastSelectedMonsterZone(int index);
     void clearLastSelectedMonsterZone();
+    void setLastSelectedNPC(const std::string &npcName);
+    void clearLastSelectedNPC();
     void stopAutoUpdate();
     void startAutoUpdate();
     void resetMapMovePosition();
     void updateGL();
-    const std::vector<thewarrior::models::Texture>& getTextures() const;
+    const std::vector<thewarrior::models::Texture> &getTextures() const;
     std::optional<std::reference_wrapper<const thewarrior::models::Texture>> getTextureByName(const std::string &name) const;
     std::vector<std::string> getAlreadyUsedTextureNames() const;
     bool isTextureUsedInMap(const std::string &name);
+    bool isTextureUsedByNPCs(const std::string &name);
     void reloadTextures();
     bool isShrinkMapImpactAssignedTiles(int offsetLeft,
             int offsetTop,
@@ -78,6 +86,9 @@ class MainForm_GLComponent : public QWidget {
     void applyMonsterZone();
     void clearMonsterZone();
     bool setUseOnlyOneMonsterZone(bool value);
+    void setNPCSpawnPositionPickerMode(bool value);
+    bool applyNPCWanderingZone();
+    bool clearNPCWanderingZone();
 
  signals:
     void tileSelected(std::vector<mapeditor::controllers::MapTileDTO> tiles);
@@ -88,12 +99,19 @@ class MainForm_GLComponent : public QWidget {
     void editHistoryChanged();
     void clipboardChanged();
     void zoomChanged(int zoomPercentage);
+    void npcSpawnPositionPickerModeChanged(bool enabled);
+    void npcSpawnPositionPickerTileSelected(const thewarrior::models::Point<> &position);
+
 
  private:
     MapOpenGLWidget *m_glWidget;
     mapeditor::controllers::GLComponentController m_controller;
+    std::string m_lastError;
     void onTileClicked(const std::set<int> &tileIndices, int, int);
     void onPickerToolTileSelected(const PickerToolSelection &selection);
+    void onNPCSpawnPositionPickerToolTileSelected(const thewarrior::models::MapTile &tile,
+                                                  const thewarrior::models::Point<> &position);
+    void onNPCSpawnPositionPickerToolCanceled();
     void onZoomChanged(int zoomPercentage);
     void onClipboardPasted();
 };

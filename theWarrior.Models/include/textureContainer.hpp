@@ -1,19 +1,19 @@
 #pragma once
 
+#include <optional>
+#include <string>
+#include <vector>
 #include "texture.hpp"
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/version.hpp>
-#include <optional>
-#include <vector>
 
 namespace thewarrior::models {
 
-class TextureContainer
-{
-public:
-    TextureContainer();
+class TextureContainer {
+ public:
+    TextureContainer() = default;
     const std::string &getLastError() const;
     const std::vector<Texture> &getTextures() const;
     size_t getCount() const;
@@ -21,19 +21,19 @@ public:
     bool addTexture(const TextureInfo &textureInfo);
     bool replaceTexture(const std::string &name, const TextureInfo &textureInfo);
     bool removeTexture(const std::string &name);
-private:
+
+ private:
     friend class boost::serialization::access;
     std::string m_lastError;
     std::vector<Texture> m_textures;
     std::vector<Texture>::iterator getTextureIterator(const std::string &name);
-    //Serialization method
+    // Serialization method
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int)
-    {
+    void serialize(Archive & ar, const unsigned int) {
         ar & m_textures;
     }
 };
 
-} // namespace thewarrior::models
+}  // namespace thewarrior::models
 
 BOOST_CLASS_VERSION(thewarrior::models::TextureContainer, 0)

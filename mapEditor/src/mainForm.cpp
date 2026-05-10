@@ -14,6 +14,7 @@
 #include "aboutBoxForm.hpp"
 #include "components/debugInfoDockWidget.hpp"
 #include "components/mapPropsComponent.hpp"
+#include "components/npcListComponent.hpp"
 #include "constants.hpp"
 #include "errorMessage.hpp"
 #include "gameMapStorage.hpp"
@@ -21,6 +22,8 @@
 #include "manageMonsterStoreForm.hpp"
 #include "mapView.hpp"
 #include "monsterZoneDTO.hpp"
+#include "npcDTO.hpp"
+#include "point.hpp"
 #include "selectionMode.hpp"
 #include "textureDTO.hpp"
 
@@ -28,6 +31,8 @@ using commoneditor::ui::ErrorMessage;
 using commoneditor::ui::TextureDTO;
 using mapeditor::controllers::MapTileDTO;
 using mapeditor::controllers::MonsterZoneDTO;
+using mapeditor::controllers::NPCDTO;
+using thewarrior::models::Point;
 using thewarrior::storage::GameMapStorage;
 
 MainForm::MainForm(QWidget *parent,
@@ -61,9 +66,11 @@ MainForm::MainForm(QWidget *parent,
     labelToolbarMonsterZoneColor = std::make_shared<QLabel>(this);
     labelToolbarMonsterZoneColor->setFixedWidth(40);
     labelToolbarMonsterZoneColor->setFixedHeight(32);
-    ui.toolBar->insertWidget(ui.action_ApplyMonsterZone, labelToolbarMonsterZoneColor.get());
+    ui.toolBarMonsterZone->insertWidget(ui.action_ApplyMonsterZone, labelToolbarMonsterZoneColor.get());
     comboBoxToolbarMonsterZone = std::make_shared<QComboBox>(this);
-    ui.toolBar->insertWidget(ui.action_ApplyMonsterZone, comboBoxToolbarMonsterZone.get());
+    ui.toolBarMonsterZone->insertWidget(ui.action_ApplyMonsterZone, comboBoxToolbarMonsterZone.get());
+    comboBoxToolbarNPCWanderingZone = std::make_shared<QComboBox>(this);
+    ui.toolBarNPCWanderingZone->insertWidget(ui.action_ApplyNPCWanderingZone, comboBoxToolbarNPCWanderingZone.get());
     labelToolbarZoom = std::make_shared<QLabel>(this);
     labelToolbarZoom->setText("Zoom: ");
     labelToolbarZoom->setMargin(10);
@@ -99,6 +106,7 @@ MainForm::MainForm(QWidget *parent,
     refreshClipboardControls();
     refreshTextureList();
     refreshMonsterZones();
+    refreshNPCs();
     m_mapPropsComponent->reset();
     action_SelectClick();
     tabWidgetMapViewChanged(static_cast<int>(MapView::Standard));
@@ -124,6 +132,14 @@ void MainForm::componentInitialization() {
     m_monsterZoneListComponent->setMonsterStores(m_controller.getMonsterStores());
     m_monsterZoneListComponent->setResourcesPath(m_controller.getResourcesPath());
     ui.toolBox->addItem(m_monsterZoneListComponent.get(), "Monster zones");
+
+
+    m_npcListComponent = std::make_shared<NPCListComponent>(this,
+            &m_glComponent,
+            m_glComponent.getControllerPtr());
+    m_npcListComponent->setResourcesPath(m_controller.getResourcesPath());
+    ui.toolBox->addItem(m_npcListComponent.get(), "NPC list");
+
     ui.toolBox->removeItem(0);
 
     m_textureSelectionDockWidget = std::make_shared<TextureSelectionDockWidget>(this,
@@ -152,9 +168,12 @@ void MainForm::connectUIActions() {
     connect(ui.actionView_MapConfig, &QAction::triggered, this, &MainForm::toggleViewMapConfiguration);
     connect(ui.actionView_TextureSelection, &QAction::triggered, this, &MainForm::toggleViewTextureSelection);
     connect(ui.actionView_DebuggingInfo, &QAction::triggered, this, &MainForm::toggleViewDebuggingInfo);
+    connect(ui.actionView_NPCWanderingZone, &QAction::triggered, this, &MainForm::toggleViewNPCWanderingZone);
+    connect(ui.actionView_MonsterZone, &QAction::triggered, this, &MainForm::toggleViewMonsterZone);
     connect(ui.action_LightTheme, &QAction::triggered, this, &MainForm::action_LightTheme_Click);
     connect(ui.action_DarkTheme, &QAction::triggered, this, &MainForm::action_DarkTheme_Click);
     connect(ui.action_DisplayGrid, &QAction::triggered, this, &MainForm::action_DisplayGrid_Click);
+    connect(ui.action_DisplayNPCs, &QAction::triggered, this, &MainForm::action_DisplayNPCs_Click);
     connect(ui.action_ItemStore, &QAction::triggered, this, &MainForm::action_ManageItemStore_Click);
     connect(ui.action_MonsterStore, &QAction::triggered, this, &MainForm::action_ManageMonsterStore_Click);
     connect(ui.action_Select, &QAction::triggered, this, &MainForm::action_SelectClick);
@@ -176,6 +195,9 @@ void MainForm::connectUIActions() {
     connect(comboBoxToolbarMonsterZone.get(), static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm::onComboBoxToolbarMonsterZoneCurrentIndexChanged);
     connect(ui.action_ApplyMonsterZone, &QAction::triggered, this, &MainForm::action_ApplyMonsterZone);
     connect(ui.action_ClearMonsterZone, &QAction::triggered, this, &MainForm::action_ClearMonsterZone);
+    connect(ui.action_ApplyNPCWanderingZone, &QAction::triggered, this, &MainForm::action_ApplyNPCWanderingZone);
+    connect(ui.action_ClearNPCWanderingZone, &QAction::triggered, this, &MainForm::action_ClearNPCWanderingZone);
+    connect(comboBoxToolbarNPCWanderingZone.get(), static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &MainForm::onComboBoxToolbarNPCWanderingZoneCurrentIndexChanged);
     connect(sliderZoom.get(), &QSlider::valueChanged, this, &MainForm::sliderZoomValueChanged);
     connect(ui.tabWidgetMapView, &QTabWidget::currentChanged, this, &MainForm::tabWidgetMapViewChanged);
     connect(ui.dockWidgetMapConfig, &QClosableDockWidget::onCloseEvent, this, &MainForm::widgetMapConfigClosed);
@@ -187,6 +209,8 @@ void MainForm::connectUIActions() {
     connect(&m_glComponent, &MainForm_GLComponent::editHistoryChanged, this, &MainForm::onEditHistoryChanged);
     connect(&m_glComponent, &MainForm_GLComponent::clipboardChanged, this, &MainForm::onClipboardChanged);
     connect(&m_glComponent, &MainForm_GLComponent::zoomChanged, this, &MainForm::onZoomChanged);
+    connect(&m_glComponent, &MainForm_GLComponent::npcSpawnPositionPickerModeChanged, this, &MainForm::onNPCSpawnPositionPickerModeChanged);
+    connect(&m_glComponent, &MainForm_GLComponent::npcSpawnPositionPickerTileSelected, this, &MainForm::onNPCSpawnPositionPickerTileSelected);
     connect(m_textureListComponent.get(), &TextureListComponent::textureAdded, this, &MainForm::onTextureAdded);
     connect(m_textureListComponent.get(), &TextureListComponent::textureUpdated, this, &MainForm::onTextureUpdated);
     connect(m_textureListComponent.get(), &TextureListComponent::textureDeleted, this, &MainForm::onTextureDeleted);
@@ -194,6 +218,9 @@ void MainForm::connectUIActions() {
     connect(m_monsterZoneListComponent.get(), &MonsterZoneListComponent::monsterZoneUpdated, this, &MainForm::onMonsterZoneUpdated);
     connect(m_monsterZoneListComponent.get(), &MonsterZoneListComponent::monsterZoneDeleted, this, &MainForm::onMonsterZoneDeleted);
     connect(m_monsterZoneListComponent.get(), &MonsterZoneListComponent::useOnlyOneMonsterZoneChanged, this, &MainForm::useOnlyOneMonsterZoneChanged);
+    connect(m_npcListComponent.get(), &NPCListComponent::npcAdded, this, &MainForm::onNPCAdded);
+    connect(m_npcListComponent.get(), &NPCListComponent::npcUpdated, this, &MainForm::onNPCUpdated);
+    connect(m_npcListComponent.get(), &NPCListComponent::npcDeleted, this, &MainForm::onNPCDeleted);
 }
 
 void MainForm::action_Open_Click() {
@@ -210,7 +237,7 @@ void MainForm::action_Open_Click() {
 }
 
 void MainForm::action_OpenRecentMap_Click() {
-    QAction *recentAction = qobject_cast<QAction *>(sender());
+    auto *recentAction = qobject_cast<QAction *>(sender());
     std::string filename = recentAction->text().toStdString();
     ui.mapOpenGLWidget->stopAutoUpdate();
     openMap(filename);
@@ -219,7 +246,7 @@ void MainForm::action_OpenRecentMap_Click() {
 }
 
 void MainForm::action_Save_Click() {
-    if (m_currentFilePath == "") {
+    if (m_currentFilePath.empty()) {
         action_SaveAs_Click();
     } else {
         m_controller.saveMap(m_currentFilePath);
@@ -242,9 +269,6 @@ void MainForm::action_SaveAs_Click() {
     ui.mapOpenGLWidget->startAutoUpdate();
 }
 
-MainForm::~MainForm() {
-}
-
 void MainForm::functionAfterShown() {
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
 }
@@ -264,7 +288,6 @@ void MainForm::closeEvent(QCloseEvent *event) {
     settings.setValue(WINDOWSTATEGEOMETRY, saveGeometry());
     settings.setValue(WINDOWSTATESTATE, saveState());
     event->accept();
-
 }
 
 void MainForm::action_About_Click() {
@@ -280,7 +303,7 @@ void MainForm::toggleViewMapConfiguration() {
 void MainForm::changeViewMapConfigurationVisibility(bool visible) {
     if (!m_closeFormRequested) {
         ui.dockWidgetMapConfig->setVisible(visible);
-        if (!m_controller.setDisplayToolbarsMapConfigState(visible)) {
+        if (!m_controller.setDisplayEditorsMapConfigState(visible)) {
             ErrorMessage::show(m_controller.getLastError());
         }
     }
@@ -294,7 +317,7 @@ void MainForm::toggleViewTextureSelection() {
 void MainForm::changeViewTextureSelectionVisibility(bool visible) {
     if (!m_closeFormRequested) {
         m_textureSelectionDockWidget->setVisible(visible);
-        if (!m_controller.setDisplayToolbarsTextureSelectionState(visible)) {
+        if (!m_controller.setDisplayEditorsTextureSelectionState(visible)) {
             ErrorMessage::show(m_controller.getLastError());
         }
     }
@@ -308,14 +331,34 @@ void MainForm::toggleViewDebuggingInfo() {
 void MainForm::changeViewDebuggingInfoVisibility(bool visible) {
     if (!m_closeFormRequested) {
         m_debugInfoDockWidget->setVisible(visible);
-        if (!m_controller.setDisplayToolbarsDebuggingInfoState(visible)) {
+        if (!m_controller.setDisplayEditorsDebuggingInfoState(visible)) {
+            ErrorMessage::show(m_controller.getLastError());
+        }
+    }
+}
+
+void MainForm::toggleViewNPCWanderingZone() {
+    bool newVisibleState = !ui.toolBarNPCWanderingZone->isVisible();
+    if (!m_closeFormRequested) {
+        ui.toolBarNPCWanderingZone->setVisible(newVisibleState);
+        if (!m_controller.setDisplayToolbarsNPCWanderingZoneState(newVisibleState)) {
+            ErrorMessage::show(m_controller.getLastError());
+        }
+    }
+}
+
+void MainForm::toggleViewMonsterZone() {
+    bool newVisibleState = !ui.toolBarMonsterZone->isVisible();
+    if (!m_closeFormRequested) {
+        ui.toolBarMonsterZone->setVisible(newVisibleState);
+        if (!m_controller.setDisplayToolbarsMonsterZoneState(newVisibleState)) {
             ErrorMessage::show(m_controller.getLastError());
         }
     }
 }
 
 void MainForm::action_LightTheme_Click() {
-    std::string theme = "";
+    std::string theme;
     if (!m_controller.setThemeConfigValue(theme)) {
         ErrorMessage::show(m_controller.getLastError());
     }
@@ -334,6 +377,14 @@ void MainForm::action_DisplayGrid_Click() {
     bool isGridDisplayed = ui.action_DisplayGrid->isChecked();
     ui.mapOpenGLWidget->setGridEnabled(isGridDisplayed);
     if (!m_controller.setDisplayGridConfigState(isGridDisplayed)) {
+        ErrorMessage::show(m_controller.getLastError());
+    }
+}
+
+void MainForm::action_DisplayNPCs_Click() {
+    bool isNPCsDisplayed = ui.action_DisplayNPCs->isChecked();
+    ui.mapOpenGLWidget->setShowNPCsEnabled(isNPCsDisplayed);
+    if (!m_controller.setDisplayNPCsConfigState(isNPCsDisplayed)) {
         ErrorMessage::show(m_controller.getLastError());
     }
 }
@@ -376,6 +427,7 @@ void MainForm::action_UndoClick() {
     m_glComponent.undo();
     refreshTextureList();
     refreshMonsterZones();
+    refreshNPCs();
     m_mapPropsComponent->refresh();
     m_tilePropsComponent->refresh();
     m_monsterZoneListComponent->enableFieldsChangeEvent();
@@ -388,6 +440,7 @@ void MainForm::action_RedoClick() {
     m_glComponent.redo();
     refreshTextureList();
     refreshMonsterZones();
+    refreshNPCs();
     m_mapPropsComponent->refresh();
     m_tilePropsComponent->refresh();
     m_monsterZoneListComponent->enableFieldsChangeEvent();
@@ -418,6 +471,11 @@ void MainForm::action_EnableCanStepClick() {
 }
 
 void MainForm::action_DisableCanStepClick() {
+    // Check if NPCs occupy some of the selected tiles
+    if (!m_controller.canDisableCanSteppedOnForSelectedTiles()) {
+        ErrorMessage::show("Cannot disable the 'Can player step on' option for the selected tiles because one or more NPCs are assigned to them.");
+        return;
+    }
     m_glComponent.applyCanStep(false);
     ui.tabWidgetMapView->setCurrentIndex(1);
 }
@@ -450,7 +508,7 @@ void MainForm::action_ClearBlockedBordersClick() {
 void MainForm::onComboBoxToolbarMonsterZoneCurrentIndexChanged() {
     const auto zoneName = comboBoxToolbarMonsterZone->currentText().toStdString();
     const auto colorValue = m_monsterZoneListComponent->getMonsterZoneColor(zoneName);
-    const auto defaultStyle = "margin-right: 8px; border-radius: 5px; border: 1px solid black";
+    const auto *const defaultStyle = "margin-right: 8px; border-radius: 5px; border: 1px solid black";
     if (!colorValue.empty()) {
         labelToolbarMonsterZoneColor->setStyleSheet(fmt::format("background-color: {0}; {1}",
                     colorValue,
@@ -471,6 +529,30 @@ void MainForm::action_ClearMonsterZone() {
     ui.tabWidgetMapView->setCurrentIndex(3);
 }
 
+void MainForm::onComboBoxToolbarNPCWanderingZoneCurrentIndexChanged() {
+    if (comboBoxToolbarNPCWanderingZone->currentIndex() != -1) {
+        m_glComponent.setLastSelectedNPC(comboBoxToolbarNPCWanderingZone->currentText().toStdString());
+    } else {
+        m_glComponent.clearLastSelectedNPC();
+    }
+}
+
+void MainForm::action_ApplyNPCWanderingZone() {
+    if (!m_glComponent.applyNPCWanderingZone()) {
+        ErrorMessage::show(m_glComponent.getLastError());
+        return;
+    }
+    ui.tabWidgetMapView->setCurrentIndex(4);
+}
+
+void MainForm::action_ClearNPCWanderingZone() {
+    if (!m_glComponent.clearNPCWanderingZone()) {
+        ErrorMessage::show(m_glComponent.getLastError());
+        return;
+    }
+    ui.tabWidgetMapView->setCurrentIndex(4);
+}
+
 void MainForm::sliderZoomValueChanged(int value) {
     labelToolbarZoomValue->setText(fmt::format("{0}%", value).c_str());
     ui.mapOpenGLWidget->setZoom(value);
@@ -489,6 +571,9 @@ void MainForm::tabWidgetMapViewChanged(int index) {
             break;
         case 3:
             m_glComponent.setMapView(MapView::MonsterZones);
+            break;
+        case 4:
+            m_glComponent.setMapView(MapView::NPCWanderingZones);
             break;
         default:
             break;
@@ -518,12 +603,13 @@ void MainForm::openMap(const std::string &filePath) {
     refreshClipboardControls();
     refreshTextureList();
     refreshMonsterZones();
+    refreshNPCs();
     m_tilePropsComponent->reset();
     m_mapPropsComponent->reset();
 }
 
 void MainForm::refreshWindowTitle() {
-    if (m_currentFilePath == "") {
+    if (m_currentFilePath.empty()) {
         setWindowTitle("MapEditor");
     } else {
         setWindowTitle(fmt::format("MapEditor - {0}", m_currentFilePath).c_str());
@@ -571,13 +657,19 @@ void MainForm::addNewRecentMap(const std::string &filePath) {
 
 void MainForm::restorePersistedMenuState() {
     ui.action_DisplayGrid->setChecked(m_controller.getDisplayGridConfigState());
-    ui.actionView_MapConfig->setChecked(m_controller.getDisplayToolbarsMapConfigState());
-    ui.dockWidgetMapConfig->setVisible(m_controller.getDisplayToolbarsMapConfigState());
-    ui.actionView_TextureSelection->setChecked(m_controller.getDisplayToolbarsTextureSelectionState());
-    m_textureSelectionDockWidget->setVisible(m_controller.getDisplayToolbarsTextureSelectionState());
-    ui.actionView_DebuggingInfo->setChecked(m_controller.getDisplayToolbarsDebuggingInfoState());
-    m_debugInfoDockWidget->setVisible(m_controller.getDisplayToolbarsDebuggingInfoState());
+    ui.action_DisplayNPCs->setChecked(m_controller.getDisplayNPCsConfigState());
+    ui.actionView_MapConfig->setChecked(m_controller.getDisplayEditorsMapConfigState());
+    ui.dockWidgetMapConfig->setVisible(m_controller.getDisplayEditorsMapConfigState());
+    ui.actionView_TextureSelection->setChecked(m_controller.getDisplayEditorsTextureSelectionState());
+    m_textureSelectionDockWidget->setVisible(m_controller.getDisplayEditorsTextureSelectionState());
+    ui.actionView_DebuggingInfo->setChecked(m_controller.getDisplayEditorsDebuggingInfoState());
+    m_debugInfoDockWidget->setVisible(m_controller.getDisplayEditorsDebuggingInfoState());
+    ui.actionView_MonsterZone->setChecked(m_controller.getDisplayToolbarsMonsterZoneState());
+    ui.toolBarMonsterZone->setVisible(m_controller.getDisplayToolbarsMonsterZoneState());
+    ui.actionView_NPCWanderingZone->setChecked(m_controller.getDisplayToolbarsNPCWanderingZoneState());
+    ui.toolBarNPCWanderingZone->setVisible(m_controller.getDisplayToolbarsNPCWanderingZoneState());
     ui.mapOpenGLWidget->setGridEnabled(ui.action_DisplayGrid->isChecked());
+    ui.mapOpenGLWidget->setShowNPCsEnabled(ui.action_DisplayNPCs->isChecked());
     setAppStylesheet(m_controller.getThemeConfigValue());
 }
 
@@ -640,7 +732,31 @@ void MainForm::onZoomChanged(int zoomPercentage) {
     sliderZoom->setValue(zoomPercentage);
 }
 
-void MainForm::onTextureAdded(TextureDTO textureDTO) {
+void MainForm::onNPCSpawnPositionPickerModeChanged(bool enabled) {
+    ui.toolBar->setEnabled(!enabled);
+    ui.toolBox->setEnabled(!enabled);
+    ui.menubar->setEnabled(!enabled);
+    m_mapPropsComponent->setEnabled(!enabled);
+    m_tilePropsComponent->setEnabled(!enabled);
+    m_textureListComponent->setEnabled(!enabled);
+    m_monsterZoneListComponent->setEnabled(!enabled);
+    m_npcListComponent->setEnabled(!enabled);
+    m_textureSelectionDockWidget->setEnabled(!enabled);
+    m_debugInfoDockWidget->setEnabled(!enabled);
+    if (enabled) {
+        m_glComponent.setSelectionMode(SelectionMode::NPCSpawnPositionPickerTool);
+        m_glComponent.setMapFocus();
+    } else {
+        m_glComponent.restorePreviousSelectionMode();
+    }
+}
+
+void MainForm::onNPCSpawnPositionPickerTileSelected(const Point<> &position) {
+    onNPCSpawnPositionPickerModeChanged(false);
+    m_npcListComponent->restoreEditForm(position);
+}
+
+void MainForm::onTextureAdded(const TextureDTO &textureDTO) {
     if (!m_controller.addTexture(textureDTO)) {
         ErrorMessage::show(m_controller.getLastError());
     }
@@ -648,7 +764,7 @@ void MainForm::onTextureAdded(TextureDTO textureDTO) {
     refreshUndoControls();
 }
 
-void MainForm::onTextureUpdated(const std::string &name, TextureDTO textureDTO) {
+void MainForm::onTextureUpdated(const std::string &name, const TextureDTO &textureDTO) {
     if (!m_controller.replaceTexture(name, textureDTO)) {
         ErrorMessage::show(m_controller.getLastError());
     }
@@ -670,7 +786,7 @@ void MainForm::refreshTextureList() {
     m_glComponent.reloadTextures();
 }
 
-void MainForm::onMonsterZoneAdded(MonsterZoneDTO monsterZoneDTO) {
+void MainForm::onMonsterZoneAdded(const MonsterZoneDTO &monsterZoneDTO) {
     m_tilePropsComponent->disableFieldsChangeEvent();
     if (m_controller.addMonsterZone(monsterZoneDTO)) {
         m_monsterZoneListComponent->confirmValidityOfOneMonsterZoneCheckBox();
@@ -682,7 +798,7 @@ void MainForm::onMonsterZoneAdded(MonsterZoneDTO monsterZoneDTO) {
     m_tilePropsComponent->enableFieldsChangeEvent();
 }
 
-void MainForm::onMonsterZoneUpdated(const std::string &name, MonsterZoneDTO monsterZoneDTO) {
+void MainForm::onMonsterZoneUpdated(const std::string &name, const MonsterZoneDTO &monsterZoneDTO) {
     m_tilePropsComponent->disableFieldsChangeEvent();
     if (!m_controller.replaceMonsterZone(name, monsterZoneDTO)) {
         ErrorMessage::show(m_controller.getLastError());
@@ -746,6 +862,67 @@ void MainForm::useOnlyOneMonsterZoneChanged(bool value) {
     }
     toggleMonsterZoneAssignationControls();
     refreshMonsterZones();
+    refreshUndoControls();
+    m_tilePropsComponent->enableFieldsChangeEvent();
+}
+
+void MainForm::refreshNPCs() {
+    m_npcListComponent->refreshNPCs();
+    auto npcs = m_npcListComponent->getNPCs();
+    // Refresh NPCs toolbar combobox
+    int selectedComboBoxIndex = comboBoxToolbarNPCWanderingZone->currentIndex();
+    comboBoxToolbarNPCWanderingZone->model()->removeRows(0, comboBoxToolbarNPCWanderingZone->count());
+    int i = 0;
+    for (const auto &npc : npcs) {
+        comboBoxToolbarNPCWanderingZone->insertItem(i, npc.id.c_str());
+        i++;
+    }
+    if (selectedComboBoxIndex != -1 && selectedComboBoxIndex < comboBoxToolbarNPCWanderingZone->count()) {
+        comboBoxToolbarNPCWanderingZone->setCurrentIndex(selectedComboBoxIndex);
+    }
+    if (comboBoxToolbarNPCWanderingZone->currentIndex() != -1) {
+        const std::string selectedNPCId = comboBoxToolbarNPCWanderingZone->currentText().toStdString();
+        m_glComponent.setLastSelectedNPC(selectedNPCId);
+    } else {
+        m_glComponent.clearLastSelectedNPC();
+    }
+    toggleNPCAssignationControls();
+}
+
+void MainForm::toggleNPCAssignationControls() {
+    bool active = !m_npcListComponent->isNPCListEmpty();
+    comboBoxToolbarNPCWanderingZone->setEnabled(active);
+    ui.action_ApplyNPCWanderingZone->setEnabled(active);
+    ui.action_ClearNPCWanderingZone->setEnabled(active);
+}
+
+void MainForm::onNPCAdded(const NPCDTO &npcDTO) {
+    m_tilePropsComponent->disableFieldsChangeEvent();
+    if (!m_controller.addNPC(npcDTO)) {
+        ErrorMessage::show(m_controller.getLastError());
+    }
+    refreshNPCs();
+    refreshUndoControls();
+    m_tilePropsComponent->enableFieldsChangeEvent();
+}
+
+void MainForm::onNPCUpdated(const std::string &id, const NPCDTO &npcDTO) {
+    m_tilePropsComponent->disableFieldsChangeEvent();
+    if (!m_controller.replaceNPC(id, npcDTO)) {
+        ErrorMessage::show(m_controller.getLastError());
+    }
+    refreshNPCs();
+    refreshUndoControls();
+    m_tilePropsComponent->enableFieldsChangeEvent();
+}
+
+void MainForm::onNPCDeleted(const std::string &id) {
+    m_tilePropsComponent->disableFieldsChangeEvent();
+    if (m_controller.removeNPC(id)) {
+    } else {
+        ErrorMessage::show(m_controller.getLastError());
+    }
+    refreshNPCs();
     refreshUndoControls();
     m_tilePropsComponent->enableFieldsChangeEvent();
 }

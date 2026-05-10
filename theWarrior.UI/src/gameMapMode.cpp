@@ -1,3 +1,4 @@
+#include <fmt/core.h>
 #include <fmt/format.h>
 #include <algorithm>
 #include <cmath>
@@ -14,6 +15,8 @@
 #include "gameMap.hpp"
 #include "gameMapStorage.hpp"
 #include "gameState.hpp"
+#include "glNPC.hpp"
+#include "glPlayer.hpp"
 #include "itemFoundMessageDTO.hpp"
 #include "mapTile.hpp"
 #include "monsterZone.hpp"
@@ -37,6 +40,7 @@ GameMapMode::GameMapMode() {
 GameMapMode::~GameMapMode() {
     m_glPlayer->unloadGLPlayerObject();
     unloadGLMapObjects();
+    unloadGLNPCObjects();
 }
 
 bool GameMapMode::initialize(const std::string &resourcesPath,
@@ -71,7 +75,6 @@ bool GameMapMode::initialize(const std::string &resourcesPath,
     m_choicePopup.initialize(resourcesPath, textService, inputDevicesState);
     const auto mapName = worldState->getCurrentMapName();
     loadMap(fmt::format("{0}/maps/{1}", resourcesPath, mapName), mapName);
-    loadMapTextures();
     generateGLMapObjects();
     m_glCharacterWindow.onCloseEvent.connect(boost::bind(&GameMapMode::onCharacterWindowClose, this));
     m_glInventory.onCloseEvent.connect(boost::bind(&GameMapMode::onInventoryWindowClose, this));
@@ -173,6 +176,9 @@ void GameMapMode::gameWindowSizeChanged(const Size<> &size) {
     unloadGLMapObjects();
     generateGLMapObjects();
     m_glPlayer->onGameWindowTileSizeChanged(m_tileSize);
+    for (auto &npc : m_glNPCs) {
+        npc.onGameWindowTileSizeChanged(m_tileSize);
+    }
     m_glInventory.gameWindowSizeChanged(size);
     m_glBattleWindow.gameWindowSizeChanged(size);
     m_glCharacterWindow.gameWindowSizeChanged(size);
@@ -259,8 +265,12 @@ void GameMapMode::render() {
     }
     // Render the player
     m_glPlayer->draw();
+    for (const auto &npc : m_glNPCs) {
+        npc.draw();
+    }
+
     // Draw all the object that appears above the player
-    for (auto item : tilesToBeDrawedAfterPlayer) {
+    for (auto *item : tilesToBeDrawedAfterPlayer) {
         drawObjectTile(*item);
     }
     // Display messages
@@ -339,8 +349,13 @@ void GameMapMode::moveUpPressed() {
     auto moveUpTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveUpPressed);
     if (moveUpTrigger.has_value()) {
         processAction(moveUpTrigger->getAction(), moveUpTrigger->getActionProperties());
-    } else if (m_map->canSteppedOnTile(Point<int>(playerCoord.x(), playerCoord.y() - 1))) {
-        m_glPlayer->moveUp();
+    } else {
+        const auto targetCoord = Point<int>(playerCoord.x(), playerCoord.y() - 1);
+        // Check if there an NPC on the tile we are planning to move
+        const bool isTileOccupyByNPC = m_controller.isTileOccupyByNPC(targetCoord);
+        if (m_map->canSteppedOnTile(targetCoord) && !isTileOccupyByNPC) {
+            m_glPlayer->moveUp();
+        }
     }
     m_glPlayer->faceUp();
     m_glPlayer->applyCurrentGLTexture(m_textureService);
@@ -353,8 +368,13 @@ void GameMapMode::moveDownPressed() {
     auto moveDownTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveDownPressed);
     if (moveDownTrigger.has_value()) {
         processAction(moveDownTrigger->getAction(), moveDownTrigger->getActionProperties());
-    } else if (m_map->canSteppedOnTile(Point<int>(playerCoord.x(), playerCoord.y() + 1))) {
-        m_glPlayer->moveDown(tile.getIsWallToClimb());
+    } else {
+        const auto targetCoord = Point<int>(playerCoord.x(), playerCoord.y() + 1);
+        // Check if there an NPC on the tile we are planning to move
+        const bool isTileOccupyByNPC = m_controller.isTileOccupyByNPC(targetCoord);
+        if (m_map->canSteppedOnTile(targetCoord) && !isTileOccupyByNPC) {
+            m_glPlayer->moveDown(tile.getIsWallToClimb());
+        }
     }
     if (tile.getIsWallToClimb()) {
         m_glPlayer->faceUp();
@@ -371,8 +391,13 @@ void GameMapMode::moveLeftPressed() {
     auto moveLeftTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveLeftPressed);
     if (moveLeftTrigger.has_value()) {
         processAction(moveLeftTrigger->getAction(), moveLeftTrigger->getActionProperties());
-    } else if (m_map->canSteppedOnTile(Point<int>(playerCoord.x() - 1, playerCoord.y()))) {
-        m_glPlayer->moveLeft();
+    } else {
+        const auto targetCoord = Point<int>(playerCoord.x() - 1, playerCoord.y());
+        // Check if there an NPC on the tile we are planning to move
+        const bool isTileOccupyByNPC = m_controller.isTileOccupyByNPC(targetCoord);
+        if (m_map->canSteppedOnTile(targetCoord) && !isTileOccupyByNPC) {
+            m_glPlayer->moveLeft();
+        }
     }
     if (tile.getIsWallToClimb()) {
         m_glPlayer->faceUp();
@@ -389,8 +414,13 @@ void GameMapMode::moveRightPressed() {
     auto moveRightTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveRightPressed);
     if (moveRightTrigger.has_value()) {
         processAction(moveRightTrigger->getAction(), moveRightTrigger->getActionProperties());
-    } else if (m_map->canSteppedOnTile(Point<int>(playerCoord.x() + 1, playerCoord.y()))) {
-        m_glPlayer->moveRight();
+    } else {
+        const auto targetCoord = Point<int>(playerCoord.x() + 1, playerCoord.y());
+        // Check if there an NPC on the tile we are planning to move
+        const bool isTileOccupyByNPC = m_controller.isTileOccupyByNPC(targetCoord);
+        if (m_map->canSteppedOnTile(targetCoord) && !isTileOccupyByNPC) {
+            m_glPlayer->moveRight();
+        }
     }
     if (tile.getIsWallToClimb()) {
         m_glPlayer->faceUp();
@@ -490,7 +520,6 @@ void GameMapMode::checkForMonsterEncounter(const MapTile &tile) {
         return MonsterEncounterRatio::Rare;
     }();
     // Get a list of available Monsters by type
-    const auto monsterEncounterList = zone.getMonsterEncounters();
     const auto monsterIdEncounter = selectMonsterEncounter(zone.getMonsterEncounters(), typeOfMonsterEncountered);
     m_inputMode = GameMapInputMode::Battle;
     m_glBattleWindow.prepareWindow(monsterIdEncounter);
@@ -510,37 +539,36 @@ std::string GameMapMode::selectMonsterEncounter(const std::vector<MonsterZoneMon
     std::copy_if(encounters.begin(),
                  encounters.end(),
                  std::back_inserter(rareMonsters),
-                 [](MonsterZoneMonsterEncounter encounter) {
+                 [](const MonsterZoneMonsterEncounter &encounter) {
                     return encounter.getEncounterRatio() == MonsterEncounterRatio::Rare;
                  });
     std::copy_if(encounters.begin(),
                  encounters.end(),
                  std::back_inserter(lessThanNormalMonsters),
-                 [](MonsterZoneMonsterEncounter encounter) {
+                 [](const MonsterZoneMonsterEncounter &encounter) {
                     return encounter.getEncounterRatio() == MonsterEncounterRatio::LessThanNormal;
                  });
     std::copy_if(encounters.begin(),
                  encounters.end(),
                  std::back_inserter(normalMonsters),
-                 [](MonsterZoneMonsterEncounter encounter) {
+                 [](const MonsterZoneMonsterEncounter &encounter) {
                     return encounter.getEncounterRatio() == MonsterEncounterRatio::Normal;
                  });
     const auto &monsterListToUse = [rareMonsters, lessThanNormalMonsters, normalMonsters, ratio]() {
-        if (ratio == MonsterEncounterRatio::Rare && rareMonsters.size() > 0) {
+        if (ratio == MonsterEncounterRatio::Rare && !rareMonsters.empty()) {
             return rareMonsters;
         }
-        if ((ratio == MonsterEncounterRatio::Rare || ratio == MonsterEncounterRatio::LessThanNormal) && lessThanNormalMonsters.size() > 0) {
+        if ((ratio == MonsterEncounterRatio::Rare || ratio == MonsterEncounterRatio::LessThanNormal) && !lessThanNormalMonsters.empty()) {
             return lessThanNormalMonsters;
         }
         return normalMonsters;
     }();
     if (monsterListToUse.size() == 1) {
         return monsterListToUse.at(0).getMonsterId();
-    } else {
-        std::uniform_int_distribution<> distributionMonsterSelection(1, static_cast<int>(monsterListToUse.size()));
-        size_t monsterRandomIndex = static_cast<size_t>(distributionMonsterSelection(RandomGenerator::instance()));
-        return monsterListToUse.at(monsterRandomIndex - 1).getMonsterId();
     }
+    std::uniform_int_distribution<> distributionMonsterSelection(1, static_cast<int>(monsterListToUse.size()));
+    auto monsterRandomIndex = static_cast<size_t>(distributionMonsterSelection(RandomGenerator::instance()));
+    return monsterListToUse.at(monsterRandomIndex - 1).getMonsterId();
 }
 
 void GameMapMode::loadMap(const std::string &filePath, const std::string &mapName) {
@@ -548,6 +576,21 @@ void GameMapMode::loadMap(const std::string &filePath, const std::string &mapNam
     try {
         mapStorage.loadMap(filePath, m_map);
         m_controller.setCurrentMapName(mapName);
+        m_controller.clearNPCsWorldState();
+        loadMapTextures();
+
+        m_glNPCs.clear();
+        for (const auto &npc : m_map->getNPCs()) {
+            // Find the related texture
+            const auto &textureResult = m_map->getTextureByName(npc.getTextureName());
+            if (!textureResult.has_value()) {
+                throw std::runtime_error(fmt::format("Unable to find the texture: {0}", npc.getTextureName()));
+            }
+            GLNPC glNPC(npc, textureResult->get());
+            glNPC.setGLTextureId(m_texturesGLMap[npc.getTextureName()]);
+            glNPC.initialize(m_tileSize, m_controller.getWorldState());
+            m_glNPCs.push_back(glNPC);
+        }
     }
     catch(std::invalid_argument &err) {
         std::cerr << err.what() << '\n';
@@ -560,8 +603,8 @@ void GameMapMode::loadMap(const std::string &filePath, const std::string &mapNam
 void GameMapMode::changeMap(const std::string &filePath, const std::string &mapName) {
     m_glPlayer->unloadGLPlayerObject();
     unloadGLMapObjects();
+    unloadGLNPCObjects();
     loadMap(filePath, mapName);
-    loadMapTextures();
     unloadGLMapObjects();
     generateGLMapObjects();
     m_glPlayer->generateGLPlayerObject();
@@ -643,6 +686,12 @@ void GameMapMode::unloadGLMapObjects() {
         }
     }
     m_glTiles.clear();
+}
+
+void GameMapMode::unloadGLNPCObjects() {
+    for (auto &glNPC : m_glNPCs) {
+        glNPC.unloadGLObject();
+    }
 }
 
 void GameMapMode::loadMapTextures() {

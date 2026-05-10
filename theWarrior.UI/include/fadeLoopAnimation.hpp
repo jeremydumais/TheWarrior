@@ -7,7 +7,7 @@ class FadeLoopAnimation : public thewarrior::ui::IAnimation {
     FadeLoopAnimation(float minBound, float maxBound, float step);
     ~FadeLoopAnimation() override = default;
     void process() override;
-    float getValue() override;
+    float getValue() const override;
     bool isCompleted() override;
 
 

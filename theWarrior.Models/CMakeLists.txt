@@ -1,7 +1,7 @@
 # Set project name
 set(PROJECT_NAME    "theWarrior.Models")
 
-find_package(Boost REQUIRED)
+find_package(Boost CONFIG REQUIRED)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
@@ -22,6 +22,7 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameMap.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/player.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/playerEquipment.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/inventory.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/npc.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/monster.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterStore.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterZone.cpp

@@ -6,6 +6,7 @@
 #include <vector>
 #include "mapTile.hpp"
 #include "monsterZone.hpp"
+#include "npc.hpp"
 #include "point.hpp"
 #include "texture.hpp"
 #include "textureContainer.hpp"
@@ -17,7 +18,8 @@
 
 namespace thewarrior::models {
 
-typedef std::optional<std::reference_wrapper<const MonsterZone>> OptMonsterZoneConstRef;
+using OptMonsterZoneConstRef = std::optional<std::reference_wrapper<const MonsterZone>>;
+using OptNPCConstRef = std::optional<std::reference_wrapper<const NPC>>;
 
 class GameMap {
  public:
@@ -26,15 +28,15 @@ class GameMap {
     const std::vector<std::vector<MapTile>> &getTiles() const;
     MapTile &getTileForEditing(int index);
     MapTile &getTileForEditing(Point<> coord);
-    const std::vector<MapTile *> getTilesForEditing(const std::set<int> &indices);
+    std::vector<MapTile *> getTilesForEditing(const std::set<int> &indices);
     const MapTile &getTileFromCoord(Point<> coord) const;
     unsigned int getWidth() const;
     unsigned int getHeight() const;
-    Point<> getCoordFromTileIndex(int index);
-    int getTileIndexFromCoord(Point<> coord);
+    Point<> getCoordFromTileIndex(int index) const;
+    int getTileIndexFromCoord(Point<> coord) const;
     const std::vector<Texture> &getTextures() const;
     std::optional<std::reference_wrapper<const Texture>> getTextureByName(const std::string &name) const;
-    bool canSteppedOnTile(Point<> playerCoord);
+    bool canSteppedOnTile(Point<> playerCoord) const;
     bool useOnlyOneMonsterZone() const;
     const std::vector<MonsterZone> &getMonsterZones() const;
     OptMonsterZoneConstRef getMonsterZoneByName(const std::string &zoneName) const;
@@ -42,24 +44,36 @@ class GameMap {
             int offsetTop,
             int offsetRight,
             int offsetBottom) const;
-    bool addTexture(const TextureInfo &textureInfo);
-    bool replaceTexture(const std::string &name, const TextureInfo &textureInfo);
-    bool removeTexture(const std::string &name);
-    bool addMonsterZone(const MonsterZone &zone);
-    bool replaceMonsterZone(const std::string &name, const MonsterZone &zone);
-    bool removeMonsterZone(const std::string &name);
     void resizeMap(int offsetLeft,
                    int offsetTop,
                    int offsetRight,
                    int offsetBottom);
+    bool addTexture(const TextureInfo &textureInfo);
+    bool replaceTexture(const std::string &name, const TextureInfo &textureInfo);
+    bool removeTexture(const std::string &name);
+    // Monster zone methods
+    bool addMonsterZone(const MonsterZone &zone);
+    bool replaceMonsterZone(const std::string &name, const MonsterZone &zone);
+    bool removeMonsterZone(const std::string &name);
     bool setUseOnlyOneMonsterZone(bool value);
     void unassignMonsterZoneOnAllTiles(int zoneIndex);
+    // NPC methods
+    bool isTileUsedByNPC(const Point<size_t> &coord) const;
+    bool isTilesIndicesUsedByNPC(const std::set<int> &indices) const;
+    const std::vector<NPC> &getNPCs() const;
+    OptNPCConstRef getNPCById(const std::string &id) const;
+    bool addNPC(const NPC &npc);
+    bool replaceNPC(const std::string &npcId, const NPC &npc);
+    bool removeNPC(const std::string &npcId);
+    bool addNPCWanderingZone(const std::string &npcId, const std::set<int> &selectedTilesIndices);
+    bool removeNPCWanderingZone(const std::string &npcId, const std::set<int> &selectedTilesIndices);
 
  private:
     friend class boost::serialization::access;
     std::string m_lastError;
     std::vector<std::vector<MapTile>> m_tiles;
     std::vector<MonsterZone> m_monsterZones;
+    std::vector<NPC> m_npcs;
     TextureContainer m_textureContainer;
     bool m_useOnlyOneMonsterZone;
     bool _isShrinkMapFromLeftImpactAssignedTiles(int offset) const;
@@ -71,9 +85,10 @@ class GameMap {
     void _resizeMapFromRight(int offset);
     void _resizeMapFromBottom(int offset);
     std::vector<MonsterZone>::iterator getMonsterZoneIterator(const std::string &name);
-    // Serialization method
+    std::vector<NPC>::iterator getNPCIterator(const std::string &npcId);
+    // Serialization methods
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version) {
+    void save(Archive& ar, const unsigned int version) const {
         ar & m_tiles;
         ar & m_textureContainer;
         if (version > 1) {
@@ -82,9 +97,33 @@ class GameMap {
         if (version > 2) {
             ar & m_useOnlyOneMonsterZone;
         }
+        if (version > 3) {
+            ar & m_npcs;
+        }
     }
+    template<class Archive>
+    void load(Archive& ar, const unsigned int version) {
+        m_monsterZones.clear();
+        m_useOnlyOneMonsterZone = false;
+        m_npcs.clear();
+
+        ar & m_tiles;
+        ar & m_textureContainer;
+
+        if (version > 1) {
+            ar & m_monsterZones;
+        }
+        if (version > 2) {
+            ar & m_useOnlyOneMonsterZone;
+        }
+        if (version > 3) {
+            ar & m_npcs;
+        }
+    }
+
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
 
 }  // namespace thewarrior::models
 
-BOOST_CLASS_VERSION(thewarrior::models::GameMap, 3)
+BOOST_CLASS_VERSION(thewarrior::models::GameMap, 4)

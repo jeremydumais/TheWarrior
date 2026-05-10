@@ -2,6 +2,8 @@
 #include <fmt/format.h>
 #include <memory>
 #include <stdexcept>
+#include <string>
+#include <utility>
 
 using namespace thewarrior::models;
 
@@ -9,27 +11,22 @@ namespace itemeditor::controllers {
 
 ManageItemController::ManageItemController(std::shared_ptr<ItemStore> itemStore)
     : m_itemStore(itemStore),
-      m_lastError("")
-{
+      m_lastError("") {
 }
 
-const std::string& ManageItemController::getLastError() const
-{
+const std::string& ManageItemController::getLastError() const {
     return m_lastError;
 }
 
-std::shared_ptr<ItemStore> ManageItemController::getItemStore()
-{
+std::shared_ptr<ItemStore> ManageItemController::getItemStore() {
     return m_itemStore;
 }
 
-const TextureContainer &ManageItemController::getTextureContainer() const
-{
+const TextureContainer &ManageItemController::getTextureContainer() const {
     return m_itemStore->getTextureContainer();
 }
 
-std::unique_ptr<ItemDTO> ManageItemController::getItem(const std::string &id) const
-{
+std::unique_ptr<ItemDTO> ManageItemController::getItem(const std::string &id) const {
     auto item = m_itemStore->findItem(id);
     if (item != nullptr) {
         auto retval = std::make_unique<ItemDTO>();
@@ -43,8 +40,7 @@ std::unique_ptr<ItemDTO> ManageItemController::getItem(const std::string &id) co
     return nullptr;
 }
 
-bool ManageItemController::addItem(std::unique_ptr<ItemDTO> itemInfo)
-{
+bool ManageItemController::addItem(std::unique_ptr<ItemDTO> itemInfo) {
     std::shared_ptr<Item> newItem = itemDTOToItem(std::move(itemInfo));
     if (newItem == nullptr) {
         return false;
@@ -61,8 +57,7 @@ bool ManageItemController::addItem(std::unique_ptr<ItemDTO> itemInfo)
 }
 
 bool ManageItemController::updateItem(std::unique_ptr<ItemDTO> itemInfo,
-                                      const std::string &oldItemId)
-{
+                                      const std::string &oldItemId) {
     if (itemInfo == nullptr) {
         m_lastError = "No itemInfo structure has been provided.";
         return false;
@@ -82,8 +77,7 @@ bool ManageItemController::updateItem(std::unique_ptr<ItemDTO> itemInfo,
     return true;
 }
 
-bool ManageItemController::deleteItem(const std::string &itemId)
-{
+bool ManageItemController::deleteItem(const std::string &itemId) {
     if (!m_itemStore->removeItem(itemId)) {
         m_lastError = m_itemStore->getLastError();
         return false;
@@ -91,8 +85,7 @@ bool ManageItemController::deleteItem(const std::string &itemId)
     return true;
 }
 
-std::shared_ptr<Item> ManageItemController::itemDTOToItem(std::unique_ptr<ItemDTO> dto)
-{
+std::shared_ptr<Item> ManageItemController::itemDTOToItem(std::unique_ptr<ItemDTO> dto) {
     ItemCreationInfo creationInfo = {
         dto->id,
         dto->name,
@@ -110,4 +103,4 @@ std::shared_ptr<Item> ManageItemController::itemDTOToItem(std::unique_ptr<ItemDT
     return updateItem;
 }
 
-} // namespace itemeditor::controllers
+}  // namespace itemeditor::controllers

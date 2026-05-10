@@ -1,6 +1,7 @@
+#include <stdexcept>
+#include <string>
 #include "texture.hpp"
 #include <boost/algorithm/string.hpp>
-#include <stdexcept>
 
 using namespace std;
 using namespace boost::algorithm;
@@ -13,9 +14,9 @@ Texture::Texture(const TextureInfo &textureInfo)
       m_width(textureInfo.width),
       m_height(textureInfo.height),
       m_tileWidth(textureInfo.tileWidth),
-      m_tileHeight(textureInfo.tileHeight)
-
-{
+      m_tileHeight(textureInfo.tileHeight),
+      m_tileWidthGL(0.0F),
+      m_tileHeightGL(0.0F) {
     if (trim_copy(textureInfo.name).empty()) {
         throw invalid_argument("name cannot be null or empty.");
     }
@@ -34,11 +35,11 @@ Texture::Texture(const TextureInfo &textureInfo)
     if (textureInfo.tileHeight <= 0) {
         throw invalid_argument("tile height must be greater than zero.");
     }
-    //Ensure that the tile width is less than width
+    // Ensure that the tile width is less than width
     if (textureInfo.width < textureInfo.tileWidth) {
         throw invalid_argument("tile width must be less than the width.");
     }
-    //Ensure that the tile height is less than height
+    // Ensure that the tile height is less than height
     if (textureInfo.height < textureInfo.tileHeight) {
         throw invalid_argument("tile height must be less than the height.");
     }
@@ -46,64 +47,53 @@ Texture::Texture(const TextureInfo &textureInfo)
     updateTileHeightGL();
 }
 
-const std::string &Texture::getName() const
-{
+const std::string &Texture::getName() const {
     return m_name;
 }
 
-const std::string &Texture::getFilename() const
-{
+const std::string &Texture::getFilename() const {
     return m_filename;
 }
 
-void Texture::setName(const std::string &name)
-{
+void Texture::setName(const std::string &name) {
     if (trim_copy(name).empty()) {
         throw invalid_argument("name cannot be null or empty.");
     }
     m_name = name;
 }
 
-void Texture::setFilename(const std::string &filename)
-{
+void Texture::setFilename(const std::string &filename) {
     if (trim_copy(filename).empty()) {
         throw invalid_argument("filename cannot be null or empty.");
     }
     m_filename = filename;
 }
 
-int Texture::getWidth() const
-{
+int Texture::getWidth() const {
     return m_width;
 }
 
-int Texture::getHeight() const
-{
+int Texture::getHeight() const {
     return m_height;
 }
 
-int Texture::getTileWidth() const
-{
+int Texture::getTileWidth() const {
     return m_tileWidth;
 }
 
-int Texture::getTileHeight() const
-{
+int Texture::getTileHeight() const {
     return m_tileHeight;
 }
 
-float Texture::getTileWidthGL() const
-{
+float Texture::getTileWidthGL() const {
     return m_tileWidthGL;
 }
 
-float Texture::getTileHeightGL() const
-{
+float Texture::getTileHeightGL() const {
     return m_tileHeightGL;
 }
 
-TextureInfo Texture::getTextureInfo() const
-{
+TextureInfo Texture::getTextureInfo() const {
     return TextureInfo {
         m_name,
         m_filename,
@@ -114,8 +104,7 @@ TextureInfo Texture::getTextureInfo() const
     };
 }
 
-void Texture::setWidth(int value)
-{
+void Texture::setWidth(int value) {
     if (value <= 0) {
         throw invalid_argument("width must be greater than zero.");
     }
@@ -126,8 +115,7 @@ void Texture::setWidth(int value)
     updateTileWidthGL();
 }
 
-void Texture::setHeight(int value)
-{
+void Texture::setHeight(int value) {
     if (value <= 0) {
         throw invalid_argument("height must be greater than zero.");
     }
@@ -136,11 +124,9 @@ void Texture::setHeight(int value)
     }
     m_height = value;
     updateTileHeightGL();
-
 }
 
-void Texture::setTileWidth(int value)
-{
+void Texture::setTileWidth(int value) {
     if (value <= 0) {
         throw invalid_argument("tile width must be greater than zero.");
     }
@@ -151,8 +137,7 @@ void Texture::setTileWidth(int value)
     updateTileWidthGL();
 }
 
-void Texture::setTileHeight(int value)
-{
+void Texture::setTileHeight(int value) {
     if (value <= 0) {
         throw invalid_argument("tile height must be greater than zero.");
     }
@@ -163,14 +148,12 @@ void Texture::setTileHeight(int value)
     updateTileHeightGL();
 }
 
-void Texture::updateTileWidthGL()
-{
+void Texture::updateTileWidthGL() {
     m_tileWidthGL = static_cast<float>(m_tileWidth) / static_cast<float>(m_width);
 }
 
-void Texture::updateTileHeightGL()
-{
+void Texture::updateTileHeightGL() {
     m_tileHeightGL = static_cast<float>(m_tileHeight) / static_cast<float>(m_height);
 }
 
-} // namespace thewarrior::models
+}  // namespace thewarrior::models

@@ -1,6 +1,8 @@
-#include "textureListComponent.hpp"
-#include <QStyle>
 #include <fmt/format.h>
+#include <QStyle>
+#include <algorithm>
+#include <string>
+#include "textureListComponent.hpp"
 #include "editTextureForm.hpp"
 #include "texture.hpp"
 #include "uiUtils.hpp"
@@ -61,9 +63,8 @@ std::optional<std::reference_wrapper<const Texture>> TextureListComponent::getSe
             ui.tableWidgetTextures->selectionModel()->selectedRows()[0].data().toString().toStdString()
         };
         return m_glComponent->getTextureByName(selectedItemName);
-    } else {
-        return std::nullopt;
     }
+    return std::nullopt;
 }
 
 void TextureListComponent::onPushButtonAddTextureClick() {
@@ -86,9 +87,8 @@ void TextureListComponent::onPushButtonEditTextureClick() {
     if (selectedTexture.has_value()) {
         auto alreadyUsedTextureNames = m_glComponent->getAlreadyUsedTextureNames();
         // Remove the actual selected texture name
-        auto iter = std::find(alreadyUsedTextureNames.begin(),
-                alreadyUsedTextureNames.end(),
-                selectedTexture->get().getName());
+        auto iter = std::ranges::find(alreadyUsedTextureNames,
+                                      selectedTexture->get().getName());
         if (iter != alreadyUsedTextureNames.end()) {
             alreadyUsedTextureNames.erase(iter);
         }
@@ -115,10 +115,19 @@ void TextureListComponent::onPushButtonDeleteTextureClick() {
         msgBox.setDefaultButton(QMessageBox::Cancel);
         if (msgBox.exec() == QMessageBox::Yes) {
             // Check if the texture is used in the map
-            msgBox.setText(fmt::format("The texture {0} is used by some map tiles.\nAre you sure you want to proceed?",
-                        selectedTexture->get().getName()).c_str());
-            bool isUsed = m_glComponent->isTextureUsedInMap(selectedTexture->get().getName());
-            if (!isUsed || msgBox.exec() == QMessageBox::Yes) {
+            bool isUsedOnMapTiles = m_glComponent->isTextureUsedInMap(selectedTexture->get().getName());
+            bool isUsedByNPC = m_glComponent->isTextureUsedByNPCs(selectedTexture->get().getName());
+            std::string elements;
+            if (isUsedOnMapTiles) {
+                elements += "- Map tiles\n";
+            }
+            if (isUsedByNPC) {
+                elements += "- NPCs\n";
+            }
+            msgBox.setText(fmt::format("The texture {0} is used by these elements:\n{1}\nAre you sure you want to proceed?",
+                                       selectedTexture->get().getName(),
+                                       elements).c_str());
+            if ((!isUsedOnMapTiles && !isUsedByNPC) || msgBox.exec() == QMessageBox::Yes) {
                 emit textureDeleted(selectedTexture->get().getName());
             }
         }

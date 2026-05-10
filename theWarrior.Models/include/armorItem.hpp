@@ -20,8 +20,8 @@ enum class ArmorBodyPart {
 };
 
 struct ArmorItemCreationInfo : public ItemCreationInfo {
-    float defenseGain;
-    ArmorBodyPart slotInBodyPart;
+    float defenseGain = 0.0F;
+    ArmorBodyPart slotInBodyPart = ArmorBodyPart::Head;
 };
 
 class ArmorItem : public Item {

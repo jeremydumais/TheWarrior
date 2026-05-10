@@ -1,19 +1,23 @@
-#include "glComponentController.hpp"
 #include <fmt/format.h>
 #include <algorithm>
 #include <iterator>
 #include <memory>
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 #include <boost/optional/optional.hpp>
 #include "gameMap.hpp"
+#include "glComponentController.hpp"
 #include "mapTile.hpp"
 #include "mapTileDTOUtils.hpp"
 #include "mapTileTrigger.hpp"
 #include "mapTileTriggerEventConverter.hpp"
 #include "monsterZone.hpp"
 #include "monsterZoneDTOUtils.hpp"
+#include "npc.hpp"
+#include "npcDTO.hpp"
+#include "npcDTOUtils.hpp"
 #include "point.hpp"
 #include "texture.hpp"
 #include "textureDTO.hpp"
@@ -22,6 +26,7 @@
 using commoneditor::ui::TextureDTO;
 using commoneditor::ui::TextureUtils;
 using thewarrior::models::MonsterZone;
+using thewarrior::models::NPC;
 using thewarrior::models::Texture;
 using thewarrior::models::GameMap;
 using thewarrior::models::MapTile;
@@ -33,6 +38,7 @@ using thewarrior::models::MapTileTriggerEventConverter;
 using thewarrior::models::MapTileTriggerAction;
 using thewarrior::models::Point;
 using mapeditor::controllers::MonsterZoneDTO;
+using mapeditor::controllers::NPCDTO;
 
 namespace mapeditor::controllers {
 
@@ -40,19 +46,15 @@ GLComponentController::GLComponentController()
     : m_map(nullptr),
 m_currentMapTiles({}),
 m_selectedIndices({}),
-m_editHistory(),
 m_historyCurrentIndex(0),
 m_clipboard({}),
 m_clipboardSelectedIndices({}),
-m_lastError(""),
-m_lastSelectedTextureName(""),
-m_lastSelectedObjectName(""),
 m_lastSelectedTextureIndex(-1),
 m_lastSelectedObjectIndex(-1),
 m_lastSelectedMonsterZoneIndex(-1) {
 }
 
-const std::shared_ptr<GameMap> GLComponentController::getMap() const {
+std::shared_ptr<GameMap> GLComponentController::getMap() const {
     return m_map;
 }
 
@@ -61,7 +63,7 @@ const std::string &GLComponentController::getLastError() const {
 }
 
 void GLComponentController::setCurrentMap(std::shared_ptr<GameMap> map) {
-    m_map = map;
+    m_map = std::move(map);
     m_currentMapTiles.clear();
     m_selectedIndices.clear();
     m_editHistory.clear();
@@ -87,12 +89,15 @@ std::vector<thewarrior::models::MapTile *> GLComponentController::getCurrentMapT
 
 std::vector<MapTileDTO> GLComponentController::getSelectedMapTiles() const {
     std::vector<MapTileDTO> retval = {};
-    std::for_each(m_currentMapTiles.begin(),
-            m_currentMapTiles.end(),
+    std::ranges::for_each(m_currentMapTiles,
             [&retval](const MapTile *tile) {
         retval.push_back(MapTileDTOUtils::fromMapTile(*tile));
     });
     return retval;
+}
+
+const std::set<int> &GLComponentController::getSelectedMapTilesIndices() const {
+    return m_selectedIndices;
 }
 
 std::vector<std::string> GLComponentController::getAlreadyUsedTextureNames() const {
@@ -121,6 +126,17 @@ bool GLComponentController::isUseOnlyOneMonsterZone() const {
     return m_map->useOnlyOneMonsterZone();
 }
 
+std::vector<std::string> GLComponentController::getAlreadyUsedNPCIds() const {
+    std::vector<std::string> alreadyUsedNPCIds;
+    if (m_map != nullptr) {
+        std::transform(m_map->getNPCs().begin(),
+                       m_map->getNPCs().end(),
+                       back_inserter(alreadyUsedNPCIds),
+                       [](NPC const& x) { return x.getId(); });
+    }
+    return alreadyUsedNPCIds;
+}
+
 bool isTextureNameUsedInTile(const std::string &name, const MapTile &tile) {
     return tile.getTextureName() == name ||
            tile.getObjectTextureName() == name;
@@ -128,12 +144,18 @@ bool isTextureNameUsedInTile(const std::string &name, const MapTile &tile) {
 
 bool GLComponentController::isTextureUsedInMap(const std::string &name) {
     for (const auto &row : m_map->getTiles()) {
-        if (std::any_of(row.begin(), row.end(), [&name](const auto &tile) {
+        if (std::ranges::any_of(row, [&name](const auto &tile) {
                 return isTextureNameUsedInTile(name, tile); })) {
             return true;
         }
     }
     return false;
+}
+
+bool GLComponentController::isTextureUsedByNPCs(const std::string &name) {
+    return std::ranges::any_of(m_map->getNPCs(), [&name](const NPC &npc) {
+        return npc.getTextureName() == name;
+    });
 }
 
 bool GLComponentController::isShrinkMapImpactAssignedTiles(int offsetLeft,
@@ -173,13 +195,33 @@ OptMonsterZoneDTOConst GLComponentController::getMonsterZoneByName(const std::st
     return std::nullopt;
 }
 
+std::vector<NPCDTO> GLComponentController::getNPCs() const {
+    std::vector<NPCDTO> retval = {};
+    std::ranges::transform(m_map->getNPCs(),
+                           std::back_inserter(retval),
+                           NPCDTOUtils::fromNPC);
+    return retval;
+}
+
+OptNPCDTOConst GLComponentController::getNPCById(const std::string &name) const {
+    const auto npcOpt = m_map->getNPCById(name);
+    if (npcOpt.has_value()) {
+        const auto npcDTO = NPCDTOUtils::fromNPC(npcOpt->get());
+        return OptNPCDTOConst { npcDTO };
+    }
+    return std::nullopt;
+}
+
+bool GLComponentController::canDisableCanSteppedOnForSelectedTiles() const {
+    return !m_map->isTilesIndicesUsedByNPC(m_selectedIndices);
+}
+
 boost::optional<Point<int>> GLComponentController::getCoordFromSingleSelectedTile() const {
     const auto tiles = getSelectedMapTiles();
     if (tiles.size() == 1) {
         return m_map->getCoordFromTileIndex(*m_selectedIndices.begin());
-    } else {
-        return {};
     }
+    return {};
 }
 
 size_t GLComponentController::getHistoryCurrentIndex() const {
@@ -240,7 +282,7 @@ void GLComponentController::clearEditHistory() {
 void GLComponentController::undo() {
     if (m_historyCurrentIndex > 0) {
         if (m_historyCurrentIndex == m_editHistory.size()) {
-            m_editHistory.push_back(std::make_shared<GameMap>(*m_map.get()));
+            m_editHistory.push_back(std::make_shared<GameMap>(*m_map));
         }
         auto mapToRestore = m_editHistory.at(m_historyCurrentIndex - 1);
         *m_map = *mapToRestore;
@@ -258,8 +300,7 @@ void GLComponentController::redo() {
 
 void GLComponentController::copySelectionInClipboard() {
     m_clipboard.clear();
-    std::transform(m_currentMapTiles.begin(),
-            m_currentMapTiles.end(),
+    std::ranges::transform(m_currentMapTiles,
             std::back_inserter(m_clipboard),
             [](auto elem) -> auto { return *elem; });
     m_clipboardSelectedIndices.clear();
@@ -272,7 +313,7 @@ void GLComponentController::pushCurrentStateToHistory() {
         std::advance(iter, m_historyCurrentIndex);
         m_editHistory.erase(iter, m_editHistory.end());
     }
-    m_editHistory.push_back(std::make_shared<GameMap>(*m_map.get()));
+    m_editHistory.push_back(std::make_shared<GameMap>(*m_map));
     m_historyCurrentIndex++;
 }
 
@@ -366,6 +407,22 @@ void GLComponentController::clearMonsterZone() {
     }
 }
 
+bool GLComponentController::applyNPCWanderingZone(const std::string &selectedNPCId) {
+    if (!m_map->addNPCWanderingZone(selectedNPCId, m_selectedIndices)) {
+        m_lastError = m_map->getLastError();
+        return false;
+    }
+    return true;
+}
+
+bool GLComponentController::clearNPCWanderingZone(const std::string &selectedNPCId) {
+    if (!m_map->removeNPCWanderingZone(selectedNPCId, m_selectedIndices)) {
+        m_lastError = m_map->getLastError();
+        return false;
+    }
+    return true;
+}
+
 bool GLComponentController::addTexture(const TextureDTO &textureDTO) {
     if (!m_map->addTexture(TextureUtils::TextureDTOToTextureInfo(textureDTO))) {
         this->m_lastError = m_map->getLastError();
@@ -376,14 +433,13 @@ bool GLComponentController::addTexture(const TextureDTO &textureDTO) {
 
 bool GLComponentController::replaceTexture(const std::string &name,
         const TextureDTO &textureDTO) {
-    std::string oldTextureName { name };
     if (!m_map->replaceTexture(name, TextureUtils::TextureDTOToTextureInfo(textureDTO))) {
         m_lastError = m_map->getLastError();
         return false;
     }
     // If the texture name has changed, update all tiles that was using the old texture name
-    if (oldTextureName != textureDTO.name) {
-        replaceTilesTextureName(oldTextureName, textureDTO.name);
+    if (name != textureDTO.name) {
+        replaceTilesTextureName(name, textureDTO.name);
     }
     return true;
 }
@@ -444,6 +500,45 @@ bool GLComponentController::removeMonsterZone(const std::string &name) {
 
 bool GLComponentController::setUseOnlyOneMonsterZone(bool value) {
     return (m_map->setUseOnlyOneMonsterZone(value));
+}
+
+bool GLComponentController::addNPC(const NPCDTO &npcDTO) {
+    const auto conversionResult = NPCDTOUtils::toNPC(npcDTO);
+    if (!conversionResult.success()) {
+        m_lastError = conversionResult.errorMessage;
+        return false;
+    }
+    if (!m_map->addNPC(conversionResult.npc.value())) {
+        m_lastError = m_map->getLastError();
+        return false;
+    }
+    return true;
+}
+
+bool GLComponentController::replaceNPC(const std::string &id, const NPCDTO &npcDTO) {
+    try {
+        const auto conversionResult = NPCDTOUtils::toNPC(npcDTO);
+        if (!conversionResult.success()) {
+            this->m_lastError = conversionResult.errorMessage;
+            return false;
+        }
+        if (!m_map->replaceNPC(id, conversionResult.npc.value())) {
+            this->m_lastError = m_map->getLastError();
+            return false;
+        }
+    } catch(const std::invalid_argument &err) {
+        this->m_lastError = err.what();
+        return false;
+    }
+    return true;
+}
+
+bool GLComponentController::removeNPC(const std::string &id) {
+    if (!m_map->removeNPC(id)) {
+        m_lastError = m_map->getLastError();
+        return false;
+    }
+    return true;
 }
 
 }  // namespace mapeditor::controllers

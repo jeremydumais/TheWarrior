@@ -1,7 +1,9 @@
 #include "tilePropsComponentController.hpp"
 #include <algorithm>
 #include <iterator>
+#include <set>
 #include <stdexcept>
+#include <string>
 #include <vector>
 #include "mapTile.hpp"
 #include "mapTileTrigger.hpp"
@@ -27,7 +29,7 @@ std::vector<MapTileDTO> TilePropsComponentController::getSelectedTiles() const {
 std::set<MapTileTriggerDTO> TilePropsComponentController::getTilesCommonTriggers() const {
     auto tiles = m_glComponentController->getSelectedMapTiles();
     std::set<MapTileTriggerDTO> commonTriggers = {};
-    if (tiles.size() == 0) {
+    if (tiles.empty()) {
         return commonTriggers;
     }
     commonTriggers = std::set<MapTileTriggerDTO>(tiles[0].triggers.begin(),
@@ -64,6 +66,10 @@ boost::optional<MapTileTriggerDTO> TilePropsComponentController::findMapTileTrig
 
 boost::optional<thewarrior::models::Point<int>> TilePropsComponentController::getCoordFromSingleSelectedTile() const {
     return m_glComponentController->getCoordFromSingleSelectedTile();
+}
+
+bool TilePropsComponentController::canDisableCanSteppedOnForSelectedTiles() const {
+    return m_glComponentController->canDisableCanSteppedOnForSelectedTiles();
 }
 
 void TilePropsComponentController::setTilesTextureName(const std::string &name) {

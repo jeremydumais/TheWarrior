@@ -23,7 +23,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STRE
 endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
-target_link_libraries(${PROJECT_NAME} theWarrior.Models theWarrior.Utils fmt boost_serialization boost_system boost_filesystem sqlite3)
+target_link_libraries(${PROJECT_NAME} theWarrior.Models theWarrior.Utils fmt boost::boost boost_serialization boost_filesystem sqlite3)
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${CONAN_INCLUDE_DIRS})
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc

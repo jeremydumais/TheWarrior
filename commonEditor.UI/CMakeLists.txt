@@ -16,13 +16,15 @@ set(CMAKE_AUTOUIC_SEARCH_PATHS AUTOGEN_BUILD_DIR/include)
 
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/errorMessage.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editTextureFormController.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/fileTexturePixmapProvider.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/manageTexturesController.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterUtils.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/uiUtils.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/qClickableLabel.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/qClosableDockWidget.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/qTableWidgetKeyPressWatcher.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/textureUtils.cpp)
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/textureUtils.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/warningMessage.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -53,7 +55,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
     "-Wduplicated-branches" # (only in GCC >= 7.0) warn if if / else branches have duplicated code
     "-Wlogical-op" # (only in GCC) warn about logical operations being used where bitwise were probably wanted
     "-Wnull-dereference" # (only in GCC >= 6.0) warn if a null dereference is detected
-    "-Wuseless-cast" # (only in GCC >= 4.8) warn if you perform a cast to the same type
+    "-Wno-useless-cast" # (only in GCC >= 4.8) warn if you perform a cast to the same type
     "-Wdouble-promotion" # (GCC >= 4.6, Clang >= 3.8) warn if float is implicit promoted to double
     "-Wformat=2" # warn on security issues around functions that format output (ie printf)
     )

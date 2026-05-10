@@ -204,3 +204,20 @@ and Quit actions.
 - Fixed an issue where main menu text elements were incorrectly positioned after returning from the game.
 - Fixed text misalignment in the game menu when resizing the window while the menu was visible.
 - Fixed the scale property not being applied correctly in the Message Pipeline.
+
+## [0.6.0]
+
+### Map Editor (Version 1.4.0)
+
+#### New features
+- Added the NPC management feature to the editor.
+- NPCs can be shown or hidden on the map.
+- NPCs are persisted in the map file.
+
+#### Change
+- Revamp the View main menu.
+
+### Game
+
+#### New features
+- Display the NPCs on the map at their spawn location.

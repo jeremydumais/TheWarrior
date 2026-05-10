@@ -15,6 +15,7 @@
 #include "glChoicePopup.hpp"
 #include "glFormService.hpp"
 #include "glInventory.hpp"
+#include "glNPC.hpp"
 #include "glPlayer.hpp"
 #include "glTextBox.hpp"
 #include "glTextService.hpp"
@@ -53,16 +54,18 @@ class GameMapMode {
     void update();
     void render();
     void unloadGLMapObjects();
+    void unloadGLNPCObjects();
     void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
     void onGameWindowUpdate(float delta_time);
     boost::signals2::signal<void()> quitRequested;
 
  private:
     thewarrior::ui::controllers::GameMapModeController m_controller;
-    std::string m_lastError = "";
+    std::string m_lastError;
     GameMapInputMode m_inputMode = GameMapInputMode::Map;
     std::shared_ptr<thewarrior::models::GameMap> m_map;
     std::shared_ptr<GLPlayer> m_glPlayer = nullptr;
+    std::vector<GLNPC> m_glNPCs;
     std::shared_ptr<GLTileService> m_tileService = std::make_shared<GLTileService>();
     GLTextureService m_textureService;
     std::shared_ptr<GLTextBox> m_textBox = std::make_shared<GLTextBox>();
@@ -77,7 +80,7 @@ class GameMapMode {
     thewarrior::models::Size<> m_screenSize = {1, 1};
     std::vector<GLTile> m_glTiles;
     std::map<std::string, unsigned int> m_texturesGLMap;
-    TileSize m_tileSize = { 1.0F, 1.0F, 1.0F };
+    TileSize m_tileSize = { .tileWidth = 1.0F, .tileHalfWidth = 1.0F, .tileHalfHeight = 1.0F };
     std::array<int, 4> m_tileCoordToDisplay = { 0, 0, 0, 0 };  // Left, Right, Up and Bottom
     std::shared_ptr<InputDevicesState> m_inputDevicesState = nullptr;
     GLfloat m_texColorBuf[4][3] = { { 1.0F, 1.0F, 1.0F },   /* Red */

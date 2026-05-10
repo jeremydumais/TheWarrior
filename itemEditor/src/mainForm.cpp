@@ -1,4 +1,3 @@
-#include "mainForm.hpp"
 #include <libgen.h>  // dirname
 #include <linux/limits.h>  // PATH_MAX
 #include <unistd.h>  // readlink
@@ -7,6 +6,7 @@
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMessageBox>
 #include <algorithm>
+#include <filesystem>
 #include <memory>
 #include <optional>
 #include <string>
@@ -22,6 +22,7 @@
 #include "editWeaponItemForm.hpp"
 #include "errorMessage.hpp"
 #include "itemType.hpp"
+#include "mainForm.hpp"
 #include "manageTexturesForm.hpp"
 #include "specialFolders.hpp"
 
@@ -58,7 +59,8 @@ MainForm::MainForm(QWidget *parent,
         }
     }
     // Check if the configuration file exist
-    ConfigurationManager configManager(m_userConfigFolder + "config.json");
+    const auto filepath = (std::filesystem::path(m_userConfigFolder) / "config.json").string();
+    ConfigurationManager configManager(filepath);
     if (!configManager.fileExists()) {
         // Try to create a default configuration
         if (!configManager.save()) {
@@ -148,7 +150,8 @@ void MainForm::action_About_Click() {
 }
 
 void MainForm::action_LightTheme_Click() {
-    ConfigurationManager configManager(m_userConfigFolder + "config.json");
+    const auto filepath = (std::filesystem::path(m_userConfigFolder) / "config.json").string();
+    ConfigurationManager configManager(filepath);
     if (configManager.load()) {
         configManager.setStringValue(MainForm::THEME_PATH, "");
         setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
@@ -163,7 +166,8 @@ void MainForm::action_LightTheme_Click() {
 }
 
 void MainForm::action_DarkTheme_Click() {
-    ConfigurationManager configManager(m_userConfigFolder + "config.json");
+    const auto filepath = (std::filesystem::path(m_userConfigFolder) / "config.json").string();
+    ConfigurationManager configManager(filepath);
     if (configManager.load()) {
         configManager.setStringValue(MainForm::THEME_PATH, "Dark");
         setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
@@ -221,7 +225,8 @@ void MainForm::action_SaveAsItemStore_Click() {
 
 void MainForm::refreshRecentMapsMenu() {
     auto recents = std::vector<std::string>{};
-    ConfigurationManager configManager(m_userConfigFolder + "config.json");
+    const auto filepath = (std::filesystem::path(m_userConfigFolder) / "config.json").string();
+    ConfigurationManager configManager(filepath);
     if (configManager.load()) {
         recents = configManager.getVectorOfStringValue(MainForm::RECENT_MAPS);
     } else {
@@ -249,7 +254,8 @@ void MainForm::refreshRecentMapsMenu() {
 void MainForm::addNewRecentItemsDB(const std::string &filePath) {
     auto recents = std::vector<std::string>{};
     // Load existing recent maps
-    ConfigurationManager configManager(m_userConfigFolder + "config.json");
+    const auto filepath = (std::filesystem::path(m_userConfigFolder) / "config.json").string();
+    ConfigurationManager configManager(filepath);
     if (configManager.load()) {
         recents = configManager.getVectorOfStringValue(MainForm::RECENT_MAPS);
     } else {

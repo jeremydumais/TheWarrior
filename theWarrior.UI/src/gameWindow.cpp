@@ -155,9 +155,9 @@ bool GameWindow::initializeOpenGL(const std::string &title,
             y,
             width,
             height,
-             SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL | SDL_WINDOW_MAXIMIZED);
-            //HACK: To Remove
-            //SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL);
+            //HACK: To Remove and uncomment below
+            SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL);
+            //SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL | SDL_WINDOW_MAXIMIZED);
     if (m_window == nullptr) {
         cerr << fmt::format("Window could not be created! SDL_Error: %s\n", SDL_GetError());
         return false;
@@ -259,10 +259,14 @@ void GameWindow::subscribeEvents() {
 void GameWindow::render() {
     switch (m_interactionMode) {
         case InteractionMode::MainMenu:
-            if (m_mainMenuMode) m_mainMenuMode->render();
+            if (m_mainMenuMode) {
+                m_mainMenuMode->render();
+            }
             break;
         case InteractionMode::Game:
-            if (m_gameMapMode) m_gameMapMode->render();
+            if (m_gameMapMode) {
+                m_gameMapMode->render();
+            }
             break;
         default:
             break;
@@ -271,10 +275,10 @@ void GameWindow::render() {
     if (m_toggleFPS) {
         m_textService->useShader();
         m_textService->renderText(m_fpsCalculator.getFPSDisplayText(),
-                1.0f,                               // X
-                static_cast<float>(m_WindowSize.height()) - 24.0f,  // Y
-                0.5f,                               // Scale
-                glm::vec3(1.0f, 1.0f, 1.0f));       // Color
+                1.0F,                               // X
+                static_cast<float>(m_WindowSize.height()) - 24.0F,  // Y
+                0.5F,                               // Scale
+                glm::vec3(1.0F, 1.0F, 1.0F));       // Color
     }
     SDL_GL_SwapWindow(m_window);
 }
@@ -315,8 +319,11 @@ void GameWindow::createNewGame(std::string playerName) {
     m_mainMenuMode = nullptr;
     Player player(playerName);
     WorldState worldState;
-    worldState.setCurrentMapName("Outworld.map");
-    worldState.setPlayerPosition(Point<int>(22, 24));
+    //HACK: Remove this and uncomment below
+    worldState.setCurrentMapName("homeHouseV1.map");
+    worldState.setPlayerPosition(Point<int>(8, 8));
+    //worldState.setCurrentMapName("Outworld.map");
+    //worldState.setPlayerPosition(Point<int>(22, 24));
     GameState newGameState(player, worldState);
     if (initializeGame(newGameState)) {
         m_interactionMode = InteractionMode::Game;
@@ -341,12 +348,12 @@ void GameWindow::loadGame(std::string fileName) {
         std::string fullPath = fs::path(thewarrior::utils::SpecialFolders::getSaveGameDirectory()) / fileName;
         gameStateStorage.loadGameState(fullPath, loadedGameState);
     } catch (const std::invalid_argument &err) {
-        std::cerr << err.what() << std::endl;
+        std::cerr << err.what() << '\n';
         m_mustExit = true;
         Mix_CloseAudio();
         return;
     } catch (const std::runtime_error &err) {
-        std::cerr << err.what() << std::endl;
+        std::cerr << err.what() << '\n';
         m_mustExit = true;
         Mix_CloseAudio();
         return;

@@ -1,16 +1,15 @@
 #pragma once
 
-#include "textureInfo.hpp"
 #include <string>
+#include "textureInfo.hpp"
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/version.hpp>
 
 namespace thewarrior::models {
 
-class Texture
-{
-public:
+class Texture {
+ public:
     explicit Texture(const TextureInfo &textureInfo);
     const std::string &getName() const;
     const std::string &getFilename() const;
@@ -27,8 +26,10 @@ public:
     void setHeight(int value);
     void setTileWidth(int value);
     void setTileHeight(int value);
-private:
+
+ private:
     friend class boost::serialization::access;
+    Texture() = default;  // Needed for deserialization
     std::string m_name;
     std::string m_filename;
     int m_width;
@@ -39,11 +40,9 @@ private:
     float m_tileHeightGL;
     void updateTileWidthGL();
     void updateTileHeightGL();
-    Texture() = default; //Needed for deserialization
-    //Serialization method
+    // Serialization method
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int)
-    {
+    void serialize(Archive & ar, const unsigned int) {
         ar & m_name;
         ar & m_filename;
         ar & m_width;
@@ -55,6 +54,6 @@ private:
     }
 };
 
-} // namespace thewarrior::models
+}  // namespace thewarrior::models
 
 BOOST_CLASS_VERSION(thewarrior::models::Texture, 0)

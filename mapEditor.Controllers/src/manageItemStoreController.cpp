@@ -1,10 +1,13 @@
-#include "manageItemStoreController.hpp"
 #include <fmt/core.h>
 #include <fmt/format.h>
+#include <filesystem>
 #include <optional>
 #include <stdexcept>
+#include <string>
+#include <vector>
 #include "configurationManager.hpp"
 #include "itemStoreInfoJSONSerializer.hpp"
+#include "manageItemStoreController.hpp"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/trim.hpp>
@@ -124,7 +127,8 @@ bool ManageItemStoreController::deleteItemStore(const std::string &itemNameToDel
 }
 
 bool ManageItemStoreController::loadItemStore() {
-    ConfigurationManager configManager(m_userConfigFolder + "config.json");
+    const auto filePath = (std::filesystem::path(m_userConfigFolder) / "config.json").string();
+    ConfigurationManager configManager(filePath);
     if (configManager.load()) {
         auto ptreeNode = configManager.getPTreeNode(ManageItemStoreController::ITEMSTORES_PATH);
         m_itemStores = ItemStoreInfoJSONSerializer::deserialize(ptreeNode);
@@ -137,7 +141,8 @@ bool ManageItemStoreController::loadItemStore() {
 }
 
 bool ManageItemStoreController::saveItemStore() {
-    ConfigurationManager configManager(m_userConfigFolder + "config.json");
+    const auto filePath = (std::filesystem::path(m_userConfigFolder) / "config.json").string();
+    ConfigurationManager configManager(filePath);
     if (configManager.load()) {
         configManager.setPTreeNode(ManageItemStoreController::ITEMSTORES_PATH,
                                    ItemStoreInfoJSONSerializer::serialize(m_itemStores));

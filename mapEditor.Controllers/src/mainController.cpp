@@ -1,13 +1,16 @@
-#include "mainController.hpp"
 #include <fmt/format.h>
 #include <linux/limits.h>   // PATH_MAX
 #include <libgen.h>         // dirname
-#include <stdexcept>
 #include <unistd.h>         // readlink
+#include <filesystem>
 #include <memory>
+#include <stdexcept>
+#include <string>
+#include <vector>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/filesystem.hpp>
 #include "configurationManager.hpp"
+#include "mainController.hpp"
 #include "manageMonsterStoreController.hpp"
 #include "monsterStore.hpp"
 #include "monsterStoreStorage.hpp"
@@ -27,9 +30,12 @@ namespace mapeditor::controllers {
 
 static constexpr const char DisplayThemeConfigItem[] = "Display.Theme";
 static constexpr const char DisplayGridConfigItem[] = "Display.Grid";
-static constexpr const char DisplayToolbarsMapConfigItem[] = "Display.Toolbars.MapConfiguration";
-static constexpr const char DisplayToolbarsTextureSelectionItem[] = "Display.Toolbars.TextureSelection";
-static constexpr const char DisplayToolbarsDebuggingInfoItem[] = "Display.Toolbars.DebuggingInfo";
+static constexpr const char DisplayNPCsConfigItem[] = "Display.NPCs";
+static constexpr const char DisplayEditorsMapConfigItem[] = "Display.Editors.MapConfiguration";
+static constexpr const char DisplayEditorsTextureSelectionItem[] = "Display.Editors.TextureSelection";
+static constexpr const char DisplayEditorsDebuggingInfoItem[] = "Display.Editors.DebuggingInfo";
+static constexpr const char DisplayToolbarsMonsterZoneItem[] = "Display.Toolbars.MonsterZone";
+static constexpr const char DisplayToolbarsNPCWanderingZoneItem[] = "Display.Toolbars.NPCWanderingZone";
 static constexpr const char RecentMapsConfigItem[] = "Map.Recents";
 
 MainController::MainController()
@@ -62,6 +68,10 @@ const std::vector<Texture>& MainController::getTextures() const {
 
 const std::shared_ptr<ContainerOfMonsterStore> &MainController::getMonsterStores() const {
     return m_monsterStores;
+}
+
+bool MainController::canDisableCanSteppedOnForSelectedTiles() const {
+    return m_glComponentController->canDisableCanSteppedOnForSelectedTiles();
 }
 
 void MainController::setGLComponentController(GLComponentController *controller) {
@@ -115,13 +125,14 @@ bool MainController::loadConfigurationFile() {
             return false;
         }
     }
-    auto fullConfigFilePath = m_userConfigFolder + m_configFilename;
+
+    auto fullConfigFilePath = std::filesystem::path(m_userConfigFolder) / m_configFilename;
     try {
         m_configManager = std::make_unique<ConfigurationManager>(fullConfigFilePath);
     }
     catch (std::invalid_argument &err) {
         m_lastError = fmt::format("Config file {0} error: {1}",
-                                  fullConfigFilePath,
+                                  fullConfigFilePath.string(),
                                   err.what());
         return false;
     }
@@ -229,6 +240,33 @@ bool MainController::loadConfiguredMonsterStores() {
     return true;
 }
 
+bool MainController::addNPC(const NPCDTO &npcDTO) {
+    m_glComponentController->pushCurrentStateToHistory();
+    if (!m_glComponentController->addNPC(npcDTO)) {
+        this->m_lastError = m_glComponentController->getLastError();
+        return false;
+    }
+    return true;
+}
+
+bool MainController::replaceNPC(const std::string &id, const NPCDTO &npcDTO) {
+    m_glComponentController->pushCurrentStateToHistory();
+    if (!m_glComponentController->replaceNPC(id, npcDTO)) {
+        this->m_lastError = m_glComponentController->getLastError();
+        return false;
+    }
+    return true;
+}
+
+bool MainController::removeNPC(const std::string &id) {
+    m_glComponentController->pushCurrentStateToHistory();
+    if (!m_glComponentController->removeNPC(id)) {
+        m_lastError = m_glComponentController->getLastError();
+        return false;
+    }
+    return true;
+}
+
 std::vector<std::string> MainController::getRecentMapsFromConfig() const {
     return m_configManager->getVectorOfStringValue(RecentMapsConfigItem);
 }
@@ -258,6 +296,15 @@ bool MainController::setDisplayGridConfigState(bool value) {
     return saveConfigurationFile();
 }
 
+bool MainController::getDisplayNPCsConfigState() const {
+    return m_configManager->getBoolValue(DisplayNPCsConfigItem, true);
+}
+
+bool MainController::setDisplayNPCsConfigState(bool value) {
+    m_configManager->setBoolValue(DisplayNPCsConfigItem, value);
+    return saveConfigurationFile();
+}
+
 std::string MainController::getThemeConfigValue() const {
     return m_configManager->getStringValue(DisplayThemeConfigItem);
 }
@@ -267,36 +314,58 @@ bool MainController::setThemeConfigValue(const std::string &theme) {
     return saveConfigurationFile();
 }
 
-bool MainController::getDisplayToolbarsMapConfigState() const {
-    auto mapConfigItem = std::string(DisplayToolbarsMapConfigItem);
+bool MainController::getDisplayEditorsMapConfigState() const {
+    auto mapConfigItem = std::string(DisplayEditorsMapConfigItem);
     return m_configManager->getBoolValue(mapConfigItem, true);
 }
 
-bool MainController::setDisplayToolbarsMapConfigState(bool value) {
-auto mapConfigItem = std::string(DisplayToolbarsMapConfigItem);
+bool MainController::setDisplayEditorsMapConfigState(bool value) {
+auto mapConfigItem = std::string(DisplayEditorsMapConfigItem);
 m_configManager->setBoolValue(mapConfigItem, value);
 return saveConfigurationFile();
 }
 
-bool MainController::getDisplayToolbarsTextureSelectionState() const {
-    auto textureSelectionItem = std::string(DisplayToolbarsTextureSelectionItem);
+bool MainController::getDisplayEditorsTextureSelectionState() const {
+    auto textureSelectionItem = std::string(DisplayEditorsTextureSelectionItem);
     return m_configManager->getBoolValue(textureSelectionItem, true);
 }
 
-bool MainController::setDisplayToolbarsTextureSelectionState(bool value) {
-    auto textureSelectionItem = std::string(DisplayToolbarsTextureSelectionItem);
+bool MainController::setDisplayEditorsTextureSelectionState(bool value) {
+    auto textureSelectionItem = std::string(DisplayEditorsTextureSelectionItem);
     m_configManager->setBoolValue(textureSelectionItem, value);
     return saveConfigurationFile();
 }
 
-bool MainController::getDisplayToolbarsDebuggingInfoState() const {
-    auto debuggingInfoItem = std::string(DisplayToolbarsDebuggingInfoItem);
+bool MainController::getDisplayEditorsDebuggingInfoState() const {
+    auto debuggingInfoItem = std::string(DisplayEditorsDebuggingInfoItem);
     return m_configManager->getBoolValue(debuggingInfoItem, false);
 }
 
-bool MainController::setDisplayToolbarsDebuggingInfoState(bool value) {
-    auto debuggingInfoItem = std::string(DisplayToolbarsDebuggingInfoItem);
+bool MainController::setDisplayEditorsDebuggingInfoState(bool value) {
+    auto debuggingInfoItem = std::string(DisplayEditorsDebuggingInfoItem);
     m_configManager->setBoolValue(debuggingInfoItem, value);
+    return saveConfigurationFile();
+}
+
+bool MainController::getDisplayToolbarsMonsterZoneState() const {
+    auto monsterZoneItem = std::string(DisplayToolbarsMonsterZoneItem);
+    return m_configManager->getBoolValue(monsterZoneItem, true);
+}
+
+bool MainController::setDisplayToolbarsMonsterZoneState(bool value) {
+    auto monsterZoneItem = std::string(DisplayToolbarsMonsterZoneItem);
+    m_configManager->setBoolValue(monsterZoneItem, value);
+    return saveConfigurationFile();
+}
+
+bool MainController::getDisplayToolbarsNPCWanderingZoneState() const {
+    auto npcWanderingZoneItem = std::string(DisplayToolbarsNPCWanderingZoneItem);
+    return m_configManager->getBoolValue(npcWanderingZoneItem, true);
+}
+
+bool MainController::setDisplayToolbarsNPCWanderingZoneState(bool value) {
+    auto npcWanderingZoneItem = std::string(DisplayToolbarsNPCWanderingZoneItem);
+    m_configManager->setBoolValue(npcWanderingZoneItem, value);
     return saveConfigurationFile();
 }
 

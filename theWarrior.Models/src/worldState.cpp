@@ -1,15 +1,16 @@
 #include <algorithm>
+#include <cstddef>
+#include <iterator>
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 #include "worldState.hpp"
 
 namespace thewarrior::models {
 
 WorldState::WorldState()
-: m_currentMapName(""),
-m_playerPosition(0, 0),
-m_mapTileIndexActionAlreadyProcessed(std::map<std::string, std::vector<int>>()) {}
+: m_playerPosition(0, 0) {}
 
 const std::string &WorldState::getCurrentMapName() const {
     return m_currentMapName;
@@ -62,6 +63,37 @@ void WorldState::movePlayerDown() {
 
 void WorldState::movePlayerRight() {
     m_playerPosition.setX(m_playerPosition.x() + 1);
+}
+
+std::vector<Point<size_t>> WorldState::getAllNPCPositions() const {
+    std::vector<Point<size_t>> retval;
+    std::ranges::transform(m_npcsPositionByName,
+                           std::back_inserter(retval),
+                           [](const std::pair<std::string, Point<size_t>> &item) {
+                                return item.second;
+                           });
+    return retval;
+}
+
+const Point<size_t> &WorldState::getNPCPosition(const std::string &npcId) const {
+    return m_npcsPositionByName.at(npcId);
+}
+
+NPCFacing WorldState::getNPCFacing(const std::string &npcId) const {
+    return m_npcsFacingByName.at(npcId);
+}
+
+void WorldState::clearNPCsState() {
+    m_npcsPositionByName.clear();
+    m_npcsFacingByName.clear();
+}
+
+void WorldState::setNPCPosition(const std::string &npcId, const Point<size_t> &position) {
+    m_npcsPositionByName.insert_or_assign(npcId, position);
+}
+
+void WorldState::setNPCFacing(const std::string &npcId, const NPCFacing &facing) {
+    m_npcsFacingByName.insert_or_assign(npcId, facing);
 }
 
 }  // namespace thewarrior::models

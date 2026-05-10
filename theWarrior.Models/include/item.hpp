@@ -14,7 +14,7 @@ struct ItemCreationInfo {
     std::string name;
     std::string textureName;
     int textureIndex;
-    std::string optionalDescription = "";
+    std::string optionalDescription;
 };
 
 class Item {

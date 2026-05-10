@@ -25,6 +25,7 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glInventory.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glCharacterWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glChoicePopup.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/glNPC.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glObjectService.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glPlayer.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glPopupWindow.cpp

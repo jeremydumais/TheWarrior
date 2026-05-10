@@ -1,6 +1,6 @@
 # Set project name
 set(PROJECT_NAME    "MapEditor")
-project(${PROJECT_NAME} VERSION 1.3.5)
+project(${PROJECT_NAME} VERSION 1.4.0)
 
 include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/src
@@ -13,12 +13,7 @@ include_directories(${QT_INCLUDE_PATH}
 
 find_package(Qt5 COMPONENTS Widgets OpenGL REQUIRED)
 
-#Generate QT Form headers
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_AUTOUIC_SEARCH_PATHS AUTOGEN_BUILD_DIR/include)
 
 set (RESOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/../commonEditor.UI/res/darkstyle)
 
@@ -30,31 +25,42 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/tilePropsComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/textureListComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/monsterZoneListComponent.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/npcListComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/textureSelectionDockWidget.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mapPropsComponent.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/aboutBoxForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editItemStoreForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterEncounterForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterStoreForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterZoneForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/editNPCForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editTextureForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editMapTileTriggerForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editTileActionChangeMapPropertiesForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editTileActionOpenChestPropertiesForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/imageAttributionsForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/manageItemStoreForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/manageMonsterStoreForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mapOpenGLWidget.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterPickerForm.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/aboutBoxForm.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/imageAttributionsForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/selectNPCTextureForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/../commonEditor.UI/res/darkstyle/darkstyle.qrc
                          ${CMAKE_CURRENT_SOURCE_DIR}/res/global.qrc)
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_FILES})
+#Generate QT Form headers
+set_target_properties(${PROJECT_NAME} PROPERTIES
+  AUTOMOC ON
+  AUTOUIC ON
+  AUTORCC ON
+)
+set_target_properties(${PROJECT_NAME} PROPERTIES
+  AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/src"
+)
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   target_compile_definitions(${PROJECT_NAME} PRIVATE SUPPORT_MAYBE_UNUSED PROJECT_VERSION="${PROJECT_VERSION}")
 endif()
 
-target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${CONAN_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} MapEditor.Controllers theWarrior.Models theWarrior.Storage theWarrior.UI commonEditor.UI Qt5::Widgets Qt5::OpenGL glut GLU GL boost_program_options)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
@@ -80,6 +86,8 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") #gcc
     "-Wnull-dereference" # (only in GCC >= 6.0) warn if a null dereference is detected
     "-Wdouble-promotion" # (GCC >= 4.6, Clang >= 3.8) warn if float is implicit promoted to double
     "-Wformat=2" # warn on security issues around functions that format output (ie printf)
+    "-Wswitch"
+    "-Wswitch-enum"
     )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   target_compile_options(${PROJECT_NAME}

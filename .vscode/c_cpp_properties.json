@@ -10,7 +10,7 @@
             "compileCommands": "${workspaceFolder}/build/compile_commands.json",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/commonUI/include",
+                "${workspaceFolder}/commonEditor.UI/include",
                 "${workspaceFolder}/theWarrior.UI/include",
                 "${workspaceFolder}/theWarrior.UI.Models/include",
                 "${workspaceFolder}/theWarrior.UI.Controllers/include",

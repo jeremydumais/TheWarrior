@@ -7,7 +7,7 @@ class ShakingAnimation : public thewarrior::ui::IAnimation {
     ShakingAnimation(float power, int bounceCount);
     ~ShakingAnimation() override = default;
     void process() override;
-    float getValue() override;
+    float getValue() const override;
     bool isCompleted() override;
 
 

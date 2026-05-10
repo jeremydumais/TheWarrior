@@ -3,7 +3,6 @@
 #include <QtWidgets/QListWidget>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QWidget>
-#include <memory>
 #include <optional>
 #include <string>
 #include "mainForm_GLComponent.hpp"

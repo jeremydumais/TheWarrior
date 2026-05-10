@@ -1,16 +1,22 @@
-#include "mainForm_GLComponent.hpp"
+#include <memory>
 #include <optional>
 #include <set>
 #include <string>
 #include <vector>
 #include "errorMessage.hpp"
 #include "glComponentController.hpp"
+#include "mainForm_GLComponent.hpp"
+#include "mapTile.hpp"
 #include "mapTileDTO.hpp"
 #include "monsterZoneDTO.hpp"
 #include "pickerToolSelection.hpp"
+#include "point.hpp"
+#include "selectionMode.hpp"
 
 using commoneditor::ui::ErrorMessage;
 using thewarrior::models::GameMap;
+using thewarrior::models::MapTile;
+using thewarrior::models::Point;
 using thewarrior::models::Texture;
 using mapeditor::controllers::GLComponentController;
 using mapeditor::controllers::MapTileDTO;
@@ -52,6 +58,18 @@ void MainForm_GLComponent::connectUIActions() {
             &MapOpenGLWidget::onClipboardPasted,
             this,
             &MainForm_GLComponent::onClipboardPasted);
+    connect(this->m_glWidget,
+            &MapOpenGLWidget::onNPCSpawnPositionPickerToolTileSelected,
+            this,
+            &MainForm_GLComponent::onNPCSpawnPositionPickerToolTileSelected);
+    connect(this->m_glWidget,
+            &MapOpenGLWidget::onNPCSpawnPositionPickerToolCanceled,
+            this,
+            &MainForm_GLComponent::onNPCSpawnPositionPickerToolCanceled);
+}
+
+const std::string &MainForm_GLComponent::getLastError() const {
+    return m_lastError;
 }
 
 const std::string &MainForm_GLComponent::getResourcesPath() const {
@@ -79,10 +97,10 @@ size_t MainForm_GLComponent::getHistoryCount() const {
 }
 
 bool MainForm_GLComponent::isClipboardEmpty() const {
-    return m_controller.getClipboard().size() == 0;
+    return m_controller.getClipboard().empty();
 }
 
-void MainForm_GLComponent::setCurrentMap(std::shared_ptr<GameMap> map) {
+void MainForm_GLComponent::setCurrentMap(const std::shared_ptr<GameMap> &map) {
     this->m_controller.setCurrentMap(map);
     this->m_glWidget->setCurrentMap(map);
     clearLastSelectedTexture();
@@ -97,6 +115,14 @@ void MainForm_GLComponent::setSelectionMode(SelectionMode mode) {
     this->m_glWidget->setSelectionMode(mode);
 }
 
+void MainForm_GLComponent::restorePreviousSelectionMode() {
+    this->m_glWidget->restorePreviousSelectionMode();
+}
+
+void MainForm_GLComponent::setMapFocus() {
+    this->m_glWidget->setFocus();
+}
+
 void MainForm_GLComponent::setMapView(MapView view) {
     this->m_glWidget->setMapView(view);
 }
@@ -106,7 +132,7 @@ std::vector<MapTileDTO> MainForm_GLComponent::getCurrentMapTiles() {
 }
 
 bool MainForm_GLComponent::isSelectedMapTiles() const {
-    return m_controller.getSelectedMapTiles().size() > 0;
+    return !m_controller.getSelectedMapTiles().empty();
 }
 
 void MainForm_GLComponent::setLastSelectedTexture(const std::string &name,
@@ -133,6 +159,14 @@ void MainForm_GLComponent::setLastSelectedMonsterZone(int index) {
 
 void MainForm_GLComponent::clearLastSelectedMonsterZone() {
     m_controller.clearLastSelectedMonsterZone();
+}
+
+void MainForm_GLComponent::setLastSelectedNPC(const std::string &npcName) {
+    m_glWidget->setSelectedNPC(npcName);
+}
+
+void MainForm_GLComponent::clearLastSelectedNPC() {
+    m_glWidget->clearSelectedNPC();
 }
 
 void MainForm_GLComponent::stopAutoUpdate() {
@@ -167,6 +201,10 @@ bool MainForm_GLComponent::isTextureUsedInMap(const std::string &name) {
     return m_controller.isTextureUsedInMap(name);
 }
 
+bool MainForm_GLComponent::isTextureUsedByNPCs(const std::string &name) {
+    return m_controller.isTextureUsedByNPCs(name);
+}
+
 void MainForm_GLComponent::reloadTextures() {
     m_glWidget->reloadTextures();
 }
@@ -192,7 +230,7 @@ void MainForm_GLComponent::resizeMap(int offsetLeft,
 }
 
 void MainForm_GLComponent::onTileClicked(const std::set<int> &tileIndices, int, int) {
-    if (m_glWidget->getSelectionMode() == SelectionMode::Select && tileIndices.size() != 0) {
+    if (m_glWidget->getSelectionMode() == SelectionMode::Select && !tileIndices.empty()) {
         m_controller.selectTilesForEditing(tileIndices);
         emit tileSelected(m_controller.getSelectedMapTiles());
     } else {
@@ -212,6 +250,19 @@ void MainForm_GLComponent::onZoomChanged(int zoomPercentage) {
 void MainForm_GLComponent::onClipboardPasted() {
     m_controller.pushCurrentStateToHistory();
     emit editHistoryChanged();
+}
+
+void MainForm_GLComponent::onNPCSpawnPositionPickerToolTileSelected(const MapTile &tile,
+                                                                    const Point<> &position) {
+    if (!tile.canPlayerSteppedOn()) {
+        ErrorMessage::show("You must select a tile that can be stepped on");
+    } else {
+        emit npcSpawnPositionPickerTileSelected(position);
+    }
+}
+
+void MainForm_GLComponent::onNPCSpawnPositionPickerToolCanceled() {
+    emit npcSpawnPositionPickerTileSelected(Point<>(-1, -1));
 }
 
 void MainForm_GLComponent::clearEditHistory() {
@@ -300,6 +351,30 @@ bool MainForm_GLComponent::setUseOnlyOneMonsterZone(bool value) {
     bool retval = m_controller.setUseOnlyOneMonsterZone(value);
     emit editHistoryChanged();
     return retval;
+}
+
+void MainForm_GLComponent::setNPCSpawnPositionPickerMode(bool value) {
+    emit npcSpawnPositionPickerModeChanged(value);
+}
+
+bool MainForm_GLComponent::applyNPCWanderingZone() {
+    m_controller.pushCurrentStateToHistory();
+    if (!m_controller.applyNPCWanderingZone(m_glWidget->getLastSelectedNPC())) {
+        m_lastError = m_controller.getLastError();
+        return false;
+    }
+    emit editHistoryChanged();
+    return true;
+}
+
+bool MainForm_GLComponent::clearNPCWanderingZone() {
+    m_controller.pushCurrentStateToHistory();
+    if (!m_controller.clearNPCWanderingZone(m_glWidget->getLastSelectedNPC())) {
+        m_lastError = m_controller.getLastError();
+        return false;
+    }
+    emit editHistoryChanged();
+    return true;
 }
 
 std::vector<MonsterZoneDTO> MainForm_GLComponent::getMonsterZones() const {

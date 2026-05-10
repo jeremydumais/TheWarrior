@@ -8,6 +8,7 @@
 #include "gameMap.hpp"
 #include "glComponentController.hpp"
 #include "monsterZoneDTO.hpp"
+#include "npcDTO.hpp"
 #include "textureDTO.hpp"
 #include "types.hpp"
 
@@ -23,6 +24,7 @@ class MainController {
     const std::string &getUserConfigFolder() const;
     const std::vector<thewarrior::models::Texture>& getTextures() const;
     const std::shared_ptr<ContainerOfMonsterStore> &getMonsterStores() const;
+    bool canDisableCanSteppedOnForSelectedTiles() const;
     void setGLComponentController(GLComponentController *controller);
     bool createMap(unsigned int width, unsigned int height);
     void saveMap(const std::string &filePath);
@@ -40,27 +42,36 @@ class MainController {
     bool replaceMonsterZone(const std::string &name, const MonsterZoneDTO &monsterZoneDTO);
     bool removeMonsterZone(const std::string &name);
     bool loadConfiguredMonsterStores();
+    bool addNPC(const NPCDTO &npcDTO);
+    bool replaceNPC(const std::string &id, const NPCDTO &npcDTO);
+    bool removeNPC(const std::string &id);
     std::vector<std::string> getRecentMapsFromConfig() const;
     bool addNewRecentMap(const std::string &filePath);
     bool getDisplayGridConfigState() const;
     bool setDisplayGridConfigState(bool value);
+    bool getDisplayNPCsConfigState() const;
+    bool setDisplayNPCsConfigState(bool value);
     std::string getThemeConfigValue() const;
     bool setThemeConfigValue(const std::string &theme);
-    bool getDisplayToolbarsMapConfigState() const;
-    bool setDisplayToolbarsMapConfigState(bool value);
-    bool getDisplayToolbarsTextureSelectionState() const;
-    bool setDisplayToolbarsTextureSelectionState(bool value);
-    bool getDisplayToolbarsDebuggingInfoState() const;
-    bool setDisplayToolbarsDebuggingInfoState(bool value);
+    bool getDisplayEditorsMapConfigState() const;
+    bool setDisplayEditorsMapConfigState(bool value);
+    bool getDisplayEditorsTextureSelectionState() const;
+    bool setDisplayEditorsTextureSelectionState(bool value);
+    bool getDisplayEditorsDebuggingInfoState() const;
+    bool setDisplayEditorsDebuggingInfoState(bool value);
+    bool getDisplayToolbarsNPCWanderingZoneState() const;
+    bool setDisplayToolbarsNPCWanderingZoneState(bool value);
+    bool getDisplayToolbarsMonsterZoneState() const;
+    bool setDisplayToolbarsMonsterZoneState(bool value);
     bool setCustomKey(const std::string &path, const std::string &s);
 
  private:
     friend class boost::serialization::access;
-    std::string m_lastError = "";
-    std::string m_executablePath = "";
-    std::string m_resourcesPath = "";
-    std::string m_userConfigFolder = "";
-    std::string m_configFilename = "";
+    std::string m_lastError;
+    std::string m_executablePath;
+    std::string m_resourcesPath;
+    std::string m_userConfigFolder;
+    std::string m_configFilename;
     std::unique_ptr<thewarrior::storage::ConfigurationManager> m_configManager = nullptr;
     GLComponentController *m_glComponentController = nullptr;
     std::shared_ptr<thewarrior::models::GameMap> m_map = nullptr;
