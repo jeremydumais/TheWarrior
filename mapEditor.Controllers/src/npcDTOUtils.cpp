@@ -4,44 +4,48 @@
 #include "npc.hpp"
 #include "npcDTO.hpp"
 
+using mapeditor::controllers::NPCDTO;
 using thewarrior::models::NPC;
 using thewarrior::models::NPCCreationInfo;
-using mapeditor::controllers::NPCDTO;
 
-namespace mapeditor::controllers {
+namespace mapeditor::controllers
+{
 
-NPCDTO NPCDTOUtils::fromNPC(const NPC &npc) {
-    return NPCDTO {
-        npc.getId(),
-        npc.getName(),
-        npc.getTextureName(),
-        npc.getBaseTextureIndex(),
-        npc.getSpawnPosition(),
-        npc.getWanderZone(),
-        npc.getDialogueLines(),
-        npc.getDefaultFacing(),
-        npc.getCurrentFacing()
-    };
-}
-
-NPCDTOUtils::NPCConversionResult NPCDTOUtils::toNPC(const NPCDTO &dto) {
-    NPCCreationInfo creationInfo {
-        dto.id,
-        dto.name,
-        dto.textureName,
-        dto.baseTextureIndex,
-        dto.spawnPosition,
-        dto.wanderZone,
-        dto.dialogueLines,
-        dto.defaultFacing,
-        dto.defaultFacing
-    };
-    try {
-        NPC result(creationInfo);
-        return {result};
-    } catch (const std::invalid_argument &err) {
-        return {std::nullopt, err.what()};
+    NPCDTO NPCDTOUtils::fromNPC(const NPC &npc) {
+        return NPCDTO{
+            .id = npc.getId(),
+            .name = npc.getName(),
+            .textureName = npc.getTextureName(),
+            .baseTextureIndex = npc.getBaseTextureIndex(),
+            .spawnPosition = npc.getSpawnPosition(),
+            .wanderZone = npc.getWanderZone(),
+            .dialogueLines = npc.getDialogueLines(),
+            .defaultFacing = npc.getDefaultFacing(),
+            .currentFacing = npc.getCurrentFacing(),
+            .defaultBehavior = npc.getDefaultBehavior(),
+            .currentBehavior = npc.getCurrentBehavior()};
     }
-}
 
-}  // namespace mapeditor::controllers
+    NPCDTOUtils::NPCConversionResult NPCDTOUtils::toNPC(const NPCDTO &dto) {
+        NPCCreationInfo creationInfo{
+            .id = dto.id,
+            .name = dto.name,
+            .textureName = dto.textureName,
+            .baseTextureIndex = dto.baseTextureIndex,
+            .spawnPosition = dto.spawnPosition,
+            .wanderZone = dto.wanderZone,
+            .dialogueLines = dto.dialogueLines,
+            .defaultFacing = dto.defaultFacing,
+            .currentFacing = dto.currentFacing,
+            .defaultBehavior = dto.defaultBehavior,
+            .currentBehavior = dto.currentBehavior};
+        try {
+            NPC result(creationInfo);
+            return {.npc = result, .errorMessage = ""};
+        }
+        catch (const std::invalid_argument &err) {
+            return {.npc = std::nullopt, .errorMessage = err.what()};
+        }
+    }
+
+} // namespace mapeditor::controllers

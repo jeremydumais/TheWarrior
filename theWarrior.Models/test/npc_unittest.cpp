@@ -7,6 +7,7 @@
 
 using thewarrior::models::NPC;
 using thewarrior::models::NPCCreationInfo;
+using thewarrior::models::NPCBehavior;
 using thewarrior::models::NPCFacing;
 using thewarrior::models::Point;
 
@@ -28,7 +29,9 @@ NPCCreationInfo getNPCInfoSample1() {
             "How are you today?"
         },
         .defaultFacing = NPCFacing::Left,
-        .currentFacing = NPCFacing::Right
+        .currentFacing = NPCFacing::Right,
+        .defaultBehavior = NPCBehavior::Stationary,
+        .currentBehavior = NPCBehavior::Wander
     };
 }
 
@@ -120,6 +123,14 @@ TEST_F(NPCSample1, getDefaultFacing_ReturnLeft) {
 
 TEST_F(NPCSample1, getCurrentFacing_ReturnRight) {
     ASSERT_EQ(NPCFacing::Right, npc.getCurrentFacing());
+}
+
+TEST_F(NPCSample1, getDefaultBehavior_ReturnStationary) {
+    ASSERT_EQ(NPCBehavior::Stationary, npc.getDefaultBehavior());
+}
+
+TEST_F(NPCSample1, getCurrentBehavior_ReturnWander) {
+    ASSERT_EQ(NPCBehavior::Wander, npc.getCurrentBehavior());
 }
 
 TEST_F(NPCSample1, setId_WithWhiteSpaces_ThrowInvalidArgument) {
@@ -326,6 +337,16 @@ TEST_F(NPCSample1, setDefaultFacing_WithUp_ReturnSuccess) {
 TEST_F(NPCSample1, setCurrentFacing_WithUp_ReturnSuccess) {
     npc.setCurrentFacing(NPCFacing::Up);
     ASSERT_EQ(NPCFacing::Up, npc.getCurrentFacing());
+}
+
+TEST_F(NPCSample1, setDefaultBehavior_WithWander_ReturnSuccess) {
+    npc.setDefaultBehavior(NPCBehavior::Wander);
+    ASSERT_EQ(NPCBehavior::Wander, npc.getDefaultBehavior());
+}
+
+TEST_F(NPCSample1, setCurrentBehavior_WithStationary_ReturnSuccess) {
+    npc.setCurrentBehavior(NPCBehavior::Stationary);
+    ASSERT_EQ(NPCBehavior::Stationary, npc.getCurrentBehavior());
 }
 
 TEST_F(NPCSample1, applyCoordinateOffset_WithXMinus1_ReturnSuccess) {

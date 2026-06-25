@@ -11,8 +11,9 @@
 
 namespace thewarrior::models {
 
+enum class NPCBehavior { Stationary, Wander };
 enum class NPCFacing { Left, Up, Right, Down };
-
+#
 struct NPCCreationInfo {
     std::string id;
     std::string name;
@@ -23,6 +24,8 @@ struct NPCCreationInfo {
     std::vector<std::string> dialogueLines;
     NPCFacing defaultFacing = NPCFacing::Down;
     NPCFacing currentFacing = NPCFacing::Down;
+    NPCBehavior defaultBehavior = NPCBehavior::Stationary;
+    NPCBehavior currentBehavior = NPCBehavior::Stationary;
 };
 
 class NPC {
@@ -42,6 +45,8 @@ class NPC {
     const::std::vector<std::string> &getDialogueLines() const;
     NPCFacing getDefaultFacing() const;
     NPCFacing getCurrentFacing() const;
+    NPCBehavior getDefaultBehavior() const;
+    NPCBehavior getCurrentBehavior() const;
     int getCurrentFacingTextureIndex() const;
     void setId(const std::string &id);
     void setName(const std::string &name);
@@ -55,6 +60,8 @@ class NPC {
     void setDialogueLines(const::std::vector<std::string> &lines);
     void setDefaultFacing(NPCFacing value);
     void setCurrentFacing(NPCFacing value);
+    void setDefaultBehavior(NPCBehavior value);
+    void setCurrentBehavior(NPCBehavior value);
     void applyCoordinateOffset(int offsetX, int offsetY);
 
  private:
@@ -69,12 +76,14 @@ class NPC {
     std::vector<std::string> m_dialogueLines;
     NPCFacing m_defaultFacing = NPCFacing::Down;
     NPCFacing m_currentFacing = NPCFacing::Down;
+    NPCBehavior m_defaultBehavior = NPCBehavior::Stationary;
+    NPCBehavior m_currentBehavior = NPCBehavior::Stationary;
 
     void validateId(const std::string &id);
     void validateName(const std::string &name);
     // Serialization method
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int) {
+    void serialize(Archive & ar, const unsigned int version) {
         ar & m_id;
         ar & m_name;
         ar & m_textureName;
@@ -84,9 +93,13 @@ class NPC {
         ar & m_dialogueLines;
         ar & m_defaultFacing;
         ar & m_currentFacing;
+        if (version >= 2) {
+            ar & m_defaultBehavior;
+            ar & m_currentBehavior;
+        }
     }
 };
 
 }  // namespace thewarrior::models
 
-BOOST_CLASS_VERSION(thewarrior::models::NPC, 1)
+BOOST_CLASS_VERSION(thewarrior::models::NPC, 2)

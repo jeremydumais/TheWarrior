@@ -50,6 +50,8 @@ GameWindow::GameWindow(const string &title,
 
     m_fpsCalculator.initialize();
     m_windowSizeChanged(m_WindowSize);
+    //HACK: To Remove
+    createNewGame("Jed");
 }
 
 GameWindow::~GameWindow() {

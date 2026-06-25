@@ -17,7 +17,9 @@ m_spawnPosition(info.spawnPosition),
 m_wanderZone(info.wanderZone),
 m_dialogueLines(info.dialogueLines),
 m_defaultFacing(info.defaultFacing),
-m_currentFacing(info.currentFacing) {
+m_currentFacing(info.currentFacing),
+m_defaultBehavior(info.defaultBehavior),
+m_currentBehavior(info.currentBehavior) {
     validateId(info.id);
     validateName(info.name);
 }
@@ -56,6 +58,14 @@ NPCFacing NPC::getDefaultFacing() const {
 
 NPCFacing NPC::getCurrentFacing() const {
     return m_currentFacing;
+}
+
+NPCBehavior NPC::getDefaultBehavior() const {
+    return m_defaultBehavior;
+}
+
+NPCBehavior NPC::getCurrentBehavior() const {
+    return m_currentBehavior;
 }
 
 int NPC::getCurrentFacingTextureIndex() const {
@@ -130,6 +140,14 @@ void NPC::setCurrentFacing(NPCFacing value) {
     m_currentFacing = value;
 }
 
+void NPC::setDefaultBehavior(NPCBehavior value) {
+    m_defaultBehavior = value;
+}
+
+void NPC::setCurrentBehavior(NPCBehavior value) {
+    m_currentBehavior = value;
+}
+
 void NPC::applyCoordinateOffset(int offsetX, int offsetY) {
     m_spawnPosition.setX(static_cast<size_t>(static_cast<std::int64_t>(m_spawnPosition.x()) + offsetX));
     m_spawnPosition.setY(static_cast<size_t>(static_cast<std::int64_t>(m_spawnPosition.y()) + offsetY));
@@ -158,5 +176,3 @@ void NPC::validateName(const std::string &name) {
 }
 
 }  // namespace thewarrior::models
-
-

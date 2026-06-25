@@ -11,7 +11,7 @@ class NPCDTOUtils {
  public:
     struct NPCConversionResult {
         std::optional<thewarrior::models::NPC> npc;
-        std::string errorMessage = "";
+        std::string errorMessage;
 
         bool success() const noexcept { return npc.has_value(); }
     };
