@@ -16,6 +16,7 @@ using commoneditor::ui::ErrorMessage;
 using commoneditor::ui::WarningMessage;
 using mapeditor::controllers::EditNPCFormController;
 using mapeditor::controllers::NPCDTO;
+using thewarrior::models::NPCBehavior;
 using thewarrior::models::NPCFacing;
 using thewarrior::models::Point;
 using thewarrior::models::Texture;
@@ -36,6 +37,9 @@ EditNPCForm::EditNPCForm(QWidget *parent,
     ui.comboBoxDefaultFacing->addItem("Right");
     ui.comboBoxDefaultFacing->addItem("Down");
     ui.comboBoxDefaultFacing->setCurrentIndex(3);
+    ui.comboBoxDefaultBehavior->addItem("Stationary");
+    ui.comboBoxDefaultBehavior->addItem("Wander");
+    ui.comboBoxDefaultBehavior->setCurrentIndex(0);
     if (selectedNPC.has_value()) {
         ui.lineEditId->setText(selectedNPC->id.c_str());
         ui.lineEditName->setText(selectedNPC->name.c_str());
@@ -47,6 +51,7 @@ EditNPCForm::EditNPCForm(QWidget *parent,
             ui.plainTextDialogue->appendPlainText(line.c_str());
         }
         ui.comboBoxDefaultFacing->setCurrentIndex(static_cast<int>(selectedNPC->defaultFacing));
+        ui.comboBoxDefaultBehavior->setCurrentIndex(static_cast<int>(selectedNPC->defaultBehavior));
         refreshNPCTile();
     }
     connectUIActions();
@@ -136,6 +141,8 @@ void EditNPCForm::onPushButtonOKClick() {
     m_result.dialogueLines = EditNPCFormController::convertPlainTextToLines(ui.plainTextDialogue->toPlainText());
     m_result.defaultFacing = static_cast<NPCFacing>(ui.comboBoxDefaultFacing->currentIndex());
     m_result.currentFacing = m_result.defaultFacing;
+    m_result.defaultBehavior = static_cast<NPCBehavior>(ui.comboBoxDefaultBehavior->currentIndex());
+    m_result.currentBehavior = m_result.defaultBehavior;
     if (!m_controller.isDTOValid(m_result)) {
         ErrorMessage::show(m_controller.getLastError());
         return;

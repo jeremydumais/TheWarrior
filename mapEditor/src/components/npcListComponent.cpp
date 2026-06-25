@@ -59,6 +59,12 @@ bool NPCListComponent::isNPCListEmpty() const {
     return m_controller.getNPCs().empty();
 }
 
+bool NPCListComponent::isNPCSupportingWanderingZones(const std::string &npcId) const {
+    const auto selectedNPC = m_controller.getNPCById(npcId);
+    return selectedNPC.has_value() &&
+           selectedNPC->defaultBehavior == thewarrior::models::NPCBehavior::Wander;
+}
+
 std::vector<NPCDTO> NPCListComponent::getNPCs() const {
     return m_controller.getNPCs();
 }
@@ -69,9 +75,8 @@ std::optional<const NPCDTO> NPCListComponent::getSelectedNPC() const {
         const auto selectedRow = ui.tableWidgetNPC->selectionModel()->selectedRows()[0];
         auto selectedItemId { selectedRow.sibling(selectedRow.row(), 0).data().toString().toStdString() };
         return m_controller.getNPCById(selectedItemId);
-    } else {
-        return std::nullopt;
-    }
+    } 
+    return std::nullopt;
 }
 
 
@@ -149,4 +154,3 @@ void NPCListComponent::showEditForm() {
     }
     m_glComponent->startAutoUpdate();
 }
-

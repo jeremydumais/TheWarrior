@@ -169,6 +169,16 @@
        </item>
       </layout>
      </item>
+     <item row="8" column="0">
+      <widget class="QLabel" name="labelDefaultBehavior">
+       <property name="text">
+        <string>Default Behavior : </string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1">
+      <widget class="QComboBox" name="comboBoxDefaultBehavior"/>
+     </item>
     </layout>
    </item>
    <item>
@@ -250,8 +260,9 @@
   <tabstop>pushButtonSpawnPositionPicker</tabstop>
   <tabstop>plainTextDialogue</tabstop>
   <tabstop>comboBoxDefaultFacing</tabstop>
-  <tabstop>pushButtonOK</tabstop>
+  <tabstop>comboBoxDefaultBehavior</tabstop>
   <tabstop>pushButtonCancel</tabstop>
+  <tabstop>pushButtonOK</tabstop>
  </tabstops>
  <resources>
   <include location="../res/global.qrc"/>

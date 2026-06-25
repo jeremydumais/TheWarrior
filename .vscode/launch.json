@@ -29,7 +29,10 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/bin/MapEditor",
-            "args": [],
+            "args": [
+                "-f",
+                "/home/jed/Programming/TheWarrior/build/bin/resources/maps/homeHouseV1.map"
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build",
             "environment": [],

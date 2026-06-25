@@ -532,6 +532,7 @@ void MainForm::action_ClearMonsterZone() {
 void MainForm::onComboBoxToolbarNPCWanderingZoneCurrentIndexChanged() {
     if (comboBoxToolbarNPCWanderingZone->currentIndex() != -1) {
         m_glComponent.setLastSelectedNPC(comboBoxToolbarNPCWanderingZone->currentText().toStdString());
+        toggleNPCAssignationControls();
     } else {
         m_glComponent.clearLastSelectedNPC();
     }
@@ -892,8 +893,10 @@ void MainForm::refreshNPCs() {
 void MainForm::toggleNPCAssignationControls() {
     bool active = !m_npcListComponent->isNPCListEmpty();
     comboBoxToolbarNPCWanderingZone->setEnabled(active);
-    ui.action_ApplyNPCWanderingZone->setEnabled(active);
-    ui.action_ClearNPCWanderingZone->setEnabled(active);
+    const std::string selectedNPCId = comboBoxToolbarNPCWanderingZone->currentText().toStdString();
+    const auto selectedNPCSupportsWanderingZones = m_npcListComponent->isNPCSupportingWanderingZones(selectedNPCId);
+    ui.action_ApplyNPCWanderingZone->setEnabled(active && selectedNPCSupportsWanderingZones);
+    ui.action_ClearNPCWanderingZone->setEnabled(active && selectedNPCSupportsWanderingZones);
 }
 
 void MainForm::onNPCAdded(const NPCDTO &npcDTO) {
@@ -930,4 +933,3 @@ void MainForm::onNPCDeleted(const std::string &id) {
 void MainForm::onMapPropsComponentBeforeChange() {
     m_glComponent.pushCurrentStateToHistory();
 }
-

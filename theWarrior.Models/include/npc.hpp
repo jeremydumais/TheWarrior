@@ -13,7 +13,7 @@ namespace thewarrior::models {
 
 enum class NPCBehavior { Stationary, Wander };
 enum class NPCFacing { Left, Up, Right, Down };
-#
+
 struct NPCCreationInfo {
     std::string id;
     std::string name;

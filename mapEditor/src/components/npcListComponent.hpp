@@ -28,6 +28,7 @@ class NPCListComponent : public QWidget {
     void connectUIActions();
     void refreshNPCs();
     bool isNPCListEmpty() const;
+    bool isNPCSupportingWanderingZones(const std::string &npcId) const;
     std::vector<mapeditor::controllers::NPCDTO> getNPCs() const;
     std::optional<const mapeditor::controllers::NPCDTO> getSelectedNPC() const;
     void setResourcesPath(const std::string &resourcesPath);
