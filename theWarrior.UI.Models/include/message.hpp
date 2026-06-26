@@ -22,6 +22,7 @@ class Message {
     void setMaxDurationInMilliseconds(int value);
     void setScale(float value);
     void setDisplayed(std::chrono::_V2::system_clock::time_point startTime);
+    void clearDisplayed();
 
  private:
     std::string m_message;

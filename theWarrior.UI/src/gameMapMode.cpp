@@ -116,7 +116,7 @@ void GameMapMode::processEvents(SDL_Event &e) {
         toggleCharacterWindow();
     } else if (e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_ESCAPE) {
         if (m_controller.isMessageDisplayed()) {
-            completeCurrentMessage();
+            completeCurrentMessage(true);
         } else if (m_inputMode == GameMapInputMode::Map) {
             showMainMenu();
             m_inputDevicesState->reset();
@@ -190,6 +190,7 @@ void GameMapMode::gameWindowSizeChanged(const Size<> &size) {
 
 void GameMapMode::onGameWindowUpdate(float delta_time) {
     m_glPlayer->onGameWindowUpdate(delta_time);
+    m_textBox->update(delta_time);
     for (auto &npc : m_glNPCs) {
         npc.onGameWindowUpdate(delta_time,
                                *m_map,
@@ -292,7 +293,7 @@ void GameMapMode::render() {
         // Display the message
         m_textBox->draw();
         if (currentMessage->isExpired) {
-            completeCurrentMessage();
+            completeCurrentMessage(false);
         }
     }
     if (m_inputMode == GameMapInputMode::MainMenuPopup) {
@@ -336,7 +337,7 @@ void GameMapMode::drawObjectTile(GLTile &tile) {
 
 void GameMapMode::actionButtonPressed() {
     if (m_controller.isMessageDisplayed()) {
-        completeCurrentMessage();
+        completeCurrentMessage(true);
     } else {
         if (stopFacingNPCWandering()) {
             return;
@@ -378,12 +379,8 @@ bool GameMapMode::stopFacingNPCWandering() {
     if (!dialogueLines.empty()) {
         auto msg = std::make_unique<NPCDialogueMessageDTO>();
         msg->npcId = iter->getId();
-        for (const auto &line : dialogueLines) {
-            if (!msg->message.empty()) {
-                msg->message += '\n';
-            }
-            msg->message += line;
-        }
+        msg->dialogueLines = dialogueLines;
+        msg->message = dialogueLines.front();
         m_controller.addMessageToPipeline(std::move(msg));
     }
     return true;
@@ -918,10 +915,20 @@ void GameMapMode::onBattleCompleted() {
     m_inputMode = GameMapInputMode::Map;
 }
     
-void GameMapMode::completeCurrentMessage() {
+void GameMapMode::completeCurrentMessage(bool allowTextReveal) {
+    if (allowTextReveal && m_textBox->isRevealingText()) {
+        m_textBox->revealAllText();
+        return;
+    }
+
     auto currentMessage = m_controller.getCurrentMessage();
 
     if (currentMessage && currentMessage->getType() == MessageDTOType::NPCDialogueMessage) {
+        if (m_controller.currentNPCDialogueMessageHasNextPage()) {
+            m_controller.advanceCurrentNPCDialogueMessagePage();
+            return;
+        }
+
         auto *npcMessage = dynamic_cast<NPCDialogueMessageDTO *>(currentMessage.get());
         restoreNPCDefaultBehavior(npcMessage->npcId);
     }

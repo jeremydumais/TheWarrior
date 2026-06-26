@@ -41,6 +41,8 @@ class GameMapModeController {
     void addMessageToPipeline(std::unique_ptr<MessageDTO> messageDTO);
     void deleteCurrentMessage();
     void displayCurrentMessage();
+    bool currentNPCDialogueMessageHasNextPage() const;
+    void advanceCurrentNPCDialogueMessagePage();
     void addTileActionProcessed(const std::string &mapName, int tileIndex);
     bool loadItemStore(const std::string &filePath);
     bool loadMonsterStore(const std::string &filePath);
@@ -54,6 +56,7 @@ class GameMapModeController {
     std::shared_ptr<thewarrior::models::ItemStore> m_itemStore;
     std::shared_ptr<thewarrior::models::MonsterStore> m_monsterStore;
     std::shared_ptr<thewarrior::ui::models::MessagePipeline> m_messagePipeline;
+    static constexpr size_t NPCDialogueLinesPerPage = 3;
     std::shared_ptr<thewarrior::ui::models::Message> createMessageFromMessageDTO(std::unique_ptr<MessageDTO> dto) const;
     std::unique_ptr<MessageDTO> createMessageDTOFromMessage(std::shared_ptr<thewarrior::ui::models::Message> message) const;
 };

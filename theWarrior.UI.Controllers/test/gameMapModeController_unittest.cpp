@@ -55,6 +55,7 @@ TEST(GameMapModeController_addMessageToPipeline, WithNPCDialogueMessageDTO_AddNP
     msg->maxDurationInMilliseconds = 10000;
     msg->scale = 0.6F;
     msg->npcId = "npc001";
+    msg->dialogueLines = { "Hello traveler", "Stay awhile" };
 
     controller.addMessageToPipeline(std::move(msg));
 
@@ -62,10 +63,33 @@ TEST(GameMapModeController_addMessageToPipeline, WithNPCDialogueMessageDTO_AddNP
     auto currentMessage = controller.getCurrentMessage();
     ASSERT_NE(nullptr, currentMessage);
     ASSERT_EQ(MessageDTOType::NPCDialogueMessage, currentMessage->getType());
-    ASSERT_EQ("Hello traveler", currentMessage->message);
+    ASSERT_EQ("Hello traveler\nStay awhile", currentMessage->message);
     ASSERT_EQ(10000, currentMessage->maxDurationInMilliseconds);
     ASSERT_FLOAT_EQ(0.6F, currentMessage->scale);
     auto *npcDialogueMessage = dynamic_cast<NPCDialogueMessageDTO *>(currentMessage.get());
     ASSERT_NE(nullptr, npcDialogueMessage);
     ASSERT_EQ("npc001", npcDialogueMessage->npcId);
+    ASSERT_EQ(2, npcDialogueMessage->dialogueLines.size());
+    ASSERT_EQ(0, npcDialogueMessage->currentLineIndex);
+}
+
+TEST(GameMapModeController_advanceCurrentNPCDialogueMessagePage, WithNPCDialogueMessage_AdvanceCurrentMessage) {
+    GameMapModeController controller;
+    auto msg = std::make_unique<NPCDialogueMessageDTO>();
+    msg->message = "Hello traveler";
+    msg->npcId = "npc001";
+    msg->dialogueLines = { "Hello traveler", "Stay awhile", "Listen well", "Good luck" };
+
+    controller.addMessageToPipeline(std::move(msg));
+
+    ASSERT_TRUE(controller.currentNPCDialogueMessageHasNextPage());
+    controller.advanceCurrentNPCDialogueMessagePage();
+
+    auto currentMessage = controller.getCurrentMessage();
+    ASSERT_NE(nullptr, currentMessage);
+    ASSERT_EQ("Good luck", currentMessage->message);
+    auto *npcDialogueMessage = dynamic_cast<NPCDialogueMessageDTO *>(currentMessage.get());
+    ASSERT_NE(nullptr, npcDialogueMessage);
+    ASSERT_EQ(3, npcDialogueMessage->currentLineIndex);
+    ASSERT_FALSE(controller.currentNPCDialogueMessageHasNextPage());
 }

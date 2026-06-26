@@ -151,6 +151,28 @@ void GameMapModeController::displayCurrentMessage() {
     }
 }
 
+bool GameMapModeController::currentNPCDialogueMessageHasNextPage() const {
+    auto currentMessage = m_messagePipeline->getCurrentMessage();
+    if (!currentMessage || currentMessage->getType() != MessageType::NPCDialogueMessage) {
+        return false;
+    }
+
+    auto *npcDialogueMessage = dynamic_cast<NPCDialogueMessage *>(currentMessage.get());
+    return npcDialogueMessage != nullptr && npcDialogueMessage->hasNextPage(NPCDialogueLinesPerPage);
+}
+
+void GameMapModeController::advanceCurrentNPCDialogueMessagePage() {
+    auto currentMessage = m_messagePipeline->getCurrentMessage();
+    if (!currentMessage || currentMessage->getType() != MessageType::NPCDialogueMessage) {
+        return;
+    }
+
+    auto *npcDialogueMessage = dynamic_cast<NPCDialogueMessage *>(currentMessage.get());
+    if (npcDialogueMessage != nullptr) {
+        npcDialogueMessage->advancePage(NPCDialogueLinesPerPage);
+    }
+}
+
 std::shared_ptr<Message> GameMapModeController::createMessageFromMessageDTO(std::unique_ptr<MessageDTO> dto) const {
     if (!dto) {
         return nullptr;
@@ -174,7 +196,8 @@ std::shared_ptr<Message> GameMapModeController::createMessageFromMessageDTO(std:
                 return std::make_shared<NPCDialogueMessage>(npcDialogueMsgDTO->message,
                         npcDialogueMsgDTO->maxDurationInMilliseconds,
                         npcDialogueMsgDTO->scale,
-                        npcDialogueMsgDTO->npcId);
+                        npcDialogueMsgDTO->npcId,
+                        npcDialogueMsgDTO->dialogueLines);
             }
         default:
             return nullptr;
@@ -205,6 +228,9 @@ std::unique_ptr<MessageDTO> GameMapModeController::createMessageDTOFromMessage(s
                 auto *npcDialogueMessage = dynamic_cast<NPCDialogueMessage *>(message.get());
                 auto *dto = dynamic_cast<NPCDialogueMessageDTO *>(retval.get());
                 dto->npcId = npcDialogueMessage->getNPCId();
+                dto->dialogueLines = npcDialogueMessage->getDialogueLines();
+                dto->currentLineIndex = npcDialogueMessage->getCurrentLineIndex();
+                dto->hasNextPage = (npcDialogueMessage->getCurrentLineIndex() + NPCDialogueLinesPerPage) < npcDialogueMessage->getDialogueLines().size();
                 break;
             }
         default:

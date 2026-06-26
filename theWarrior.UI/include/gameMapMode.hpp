@@ -126,7 +126,7 @@ class GameMapMode {
     void exitGameAndReturnToMainMenu();
     void onPlayerMoveCompleted();
     void onBattleCompleted();
-    void completeCurrentMessage();
+    void completeCurrentMessage(bool allowTextReveal);
     void restoreNPCDefaultBehavior(const std::string &npcId);
 };
 
