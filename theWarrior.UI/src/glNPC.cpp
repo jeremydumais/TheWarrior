@@ -165,6 +165,17 @@ namespace thewarrior::ui
         m_idleTimeRemaining = 0.0F;
     }
 
+    void GLNPC::pauseWandering(float durationInSeconds)
+    {
+        m_idleTimeRemaining = durationInSeconds;
+    }
+
+    void GLNPC::face(thewarrior::models::NPCFacing facing, const GLTextureService &textureService)
+    {
+        setFacing(facing);
+        applyCurrentGLTexture(textureService);
+    }
+
     void GLNPC::onGameWindowUpdate(float deltaTime,
                                    const GameMap &map,
                                    const std::vector<Point<size_t>> &occupiedPositions,

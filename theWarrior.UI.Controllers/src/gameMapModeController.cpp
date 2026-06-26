@@ -16,6 +16,8 @@
 #include "itemStore.hpp"
 #include "itemStoreStorage.hpp"
 #include "monsterStoreStorage.hpp"
+#include "npcDialogueMessage.hpp"
+#include "npcDialogueMessageDTO.hpp"
 #include "saveGamePaths.hpp"
 #include "specialFolders.hpp"
 #include "sqliteGameStateRepository.hpp"
@@ -159,12 +161,20 @@ std::shared_ptr<Message> GameMapModeController::createMessageFromMessageDTO(std:
             return std::make_shared<Message>(dto->message, dto->maxDurationInMilliseconds, dto->scale);
         case MessageDTOType::ItemFoundMessage:
             {
-                ItemFoundMessageDTO *itemFoundMsgDTO = dynamic_cast<ItemFoundMessageDTO *>(dto.get());
+                auto *itemFoundMsgDTO = dynamic_cast<ItemFoundMessageDTO *>(dto.get());
                 return std::make_shared<ItemFoundMessage>(itemFoundMsgDTO->message,
                         itemFoundMsgDTO->maxDurationInMilliseconds,
                         itemFoundMsgDTO->scale,
                         itemFoundMsgDTO->itemId,
                         itemFoundMsgDTO->textureName);
+            }
+        case MessageDTOType::NPCDialogueMessage: 
+            {
+                auto *npcDialogueMsgDTO = dynamic_cast<NPCDialogueMessageDTO *>(dto.get());
+                return std::make_shared<NPCDialogueMessage>(npcDialogueMsgDTO->message,
+                        npcDialogueMsgDTO->maxDurationInMilliseconds,
+                        npcDialogueMsgDTO->scale,
+                        npcDialogueMsgDTO->npcId);
             }
         default:
             return nullptr;
@@ -183,10 +193,18 @@ std::unique_ptr<MessageDTO> GameMapModeController::createMessageDTOFromMessage(s
         case MessageType::ItemFoundMessage:
             {
                 retval = std::make_unique<ItemFoundMessageDTO>();
-                ItemFoundMessage *itemFoundMessage = dynamic_cast<ItemFoundMessage *>(message.get());
-                ItemFoundMessageDTO *dto = dynamic_cast<ItemFoundMessageDTO *>(retval.get());
+                auto *itemFoundMessage = dynamic_cast<ItemFoundMessage *>(message.get());
+                auto *dto = dynamic_cast<ItemFoundMessageDTO *>(retval.get());
                 dto->itemId = itemFoundMessage->getItemId();
                 dto->textureName = itemFoundMessage->getTextureName();
+                break;
+            }
+        case MessageType::NPCDialogueMessage:
+            {
+                retval = std::make_unique<NPCDialogueMessageDTO>();
+                auto *npcDialogueMessage = dynamic_cast<NPCDialogueMessage *>(message.get());
+                auto *dto = dynamic_cast<NPCDialogueMessageDTO *>(retval.get());
+                dto->npcId = npcDialogueMessage->getNPCId();
                 break;
             }
         default:

@@ -19,6 +19,11 @@ const std::string &Player::getName() const {
 unsigned int Player::getLevel() const {
     return m_level;
 }
+    
+PlayerFacing Player::getFacing() const {
+    return m_playerFacing;
+}
+
 
 std::shared_ptr<Inventory> Player::getInventory() {
     return m_inventory;

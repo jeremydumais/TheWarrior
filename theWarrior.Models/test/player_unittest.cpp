@@ -86,6 +86,10 @@ TEST_F(PlayerSample, getLevel_Return1) {
     ASSERT_EQ(1, player.getLevel());
 }
 
+TEST_F(PlayerSample, getFacing_ReturnUp) {
+    ASSERT_EQ(PlayerFacing::Up, player.getFacing());
+}
+
 TEST_F(PlayerSample, getStats_ReturnLvl1Stats) {
     auto stats = player.getStats();
     ASSERT_FLOAT_EQ(4.0F, stats.attack);
@@ -166,6 +170,11 @@ TEST_F(PlayerSample, IncrementLevelOnMaxLevel_ReturnSuccessUnChanged) {
     player.setLevel(10);
     player.incrementLevel();
     ASSERT_EQ(10, player.getLevel());
+}
+
+TEST_F(PlayerSample, SetFacing_ReturnSuccess) {
+    player.setFacing(PlayerFacing::Left);
+    ASSERT_EQ(PlayerFacing::Left, player.getFacing());
 }
 
 TEST_F(PlayerSample, AddGoldWith15_ReturnSuccess) {

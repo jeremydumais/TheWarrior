@@ -90,6 +90,7 @@ class GameMapMode {
     bool m_blockKeyDown = false;
     bool m_isCharacterWindowDisplayed = false;
     bool m_isInventoryDisplayed = false;
+    thewarrior::models::Point<> getPlayerFacingTilePosition() const;
     void calculateTileSize();
     void showMainMenu();
     void toggleInventoryWindow();
@@ -98,7 +99,6 @@ class GameMapMode {
     void drawObjectTile(GLTile &tile);
     void actionButtonPressed();
     bool stopFacingNPCWandering();
-    thewarrior::models::Point<> getPlayerFacingTilePosition() const;
     void moveUpPressed();
     void moveDownPressed();
     void moveLeftPressed();
@@ -126,6 +126,8 @@ class GameMapMode {
     void exitGameAndReturnToMainMenu();
     void onPlayerMoveCompleted();
     void onBattleCompleted();
+    void completeCurrentMessage();
+    void restoreNPCDefaultBehavior(const std::string &npcId);
 };
 
 }  // namespace thewarrior::ui

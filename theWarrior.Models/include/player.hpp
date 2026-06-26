@@ -25,6 +25,7 @@ class Player {
     Player& operator=(Player&&) = default;
     const std::string &getName() const;
     unsigned int getLevel() const;
+    PlayerFacing getFacing() const;
     std::shared_ptr<Inventory> getInventory();
     PlayerEquipment &getEquipment();
     PlayerStats getStats() const;

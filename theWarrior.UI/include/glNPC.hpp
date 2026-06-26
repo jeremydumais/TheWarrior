@@ -30,6 +30,8 @@ class GLNPC : public thewarrior::models::NPC {
     void onGameWindowTileSizeChanged(const TileSize &tileSize);
     bool isInMovement() const;
     void stopWandering();
+    void pauseWandering(float durationInSeconds);
+    void face(thewarrior::models::NPCFacing facing, const GLTextureService &textureService);
     void onGameWindowUpdate(float deltaTime,
                             const thewarrior::models::GameMap &map,
                             const std::vector<thewarrior::models::Point<size_t>> &occupiedPositions,

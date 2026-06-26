@@ -25,6 +25,7 @@ add_executable(${PROJECT_UNITTEST_NAME} ${INCLUDE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}/statsItem_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/weaponItem_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/player_unittest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/facingUtils_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/playerEquipment_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/inventory_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/monster_unittest.cpp

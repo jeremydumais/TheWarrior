@@ -11,6 +11,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include "facingUtils.hpp"
 #include "gameMapMode.hpp"
 #include "gameMap.hpp"
 #include "gameMapStorage.hpp"
@@ -18,6 +19,7 @@
 #include "glNPC.hpp"
 #include "glPlayer.hpp"
 #include "itemFoundMessageDTO.hpp"
+#include "npcDialogueMessageDTO.hpp"
 #include "mapTile.hpp"
 #include "monsterZone.hpp"
 #include "monsterZoneMonsterEncounter.hpp"
@@ -114,7 +116,7 @@ void GameMapMode::processEvents(SDL_Event &e) {
         toggleCharacterWindow();
     } else if (e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_ESCAPE) {
         if (m_controller.isMessageDisplayed()) {
-            m_controller.acknowledgeMessage();
+            completeCurrentMessage();
         } else if (m_inputMode == GameMapInputMode::Map) {
             showMainMenu();
             m_inputDevicesState->reset();
@@ -290,7 +292,7 @@ void GameMapMode::render() {
         // Display the message
         m_textBox->draw();
         if (currentMessage->isExpired) {
-            m_controller.deleteCurrentMessage();
+            completeCurrentMessage();
         }
     }
     if (m_inputMode == GameMapInputMode::MainMenuPopup) {
@@ -334,7 +336,7 @@ void GameMapMode::drawObjectTile(GLTile &tile) {
 
 void GameMapMode::actionButtonPressed() {
     if (m_controller.isMessageDisplayed()) {
-        m_controller.acknowledgeMessage();
+        completeCurrentMessage();
     } else {
         if (stopFacingNPCWandering()) {
             return;
@@ -370,6 +372,20 @@ bool GameMapMode::stopFacingNPCWandering() {
     }
 
     iter->stopWandering();
+    iter->face(getNPCFacingOppositeOfPlayer(m_glPlayer->getFacing()), m_textureService);
+
+    const auto &dialogueLines = iter->getDialogueLines();
+    if (!dialogueLines.empty()) {
+        auto msg = std::make_unique<NPCDialogueMessageDTO>();
+        msg->npcId = iter->getId();
+        for (const auto &line : dialogueLines) {
+            if (!msg->message.empty()) {
+                msg->message += '\n';
+            }
+            msg->message += line;
+        }
+        m_controller.addMessageToPipeline(std::move(msg));
+    }
     return true;
 }
 
@@ -900,6 +916,31 @@ void GameMapMode::onPlayerMoveCompleted() {
 
 void GameMapMode::onBattleCompleted() {
     m_inputMode = GameMapInputMode::Map;
+}
+    
+void GameMapMode::completeCurrentMessage() {
+    auto currentMessage = m_controller.getCurrentMessage();
+
+    if (currentMessage && currentMessage->getType() == MessageDTOType::NPCDialogueMessage) {
+        auto *npcMessage = dynamic_cast<NPCDialogueMessageDTO *>(currentMessage.get());
+        restoreNPCDefaultBehavior(npcMessage->npcId);
+    }
+
+    m_controller.acknowledgeMessage();
+}
+
+void GameMapMode::restoreNPCDefaultBehavior(const std::string &npcId) {
+    constexpr float DialogueCompletedPauseInSeconds = 3.0F;
+    auto iter = std::ranges::find_if(m_glNPCs, [&npcId](const GLNPC &npc) {
+        return npc.getId() == npcId;
+    });
+
+    if (iter == m_glNPCs.end()) {
+        return;
+    }
+
+    iter->setCurrentBehavior(iter->getDefaultBehavior());
+    iter->pauseWandering(DialogueCompletedPauseInSeconds);
 }
 
 }  // namespace thewarrior::ui
