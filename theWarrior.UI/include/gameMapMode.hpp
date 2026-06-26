@@ -97,6 +97,8 @@ class GameMapMode {
     void generateGLMapObjects();
     void drawObjectTile(GLTile &tile);
     void actionButtonPressed();
+    bool stopFacingNPCWandering();
+    thewarrior::models::Point<> getPlayerFacingTilePosition() const;
     void moveUpPressed();
     void moveDownPressed();
     void moveLeftPressed();

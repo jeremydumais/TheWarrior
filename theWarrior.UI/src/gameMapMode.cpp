@@ -188,6 +188,13 @@ void GameMapMode::gameWindowSizeChanged(const Size<> &size) {
 
 void GameMapMode::onGameWindowUpdate(float delta_time) {
     m_glPlayer->onGameWindowUpdate(delta_time);
+    for (auto &npc : m_glNPCs) {
+        npc.onGameWindowUpdate(delta_time,
+                               *m_map,
+                               m_controller.getWorldState()->getAllNPCPositions(),
+                               m_controller.getPlayerPosition(),
+                               m_textureService);
+    }
 }
 
 void GameMapMode::calculateTileSize() {
@@ -329,10 +336,13 @@ void GameMapMode::actionButtonPressed() {
     if (m_controller.isMessageDisplayed()) {
         m_controller.acknowledgeMessage();
     } else {
+        if (stopFacingNPCWandering()) {
+            return;
+        }
+
         // Check if you are facing a tile with a ActionButton trigger configured.
         if (m_glPlayer->isFacing(PlayerFacing::Up)) {
-            Point<> tilePositionToProcess = m_controller.getPlayerPosition();
-            tilePositionToProcess.setY(tilePositionToProcess.y() - 1);
+            Point<> tilePositionToProcess = getPlayerFacingTilePosition();
             auto &tile = m_map->getTileForEditing(tilePositionToProcess);
             auto actionButtonTrigger = tile.findConstTrigger(MapTileTriggerEvent::ActionButtonPressed);
             if (actionButtonTrigger.has_value()) {
@@ -340,6 +350,41 @@ void GameMapMode::actionButtonPressed() {
             }
         }
     }
+}
+
+bool GameMapMode::stopFacingNPCWandering() {
+    const auto facingPosition = getPlayerFacingTilePosition();
+    if (facingPosition.x() < 0 || facingPosition.y() < 0) {
+        return false;
+    }
+
+    const Point<size_t> facingPositionConverted(static_cast<size_t>(facingPosition.x()),
+                                                static_cast<size_t>(facingPosition.y()));
+    const auto worldState = m_controller.getWorldState();
+    const auto iter = std::ranges::find_if(m_glNPCs, [facingPositionConverted, worldState](const GLNPC &npc) {
+        return npc.getCurrentBehavior() == NPCBehavior::Wander &&
+               worldState->getNPCPosition(npc.getId()) == facingPositionConverted;
+    });
+    if (iter == m_glNPCs.end()) {
+        return false;
+    }
+
+    iter->stopWandering();
+    return true;
+}
+
+Point<> GameMapMode::getPlayerFacingTilePosition() const {
+    Point<> tilePosition = m_controller.getPlayerPosition();
+    if (m_glPlayer->isFacing(PlayerFacing::Up)) {
+        tilePosition.setY(tilePosition.y() - 1);
+    } else if (m_glPlayer->isFacing(PlayerFacing::Down)) {
+        tilePosition.setY(tilePosition.y() + 1);
+    } else if (m_glPlayer->isFacing(PlayerFacing::Left)) {
+        tilePosition.setX(tilePosition.x() - 1);
+    } else if (m_glPlayer->isFacing(PlayerFacing::Right)) {
+        tilePosition.setX(tilePosition.x() + 1);
+    }
+    return tilePosition;
 }
 
 void GameMapMode::moveUpPressed() {
