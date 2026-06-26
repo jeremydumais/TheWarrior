@@ -43,7 +43,12 @@ GameWindow::GameWindow(const string &title,
     m_inputDevicesState = std::make_shared<InputDevicesState>();
 
     SDL_JoystickEventState(SDL_ENABLE);
-    m_joystick = SDL_JoystickOpen(0);
+    SDL_GameControllerEventState(SDL_ENABLE);
+    if (SDL_IsGameController(0)) {
+        m_gameController = SDL_GameControllerOpen(0);
+    } else {
+        m_joystick = SDL_JoystickOpen(0);
+    }
 
     subscribeEvents();
     if (!initializeMenu()) return;
@@ -57,7 +62,12 @@ GameWindow::GameWindow(const string &title,
 GameWindow::~GameWindow() {
     if (m_mainMenuMode) m_mainMenuMode->unloadGLMapObjects();
     if (m_gameMapMode) m_gameMapMode->unloadGLMapObjects();
-    SDL_JoystickClose(m_joystick);
+    if (m_gameController != nullptr) {
+        SDL_GameControllerClose(m_gameController);
+    }
+    if (m_joystick != nullptr) {
+        SDL_JoystickClose(m_joystick);
+    }
     SDL_DestroyWindow(m_window);
     SDL_Quit();
 }
@@ -81,7 +91,11 @@ void GameWindow::processEvents() {
         action();
     }
     SDL_Event e;
-    m_inputDevicesState->processJoystick(m_joystick);
+    if (m_gameController != nullptr) {
+        m_inputDevicesState->processGameController(m_gameController);
+    } else {
+        m_inputDevicesState->processJoystick(m_joystick);
+    }
     while (SDL_PollEvent(&e) != 0) {
         m_inputDevicesState->processEvent(e);
         if (e.type == SDL_KEYUP) {

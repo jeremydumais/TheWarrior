@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL_gamecontroller.h>
 #include <SDL2/SDL_stdinc.h>
 #include <optional>
 
@@ -31,6 +32,7 @@ class InputDevicesState {
     InputElementState getKeyShiftState() const;
     void reset();
     void processJoystick(SDL_Joystick *joystick);
+    void processGameController(SDL_GameController *controller);
     InputElementState getElementState(bool pressed, bool previouslyPressed) const;
     void processEvent(SDL_Event &e);
     void confirmDirections();

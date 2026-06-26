@@ -60,6 +60,7 @@ class GameWindow {
     std::shared_ptr<InputDevicesState> m_inputDevicesState = nullptr;
     bool m_blockKeyDown = false;
     SDL_Joystick *m_joystick = nullptr;
+    SDL_GameController *m_gameController = nullptr;
     std::optional<std::function<void()>> m_nextAction;
     bool initializeOpenGL(const std::string &title,
                           int x, int y,

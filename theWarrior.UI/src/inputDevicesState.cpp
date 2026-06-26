@@ -1,5 +1,6 @@
 #include "inputDevicesState.hpp"
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL_gamecontroller.h>
 #include <SDL2/SDL_timer.h>
 
 namespace thewarrior::ui {
@@ -73,6 +74,10 @@ void InputDevicesState::reset() {
 }
 
 void InputDevicesState::processJoystick(SDL_Joystick *joystick) {
+    if (joystick == nullptr) {
+        return;
+    }
+
     bool buttonAPressed = false;
     bool buttonBPressed = false;
     bool buttonCPressed = false;
@@ -119,6 +124,32 @@ void InputDevicesState::processJoystick(SDL_Joystick *joystick) {
             break;
         }
     }
+}
+
+void InputDevicesState::processGameController(SDL_GameController *controller) {
+    if (controller == nullptr) {
+        return;
+    }
+
+    const bool buttonAPressed = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
+    const bool buttonBPressed = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
+    const bool buttonCPressed = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_X);
+    const bool buttonDPressed = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y);
+
+    auto buttonAPreviousState = m_buttonAState;
+    auto buttonBPreviousState = m_buttonBState;
+    auto buttonCPreviousState = m_buttonCState;
+    auto buttonDPreviousState = m_buttonDState;
+    reset();
+    setButtonAState(getElementState(buttonAPressed, buttonAPreviousState == InputElementState::Pressed));
+    setButtonBState(getElementState(buttonBPressed, buttonBPreviousState == InputElementState::Pressed));
+    setButtonCState(getElementState(buttonCPressed, buttonCPreviousState == InputElementState::Pressed));
+    setButtonDState(getElementState(buttonDPressed, buttonDPreviousState == InputElementState::Pressed));
+
+    m_joystickUp = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
+    m_joystickDown = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
+    m_joystickLeft = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
+    m_joystickRight = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
 }
 
 InputElementState InputDevicesState::getElementState(bool pressed, bool previouslyPressed) const {
