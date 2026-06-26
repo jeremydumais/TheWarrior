@@ -77,6 +77,11 @@ EditNPCFormController::NPCPixmapResult EditNPCFormController::getNPCPixmap(const
     }
 }
 
+const std::optional<mapeditor::controllers::NPCDTO> &EditNPCFormController::getSelectedNPC() const {
+    return m_selectedNPC;
+}                            
+
+
 bool EditNPCFormController::isNPCIdAlreadyUsed(const std::string &id) const {
     auto sanitizedId = boost::to_lower_copy(boost::trim_copy(id));
     bool idFound = std::find_if(m_alreadyUsedNPCIds.begin(),

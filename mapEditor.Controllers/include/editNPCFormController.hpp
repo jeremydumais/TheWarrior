@@ -28,6 +28,7 @@ class EditNPCFormController {
     const std::vector<thewarrior::models::Texture> &getTextures();
     NPCPixmapResult getNPCPixmap(const std::string &textureName,
                                  const int baseTextureIndex);
+    const std::optional<mapeditor::controllers::NPCDTO> &getSelectedNPC() const;                            
     bool isNPCIdAlreadyUsed(const std::string &id) const;
     static std::vector<std::string> convertPlainTextToLines(const QString &text);
     bool isDTOValid(mapeditor::controllers::NPCDTO &dto);

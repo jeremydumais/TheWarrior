@@ -138,6 +138,11 @@ void EditNPCForm::onPushButtonOKClick() {
     m_result.name = ui.lineEditName->text().trimmed().toStdString();
     m_result.spawnPosition = Point<size_t>(static_cast<size_t>(m_spawnPosition.x()),
                                           static_cast<size_t>(m_spawnPosition.y()));
+    if (m_controller.isEditMode()) {
+        const auto selectedNPC = m_controller.getSelectedNPC();
+        m_result.wanderZone = selectedNPC ? selectedNPC->wanderZone : decltype(selectedNPC->wanderZone){};
+    }
+    m_result.wanderZone = m_controller.getSelectedNPC()->wanderZone;
     m_result.dialogueLines = EditNPCFormController::convertPlainTextToLines(ui.plainTextDialogue->toPlainText());
     m_result.defaultFacing = static_cast<NPCFacing>(ui.comboBoxDefaultFacing->currentIndex());
     m_result.currentFacing = m_result.defaultFacing;
