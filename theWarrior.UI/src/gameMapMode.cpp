@@ -127,6 +127,12 @@ void GameMapMode::processEvents(SDL_Event &e) {
 void GameMapMode::update() {
     switch (m_inputMode) {
         case GameMapInputMode::Map:
+            if (m_controller.isMessageDisplayed()) {
+                if (m_inputDevicesState->getButtonAState() == InputElementState::Released) {
+                    actionButtonPressed();
+                }
+                break;
+            }
             if (m_inputDevicesState->isADirectionKeyPressed()) {
                 if (!m_glPlayer->isInMovement()) {
                     if (m_inputDevicesState->getUpPressed()) {
