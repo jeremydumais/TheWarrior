@@ -51,6 +51,35 @@ void GLBattleWindow::initialize(const std::string &resourcePath,
     m_glTextActions.push_back({ "Spell", { 1.0F, 440.0F }, 0.6F });
     m_glTextActions.push_back({ "Item", { 1.0F, 480.0F }, 0.6F });
     m_glTextActions.push_back({ "Run", { 1.0F, 520.0F }, 0.6F });
+    // Sounds
+    m_attackSound = Mix_LoadWAV(fmt::format("{0}/sounds/attack.wav", m_resourcesPath).c_str());
+    if (m_attackSound == nullptr) {
+        std::cerr << fmt::format("Mix_LoadWAV error: {0}\n", Mix_GetError());
+    }
+    m_attackMissSound = Mix_LoadWAV(fmt::format("{0}/sounds/attack_miss.wav", m_resourcesPath).c_str());
+    if (m_attackMissSound == nullptr) {
+        std::cerr << fmt::format("Mix_LoadWAV error: {0}\n", Mix_GetError());
+    }
+    m_attackCriticalSound = Mix_LoadWAV(fmt::format("{0}/sounds/critical.wav", m_resourcesPath).c_str());
+    if (m_attackCriticalSound == nullptr) {
+        std::cerr << fmt::format("Mix_LoadWAV error: {0}\n", Mix_GetError());
+    }
+    m_monsterAttackSound = Mix_LoadWAV(fmt::format("{0}/sounds/monster_attack.wav", m_resourcesPath).c_str());
+    if (m_monsterAttackSound == nullptr) {
+        std::cerr << fmt::format("Mix_LoadWAV error: {0}\n", Mix_GetError());
+    }
+    m_victorySound = Mix_LoadWAV(fmt::format("{0}/sounds/victory.wav", m_resourcesPath).c_str());
+    if (m_victorySound == nullptr) {
+        std::cerr << fmt::format("Mix_LoadWAV error: {0}\n", Mix_GetError());
+    }
+}
+
+GLBattleWindow::~GLBattleWindow() {
+    Mix_FreeChunk(m_attackSound);
+    Mix_FreeChunk(m_attackMissSound);
+    Mix_FreeChunk(m_attackCriticalSound);
+    Mix_FreeChunk(m_monsterAttackSound);
+    Mix_FreeChunk(m_victorySound);
 }
 
 bool GLBattleWindow::initBattleShaders(const std::string &resourcesPath) {
@@ -75,6 +104,7 @@ void GLBattleWindow::reset() {
     m_goldObtained = 0;
     m_experienceObtained = 0;
     m_didLevelUp = false;
+    m_victorySoundPlayed = false;
 }
 
 void GLBattleWindow::update() {
@@ -83,6 +113,9 @@ void GLBattleWindow::update() {
     }
     if (m_namedObjectsAnimations.contains(MonsterShaking)) {
         m_namedObjectsAnimations[MonsterShaking]->process();
+    }
+    if (m_namedObjectsAnimations.contains(PlayerHPShaking)) {
+        m_namedObjectsAnimations[PlayerHPShaking]->process();
     }
     if (m_currentBattleAction == BattleAction::PlayerTurn) {
         const Uint64 MS_BETWEEN_SELECTION_CHANGE = 110;
@@ -164,6 +197,7 @@ void GLBattleWindow::generateGLElements() {
         addXCenteredTextObject(actionElement, 30.0F, 190.0F);
     }
     addXCenteredTextObject({"Warrior", {1.0F, 100.0F}, 0.5F}, 30.0F, 190.0F);
+    // HP Stat Text
     addXCenteredTextObject({fmt::format("HP {0}/{1}",
                                 m_glPlayer->getStats().health ,
                                 m_glPlayer->getStats().maxHealth),
@@ -171,6 +205,8 @@ void GLBattleWindow::generateGLElements() {
                            0.5F},
                            30.0F,
                            190.0F);
+    m_glPlayerHPStat = m_glTextObjects.back();
+    m_glTextObjects.pop_back();
     addXCenteredTextObject({"MP 0/0", {1.0F, 180.0F}, 0.5F}, 30.0F, 190.0F);
     auto battleLogCopy = m_battleLog;
     for (size_t i = 0; i < m_battleLog.size(); i++) {
@@ -222,6 +258,7 @@ void GLBattleWindow::generateGLElements() {
 
 void GLBattleWindow::render() {
     GLPopupWindow::render();
+    drawPlayerHPStat(m_glPlayerHPStat);
     if (m_namedObjectsAnimations.contains(MoreTextObj)) {
         float moreTextTransparency = m_namedObjectsAnimations.contains(MoreTextObj) ?
             m_namedObjectsAnimations[MoreTextObj]->getValue() :
@@ -338,14 +375,17 @@ void GLBattleWindow::playerAttackWorkflow() {
     float randomRollValue = static_cast<float>(distributionRandomRoll(RandomGenerator::instance()));
     int damage = static_cast<int>(ceil(m_glPlayer->getStats().attack * criticalBonus * randomRollValue - m_monster->getDefense()));
     if (playerMissed || damage <= 0) {
+        Mix_PlayChannel(-1, m_attackMissSound, 0);
         addBattleLog("You missed your attack!");
         startAction(BattleAction::MonsterTurn, 500);
     } else {
         m_monster->reduceHealth(damage);
         if (critical) {
+            Mix_PlayChannel(-1, m_attackCriticalSound, 0);
             m_namedObjectsAnimations[MonsterShaking] = std::make_shared<ShakingAnimation>(60, 4);
             addBattleLog(fmt::format("You struck critically! -{0} HP!", damage).c_str());
         } else {
+            Mix_PlayChannel(-1, m_attackSound, 0);
             m_namedObjectsAnimations[MonsterShaking] = std::make_shared<ShakingAnimation>(25, 3);
             addBattleLog(fmt::format("You hit and HPs have been reduced by {0}!", damage).c_str());
         }
@@ -369,7 +409,7 @@ void GLBattleWindow::playerAttackWorkflow() {
             unsigned int oldLevel = m_glPlayer->getLevel();
             m_glPlayer->addExperience(m_experienceObtained);
             m_didLevelUp = oldLevel != m_glPlayer->getLevel();
-            startAction(BattleAction::PlayerWon, 500);
+            startAction(BattleAction::PlayerWon, 1000);
         } else {
             startAction(BattleAction::MonsterTurn, 500);
         }
@@ -411,6 +451,10 @@ void GLBattleWindow::playerRunWorkflow() {
 }
 
 void GLBattleWindow::playerWonWorkflow() {
+    if (!m_victorySoundPlayed) {
+        Mix_PlayChannel(-1, m_victorySound, 0);
+        m_victorySoundPlayed = true;
+    }
     m_namedObjectsAnimations[MoreTextObj]->process();
     m_namedObjectsAnimations[MonsterObj]->process();
     if (m_inputDevicesState->getButtonAState() == InputElementState::Released) {
@@ -423,11 +467,14 @@ void GLBattleWindow::playerWonWorkflow() {
 }
 
 void GLBattleWindow::playerObtainRewardWorkflow() {
+    if (!m_namedObjectsAnimations[MonsterObj]->isCompleted()) {
+        m_namedObjectsAnimations[MonsterObj]->process();
+    }
     if (m_inputDevicesState->getButtonAState() == InputElementState::Released) {
         if (m_didLevelUp) {
             m_namedObjectsAnimations.erase(MoreTextObj);
             m_currentBattleAction = BattleAction::PlayerLevelUp;
-            addBattleLog(fmt::format("You have reach level {0}! You are stronger than ever!", m_glPlayer->getLevel()).c_str());
+            addBattleLog(fmt::format("You have reach level {0}! Stronger than ever!", m_glPlayer->getLevel()).c_str());
         } else {
             m_battleCompleted();
         }
@@ -435,6 +482,9 @@ void GLBattleWindow::playerObtainRewardWorkflow() {
 }
 
 void GLBattleWindow::playerObtainNewLevelWorkflow() {
+    if (!m_namedObjectsAnimations[MonsterObj]->isCompleted()) {
+        m_namedObjectsAnimations[MonsterObj]->process();
+    }
     if (m_inputDevicesState->getButtonAState() == InputElementState::Released) {
         m_battleCompleted();
     }
@@ -484,14 +534,18 @@ void GLBattleWindow::monsterAttackWorkflow() {
     float randomRollValue = static_cast<float>(distributionRandomRoll(RandomGenerator::instance()));
     int damage = static_cast<int>(ceil((m_monster->getAttack() * criticalBonus * randomRollValue) - (m_glPlayer->getStats().defense / 2)));
     if (monsterMissed || damage <= 0) {
+        Mix_PlayChannel(-1, m_attackMissSound, 0);
         startAction(BattleAction::PlayerTurn, 500);
         addBattleLog(fmt::format("The {0} missed its attack!", m_monster->getName()).c_str());
     } else {
+        Mix_PlayChannel(-1, m_monsterAttackSound, 0);
         m_namedObjectsAnimations[MonsterObj] = std::make_shared<ValueChangeAnimation>(1.0F, 0.1F, 0.05F);
         m_glPlayer->reduceHealth(damage);
         if (critical) {
+            m_namedObjectsAnimations[PlayerHPShaking] = std::make_shared<ShakingAnimation>(60, 4);
             addBattleLog(fmt::format("{0} landed a crit -{1} HP lost!", m_monster->getName(), damage).c_str());
         } else {
+            m_namedObjectsAnimations[PlayerHPShaking] = std::make_shared<ShakingAnimation>(25, 3);
             addBattleLog(fmt::format("{0} hit! You lost {1} HP!", m_monster->getName(), damage).c_str());
         }
         if (m_glPlayer->isDead()) {
@@ -502,6 +556,17 @@ void GLBattleWindow::monsterAttackWorkflow() {
             generateGLElements();
         }
     }
+}
+
+void GLBattleWindow::drawPlayerHPStat(const GLTextObject &textObject) {
+    GLTextObject textObjectToDraw = textObject;
+    if (m_namedObjectsAnimations.contains(PlayerHPShaking) &&
+        !m_namedObjectsAnimations.at(PlayerHPShaking)->isCompleted()) {
+        textObjectToDraw.position.setX(
+                textObjectToDraw.position.x() +
+                m_namedObjectsAnimations.at(PlayerHPShaking)->getValue());
+    }
+    m_glFormService->drawText(textObjectToDraw);
 }
 
 void GLBattleWindow::drawMonster(const GLObject &glObject, GLuint textureGLIndex, float transparency) {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL_mixer.h>
 #include <array>
 #include <map>
 #include <memory>
@@ -90,6 +91,8 @@ class GameMapMode {
     bool m_blockKeyDown = false;
     bool m_isCharacterWindowDisplayed = false;
     bool m_isInventoryDisplayed = false;
+    Mix_Music* m_mapMusic = nullptr;
+    Mix_Music* m_battleMusic = nullptr;
     thewarrior::models::Point<> getPlayerFacingTilePosition() const;
     void calculateTileSize();
     void showMainMenu();

@@ -43,6 +43,8 @@ GameMapMode::~GameMapMode() {
     m_glPlayer->unloadGLPlayerObject();
     unloadGLMapObjects();
     unloadGLNPCObjects();
+    Mix_FreeMusic(m_mapMusic);
+    Mix_FreeMusic(m_battleMusic);
 }
 
 bool GameMapMode::initialize(const std::string &resourcesPath,
@@ -77,6 +79,13 @@ bool GameMapMode::initialize(const std::string &resourcesPath,
     m_choicePopup.initialize(resourcesPath, textService, inputDevicesState);
     const auto mapName = worldState->getCurrentMapName();
     loadMap(fmt::format("{0}/maps/{1}", resourcesPath, mapName), mapName);
+
+    // Battle music & sounds
+    m_battleMusic = Mix_LoadMUS(fmt::format("{0}/sounds/battle.mp3", m_controller.getResourcesPath()).c_str());
+    if (m_battleMusic == nullptr) {
+        std::cerr << fmt::format("Mix_LoadMUS error: {0}\n", Mix_GetError());
+    }
+
     generateGLMapObjects();
     m_glCharacterWindow.onCloseEvent.connect(boost::bind(&GameMapMode::onCharacterWindowClose, this));
     m_glInventory.onCloseEvent.connect(boost::bind(&GameMapMode::onInventoryWindowClose, this));
@@ -588,6 +597,8 @@ void GameMapMode::checkForMonsterEncounter(const MapTile &tile) {
     const auto monsterIdEncounter = selectMonsterEncounter(zone.getMonsterEncounters(), typeOfMonsterEncountered);
     m_inputMode = GameMapInputMode::Battle;
     m_glBattleWindow.prepareWindow(monsterIdEncounter);
+    Mix_FadeInMusic(m_battleMusic, -1, 2000); 
+
      //std::cout << "MonsterZone: " << tile.getMonsterZoneIndex() <<
         //" Name: " << zone.getName() <<
         //" Encounter: " << (encounterAMonster ? "Yes" : "No") <<
@@ -656,6 +667,19 @@ void GameMapMode::loadMap(const std::string &filePath, const std::string &mapNam
             glNPC.initialize(m_tileSize, m_controller.getWorldState());
             m_glNPCs.push_back(glNPC);
         }
+        const std::string mapMusicFilename = m_map->getMusicFilename();
+        if (m_mapMusic != nullptr) {
+            Mix_FreeMusic(m_mapMusic);
+            m_mapMusic = nullptr;
+        }
+        if (!mapMusicFilename.empty()) {
+        m_mapMusic = Mix_LoadMUS(fmt::format("{0}/sounds/{1}", m_controller.getResourcesPath(), mapMusicFilename).c_str());
+        if (m_mapMusic == nullptr) {
+            std::cerr << fmt::format("Mix_LoadMUS error: {0}\n", Mix_GetError());
+        } else {
+            Mix_FadeInMusic(m_mapMusic, -1, 2000); 
+        }
+    }
     }
     catch(std::invalid_argument &err) {
         std::cerr << err.what() << '\n';
@@ -920,6 +944,8 @@ void GameMapMode::onPlayerMoveCompleted() {
 
 void GameMapMode::onBattleCompleted() {
     m_inputMode = GameMapInputMode::Map;
+    Mix_FadeOutMusic(1000); 
+    Mix_FadeInMusic(m_mapMusic, -1, 2000); 
 }
     
 void GameMapMode::completeCurrentMessage(bool allowTextReveal) {

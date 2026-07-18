@@ -81,6 +81,7 @@ void GLPopupWindow::initialize(const std::string &title,
                                std::shared_ptr<GLTextService> textService) {
     m_glTitle.text = title;
     m_textService = textService;
+    m_resourcesPath = resourcePath;
     m_textureService.setResourcesPath(resourcePath);
     m_textureService.loadTexture(m_windowGLTexture);
     m_glFormService->initialize(m_shaderProgram, textService);

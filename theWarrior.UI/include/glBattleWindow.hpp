@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL_mixer.h>
 #include <map>
 #include <memory>
 #include <queue>
@@ -43,11 +44,12 @@ constexpr const char* MonsterObj = "monsterObj";
 constexpr const char* MonsterHPWindowObj = "monsterHPWindowObj";
 constexpr const char* MonsterHPBarObj = "monsterHPBarObj";
 constexpr const char* MonsterShaking = "monsterShaking";
+constexpr const char* PlayerHPShaking = "playerHPShaking";
 
 class GLBattleWindow : public GLPopupWindow {
  public:
     GLBattleWindow();
-    ~GLBattleWindow() override = default;
+    ~GLBattleWindow();
     void
         initialize(const std::string &resourcePath,
                 std::shared_ptr<GLPlayer> glPlayer,
@@ -76,6 +78,7 @@ class GLBattleWindow : public GLPopupWindow {
     std::vector<GLObject> m_monsterHPBarWindow = {};
     std::unique_ptr<thewarrior::models::Monster> m_monster;
     std::vector<GLTextObject> m_glTextActions;
+    GLTextObject m_glPlayerHPStat;
     size_t m_menuActionsPosition;
     std::queue<std::string> m_battleLog;
     Uint64 m_lastMoveUpTicks = 0;
@@ -85,7 +88,13 @@ class GLBattleWindow : public GLPopupWindow {
     int m_goldObtained = 0;
     int m_experienceObtained = 0;
     bool m_didLevelUp = false;
+    bool m_victorySoundPlayed = false;
     BattleAction m_currentBattleAction = BattleAction::PlayerTurn;
+    Mix_Chunk* m_attackSound = nullptr;
+    Mix_Chunk* m_attackMissSound = nullptr;
+    Mix_Chunk* m_attackCriticalSound = nullptr;
+    Mix_Chunk* m_monsterAttackSound = nullptr;
+    Mix_Chunk* m_victorySound = nullptr;
     void moveUpPressed();
     void moveDownPressed();
     void actionButtonPressed();
@@ -99,6 +108,7 @@ class GLBattleWindow : public GLPopupWindow {
     void playerDiedWorkflow();
     void monsterTurnWorkflow();
     void monsterAttackWorkflow();
+    void drawPlayerHPStat(const GLTextObject &textObject);
     void drawMonster(const GLObject &glObject, GLuint textureGLIndex, float transparency);
     void drawMonsterHPBar(const GLObject &glObject, GLuint textureGLIndex, float transparency);
 };
