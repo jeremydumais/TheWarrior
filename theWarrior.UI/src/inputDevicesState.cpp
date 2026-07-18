@@ -74,26 +74,24 @@ void InputDevicesState::reset() {
 }
 
 void InputDevicesState::processJoystick(SDL_Joystick *joystick) {
-    if (joystick == nullptr) {
-        return;
-    }
-
     bool buttonAPressed = false;
     bool buttonBPressed = false;
     bool buttonCPressed = false;
     bool buttonDPressed = false;
-    for (int i = 0; i < SDL_JoystickNumButtons(joystick); i++) {
-        if (i == 0 && SDL_JoystickGetButton(joystick, i)) {
-            buttonBPressed = true;
-        }
-        if (i == 1 && SDL_JoystickGetButton(joystick, i)) {
-            buttonAPressed = true;
-        }
-        if (i == 2 && SDL_JoystickGetButton(joystick, i)) {
-            buttonCPressed = true;
-        }
-        if (i == 3 && SDL_JoystickGetButton(joystick, i)) {
-            buttonDPressed = true;
+    if (joystick != nullptr) {
+        for (int i = 0; i < SDL_JoystickNumButtons(joystick); i++) {
+            if (i == 0 && SDL_JoystickGetButton(joystick, i)) {
+                buttonBPressed = true;
+            }
+            if (i == 1 && SDL_JoystickGetButton(joystick, i)) {
+                buttonAPressed = true;
+            }
+            if (i == 2 && SDL_JoystickGetButton(joystick, i)) {
+                buttonCPressed = true;
+            }
+            if (i == 3 && SDL_JoystickGetButton(joystick, i)) {
+                buttonDPressed = true;
+            }
         }
     }
     auto buttonAPreviousState = m_buttonAState;
@@ -109,32 +107,36 @@ void InputDevicesState::processJoystick(SDL_Joystick *joystick) {
     m_joystickDown = false;
     m_joystickLeft = false;
     m_joystickRight = false;
-    for (int i = 0; i < SDL_JoystickNumHats(joystick); i++) {
-        if (SDL_JoystickGetHat(joystick, i) == SDL_HAT_UP) {
-            m_joystickUp = true;
-            break;
-        } else if (SDL_JoystickGetHat(joystick, i) == SDL_HAT_DOWN) {
-            m_joystickDown = true;
-            break;
-        } else if (SDL_JoystickGetHat(joystick, i) == SDL_HAT_LEFT) {
-            m_joystickLeft = true;
-            break;
-        } else if (SDL_JoystickGetHat(joystick, i) == SDL_HAT_RIGHT) {
-            m_joystickRight = true;
-            break;
+    if (joystick != nullptr) {
+        for (int i = 0; i < SDL_JoystickNumHats(joystick); i++) {
+            if (SDL_JoystickGetHat(joystick, i) == SDL_HAT_UP) {
+                m_joystickUp = true;
+                break;
+            } else if (SDL_JoystickGetHat(joystick, i) == SDL_HAT_DOWN) {
+                m_joystickDown = true;
+                break;
+            } else if (SDL_JoystickGetHat(joystick, i) == SDL_HAT_LEFT) {
+                m_joystickLeft = true;
+                break;
+            } else if (SDL_JoystickGetHat(joystick, i) == SDL_HAT_RIGHT) {
+                m_joystickRight = true;
+                break;
+            }
         }
     }
 }
 
 void InputDevicesState::processGameController(SDL_GameController *controller) {
-    if (controller == nullptr) {
-        return;
+    bool buttonAPressed = false;
+    bool buttonBPressed = false;
+    bool buttonCPressed = false;
+    bool buttonDPressed = false;
+    if (controller != nullptr) {
+        buttonAPressed = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
+        buttonBPressed = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
+        buttonCPressed = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_X);
+        buttonDPressed = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y);
     }
-
-    const bool buttonAPressed = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
-    const bool buttonBPressed = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
-    const bool buttonCPressed = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_X);
-    const bool buttonDPressed = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y);
 
     auto buttonAPreviousState = m_buttonAState;
     auto buttonBPreviousState = m_buttonBState;
@@ -146,10 +148,10 @@ void InputDevicesState::processGameController(SDL_GameController *controller) {
     setButtonCState(getElementState(buttonCPressed, buttonCPreviousState == InputElementState::Pressed));
     setButtonDState(getElementState(buttonDPressed, buttonDPreviousState == InputElementState::Pressed));
 
-    m_joystickUp = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
-    m_joystickDown = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
-    m_joystickLeft = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
-    m_joystickRight = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
+    m_joystickUp = controller != nullptr && SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
+    m_joystickDown = controller != nullptr && SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
+    m_joystickLeft = controller != nullptr && SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
+    m_joystickRight = controller != nullptr && SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
 }
 
 InputElementState InputDevicesState::getElementState(bool pressed, bool previouslyPressed) const {

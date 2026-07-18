@@ -73,7 +73,7 @@ namespace thewarrior::ui
         m_direction = Direction::None;
         m_textureService.setResourcesPath(resourcePath);
 
-        setTexture({"playerTexture", "tileNPC1.png", 384, 256, 32, 32});
+        setTexture({"playerTexture", "tileNPC1.png", 384, 1280, 32, 32});
         m_textureService.loadTexture(getTexture(), glTextureId);
         generateGLPlayerObject();
         setGLObjectPosition();

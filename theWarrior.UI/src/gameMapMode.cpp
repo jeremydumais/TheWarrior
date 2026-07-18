@@ -371,8 +371,7 @@ bool GameMapMode::stopFacingNPCWandering() {
                                                 static_cast<size_t>(facingPosition.y()));
     const auto worldState = m_controller.getWorldState();
     const auto iter = std::ranges::find_if(m_glNPCs, [facingPositionConverted, worldState](const GLNPC &npc) {
-        return npc.getCurrentBehavior() == NPCBehavior::Wander &&
-               worldState->getNPCPosition(npc.getId()) == facingPositionConverted;
+        return worldState->getNPCPosition(npc.getId()) == facingPositionConverted;
     });
     if (iter == m_glNPCs.end()) {
         return false;
@@ -388,6 +387,8 @@ bool GameMapMode::stopFacingNPCWandering() {
         msg->dialogueLines = dialogueLines;
         msg->message = dialogueLines.front();
         m_controller.addMessageToPipeline(std::move(msg));
+    } else {
+        restoreNPCDefaultBehavior(iter->getId());
     }
     return true;
 }
@@ -542,7 +543,7 @@ void GameMapMode::processAction(MapTileTriggerAction action, std::map<std::strin
                         calculateGLTileCoord(Point<int>(glTileToUpdate.x, glTileToUpdate.y), tileCoord);
                         auto newChestTexture = m_map->getTextureByName(tile->getObjectTextureName());
                         GenerateGLObjectInfo infoGenObject {
-                            &glTileToUpdate.glMainObject,
+                            &glTileToUpdate.glSecondObject,
                                 newChestTexture.has_value() ? &newChestTexture.value().get() : nullptr,
                                 tile->getObjectTextureIndex(),
                                 &glTileToUpdate.vaoSecondObject,
@@ -940,6 +941,7 @@ void GameMapMode::completeCurrentMessage(bool allowTextReveal) {
     }
 
     m_controller.acknowledgeMessage();
+    m_textBox->clearMessage();
 }
 
 void GameMapMode::restoreNPCDefaultBehavior(const std::string &npcId) {
@@ -952,8 +954,7 @@ void GameMapMode::restoreNPCDefaultBehavior(const std::string &npcId) {
         return;
     }
 
-    iter->setCurrentBehavior(iter->getDefaultBehavior());
-    iter->pauseWandering(DialogueCompletedPauseInSeconds);
+    iter->restoreDefaultStateAfterDelay(DialogueCompletedPauseInSeconds);
 }
 
 }  // namespace thewarrior::ui

@@ -145,7 +145,26 @@ void GLTextBox::revealAllText() {
     generateNextPageArrowIfNeeded();
 }
 
+void GLTextBox::clearMessage() {
+    m_messageDTO = nullptr;
+    m_computedTextForDisplay = { Size<float>(0.0F, 0.0F), {} };
+    m_visibleCharacterCount = 0.0F;
+    m_nextPageArrowBlinkElapsedTime = 0.0F;
+    m_isRevealingText = false;
+    m_isNextPageArrowGenerated = false;
+
+    freeGLObjects(m_nextPageArrowObjects);
+    freeGLObjects(m_windowObjects);
+    freeGLObjects(m_windowBackgrounds);
+    freeGLObjects(m_glObjects);
+    freeGLObjects(m_windowTitleObjects);
+    m_glTextObjects.clear();
+}
+
 float GLTextBox::getImageHeight() const {
+    if (m_messageDTO == nullptr) {
+        return 0.0F;
+    }
     if (m_messageDTO->getType() == MessageDTOType::ItemFoundMessage) {
         return ITEMICONSIZE;
     } else if (m_messageDTO->getType() == MessageDTOType::NPCDialogueMessage) {

@@ -142,7 +142,6 @@ void EditNPCForm::onPushButtonOKClick() {
         const auto selectedNPC = m_controller.getSelectedNPC();
         m_result.wanderZone = selectedNPC ? selectedNPC->wanderZone : decltype(selectedNPC->wanderZone){};
     }
-    m_result.wanderZone = m_controller.getSelectedNPC()->wanderZone;
     m_result.dialogueLines = EditNPCFormController::convertPlainTextToLines(ui.plainTextDialogue->toPlainText());
     m_result.defaultFacing = static_cast<NPCFacing>(ui.comboBoxDefaultFacing->currentIndex());
     m_result.currentFacing = m_result.defaultFacing;

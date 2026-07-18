@@ -28,6 +28,7 @@ class GLTextBox : public GLPopupWindow {
     void draw();
     bool isRevealingText() const;
     void revealAllText();
+    void clearMessage();
     void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
 
  private:

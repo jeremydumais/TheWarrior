@@ -165,9 +165,9 @@ namespace thewarrior::ui
         m_idleTimeRemaining = 0.0F;
     }
 
-    void GLNPC::pauseWandering(float durationInSeconds)
-    {
-        m_idleTimeRemaining = durationInSeconds;
+    void GLNPC::restoreDefaultStateAfterDelay(float durationInSeconds) {
+        m_hasPendingDefaultRestore = true;
+        m_defaultRestoreTimeRemaining = durationInSeconds;
     }
 
     void GLNPC::face(thewarrior::models::NPCFacing facing, const GLTextureService &textureService)
@@ -187,6 +187,18 @@ namespace thewarrior::ui
                 applyCurrentGLTexture(textureService);
             }
             setGLObjectPosition();
+            return;
+        }
+
+        if (m_hasPendingDefaultRestore) {
+            m_defaultRestoreTimeRemaining -= deltaTime;
+            if (m_defaultRestoreTimeRemaining <= 0.0F) {
+                if (getDefaultBehavior() == NPCBehavior::Stationary) {
+                    face(getDefaultFacing(), textureService);
+                }
+                setCurrentBehavior(getDefaultBehavior());
+                m_hasPendingDefaultRestore = false;
+            }
             return;
         }
 

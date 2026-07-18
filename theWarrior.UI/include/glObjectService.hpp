@@ -6,10 +6,10 @@
 namespace thewarrior::ui {
 
 struct GLObject {
-    GLuint vao;
-    GLuint vboPosition;
-    GLuint vboColor;
-    GLuint vboTexture;
+    GLuint vao = 0;
+    GLuint vboPosition = 0;
+    GLuint vboColor = 0;
+    GLuint vboTexture = 0;
     GLuint textureGLId = 0;
 };
 
