@@ -136,6 +136,7 @@ Q_OBJECT
     void onNPCUpdated(const std::string &id, const mapeditor::controllers::NPCDTO &npcDTO);
     void onNPCDeleted(const std::string &id);
     void onMapPropsComponentBeforeChange();
+    void onMapPropsComponentMusicChanged(const std::string &filename);
 };
 
 #endif  // MAPEDITOR_SRC_MAINFORM_HPP_

@@ -88,6 +88,10 @@ unsigned int MainForm_GLComponent::getMapHeight() const {
     return this->m_glWidget->getMapHeight();
 }
 
+const std::string &MainForm_GLComponent::getMapMusicFilename() const {
+    return m_controller.getMapMusicFileName();
+}
+
 size_t MainForm_GLComponent::getHistoryCurrentIndex() const {
     return m_controller.getHistoryCurrentIndex();
 }
@@ -227,6 +231,10 @@ void MainForm_GLComponent::resizeMap(int offsetLeft,
             offsetTop,
             offsetRight,
             offsetBottom);
+}
+
+void MainForm_GLComponent::setMapMusicFilename(const std::string &filename) {
+    m_controller.setMapMusicFilename(filename);
 }
 
 void MainForm_GLComponent::onTileClicked(const std::set<int> &tileIndices, int, int) {

@@ -336,10 +336,8 @@ void GameWindow::createNewGame(std::string playerName) {
     Player player(playerName);
     WorldState worldState;
     //HACK: Remove this and uncomment below
-    worldState.setCurrentMapName("kingAldricCastle-OuterBailey.map");
-    worldState.setPlayerPosition(Point<int>(8, 8));
-    //worldState.setCurrentMapName("Outworld.map");
-    //worldState.setPlayerPosition(Point<int>(22, 24));
+    worldState.setCurrentMapName("Outworld.map");
+    worldState.setPlayerPosition(Point<int>(21, 25));
     GameState newGameState(player, worldState);
     if (initializeGame(newGameState)) {
         m_interactionMode = InteractionMode::Game;

@@ -31,6 +31,7 @@ class MainForm_GLComponent : public QWidget {
     SelectionMode getSelectionMode() const;
     unsigned int getMapWidth() const;
     unsigned int getMapHeight() const;
+    const std::string &getMapMusicFilename() const;
     size_t getHistoryCurrentIndex() const;
     size_t getHistoryCount() const;
     bool isClipboardEmpty() const;
@@ -68,6 +69,7 @@ class MainForm_GLComponent : public QWidget {
             int offsetTop,
             int offsetRight,
             int offsetBottom);
+    void setMapMusicFilename(const std::string &filename);
     std::vector<mapeditor::controllers::MonsterZoneDTO> getMonsterZones() const;
     mapeditor::controllers::OptMonsterZoneDTOConst getMonsterZoneByName(const std::string &name) const;
     std::vector<std::string> getAlreadyUsedMonsterZoneNames() const;

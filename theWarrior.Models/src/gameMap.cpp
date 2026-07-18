@@ -138,6 +138,10 @@ const std::vector<Texture> &GameMap::getTextures() const {
 std::optional<std::reference_wrapper<const Texture>> GameMap::getTextureByName(const std::string &name) const {
     return m_textureContainer.getTextureByName(name);
 }
+    
+void GameMap::setMusicFilename(const std::string &filename) {
+    m_musicFilename = filename;
+}
 
 bool GameMap::addTexture(const TextureInfo &textureInfo) {
     bool retVal = m_textureContainer.addTexture(textureInfo);
@@ -178,6 +182,10 @@ OptMonsterZoneConstRef GameMap::getMonsterZoneByName(const std::string &zoneName
         return {*it};
     }
     return std::nullopt;
+}
+
+const std::string &GameMap::getMusicFilename() const {
+    return m_musicFilename;
 }
 
 bool GameMap::addMonsterZone(const MonsterZone &zone) {

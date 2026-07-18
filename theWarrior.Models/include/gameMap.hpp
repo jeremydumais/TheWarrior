@@ -32,6 +32,7 @@ class GameMap {
     const MapTile &getTileFromCoord(Point<> coord) const;
     unsigned int getWidth() const;
     unsigned int getHeight() const;
+    const std::string &getMusicFilename() const;
     Point<> getCoordFromTileIndex(int index) const;
     int getTileIndexFromCoord(Point<> coord) const;
     const std::vector<Texture> &getTextures() const;
@@ -48,6 +49,7 @@ class GameMap {
                    int offsetTop,
                    int offsetRight,
                    int offsetBottom);
+    void setMusicFilename(const std::string &filename);
     bool addTexture(const TextureInfo &textureInfo);
     bool replaceTexture(const std::string &name, const TextureInfo &textureInfo);
     bool removeTexture(const std::string &name);
@@ -76,6 +78,7 @@ class GameMap {
     std::vector<NPC> m_npcs;
     TextureContainer m_textureContainer;
     bool m_useOnlyOneMonsterZone;
+    std::string m_musicFilename;
     bool _isShrinkMapFromLeftImpactAssignedTiles(int offset) const;
     bool _isShrinkMapFromTopImpactAssignedTiles(int offset) const;
     bool _isShrinkMapFromRightImpactAssignedTiles(int offset) const;
@@ -100,12 +103,16 @@ class GameMap {
         if (version > 3) {
             ar & m_npcs;
         }
+        if (version > 4) {
+            ar & m_musicFilename;
+        }
     }
     template<class Archive>
     void load(Archive& ar, const unsigned int version) {
         m_monsterZones.clear();
         m_useOnlyOneMonsterZone = false;
         m_npcs.clear();
+        m_musicFilename.clear();
 
         ar & m_tiles;
         ar & m_textureContainer;
@@ -119,6 +126,9 @@ class GameMap {
         if (version > 3) {
             ar & m_npcs;
         }
+        if (version > 4) {
+            ar & m_musicFilename;
+        }
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -126,4 +136,4 @@ class GameMap {
 
 }  // namespace thewarrior::models
 
-BOOST_CLASS_VERSION(thewarrior::models::GameMap, 4)
+BOOST_CLASS_VERSION(thewarrior::models::GameMap, 5)

@@ -43,6 +43,7 @@ class SampleGameMap5x6WithTwoTextures : public ::testing::Test {
                     .textureName = "Tex1", .baseTextureIndex = 1,
                     .spawnPosition = {0, 0}, .wanderZone = { {0, 0}, {1, 0} }
                    }));
+        map.setMusicFilename("mymuz.mp3");
     }
     ~SampleGameMap5x6WithTwoTextures() override;
     GameMap map;
@@ -139,6 +140,17 @@ TEST(GameMap_getWidth, WidthFive_ReturnFive) {
 TEST(GameMap_getHeight, HeightFive_ReturnFive) {
     GameMap map(6, 5);
     ASSERT_EQ(5, map.getHeight());
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getMusicFilename_WithFilename_ReturnFilename) {
+    ASSERT_EQ("mymuz.mp3", map.getMusicFilename());
+}
+
+TEST(GameMap_setMusicFilename, WithFilename_SetFilename) {
+    GameMap map(5, 6);
+
+    map.setMusicFilename("battle-theme.mp3");
+    ASSERT_EQ("battle-theme.mp3", map.getMusicFilename());
 }
 
 TEST_F(SampleGameMap5x6WithTwoTextures, getTileForEditing_WithIndexMinus1_ThrowInvalidArgument) {
@@ -1123,4 +1135,3 @@ TEST_F(SampleGameMap5x6WithTwoTextures, removeNPCWanderingZone_withNPC001AndTwoI
     const auto &wanderZone = npc->get().getWanderZone();
     ASSERT_EQ(0, wanderZone.size());
 }
-

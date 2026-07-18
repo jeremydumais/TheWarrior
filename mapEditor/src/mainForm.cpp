@@ -115,6 +115,7 @@ MainForm::MainForm(QWidget *parent,
 void MainForm::componentInitialization() {
     m_mapPropsComponent = std::make_shared<MapPropsComponent>(this,
             &m_glComponent);
+    m_mapPropsComponent->setResourcesPath(m_controller.getResourcesPath());
     ui.toolBox->addItem(m_mapPropsComponent.get(), "Map properties");
 
     m_tilePropsComponent = std::make_shared<TilePropsComponent>(this,
@@ -205,6 +206,7 @@ void MainForm::connectUIActions() {
     connect(m_debugInfoDockWidget.get(), &QClosableDockWidget::onCloseEvent, this, &MainForm::widgetDebugInfoClosed);
     m_glComponent.connectUIActions();
     connect(m_mapPropsComponent.get(), &MapPropsComponent::onBeforeApplyChange, this, &MainForm::onMapPropsComponentBeforeChange);
+    connect(m_mapPropsComponent.get(), &MapPropsComponent::onMusicChanged, this, &MainForm::onMapPropsComponentMusicChanged);
     connect(&m_glComponent, &MainForm_GLComponent::tileSelected, this, &MainForm::onTileSelected);
     connect(&m_glComponent, &MainForm_GLComponent::editHistoryChanged, this, &MainForm::onEditHistoryChanged);
     connect(&m_glComponent, &MainForm_GLComponent::clipboardChanged, this, &MainForm::onClipboardChanged);
@@ -932,4 +934,9 @@ void MainForm::onNPCDeleted(const std::string &id) {
 
 void MainForm::onMapPropsComponentBeforeChange() {
     m_glComponent.pushCurrentStateToHistory();
+}
+
+void MainForm::onMapPropsComponentMusicChanged(const std::string &filename) {
+    m_glComponent.setMapMusicFilename(filename);
+    this->setWindowTitle("bla");
 }
