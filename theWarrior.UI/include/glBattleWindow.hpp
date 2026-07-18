@@ -89,12 +89,14 @@ class GLBattleWindow : public GLPopupWindow {
     int m_experienceObtained = 0;
     bool m_didLevelUp = false;
     bool m_victorySoundPlayed = false;
+    bool m_levelUpSoundPlayed = false;
     BattleAction m_currentBattleAction = BattleAction::PlayerTurn;
     Mix_Chunk* m_attackSound = nullptr;
     Mix_Chunk* m_attackMissSound = nullptr;
     Mix_Chunk* m_attackCriticalSound = nullptr;
     Mix_Chunk* m_monsterAttackSound = nullptr;
     Mix_Chunk* m_victorySound = nullptr;
+    Mix_Chunk* m_levelUpSound = nullptr;
     void moveUpPressed();
     void moveDownPressed();
     void actionButtonPressed();

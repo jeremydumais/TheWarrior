@@ -72,6 +72,10 @@ void GLBattleWindow::initialize(const std::string &resourcePath,
     if (m_victorySound == nullptr) {
         std::cerr << fmt::format("Mix_LoadWAV error: {0}\n", Mix_GetError());
     }
+    m_levelUpSound = Mix_LoadWAV(fmt::format("{0}/sounds/levelup.wav", m_resourcesPath).c_str());
+    if (m_levelUpSound == nullptr) {
+        std::cerr << fmt::format("Mix_LoadWAV error: {0}\n", Mix_GetError());
+    }
 }
 
 GLBattleWindow::~GLBattleWindow() {
@@ -80,6 +84,7 @@ GLBattleWindow::~GLBattleWindow() {
     Mix_FreeChunk(m_attackCriticalSound);
     Mix_FreeChunk(m_monsterAttackSound);
     Mix_FreeChunk(m_victorySound);
+    Mix_FreeChunk(m_levelUpSound);
 }
 
 bool GLBattleWindow::initBattleShaders(const std::string &resourcesPath) {
@@ -105,6 +110,7 @@ void GLBattleWindow::reset() {
     m_experienceObtained = 0;
     m_didLevelUp = false;
     m_victorySoundPlayed = false;
+    m_levelUpSoundPlayed = false;
 }
 
 void GLBattleWindow::update() {
@@ -482,6 +488,10 @@ void GLBattleWindow::playerObtainRewardWorkflow() {
 }
 
 void GLBattleWindow::playerObtainNewLevelWorkflow() {
+    if (!m_levelUpSoundPlayed) {
+        Mix_PlayChannel(-1, m_levelUpSound, 0);
+        m_levelUpSoundPlayed = true;
+    }
     if (!m_namedObjectsAnimations[MonsterObj]->isCompleted()) {
         m_namedObjectsAnimations[MonsterObj]->process();
     }
