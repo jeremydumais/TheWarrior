@@ -11,6 +11,8 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameMap.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mapTileTriggerEventConverter.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mapTileTriggerConditionConverter.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mapTileTriggerActionConverter.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/openChestActionProperties.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/openChestActionPropertiesConverter.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/texture.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/textureContainer.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/itemStore.cpp

@@ -7,6 +7,7 @@ namespace thewarrior::ui::controllers {
 enum class MessageDTOType {
     Message,
     ItemFoundMessage,
+    GoldFoundMessage,
     NPCDialogueMessage
 };
 

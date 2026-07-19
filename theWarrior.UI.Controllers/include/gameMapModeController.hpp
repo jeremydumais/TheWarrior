@@ -38,6 +38,7 @@ class GameMapModeController {
     void clearNPCsWorldState();
     void acknowledgeMessage();
     bool addItemToInventory(thewarrior::models::Player *player, const std::string &id);
+    void awardGoldToPlayer(thewarrior::models::Player *player, unsigned int amount);
     void addMessageToPipeline(std::unique_ptr<MessageDTO> messageDTO);
     void deleteCurrentMessage();
     void displayCurrentMessage();

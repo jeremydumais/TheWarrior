@@ -6,6 +6,7 @@ enum class MessageType
 {
     Message,
     ItemFoundMessage,
+    GoldFoundMessage,
     NPCDialogueMessage
 };
 

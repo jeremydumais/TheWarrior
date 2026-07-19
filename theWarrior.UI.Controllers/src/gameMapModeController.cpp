@@ -10,6 +10,8 @@
 #include "gameState.hpp"
 #include "gameStateMetadata.hpp"
 #include "gameStateStorage.hpp"
+#include "goldFoundMessage.hpp"
+#include "goldFoundMessageDTO.hpp"
 #include "iGameStateRepository.hpp"
 #include "itemFoundMessage.hpp"
 #include "itemFoundMessageDTO.hpp"
@@ -133,6 +135,10 @@ bool GameMapModeController::addItemToInventory(Player *player, const std::string
     return player->getInventory()->addItem(item);
 }
 
+void GameMapModeController::awardGoldToPlayer(Player *player, unsigned int amount) {
+    player->addGold(static_cast<int>(amount));
+}
+
 void GameMapModeController::addMessageToPipeline(std::unique_ptr<MessageDTO> messageDTO) {
     auto message = createMessageFromMessageDTO(std::move(messageDTO));
     if (message != nullptr) {
@@ -190,6 +196,14 @@ std::shared_ptr<Message> GameMapModeController::createMessageFromMessageDTO(std:
                         itemFoundMsgDTO->itemId,
                         itemFoundMsgDTO->textureName);
             }
+        case MessageDTOType::GoldFoundMessage:
+            {
+                auto *goldMsgDTO = dynamic_cast<GoldFoundMessageDTO *>(dto.get());
+                return std::make_shared<GoldFoundMessage>(goldMsgDTO->message,
+                        goldMsgDTO->maxDurationInMilliseconds,
+                        goldMsgDTO->scale,
+                        goldMsgDTO->goldAmount);
+            }
         case MessageDTOType::NPCDialogueMessage: 
             {
                 auto *npcDialogueMsgDTO = dynamic_cast<NPCDialogueMessageDTO *>(dto.get());
@@ -220,6 +234,14 @@ std::unique_ptr<MessageDTO> GameMapModeController::createMessageDTOFromMessage(s
                 auto *dto = dynamic_cast<ItemFoundMessageDTO *>(retval.get());
                 dto->itemId = itemFoundMessage->getItemId();
                 dto->textureName = itemFoundMessage->getTextureName();
+                break;
+            }
+        case MessageType::GoldFoundMessage:
+            {
+                retval = std::make_unique<GoldFoundMessageDTO>();
+                auto *goldFoundMessage = dynamic_cast<GoldFoundMessage *>(message.get());
+                auto *dto = dynamic_cast<GoldFoundMessageDTO *>(retval.get());
+                dto->goldAmount = goldFoundMessage->getGoldAmount();
                 break;
             }
         case MessageType::NPCDialogueMessage:

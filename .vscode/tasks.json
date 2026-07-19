@@ -3,14 +3,14 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
+            "label": "build all",
             "type": "shell",
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
             "options": {
-                "cwd": "${workspaceFolder}/build"
+                "cwd": "${workspaceFolder}"
             },
             "command": "cmake",
             "args": [
@@ -19,12 +19,12 @@
                 "--config",
                 "Debug",
                 "--target",
-                "all", 
-                "--", 
-                "-j", 
+                "all",
+                "--",
+                "-j",
                 "10"
             ],
-            "problemMatcher": []
+            "problemMatcher": "$gcc"
         },
         {
             "label": "run clang-tidy",
@@ -67,6 +67,51 @@
                 "clear": false
             },
             "problemMatcher":"$gcc"
+        },
+        {
+            "label": "build project",
+            "type": "shell",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}/build",
+                "--config",
+                "Debug",
+                "--target",
+                "${input:cmakeTarget}",
+                "--",
+                "-j",
+                "10"
+            ],
+            "problemMatcher": "$gcc"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "cmakeTarget",
+            "type": "pickString",
+            "description": "Select the project to build",
+            "options": [
+                "theWarrior.Models",
+                "theWarrior.Storage",
+                "theWarrior.UI.Models",
+                "theWarrior.UI.Controllers",
+                "theWarrior.UI",
+                "theWarrior.Utils",
+                "TheWarrior",
+                "commonEditor.UI",
+                "MapEditor.Controllers",
+                "MapEditor",
+                "ItemEditor.Controllers",
+                "ItemEditor",
+                "MonsterEditor.Controllers",
+                "MonsterEditor"
+            ],
+            "default": "theWarrior.Models"
         }
     ]
 }

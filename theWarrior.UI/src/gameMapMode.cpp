@@ -18,7 +18,10 @@
 #include "gameState.hpp"
 #include "glNPC.hpp"
 #include "glPlayer.hpp"
+#include "goldFoundMessageDTO.hpp"
 #include "itemFoundMessageDTO.hpp"
+#include "openChestActionProperties.hpp"
+#include "openChestActionPropertiesConverter.hpp"
 #include "npcDialogueMessageDTO.hpp"
 #include "mapTile.hpp"
 #include "monsterZone.hpp"
@@ -521,11 +524,13 @@ void GameMapMode::processAction(MapTileTriggerAction action, std::map<std::strin
             break;
         case MapTileTriggerAction::OpenChest:
             {
+                // Convert the properties to an OpenChestActionProperties object
+                auto props = OpenChestActionPropertiesConverter::fromMap(properties);
                 // Check if the item has already been taken
                 auto tileIndex = m_map->getTileIndexFromCoord(tilePosition);
                 if (!m_controller.isTileActionAlreadyProcessed(m_controller.getCurrentMapName(), tileIndex)) {
-                    if (properties.find("itemIdInside") != properties.end()) {
-                        auto itemIdInside = properties.find("itemIdInside")->second;
+                    if (props.getContentType() == ChestContentType::Item) {
+                        const auto &itemIdInside = props.getItemId();
                         // Find the item in the item store
                         const auto item = m_controller.findItem(itemIdInside);
                         m_controller.addItemToInventory(dynamic_cast<Player *>(m_glPlayer.get()), itemIdInside);
@@ -535,6 +540,16 @@ void GameMapMode::processAction(MapTileTriggerAction action, std::map<std::strin
                         msg->maxDurationInMilliseconds = 2000;
                         msg->itemId = item.id;
                         msg->textureName = item.textureName;
+                        m_controller.addMessageToPipeline(std::move(msg));
+                    } else if (props.getContentType() == ChestContentType::Gold) {
+                        m_controller.awardGoldToPlayer(dynamic_cast<Player *>(m_glPlayer.get()), props.getGoldAmount());
+                        // Display the gold message on the screen
+                        auto msg = std::make_unique<GoldFoundMessageDTO>();
+                        msg->goldAmount = props.getGoldAmount();
+                        msg->message = fmt::format("You found {0} gold {1}!", 
+                                                   msg->goldAmount, 
+                                                   msg->goldAmount == 1 ? "piece" : "pieces");
+                        msg->maxDurationInMilliseconds = 2000;
                         m_controller.addMessageToPipeline(std::move(msg));
                     }
                     m_controller.addTileActionProcessed(m_controller.getCurrentMapName(), tileIndex);

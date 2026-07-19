@@ -172,8 +172,8 @@ bool GameWindow::initializeOpenGL(const std::string &title,
             width,
             height,
             //HACK: To Remove and uncomment below
-            SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL);
-            //SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL | SDL_WINDOW_MAXIMIZED);
+            //SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL);
+            SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL | SDL_WINDOW_MAXIMIZED);
     if (m_window == nullptr) {
         cerr << fmt::format("Window could not be created! SDL_Error: %s\n", SDL_GetError());
         return false;
