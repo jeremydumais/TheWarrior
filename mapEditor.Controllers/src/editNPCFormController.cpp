@@ -112,4 +112,19 @@ bool EditNPCFormController::isDTOValid(NPCDTO &dto) {
     return true;
 }
 
+std::vector<ConversationScenarioSummaryDTO> EditNPCFormController::getConversationScenarios() const {
+    std::vector<ConversationScenarioSummaryDTO> retval = {};
+    if (m_selectedNPC.has_value()) {
+        std::for_each(m_selectedNPC->conversationScenarios.begin(), m_selectedNPC->conversationScenarios.end(),
+                      [&retval](const auto &scenario) {
+            retval.push_back({
+                .id = scenario.getId(),
+                .nodeCount = scenario.getNodes().size()
+            });
+        });
+    }
+    return retval;
+}
+
+
 }  // namespace mapeditor::controllers

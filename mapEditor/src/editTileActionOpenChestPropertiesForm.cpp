@@ -21,6 +21,9 @@ EditTileActionOpenChestPropertiesForm::EditTileActionOpenChestPropertiesForm(QWi
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
     connect(ui.pushButtonOK, &QPushButton::clicked, this, &EditTileActionOpenChestPropertiesForm::onPushButtonOK);
     connect(ui.pushButtonCancel, &QPushButton::clicked, this, &EditTileActionOpenChestPropertiesForm::reject);
+    connect(ui.radioButtonItem, &QRadioButton::toggled, this, &EditTileActionOpenChestPropertiesForm::onRewardTypeChanged);
+    connect(ui.radioButtonGold, &QRadioButton::toggled, this, &EditTileActionOpenChestPropertiesForm::onRewardTypeChanged);
+    connect(ui.radioButtonNothing, &QRadioButton::toggled, this, &EditTileActionOpenChestPropertiesForm::onRewardTypeChanged);
 
     auto props = OpenChestActionPropertiesConverter::fromMap(m_properties);
     ui.spinBoxObjectTextureIndexOpenedChest->setValue(props.getOpenedTextureIndex());
@@ -55,11 +58,16 @@ void EditTileActionOpenChestPropertiesForm::onPushButtonOK() {
         props.setItemId(ui.lineEditItemIdInside->text().toStdString());
     } else if (ui.radioButtonGold->isChecked()) {
         props.setContentType(ChestContentType::Gold);
-        props.setGoldAmount(ui.spinBoxGoldAmount->value());
+        props.setGoldAmount(static_cast<unsigned int>(ui.spinBoxGoldAmount->value()));
     } else {
         props.setContentType(ChestContentType::Nothing);
     }
     m_properties = OpenChestActionPropertiesConverter::toMap(props);
 
     accept();
+}
+
+void EditTileActionOpenChestPropertiesForm::onRewardTypeChanged() {
+    ui.pageItem->setVisible(ui.radioButtonItem->isChecked());
+    ui.pageGold->setVisible(ui.radioButtonGold->isChecked());
 }

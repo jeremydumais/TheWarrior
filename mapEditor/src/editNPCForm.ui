@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>769</width>
-    <height>477</height>
+    <height>587</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -65,6 +65,40 @@
        </property>
       </widget>
      </item>
+     <item row="3" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QLabel" name="labelNPCTexture">
+         <property name="minimumSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButtonSelectTexture">
+         <property name="text">
+          <string>Select Texture...</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../res/global.qrc">
+           <normaloff>:/texture.png</normaloff>:/texture.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>24</width>
+           <height>24</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
      <item row="5" column="0">
       <widget class="QLabel" name="labelSpawnPosition">
        <property name="minimumSize">
@@ -115,69 +149,119 @@
        </item>
       </layout>
      </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="labelDialogueLines">
-       <property name="text">
-        <string>Dialogue lines :</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="1">
-      <widget class="QPlainTextEdit" name="plainTextDialogue"/>
-     </item>
-     <item row="7" column="0">
+     <item row="8" column="0">
       <widget class="QLabel" name="labelDefaultFacing">
        <property name="text">
         <string>Default Facing :</string>
        </property>
       </widget>
      </item>
-     <item row="7" column="1">
+     <item row="8" column="1">
       <widget class="QComboBox" name="comboBoxDefaultFacing"/>
      </item>
-     <item row="3" column="1">
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
-       <item>
-        <widget class="QLabel" name="labelNPCTexture">
-         <property name="minimumSize">
-          <size>
-           <width>32</width>
-           <height>32</height>
-          </size>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pushButtonSelectTexture">
-         <property name="text">
-          <string>Select Texture...</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../res/global.qrc">
-           <normaloff>:/texture.png</normaloff>:/texture.png</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>24</width>
-           <height>24</height>
-          </size>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item row="8" column="0">
+     <item row="10" column="0">
       <widget class="QLabel" name="labelDefaultBehavior">
        <property name="text">
         <string>Default Behavior : </string>
        </property>
       </widget>
      </item>
-     <item row="8" column="1">
+     <item row="10" column="1">
       <widget class="QComboBox" name="comboBoxDefaultBehavior"/>
+     </item>
+     <item row="6" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_6">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QTableWidget" name="tableWidgetConvScenarios">
+           <property name="editTriggers">
+            <set>QAbstractItemView::NoEditTriggers</set>
+           </property>
+           <property name="selectionMode">
+            <enum>QAbstractItemView::SingleSelection</enum>
+           </property>
+           <property name="selectionBehavior">
+            <enum>QAbstractItemView::SelectRows</enum>
+           </property>
+           <property name="columnCount">
+            <number>2</number>
+           </property>
+           <attribute name="horizontalHeaderStretchLastSection">
+            <bool>true</bool>
+           </attribute>
+           <attribute name="verticalHeaderVisible">
+            <bool>false</bool>
+           </attribute>
+           <column/>
+           <column/>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <item>
+            <widget class="QPushButton" name="pushButtonAddConvScenario">
+             <property name="text">
+              <string>&amp;Add</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../res/global.qrc">
+               <normaloff>:/commonEditor.UI/res/gtk-add.svg</normaloff>:/commonEditor.UI/res/gtk-add.svg</iconset>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButtonEditConvScenario">
+             <property name="text">
+              <string>&amp;Edit</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../res/global.qrc">
+               <normaloff>:/commonEditor.UI/res/gtk-edit.svg</normaloff>:/commonEditor.UI/res/gtk-edit.svg</iconset>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButtonDeleteConvScenario">
+             <property name="text">
+              <string>&amp;Delete</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../res/global.qrc">
+               <normaloff>:/commonEditor.UI/res/gtk-delete.svg</normaloff>:/commonEditor.UI/res/gtk-delete.svg</iconset>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="QPushButton" name="pushButtonMoveUp">
+           <property name="text">
+            <string>Up</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonMoveDown">
+           <property name="text">
+            <string>Down</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="labelConversationScenarios">
+       <property name="text">
+        <string>Conversation scenarios :</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -258,11 +342,16 @@
   <tabstop>lineEditName</tabstop>
   <tabstop>pushButtonSelectTexture</tabstop>
   <tabstop>pushButtonSpawnPositionPicker</tabstop>
-  <tabstop>plainTextDialogue</tabstop>
+  <tabstop>tableWidgetConvScenarios</tabstop>
+  <tabstop>pushButtonAddConvScenario</tabstop>
+  <tabstop>pushButtonEditConvScenario</tabstop>
+  <tabstop>pushButtonDeleteConvScenario</tabstop>
+  <tabstop>pushButtonMoveUp</tabstop>
+  <tabstop>pushButtonMoveDown</tabstop>
   <tabstop>comboBoxDefaultFacing</tabstop>
   <tabstop>comboBoxDefaultBehavior</tabstop>
-  <tabstop>pushButtonCancel</tabstop>
   <tabstop>pushButtonOK</tabstop>
+  <tabstop>pushButtonCancel</tabstop>
  </tabstops>
  <resources>
   <include location="../res/global.qrc"/>

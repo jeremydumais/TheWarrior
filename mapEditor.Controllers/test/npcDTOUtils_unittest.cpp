@@ -8,6 +8,7 @@
 
 using mapeditor::controllers::NPCDTO;
 using mapeditor::controllers::NPCDTOUtils;
+using thewarrior::models::ConversationScenario;
 using thewarrior::models::NPC;
 using thewarrior::models::NPCBehavior;
 using thewarrior::models::NPCCreationInfo;
@@ -16,6 +17,21 @@ using thewarrior::models::Point;
 
 namespace mapeditor::controllers::npcdtoutils::unittest {
 
+void assertConversationScenarios(
+        const std::vector<ConversationScenario> &expected,
+        const std::vector<ConversationScenario> &actual) {
+    ASSERT_EQ(expected.size(), actual.size());
+    for (size_t i = 0; i < expected.size(); i++) {
+        ASSERT_EQ(expected[i].getId(), actual[i].getId());
+        ASSERT_EQ(expected[i].getConditionalStoryIdCompleted(),
+                  actual[i].getConditionalStoryIdCompleted());
+        ASSERT_EQ(expected[i].getDialogueLines(),
+                  actual[i].getDialogueLines());
+        ASSERT_EQ(expected[i].getNodes().size(),
+                  actual[i].getNodes().size());
+    }
+}
+
 void assertNPCDTO(const NPCDTO &expected, const NPCDTO &actual) {
     ASSERT_EQ(expected.id, actual.id);
     ASSERT_EQ(expected.name, actual.name);
@@ -23,7 +39,8 @@ void assertNPCDTO(const NPCDTO &expected, const NPCDTO &actual) {
     ASSERT_EQ(expected.baseTextureIndex, actual.baseTextureIndex);
     ASSERT_EQ(expected.spawnPosition, actual.spawnPosition);
     ASSERT_EQ(expected.wanderZone, actual.wanderZone);
-    ASSERT_EQ(expected.dialogueLines, actual.dialogueLines);
+    assertConversationScenarios(expected.conversationScenarios,
+                                actual.conversationScenarios);
     ASSERT_EQ(expected.defaultFacing, actual.defaultFacing);
     ASSERT_EQ(expected.currentFacing, actual.currentFacing);
     ASSERT_EQ(expected.defaultBehavior, actual.defaultBehavior);
@@ -37,7 +54,8 @@ void assertNPC(const NPCDTO &expected, const NPC &actual) {
     ASSERT_EQ(expected.baseTextureIndex, actual.getBaseTextureIndex());
     ASSERT_EQ(expected.spawnPosition, actual.getSpawnPosition());
     ASSERT_EQ(expected.wanderZone, actual.getWanderZone());
-    ASSERT_EQ(expected.dialogueLines, actual.getDialogueLines());
+    assertConversationScenarios(expected.conversationScenarios,
+                                actual.getConversationScenarios());
     ASSERT_EQ(expected.defaultFacing, actual.getDefaultFacing());
     ASSERT_EQ(expected.currentFacing, actual.getCurrentFacing());
     ASSERT_EQ(expected.defaultBehavior, actual.getDefaultBehavior());
@@ -57,9 +75,11 @@ NPCDTO getNPCDTOSample1() {
             Point<size_t>(2, 3),
             Point<size_t>(3, 3)
         },
-        .dialogueLines = {
-            "Hello my name is Joe Blow",
-            "How are you today?"
+        .conversationScenarios = {
+            ConversationScenario::fromLegacyDialogueLines({
+                "Hello my name is Joe Blow",
+                "How are you today?"
+            })
         },
         .defaultFacing = NPCFacing::Left,
         .currentFacing = NPCFacing::Right,
@@ -77,7 +97,8 @@ TEST(npcDTOUtils_fromNPC, withNPC_ReturnValidDTO) {
         .baseTextureIndex = expected.baseTextureIndex,
         .spawnPosition = expected.spawnPosition,
         .wanderZone = expected.wanderZone,
-        .dialogueLines = expected.dialogueLines,
+        .dialogueLines = {},
+        .conversationScenarios = expected.conversationScenarios,
         .defaultFacing = expected.defaultFacing,
         .currentFacing = expected.currentFacing,
         .defaultBehavior = expected.defaultBehavior,

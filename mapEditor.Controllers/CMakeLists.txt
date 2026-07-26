@@ -14,6 +14,8 @@ include_directories(${QT_INCLUDE_PATH}
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/manageItemStoreController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/manageMonsterStoreController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterStoreInfoJSONSerializer.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/editConversationDialogueFormController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/editConversationScenarioFormController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/editMapTileTriggerFormController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterZoneFormController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterEncounterFormController.cpp

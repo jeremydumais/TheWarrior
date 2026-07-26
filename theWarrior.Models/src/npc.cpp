@@ -15,13 +15,17 @@ m_textureName(info.textureName),
 m_baseTextureIndex(info.baseTextureIndex),
 m_spawnPosition(info.spawnPosition),
 m_wanderZone(info.wanderZone),
-m_dialogueLines(info.dialogueLines),
 m_defaultFacing(info.defaultFacing),
 m_currentFacing(info.currentFacing),
 m_defaultBehavior(info.defaultBehavior),
 m_currentBehavior(info.currentBehavior) {
     validateId(info.id);
     validateName(info.name);
+    if (!info.conversationScenarios.empty()) {
+        setConversationScenarios(info.conversationScenarios);
+    } else {
+        migrateDialogueLines(info.dialogueLines);
+    }
 }
 
 const std::string &NPC::getId() const {
@@ -50,6 +54,10 @@ const std::vector<Point<size_t>> &NPC::getWanderZone() const {
 
 const::std::vector<std::string> &NPC::getDialogueLines() const {
     return m_dialogueLines;
+}
+
+const std::vector<ConversationScenario> &NPC::getConversationScenarios() const {
+    return m_conversationScenarios;
 }
 
 NPCFacing NPC::getDefaultFacing() const {
@@ -129,7 +137,37 @@ void NPC::removeFromWanderZone(const std::vector<Point<size_t>> &zone) {
 }
 
 void NPC::setDialogueLines(const::std::vector<std::string> &lines) {
-    m_dialogueLines = lines;
+    if (m_conversationScenarios.empty()) {
+        migrateDialogueLines(lines);
+        return;
+    }
+    m_conversationScenarios.front().setDialogueLines(lines);
+    refreshDialogueLinesCompatibilityView();
+}
+
+void NPC::setConversationScenarios(const std::vector<ConversationScenario> &scenarios) {
+    m_conversationScenarios = scenarios;
+    refreshDialogueLinesCompatibilityView();
+}
+
+void NPC::addConversationScenario(const ConversationScenario &scenario) {
+    m_conversationScenarios.push_back(scenario);
+    refreshDialogueLinesCompatibilityView();
+}
+
+bool NPC::removeConversationScenario(const ConversationScenarioId &scenarioId) {
+    const auto iter = std::find_if(
+        m_conversationScenarios.begin(),
+        m_conversationScenarios.end(),
+        [&scenarioId](const ConversationScenario &scenario) {
+            return scenario.getId() == scenarioId;
+        });
+    if (iter == m_conversationScenarios.end()) {
+        return false;
+    }
+    m_conversationScenarios.erase(iter);
+    refreshDialogueLinesCompatibilityView();
+    return true;
 }
 
 void NPC::setDefaultFacing(NPCFacing value) {
@@ -172,6 +210,22 @@ void NPC::validateName(const std::string &name) {
     std::string sanitizedName { boost::trim_copy(name) };
     if (sanitizedName.empty()) {
         throw std::invalid_argument("name cannot be empty.");
+    }
+}
+
+void NPC::migrateDialogueLines(const std::vector<std::string> &lines) {
+    m_dialogueLines = lines;
+    m_conversationScenarios.clear();
+    if (!lines.empty()) {
+        m_conversationScenarios.push_back(
+            ConversationScenario::fromLegacyDialogueLines(lines));
+    }
+}
+
+void NPC::refreshDialogueLinesCompatibilityView() {
+    m_dialogueLines.clear();
+    if (!m_conversationScenarios.empty()) {
+        m_dialogueLines = m_conversationScenarios.front().getDialogueLines();
     }
 }
 

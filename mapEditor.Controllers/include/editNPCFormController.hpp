@@ -7,6 +7,7 @@
 #include "iTexturePixmapProvider.hpp"
 #include "npcDTO.hpp"
 #include "texture.hpp"
+#include "conversationScenarioSummaryDTO.hpp"
 
 namespace mapeditor::controllers {
 
@@ -32,10 +33,11 @@ class EditNPCFormController {
     bool isNPCIdAlreadyUsed(const std::string &id) const;
     static std::vector<std::string> convertPlainTextToLines(const QString &text);
     bool isDTOValid(mapeditor::controllers::NPCDTO &dto);
+    std::vector<ConversationScenarioSummaryDTO> getConversationScenarios() const;
 
  private:
     std::string m_resourcesPath;
-    std::string m_lastError = "";
+    std::string m_lastError;
     const std::vector<thewarrior::models::Texture> &m_textures;
     commoneditor::ui::ITexturePixmapProvider &m_texturePixmapProvider;
     const std::optional<mapeditor::controllers::NPCDTO> m_selectedNPC;

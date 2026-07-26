@@ -33,13 +33,16 @@ Q_OBJECT
     bool m_spawnPositionPickerModeEnabled = false;
     thewarrior::models::Point<> m_spawnPosition = thewarrior::models::Point<>(-1, -1);
     mapeditor::controllers::NPCDTO m_result;
+    void initializeConversationScenariosTable();
     void connectUIActions();
     void refreshPositionLabel();
     void refreshNPCTile();
+    void refreshConversationScenarioList();
     void onPushButtonCancelClick();
     void onPushButtonOKClick();
     void onPushButtonSelectTextureClick();
     void onPushButtonSpawnPositionPickerClick();
+    void onPushButtonAddConvScenarioClick();
 };
 
 #endif  // MAPEDITOR_SRC_EDITNPCFORM_HPP_

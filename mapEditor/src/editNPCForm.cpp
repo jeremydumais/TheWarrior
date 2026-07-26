@@ -2,6 +2,7 @@
 #include <fmt/format.h>
 #include <string>
 #include <vector>
+#include "editConversationScenarioForm.hpp"
 #include "editNPCForm.hpp"
 #include "editNPCFormController.hpp"
 #include "errorMessage.hpp"
@@ -41,29 +42,41 @@ EditNPCForm::EditNPCForm(QWidget *parent,
     ui.comboBoxDefaultBehavior->addItem("Wander");
     ui.comboBoxDefaultBehavior->setCurrentIndex(0);
     if (selectedNPC.has_value()) {
+        m_result = selectedNPC.value();
         ui.lineEditId->setText(selectedNPC->id.c_str());
         ui.lineEditName->setText(selectedNPC->name.c_str());
         m_spawnPosition = Point<>(static_cast<int>(selectedNPC->spawnPosition.x()),
                                   static_cast<int>(selectedNPC->spawnPosition.y()));
         m_result.textureName = selectedNPC->textureName;
         m_result.baseTextureIndex = selectedNPC->baseTextureIndex;
-        for (const auto &line : selectedNPC->dialogueLines) {
-            ui.plainTextDialogue->appendPlainText(line.c_str());
-        }
         ui.comboBoxDefaultFacing->setCurrentIndex(static_cast<int>(selectedNPC->defaultFacing));
         ui.comboBoxDefaultBehavior->setCurrentIndex(static_cast<int>(selectedNPC->defaultBehavior));
         refreshNPCTile();
+        refreshConversationScenarioList();
     }
+    initializeConversationScenariosTable();
     connectUIActions();
     refreshPositionLabel();
 }
-
 bool EditNPCForm::isEditMode() const {
     return m_controller.isEditMode();
 }
 
 bool EditNPCForm::isSpawnPositionPickerModeEnabled() const {
     return m_spawnPositionPickerModeEnabled;
+}
+
+void EditNPCForm::refreshConversationScenarioList() {
+    ui.tableWidgetConvScenarios->model()->removeRows(0, ui.tableWidgetConvScenarios->rowCount());
+    int index = 0;
+    for (const auto &dto : m_controller.getConversationScenarios()) {
+        auto *nodeCountColumn = new QTableWidgetItem(std::to_string(dto.nodeCount).c_str());
+        nodeCountColumn->setTextAlignment(Qt::AlignRight);
+        ui.tableWidgetConvScenarios->insertRow(index);
+        ui.tableWidgetConvScenarios->setItem(index, 0, new QTableWidgetItem(dto.id.c_str()));
+        ui.tableWidgetConvScenarios->setItem(index, 1, nodeCountColumn);
+        index++;
+    }
 }
 
 void EditNPCForm::restoreFromPicker(const Point<> &position) {
@@ -81,6 +94,7 @@ void EditNPCForm::connectUIActions() {
     connect(ui.pushButtonOK, &QPushButton::clicked, this, &EditNPCForm::onPushButtonOKClick);
     connect(ui.pushButtonSelectTexture, &QPushButton::clicked, this, &EditNPCForm::onPushButtonSelectTextureClick);
     connect(ui.pushButtonSpawnPositionPicker, &QPushButton::clicked, this, &EditNPCForm::onPushButtonSpawnPositionPickerClick);
+    connect(ui.pushButtonAddConvScenario, &QPushButton::clicked, this, &EditNPCForm::onPushButtonAddConvScenarioClick);
 }
 
 void EditNPCForm::refreshPositionLabel() {
@@ -103,6 +117,13 @@ void EditNPCForm::refreshNPCTile() {
         ErrorMessage::show(fmt::format("Unable to load the NPC image. {0}",
                                        m_controller.getLastError()));
     }
+}
+
+void EditNPCForm::initializeConversationScenariosTable() {
+    ui.tableWidgetConvScenarios->setHorizontalHeaderItem(0, new QTableWidgetItem("Id"));
+    ui.tableWidgetConvScenarios->setHorizontalHeaderItem(1, new QTableWidgetItem("Item Count"));
+    ui.tableWidgetConvScenarios->setColumnWidth(0, 425);
+    ui.tableWidgetConvScenarios->setColumnWidth(1, 30);
 }
 
 void EditNPCForm::onPushButtonCancelClick() {
@@ -131,9 +152,10 @@ void EditNPCForm::onPushButtonOKClick() {
         ErrorMessage::show(fmt::format("The NPC Id {} already exists in the list.", npcId));
         return;
     }
-    if (ui.plainTextDialogue->toPlainText().trimmed().isEmpty()) {
-        WarningMessage::show("Since the dialogue is empty, nothing will happen if you try to talk to the NPC.");
-    }
+    //TODO: ConversationScenario to manage
+    // if (ui.plainTextDialogue->toPlainText().trimmed().isEmpty()) {
+    //     WarningMessage::show("Since the dialogue is empty, nothing will happen if you try to talk to the NPC.");
+    // }
     m_result.id = npcId;
     m_result.name = ui.lineEditName->text().trimmed().toStdString();
     m_result.spawnPosition = Point<size_t>(static_cast<size_t>(m_spawnPosition.x()),
@@ -142,7 +164,18 @@ void EditNPCForm::onPushButtonOKClick() {
         const auto selectedNPC = m_controller.getSelectedNPC();
         m_result.wanderZone = selectedNPC ? selectedNPC->wanderZone : decltype(selectedNPC->wanderZone){};
     }
-    m_result.dialogueLines = EditNPCFormController::convertPlainTextToLines(ui.plainTextDialogue->toPlainText());
+    //TODO: ConversationScenario to manage
+    // const auto dialogueLines =
+    //     EditNPCFormController::convertPlainTextToLines(ui.plainTextDialogue->toPlainText());
+    // if (m_result.conversationScenarios.empty()) {
+    //     if (!dialogueLines.empty()) {
+    //         m_result.conversationScenarios.push_back(
+    //             thewarrior::models::ConversationScenario::fromLegacyDialogueLines(
+    //                 dialogueLines));
+    //     }
+    // } else {
+    //     m_result.conversationScenarios.front().setDialogueLines(dialogueLines);
+    // }
     m_result.defaultFacing = static_cast<NPCFacing>(ui.comboBoxDefaultFacing->currentIndex());
     m_result.currentFacing = m_result.defaultFacing;
     m_result.defaultBehavior = static_cast<NPCBehavior>(ui.comboBoxDefaultBehavior->currentIndex());
@@ -169,4 +202,18 @@ void EditNPCForm::onPushButtonSelectTextureClick() {
 void EditNPCForm::onPushButtonSpawnPositionPickerClick() {
     m_spawnPositionPickerModeEnabled = true;
     accept();
+}
+
+void EditNPCForm::onPushButtonAddConvScenarioClick() {
+    std::vector<thewarrior::models::ConversationScenarioId> existingIds = {};
+    EditConversationScenarioForm conversationScenarioForm(this,
+                                                          m_controller.getResourcesPath(),
+                                                          std::nullopt,
+                                                          existingIds);
+    if (conversationScenarioForm.exec() == QDialog::Accepted) {
+        /*if (!m_controller.addMonsterEncounter(monsterEncounterForm.getResult())) {
+            ErrorMessage::show(m_controller.getLastError());
+        }*/
+        refreshConversationScenarioList();
+    }
 }

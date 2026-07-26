@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <string>
 #include <vector>
+#include "conversationScenario.hpp"
 #include "npc.hpp"
 #include "point.hpp"
 
@@ -15,7 +16,7 @@ struct NPCDTO {
     int baseTextureIndex = -1;
     thewarrior::models::Point<size_t> spawnPosition = thewarrior::models::Point<size_t>(0, 0);
     std::vector<thewarrior::models::Point<size_t>> wanderZone;
-    std::vector<std::string> dialogueLines;
+    std::vector<thewarrior::models::ConversationScenario> conversationScenarios;
     thewarrior::models::NPCFacing defaultFacing = thewarrior::models::NPCFacing::Down;
     thewarrior::models::NPCFacing currentFacing = thewarrior::models::NPCFacing::Down;
     thewarrior::models::NPCBehavior defaultBehavior = thewarrior::models::NPCBehavior::Stationary;
@@ -23,4 +24,3 @@ struct NPCDTO {
 };
 
 }  // namespace mapeditor::controllers
-
