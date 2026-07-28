@@ -334,6 +334,8 @@ void GameWindow::createNewGame(std::string playerName) {
     m_mainMenuMode.reset();
     m_mainMenuMode = nullptr;
     Player player(playerName);
+    player.addGold(12);
+    player.reduceHealth(10);
     WorldState worldState;
     //HACK: Remove this and uncomment below
     // worldState.setCurrentMapName("Outworld.map");

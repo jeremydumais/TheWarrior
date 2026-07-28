@@ -210,8 +210,8 @@ void GLPopupWindow::generateTitleBox() {
     m_glTitle.position = { getWindowLocation().x() + (getWindowSize().width() / 2.0F) - (titleSize.width() / 2.0F),
                            getWindowLocation().y() + 40.0F };
     m_glFormService->generateBoxQuad(m_windowTitleObjects,
-                                    {m_glTitle.position.x() - 35.0F, m_glTitle.position.y() - 30.0F},
-                                    {titleSize.width() + 70.0F, 40.0F},
+                                    {m_glTitle.position.x() - 15.0F, m_glTitle.position.y() - 30.0F},
+                                    {titleSize.width() + 30.0F, 40.0F},
                                     &getTexturePtr()->texture,
                                     17);
 }

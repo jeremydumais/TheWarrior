@@ -29,6 +29,7 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glObjectService.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glPlayer.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glPopupWindow.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/glScreenOverlay.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glTileService.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glTextService.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glTextBox.cpp

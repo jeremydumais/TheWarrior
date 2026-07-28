@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 #include <boost/signals2.hpp>
+#include "conversationController.hpp"
+#include "conversationScenario.hpp"
 #include "gameMap.hpp"
 #include "gameMapModeController.hpp"
 #include "gameState.hpp"
@@ -18,6 +20,7 @@
 #include "glInventory.hpp"
 #include "glNPC.hpp"
 #include "glPlayer.hpp"
+#include "glScreenOverlay.hpp"
 #include "glTextBox.hpp"
 #include "glTextService.hpp"
 #include "glTextureService.hpp"
@@ -33,12 +36,20 @@
 
 namespace thewarrior::ui {
 
-enum GameMapInputMode {
+enum class GameMapInputMode {
     Map,
     MainMenuPopup,
+    ConversationChoice,
     CharacterWindow,
     InventoryWindow,
     Battle
+};
+
+enum class SleepSequenceState {
+    Inactive,
+    FadingOut,
+    PlayingJingle,
+    FadingIn
 };
 
 class GameMapMode {
@@ -62,6 +73,7 @@ class GameMapMode {
 
  private:
     thewarrior::ui::controllers::GameMapModeController m_controller;
+    thewarrior::ui::controllers::ConversationController m_conversationController;
     std::string m_lastError;
     GameMapInputMode m_inputMode = GameMapInputMode::Map;
     std::shared_ptr<thewarrior::models::GameMap> m_map;
@@ -78,6 +90,7 @@ class GameMapMode {
     GLCharacterWindow m_glCharacterWindow;
     GLInventory m_glInventory;
     GLChoicePopup m_choicePopup;
+    GLScreenOverlay m_screenOverlay;
     thewarrior::models::Size<> m_screenSize = {1, 1};
     std::vector<GLTile> m_glTiles;
     std::map<std::string, unsigned int> m_texturesGLMap;
@@ -91,6 +104,12 @@ class GameMapMode {
     bool m_blockKeyDown = false;
     bool m_isCharacterWindowDisplayed = false;
     bool m_isInventoryDisplayed = false;
+    // Sleep objects
+    SleepSequenceState m_sleepSequenceState = SleepSequenceState::Inactive;
+    float m_sleepOverlayOpacity = 0.0F;
+    Mix_Music *m_sleepMusic = nullptr;
+    bool m_restoreHealthAfterSleep = false;
+
     Mix_Music* m_mapMusic = nullptr;
     Mix_Music* m_battleMusic = nullptr;
     thewarrior::models::Point<> getPlayerFacingTilePosition() const;
@@ -130,7 +149,26 @@ class GameMapMode {
     void onPlayerMoveCompleted();
     void onBattleCompleted();
     void completeCurrentMessage(bool allowTextReveal);
+    void choicePopupClicked(std::size_t choiceIndex);
+    void choicePopupCanceled();
     void restoreNPCDefaultBehavior(const std::string &npcId);
+    void processCurrentConversationNode();
+    void finishConversation();
+    void failConversation(const std::string &error);
+    void displayConversationDialogue(const thewarrior::models::ConversationDialogue &dialogue);
+    void displayConversationChoice(const thewarrior::models::ConversationChoice &choice);
+    void conversationChoiceSelected(std::size_t choiceIndex);
+    bool executeConversationAction(const thewarrior::models::ConversationAction &action);
+    bool completeConversationAction();
+    bool followConversationActionFailure(const thewarrior::models::ConversationNodeTransition &transition);
+    bool executeRestRequestedAction(const thewarrior::models::RestRequestedAction &action);
+    void updateSleepSequence(float deltaTime);
+    void restorePlayerAfterSleep();
+    void completeSleepAction();
+
+
+
+
 };
 
 }  // namespace thewarrior::ui

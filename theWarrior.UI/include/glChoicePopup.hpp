@@ -23,11 +23,13 @@ class GLChoicePopup: public GLPopupWindow {
                     std::shared_ptr<GLTextService> textService,
                     std::shared_ptr<InputDevicesState> inputDevicesState);
     void preparePopup(std::vector<std::string> choices,
-                      const std::string &title = "");
+                      const std::string &title = "",
+                      const std::string &prompt = "");
     void update();
     void render();
     void generateGLElements();
     void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
+    void setPrompt(const std::string &prompt);
     boost::signals2::signal<void(size_t choice)> m_choiceClicked;
     boost::signals2::signal<void()> m_cancelClicked;
 
@@ -35,8 +37,8 @@ class GLChoicePopup: public GLPopupWindow {
     std::shared_ptr<InputDevicesState> m_inputDevicesState = nullptr;
     size_t m_menuCursorPosition;
     size_t m_menuItemCount;
-    //TODO: Code the Optional question
-    std::string m_optionalQuestion;
+    std::string m_prompt;
+    GLTextObject m_glPrompt;
     GLTextureService m_textureService;
     GLTexture m_popupGLTexture;
     std::vector<GLObject> m_menuObjects;
