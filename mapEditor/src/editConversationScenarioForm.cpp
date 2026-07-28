@@ -16,9 +16,14 @@
 
 using commoneditor::ui::ErrorMessage;
 using mapeditor::controllers::EditConversationScenarioFormController;
+using thewarrior::models::ConversationAction;
+using thewarrior::models::ConversationChoice;
 using thewarrior::models::ConversationNode;
 using thewarrior::models::ConversationNodeId;
 using thewarrior::models::ConversationNodeTransition;
+using thewarrior::models::ConversationNodeTransitionType;
+using thewarrior::models::RestRequestedAction;
+using thewarrior::models::RewardAction;
 using thewarrior::models::ConversationScenarioId;
 using thewarrior::models::ConversationScenario;
 
@@ -52,8 +57,10 @@ const ConversationScenario &EditConversationScenarioForm::getResult() const {
 void EditConversationScenarioForm::initializeNodesTable() {
     ui.tableWidgetNodes->setHorizontalHeaderItem(0, new QTableWidgetItem("Id"));
     ui.tableWidgetNodes->setHorizontalHeaderItem(1, new QTableWidgetItem("Type"));
-    ui.tableWidgetNodes->setColumnWidth(0, 355);
+    ui.tableWidgetNodes->setHorizontalHeaderItem(2, new QTableWidgetItem("Transition"));
+    ui.tableWidgetNodes->setColumnWidth(0, 155);
     ui.tableWidgetNodes->setColumnWidth(1, 100);
+    ui.tableWidgetNodes->setColumnWidth(2, 200);
     auto *addMenu = new QMenu(ui.pushButtonAddNode);
     addMenu->addAction("Dialogue", this, [this]() {
         EditConversationDialogueForm formEditDialogue(this, std::nullopt, m_controller.getAlreadyUsedNodeIds());
@@ -97,6 +104,40 @@ void EditConversationScenarioForm::refreshNodesTable() {
         ui.tableWidgetNodes->setItem(index, 0, new QTableWidgetItem(node.getId().c_str()));
         const auto contentType = ConversationNode::getContentTypeName(node.getContent());
         ui.tableWidgetNodes->setItem(index, 1, new QTableWidgetItem(contentType.c_str()));
+        const auto formatTransition = [](const ConversationNodeTransition &transition) {
+            switch (transition.getType()) {
+                case thewarrior::models::ConversationNodeTransitionType::NextInOrder:
+                    return std::string("Next Node");
+                case thewarrior::models::ConversationNodeTransitionType::Stop:
+                    return std::string("Stop");
+                case thewarrior::models::ConversationNodeTransitionType::SpecificNode:
+                    return fmt::format("Specific Node({})", transition.getNextNodeId());
+            }
+            return std::string();
+        };
+        std::string transitionDisplayValue;
+        if (const auto *choice = boost::get<ConversationChoice>(&node.getContent())) {
+            for (const auto &option : choice->options) {
+                if (!transitionDisplayValue.empty()) {
+                    transitionDisplayValue += ", ";
+                }
+                transitionDisplayValue += fmt::format("{} ({})", option.text, option.nextNodeId);
+            }
+        } else if (const auto *action = boost::get<ConversationAction>(&node.getContent())) {
+            transitionDisplayValue = formatTransition(node.getTransition());
+            const ConversationNodeTransition *failureTransition = nullptr;
+            if (const auto *reward = boost::get<RewardAction>(action)) {
+                failureTransition = &reward->failureTransition;
+            } else if (const auto *rest = boost::get<RestRequestedAction>(action)) {
+                failureTransition = &rest->failureTransition;
+            }
+            if (failureTransition != nullptr) {
+                transitionDisplayValue += fmt::format(", Failure: {}", formatTransition(*failureTransition));
+            }
+        } else {
+            transitionDisplayValue = formatTransition(node.getTransition());
+        }
+        ui.tableWidgetNodes->setItem(index, 2, new QTableWidgetItem(transitionDisplayValue.c_str()));
         index++;
     }
 }
@@ -152,8 +193,7 @@ void EditConversationScenarioForm::onPushButtonOKClick() {
             }
         }
 
-        if (const auto *action = boost::get<thewarrior::models::ConversationAction>(
-                &node.getContent())) {
+        if (const auto *action = boost::get<thewarrior::models::ConversationAction>(&node.getContent())) {
             const ConversationNodeTransition *failureTransition = nullptr;
             if (const auto *reward =
                     boost::get<thewarrior::models::RewardAction>(action)) {
@@ -164,10 +204,9 @@ void EditConversationScenarioForm::onPushButtonOKClick() {
                 failureTransition = &rest->failureTransition;
             }
 
-            if (failureTransition != nullptr &&
-                failureTransition->getType() ==
-                    thewarrior::models::ConversationNodeTransitionType::SpecificNode &&
-                !nodeIds.contains(failureTransition->getNextNodeId())) {
+            if (failureTransition != nullptr && 
+                    failureTransition->getType() == ConversationNodeTransitionType::SpecificNode && 
+                    !nodeIds.contains(failureTransition->getNextNodeId())) {
                 ErrorMessage::show(fmt::format(
                     "Node {} references a failure node id {} that does not exist.",
                     node.getId(),

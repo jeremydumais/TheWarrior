@@ -31,11 +31,9 @@ private:
    void connectUIActions();
    void initializeChoiceTable();
    void appendEmptyChoiceRow();
-   void initializeComboBoxTransitionType();
    void onPushButtonCancelClick();
    void onPushButtonOKClick();
    void onChoiceItemChanged(QTableWidgetItem *item);
-   void onComboBoxTransitionTypeIndexChanged();
 };
 
 #endif // MAPEDITOR_SRC_EDITCONVERSATIONCHOICEFORM_HPP_

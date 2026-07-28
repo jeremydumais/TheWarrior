@@ -29,7 +29,6 @@ EditConversationChoiceForm::EditConversationChoiceForm(QWidget *parent,
     this->setFixedSize(this->geometry().size());
     initializeChoiceTable();
     connectUIActions();
-    initializeComboBoxTransitionType(); 
     if (selectedConversationNode.has_value()) {
         auto transition = selectedConversationNode->getTransition();
         ui.lineEditId->setText(selectedConversationNode->getId().c_str());
@@ -42,11 +41,6 @@ EditConversationChoiceForm::EditConversationChoiceForm(QWidget *parent,
                 QString::fromStdString(option.text));
             ui.tableWidgetChoices->item(row, 1)->setText(
                 QString::fromStdString(option.nextNodeId));
-        }
-
-        ui.comboBoxTransitionType->setCurrentIndex(static_cast<int>(transition.getType()));
-        if (transition.getType() == ConversationNodeTransitionType::SpecificNode) {
-            ui.lineEditNextNodeId->setText(transition.getNextNodeId().c_str());
         }
     }
 }
@@ -64,10 +58,6 @@ void EditConversationChoiceForm::connectUIActions() {
     connect(ui.pushButtonOK, &QPushButton::clicked, this, &EditConversationChoiceForm::onPushButtonOKClick);
     connect(ui.tableWidgetChoices, &QTableWidget::itemChanged,
             this, &EditConversationChoiceForm::onChoiceItemChanged);
-    connect(ui.comboBoxTransitionType,
-        qOverload<int>(&QComboBox::currentIndexChanged),
-        this,
-        &EditConversationChoiceForm::onComboBoxTransitionTypeIndexChanged);
 }
 
 void EditConversationChoiceForm::initializeChoiceTable() {
@@ -85,13 +75,6 @@ void EditConversationChoiceForm::appendEmptyChoiceRow() {
     ui.tableWidgetChoices->insertRow(row);
     ui.tableWidgetChoices->setItem(row, 0, new QTableWidgetItem());
     ui.tableWidgetChoices->setItem(row, 1, new QTableWidgetItem());
-}
-
-void EditConversationChoiceForm::initializeComboBoxTransitionType()
-{
-    ui.comboBoxTransitionType->insertItem(0, "Next In Order");
-    ui.comboBoxTransitionType->insertItem(1, "Stop");
-    ui.comboBoxTransitionType->insertItem(2, "Specific Node");
 }
 
 void EditConversationChoiceForm::onPushButtonCancelClick() {
@@ -139,31 +122,13 @@ void EditConversationChoiceForm::onPushButtonOKClick() {
         return;
     }
 
-    auto transitionType = static_cast<ConversationNodeTransitionType>(ui.comboBoxTransitionType->currentIndex());
-    std::string nextNodeId = ui.lineEditNextNodeId->text().trimmed().toStdString();
-    if (transitionType == ConversationNodeTransitionType::SpecificNode && nextNodeId.empty()) {
-        ErrorMessage::show("The next node id is required.");
-        return;
-    }
-    ConversationNodeTransition transition;
-    switch (transitionType) {
-        case ConversationNodeTransitionType::NextInOrder:
-            transition = ConversationNodeTransition::nextInOrder();
-            break;
-        case ConversationNodeTransitionType::Stop:
-            transition = ConversationNodeTransition::stop();
-            break;
-        case ConversationNodeTransitionType::SpecificNode:
-            transition = ConversationNodeTransition::toNode(nextNodeId);
-            break;
-    }
     m_result = ConversationNode(
         id,
         ConversationChoice {
             .prompt = prompt,
             .options = std::move(options)
         },
-        transition
+        ConversationNodeTransition::stop()
     );
     accept();
 }
@@ -251,9 +216,4 @@ bool EditConversationChoiceForm::eventFilter(QObject *watched, QEvent *event) {
     }
 
     return true;
-}
-
-void EditConversationChoiceForm::onComboBoxTransitionTypeIndexChanged() {
-    ui.labelNextNodeId->setVisible(ui.comboBoxTransitionType->currentIndex() == 2);
-    ui.lineEditNextNodeId->setVisible(ui.comboBoxTransitionType->currentIndex() == 2);
 }

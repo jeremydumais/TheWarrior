@@ -48,57 +48,20 @@
        </item>
       </layout>
      </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="labelPrompt">
+       <property name="text">
+        <string>Prompt :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="lineEditPrompt"/>
+     </item>
      <item row="2" column="0">
       <widget class="QLabel" name="labelOptions">
        <property name="text">
         <string>Options :</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
-       <item>
-        <widget class="QComboBox" name="comboBoxTransitionType">
-         <property name="minimumSize">
-          <size>
-           <width>120</width>
-           <height>0</height>
-          </size>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QLabel" name="labelNextNodeId">
-         <property name="text">
-          <string>Next Node Id :</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="lineEditNextNodeId"/>
-       </item>
-      </layout>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="labelTransition">
-       <property name="text">
-        <string>Transition :</string>
        </property>
       </widget>
      </item>
@@ -110,16 +73,6 @@
        <column/>
        <column/>
       </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="labelPrompt">
-       <property name="text">
-        <string>Prompt :</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="lineEditPrompt"/>
      </item>
     </layout>
    </item>
@@ -190,8 +143,6 @@
   <tabstop>lineEditId</tabstop>
   <tabstop>lineEditPrompt</tabstop>
   <tabstop>tableWidgetChoices</tabstop>
-  <tabstop>comboBoxTransitionType</tabstop>
-  <tabstop>lineEditNextNodeId</tabstop>
   <tabstop>pushButtonOK</tabstop>
   <tabstop>pushButtonCancel</tabstop>
  </tabstops>
