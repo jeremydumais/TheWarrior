@@ -19,6 +19,7 @@ void MapTileDTOComparer(MapTileDTO val1, MapTileDTO val2) {
     ASSERT_EQ(val1.objectTextureName, val2.objectTextureName);
     ASSERT_EQ(val1.objectTextureIndex, val2.objectTextureIndex);
     ASSERT_EQ(val1.canSteppedOn, val2.canSteppedOn);
+    ASSERT_EQ(val1.allowsInteractionThrough, val2.allowsInteractionThrough);
     ASSERT_EQ(val1.objectAbovePlayer, val2.objectAbovePlayer);
     ASSERT_EQ(val1.isWallToClimb, val2.isWallToClimb);
     ASSERT_EQ(val1.monsterZoneIndex, val2.monsterZoneIndex);
@@ -57,6 +58,7 @@ TEST(MapTileDTOUtils_FromMapTile, WithFilledTile_ReturnFilledDTO) {
     tile.setObjectTextureName("Obj1");
     tile.setObjectTextureIndex(2);
     tile.setCanPlayerSteppedOn(true);
+    tile.setAllowsInteractionThrough(true);
     tile.setObjectAbovePlayer(true);
     tile.setIsWallToClimb(true);
     tile.setMonsterZoneIndex(3);
@@ -68,7 +70,7 @@ TEST(MapTileDTOUtils_FromMapTile, WithFilledTile_ReturnFilledDTO) {
     tile.addTrigger(trigger6);
     tile.addTrigger(trigger7);
     MapTileDTO expected {
-        "Tex1", 1, "Obj1", 2, true, true, true, 3, {
+        "Tex1", 1, "Obj1", 2, true, true, true, true, 3, {
             MapTileTriggerDTO { "None", "None", "None", {}},
             MapTileTriggerDTO { "SteppedOn", "None", "None", {}},
             MapTileTriggerDTO { "MoveUpPressed", "None", "None", {}},
@@ -87,7 +89,7 @@ TEST(MapTileDTOUtils_ToMapTile, WithEmptyDTO_ReturnEmptyTile) {
 
 TEST(MapTileDTOUtils_ToMapTile, WithFilledDTO_ReturnFilledTile) {
     MapTileDTO dto {
-        "Tex1", 1, "Obj1", 2, true, true, true, 3, {
+        "Tex1", 1, "Obj1", 2, true, true, true, true, 3, {
             MapTileTriggerDTO { "None", "MustBeFacing", "DenyMove", {{"Test", "Test1"}}},
             MapTileTriggerDTO { "SteppedOn", "MustHaveItem", "ChangeMap", {}},
             MapTileTriggerDTO { "MoveUpPressed", "None", "OpenChest", {{"Test", "Test1"}, {"Test2", "Test3"}}},
@@ -103,6 +105,7 @@ TEST(MapTileDTOUtils_ToMapTile, WithFilledDTO_ReturnFilledTile) {
     expected.setObjectTextureName("Obj1");
     expected.setObjectTextureIndex(2);
     expected.setCanPlayerSteppedOn(true);
+    expected.setAllowsInteractionThrough(true);
     expected.setObjectAbovePlayer(true);
     expected.setIsWallToClimb(true);
     expected.setMonsterZoneIndex(3);
@@ -120,6 +123,7 @@ TEST(MapTileDTOUtils_ToMapTile, WithFilledDTO_ReturnFilledTile) {
                 MapTileTriggerCondition::None, MapTileTriggerAction::None, {}));
     expected.addTrigger(MapTileTrigger(MapTileTriggerEvent::ActionButtonPressed,
                 MapTileTriggerCondition::None, MapTileTriggerAction::None, {}));
-    auto t =  MapTileDTOUtils::toMapTile(dto);
-    ASSERT_EQ(expected, MapTileDTOUtils::toMapTile(dto));
+    const auto actual = MapTileDTOUtils::toMapTile(dto);
+    ASSERT_EQ(expected, actual);
+    ASSERT_TRUE(actual.getAllowsInteractionThrough());
 }

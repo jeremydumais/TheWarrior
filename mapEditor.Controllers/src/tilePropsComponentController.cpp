@@ -114,6 +114,13 @@ void TilePropsComponentController::setTilesCanSteppedOn(bool value) {
     });
 }
 
+void TilePropsComponentController::setTilesAllowsInteractionThrough(bool value) {
+    auto tiles = m_glComponentController->getCurrentMapTiles();
+    std::for_each(tiles.begin(), tiles.end(), [&value](MapTile *tile) {
+        tile->setAllowsInteractionThrough(value);
+    });
+}
+
 void TilePropsComponentController::setTilesIsWallToClimb(bool value) {
     auto tiles = m_glComponentController->getCurrentMapTiles();
     std::for_each(tiles.begin(), tiles.end(), [&value](MapTile *tile) {

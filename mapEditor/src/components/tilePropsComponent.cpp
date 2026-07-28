@@ -73,6 +73,10 @@ void TilePropsComponent::connectUIActions() {
             &QCheckBox::stateChanged,
             this,
             &TilePropsComponent::onCheckBoxTileCanSteppedOnChanged);
+    connect(ui.checkBoxAllowsInteractionThrough,
+            &QCheckBox::stateChanged,
+            this,
+            &TilePropsComponent::onCheckBoxAllowsInteractionThroughChanged);
     connect(ui.checkBoxObjectAbovePlayer,
             &QCheckBox::stateChanged,
             this,
@@ -119,6 +123,7 @@ void TilePropsComponent::reset() {
     ui.lineEditObjTexName->clear();
     ui.spinBoxObjTexIndex->clear();
     ui.checkBoxTileCanSteppedOn->setChecked(false);
+    ui.checkBoxAllowsInteractionThrough->setChecked(false);
     ui.checkBoxObjectAbovePlayer->setChecked(false);
     ui.checkBoxIsWallToClimb->setChecked(false);
     ui.comboBoxMonsterZoneApplied->setCurrentIndex(-1);
@@ -229,6 +234,9 @@ void TilePropsComponent::onTileSelected(std::vector<MapTileDTO> tiles) {
     updateUIField(tiles, ui.checkBoxTileCanSteppedOn, [](const MapTileDTO &tile) { return tile.canSteppedOn; },
     [](QCheckBox *field, bool value, bool empty) { empty ? field->setChecked(false) : field->setChecked(value); });
 
+    updateUIField(tiles, ui.checkBoxAllowsInteractionThrough, [](const MapTileDTO &tile) { return tile.allowsInteractionThrough; },
+    [](QCheckBox *field, bool value, bool empty) { empty ? field->setChecked(false) : field->setChecked(value); });
+
     updateUIField(tiles, ui.checkBoxIsWallToClimb, [](const MapTileDTO &tile) { return tile.isWallToClimb; },
     [](QCheckBox *field, bool value, bool empty) { empty ? field->setChecked(false) : field->setChecked(value); });
 
@@ -248,6 +256,7 @@ void TilePropsComponent::onTileUnselected() {
     ui.lineEditObjTexName->clear();
     ui.spinBoxObjTexIndex->clear();
     ui.checkBoxTileCanSteppedOn->setChecked(false);
+    ui.checkBoxAllowsInteractionThrough->setChecked(false);
     ui.checkBoxObjectAbovePlayer->setChecked(false);
     ui.checkBoxIsWallToClimb->setChecked(false);
     ui.comboBoxMonsterZoneApplied->setCurrentIndex(-1);
@@ -370,6 +379,14 @@ void TilePropsComponent::onCheckBoxTileCanSteppedOnChanged(int state) {
         }
         m_glComponent->pushCurrentStateToHistory();
         m_controller.setTilesCanSteppedOn(state == Qt::Checked);
+        m_glComponent->updateGL();
+    }
+}
+
+void TilePropsComponent::onCheckBoxAllowsInteractionThroughChanged(int state) {
+    if (!m_disableFieldsChangedEvent) {
+        m_glComponent->pushCurrentStateToHistory();
+        m_controller.setTilesAllowsInteractionThrough(state == Qt::Checked);
         m_glComponent->updateGL();
     }
 }

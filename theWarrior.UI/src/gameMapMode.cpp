@@ -374,17 +374,44 @@ void GameMapMode::actionButtonPressed() {
 }
 
 bool GameMapMode::stopFacingNPCWandering() {
-    const auto facingPosition = getPlayerFacingTilePosition();
-    if (facingPosition.x() < 0 || facingPosition.y() < 0) {
+    const auto isWithinMapBounds = [this](const Point<> &position) {
+        return position.x() >= 0 &&
+            position.y() >= 0 &&
+            static_cast<unsigned int>(position.x()) < m_map->getWidth() &&
+            static_cast<unsigned int>(position.y()) < m_map->getHeight();
+    };
+
+    auto interactionPosition = getPlayerFacingTilePosition();
+    if (!isWithinMapBounds(interactionPosition)) {
         return false;
     }
 
-    const Point<size_t> facingPositionConverted(static_cast<size_t>(facingPosition.x()),
-                                                static_cast<size_t>(facingPosition.y()));
     const auto worldState = m_controller.getWorldState();
-    const auto iter = std::ranges::find_if(m_glNPCs, [facingPositionConverted, worldState](const GLNPC &npc) {
-        return worldState->getNPCPosition(npc.getId()) == facingPositionConverted;
-    });
+    const auto findNPCAtPosition = [this, &worldState](const Point<> &position) {
+        const Point<size_t> convertedPosition(static_cast<size_t>(position.x()),
+                                              static_cast<size_t>(position.y()));
+        return std::ranges::find_if(m_glNPCs, [&worldState, convertedPosition](const GLNPC &npc) {
+            return worldState->getNPCPosition(npc.getId()) == convertedPosition;
+        });
+    };
+
+    auto iter = findNPCAtPosition(interactionPosition);
+    if (iter == m_glNPCs.end()) {
+        const auto &facingTile = m_map->getTileFromCoord(interactionPosition);
+        if (!facingTile.getAllowsInteractionThrough()) {
+            return false;
+        }
+
+        const auto playerPosition = m_controller.getPlayerPosition();
+        interactionPosition.setX(interactionPosition.x() + interactionPosition.x() - playerPosition.x());
+        interactionPosition.setY(interactionPosition.y() + interactionPosition.y() - playerPosition.y());
+        if (!isWithinMapBounds(interactionPosition)) {
+            return false;
+        }
+
+        iter = findNPCAtPosition(interactionPosition);
+    }
+
     if (iter == m_glNPCs.end()) {
         return false;
     }

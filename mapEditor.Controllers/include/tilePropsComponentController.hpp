@@ -26,6 +26,7 @@ class TilePropsComponentController {
     void setTilesObjectTextureIndex(int index);
     void setTilesObjectAbovePlayer(bool value);
     void setTilesCanSteppedOn(bool value);
+    void setTilesAllowsInteractionThrough(bool value);
     void setTilesIsWallToClimb(bool value);
     void setTilesMonsterZoneIndex(int index);
     bool addTilesTrigger(const MapTileTriggerDTO &triggerDTO);

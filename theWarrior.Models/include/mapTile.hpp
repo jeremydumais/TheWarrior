@@ -24,6 +24,7 @@ class MapTile {
     bool hasObjectTexture() const;
     bool isAssigned() const;
     bool canPlayerSteppedOn() const;
+    bool getAllowsInteractionThrough() const;
     bool getObjectAbovePlayer() const;
     bool getIsWallToClimb() const;
     int getMonsterZoneIndex() const;
@@ -35,6 +36,7 @@ class MapTile {
     void setObjectTextureName(const std::string &name);
     void setObjectTextureIndex(int index);
     void setCanPlayerSteppedOn(bool value);
+    void setAllowsInteractionThrough(bool value);
     void setObjectAbovePlayer(bool value);
     void setIsWallToClimb(bool value);
     void setMonsterZoneIndex(int index);
@@ -53,6 +55,7 @@ class MapTile {
     bool m_objectAbovePlayer;
     bool m_isWallToClimb;
     int m_monsterZoneIndex;
+    bool m_allowsInteractionThrough;
     std::vector<MapTileTrigger> m_triggers;
     // Serialization method
     template<class Archive>
@@ -76,9 +79,12 @@ class MapTile {
         if (version >= 7) {
             ar & m_monsterZoneIndex;
         }
+        if (version >= 8) {
+            ar & m_allowsInteractionThrough;
+        }
     }
 };
 
 }  // namespace thewarrior::models
 
-BOOST_CLASS_VERSION(thewarrior::models::MapTile, 7)
+BOOST_CLASS_VERSION(thewarrior::models::MapTile, 8)

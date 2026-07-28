@@ -50,6 +50,7 @@ Q_OBJECT
     void onSpinBoxObjTexIndexEditingFinished();
     void onCheckBoxObjectAbovePlayerChanged(int state);
     void onCheckBoxTileCanSteppedOnChanged(int state);
+    void onCheckBoxAllowsInteractionThroughChanged(int state);
     void onCheckBoxIsWallToClimbChanged(int state);
     void onComboBoxMonsterZoneCurrentIndexChanged(int index);
     boost::optional<mapeditor::controllers::MapTileTriggerDTO> getSelectedTrigger();
