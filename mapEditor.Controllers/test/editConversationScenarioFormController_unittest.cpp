@@ -65,6 +65,36 @@ TEST(EditConversationScenarioFormController_isEditMode,
     ASSERT_TRUE(controller.isEditMode());
 }
 
+TEST(EditConversationScenarioFormController_isScenarioIdAlreadyUsed,
+     WithUsedScenarioIdReturnTrueCaseInsensitively) {
+    const EditConversationScenarioFormController controller(
+        "",
+        std::nullopt,
+        {"intro", "ending"});
+
+    ASSERT_TRUE(controller.isScenarioIdAlreadyUsed("INTRO"));
+}
+
+TEST(EditConversationScenarioFormController_isScenarioIdAlreadyUsed,
+     WithUnusedScenarioIdReturnFalse) {
+    const EditConversationScenarioFormController controller(
+        "",
+        std::nullopt,
+        {"intro", "ending"});
+
+    ASSERT_FALSE(controller.isScenarioIdAlreadyUsed("battle"));
+}
+
+TEST(EditConversationScenarioFormController_isScenarioIdAlreadyUsed,
+     WithSelectedScenarioIdReturnFalseCaseInsensitively) {
+    const EditConversationScenarioFormController controller(
+        "",
+        createScenario(),
+        {"scenario", "ending"});
+
+    ASSERT_FALSE(controller.isScenarioIdAlreadyUsed("SCENARIO"));
+}
+
 TEST(EditConversationScenarioFormController_getAlreadyUsedNodeIds,
      WithoutSelectedScenarioReturnEmpty) {
     const EditConversationScenarioFormController controller(
@@ -123,4 +153,81 @@ TEST(EditConversationScenarioFormController_getNodeById,
         {});
 
     ASSERT_FALSE(controller.getNodeById("welcome").has_value());
+}
+
+TEST(EditConversationScenarioFormController_addConversationNode,
+     AddNodeToEndOfNodes) {
+    EditConversationScenarioFormController controller(
+        "",
+        createScenario({createDialogueNode("welcome")}),
+        {});
+
+    controller.addConversationNode(createDialogueNode("goodbye"));
+
+    ASSERT_EQ(2, controller.getNodes().size());
+    EXPECT_EQ("welcome", controller.getNodes()[0].getId());
+    EXPECT_EQ("goodbye", controller.getNodes()[1].getId());
+}
+
+TEST(EditConversationScenarioFormController_updateConversationNode,
+     WithMatchingNodeReplaceNodeAndReturnTrue) {
+    EditConversationScenarioFormController controller(
+        "",
+        createScenario({
+            createDialogueNode("welcome"),
+            createDialogueNode("goodbye")
+        }),
+        {});
+
+    ASSERT_TRUE(controller.updateConversationNode(
+        "welcome",
+        createDialogueNode("introduction")));
+
+    ASSERT_EQ(2, controller.getNodes().size());
+    EXPECT_EQ("introduction", controller.getNodes()[0].getId());
+    EXPECT_EQ("goodbye", controller.getNodes()[1].getId());
+}
+
+TEST(EditConversationScenarioFormController_updateConversationNode,
+     WithoutMatchingNodeReturnFalseAndLeaveNodesUnchanged) {
+    EditConversationScenarioFormController controller(
+        "",
+        createScenario({createDialogueNode("welcome")}),
+        {});
+
+    ASSERT_FALSE(controller.updateConversationNode(
+        "missing",
+        createDialogueNode("introduction")));
+
+    ASSERT_EQ(1, controller.getNodes().size());
+    EXPECT_EQ("welcome", controller.getNodes()[0].getId());
+}
+
+TEST(EditConversationScenarioFormController_removeConversationNode,
+     WithMatchingNodeRemoveNodeAndReturnTrue) {
+    EditConversationScenarioFormController controller(
+        "",
+        createScenario({
+            createDialogueNode("welcome"),
+            createDialogueNode("goodbye")
+        }),
+        {});
+
+    ASSERT_TRUE(controller.removeConversationNode("welcome"));
+
+    ASSERT_EQ(1, controller.getNodes().size());
+    EXPECT_EQ("goodbye", controller.getNodes()[0].getId());
+}
+
+TEST(EditConversationScenarioFormController_removeConversationNode,
+     WithoutMatchingNodeReturnFalseAndLeaveNodesUnchanged) {
+    EditConversationScenarioFormController controller(
+        "",
+        createScenario({createDialogueNode("welcome")}),
+        {});
+
+    ASSERT_FALSE(controller.removeConversationNode("missing"));
+
+    ASSERT_EQ(1, controller.getNodes().size());
+    EXPECT_EQ("welcome", controller.getNodes()[0].getId());
 }

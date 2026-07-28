@@ -116,13 +116,18 @@ using Reward = boost::variant<GoldReward, ItemReward>;
 
 struct RewardAction {
     Reward reward;
+    ConversationNodeTransition failureTransition =
+        ConversationNodeTransition::stop();
 
  private:
     friend class boost::serialization::access;
 
     template<class Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, const unsigned int version) {
         ar & reward;
+        if (version >= 1) {
+            ar & failureTransition;
+        }
     }
 };
 
@@ -143,14 +148,19 @@ struct ProgressStoryLineAction {
 struct RestRequestedAction {
     unsigned int goldCost = 0;
     bool restoreHealth = true;
+    ConversationNodeTransition failureTransition =
+        ConversationNodeTransition::stop();
 
  private:
     friend class boost::serialization::access;
 
     template<class Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, const unsigned int version) {
         ar & goldCost;
         ar & restoreHealth;
+        if (version >= 1) {
+            ar & failureTransition;
+        }
     }
 };
 
@@ -239,3 +249,5 @@ class ConversationScenario {
 }  // namespace thewarrior::models
 
 BOOST_CLASS_VERSION(thewarrior::models::ConversationNode, 1)
+BOOST_CLASS_VERSION(thewarrior::models::RewardAction, 1)
+BOOST_CLASS_VERSION(thewarrior::models::RestRequestedAction, 1)

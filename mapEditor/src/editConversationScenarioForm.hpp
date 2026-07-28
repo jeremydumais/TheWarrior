@@ -32,7 +32,6 @@ Q_OBJECT
    void refreshNodesTable();
    void onPushButtonCancelClick();
    void onPushButtonOKClick();
-   void onPushButtonAddNodeClick();
    void onPushButtonEditNodeClick();
    void onPushButtonDeleteNodeClick();
    void onTableWidgetNodesDoubleClicked(QTableWidgetItem *item);

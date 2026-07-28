@@ -184,8 +184,12 @@
  </widget>
  <tabstops>
   <tabstop>lineEditId</tabstop>
-  <tabstop>pushButtonCancel</tabstop>
+  <tabstop>tableWidgetNodes</tabstop>
+  <tabstop>pushButtonAddNode</tabstop>
+  <tabstop>pushButtonEditNode</tabstop>
+  <tabstop>pushButtonDeleteNode</tabstop>
   <tabstop>pushButtonOK</tabstop>
+  <tabstop>pushButtonCancel</tabstop>
  </tabstops>
  <resources>
   <include location="../res/global.qrc"/>

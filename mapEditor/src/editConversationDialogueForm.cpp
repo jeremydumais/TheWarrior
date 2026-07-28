@@ -46,6 +46,10 @@ bool EditConversationDialogueForm::isEditMode() const {
     return m_controller.isEditMode();
 }
 
+const ConversationNode &EditConversationDialogueForm::getResult() const {
+    return m_result;
+}
+
 void EditConversationDialogueForm::connectUIActions() {
     connect(ui.pushButtonCancel, &QPushButton::clicked, this, &EditConversationDialogueForm::onPushButtonCancelClick);
     connect(ui.pushButtonOK, &QPushButton::clicked, this, &EditConversationDialogueForm::onPushButtonOKClick);

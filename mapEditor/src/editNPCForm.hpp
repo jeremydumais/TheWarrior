@@ -22,7 +22,7 @@ Q_OBJECT
     EditNPCForm(QWidget *parent,
                 const std::string &resourcesPath,
                 const std::vector<thewarrior::models::Texture> &textures,
-                const std::optional<mapeditor::controllers::NPCDTO> selectedNPC,
+                const std::optional<mapeditor::controllers::NPCDTO> &selectedNPC,
                 const std::vector<std::string> &alreadyUsedNPCIds);
     bool isEditMode() const;
     bool isSpawnPositionPickerModeEnabled() const;

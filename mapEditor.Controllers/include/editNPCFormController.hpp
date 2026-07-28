@@ -33,9 +33,14 @@ class EditNPCFormController {
     bool isNPCIdAlreadyUsed(const std::string &id) const;
     static std::vector<std::string> convertPlainTextToLines(const QString &text);
     bool isDTOValid(mapeditor::controllers::NPCDTO &dto);
-    std::vector<ConversationScenarioSummaryDTO> getConversationScenarios() const;
+    const std::vector<thewarrior::models::ConversationScenario> &getConversationScenarios() const;
+    std::vector<ConversationScenarioSummaryDTO> getConversationScenariosDTO() const;
     std::vector<thewarrior::models::ConversationNodeId> getAlreadyUsedScenarioIds() const;
     std::optional<thewarrior::models::ConversationScenario> getConversationScenarioById(const thewarrior::models::ConversationScenarioId &scenarioId) const;
+    void addConversationScenario(const thewarrior::models::ConversationScenario &scenario);
+    bool updateConversationScenario(const thewarrior::models::ConversationScenarioId &oldConversationScenarioId,
+                                    const thewarrior::models::ConversationScenario &scenario);
+    bool removeConversationScenario(const thewarrior::models::ConversationScenarioId &oldConversationScenarioId);
 
  private:
     std::string m_resourcesPath;
@@ -44,6 +49,7 @@ class EditNPCFormController {
     commoneditor::ui::ITexturePixmapProvider &m_texturePixmapProvider;
     const std::optional<mapeditor::controllers::NPCDTO> m_selectedNPC;
     const std::vector<std::string> m_alreadyUsedNPCIds;
+    std::vector<thewarrior::models::ConversationScenario> m_conversationScenarios;
 };
 
 }  // namespace mapeditor::controllers

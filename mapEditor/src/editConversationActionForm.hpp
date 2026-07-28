@@ -29,6 +29,7 @@ Q_OBJECT
    void onPushButtonCancelClick();
    void onPushButtonOKClick();
    void onComboBoxTransitionTypeIndexChanged();
+   void onComboBoxFailureTransitionTypeIndexChanged();
    void onActionTypeChanged();
 };
 

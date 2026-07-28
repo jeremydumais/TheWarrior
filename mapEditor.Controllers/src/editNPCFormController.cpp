@@ -35,7 +35,12 @@ EditNPCFormController::EditNPCFormController(const std::string &resourcesPath,
 m_textures(textures),
 m_texturePixmapProvider(pixmapProvider),
 m_selectedNPC(selectedNPC),
-m_alreadyUsedNPCIds(alreadyUsedNPCIds) {}
+m_alreadyUsedNPCIds(alreadyUsedNPCIds) {
+    if (m_selectedNPC.has_value()) {
+        m_conversationScenarios = m_selectedNPC->conversationScenarios;
+    }
+
+}
 
 const std::string &EditNPCFormController::getResourcesPath() const {
     return m_resourcesPath;
@@ -56,12 +61,12 @@ const std::vector<thewarrior::models::Texture> &EditNPCFormController::getTextur
 EditNPCFormController::NPCPixmapResult EditNPCFormController::getNPCPixmap(const std::string &textureName,
                                                                            const int baseTextureIndex) {
     // Get requested texture
-    const auto iter = std::find_if(m_textures.begin(), m_textures.end(), [&textureName](const Texture &texture) {
+    const auto iter = std::ranges::find_if(m_textures, [&textureName](const Texture &texture) {
         return texture.getName() == textureName;
     });
     if (iter == m_textures.end()) {
         m_lastError = fmt::format("The texture {0} could not be found.", textureName);
-        return { false, nullptr};
+        return { .success = false, .result = nullptr };
     }
     // Load the texture file
     auto completeTexturePath = std::filesystem::path(m_resourcesPath) / "textures" / iter->getFilename();
@@ -70,14 +75,14 @@ EditNPCFormController::NPCPixmapResult EditNPCFormController::getNPCPixmap(const
     std::shared_ptr<QPixmap> pixmap = m_texturePixmapProvider.loadPixmap(completeTexturePath);
     if (pixmap) {
         return {
-            true,
-            std::make_shared<QPixmap>(commoneditor::ui::TextureUtils::getTextureTileImageFromTexture(pixmap.get(), frontFacingIndex, *iter))
+            .success = true,
+            .result = std::make_shared<QPixmap>(commoneditor::ui::TextureUtils::getTextureTileImageFromTexture(pixmap.get(), frontFacingIndex, *iter))
         };
 
-    } else {
-        m_lastError = fmt::format("Unable to load the texture {0}", textureName);
-        return { false, nullptr };
-    }
+    } 
+    
+    m_lastError = fmt::format("Unable to load the texture {0}", textureName);
+    return { .success = false, .result = nullptr };
 }
 
 const std::optional<mapeditor::controllers::NPCDTO> &EditNPCFormController::getSelectedNPC() const {
@@ -87,11 +92,10 @@ const std::optional<mapeditor::controllers::NPCDTO> &EditNPCFormController::getS
 
 bool EditNPCFormController::isNPCIdAlreadyUsed(const std::string &id) const {
     auto sanitizedId = boost::to_lower_copy(boost::trim_copy(id));
-    bool idFound = std::find_if(m_alreadyUsedNPCIds.begin(),
-                                m_alreadyUsedNPCIds.end(),
-                                [&sanitizedId](const std::string &npcId) {
-                                    return boost::to_lower_copy(boost::trim_copy(npcId)) == sanitizedId;
-                                }) != m_alreadyUsedNPCIds.end();
+    bool idFound = std::ranges::find_if(m_alreadyUsedNPCIds,
+                                        [&sanitizedId](const std::string &npcId) {
+                                            return boost::to_lower_copy(boost::trim_copy(npcId)) == sanitizedId;
+                                        }) != m_alreadyUsedNPCIds.end();
     return (!m_selectedNPC.has_value() && idFound) ||
         (m_selectedNPC.has_value() && (boost::to_lower_copy(boost::trim_copy(m_selectedNPC->id)) != sanitizedId && idFound));
 }
@@ -115,17 +119,19 @@ bool EditNPCFormController::isDTOValid(NPCDTO &dto) {
     return true;
 }
 
-std::vector<ConversationScenarioSummaryDTO> EditNPCFormController::getConversationScenarios() const {
+const std::vector<ConversationScenario> &EditNPCFormController::getConversationScenarios() const {
+    return m_conversationScenarios;
+}
+
+std::vector<ConversationScenarioSummaryDTO> EditNPCFormController::getConversationScenariosDTO() const {
     std::vector<ConversationScenarioSummaryDTO> retval = {};
-    if (m_selectedNPC.has_value()) {
-        std::for_each(m_selectedNPC->conversationScenarios.begin(), m_selectedNPC->conversationScenarios.end(),
-                      [&retval](const auto &scenario) {
-            retval.push_back({
-                .id = scenario.getId(),
-                .nodeCount = scenario.getNodes().size()
-            });
-        });
-    }
+    std::ranges::for_each(m_conversationScenarios,
+                          [&retval](const auto &scenario) {
+                          retval.push_back({
+                            .id = scenario.getId(),
+                            .nodeCount = scenario.getNodes().size()
+                          });
+    });
     return retval;
 }
 
@@ -144,17 +150,49 @@ std::vector<ConversationScenarioId> EditNPCFormController::getAlreadyUsedScenari
 
 std::optional<ConversationScenario> EditNPCFormController::getConversationScenarioById(const ConversationScenarioId &scenarioId) const {
     std::optional<ConversationScenario> selectedScenario = std::nullopt;
-    if (m_selectedNPC) {
-        const auto &scenarios = m_selectedNPC->conversationScenarios;
-        const auto scenario = std::ranges::find_if(scenarios,
-                                                [&scenarioId](const ConversationScenario &candidate) {
-                                                    return candidate.getId() == scenarioId;
-                                                });
-        if (scenario != scenarios.end()) {
-            selectedScenario = *scenario;
-        }
+    const auto &scenarios = m_conversationScenarios;
+    const auto scenario = std::ranges::find_if(scenarios,
+                                            [&scenarioId](const ConversationScenario &candidate) {
+                                                return candidate.getId() == scenarioId;
+                                            });
+    if (scenario != scenarios.end()) {
+        selectedScenario = *scenario;
     }
     return selectedScenario;
+}
+
+void EditNPCFormController::addConversationScenario(const ConversationScenario &scenario) {
+    m_conversationScenarios.push_back(scenario);
+}
+
+bool EditNPCFormController::updateConversationScenario(const ConversationScenarioId &oldConversationScenarioId,
+                                                       const ConversationScenario &scenario) {
+    const auto oldScenario = std::ranges::find_if(m_conversationScenarios,
+                                                  [&oldConversationScenarioId](const ConversationScenario &candidate) {
+                                                    return candidate.getId() == oldConversationScenarioId;
+                                                  });
+    if (oldScenario == m_conversationScenarios.end()) {
+        m_lastError = fmt::format("Unable to find the scenario {0}", oldConversationScenarioId);
+        return false;
+    }
+
+    *oldScenario = scenario;
+    return true;
+}
+
+bool EditNPCFormController::removeConversationScenario(const ConversationScenarioId &oldConversationScenarioId) {
+    const auto oldScenario = std::ranges::find_if(m_conversationScenarios,
+                                                [&oldConversationScenarioId](const ConversationScenario &candidate)
+                                                {
+                                                    return candidate.getId() == oldConversationScenarioId;
+                                                });
+    if (oldScenario == m_conversationScenarios.end()) {
+        m_lastError = fmt::format("Unable to find the scenario {0}", oldConversationScenarioId);
+        return false;
+    }
+
+    m_conversationScenarios.erase(oldScenario);
+    return true;
 }
 
 }  // namespace mapeditor::controllers

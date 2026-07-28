@@ -39,6 +39,13 @@ EditConversationActionForm::EditConversationActionForm(QWidget *parent,
             if (restRequestedAction != nullptr) {
                 ui.radioButtonRestRequested->setChecked(true);
                 ui.spinBoxRestRequestedGoldCost->setValue(static_cast<int>(restRequestedAction->goldCost));
+                const auto &failureTransition = restRequestedAction->failureTransition;
+                ui.comboBoxFailureTransitionType->setCurrentIndex(
+                    static_cast<int>(failureTransition.getType()));
+                if (failureTransition.getType() == ConversationNodeTransitionType::SpecificNode) {
+                    ui.lineEditFailureNextNodeId->setText(
+                        failureTransition.getNextNodeId().c_str());
+                }
             }
         }
 
@@ -68,6 +75,10 @@ void EditConversationActionForm::connectUIActions() {
         qOverload<int>(&QComboBox::currentIndexChanged),
         this,
         &EditConversationActionForm::onComboBoxTransitionTypeIndexChanged);
+    connect(ui.comboBoxFailureTransitionType,
+        qOverload<int>(&QComboBox::currentIndexChanged),
+        this,
+        &EditConversationActionForm::onComboBoxFailureTransitionTypeIndexChanged);
 }
 
 void EditConversationActionForm::initializeComboBoxTransitionType()
@@ -75,6 +86,11 @@ void EditConversationActionForm::initializeComboBoxTransitionType()
     ui.comboBoxTransitionType->insertItem(0, "Next In Order");
     ui.comboBoxTransitionType->insertItem(1, "Stop");
     ui.comboBoxTransitionType->insertItem(2, "Specific Node");
+    ui.comboBoxFailureTransitionType->insertItem(0, "Next In Order");
+    ui.comboBoxFailureTransitionType->insertItem(1, "Stop");
+    ui.comboBoxFailureTransitionType->insertItem(2, "Specific Node");
+    ui.comboBoxFailureTransitionType->setCurrentIndex(
+        static_cast<int>(ConversationNodeTransitionType::Stop));
 }
 
 void EditConversationActionForm::onPushButtonCancelClick() {
@@ -112,22 +128,37 @@ void EditConversationActionForm::onPushButtonOKClick() {
         ErrorMessage::show("The next node id is required.");
         return;
     }
-    ConversationNodeTransition transition;
-    switch (transitionType) {
-        case ConversationNodeTransitionType::NextInOrder:
-            transition = ConversationNodeTransition::nextInOrder();
-            break;
-        case ConversationNodeTransitionType::Stop:
-            transition = ConversationNodeTransition::stop();
-            break;
-        case ConversationNodeTransitionType::SpecificNode:
-            transition = ConversationNodeTransition::toNode(nextNodeId);
-            break;
+    const auto failureTransitionType = static_cast<ConversationNodeTransitionType>(
+        ui.comboBoxFailureTransitionType->currentIndex());
+    const auto failureNextNodeId =
+        ui.lineEditFailureNextNodeId->text().trimmed().toStdString();
+    if (failureTransitionType == ConversationNodeTransitionType::SpecificNode &&
+        failureNextNodeId.empty()) {
+        ErrorMessage::show("The failure next node id is required.");
+        return;
     }
+
+    const auto createTransition = [](ConversationNodeTransitionType type,
+                                     const ConversationNodeId &nodeId) {
+        switch (type) {
+            case ConversationNodeTransitionType::NextInOrder:
+                return ConversationNodeTransition::nextInOrder();
+            case ConversationNodeTransitionType::Stop:
+                return ConversationNodeTransition::stop();
+            case ConversationNodeTransitionType::SpecificNode:
+                return ConversationNodeTransition::toNode(nodeId);
+        }
+        return ConversationNodeTransition::stop();
+    };
+    const auto transition = createTransition(transitionType, nextNodeId);
+    const auto failureTransition =
+        createTransition(failureTransitionType, failureNextNodeId);
+
     m_result = ConversationNode(
         id,
         RestRequestedAction {
-            .goldCost = static_cast<unsigned int>(ui.spinBoxRestRequestedGoldCost->value())
+            .goldCost = static_cast<unsigned int>(ui.spinBoxRestRequestedGoldCost->value()),
+            .failureTransition = failureTransition
         },
         transition
     );
@@ -139,9 +170,29 @@ void EditConversationActionForm::onComboBoxTransitionTypeIndexChanged() {
     ui.lineEditNextNodeId->setVisible(ui.comboBoxTransitionType->currentIndex() == 2);
 }
 
+void EditConversationActionForm::onComboBoxFailureTransitionTypeIndexChanged() {
+    const bool isSpecificNode =
+        ui.comboBoxFailureTransitionType->currentIndex() ==
+        static_cast<int>(ConversationNodeTransitionType::SpecificNode);
+    ui.labelFailureNextNodeId->setVisible(isSpecificNode);
+    ui.lineEditFailureNextNodeId->setVisible(isSpecificNode);
+}
+
 void EditConversationActionForm::onActionTypeChanged() {
-    ui.labelRestRequestedConfig->setVisible(ui.radioButtonRestRequested->isChecked());
-    ui.labelRestRequestedConfig_2->setVisible(ui.radioButtonRestRequested->isChecked());
-    ui.labelRestRequestedGoldCost->setVisible(ui.radioButtonRestRequested->isChecked());
-    ui.spinBoxRestRequestedGoldCost->setVisible(ui.radioButtonRestRequested->isChecked());
+    const bool restRequestedMode = ui.radioButtonRestRequested->isChecked();
+    const bool fallibleActionMode = restRequestedMode || ui.radioButtonReward->isChecked();
+    ui.labelRestRequestedConfig->setVisible(restRequestedMode);
+    ui.labelRestRequestedConfig_2->setVisible(restRequestedMode);
+    ui.labelRestRequestedGoldCost->setVisible(restRequestedMode);
+    ui.spinBoxRestRequestedGoldCost->setVisible(restRequestedMode);
+    ui.labelFailureTransition->setVisible(fallibleActionMode);
+    ui.comboBoxFailureTransitionType->setVisible(fallibleActionMode);
+    ui.labelFailureNextNodeId->setVisible(
+        fallibleActionMode &&
+        ui.comboBoxFailureTransitionType->currentIndex() ==
+            static_cast<int>(ConversationNodeTransitionType::SpecificNode));
+    ui.lineEditFailureNextNodeId->setVisible(
+        fallibleActionMode &&
+        ui.comboBoxFailureTransitionType->currentIndex() ==
+            static_cast<int>(ConversationNodeTransitionType::SpecificNode));
 }

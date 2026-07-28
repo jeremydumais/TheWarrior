@@ -147,3 +147,94 @@ TEST(EditNPCFormController_getConversationScenarioById,
     ASSERT_FALSE(
         controller.getConversationScenarioById("greeting").has_value());
 }
+
+TEST(EditNPCFormController_addConversationScenario,
+     AddScenarioToController) {
+    FakeTexturePixmapProvider pixmapProvider;
+    EditNPCFormController controller(
+        "",
+        {},
+        pixmapProvider,
+        std::nullopt,
+        {});
+
+    controller.addConversationScenario(
+        ConversationScenario("greeting", "", {}));
+
+    ASSERT_TRUE(controller.removeConversationScenario("greeting"));
+}
+
+TEST(EditNPCFormController_updateConversationScenario,
+     WithMatchingScenarioReplaceScenarioAndReturnTrue) {
+    FakeTexturePixmapProvider pixmapProvider;
+    NPCDTO npc {
+        .id = "NPC001",
+        .conversationScenarios = {
+            ConversationScenario("greeting", "", {}),
+            ConversationScenario("farewell", "", {})
+        }
+    };
+    EditNPCFormController controller(
+        "",
+        {},
+        pixmapProvider,
+        npc,
+        {});
+
+    ASSERT_TRUE(controller.updateConversationScenario(
+        "greeting",
+        ConversationScenario("introduction", "", {})));
+    EXPECT_FALSE(controller.removeConversationScenario("greeting"));
+    EXPECT_TRUE(controller.removeConversationScenario("introduction"));
+    EXPECT_TRUE(controller.removeConversationScenario("farewell"));
+}
+
+TEST(EditNPCFormController_updateConversationScenario,
+     WithoutMatchingScenarioReturnFalse) {
+    FakeTexturePixmapProvider pixmapProvider;
+    EditNPCFormController controller(
+        "",
+        {},
+        pixmapProvider,
+        std::nullopt,
+        {});
+
+    ASSERT_FALSE(controller.updateConversationScenario(
+        "missing",
+        ConversationScenario("introduction", "", {})));
+}
+
+TEST(EditNPCFormController_removeConversationScenario,
+     WithMatchingScenarioRemoveScenarioAndReturnTrue) {
+    FakeTexturePixmapProvider pixmapProvider;
+    NPCDTO npc {
+        .id = "NPC001",
+        .conversationScenarios = {
+            ConversationScenario("greeting", "", {}),
+            ConversationScenario("farewell", "", {})
+        }
+    };
+    EditNPCFormController controller(
+        "",
+        {},
+        pixmapProvider,
+        npc,
+        {});
+
+    ASSERT_TRUE(controller.removeConversationScenario("greeting"));
+    EXPECT_FALSE(controller.removeConversationScenario("greeting"));
+    EXPECT_TRUE(controller.removeConversationScenario("farewell"));
+}
+
+TEST(EditNPCFormController_removeConversationScenario,
+     WithoutMatchingScenarioReturnFalse) {
+    FakeTexturePixmapProvider pixmapProvider;
+    EditNPCFormController controller(
+        "",
+        {},
+        pixmapProvider,
+        std::nullopt,
+        {});
+
+    ASSERT_FALSE(controller.removeConversationScenario("missing"));
+}

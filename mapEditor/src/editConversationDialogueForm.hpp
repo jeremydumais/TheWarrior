@@ -10,18 +10,17 @@
 #include "conversationScenario.hpp"
 #include "editConversationDialogueFormController.hpp"
 
-class EditConversationDialogueForm : public QDialog
-{
-   Q_OBJECT
+class EditConversationDialogueForm : public QDialog {
+Q_OBJECT
 
-public:
+ public:
    EditConversationDialogueForm(QWidget *parent,
                                 const std::optional<thewarrior::models::ConversationNode> &selectedConversationNode,
                                 const std::vector<thewarrior::models::ConversationNodeId> &alreadyUsedNodeIds);
    bool isEditMode() const;
    const thewarrior::models::ConversationNode &getResult() const;
 
-private:
+ private:
    Ui::editConversationDialogueFormClass ui;
    mapeditor::controllers::EditConversationDialogueFormController m_controller;
    thewarrior::models::ConversationNode m_result;
@@ -34,4 +33,4 @@ private:
    static std::vector<std::string> convertPlainTextToLines(const QString &text);
 };
 
-#endif // MAPEDITOR_SRC_EDITCONVERSATIONDIALOGUEFORM_HPP_
+#endif  // MAPEDITOR_SRC_EDITCONVERSATIONDIALOGUEFORM_HPP_

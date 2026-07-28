@@ -14,9 +14,14 @@ class EditConversationScenarioFormController {
    const std::string &getResourcesPath() const;
    const std::string &getLastError() const;
    bool isEditMode() const;
+   bool isScenarioIdAlreadyUsed(const thewarrior::models::ConversationScenarioId &scenarioId) const;
    const std::vector<thewarrior::models::ConversationNode> &getNodes() const;
    std::vector<thewarrior::models::ConversationNodeId> getAlreadyUsedNodeIds() const;
    std::optional<thewarrior::models::ConversationNode> getNodeById(const thewarrior::models::ConversationNodeId &nodeId) const;
+   void addConversationNode(const thewarrior::models::ConversationNode &node);
+   bool updateConversationNode(const thewarrior::models::ConversationNodeId &oldConversationNodeId,
+                               const thewarrior::models::ConversationNode &node);
+   bool removeConversationNode(const thewarrior::models::ConversationNodeId &oldConversationNodeId);
 
  private:
    std::string m_resourcesPath;
