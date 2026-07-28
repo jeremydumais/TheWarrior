@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <memory>
 #include <optional>
+#include <ranges>
 #include <string>
 #include <vector>
 #include <boost/algorithm/string/case_conv.hpp>
@@ -17,6 +18,8 @@
 #include "texture.hpp"
 #include "textureUtils.hpp"
 
+using thewarrior::models::ConversationScenario;
+using thewarrior::models::ConversationScenarioId;
 using thewarrior::models::Texture;
 using commoneditor::ui::ITexturePixmapProvider;
 using mapeditor::controllers::NPCDTO;
@@ -126,5 +129,32 @@ std::vector<ConversationScenarioSummaryDTO> EditNPCFormController::getConversati
     return retval;
 }
 
+std::vector<ConversationScenarioId> EditNPCFormController::getAlreadyUsedScenarioIds() const {
+    std::vector<ConversationScenarioId> alreadyUsedScenarioIds = {};
+    if (m_selectedNPC.has_value()) {
+        std::transform(m_selectedNPC->conversationScenarios.begin(),
+                       m_selectedNPC->conversationScenarios.end(),
+                       back_inserter(alreadyUsedScenarioIds),
+                       [](ConversationScenario const &x) { 
+                           return x.getId(); 
+                       });
+    }
+    return alreadyUsedScenarioIds;
+}
+
+std::optional<ConversationScenario> EditNPCFormController::getConversationScenarioById(const ConversationScenarioId &scenarioId) const {
+    std::optional<ConversationScenario> selectedScenario = std::nullopt;
+    if (m_selectedNPC) {
+        const auto &scenarios = m_selectedNPC->conversationScenarios;
+        const auto scenario = std::ranges::find_if(scenarios,
+                                                [&scenarioId](const ConversationScenario &candidate) {
+                                                    return candidate.getId() == scenarioId;
+                                                });
+        if (scenario != scenarios.end()) {
+            selectedScenario = *scenario;
+        }
+    }
+    return selectedScenario;
+}
 
 }  // namespace mapeditor::controllers

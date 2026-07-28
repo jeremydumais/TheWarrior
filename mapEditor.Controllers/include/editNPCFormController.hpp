@@ -34,6 +34,8 @@ class EditNPCFormController {
     static std::vector<std::string> convertPlainTextToLines(const QString &text);
     bool isDTOValid(mapeditor::controllers::NPCDTO &dto);
     std::vector<ConversationScenarioSummaryDTO> getConversationScenarios() const;
+    std::vector<thewarrior::models::ConversationNodeId> getAlreadyUsedScenarioIds() const;
+    std::optional<thewarrior::models::ConversationScenario> getConversationScenarioById(const thewarrior::models::ConversationScenarioId &scenarioId) const;
 
  private:
     std::string m_resourcesPath;

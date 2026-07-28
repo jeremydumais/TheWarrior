@@ -2,6 +2,7 @@
 #include <fmt/format.h>
 #include <string>
 #include <vector>
+#include "conversationScenario.hpp"
 #include "editConversationScenarioForm.hpp"
 #include "editNPCForm.hpp"
 #include "editNPCFormController.hpp"
@@ -17,6 +18,7 @@ using commoneditor::ui::ErrorMessage;
 using commoneditor::ui::WarningMessage;
 using mapeditor::controllers::EditNPCFormController;
 using mapeditor::controllers::NPCDTO;
+using thewarrior::models::ConversationScenarioId;
 using thewarrior::models::NPCBehavior;
 using thewarrior::models::NPCFacing;
 using thewarrior::models::Point;
@@ -95,6 +97,11 @@ void EditNPCForm::connectUIActions() {
     connect(ui.pushButtonSelectTexture, &QPushButton::clicked, this, &EditNPCForm::onPushButtonSelectTextureClick);
     connect(ui.pushButtonSpawnPositionPicker, &QPushButton::clicked, this, &EditNPCForm::onPushButtonSpawnPositionPickerClick);
     connect(ui.pushButtonAddConvScenario, &QPushButton::clicked, this, &EditNPCForm::onPushButtonAddConvScenarioClick);
+    connect(ui.pushButtonEditConvScenario, &QPushButton::clicked, this, &EditNPCForm::onPushButtonEditConvScenarioClick);
+    connect(ui.tableWidgetConvScenarios, &QTableWidget::itemDoubleClicked, this, &EditNPCForm::onTableWidgetConvScenarioDoubleClicked);
+    connect(ui.pushButtonDeleteConvScenario, &QPushButton::clicked, this, &EditNPCForm::onPushButtonDeleteConvScenarioClick);
+    tableWidgetConvScenarioKeyWatcher.installOn(ui.tableWidgetConvScenarios);
+    connect(&tableWidgetConvScenarioKeyWatcher, &QTableWidgetKeyPressWatcher::keyPressed, this, &EditNPCForm::onTableWidgetConvScenarioKeyPressEvent);
 }
 
 void EditNPCForm::refreshPositionLabel() {
@@ -122,8 +129,8 @@ void EditNPCForm::refreshNPCTile() {
 void EditNPCForm::initializeConversationScenariosTable() {
     ui.tableWidgetConvScenarios->setHorizontalHeaderItem(0, new QTableWidgetItem("Id"));
     ui.tableWidgetConvScenarios->setHorizontalHeaderItem(1, new QTableWidgetItem("Item Count"));
-    ui.tableWidgetConvScenarios->setColumnWidth(0, 425);
-    ui.tableWidgetConvScenarios->setColumnWidth(1, 30);
+    ui.tableWidgetConvScenarios->setColumnWidth(0, 395);
+    ui.tableWidgetConvScenarios->setColumnWidth(1, 60);
 }
 
 void EditNPCForm::onPushButtonCancelClick() {
@@ -205,7 +212,7 @@ void EditNPCForm::onPushButtonSpawnPositionPickerClick() {
 }
 
 void EditNPCForm::onPushButtonAddConvScenarioClick() {
-    std::vector<thewarrior::models::ConversationScenarioId> existingIds = {};
+    auto existingIds = m_controller.getAlreadyUsedScenarioIds();
     EditConversationScenarioForm conversationScenarioForm(this,
                                                           m_controller.getResourcesPath(),
                                                           std::nullopt,
@@ -216,4 +223,51 @@ void EditNPCForm::onPushButtonAddConvScenarioClick() {
         }*/
         refreshConversationScenarioList();
     }
+}
+
+void EditNPCForm::onPushButtonEditConvScenarioClick() {
+    
+    if (auto scenarioId = getSelectedScenarioId(); scenarioId.has_value()) {
+        auto itemToEdit = m_controller.getConversationScenarioById(scenarioId.value());
+        if (!itemToEdit.has_value()) {
+            ErrorMessage::show(fmt::format("Unable to find the scenario with id {0}", scenarioId.value()));
+            return;
+        }
+        auto existingIds = m_controller.getAlreadyUsedScenarioIds();
+        EditConversationScenarioForm conversationScenarioForm(this,
+                                                              m_controller.getResourcesPath(),
+                                                              itemToEdit,
+                                                              existingIds);
+        if (conversationScenarioForm.exec() == QDialog::Accepted) {
+            //TODO: Implement the change
+            // if (!m_controller.updateMonsterEncounter(oldMonsterId, monsterEncounterForm.getResult())) {
+            //     ErrorMessage::show(m_controller.getLastError());
+            // }
+            refreshConversationScenarioList();
+        }
+    }
+}
+
+void EditNPCForm::onPushButtonDeleteConvScenarioClick() {
+}
+
+void EditNPCForm::onTableWidgetConvScenarioDoubleClicked(QTableWidgetItem *item) {
+    if (item != nullptr) {
+        onPushButtonEditConvScenarioClick();
+    }
+}
+
+void EditNPCForm::onTableWidgetConvScenarioKeyPressEvent(int key, int, int) {
+    if (key == Qt::Key_Delete) {
+        onPushButtonDeleteConvScenarioClick();
+    }
+}
+
+
+std::optional<ConversationScenarioId> EditNPCForm::getSelectedScenarioId() const {
+    auto selectedRows = ui.tableWidgetConvScenarios->selectionModel()->selectedRows();
+    if (selectedRows.count() == 1) {
+        return selectedRows[0].data().toString().toStdString();
+    }
+    return std::nullopt;
 }

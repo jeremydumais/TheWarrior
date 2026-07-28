@@ -3,6 +3,7 @@
 #define MAPEDITOR_SRC_EDITNPCFORM_HPP_
 
 #include <qdialog.h>
+#include <optional>
 #include <string>
 #include <vector>
 #include "fileTexturePixmapProvider.hpp"
@@ -11,6 +12,8 @@
 #include "texture.hpp"
 #include "ui_editNPCForm.h"
 #include "editNPCFormController.hpp"
+#include "conversationScenario.hpp"
+#include "qTableWidgetKeyPressWatcher.h"
 
 class EditNPCForm : public QDialog {
 Q_OBJECT
@@ -33,6 +36,8 @@ Q_OBJECT
     bool m_spawnPositionPickerModeEnabled = false;
     thewarrior::models::Point<> m_spawnPosition = thewarrior::models::Point<>(-1, -1);
     mapeditor::controllers::NPCDTO m_result;
+    QTableWidgetKeyPressWatcher tableWidgetConvScenarioKeyWatcher;
+
     void initializeConversationScenariosTable();
     void connectUIActions();
     void refreshPositionLabel();
@@ -43,6 +48,11 @@ Q_OBJECT
     void onPushButtonSelectTextureClick();
     void onPushButtonSpawnPositionPickerClick();
     void onPushButtonAddConvScenarioClick();
+    void onPushButtonEditConvScenarioClick();
+    void onPushButtonDeleteConvScenarioClick();
+    void onTableWidgetConvScenarioDoubleClicked(QTableWidgetItem *item);
+    void onTableWidgetConvScenarioKeyPressEvent(int key, int row, int column);
+    std::optional<thewarrior::models::ConversationScenarioId> getSelectedScenarioId() const;
 };
 
 #endif  // MAPEDITOR_SRC_EDITNPCFORM_HPP_

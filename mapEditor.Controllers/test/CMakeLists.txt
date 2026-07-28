@@ -10,7 +10,7 @@ add_executable(${PROJECT_UNITTEST_NAME} ${INCLUDE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/containerOfMonsterStoreTestUtils.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/editMapTileTriggerFormController_unittest.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/editConversationDialogueFormController_unittest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/editConversationNodeBaseFormController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/editConversationScenarioFormController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/editMonsterEncounterFormController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/editMonsterZoneFormController_unittest.cpp

@@ -2,7 +2,8 @@
 #include <algorithm>
 #include <stdexcept>
 
-namespace thewarrior::models {
+namespace thewarrior::models
+{
 
 ConversationNodeTransition ConversationNodeTransition::nextInOrder() {
     ConversationNodeTransition transition;
@@ -17,7 +18,7 @@ ConversationNodeTransition ConversationNodeTransition::stop() {
 }
 
 ConversationNodeTransition ConversationNodeTransition::toNode(
-        const ConversationNodeId &nodeId) {
+    const ConversationNodeId &nodeId) {
     if (nodeId.empty()) {
         throw std::invalid_argument(
             "The next conversation node id cannot be empty.");
@@ -37,11 +38,20 @@ const ConversationNodeId &ConversationNodeTransition::getNextNodeId() const {
 }
 
 ConversationNode::ConversationNode(const ConversationNodeId &id,
-                                   const ConversationNodeContent &content,
-                                   const ConversationNodeTransition &transition)
+                                    const ConversationNodeContent &content,
+                                    const ConversationNodeTransition &transition)
     : m_id(id),
-      m_content(content),
-      m_transition(transition) {
+        m_content(content),
+        m_transition(transition) {
+}
+
+std::string ConversationNode::getContentTypeName(
+    const ConversationNodeContent &content) {
+    static const std::string contentTypeNames[] = {
+        "Dialogue",
+        "Choice",
+        "Action"};
+    return contentTypeNames[content.which()];
 }
 
 const ConversationNodeId &ConversationNode::getId() const {
@@ -69,22 +79,22 @@ void ConversationNode::setTransition(const ConversationNodeTransition &transitio
 }
 
 ConversationScenario::ConversationScenario(
-        const ConversationScenarioId &id,
-        const StoryId &conditionalStoryIdCompleted,
-        const std::vector<ConversationNode> &nodes)
+    const ConversationScenarioId &id,
+    const StoryId &conditionalStoryIdCompleted,
+    const std::vector<ConversationNode> &nodes)
     : m_id(id),
-      m_conditionalStoryIdCompleted(conditionalStoryIdCompleted),
-      m_nodes(nodes) {
+        m_conditionalStoryIdCompleted(conditionalStoryIdCompleted),
+        m_nodes(nodes) {
 }
 
 ConversationScenario ConversationScenario::fromLegacyDialogueLines(
-        const std::vector<std::string> &lines) {
+    const std::vector<std::string> &lines) {
     ConversationScenario scenario;
     scenario.m_id = "default";
     if (!lines.empty()) {
         scenario.m_nodes.emplace_back(
-            "dialogue",
-            ConversationDialogue { .lines = lines });
+            "default",
+            ConversationDialogue{.lines = lines});
     }
     return scenario;
 }
@@ -124,13 +134,13 @@ void ConversationScenario::setNodes(const std::vector<ConversationNode> &nodes) 
 }
 
 void ConversationScenario::setDialogueLines(const std::vector<std::string> &lines) {
-    auto iter = std::find_if(m_nodes.begin(), m_nodes.end(), [](const ConversationNode &node) {
-        return boost::get<ConversationDialogue>(&node.getContent()) != nullptr;
-    });
+    auto iter = std::ranges::find_if(m_nodes, [](const ConversationNode &node)
+                                        { return boost::get<ConversationDialogue>(&node.getContent()) != nullptr; });
     if (iter != m_nodes.end()) {
-        iter->setContent(ConversationDialogue { .lines = lines });
-    } else if (!lines.empty()) {
-        m_nodes.emplace_back("dialogue", ConversationDialogue { .lines = lines });
+        iter->setContent(ConversationDialogue{.lines = lines});
+    }
+    else if (!lines.empty()) {
+        m_nodes.emplace_back("default", ConversationDialogue{.lines = lines});
     }
 }
 
@@ -139,10 +149,9 @@ void ConversationScenario::addNode(const ConversationNode &node) {
 }
 
 bool ConversationScenario::replaceNode(const ConversationNodeId &id,
-                                       const ConversationNode &node) {
-    const auto iter = std::find_if(m_nodes.begin(), m_nodes.end(), [&id](const ConversationNode &item) {
-        return item.getId() == id;
-    });
+                                        const ConversationNode &node) {
+    const auto iter = std::ranges::find_if(m_nodes, [&id](const ConversationNode &item)
+                                            { return item.getId() == id; });
     if (iter == m_nodes.end()) {
         return false;
     }
@@ -151,9 +160,8 @@ bool ConversationScenario::replaceNode(const ConversationNodeId &id,
 }
 
 bool ConversationScenario::removeNode(const ConversationNodeId &id) {
-    const auto iter = std::find_if(m_nodes.begin(), m_nodes.end(), [&id](const ConversationNode &item) {
-        return item.getId() == id;
-    });
+    const auto iter = std::ranges::find_if(m_nodes, [&id](const ConversationNode &item)
+                                    { return item.getId() == id; });
     if (iter == m_nodes.end()) {
         return false;
     }
@@ -161,4 +169,4 @@ bool ConversationScenario::removeNode(const ConversationNodeId &id) {
     return true;
 }
 
-}  // namespace thewarrior::models
+} // namespace thewarrior::models

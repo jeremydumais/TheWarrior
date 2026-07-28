@@ -11,6 +11,7 @@
 using commoneditor::ui::ITexturePixmapProvider;
 using mapeditor::controllers::EditNPCFormController;
 using mapeditor::controllers::NPCDTO;
+using thewarrior::models::ConversationScenario;
 
 class FakeTexturePixmapProvider final : public ITexturePixmapProvider {
  public:
@@ -88,4 +89,61 @@ TEST_F(EditNPCFormControllerEditNPC, WithNPC001LowerCase_ReturnTrue) {
 
 TEST_F(EditNPCFormControllerEditNPC, WithNPC001LowerCaseAndSpaces_ReturnTrue) {
     ASSERT_TRUE(controller.isNPCIdAlreadyUsed(" npc001 "));
+}
+
+TEST(EditNPCFormController_getConversationScenarioById,
+     WithMatchingScenarioReturnScenario) {
+    FakeTexturePixmapProvider pixmapProvider;
+    NPCDTO npc {
+        .id = "NPC001",
+        .conversationScenarios = {
+            ConversationScenario("greeting", "", {}),
+            ConversationScenario("farewell", "", {})
+        }
+    };
+    const EditNPCFormController controller(
+        "",
+        {},
+        pixmapProvider,
+        npc,
+        {});
+
+    const auto scenario = controller.getConversationScenarioById("farewell");
+
+    ASSERT_TRUE(scenario.has_value());
+    ASSERT_EQ("farewell", scenario->getId());
+}
+
+TEST(EditNPCFormController_getConversationScenarioById,
+     WithoutMatchingScenarioReturnEmpty) {
+    FakeTexturePixmapProvider pixmapProvider;
+    NPCDTO npc {
+        .id = "NPC001",
+        .conversationScenarios = {
+            ConversationScenario("greeting", "", {})
+        }
+    };
+    const EditNPCFormController controller(
+        "",
+        {},
+        pixmapProvider,
+        npc,
+        {});
+
+    ASSERT_FALSE(
+        controller.getConversationScenarioById("missing").has_value());
+}
+
+TEST(EditNPCFormController_getConversationScenarioById,
+     WithoutSelectedNPCReturnEmpty) {
+    FakeTexturePixmapProvider pixmapProvider;
+    const EditNPCFormController controller(
+        "",
+        {},
+        pixmapProvider,
+        std::nullopt,
+        {});
+
+    ASSERT_FALSE(
+        controller.getConversationScenarioById("greeting").has_value());
 }

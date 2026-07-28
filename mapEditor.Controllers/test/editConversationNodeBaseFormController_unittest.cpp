@@ -3,9 +3,9 @@
 #include <string>
 #include <vector>
 #include "conversationScenario.hpp"
-#include "editConversationDialogueFormController.hpp"
+#include "editConversationNodeBaseFormController.hpp"
 
-using mapeditor::controllers::EditConversationDialogueFormController;
+using mapeditor::controllers::EditConversationNodeBaseFormController;
 using thewarrior::models::ConversationDialogue;
 using thewarrior::models::ConversationNode;
 using thewarrior::models::ConversationNodeId;
@@ -20,90 +20,90 @@ ConversationNode createDialogueNode(const ConversationNodeId &id) {
 
 }  // namespace
 
-TEST(EditConversationDialogueFormController_getLastError,
+TEST(EditConversationNodeBaseFormController_getLastError,
      WithNewControllerReturnEmpty) {
-    const EditConversationDialogueFormController controller(
+    const EditConversationNodeBaseFormController controller(
         std::nullopt,
         {});
 
     ASSERT_TRUE(controller.getLastError().empty());
 }
 
-TEST(EditConversationDialogueFormController_isEditMode,
+TEST(EditConversationNodeBaseFormController_isEditMode,
      WithoutSelectedNodeReturnFalse) {
-    const EditConversationDialogueFormController controller(
+    const EditConversationNodeBaseFormController controller(
         std::nullopt,
         {});
 
     ASSERT_FALSE(controller.isEditMode());
 }
 
-TEST(EditConversationDialogueFormController_isEditMode,
+TEST(EditConversationNodeBaseFormController_isEditMode,
      WithSelectedNodeReturnTrue) {
-    const EditConversationDialogueFormController controller(
+    const EditConversationNodeBaseFormController controller(
         createDialogueNode("welcome"),
         {});
 
     ASSERT_TRUE(controller.isEditMode());
 }
 
-TEST(EditConversationDialogueFormController_isNodeIdAlreadyUsed,
+TEST(EditConversationNodeBaseFormController_isNodeIdAlreadyUsed,
      WithEmptyUsedNodeIdsReturnFalse) {
-    const EditConversationDialogueFormController controller(
+    const EditConversationNodeBaseFormController controller(
         std::nullopt,
         {});
 
     ASSERT_FALSE(controller.isNodeIdAlreadyUsed("welcome"));
 }
 
-TEST(EditConversationDialogueFormController_isNodeIdAlreadyUsed,
+TEST(EditConversationNodeBaseFormController_isNodeIdAlreadyUsed,
      WithDifferentNodeIdReturnFalse) {
-    const EditConversationDialogueFormController controller(
+    const EditConversationNodeBaseFormController controller(
         std::nullopt,
         {"welcome", "goodbye"});
 
     ASSERT_FALSE(controller.isNodeIdAlreadyUsed("reward"));
 }
 
-TEST(EditConversationDialogueFormController_isNodeIdAlreadyUsed,
+TEST(EditConversationNodeBaseFormController_isNodeIdAlreadyUsed,
      WithMatchingNodeIdReturnTrue) {
-    const EditConversationDialogueFormController controller(
+    const EditConversationNodeBaseFormController controller(
         std::nullopt,
         {"welcome", "goodbye"});
 
     ASSERT_TRUE(controller.isNodeIdAlreadyUsed("welcome"));
 }
 
-TEST(EditConversationDialogueFormController_isNodeIdAlreadyUsed,
+TEST(EditConversationNodeBaseFormController_isNodeIdAlreadyUsed,
      WithMatchingNodeIdDifferentCaseReturnTrue) {
-    const EditConversationDialogueFormController controller(
+    const EditConversationNodeBaseFormController controller(
         std::nullopt,
         {"welcome", "goodbye"});
 
     ASSERT_TRUE(controller.isNodeIdAlreadyUsed("WELCOME"));
 }
 
-TEST(EditConversationDialogueFormController_isNodeIdAlreadyUsed,
+TEST(EditConversationNodeBaseFormController_isNodeIdAlreadyUsed,
      WhenEditingWithOwnNodeIdReturnFalse) {
-    const EditConversationDialogueFormController controller(
+    const EditConversationNodeBaseFormController controller(
         createDialogueNode("welcome"),
         {"welcome", "goodbye"});
 
     ASSERT_FALSE(controller.isNodeIdAlreadyUsed("welcome"));
 }
 
-TEST(EditConversationDialogueFormController_isNodeIdAlreadyUsed,
+TEST(EditConversationNodeBaseFormController_isNodeIdAlreadyUsed,
      WhenEditingWithOwnNodeIdDifferentCaseReturnFalse) {
-    const EditConversationDialogueFormController controller(
+    const EditConversationNodeBaseFormController controller(
         createDialogueNode("welcome"),
         {"welcome", "goodbye"});
 
     ASSERT_FALSE(controller.isNodeIdAlreadyUsed("WELCOME"));
 }
 
-TEST(EditConversationDialogueFormController_isNodeIdAlreadyUsed,
+TEST(EditConversationNodeBaseFormController_isNodeIdAlreadyUsed,
      WhenEditingWithAnotherUsedNodeIdReturnTrue) {
-    const EditConversationDialogueFormController controller(
+    const EditConversationNodeBaseFormController controller(
         createDialogueNode("welcome"),
         {"welcome", "goodbye"});
 

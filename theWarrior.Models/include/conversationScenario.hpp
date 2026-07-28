@@ -84,6 +84,8 @@ struct ConversationChoice {
     }
 };
 
+// Actions
+
 struct GoldReward {
     unsigned int amount = 0;
 
@@ -111,8 +113,6 @@ struct ItemReward {
 };
 
 using Reward = boost::variant<GoldReward, ItemReward>;
-
-// Actions
 
 struct RewardAction {
     Reward reward;
@@ -175,6 +175,7 @@ class ConversationNode {
                      const ConversationNodeContent &content,
                      const ConversationNodeTransition &transition =
                          ConversationNodeTransition::nextInOrder());
+    static std::string getContentTypeName(const ConversationNodeContent &content);
     const ConversationNodeId &getId() const;
     const ConversationNodeContent &getContent() const;
     const ConversationNodeTransition &getTransition() const;

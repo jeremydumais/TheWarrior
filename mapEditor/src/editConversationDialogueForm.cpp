@@ -24,8 +24,8 @@ EditConversationDialogueForm::EditConversationDialogueForm(QWidget *parent,
     ui.setupUi(this);
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
     this->setFixedSize(this->geometry().size());
-    initializeComboBoxTransitionType(); 
     connectUIActions();
+    initializeComboBoxTransitionType(); 
     if (selectedConversationNode.has_value()) {
         auto transition = selectedConversationNode->getTransition();
         ui.lineEditId->setText(selectedConversationNode->getId().c_str());

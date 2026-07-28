@@ -88,3 +88,39 @@ TEST(EditConversationScenarioFormController_getAlreadyUsedNodeIds,
     const std::vector<std::string> expectedIds = {"welcome", "goodbye"};
     ASSERT_EQ(expectedIds, controller.getAlreadyUsedNodeIds());
 }
+
+TEST(EditConversationScenarioFormController_getNodeById,
+     WithMatchingNodeReturnNode) {
+    const EditConversationScenarioFormController controller(
+        "",
+        createScenario({
+            createDialogueNode("welcome"),
+            createDialogueNode("goodbye")
+        }),
+        {});
+
+    const auto &node = controller.getNodeById("goodbye");
+
+    ASSERT_TRUE(node.has_value());
+    ASSERT_EQ("goodbye", node->getId());
+}
+
+TEST(EditConversationScenarioFormController_getNodeById,
+     WithoutMatchingNodeReturnEmpty) {
+    const EditConversationScenarioFormController controller(
+        "",
+        createScenario({createDialogueNode("welcome")}),
+        {});
+
+    ASSERT_FALSE(controller.getNodeById("missing").has_value());
+}
+
+TEST(EditConversationScenarioFormController_getNodeById,
+     WithoutSelectedScenarioReturnEmpty) {
+    const EditConversationScenarioFormController controller(
+        "",
+        std::nullopt,
+        {});
+
+    ASSERT_FALSE(controller.getNodeById("welcome").has_value());
+}

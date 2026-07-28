@@ -30,7 +30,7 @@
             "program": "${workspaceFolder}/build/bin/MapEditor",
             "args": [
                 "-f",
-                "/home/jed/Programming/TheWarrior/build/bin/resources/maps/homeHouseV1.map"
+                "/home/jed/Programming/TheWarrior/build/bin/resources/maps/kingAldricCastle-OuterBailey.map"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build",
