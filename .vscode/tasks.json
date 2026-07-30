@@ -19,7 +19,7 @@
                 "--config",
                 "Debug",
                 "--target",
-                "all",
+                "TheWarrior",
                 "--",
                 "-j",
                 "10"

@@ -160,7 +160,7 @@ namespace thewarrior::ui
     void GameMapMode::update()
     {
         // Block input during sleep
-        if (m_sleepSequenceState != SleepSequenceState::Inactive) {
+        if (m_sleepSequenceState != SleepSequenceState::Inactive || m_changeMapSequenceState != ChangeMapSequenceState::Inactive) {
             calculateTilesToDisplay();
             return;
         }
@@ -267,6 +267,7 @@ namespace thewarrior::ui
                                    m_textureService);
         }
         updateSleepSequence(delta_time);
+        updateMapChangeSequence(delta_time);
     }
 
     void GameMapMode::calculateTileSize()
@@ -401,6 +402,9 @@ namespace thewarrior::ui
         }
         if (m_sleepSequenceState != SleepSequenceState::Inactive) {
             m_screenOverlay.render(m_sleepOverlayOpacity);
+        }
+        if (m_changeMapSequenceState != ChangeMapSequenceState::Inactive) {
+            m_screenOverlay.render(m_changeMapOverlayOpacity);
         }
 
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -595,133 +599,88 @@ namespace thewarrior::ui
         m_glPlayer->applyCurrentGLTexture(m_textureService);
     }
 
-    void GameMapMode::moveDownPressed()
-    {
+    void GameMapMode::moveDownPressed() {
         // Check if there is an action
         const auto playerCoord = m_controller.getPlayerPosition();
         const auto tile = m_map->getTileFromCoord(playerCoord);
         auto moveDownTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveDownPressed);
-        if (moveDownTrigger.has_value())
-        {
+        if (moveDownTrigger.has_value()) {
             processMapTileTrigger(moveDownTrigger.value());
-        }
-        else
-        {
+        } else {
             const auto targetCoord = Point<int>(playerCoord.x(), playerCoord.y() + 1);
             // Check if there an NPC on the tile we are planning to move
             const bool isTileOccupyByNPC = m_controller.isTileOccupyByNPC(targetCoord);
-            if (m_map->canSteppedOnTile(targetCoord) && !isTileOccupyByNPC)
-            {
+            if (m_map->canSteppedOnTile(targetCoord) && !isTileOccupyByNPC) {
                 m_glPlayer->moveDown(tile.getIsWallToClimb());
             }
         }
-        if (tile.getIsWallToClimb())
-        {
+        if (tile.getIsWallToClimb()) {
             m_glPlayer->faceUp();
-        }
-        else
-        {
+        } else {
             m_glPlayer->faceDown();
         }
         m_glPlayer->applyCurrentGLTexture(m_textureService);
     }
 
-    void GameMapMode::moveLeftPressed()
-    {
+    void GameMapMode::moveLeftPressed() {
         // Check if there is an action
         const auto playerCoord = m_controller.getPlayerPosition();
         const auto tile = m_map->getTileFromCoord(playerCoord);
         auto moveLeftTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveLeftPressed);
-        if (moveLeftTrigger.has_value())
-        {
+        if (moveLeftTrigger.has_value()) {
             processMapTileTrigger(moveLeftTrigger.value());
-        }
-        else
-        {
+        } else {
             const auto targetCoord = Point<int>(playerCoord.x() - 1, playerCoord.y());
             // Check if there an NPC on the tile we are planning to move
             const bool isTileOccupyByNPC = m_controller.isTileOccupyByNPC(targetCoord);
-            if (m_map->canSteppedOnTile(targetCoord) && !isTileOccupyByNPC)
-            {
+            if (m_map->canSteppedOnTile(targetCoord) && !isTileOccupyByNPC) {
                 m_glPlayer->moveLeft();
             }
         }
-        if (tile.getIsWallToClimb())
-        {
+        if (tile.getIsWallToClimb()) {
             m_glPlayer->faceUp();
-        }
-        else
-        {
+        } else {
             m_glPlayer->faceLeft();
         }
         m_glPlayer->applyCurrentGLTexture(m_textureService);
     }
 
-    void GameMapMode::moveRightPressed()
-    {
+    void GameMapMode::moveRightPressed() {
         // Check if there is an action
         const auto playerCoord = m_controller.getPlayerPosition();
         const auto tile = m_map->getTileFromCoord(playerCoord);
         auto moveRightTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveRightPressed);
-        if (moveRightTrigger.has_value())
-        {
+        if (moveRightTrigger.has_value()) {
             processMapTileTrigger(moveRightTrigger.value());
-        }
-        else
-        {
+        } else {
             const auto targetCoord = Point<int>(playerCoord.x() + 1, playerCoord.y());
             // Check if there an NPC on the tile we are planning to move
             const bool isTileOccupyByNPC = m_controller.isTileOccupyByNPC(targetCoord);
-            if (m_map->canSteppedOnTile(targetCoord) && !isTileOccupyByNPC)
-            {
+            if (m_map->canSteppedOnTile(targetCoord) && !isTileOccupyByNPC) {
                 m_glPlayer->moveRight();
             }
         }
-        if (tile.getIsWallToClimb())
-        {
+        if (tile.getIsWallToClimb()) {
             m_glPlayer->faceUp();
-        }
-        else
-        {
+        } else {
             m_glPlayer->faceRight();
         }
         m_glPlayer->applyCurrentGLTexture(m_textureService);
     }
 
-    void GameMapMode::processAction(MapTileTriggerAction action, std::map<std::string, std::string> properties, MapTile *tile, Point<> tilePosition)
-    {
-        switch (action)
-        {
+    void GameMapMode::processAction(MapTileTriggerAction action, std::map<std::string, std::string> properties, MapTile *tile, Point<> tilePosition) {
+        switch (action) {
         case MapTileTriggerAction::ChangeMap:
-            if (properties.at("playerFacing") == "0")
-            {
-                m_glPlayer->faceUp();
-            }
-            else if (properties.at("playerFacing") == "1")
-            {
-                m_glPlayer->faceDown();
-            }
-            else if (properties.at("playerFacing") == "2")
-            {
-                m_glPlayer->faceLeft();
-            }
-            else if (properties.at("playerFacing") == "3")
-            {
-                m_glPlayer->faceRight();
-            }
-            m_controller.setPlayerPosition(Point<>(stoi(properties.at("playerX")), stoi(properties.at("playerY"))));
-            changeMap(fmt::format("{0}/maps/{1}", m_controller.getResourcesPath(), properties.at("mapFileName")), properties.at("mapFileName"));
+            m_changeMapProperties = properties;
+            m_changeMapSequenceState = ChangeMapSequenceState::FadingOut;
             break;
-        case MapTileTriggerAction::OpenChest:
-        {
+        case MapTileTriggerAction::OpenChest: {
             // Convert the properties to an OpenChestActionProperties object
             auto props = OpenChestActionPropertiesConverter::fromMap(properties);
             // Check if the item has already been taken
             auto tileIndex = m_map->getTileIndexFromCoord(tilePosition);
-            if (!m_controller.isTileActionAlreadyProcessed(m_controller.getCurrentMapName(), tileIndex))
-            {
-                if (props.getContentType() == ChestContentType::Item)
-                {
+            if (!m_controller.isTileActionAlreadyProcessed(m_controller.getCurrentMapName(), tileIndex)) {
+                if (props.getContentType() == ChestContentType::Item) {
                     const auto &itemIdInside = props.getItemId();
                     // Find the item in the item store
                     const auto item = m_controller.findItem(itemIdInside);
@@ -748,14 +707,12 @@ namespace thewarrior::ui
                 }
                 m_controller.addTileActionProcessed(m_controller.getCurrentMapName(), tileIndex);
             }
-            if (tile != nullptr)
-            {
+            if (tile != nullptr) {
                 tile->setObjectTextureIndex(stoi(properties.at("objectTextureIndexOpenedChest")));
                 // Update the GLTile
                 auto iter = find_if(m_glTiles.begin(), m_glTiles.end(), [&tilePosition](GLTile &glTile)
                                     { return glTile.x == tilePosition.x() && glTile.y == tilePosition.y(); });
-                if (iter != m_glTiles.end())
-                {
+                if (iter != m_glTiles.end()) {
                     GLTile &glTileToUpdate = *iter;
                     glTileToUpdate.tile = *tile;
                     GLfloat tileCoord[4][2];
@@ -802,12 +759,10 @@ namespace thewarrior::ui
             tilePosition);
     }
 
-    void GameMapMode::checkForMonsterEncounter(const MapTile &tile)
-    {
+    void GameMapMode::checkForMonsterEncounter(const MapTile &tile) {
         auto zones = m_map->getMonsterZones();
         if (tile.getMonsterZoneIndex() == -1 ||
-            tile.getMonsterZoneIndex() >= static_cast<int>(zones.size()))
-        {
+            tile.getMonsterZoneIndex() >= static_cast<int>(zones.size())) {
             return;
         }
         // Check if we encounter a monster
@@ -815,21 +770,16 @@ namespace thewarrior::ui
         std::uniform_int_distribution<> distributionEncounter(static_cast<int>(zone.getRatioEncounter()),
                                                               static_cast<int>(zone.getRatioEncounterOn()));
         bool encounterAMonster = distributionEncounter(RandomGenerator::instance()) == 1;
-        if (!encounterAMonster)
-        {
+        if (!encounterAMonster) {
             return;
         }
         // Check if we get a Rare, lessThanNormal or Normal monster
         std::uniform_int_distribution<> distributionMonsterType(1, 50);
         int monsterTypeResult = distributionMonsterType(RandomGenerator::instance());
-        MonsterEncounterRatio typeOfMonsterEncountered = [&monsterTypeResult]() -> MonsterEncounterRatio
-        {
-            if (monsterTypeResult >= 1 && monsterTypeResult <= 37)
-            {
+        MonsterEncounterRatio typeOfMonsterEncountered = [&monsterTypeResult]() -> MonsterEncounterRatio {
+            if (monsterTypeResult >= 1 && monsterTypeResult <= 37) {
                 return MonsterEncounterRatio::Normal;
-            }
-            else if (monsterTypeResult >= 38 && monsterTypeResult <= 49)
-            {
+            } else if (monsterTypeResult >= 38 && monsterTypeResult <= 49) {
                 return MonsterEncounterRatio::LessThanNormal;
             }
             return MonsterEncounterRatio::Rare;
@@ -849,46 +799,38 @@ namespace thewarrior::ui
     }
 
     std::string GameMapMode::selectMonsterEncounter(const std::vector<MonsterZoneMonsterEncounter> &encounters,
-                                                    MonsterEncounterRatio ratio)
-    {
+                                                    MonsterEncounterRatio ratio) {
         std::vector<MonsterZoneMonsterEncounter> rareMonsters;
         std::vector<MonsterZoneMonsterEncounter> lessThanNormalMonsters;
         std::vector<MonsterZoneMonsterEncounter> normalMonsters;
         std::copy_if(encounters.begin(),
                      encounters.end(),
                      std::back_inserter(rareMonsters),
-                     [](const MonsterZoneMonsterEncounter &encounter)
-                     {
+                     [](const MonsterZoneMonsterEncounter &encounter) {
                          return encounter.getEncounterRatio() == MonsterEncounterRatio::Rare;
                      });
         std::copy_if(encounters.begin(),
                      encounters.end(),
                      std::back_inserter(lessThanNormalMonsters),
-                     [](const MonsterZoneMonsterEncounter &encounter)
-                     {
+                     [](const MonsterZoneMonsterEncounter &encounter) {
                          return encounter.getEncounterRatio() == MonsterEncounterRatio::LessThanNormal;
                      });
         std::copy_if(encounters.begin(),
                      encounters.end(),
                      std::back_inserter(normalMonsters),
-                     [](const MonsterZoneMonsterEncounter &encounter)
-                     {
+                     [](const MonsterZoneMonsterEncounter &encounter) {
                          return encounter.getEncounterRatio() == MonsterEncounterRatio::Normal;
                      });
-        const auto &monsterListToUse = [rareMonsters, lessThanNormalMonsters, normalMonsters, ratio]()
-        {
-            if (ratio == MonsterEncounterRatio::Rare && !rareMonsters.empty())
-            {
+        const auto &monsterListToUse = [rareMonsters, lessThanNormalMonsters, normalMonsters, ratio]() {
+            if (ratio == MonsterEncounterRatio::Rare && !rareMonsters.empty()) {
                 return rareMonsters;
             }
-            if ((ratio == MonsterEncounterRatio::Rare || ratio == MonsterEncounterRatio::LessThanNormal) && !lessThanNormalMonsters.empty())
-            {
+            if ((ratio == MonsterEncounterRatio::Rare || ratio == MonsterEncounterRatio::LessThanNormal) && !lessThanNormalMonsters.empty()) {
                 return lessThanNormalMonsters;
             }
             return normalMonsters;
         }();
-        if (monsterListToUse.size() == 1)
-        {
+        if (monsterListToUse.size() == 1) {
             return monsterListToUse.at(0).getMonsterId();
         }
         std::uniform_int_distribution<> distributionMonsterSelection(1, static_cast<int>(monsterListToUse.size()));
@@ -896,19 +838,16 @@ namespace thewarrior::ui
         return monsterListToUse.at(monsterRandomIndex - 1).getMonsterId();
     }
 
-    void GameMapMode::loadMap(const std::string &filePath, const std::string &mapName)
-    {
+    void GameMapMode::loadMap(const std::string &filePath, const std::string &mapName) {
         GameMapStorage mapStorage;
-        try
-        {
+        try {
             mapStorage.loadMap(filePath, m_map);
             m_controller.setCurrentMapName(mapName);
             m_controller.clearNPCsWorldState();
             loadMapTextures();
 
             m_glNPCs.clear();
-            for (const auto &npc : m_map->getNPCs())
-            {
+            for (const auto &npc : m_map->getNPCs()) {
                 // Find the related texture
                 const auto &textureResult = m_map->getTextureByName(npc.getTextureName());
                 if (!textureResult.has_value())
@@ -921,13 +860,11 @@ namespace thewarrior::ui
                 m_glNPCs.push_back(glNPC);
             }
             const std::string mapMusicFilename = m_map->getMusicFilename();
-            if (m_mapMusic != nullptr)
-            {
+            if (m_mapMusic != nullptr) {
                 Mix_FreeMusic(m_mapMusic);
                 m_mapMusic = nullptr;
             }
-            if (!mapMusicFilename.empty())
-            {
+            if (!mapMusicFilename.empty()) {
                 m_mapMusic = Mix_LoadMUS(fmt::format("{0}/sounds/{1}", m_controller.getResourcesPath(), mapMusicFilename).c_str());
                 if (m_mapMusic == nullptr)
                 {
@@ -939,18 +876,15 @@ namespace thewarrior::ui
                 }
             }
         }
-        catch (std::invalid_argument &err)
-        {
+        catch (std::invalid_argument &err) {
             std::cerr << err.what() << '\n';
         }
-        catch (std::runtime_error &err)
-        {
+        catch (std::runtime_error &err) {
             std::cerr << err.what() << '\n';
         }
     }
 
-    void GameMapMode::changeMap(const std::string &filePath, const std::string &mapName)
-    {
+    void GameMapMode::changeMap(const std::string &filePath, const std::string &mapName) {
         m_glPlayer->unloadGLPlayerObject();
         unloadGLMapObjects();
         unloadGLNPCObjects();
@@ -961,8 +895,53 @@ namespace thewarrior::ui
         m_glPlayer->setGLObjectPosition();
     }
 
-    void GameMapMode::calculateGLTileCoord(const Point<> &tilePosition, GLfloat tileCoord[4][2])
-    {
+    void GameMapMode::updateMapChangeSequence(float deltaTime) {
+        constexpr float FadeDurationSeconds = 0.40F;
+        constexpr float FadeSpeed = 1.0F / FadeDurationSeconds;
+
+        switch (m_changeMapSequenceState) {
+        case ChangeMapSequenceState::Inactive:
+            return;
+
+        case ChangeMapSequenceState::FadingOut:
+            m_changeMapOverlayOpacity += FadeSpeed * deltaTime;
+
+            if (m_changeMapOverlayOpacity >= 1.0F) {
+                m_changeMapOverlayOpacity = 1.0F;
+                m_changeMapSequenceState = ChangeMapSequenceState::ChangeMap;
+            }
+            return;
+
+        case ChangeMapSequenceState::ChangeMap: {
+            if (m_changeMapProperties.at("playerFacing") == "0") {
+                m_glPlayer->faceUp();
+            } else if (m_changeMapProperties.at("playerFacing") == "1") {
+                m_glPlayer->faceDown();
+            } else if (m_changeMapProperties.at("playerFacing") == "2") {
+                m_glPlayer->faceLeft();
+            } else if (m_changeMapProperties.at("playerFacing") == "3") {
+                m_glPlayer->faceRight();
+            }
+            m_controller.setPlayerPosition(Point<>(stoi(m_changeMapProperties.at("playerX")), stoi(m_changeMapProperties.at("playerY"))));
+            auto mapFileName = fmt::format("{0}/maps/{1}", m_controller.getResourcesPath(), m_changeMapProperties.at("mapFileName"));
+            auto mapName = m_changeMapProperties.at("mapFileName");
+            changeMap(mapFileName, mapName);
+            m_changeMapSequenceState = ChangeMapSequenceState::FadingIn;
+            return;
+        }
+
+        case ChangeMapSequenceState::FadingIn:
+            m_changeMapOverlayOpacity -= FadeSpeed * deltaTime;
+
+            if (m_changeMapOverlayOpacity <= 0.0F) {
+                m_changeMapOverlayOpacity = 0.0F;
+                m_changeMapSequenceState = ChangeMapSequenceState::Inactive;
+            }
+            return;
+        }
+    }
+
+    void GameMapMode::calculateGLTileCoord(const Point<> &tilePosition, GLfloat tileCoord[4][2]) {
         auto tileWidth = m_tileSize.tileWidth;
         auto tileHalfWidth = m_tileSize.tileHalfWidth;
         auto tileHalfHeight = m_tileSize.tileHalfHeight;
@@ -993,45 +972,38 @@ namespace thewarrior::ui
         m_tileCoordToDisplay.at(0) = static_cast<int>(floor(playerPosition.x() - (screenCenterX / tileWidthInPx)));
         m_tileCoordToDisplay.at(1) = static_cast<int>(ceil(playerPosition.x() - 1 + (screenCenterX / tileWidthInPx)));
         // If you reach the left of the map, add the tiles to display to the right
-        if (m_tileCoordToDisplay.at(0) < 0)
-        {
+        if (m_tileCoordToDisplay.at(0) < 0) {
             m_tileCoordToDisplay.at(1) += m_tileCoordToDisplay.at(0) * -1;
         }
         // If you reach the right of the map, add the tiles to display to the left
-        if (m_tileCoordToDisplay.at(1) > static_cast<int>(m_map->getWidth()) - 1)
-        {
+        if (m_tileCoordToDisplay.at(1) > static_cast<int>(m_map->getWidth()) - 1) {
             m_tileCoordToDisplay.at(0) -= m_tileCoordToDisplay.at(1) - static_cast<int>(m_map->getWidth());
             m_tileCoordToDisplay.at(1) = static_cast<int>(m_map->getWidth()) - 1;
         }
         // Set map boundary if necessary
-        if (m_tileCoordToDisplay.at(0) < 0)
-        {
+        if (m_tileCoordToDisplay.at(0) < 0) {
             m_tileCoordToDisplay.at(0) = 0;
         }
         m_tileCoordToDisplay.at(2) = static_cast<int>(floor(playerPosition.y() - (screenCenterY / tileHeightInPx)));
         m_tileCoordToDisplay.at(3) = static_cast<int>(ceil(playerPosition.y() - 1 + (screenCenterY / tileHeightInPx)));
         // If you reach the top of the map, add the tiles to display to the bottom
-        if (m_tileCoordToDisplay.at(2) < 0)
-        {
+        if (m_tileCoordToDisplay.at(2) < 0) {
             m_tileCoordToDisplay.at(3) += m_tileCoordToDisplay.at(2) * -1;
         }
         // If you reach the bottom of the map, add the tiles to display to the top
-        if (m_tileCoordToDisplay.at(3) > static_cast<int>(m_map->getHeight()) - 1)
-        {
+        if (m_tileCoordToDisplay.at(3) > static_cast<int>(m_map->getHeight()) - 1) {
             m_tileCoordToDisplay.at(2) -= m_tileCoordToDisplay.at(3) - static_cast<int>(m_map->getHeight());
             m_tileCoordToDisplay.at(3) = static_cast<int>(m_map->getHeight()) - 1;
         }
         // Set map boundary if necessary
-        if (m_tileCoordToDisplay.at(2) < 0)
-        {
+        if (m_tileCoordToDisplay.at(2) < 0) {
             m_tileCoordToDisplay.at(2) = 0;
         }
     }
 
     void GameMapMode::unloadGLMapObjects()
     {
-        for (auto &item : m_glTiles)
-        {
+        for (auto &item : m_glTiles) {
             if (item.glMainObject.vboPosition)
                 glDeleteBuffers(1, &item.glMainObject.vboPosition);
             if (item.glMainObject.vboColor)
@@ -1050,8 +1022,7 @@ namespace thewarrior::ui
                 glDeleteVertexArrays(1, &item.glSecondObject.vao);
             if (item.vboSecondTextureObject)
                 glDeleteBuffers(1, &item.vboSecondTextureObject);
-            if (item.tile.hasObjectTexture())
-            {
+            if (item.tile.hasObjectTexture()) {
                 if (item.vaoSecondObject)
                     glDeleteVertexArrays(1, &item.vaoSecondObject);
             }
@@ -1059,100 +1030,80 @@ namespace thewarrior::ui
         m_glTiles.clear();
     }
 
-    void GameMapMode::unloadGLNPCObjects()
-    {
-        for (auto &glNPC : m_glNPCs)
-        {
+    void GameMapMode::unloadGLNPCObjects() {
+        for (auto &glNPC : m_glNPCs) {
             glNPC.unloadGLObject();
         }
     }
 
-    void GameMapMode::loadMapTextures()
-    {
+    void GameMapMode::loadMapTextures() {
         // Clear existing textures in graphics memory
-        for (auto &glTexture : m_texturesGLMap)
-        {
+        for (auto &glTexture : m_texturesGLMap) {
             m_textureService.unloadTexture(glTexture.second);
         }
         m_texturesGLMap.clear();
         // Load texture in graphics memory
-        for (const auto &texture : m_map->getTextures())
-        {
+        for (const auto &texture : m_map->getTextures()) {
             const auto &textureName{texture.getName()};
             m_textureService.loadTexture(texture, m_texturesGLMap[textureName]);
         }
     }
 
-    bool GameMapMode::loadStores()
-    {
-        if (!m_controller.loadItemStore(fmt::format("{0}/items/itemstore.itm", m_controller.getResourcesPath())))
-        {
+    bool GameMapMode::loadStores() {
+        if (!m_controller.loadItemStore(fmt::format("{0}/items/itemstore.itm", m_controller.getResourcesPath()))) {
             std::cerr << "Unable to load the item store : " << m_controller.getLastError() << "\n";
             return false;
         }
-        if (!m_controller.loadMonsterStore(fmt::format("{0}/monsters/monsterstore.mon", m_controller.getResourcesPath())))
-        {
+        if (!m_controller.loadMonsterStore(fmt::format("{0}/monsters/monsterstore.mon", m_controller.getResourcesPath()))) {
             std::cerr << "Unable to load the monster store : " << m_controller.getLastError() << "\n";
             return false;
         }
         return true;
     }
 
-    bool GameMapMode::loadShaders()
-    {
+    bool GameMapMode::loadShaders() {
         if (!m_tileService->initShader(fmt::format("{0}/shaders/tile_330_vs.glsl", m_controller.getResourcesPath()),
-                                       fmt::format("{0}/shaders/tile_330_fs.glsl", m_controller.getResourcesPath())))
-        {
+                                       fmt::format("{0}/shaders/tile_330_fs.glsl", m_controller.getResourcesPath()))) {
             std::cerr << m_tileService->getLastError() << "\n";
             return false;
         }
         if (!m_textBox->initShader(fmt::format("{0}/shaders/textbox_330_vs.glsl", m_controller.getResourcesPath()),
-                                   fmt::format("{0}/shaders/textbox_330_fs.glsl", m_controller.getResourcesPath())))
-        {
+                                   fmt::format("{0}/shaders/textbox_330_fs.glsl", m_controller.getResourcesPath()))) {
             std::cerr << m_textBox->getLastError() << "\n";
             return false;
         }
         return true;
     }
 
-    void GameMapMode::loadItemStoreTextures()
-    {
+    void GameMapMode::loadItemStoreTextures() {
         // Clear existing textures in graphics memory
-        for (auto &glTexture : m_texturesGLItemStore)
-        {
+        for (auto &glTexture : m_texturesGLItemStore) {
             glDeleteTextures(1, &glTexture.second);
         }
         m_texturesGLItemStore.clear();
-        for (const auto &texture : m_controller.getItemStore()->getTextureContainer().getTextures())
-        {
+        for (const auto &texture : m_controller.getItemStore()->getTextureContainer().getTextures()) {
             const auto &textureName{texture.getName()};
             m_textureService.loadTexture(texture, m_texturesGLItemStore[textureName]);
         }
     }
 
-    void GameMapMode::loadMonsterStoreTextures()
-    {
+    void GameMapMode::loadMonsterStoreTextures() {
         // Clear existing textures in graphics memory
-        for (auto &glTexture : m_texturesGLMonsterStore)
-        {
+        for (auto &glTexture : m_texturesGLMonsterStore) {
             glDeleteTextures(1, &glTexture.second);
         }
         m_texturesGLMonsterStore.clear();
-        for (const auto &texture : m_controller.getMonsterStore()->getTextureContainer().getTextures())
-        {
+        for (const auto &texture : m_controller.getMonsterStore()->getTextureContainer().getTextures()) {
             const auto &textureName{texture.getName()};
             m_textureService.loadTexture(texture, m_texturesGLMonsterStore[textureName]);
         }
     }
 
-    void GameMapMode::generateGLMapObjects()
-    {
+    void GameMapMode::generateGLMapObjects() {
         int indexRow{0};
-        for (const auto &row : m_map->getTiles())
-        {
+        for (const auto &row : m_map->getTiles()) {
             int indexCol{0};
-            for (const auto &tile : row)
-            {
+            for (const auto &tile : row) {
                 GLTile glTile;
                 glTile.x = indexCol;
                 glTile.y = indexRow;
@@ -1166,8 +1117,7 @@ namespace thewarrior::ui
                     tile.getTextureIndex()};
                 GLObjectService::generateGLObject(infoGenTexture, tileCoord, m_texColorBuf);
 
-                if (glTile.tile.hasObjectTexture())
-                {
+                if (glTile.tile.hasObjectTexture()) {
                     auto objectTexture = m_map->getTextureByName(tile.getObjectTextureName());
                     GenerateGLObjectInfo infoGenObject{
                         &glTile.glSecondObject,
@@ -1184,20 +1134,17 @@ namespace thewarrior::ui
         }
     }
 
-    void GameMapMode::onCharacterWindowClose()
-    {
+    void GameMapMode::onCharacterWindowClose() {
         m_isCharacterWindowDisplayed = false;
         m_inputMode = GameMapInputMode::Map;
     }
 
-    void GameMapMode::onInventoryWindowClose()
-    {
+    void GameMapMode::onInventoryWindowClose() {
         m_isInventoryDisplayed = false;
         m_inputMode = GameMapInputMode::Map;
     }
 
-    void GameMapMode::mainMenuPopupClicked(size_t choice)
-    {
+    void GameMapMode::mainMenuPopupClicked(size_t choice) {
         switch (choice) {
         case 0:
             toggleInventoryWindow();

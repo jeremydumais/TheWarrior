@@ -56,7 +56,7 @@ GameWindow::GameWindow(const string &title,
     m_fpsCalculator.initialize();
     m_windowSizeChanged(m_WindowSize);
     //HACK: To Remove
-    //createNewGame("Jed");
+    createNewGame("Jed");
 }
 
 GameWindow::~GameWindow() {
@@ -336,11 +336,11 @@ void GameWindow::createNewGame(std::string playerName) {
     Player player(playerName);
     WorldState worldState;
     //HACK: Remove this and uncomment below
-    worldState.setCurrentMapName("homeHouseV1.map");
-    worldState.setPlayerPosition(Point<int>(13, 10));
+    // worldState.setCurrentMapName("homeHouseV1.map");
+    // worldState.setPlayerPosition(Point<int>(13, 10));
     player.setFacing(PlayerFacing::Down);
-    // worldState.setCurrentMapName("Outworld.map");
-    // worldState.setPlayerPosition(Point<int>(21, 25));
+    worldState.setCurrentMapName("Outworld.map");
+    worldState.setPlayerPosition(Point<int>(21, 25));
     //worldState.setCurrentMapName("kingAldricCastle-OuterBailey.map");
     //worldState.setPlayerPosition(Point<int>(18, 14)); 
     GameState newGameState(player, worldState);

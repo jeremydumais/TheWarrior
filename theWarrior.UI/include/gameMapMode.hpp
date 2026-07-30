@@ -52,6 +52,13 @@ enum class SleepSequenceState {
     FadingIn
 };
 
+enum class ChangeMapSequenceState {
+    Inactive,
+    FadingOut,
+    ChangeMap,
+    FadingIn
+};
+
 class GameMapMode {
  public:
     GameMapMode();
@@ -109,6 +116,11 @@ class GameMapMode {
     float m_sleepOverlayOpacity = 0.0F;
     Mix_Music *m_sleepMusic = nullptr;
     bool m_restoreHealthAfterSleep = false;
+    
+    // Map change sequence
+    ChangeMapSequenceState m_changeMapSequenceState = ChangeMapSequenceState::Inactive;
+    float m_changeMapOverlayOpacity = 0.0F;
+    std::map<std::string, std::string> m_changeMapProperties;
 
     Mix_Music* m_mapMusic = nullptr;
     Mix_Music* m_battleMusic = nullptr;
@@ -139,6 +151,7 @@ class GameMapMode {
                                        thewarrior::models::MonsterEncounterRatio ratio);
     void loadMap(const std::string &filePath, const std::string &mapName);
     void changeMap(const std::string &filePath, const std::string &mapName);
+    void updateMapChangeSequence(float deltaTime);
     void calculateGLTileCoord(const thewarrior::models::Point<> &tilePosition, GLfloat tileCoord[4][2]);
     void calculateTilesToDisplay();
     void loadMapTextures();
