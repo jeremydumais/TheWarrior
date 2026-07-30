@@ -5,6 +5,7 @@
 #include <array>
 #include <map>
 #include <memory>
+#include <ranges>
 #include <string>
 #include <vector>
 #include <boost/signals2.hpp>

@@ -10,21 +10,21 @@
 #include "conversationScenario.hpp"
 #include "editConversationChoiceFormController.hpp"
 
-class EditConversationChoiceForm : public QDialog
-{
+class EditConversationChoiceForm : public QDialog {
    Q_OBJECT
 
-public:
+ public:
    EditConversationChoiceForm(QWidget *parent,
                               const std::optional<thewarrior::models::ConversationNode> &selectedConversationNode,
                               const std::vector<thewarrior::models::ConversationNodeId> &alreadyUsedNodeIds);
    bool isEditMode() const;
    const thewarrior::models::ConversationNode &getResult() const;
 
-protected:
+ protected:
    bool eventFilter(QObject *watched, QEvent *event) override;
 
-private:
+ private:
+   inline static constexpr auto NO_CANCEL_CHOICE_TEXT = "<None>";
    Ui::editConversationChoiceFormClass ui;
    mapeditor::controllers::EditConversationChoiceFormController m_controller;
    thewarrior::models::ConversationNode m_result;
@@ -34,6 +34,7 @@ private:
    void onPushButtonCancelClick();
    void onPushButtonOKClick();
    void onChoiceItemChanged(QTableWidgetItem *item);
+   void refreshComboBoxCancelChoice();
 };
 
-#endif // MAPEDITOR_SRC_EDITCONVERSATIONCHOICEFORM_HPP_
+#endif  // MAPEDITOR_SRC_EDITCONVERSATIONCHOICEFORM_HPP_

@@ -1,9 +1,12 @@
 #include "fmt/format.h"
 #include <QKeyEvent>
 #include <QSignalBlocker>
+#include <QString>
+#include <QStringList>
 #include <algorithm>
 #include <functional>
 #include <string>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 #include "editConversationChoiceForm.hpp"
@@ -32,8 +35,7 @@ EditConversationChoiceForm::EditConversationChoiceForm(QWidget *parent,
     if (selectedConversationNode.has_value()) {
         auto transition = selectedConversationNode->getTransition();
         ui.lineEditId->setText(selectedConversationNode->getId().c_str());
-        const auto &conversationChoice = boost::get<ConversationChoice>(
-            selectedConversationNode->getContent());
+        const auto &conversationChoice = boost::get<ConversationChoice>(selectedConversationNode->getContent());
         ui.lineEditPrompt->setText(conversationChoice.prompt.c_str());
         for (const auto &option : conversationChoice.options) {
             const int row = ui.tableWidgetChoices->rowCount() - 1;
@@ -41,6 +43,17 @@ EditConversationChoiceForm::EditConversationChoiceForm(QWidget *parent,
                 QString::fromStdString(option.text));
             ui.tableWidgetChoices->item(row, 1)->setText(
                 QString::fromStdString(option.nextNodeId));
+        }
+    }
+    refreshComboBoxCancelChoice();
+    if (selectedConversationNode.has_value()) {
+        const auto &conversationChoice = boost::get<ConversationChoice>(selectedConversationNode->getContent());
+        if (conversationChoice.cancelOptionText.has_value()) {
+            QString optionText = QString::fromStdString(conversationChoice.cancelOptionText.value());
+            int index = ui.comboBoxCancelChoice->findText(optionText);
+            if (index != -1) {
+                ui.comboBoxCancelChoice->setCurrentIndex(index);
+            } 
         }
     }
 }
@@ -122,11 +135,28 @@ void EditConversationChoiceForm::onPushButtonOKClick() {
         return;
     }
 
+    std::unordered_set<std::string> optionTexts;
+    optionTexts.reserve(options.size());
+    for (const auto &option : options) {
+        const std::string normalizedText = QString::fromStdString(option.text).trimmed().toCaseFolded().toStdString();
+        if (!optionTexts.insert(normalizedText).second) {
+            ErrorMessage::show(fmt::format(
+                "Choice text \"{}\" is used more than once.", option.text));
+            return;
+        }
+    }
+
+    std::optional<std::string> cancelOptionText;
+    if (ui.comboBoxCancelChoice->currentText() != NO_CANCEL_CHOICE_TEXT) {
+        cancelOptionText = ui.comboBoxCancelChoice->currentText().toStdString();
+    }
+
     m_result = ConversationNode(
         id,
         ConversationChoice {
             .prompt = prompt,
-            .options = std::move(options)
+            .options = std::move(options),
+            .cancelOptionText = cancelOptionText
         },
         ConversationNodeTransition::stop()
     );
@@ -148,6 +178,7 @@ void EditConversationChoiceForm::onChoiceItemChanged(QTableWidgetItem *item) {
                (!isTextEmpty || !isNextNodeIdEmpty)) {
         appendEmptyChoiceRow();
     }
+    refreshComboBoxCancelChoice();
 }
 
 bool EditConversationChoiceForm::eventFilter(QObject *watched, QEvent *event) {
@@ -216,4 +247,27 @@ bool EditConversationChoiceForm::eventFilter(QObject *watched, QEvent *event) {
     }
 
     return true;
+}
+
+void EditConversationChoiceForm::refreshComboBoxCancelChoice() {
+    QString oldSelectionItem = ui.comboBoxCancelChoice->currentText();
+    ui.comboBoxCancelChoice->model()->removeRows(0, ui.comboBoxCancelChoice->count());
+    QStringList optionsText;
+    const int rowCount = ui.tableWidgetChoices->rowCount();
+    for (int row = 0; row < rowCount; ++row) {
+        const auto *item = ui.tableWidgetChoices->item(row, 0);
+        if (item != nullptr) {
+            const auto text = item->text();
+            if (!text.isEmpty()) {
+                optionsText.append(text);
+            }
+        }
+    }
+    ui.comboBoxCancelChoice->insertItem(0, NO_CANCEL_CHOICE_TEXT);
+    ui.comboBoxCancelChoice->insertItems(1, optionsText);
+    if (optionsText.contains(oldSelectionItem)) {
+        ui.comboBoxCancelChoice->setCurrentIndex(ui.comboBoxCancelChoice->findText(oldSelectionItem));
+    } else {
+        ui.comboBoxCancelChoice->setCurrentIndex(0);
+    }
 }

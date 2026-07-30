@@ -157,64 +157,45 @@ namespace thewarrior::ui
         }
     }
 
-    void GameMapMode::update()
-    {
+    void GameMapMode::update() {
         // Block input during sleep
         if (m_sleepSequenceState != SleepSequenceState::Inactive || m_changeMapSequenceState != ChangeMapSequenceState::Inactive) {
             calculateTilesToDisplay();
             return;
         }
-        switch (m_inputMode)
-        {
+        switch (m_inputMode) {
         case GameMapInputMode::Map:
-            if (m_controller.isMessageDisplayed())
-            {
-                if (m_inputDevicesState->getButtonAState() == InputElementState::Released)
-                {
+            if (m_controller.isMessageDisplayed()) {
+                if (m_inputDevicesState->getButtonAState() == InputElementState::Released) {
                     actionButtonPressed();
                 }
                 break;
             }
-            if (m_inputDevicesState->isADirectionKeyPressed())
-            {
-                if (!m_glPlayer->isInMovement())
-                {
-                    if (m_inputDevicesState->getUpPressed())
-                    {
+            if (m_inputDevicesState->isADirectionKeyPressed()) {
+                if (!m_glPlayer->isInMovement()) {
+                    if (m_inputDevicesState->getUpPressed()) {
                         moveUpPressed();
-                    }
-                    else if (m_inputDevicesState->getDownPressed())
-                    {
+                    } else if (m_inputDevicesState->getDownPressed()) {
                         moveDownPressed();
-                    }
-                    else if (m_inputDevicesState->getLeftPressed())
-                    {
+                    } else if (m_inputDevicesState->getLeftPressed()) {
                         moveLeftPressed();
-                    }
-                    else if (m_inputDevicesState->getRightPressed())
-                    {
+                    } else if (m_inputDevicesState->getRightPressed()) {
                         moveRightPressed();
                     }
                 }
             }
-            if (m_inputDevicesState->getButtonAState() == InputElementState::Released)
-            {
+            if (m_inputDevicesState->getButtonAState() == InputElementState::Released) {
                 actionButtonPressed();
             }
-            if (m_inputDevicesState->isADirectionKeyPressed())
-            {
+            if (m_inputDevicesState->isADirectionKeyPressed()) {
                 if (m_inputDevicesState->getButtonBState() == InputElementState::Pressed ||
-                    m_inputDevicesState->getKeyShiftState() == InputElementState::Pressed)
-                {
+                    m_inputDevicesState->getKeyShiftState() == InputElementState::Pressed) {
                     m_glPlayer->enableRunMode();
-                }
-                else
-                {
+                } else {
                     m_glPlayer->disableRunMode();
                 }
             }
-            if (m_inputDevicesState->getButtonCState() == InputElementState::Released)
-            {
+            if (m_inputDevicesState->getButtonCState() == InputElementState::Released) {
                 showMainMenu();
             }
             break;
@@ -850,8 +831,7 @@ namespace thewarrior::ui
             for (const auto &npc : m_map->getNPCs()) {
                 // Find the related texture
                 const auto &textureResult = m_map->getTextureByName(npc.getTextureName());
-                if (!textureResult.has_value())
-                {
+                if (!textureResult.has_value()) {
                     throw std::runtime_error(fmt::format("Unable to find the texture: {0}", npc.getTextureName()));
                 }
                 GLNPC glNPC(npc, textureResult->get());
@@ -866,12 +846,9 @@ namespace thewarrior::ui
             }
             if (!mapMusicFilename.empty()) {
                 m_mapMusic = Mix_LoadMUS(fmt::format("{0}/sounds/{1}", m_controller.getResourcesPath(), mapMusicFilename).c_str());
-                if (m_mapMusic == nullptr)
-                {
+                if (m_mapMusic == nullptr) {
                     std::cerr << fmt::format("Mix_LoadMUS error: {0}\n", Mix_GetError());
-                }
-                else
-                {
+                } else {
                     Mix_FadeInMusic(m_mapMusic, -1, 2000);
                 }
             }
@@ -960,8 +937,7 @@ namespace thewarrior::ui
         tileCoord[3][1] = {-tileHalfHeight + startPosY - ((tileHalfHeight * 2) * yConverted)}; /* Bottom Left point */
     }
 
-    void GameMapMode::calculateTilesToDisplay()
-    {
+    void GameMapMode::calculateTilesToDisplay() {
         float screenWidth = static_cast<float>(m_screenSize.width());
         float screenHeight = static_cast<float>(m_screenSize.height());
         float screenCenterX = screenWidth / 2.0F;
@@ -1001,8 +977,7 @@ namespace thewarrior::ui
         }
     }
 
-    void GameMapMode::unloadGLMapObjects()
-    {
+    void GameMapMode::unloadGLMapObjects() {
         for (auto &item : m_glTiles) {
             if (item.glMainObject.vboPosition)
                 glDeleteBuffers(1, &item.glMainObject.vboPosition);
@@ -1274,7 +1249,36 @@ namespace thewarrior::ui
 
     void GameMapMode::choicePopupCanceled() {
         if (m_inputMode == GameMapInputMode::ConversationChoice) {
-            // Keep the choice displayed.
+            const auto *node = m_conversationController.getCurrentNode();
+            if (node == nullptr) {
+                failConversation("A conversation choice was canceled without an active node.");
+                return;
+            }
+
+            const auto *choice = boost::get<thewarrior::models::ConversationChoice>(&node->getContent());
+
+            if (choice == nullptr) {
+                failConversation("The active conversation node is not a choice.");
+                return;
+            }
+
+            if (!choice->cancelOptionText.has_value()) {
+                return;
+            }
+
+            const auto option = std::ranges::find(
+                choice->options,
+                *choice->cancelOptionText,
+                &thewarrior::models::ConversationChoiceOption::text);
+
+            if (option == choice->options.end()) {
+                failConversation("The conversation cancel option does not match any choice.");
+                return;
+            }
+
+            const auto optionIndex = static_cast<std::size_t>(std::distance(choice->options.begin(), option));
+
+            conversationChoiceSelected(optionIndex);       
             return;
         }
 

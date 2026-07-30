@@ -95,6 +95,16 @@
        </property>
       </widget>
      </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="labelCancelChoice">
+       <property name="text">
+        <string>Cancel choice :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QComboBox" name="comboBoxCancelChoice"/>
+     </item>
     </layout>
    </item>
    <item>
@@ -164,6 +174,7 @@
   <tabstop>lineEditId</tabstop>
   <tabstop>lineEditPrompt</tabstop>
   <tabstop>tableWidgetChoices</tabstop>
+  <tabstop>comboBoxCancelChoice</tabstop>
   <tabstop>pushButtonOK</tabstop>
   <tabstop>pushButtonCancel</tabstop>
  </tabstops>

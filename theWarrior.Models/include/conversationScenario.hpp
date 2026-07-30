@@ -1,11 +1,13 @@
 #pragma once
 
 #include <boost/serialization/access.hpp>
+#include <boost/serialization/optional.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/variant.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/version.hpp>
 #include <boost/variant.hpp>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -76,15 +78,19 @@ struct ConversationChoiceOption {
 struct ConversationChoice {
     std::string prompt;
     std::vector<ConversationChoiceOption> options;
+    std::optional<std::string> cancelOptionText;
     friend bool operator==(const ConversationChoice &, const ConversationChoice &) = default;
 
  private:
     friend class boost::serialization::access;
 
     template<class Archive>
-    void serialize(Archive &ar, const unsigned int) {
+    void serialize(Archive &ar, const unsigned int version) {
         ar & prompt;
         ar & options;
+        if (version >= 1) {
+            ar & cancelOptionText;
+        }
     }
 };
 
@@ -259,6 +265,7 @@ class ConversationScenario {
 
 }  // namespace thewarrior::models
 
+BOOST_CLASS_VERSION(thewarrior::models::ConversationChoice, 1)
 BOOST_CLASS_VERSION(thewarrior::models::ConversationNode, 1)
 BOOST_CLASS_VERSION(thewarrior::models::RewardAction, 1)
 BOOST_CLASS_VERSION(thewarrior::models::RestRequestedAction, 1)
