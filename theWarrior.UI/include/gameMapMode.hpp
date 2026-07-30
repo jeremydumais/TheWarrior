@@ -129,6 +129,11 @@ class GameMapMode {
                        std::map<std::string, std::string> properties,
                        thewarrior::models::MapTile *tile = nullptr,
                        thewarrior::models::Point<int> tilePosition = thewarrior::models::Point<int>(0, 0));
+    void processMapTileTrigger(
+        const thewarrior::models::MapTileTrigger &trigger,
+        thewarrior::models::MapTile *tile = nullptr,
+        thewarrior::models::Point<int> tilePosition =
+            thewarrior::models::Point<int>(0, 0));
     void checkForMonsterEncounter(const thewarrior::models::MapTile &tile);
     std::string selectMonsterEncounter(const std::vector<thewarrior::models::MonsterZoneMonsterEncounter> &encounters,
                                        thewarrior::models::MonsterEncounterRatio ratio);

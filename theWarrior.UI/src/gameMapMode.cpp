@@ -444,15 +444,20 @@ namespace thewarrior::ui
                 return;
             }
 
-            // Check if you are facing a tile with a ActionButton trigger configured.
-            if (m_glPlayer->isFacing(PlayerFacing::Up))
-            {
-                Point<> tilePositionToProcess = getPlayerFacingTilePosition();
+            // Check if the tile in front of the player has an action-button trigger.
+            Point<> tilePositionToProcess = getPlayerFacingTilePosition();
+            if (tilePositionToProcess.x() >= 0 &&
+                tilePositionToProcess.y() >= 0 &&
+                static_cast<unsigned int>(tilePositionToProcess.x()) < m_map->getWidth() &&
+                static_cast<unsigned int>(tilePositionToProcess.y()) < m_map->getHeight()) {
                 auto &tile = m_map->getTileForEditing(tilePositionToProcess);
                 auto actionButtonTrigger = tile.findConstTrigger(MapTileTriggerEvent::ActionButtonPressed);
                 if (actionButtonTrigger.has_value())
                 {
-                    processAction(actionButtonTrigger->getAction(), actionButtonTrigger->getActionProperties(), &tile, tilePositionToProcess);
+                    processMapTileTrigger(
+                        actionButtonTrigger.value(),
+                        &tile,
+                        tilePositionToProcess);
                 }
             }
         }
@@ -574,7 +579,7 @@ namespace thewarrior::ui
         auto moveUpTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveUpPressed);
         if (moveUpTrigger.has_value())
         {
-            processAction(moveUpTrigger->getAction(), moveUpTrigger->getActionProperties());
+            processMapTileTrigger(moveUpTrigger.value());
         }
         else
         {
@@ -598,7 +603,7 @@ namespace thewarrior::ui
         auto moveDownTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveDownPressed);
         if (moveDownTrigger.has_value())
         {
-            processAction(moveDownTrigger->getAction(), moveDownTrigger->getActionProperties());
+            processMapTileTrigger(moveDownTrigger.value());
         }
         else
         {
@@ -629,7 +634,7 @@ namespace thewarrior::ui
         auto moveLeftTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveLeftPressed);
         if (moveLeftTrigger.has_value())
         {
-            processAction(moveLeftTrigger->getAction(), moveLeftTrigger->getActionProperties());
+            processMapTileTrigger(moveLeftTrigger.value());
         }
         else
         {
@@ -660,7 +665,7 @@ namespace thewarrior::ui
         auto moveRightTrigger = tile.findConstTrigger(MapTileTriggerEvent::MoveRightPressed);
         if (moveRightTrigger.has_value())
         {
-            processAction(moveRightTrigger->getAction(), moveRightTrigger->getActionProperties());
+            processMapTileTrigger(moveRightTrigger.value());
         }
         else
         {
@@ -770,6 +775,31 @@ namespace thewarrior::ui
         default:
             break;
         }
+    }
+
+    void GameMapMode::processMapTileTrigger(
+        const MapTileTrigger &trigger,
+        MapTile *tile,
+        Point<> tilePosition) {
+        if (const auto *conversationAction =
+                boost::get<StartConversationMapTileTriggerAction>(
+                    &trigger.getActionData())) {
+            if (!m_conversationController.start(
+                    "",
+                    conversationAction->scenario)) {
+                failConversation(m_conversationController.getLastError());
+                return;
+            }
+
+            processCurrentConversationNode();
+            return;
+        }
+
+        processAction(
+            trigger.getAction(),
+            trigger.getActionProperties(),
+            tile,
+            tilePosition);
     }
 
     void GameMapMode::checkForMonsterEncounter(const MapTile &tile)
@@ -1213,7 +1243,7 @@ namespace thewarrior::ui
         const auto &tile = m_map->getTileFromCoord(m_controller.getPlayerPosition());
         auto steppedOnTrigger = tile.findConstTrigger(MapTileTriggerEvent::SteppedOn);
         if (steppedOnTrigger.has_value()) {
-            processAction(steppedOnTrigger->getAction(), steppedOnTrigger->getActionProperties());
+            processMapTileTrigger(steppedOnTrigger.value());
         } else {
             checkForMonsterEncounter(tile);
         }

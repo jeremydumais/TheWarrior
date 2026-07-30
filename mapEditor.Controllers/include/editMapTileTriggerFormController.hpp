@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <boost/optional/optional.hpp>
+#include "conversationScenario.hpp"
 #include "mapTileTriggerDTO.hpp"
 
 namespace mapeditor::controllers {
@@ -23,6 +24,7 @@ class EditMapTileTriggerFormController {
     void setCondition(const std::string &condition);
     void setAction(const std::string &action);
     void setActionProperties(const std::map<std::string, std::string> &props);
+    void setConversationScenario(const thewarrior::models::ConversationScenario &scenario);
 
  private:
     const boost::optional<mapeditor::controllers::MapTileTriggerDTO> m_currentTrigger;
@@ -32,4 +34,3 @@ class EditMapTileTriggerFormController {
 };
 
 }  // namespace mapeditor::controllers
-

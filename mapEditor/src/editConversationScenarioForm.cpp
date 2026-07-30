@@ -183,7 +183,7 @@ void EditConversationScenarioForm::onPushButtonOKClick() {
 
         if (const auto *choice = boost::get<thewarrior::models::ConversationChoice>(&node.getContent())) {
             for (const auto &option : choice->options) {
-                if (!nodeIds.contains(option.nextNodeId)) {
+                if (!nodeIds.contains(option.nextNodeId) && option.nextNodeId != "<stop>") {
                     ErrorMessage::show(fmt::format(
                         "Node {} references a next node id {} that does not exist.",
                         node.getId(),

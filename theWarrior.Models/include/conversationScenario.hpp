@@ -25,6 +25,7 @@ enum class ConversationNodeTransitionType {
 class ConversationNodeTransition {
  public:
     ConversationNodeTransition() = default;
+    friend bool operator==(const ConversationNodeTransition &, const ConversationNodeTransition &) = default;
     static ConversationNodeTransition nextInOrder();
     static ConversationNodeTransition stop();
     static ConversationNodeTransition toNode(const ConversationNodeId &nodeId);
@@ -46,6 +47,7 @@ class ConversationNodeTransition {
 
 struct ConversationDialogue {
     std::vector<std::string> lines;
+    friend bool operator==(const ConversationDialogue &, const ConversationDialogue &) = default;
 
  private:
     friend class boost::serialization::access;
@@ -59,6 +61,7 @@ struct ConversationDialogue {
 struct ConversationChoiceOption {
     std::string text;
     ConversationNodeId nextNodeId;
+    friend bool operator==(const ConversationChoiceOption &, const ConversationChoiceOption &) = default;
 
  private:
     friend class boost::serialization::access;
@@ -73,6 +76,7 @@ struct ConversationChoiceOption {
 struct ConversationChoice {
     std::string prompt;
     std::vector<ConversationChoiceOption> options;
+    friend bool operator==(const ConversationChoice &, const ConversationChoice &) = default;
 
  private:
     friend class boost::serialization::access;
@@ -88,6 +92,7 @@ struct ConversationChoice {
 
 struct GoldReward {
     unsigned int amount = 0;
+    friend bool operator==(const GoldReward &, const GoldReward &) = default;
 
  private:
     friend class boost::serialization::access;
@@ -101,6 +106,7 @@ struct GoldReward {
 struct ItemReward {
     ItemId itemId;
     unsigned int quantity = 1;
+    friend bool operator==(const ItemReward &, const ItemReward &) = default;
 
  private:
     friend class boost::serialization::access;
@@ -118,6 +124,7 @@ struct RewardAction {
     Reward reward;
     ConversationNodeTransition failureTransition =
         ConversationNodeTransition::stop();
+    friend bool operator==(const RewardAction &, const RewardAction &) = default;
 
  private:
     friend class boost::serialization::access;
@@ -134,6 +141,7 @@ struct RewardAction {
 struct ProgressStoryLineAction {
     StoryId storyId;
     std::string stageId;
+    friend bool operator==(const ProgressStoryLineAction &, const ProgressStoryLineAction &) = default;
 
  private:
     friend class boost::serialization::access;
@@ -150,6 +158,7 @@ struct RestRequestedAction {
     bool restoreHealth = true;
     ConversationNodeTransition failureTransition =
         ConversationNodeTransition::stop();
+    friend bool operator==(const RestRequestedAction &, const RestRequestedAction &) = default;
 
  private:
     friend class boost::serialization::access;
@@ -181,6 +190,7 @@ using ConversationNodeContent = boost::variant<
 class ConversationNode {
  public:
     ConversationNode() = default;
+    friend bool operator==(const ConversationNode &, const ConversationNode &) = default;
     ConversationNode(const ConversationNodeId &id,
                      const ConversationNodeContent &content,
                      const ConversationNodeTransition &transition =
@@ -214,6 +224,7 @@ class ConversationNode {
 class ConversationScenario {
  public:
     ConversationScenario() = default;
+    friend bool operator==(const ConversationScenario &, const ConversationScenario &) = default;
     ConversationScenario(const ConversationScenarioId &id,
                          const StoryId &conditionalStoryIdCompleted,
                          const std::vector<ConversationNode> &nodes);

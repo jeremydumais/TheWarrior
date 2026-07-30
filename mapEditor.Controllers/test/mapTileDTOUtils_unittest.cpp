@@ -31,6 +31,7 @@ void MapTileDTOComparer(MapTileDTO val1, MapTileDTO val2) {
         ASSERT_EQ(val1trig.condition, val2trig.condition);
         ASSERT_EQ(val1trig.action, val2trig.action);
         ASSERT_EQ(val1trig.actionProperties, val2trig.actionProperties);
+        ASSERT_EQ(val1trig.conversationScenario, val2trig.conversationScenario);
     }
 }
 

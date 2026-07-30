@@ -52,10 +52,10 @@ class MapTile {
     std::string m_objectTextureName;
     int m_objectTextureIndex;
     bool m_canSteppedOn;
+    bool m_allowsInteractionThrough;
     bool m_objectAbovePlayer;
     bool m_isWallToClimb;
     int m_monsterZoneIndex;
-    bool m_allowsInteractionThrough;
     std::vector<MapTileTrigger> m_triggers;
     // Serialization method
     template<class Archive>

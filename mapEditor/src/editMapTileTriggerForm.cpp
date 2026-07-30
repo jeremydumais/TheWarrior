@@ -1,9 +1,11 @@
 #include "editMapTileTriggerForm.hpp"
+#include "editConversationScenarioForm.hpp"
 #include <fmt/format.h>
 #include <QFileDialog>
 #include <QImageReader>
 #include <algorithm>
 #include <boost/optional/optional.hpp>
+#include "editConversationScenarioForm.hpp"
 #include "editTileActionChangeMapPropertiesForm.hpp"
 #include "editTileActionOpenChestPropertiesForm.hpp"
 #include "errorMessage.hpp"
@@ -30,6 +32,7 @@ EditMapTileTriggerForm::EditMapTileTriggerForm(QWidget *parent,
     m_isEditMode(currentTrigger.has_value()) {
     ui.setupUi(this);
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
+    generateComboxItems();
     connect(ui.pushButtonMapTileActionProperties,
             &QPushButton::clicked,
             this,
@@ -54,8 +57,6 @@ EditMapTileTriggerForm::EditMapTileTriggerForm(QWidget *parent,
             static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this,
             &EditMapTileTriggerForm::onComboBoxActionIndexChanged);
-
-    generateComboxItems();
 
     if (!m_isEditMode) {
         this->setWindowTitle("Add map tile trigger");
@@ -117,6 +118,15 @@ void EditMapTileTriggerForm::onPushButtonTileActionPropertiesClick() {
                 m_controller.getUpdatedTrigger().actionProperties);
         if (formEdit.exec() == QDialog::Accepted) {
             m_controller.setActionProperties(formEdit.getUpdatedProperties());
+        }
+    } else if (ui.comboBoxAction->currentIndex() == static_cast<int>(MapTileTriggerAction::ConversationScenario)) {
+        EditConversationScenarioForm formEdit(
+                this,
+                m_resourcesPath,
+                m_controller.getUpdatedTrigger().conversationScenario,
+                {});
+        if (formEdit.exec() == QDialog::Accepted) {
+            m_controller.setConversationScenario(formEdit.getResult());
         }
     }
 }

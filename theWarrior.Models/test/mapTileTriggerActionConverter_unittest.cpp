@@ -4,9 +4,9 @@
 using namespace std;
 using namespace thewarrior::models;
 
-TEST(MapTileTriggerActionConverter_allActionsToString, Return3Actions)
+TEST(MapTileTriggerActionConverter_allActionsToString, Return5Actions)
 {
-    ASSERT_EQ(4, MapTileTriggerActionConverter::allActionsToString().size());
+    ASSERT_EQ(5, MapTileTriggerActionConverter::allActionsToString().size());
 }
 
 TEST(MapTileTriggerActionConverter_actionToString, withNone_ReturnNoneStr)
@@ -42,6 +42,15 @@ TEST(MapTileTriggerActionConverter_actionToString, withDenyMove_ReturnDenyMoveSt
     ASSERT_EQ("DenyMove"s, MapTileTriggerActionConverter::actionToString(trigger.getAction()));
 }
 
+TEST(MapTileTriggerActionConverter_actionToString,
+     withConversationScenario_ReturnConversationScenarioStr)
+{
+    ASSERT_EQ(
+        "ConversationScenario"s,
+        MapTileTriggerActionConverter::actionToString(
+            MapTileTriggerAction::ConversationScenario));
+}
+
 TEST(MapTileTriggerActionConverter_actionFromString, withNone_ReturnNoneAction)
 {
     ASSERT_EQ(MapTileTriggerAction::None, MapTileTriggerActionConverter::actionFromString("None"s));
@@ -65,6 +74,15 @@ TEST(MapTileTriggerActionConverter_actionFromString, withChangeMap_ReturnChangeM
 TEST(MapTileTriggerActionConverter_actionFromString, withDenyMove_ReturnDenyMoveAction)
 {
     ASSERT_EQ(MapTileTriggerAction::DenyMove, MapTileTriggerActionConverter::actionFromString("DenyMove"s));
+}
+
+TEST(MapTileTriggerActionConverter_actionFromString,
+     withConversationScenario_ReturnConversationScenarioAction)
+{
+    ASSERT_EQ(
+        MapTileTriggerAction::ConversationScenario,
+        MapTileTriggerActionConverter::actionFromString(
+            "ConversationScenario"s));
 }
 
 TEST(MapTileTriggerActionConverter_actionFromString, withNonExistantAction_ReturnEmpty)

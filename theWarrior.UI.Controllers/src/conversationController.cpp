@@ -127,6 +127,10 @@ bool ConversationController::selectChoice(std::size_t optionIndex) {
         return fail("The selected conversation option is out of range.");
     }
 
+    if (choice->options[optionIndex].nextNodeId == "<stop>") {
+        m_state = ConversationState::Completed;
+        return true;
+    }
     return moveToNode(choice->options[optionIndex].nextNodeId);
 }
 

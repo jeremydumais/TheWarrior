@@ -11,7 +11,7 @@ std::string MapTileTriggerActionConverter::actionToString(MapTileTriggerAction a
 boost::optional<MapTileTriggerAction> MapTileTriggerActionConverter::actionFromString(const std::string &actionStr) {
     auto allActionsStr { allActionsToString() };
 
-    auto iter { find_if(allActionsStr.begin(), allActionsStr.end(), [&actionStr](const std::string &actionStr2) {
+    auto iter { std::ranges::find_if(allActionsStr, [&actionStr](const std::string &actionStr2) {
         return boost::iequals(actionStr, actionStr2);
         }) };
     if (iter != allActionsStr.end()) {
@@ -24,7 +24,8 @@ std::vector<std::string> MapTileTriggerActionConverter::allActionsToString() {
     return { "None",
              "OpenChest",
              "ChangeMap",
-             "DenyMove" };
+             "DenyMove",
+             "ConversationScenario" };
 }
 
 }  // namespace thewarrior::models
