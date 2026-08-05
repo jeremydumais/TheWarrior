@@ -14,7 +14,9 @@ public:
             "Wooden Shield",
 			"tex1",
             1,
-            ""
+            "",
+            3,
+            2
 		}
     {}
 	ItemCreationInfo itemCreationInfo;
@@ -29,7 +31,9 @@ public:
             "Wooden Shield",
 			"tex1",
             1,
-            "A perfect first shield"
+            "A perfect first shield",
+            3,
+            2
 		})
     {}
 	Item item;
@@ -195,6 +199,16 @@ TEST_F(ValidItemSample1, getOptionalDescription_ReturnAPerfectFirstShield)
     ASSERT_EQ("A perfect first shield", item.getOptionalDescription());
 }
 
+TEST_F(ValidItemSample1, getDefaultBuyPrice_Return3)
+{
+    ASSERT_EQ(3, item.getDefaultBuyPrice());
+}
+
+TEST_F(ValidItemSample1, getDefaultSellPrice_Return2)
+{
+    ASSERT_EQ(2, item.getDefaultSellPrice());
+}
+
 TEST_F(ValidItemSample1, setId_WithEmpty_ThrowInvalidArgument)
 {
     itemSetIdWithInvalidArgument(item, "", "id cannot be empty.");
@@ -275,6 +289,18 @@ TEST_F(ValidItemSample1, setOptionalDescription_WithTest_ReturnSuccess)
     ASSERT_EQ(expected, item.getOptionalDescription());
 }
 
+TEST_F(ValidItemSample1, setDefaultBuyPrice_With4_ReturnSuccess)
+{
+    item.setDefaultBuyPrice(4);
+    ASSERT_EQ(4, item.getDefaultBuyPrice());
+}
+
+TEST_F(ValidItemSample1, setDefaultSellPrice_With4_ReturnSuccess)
+{
+    item.setDefaultSellPrice(4);
+    ASSERT_EQ(4, item.getDefaultSellPrice());
+}
+
 TEST_F(ValidItemSample1, equalityOperator_WithIdenticalItem_ReturnTrue)
 {
     ASSERT_EQ(item, Item({
@@ -282,7 +308,9 @@ TEST_F(ValidItemSample1, equalityOperator_WithIdenticalItem_ReturnTrue)
             "Wooden Shield",
 			"tex1",
             1,
-            "A perfect first shield"
+            "A perfect first shield",
+            3,
+            2
 	}));
 }
 
@@ -337,6 +365,32 @@ TEST_F(ValidItemSample1, equalityOperator_WithDifferentOptionalDescription_Retur
 	}));
 }
 
+TEST_F(ValidItemSample1, equalityOperator_WithDifferentDefaultBuyPrice_ReturnFalse)
+{
+    ASSERT_FALSE(item == Item({
+			"shd001",
+            "Wooden Shield",
+			"tex1",
+            1,
+            "Another description",
+            5,
+            2
+	}));
+}
+
+TEST_F(ValidItemSample1, equalityOperator_WithDifferentDefaultSellPrice_ReturnFalse)
+{
+    ASSERT_FALSE(item == Item({
+			"shd001",
+            "Wooden Shield",
+			"tex1",
+            1,
+            "Another description",
+            3,
+            4
+	}));
+}
+
 TEST_F(ValidItemSample1, inequalityOperator_WithIdenticalItem_ReturnFalse)
 {
     ASSERT_FALSE(item != Item({
@@ -344,7 +398,9 @@ TEST_F(ValidItemSample1, inequalityOperator_WithIdenticalItem_ReturnFalse)
             "Wooden Shield",
 			"tex1",
             1,
-            "A perfect first shield"
+            "A perfect first shield",
+            3,
+            2
 	}));
 }
 
@@ -396,5 +452,31 @@ TEST_F(ValidItemSample1, inequalityOperator_WithDifferenOptionalDescription_Retu
 			"tex1",
             1,
             "Another description"
+	}));
+}
+
+TEST_F(ValidItemSample1, inequalityOperator_WithDifferenDefaultBuyPrice_ReturnTrue)
+{
+    ASSERT_NE(item, Item({
+			"shd001",
+            "Wooden Shield",
+			"tex1",
+            1,
+            "Another description",
+            4,
+            2
+	}));
+}
+
+TEST_F(ValidItemSample1, inequalityOperator_WithDifferenDefaultSellPrice_ReturnTrue)
+{
+    ASSERT_NE(item, Item({
+			"shd001",
+            "Wooden Shield",
+			"tex1",
+            1,
+            "Another description",
+            3,
+            4
 	}));
 }

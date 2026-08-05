@@ -59,7 +59,7 @@ bool ManageStatsItemController::validateDurationInSecs(const std::string &durati
 std::unique_ptr<ItemDTO> ManageStatsItemController::getItem(const std::string &id) const {
     auto item = m_itemStore->findItem(id);
     if (item != nullptr) {
-        auto statsItem = dynamic_cast<const StatsItem *>(item.get());
+        const auto *statsItem = dynamic_cast<const StatsItem *>(item.get());
         if (statsItem != nullptr) {
             auto retval = std::make_unique<StatsItemDTO>();
             retval->id = statsItem->getId();
@@ -67,6 +67,8 @@ std::unique_ptr<ItemDTO> ManageStatsItemController::getItem(const std::string &i
             retval->textureName = statsItem->getTextureName();
             retval->textureIndex = statsItem->getTextureIndex();
             retval->optionalDescription = statsItem->getOptionalDescription();
+            retval->defaultBuyPrice = statsItem->getDefaultBuyPrice();
+            retval->defaultSellPrice = statsItem->getDefaultSellPrice();
             retval->statChangingIndex = static_cast<int>(statsItem->getStatChanging());
             retval->gain = statsItem->getGain();
             retval->limitOfOneApplied = statsItem->getLimitOfOneApplied();
@@ -78,8 +80,8 @@ std::unique_ptr<ItemDTO> ManageStatsItemController::getItem(const std::string &i
 }
 
 std::shared_ptr<Item> ManageStatsItemController::itemDTOToItem(std::unique_ptr<ItemDTO> dto) {
-    StatsItemDTO *statsDTO = dynamic_cast<StatsItemDTO *>(dto.get());
-    if (!statsDTO) {
+    auto *statsDTO = dynamic_cast<StatsItemDTO *>(dto.get());
+    if (statsDTO == nullptr) {
         return nullptr;
     }
     StatsItemCreationInfo creationInfo = {
@@ -89,6 +91,8 @@ std::shared_ptr<Item> ManageStatsItemController::itemDTOToItem(std::unique_ptr<I
             statsDTO->textureName,
             statsDTO->textureIndex,
             statsDTO->optionalDescription,
+            statsDTO->defaultBuyPrice,
+            statsDTO->defaultSellPrice
         },
         static_cast<Stats>(statsDTO->statChangingIndex),
         statsDTO->gain,

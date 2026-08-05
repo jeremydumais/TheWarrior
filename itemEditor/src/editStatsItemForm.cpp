@@ -51,6 +51,8 @@ bool EditStatsItemForm::loadExistingItemToForm()
             ui.lineEditTextureName->setText(statsItemDTO->textureName.c_str());
             ui.spinBoxTextureIndex->setValue(statsItemDTO->textureIndex);
             ui.lineEditOptionalDescription->setText(statsItemDTO->optionalDescription.c_str());
+            ui.spinBoxDefaultBuyPrice->setValue(static_cast<int>(existingItem->defaultBuyPrice));
+            ui.spinBoxDefaultSellPrice->setValue(static_cast<int>(existingItem->defaultSellPrice));
             ui.comboBoxStatChanging->setCurrentIndex(statsItemDTO->statChangingIndex);
             ui.lineEditGain->setText(std::to_string(statsItemDTO->gain).c_str());
             ui.checkBoxLimitOfOneApplied->setChecked(statsItemDTO->limitOfOneApplied);
@@ -87,6 +89,8 @@ void EditStatsItemForm::onPushButtonOKClick()
     itemInfo->textureName = ui.lineEditTextureName->text().toStdString();
     itemInfo->textureIndex = ui.spinBoxTextureIndex->value();
     itemInfo->optionalDescription = ui.lineEditOptionalDescription->text().toStdString();
+    itemInfo->defaultBuyPrice = static_cast<unsigned int>(ui.spinBoxDefaultBuyPrice->value());
+    itemInfo->defaultSellPrice = static_cast<unsigned int>(ui.spinBoxDefaultSellPrice->value());
     itemInfo->statChangingIndex = ui.comboBoxStatChanging->currentIndex();
     itemInfo->gain = stof(ui.lineEditGain->text().toStdString());
     itemInfo->limitOfOneApplied = ui.checkBoxLimitOfOneApplied->isChecked();

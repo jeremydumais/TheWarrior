@@ -28,6 +28,8 @@ class FakePlayer : public Player {
                                                "Tex1",
                                                1,
                                                "",
+                                               2,
+                                               1,
                                                1.6F,
                                                WeaponBodyPart::MainHand}));
         getEquipment().setSecondaryHand(VariantEquipment(FakePlayer::getFakeArmor(1.7F, ArmorBodyPart::SecondaryHand)));
@@ -44,6 +46,8 @@ class FakePlayer : public Player {
                           "Tex1",
                           1,
                           "",
+                          2,
+                          1,
                           defenseGain,
                           bodyPart});
     }

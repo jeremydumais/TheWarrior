@@ -43,6 +43,8 @@ bool EditItemForm::loadExistingItemToForm()
         ui.lineEditTextureName->setText(existingItem->textureName.c_str());
         ui.spinBoxTextureIndex->setValue(existingItem->textureIndex);
         ui.lineEditOptionalDescription->setText(existingItem->optionalDescription.c_str());
+        ui.spinBoxDefaultBuyPrice->setValue(static_cast<int>(existingItem->defaultBuyPrice));
+        ui.spinBoxDefaultSellPrice->setValue(static_cast<int>(existingItem->defaultSellPrice));
     }
     else {
         ErrorMessage::show("Unable to load the selected item");
@@ -64,6 +66,8 @@ void EditItemForm::onPushButtonOKClick()
     itemInfo->textureName = ui.lineEditTextureName->text().toStdString();
     itemInfo->textureIndex = ui.spinBoxTextureIndex->value();
     itemInfo->optionalDescription = ui.lineEditOptionalDescription->text().toStdString();
+    itemInfo->defaultBuyPrice = static_cast<unsigned int>(ui.spinBoxDefaultBuyPrice->value());
+    itemInfo->defaultSellPrice = static_cast<unsigned int>(ui.spinBoxDefaultSellPrice->value());
     if (!m_itemIdToEdit.has_value()) {
         if (!m_controller.addItem(std::move(itemInfo))) {
             ErrorMessage::show(m_controller.getLastError());

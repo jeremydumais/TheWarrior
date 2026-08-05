@@ -10,8 +10,7 @@ using namespace thewarrior::models;
 namespace itemeditor::controllers {
 
 ManageItemController::ManageItemController(std::shared_ptr<ItemStore> itemStore)
-    : m_itemStore(itemStore),
-      m_lastError("") {
+    : m_itemStore(itemStore) {
 }
 
 const std::string& ManageItemController::getLastError() const {
@@ -35,6 +34,8 @@ std::unique_ptr<ItemDTO> ManageItemController::getItem(const std::string &id) co
         retval->textureName = item->getTextureName();
         retval->textureIndex = item->getTextureIndex();
         retval->optionalDescription = item->getOptionalDescription();
+        retval->defaultBuyPrice = item->getDefaultBuyPrice();
+        retval->defaultSellPrice = item->getDefaultSellPrice();
         return retval;
     }
     return nullptr;
@@ -91,7 +92,9 @@ std::shared_ptr<Item> ManageItemController::itemDTOToItem(std::unique_ptr<ItemDT
         dto->name,
         dto->textureName,
         dto->textureIndex,
-        dto->optionalDescription
+        dto->optionalDescription,
+        dto->defaultBuyPrice,
+        dto->defaultSellPrice
     };
     std::shared_ptr<Item> updateItem = nullptr;
     try {

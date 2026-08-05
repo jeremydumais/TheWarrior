@@ -136,6 +136,34 @@
      <item row="3" column="1">
       <widget class="QLineEdit" name="lineEditOptionalDescription"/>
      </item>
+     <item row="5" column="1">
+      <widget class="QSpinBox" name="spinBoxDefaultSellPrice">
+       <property name="maximum">
+        <number>999</number>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QSpinBox" name="spinBoxDefaultBuyPrice">
+       <property name="maximum">
+        <number>999</number>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string>Default Sell Price :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>Default Buy Price :</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
   </layout>
@@ -147,6 +175,8 @@
   <tabstop>spinBoxTextureIndex</tabstop>
   <tabstop>pushButtonTexturePicker</tabstop>
   <tabstop>lineEditOptionalDescription</tabstop>
+  <tabstop>spinBoxDefaultBuyPrice</tabstop>
+  <tabstop>spinBoxDefaultSellPrice</tabstop>
   <tabstop>pushButtonOK</tabstop>
   <tabstop>pushButtonCancel</tabstop>
  </tabstops>

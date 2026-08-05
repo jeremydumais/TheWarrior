@@ -24,6 +24,8 @@ std::shared_ptr<Item> getWeaponItemSample()
         "tex1",
         2,
         "",
+        2,
+        1,
         1.1F,
         WeaponBodyPart::MainHand
     }));

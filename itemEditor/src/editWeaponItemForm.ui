@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>570</width>
-    <height>257</height>
+    <height>290</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -120,21 +120,21 @@
        </item>
       </layout>
      </item>
-     <item row="5" column="0">
+     <item row="7" column="0">
       <widget class="QLabel" name="labelAttackGain">
        <property name="text">
         <string>Attack gain :</string>
        </property>
       </widget>
      </item>
-     <item row="6" column="0">
+     <item row="8" column="0">
       <widget class="QLabel" name="label_6">
        <property name="text">
         <string>Slot in body part :</string>
        </property>
       </widget>
      </item>
-     <item row="5" column="1">
+     <item row="7" column="1">
       <widget class="QLineEdit" name="lineEditAttackGain">
        <property name="maximumSize">
         <size>
@@ -144,7 +144,7 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
+     <item row="8" column="1">
       <widget class="QComboBox" name="comboBoxSlotInBodyPart"/>
      </item>
      <item row="4" column="1">
@@ -154,6 +154,34 @@
       <widget class="QLabel" name="label_5">
        <property name="text">
         <string>Description (Optional) : </string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string>Default Buy Price :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="label_8">
+       <property name="text">
+        <string>Default Sell Price :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QSpinBox" name="spinBoxDefaultBuyPrice">
+       <property name="maximum">
+        <number>999</number>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="QSpinBox" name="spinBoxDefaultSellPrice">
+       <property name="maximum">
+        <number>999</number>
        </property>
       </widget>
      </item>
@@ -168,6 +196,8 @@
   <tabstop>spinBoxTextureIndex</tabstop>
   <tabstop>pushButtonTexturePicker</tabstop>
   <tabstop>lineEditOptionalDescription</tabstop>
+  <tabstop>spinBoxDefaultBuyPrice</tabstop>
+  <tabstop>spinBoxDefaultSellPrice</tabstop>
   <tabstop>lineEditAttackGain</tabstop>
   <tabstop>comboBoxSlotInBodyPart</tabstop>
   <tabstop>pushButtonOK</tabstop>
