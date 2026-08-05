@@ -1,5 +1,8 @@
 <RCC>
   <qresource>
+    <file>shield.png</file>
+    <file>sword.png</file>
+    <file>statsitem.png</file>
     <file>applyNPCWanderingZone.png</file>
     <file>clearNPCWanderingZone.png</file>
     <file>undoDisabled.png</file>
@@ -12,6 +15,7 @@
     <file>applyMonsterZone.png</file>
     <file>../../commonEditor.UI/res/gtk-edit.svg</file>
     <file>../../commonEditor.UI/res/gtk-delete.svg</file>
+    <file>../../commonEditor.UI/res/price.png</file>
     <file>../../commonEditor.UI/res/gtk-add.svg</file>
     <file>../../commonEditor.UI/res/exit.svg</file>
     <file>../../commonEditor.UI/res/document-save.svg</file>

@@ -74,7 +74,7 @@ class NPC {
 
  private:
     friend class boost::serialization::access;
-    NPC() = default;   // Needed for deserialization
+    NPC() = default;  // Needed for deserialization
     std::string m_id;
     std::string m_name;
     std::string m_textureName;

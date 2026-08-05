@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <iterator>
 #include <memory>
+#include <ranges>
 #include <set>
 #include <string>
 #include <utility>
@@ -13,6 +14,9 @@
 #include "mapTileDTOUtils.hpp"
 #include "mapTileTrigger.hpp"
 #include "mapTileTriggerEventConverter.hpp"
+#include "merchantInventory.hpp"
+#include "merchantInventoryDTO.hpp"
+#include "merchantInventoryDTOUtils.hpp"
 #include "monsterZone.hpp"
 #include "monsterZoneDTOUtils.hpp"
 #include "npc.hpp"
@@ -36,7 +40,9 @@ using thewarrior::models::MapTileTriggerCondition;
 using thewarrior::models::MapTileTriggerEvent;
 using thewarrior::models::MapTileTriggerEventConverter;
 using thewarrior::models::MapTileTriggerAction;
+using thewarrior::models::MerchantInventory;
 using thewarrior::models::Point;
+using mapeditor::controllers::MerchantInventoryDTO;
 using mapeditor::controllers::MonsterZoneDTO;
 using mapeditor::controllers::NPCDTO;
 
@@ -141,6 +147,17 @@ std::vector<std::string> GLComponentController::getAlreadyUsedNPCIds() const {
     return alreadyUsedNPCIds;
 }
 
+std::vector<std::string> GLComponentController::getAlreadyUsedMerchantInventoryNames() const {
+    std::vector<std::string> alreadyUsedMerchantInventoryNames;
+    if (m_map != nullptr) {
+        std::ranges::transform(m_map->getMerchantInventories(),
+                               back_inserter(alreadyUsedMerchantInventoryNames),
+                               [](MerchantInventory const& x) { return x.getName(); });
+    }
+    return alreadyUsedMerchantInventoryNames;
+}
+
+
 bool isTextureNameUsedInTile(const std::string &name, const MapTile &tile) {
     return tile.getTextureName() == name ||
            tile.getObjectTextureName() == name;
@@ -218,6 +235,14 @@ OptNPCDTOConst GLComponentController::getNPCById(const std::string &name) const 
         return OptNPCDTOConst { npcDTO };
     }
     return std::nullopt;
+}
+
+std::vector<MerchantInventoryDTO> GLComponentController::getMerchantInventories() const {
+    std::vector<MerchantInventoryDTO> retval = {};
+    std::ranges::transform(m_map->getMerchantInventories(),
+                           std::back_inserter(retval),
+                           MerchantInventoryDTOUtils::fromMerchantInventory);
+    return retval;
 }
 
 bool GLComponentController::canDisableCanSteppedOnForSelectedTiles() const {

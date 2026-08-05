@@ -24,16 +24,19 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mainForm_GLComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/tilePropsComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/textureListComponent.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/components/merchantInventoryListComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/monsterZoneListComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/npcListComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/textureSelectionDockWidget.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/components/mapPropsComponent.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/aboutBoxForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/addMerchantInventoryItemForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editConversationActionForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editConversationChoiceForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editConversationDialogueForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editConversationScenarioForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editItemStoreForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/editMerchantInventoryForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterEncounterForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterStoreForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterZoneForm.cpp

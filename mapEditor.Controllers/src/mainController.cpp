@@ -10,7 +10,10 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/filesystem.hpp>
 #include "configurationManager.hpp"
+#include "itemStore.hpp"
+#include "itemStoreStorage.hpp"
 #include "mainController.hpp"
+#include "manageItemStoreController.hpp"
 #include "manageMonsterStoreController.hpp"
 #include "monsterStore.hpp"
 #include "monsterStoreStorage.hpp"
@@ -20,9 +23,11 @@
 
 using commoneditor::ui::TextureDTO;
 using thewarrior::models::GameMap;
+using thewarrior::models::ItemStore;
 using thewarrior::models::MonsterStore;
 using thewarrior::models::Texture;
 using thewarrior::storage::ConfigurationManager;
+using thewarrior::storage::ItemStoreStorage;
 using thewarrior::storage::MonsterStoreStorage;
 using thewarrior::utils::SpecialFolders;
 
@@ -68,6 +73,10 @@ const std::vector<Texture>& MainController::getTextures() const {
 
 const std::shared_ptr<ContainerOfMonsterStore> &MainController::getMonsterStores() const {
     return m_monsterStores;
+}
+
+const std::shared_ptr<ContainerOfItemStore> &MainController::getItemStores() const {
+    return m_itemStores;
 }
 
 bool MainController::canDisableCanSteppedOnForSelectedTiles() const {
@@ -210,6 +219,32 @@ bool MainController::removeMonsterZone(const std::string &name) {
     if (!m_glComponentController->removeMonsterZone(name)) {
         m_lastError = m_glComponentController->getLastError();
         return false;
+    }
+    return true;
+}
+
+bool MainController::loadConfiguredItemStores() {
+    if (m_itemStores == nullptr) {
+        m_itemStores = std::make_shared<ContainerOfItemStore>();
+    }
+    ManageItemStoreController manageItemStoreController(m_resourcesPath, m_userConfigFolder);
+    if (!manageItemStoreController.loadItemStore()) {
+        m_lastError = fmt::format("Unable to load configured item store list. {0}",
+                                  manageItemStoreController.getLastError());
+        return false;
+    }
+    m_itemStores->clear();
+    for (const auto &itemStoreInfo : manageItemStoreController.getItemStores()) {
+        ItemStoreStorage storage;
+        std::shared_ptr<ItemStore> store = std::make_shared<ItemStore>();
+        try {
+            storage.loadItemStore(fmt::format("{0}/items/{1}", m_resourcesPath, itemStoreInfo.filename), store);
+            m_itemStores->insert({ itemStoreInfo.name, store });
+        }
+        catch(const std::exception &err) {
+            m_lastError = err.what();
+            return false;
+        }
     }
     return true;
 }

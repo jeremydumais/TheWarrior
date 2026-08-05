@@ -25,6 +25,7 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/conversationScenario.cp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/player.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/playerEquipment.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/inventory.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/merchantInventory.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/npc.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/monster.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterStore.cpp

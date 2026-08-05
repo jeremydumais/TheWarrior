@@ -2,12 +2,15 @@
 #include <optional>
 #include <string>
 #include "gameMap.hpp"
+#include "merchantInventory.hpp"
 #include "monsterZone.hpp"
 #include "npc.hpp"
 #include "point.hpp"
 #include "rgbItemColor.hpp"
 
 using thewarrior::models::GameMap;
+using thewarrior::models::MerchantInventory;
+using thewarrior::models::MerchantInventoryType;
 using thewarrior::models::MonsterZone;
 using thewarrior::models::NPC;
 using thewarrior::models::Point;
@@ -111,6 +114,22 @@ class SampleGameMap5x6WithOneMonsterZone : public ::testing::Test {
 };
 
 SampleGameMap5x6WithOneMonsterZone::~SampleGameMap5x6WithOneMonsterZone() = default;
+
+class SampleGameMapWithTwoMerchantInventories : public ::testing::Test {
+ public:
+    SampleGameMapWithTwoMerchantInventories()
+        : map(5, 6) {
+        MerchantInventory blacksmith("Blacksmith", MerchantInventoryType::WeaponsAndArmors);
+        blacksmith.addItem("sword001");
+        map.addMerchantInventory(blacksmith);
+
+        MerchantInventory apothecary("Apothecary", MerchantInventoryType::StatsItems);
+        apothecary.addItem("potion001");
+        map.addMerchantInventory(apothecary);
+    }
+
+    GameMap map;
+};
 
 TEST(GameMap_Constructor, ZeroWidth_ThrowInvalidArgument) {
     try {
@@ -1134,4 +1153,116 @@ TEST_F(SampleGameMap5x6WithTwoTextures, removeNPCWanderingZone_withNPC001AndTwoI
     }
     const auto &wanderZone = npc->get().getWanderZone();
     ASSERT_EQ(0, wanderZone.size());
+}
+
+TEST(GameMap_getMerchantInventoryByName, WithMissingName_ReturnNullopt) {
+    GameMap map(5, 6);
+
+    EXPECT_FALSE(map.getMerchantInventoryByName("Blacksmith").has_value());
+}
+
+TEST_F(SampleGameMapWithTwoMerchantInventories,
+       getMerchantInventoryByName_WithExistingName_ReturnInventory) {
+    const auto inventory = map.getMerchantInventoryByName("Blacksmith");
+
+    ASSERT_TRUE(inventory.has_value());
+    EXPECT_EQ("Blacksmith", inventory->get().getName());
+    ASSERT_EQ(1U, inventory->get().getItemIds().size());
+    EXPECT_EQ("sword001", inventory->get().getItemIds().front());
+}
+
+TEST_F(SampleGameMapWithTwoMerchantInventories,
+       getMerchantInventoryByName_WithDifferentCase_ReturnInventory) {
+    const auto inventory = map.getMerchantInventoryByName("BLACKSMITH");
+
+    ASSERT_TRUE(inventory.has_value());
+    EXPECT_EQ("Blacksmith", inventory->get().getName());
+}
+
+TEST(GameMap_addMerchantInventory, WithNewInventory_AddsAndReturnsTrue) {
+    GameMap map(5, 6);
+    MerchantInventory inventory("Blacksmith", MerchantInventoryType::WeaponsAndArmors);
+    inventory.addItem("sword001");
+
+    ASSERT_TRUE(map.addMerchantInventory(inventory));
+    const auto addedInventory = map.getMerchantInventoryByName("Blacksmith");
+    ASSERT_TRUE(addedInventory.has_value());
+    EXPECT_EQ("sword001", addedInventory->get().getItemIds().front());
+}
+
+TEST_F(SampleGameMapWithTwoMerchantInventories,
+       addMerchantInventory_WithDuplicateName_ReturnsFalseAndKeepsOriginal) {
+    MerchantInventory duplicate("Blacksmith", MerchantInventoryType::WeaponsAndArmors);
+    duplicate.addItem("axe001");
+
+    EXPECT_FALSE(map.addMerchantInventory(duplicate));
+    EXPECT_EQ("The merchant inventory Blacksmith already exist.", map.getLastError());
+    const auto inventory = map.getMerchantInventoryByName("Blacksmith");
+    ASSERT_TRUE(inventory.has_value());
+    EXPECT_EQ("sword001", inventory->get().getItemIds().front());
+}
+
+TEST_F(SampleGameMapWithTwoMerchantInventories,
+       addMerchantInventory_WithDuplicateNameDifferentCase_ReturnsFalse) {
+    MerchantInventory duplicate("BLACKSMITH", MerchantInventoryType::WeaponsAndArmors);
+
+    EXPECT_FALSE(map.addMerchantInventory(duplicate));
+    EXPECT_EQ("The merchant inventory BLACKSMITH already exist.", map.getLastError());
+}
+
+TEST_F(SampleGameMapWithTwoMerchantInventories,
+       replaceMerchantInventory_WithMissingSource_ReturnsFalse) {
+    MerchantInventory replacement("Armorer", MerchantInventoryType::WeaponsAndArmors);
+
+    EXPECT_FALSE(map.replaceMerchantInventory("Missing", replacement));
+    EXPECT_EQ("Unable to find the merchant inventory Missing to update.", map.getLastError());
+}
+
+TEST_F(SampleGameMapWithTwoMerchantInventories,
+       replaceMerchantInventory_WithExistingDestinationName_ReturnsFalseAndKeepsOriginal) {
+    MerchantInventory replacement("Apothecary", MerchantInventoryType::StatsItems);
+    replacement.addItem("elixir001");
+
+    EXPECT_FALSE(map.replaceMerchantInventory("Blacksmith", replacement));
+    EXPECT_EQ("The merchant inventory Apothecary already exist.", map.getLastError());
+    const auto inventory = map.getMerchantInventoryByName("Blacksmith");
+    ASSERT_TRUE(inventory.has_value());
+    EXPECT_EQ("sword001", inventory->get().getItemIds().front());
+}
+
+TEST_F(SampleGameMapWithTwoMerchantInventories,
+       replaceMerchantInventory_WithSameName_ReplacesInventory) {
+    MerchantInventory replacement("Blacksmith", MerchantInventoryType::WeaponsAndArmors);
+    replacement.addItem("axe001");
+
+    ASSERT_TRUE(map.replaceMerchantInventory("Blacksmith", replacement));
+    const auto inventory = map.getMerchantInventoryByName("Blacksmith");
+    ASSERT_TRUE(inventory.has_value());
+    ASSERT_EQ(1U, inventory->get().getItemIds().size());
+    EXPECT_EQ("axe001", inventory->get().getItemIds().front());
+}
+
+TEST_F(SampleGameMapWithTwoMerchantInventories,
+       replaceMerchantInventory_WithNewName_RenamesAndReplacesInventory) {
+    MerchantInventory replacement("Armorer", MerchantInventoryType::WeaponsAndArmors);
+    replacement.addItem("armor001");
+
+    ASSERT_TRUE(map.replaceMerchantInventory("BLACKSMITH", replacement));
+    EXPECT_FALSE(map.getMerchantInventoryByName("Blacksmith").has_value());
+    const auto inventory = map.getMerchantInventoryByName("Armorer");
+    ASSERT_TRUE(inventory.has_value());
+    EXPECT_EQ("armor001", inventory->get().getItemIds().front());
+}
+
+TEST_F(SampleGameMapWithTwoMerchantInventories,
+       removeMerchantInventory_WithMissingName_ReturnsFalse) {
+    EXPECT_FALSE(map.removeMerchantInventory("Missing"));
+    EXPECT_EQ("Unable to find the merchant inventory Missing to delete.", map.getLastError());
+}
+
+TEST_F(SampleGameMapWithTwoMerchantInventories,
+       removeMerchantInventory_WithExistingName_RemovesAndReturnsTrue) {
+    ASSERT_TRUE(map.removeMerchantInventory("BLACKSMITH"));
+    EXPECT_FALSE(map.getMerchantInventoryByName("Blacksmith").has_value());
+    EXPECT_TRUE(map.getMerchantInventoryByName("Apothecary").has_value());
 }

@@ -35,6 +35,7 @@ add_executable(${PROJECT_UNITTEST_NAME} ${INCLUDE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}/monsterZone_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/monsterZoneMonsterEncounter_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/conversationScenario_unittest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/merchantInventory_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/npc_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/rgbItemColor_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/worldState_unittest.cpp)

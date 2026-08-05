@@ -14,6 +14,7 @@
 #include "aboutBoxForm.hpp"
 #include "components/debugInfoDockWidget.hpp"
 #include "components/mapPropsComponent.hpp"
+#include "components/merchantInventoryListComponent.hpp"
 #include "components/npcListComponent.hpp"
 #include "constants.hpp"
 #include "errorMessage.hpp"
@@ -26,9 +27,11 @@
 #include "point.hpp"
 #include "selectionMode.hpp"
 #include "textureDTO.hpp"
+#include "uiUtils.hpp"
 
 using commoneditor::ui::ErrorMessage;
 using commoneditor::ui::TextureDTO;
+using commoneditor::ui::UIUtils;
 using mapeditor::controllers::MapTileDTO;
 using mapeditor::controllers::MonsterZoneDTO;
 using mapeditor::controllers::NPCDTO;
@@ -50,6 +53,7 @@ MainForm::MainForm(QWidget *parent,
     if (!m_controller.loadConfigurationFile()) {
         ErrorMessage::show(m_controller.getLastError());
     }
+    m_controller.loadConfiguredItemStores();
     m_controller.loadConfiguredMonsterStores();
 
     m_glComponent.initializeUIObjects(ui.mapOpenGLWidget);
@@ -140,6 +144,13 @@ void MainForm::componentInitialization() {
             m_glComponent.getControllerPtr());
     m_npcListComponent->setResourcesPath(m_controller.getResourcesPath());
     ui.toolBox->addItem(m_npcListComponent.get(), "NPC list");
+
+    m_merchantInventoryListComponent = std::make_shared<MerchantInventoryListComponent>(this,
+            &m_glComponent,
+            m_glComponent.getControllerPtr());
+    m_merchantInventoryListComponent->setItemStores(m_controller.getItemStores());
+    m_merchantInventoryListComponent->setResourcesPath(m_controller.getResourcesPath());
+    ui.toolBox->addItem(m_merchantInventoryListComponent.get(), "Merchant Inventory");
 
     ui.toolBox->removeItem(0);
 
@@ -394,6 +405,7 @@ void MainForm::action_DisplayNPCs_Click() {
 void MainForm::action_ManageItemStore_Click() {
     ManageItemStoreForm manageItemStoreForm(this, m_controller.getResourcesPath(), m_controller.getUserConfigFolder());
     manageItemStoreForm.exec();
+    m_controller.loadConfiguredItemStores();
 }
 
 void MainForm::action_ManageMonsterStore_Click() {

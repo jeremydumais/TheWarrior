@@ -8,10 +8,12 @@ include_directories(PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
 add_executable(${PROJECT_UNITTEST_NAME} ${INCLUDE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/addMerchantInventoryItemFormController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/containerOfMonsterStoreTestUtils.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/editMapTileTriggerFormController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/editConversationNodeBaseFormController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/editConversationScenarioFormController_unittest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/editMerchantInventoryFormController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/editMonsterEncounterFormController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/editMonsterZoneFormController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/editNPCFormController_unittest.cpp
@@ -21,6 +23,8 @@ add_executable(${PROJECT_UNITTEST_NAME} ${INCLUDE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}/manageMonsterStoreController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/mapTileDTOUtils_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/mapTileTriggerDTOUtils_unittest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/merchantInventoryDTOUtils_unittest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/merchantInventoryListComponentController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/monsterZoneListComponentController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/monsterPickerFormController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/monsterStoreInfoJSONSerializer_unittest.cpp
