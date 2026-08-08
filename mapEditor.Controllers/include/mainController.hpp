@@ -7,6 +7,7 @@
 #include "configurationManager.hpp"
 #include "gameMap.hpp"
 #include "glComponentController.hpp"
+#include "merchantInventoryDTO.hpp"
 #include "monsterZoneDTO.hpp"
 #include "npcDTO.hpp"
 #include "textureDTO.hpp"
@@ -47,6 +48,9 @@ class MainController {
     bool addNPC(const NPCDTO &npcDTO);
     bool replaceNPC(const std::string &id, const NPCDTO &npcDTO);
     bool removeNPC(const std::string &id);
+    bool addMerchantInventory(const MerchantInventoryDTO &merchantInventoryDTO);
+    bool replaceMerchantInventory(const std::string &name, const MerchantInventoryDTO &merchantInventoryDTO);
+    bool removeMerchantInventory(const std::string &name);
     std::vector<std::string> getRecentMapsFromConfig() const;
     bool addNewRecentMap(const std::string &filePath);
     bool getDisplayGridConfigState() const;

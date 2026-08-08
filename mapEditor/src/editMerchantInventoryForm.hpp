@@ -24,6 +24,7 @@ Q_OBJECT
                         thewarrior::models::MerchantInventoryType inventoryType,
                         const std::optional<mapeditor::controllers::MerchantInventoryDTO> &selectedMerchantInventory,
                         const std::vector<std::string> &alreadyUsedMerchantInventoryNames);
+    const mapeditor::controllers::MerchantInventoryDTO &getResult() const;
 
  private:
     Ui::editMerchantInventoryFormClass ui;
@@ -33,7 +34,12 @@ Q_OBJECT
     void connectUIActions();
     void initializeItemsTable();
     void refreshItems();
+    void onPushButtoOKItemClick();
     void onPushButtonAddItemClick();
+    void onPushButtonRemoveItemClick();
+    void onPushButtonOverridePriceClick();
+    void toggleItemSelectionChanged();
+    std::optional<std::string> getSelectedItemId() const;
 
 };
 

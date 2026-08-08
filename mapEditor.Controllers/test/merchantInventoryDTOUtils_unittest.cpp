@@ -38,13 +38,13 @@ TEST(MerchantInventoryDTOUtils_fromMerchantInventory, WithItemsAndPriceOverrides
     const auto dto = MerchantInventoryDTOUtils::fromMerchantInventory(inventory);
 
     ASSERT_EQ(3U, dto.items.size());
-    EXPECT_EQ("potion001", dto.items[0].itemId);
+    EXPECT_EQ("potion001", dto.items[0].id);
     EXPECT_EQ(100U, dto.items[0].buyPriceOverride);
     EXPECT_EQ(40U, dto.items[0].sellPriceOverride);
-    EXPECT_EQ("potion002", dto.items[1].itemId);
+    EXPECT_EQ("potion002", dto.items[1].id);
     EXPECT_EQ(std::nullopt, dto.items[1].buyPriceOverride);
     EXPECT_EQ(25U, dto.items[1].sellPriceOverride);
-    EXPECT_EQ("potion003", dto.items[2].itemId);
+    EXPECT_EQ("potion003", dto.items[2].id);
     EXPECT_EQ(std::nullopt, dto.items[2].buyPriceOverride);
     EXPECT_EQ(std::nullopt, dto.items[2].sellPriceOverride);
 }
@@ -55,16 +55,16 @@ TEST(MerchantInventoryDTOUtils_toMerchantInventory, WithValidDTO_ReturnsComplete
         .inventoryType = MerchantInventoryType::StatsItems,
         .items = {
             MerchantInventoryItemDTO {
-                .itemId = "potion001",
+                .id = "potion001",
                 .buyPriceOverride = 100U,
                 .sellPriceOverride = 40U
             },
             MerchantInventoryItemDTO {
-                .itemId = "potion002",
+                .id = "potion002",
                 .buyPriceOverride = std::nullopt,
                 .sellPriceOverride = 25U
             },
-            MerchantInventoryItemDTO {.itemId = "potion003"}
+            MerchantInventoryItemDTO {.id = "potion003"}
         }
     };
 
@@ -110,8 +110,8 @@ TEST(MerchantInventoryDTOUtils_toMerchantInventory, WithDuplicateItemId_ReturnsE
         .name = "Blacksmith",
         .inventoryType = MerchantInventoryType::WeaponsAndArmors,
         .items = {
-            MerchantInventoryItemDTO {.itemId = "sword001"},
-            MerchantInventoryItemDTO {.itemId = "sword001"}
+            MerchantInventoryItemDTO {.id = "sword001"},
+            MerchantInventoryItemDTO {.id = "sword001"}
         }
     };
 

@@ -22,6 +22,7 @@
 #include "manageItemStoreForm.hpp"
 #include "manageMonsterStoreForm.hpp"
 #include "mapView.hpp"
+#include "merchantInventoryDTO.hpp"
 #include "monsterZoneDTO.hpp"
 #include "npcDTO.hpp"
 #include "point.hpp"
@@ -33,6 +34,7 @@ using commoneditor::ui::ErrorMessage;
 using commoneditor::ui::TextureDTO;
 using commoneditor::ui::UIUtils;
 using mapeditor::controllers::MapTileDTO;
+using mapeditor::controllers::MerchantInventoryDTO;
 using mapeditor::controllers::MonsterZoneDTO;
 using mapeditor::controllers::NPCDTO;
 using thewarrior::models::Point;
@@ -111,6 +113,7 @@ MainForm::MainForm(QWidget *parent,
     refreshTextureList();
     refreshMonsterZones();
     refreshNPCs();
+    refreshMerchantInventories();
     m_mapPropsComponent->reset();
     action_SelectClick();
     tabWidgetMapViewChanged(static_cast<int>(MapView::Standard));
@@ -234,6 +237,9 @@ void MainForm::connectUIActions() {
     connect(m_npcListComponent.get(), &NPCListComponent::npcAdded, this, &MainForm::onNPCAdded);
     connect(m_npcListComponent.get(), &NPCListComponent::npcUpdated, this, &MainForm::onNPCUpdated);
     connect(m_npcListComponent.get(), &NPCListComponent::npcDeleted, this, &MainForm::onNPCDeleted);
+    connect(m_merchantInventoryListComponent.get(), &MerchantInventoryListComponent::merchantInventoryAdded, this, &MainForm::onMerchantInventoryAdded);
+    connect(m_merchantInventoryListComponent.get(), &MerchantInventoryListComponent::merchantInventoryUpdated, this, &MainForm::onMerchantInventoryUpdated);
+    connect(m_merchantInventoryListComponent.get(), &MerchantInventoryListComponent::merchantInventoryDeleted, this, &MainForm::onMerchantInventoryDeleted);
 }
 
 void MainForm::action_Open_Click() {
@@ -442,6 +448,7 @@ void MainForm::action_UndoClick() {
     refreshTextureList();
     refreshMonsterZones();
     refreshNPCs();
+    refreshMerchantInventories();
     m_mapPropsComponent->refresh();
     m_tilePropsComponent->refresh();
     m_monsterZoneListComponent->enableFieldsChangeEvent();
@@ -455,6 +462,7 @@ void MainForm::action_RedoClick() {
     refreshTextureList();
     refreshMonsterZones();
     refreshNPCs();
+    refreshMerchantInventories();
     m_mapPropsComponent->refresh();
     m_tilePropsComponent->refresh();
     m_monsterZoneListComponent->enableFieldsChangeEvent();
@@ -619,6 +627,7 @@ void MainForm::openMap(const std::string &filePath) {
     refreshTextureList();
     refreshMonsterZones();
     refreshNPCs();
+    refreshMerchantInventories();
     m_tilePropsComponent->reset();
     m_mapPropsComponent->reset();
 }
@@ -942,6 +951,40 @@ void MainForm::onNPCDeleted(const std::string &id) {
     refreshNPCs();
     refreshUndoControls();
     m_tilePropsComponent->enableFieldsChangeEvent();
+}
+
+void MainForm::refreshMerchantInventories() {
+    m_merchantInventoryListComponent->refreshMerchantInventories();
+}
+
+void MainForm::onMerchantInventoryAdded(const MerchantInventoryDTO &merchantInventoryDTO) {
+    m_tilePropsComponent->disableFieldsChangeEvent();
+    if (!m_controller.addMerchantInventory(merchantInventoryDTO)) {
+        ErrorMessage::show(m_controller.getLastError());
+    }
+    refreshMerchantInventories();
+    refreshUndoControls();
+    m_tilePropsComponent->enableFieldsChangeEvent();
+}
+    
+void MainForm::onMerchantInventoryUpdated(const std::string &name, const MerchantInventoryDTO &merchantInventoryDTO) {
+    m_tilePropsComponent->disableFieldsChangeEvent();
+    if (!m_controller.replaceMerchantInventory(name, merchantInventoryDTO)) {
+        ErrorMessage::show(m_controller.getLastError());
+    }
+    refreshMerchantInventories();
+    refreshUndoControls();
+    m_tilePropsComponent->enableFieldsChangeEvent();
+}
+
+void MainForm::onMerchantInventoryDeleted(const std::string &name) {
+    m_tilePropsComponent->disableFieldsChangeEvent();
+    if (!m_controller.removeMerchantInventory(name)) {
+        ErrorMessage::show(m_controller.getLastError());
+    }
+    refreshMerchantInventories();
+    refreshUndoControls();
+    m_tilePropsComponent->enableFieldsChangeEvent();  
 }
 
 void MainForm::onMapPropsComponentBeforeChange() {

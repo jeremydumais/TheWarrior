@@ -1,7 +1,3 @@
-#include <fmt/format.h>
-#include <qicon.h>
-#include <qpixmap.h>
-#include <qstring.h>
 #include <map>
 #include <memory>
 #include <set>
@@ -10,12 +6,11 @@
 #include <vector>
 #include "addMerchantInventoryItemFormController.hpp"
 #include "item.hpp"
+#include "itemIconProvider.hpp"
 #include "itemType.hpp"
 #include "merchantInventory.hpp"
-#include "textureUtils.hpp"
 #include "types.hpp"
 
-using commoneditor::ui::TextureUtils;
 using thewarrior::models::Item;
 using thewarrior::models::ItemType;
 using thewarrior::models::MerchantInventoryType;
@@ -73,49 +68,8 @@ std::vector<AddMerchantInventoryItemFormController::ItemListDisplay> AddMerchant
 }
 
 std::map<std::string, QIcon> AddMerchantInventoryItemFormController::getIconsFromItemIds(const std::vector<std::string> &itemIds,
-                                                                                         const std::string &resourcesPath) const
-{
-    if (m_itemStores->empty()) {
-        return {};
-    }
-    std::map<std::string, QIcon> retval;
-    std::map<std::string, std::shared_ptr<QPixmap>> textures;
-
-    auto itemStore = m_itemStores->begin()->second;
-    for(const auto &itemId : itemIds) {
-        //Find the item in the item store
-        const auto &item = itemStore->findItem(itemId);
-        if (item) {
-            //Find the texture in the loaded pixmap collection
-            const auto &textureName = item->getTextureName();
-            auto textureIter = std::ranges::find_if(textures,
-                                                    [textureName] (const std::pair<std::string, std::shared_ptr<QPixmap>> &texturePixmap) {
-                return texturePixmap.first == textureName;
-            });
-            std::shared_ptr<QPixmap> pixmap = nullptr;
-             //Find the texture
-            auto texture = itemStore->getTextureContainer().getTextureByName(item->getTextureName());
-            if (texture.has_value()) {
-                //If not found, load it
-                if (textureIter == textures.end()) {
-                    auto completeTexturePath = fmt::format("{0}/textures/{1}", resourcesPath, texture->get().getFilename());
-                    pixmap = std::make_shared<QPixmap>(QString(completeTexturePath.c_str()));
-                    textures.insert({textureName, pixmap});
-                }
-                else {
-                    pixmap = textureIter->second;
-                }
-
-                if (pixmap) {
-                    auto iconPixmap = TextureUtils::getTextureTileImageFromTexture(pixmap.get(),
-                                                                                   item->getTextureIndex(),
-                                                                                   texture.value());
-                    retval.insert({itemId, QIcon(iconPixmap)});
-                }
-            }
-        }
-    }
-    return retval;
+                                                                                         const std::string &resourcesPath) const {
+    return ItemIconProvider::getIconsFromItemIds(m_itemStores, itemIds, resourcesPath);
 }
 
 

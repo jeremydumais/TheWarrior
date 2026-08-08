@@ -25,7 +25,7 @@ class AddMerchantInventoryItemFormController {
     std::set<std::string> getItemCategories() const;
     std::vector<ItemListDisplay> getItemsFromCategory(const std::string &categoryName) const;
     std::map<std::string, QIcon> getIconsFromItemIds(const std::vector<std::string> &itemIds,
-                                                    const std::string &resourcesPath) const;
+                                                     const std::string &resourcesPath) const;
 
  private:
     std::shared_ptr<ContainerOfItemStore> m_itemStores;

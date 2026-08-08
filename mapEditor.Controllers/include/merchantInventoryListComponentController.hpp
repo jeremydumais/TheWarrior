@@ -1,6 +1,8 @@
 #pragma once
 
+#include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 #include <boost/optional/optional.hpp>
@@ -16,6 +18,8 @@ class MerchantInventoryListComponentController {
     const std::string &getLastError() const;
     
     std::vector<MerchantInventoryDTO> getMerchantInventories() const;
+    std::optional<std::reference_wrapper<MerchantInventoryDTO>> getMerchantInventoryByName(const std::string &name) const;
+
     std::shared_ptr<ContainerOfItemStore> getItemStores() const;
     std::vector<std::string> getAlreadyUsedMerchantInventoryNames() const;
 

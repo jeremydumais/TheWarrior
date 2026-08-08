@@ -71,7 +71,7 @@ const Point<> &GameMapModeController::getPlayerPosition() const {
     return m_worldState->getPlayerPosition();
 }
 
-ItemDTO GameMapModeController::findItem(const std::string &id) const {
+ ItemDTO GameMapModeController::findItem(const std::string &id) const {
     ItemDTO dto;
     const auto item = m_itemStore->findItem(id);
     if (item) {

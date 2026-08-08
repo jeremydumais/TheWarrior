@@ -11,6 +11,7 @@
 #include "glComponentController.hpp"
 #include "mainForm_GLComponent.hpp"
 #include "merchantInventory.hpp"
+#include "merchantInventoryDTO.hpp"
 #include "merchantInventoryListComponentController.hpp"
 #include "qTableWidgetKeyPressWatcher.h"
 #include "ui_merchantInventoryListComponent.h"
@@ -32,14 +33,10 @@ class MerchantInventoryListComponent : public QWidget {
     std::optional<const mapeditor::controllers::MonsterZoneDTO> getSelectedMonsterZoneInMonsterZoneList() const;*/
     void setItemStores(const std::shared_ptr<mapeditor::controllers::ContainerOfItemStore> &itemStores);
     void setResourcesPath(const std::string &resourcesPath);
-    /*void confirmValidityOfOneMonsterZoneCheckBox();
-    std::string getMonsterZoneColor(const std::string &zoneName) const;
-    bool isMonsterZonesEmpty() const;
-    bool isOnlyOneMonsterZoneChecked() const;*/
  signals:
-    /*void merchantAdded(mapeditor::controllers::MonsterZoneDTO monsterZoneDTO);
-    void merchantUpdated(const std::string &name, mapeditor::controllers::MonsterZoneDTO monsterZoneDTO);
-    void merchantDeleted(const std::string &name);*/
+    void merchantInventoryAdded(mapeditor::controllers::MerchantInventoryDTO merchantInventoryDTO);
+    void merchantInventoryUpdated(const std::string &name, mapeditor::controllers::MerchantInventoryDTO merchantInventoryDTO);
+    void merchantInventoryDeleted(const std::string &name);
 
  private:
     Ui::MerchantInventoryListComponent ui;
@@ -52,4 +49,5 @@ class MerchantInventoryListComponent : public QWidget {
     void onPushButtonEditMerchantInventoryClick();
     void onPushButtonDeleteMerchantInventoryClick();
     void onTableWidgetMerchantInventoryKeyPressEvent(int key, int row, int column);
+    std::optional<std::string> getSelectedMerchantInventoryName() const;
 };

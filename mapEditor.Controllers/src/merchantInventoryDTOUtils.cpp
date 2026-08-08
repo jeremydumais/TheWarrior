@@ -19,7 +19,7 @@ namespace mapeditor::controllers
         std::ranges::for_each(merchantInventory.getItemIds(),
                               [&items, &merchantInventory](const auto &itemId) {
                                 MerchantInventoryItemDTO itemDTO;
-                                itemDTO.itemId = itemId;
+                                itemDTO.id = itemId;
                                 const std::optional<ItemPriceOverride> &priceOverride = merchantInventory.getPriceOverridebyItemId(itemId);
                                 if (priceOverride.has_value()) {
                                     itemDTO.buyPriceOverride = priceOverride->buyPrice;
@@ -38,7 +38,7 @@ namespace mapeditor::controllers
         try {
             MerchantInventory result(dto.name, dto.inventoryType);
             for (const auto &item : dto.items) {
-                if (!result.addItem(item.itemId)) {
+                if (!result.addItem(item.id)) {
                     return {.merchantInventory = std::nullopt,
                             .errorMessage = result.getLastError()};
                 }
@@ -47,7 +47,7 @@ namespace mapeditor::controllers
                         .buyPrice = item.buyPriceOverride,
                         .sellPrice = item.sellPriceOverride
                     };
-                    if (!result.setPriceOverride(item.itemId, priceOverride)) {
+                    if (!result.setPriceOverride(item.id, priceOverride)) {
                         return {.merchantInventory = std::nullopt,
                                 .errorMessage = result.getLastError()};
                     }

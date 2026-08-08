@@ -7,13 +7,8 @@
 
 namespace mapeditor::controllers {
 
-struct ItemDefaultPrice {
-    unsigned int buyPrice;
-    unsigned int sellPrice;
-};
-
 struct MerchantInventoryItemDTO {
-    std::string itemId;
+    std::string id;
     std::optional<unsigned int> buyPriceOverride;
     std::optional<unsigned int> sellPriceOverride;
 };

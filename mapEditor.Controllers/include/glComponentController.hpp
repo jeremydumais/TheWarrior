@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <set>
 #include <string>
@@ -45,6 +46,8 @@ class GLComponentController {
     std::vector<mapeditor::controllers::NPCDTO> getNPCs() const;
     OptNPCDTOConst getNPCById(const std::string &name) const;
     std::vector<mapeditor::controllers::MerchantInventoryDTO> getMerchantInventories() const;
+    std::optional<std::reference_wrapper<MerchantInventoryDTO>> getMerchantInventoryByName(const std::string &name) const;
+
     bool canDisableCanSteppedOnForSelectedTiles() const;
     boost::optional<thewarrior::models::Point<int>> getCoordFromSingleSelectedTile() const;
     size_t getHistoryCurrentIndex() const;
@@ -89,6 +92,9 @@ class GLComponentController {
     bool addNPC(const NPCDTO &npcDTO);
     bool replaceNPC(const std::string &id, const NPCDTO &npcDTO);
     bool removeNPC(const std::string &id);
+    bool addMerchantInventory(const MerchantInventoryDTO &merchantInventoryDTO);
+    bool replaceMerchantInventory(const std::string &name, const MerchantInventoryDTO &merchantInventoryDTO);
+    bool removeMerchantInventory(const std::string &name);
 
  private:
     std::shared_ptr<thewarrior::models::GameMap> m_map;
@@ -104,6 +110,7 @@ class GLComponentController {
     int m_lastSelectedTextureIndex;
     int m_lastSelectedObjectIndex;
     int m_lastSelectedMonsterZoneIndex;
+    mutable std::optional<MerchantInventoryDTO> m_merchantInventoryDTO;
     void replaceTilesTextureName(const std::string &oldName, const std::string &newName);
 };
 

@@ -19,6 +19,7 @@
 #include "components/textureSelectionDockWidget.hpp"
 #include "components/tilePropsComponent.hpp"
 #include "mapTileDTO.hpp"
+#include "merchantInventoryDTO.hpp"
 #include "monsterZoneDTO.hpp"
 #include "npcDTO.hpp"
 #include "point.hpp"
@@ -137,6 +138,10 @@ Q_OBJECT
     void onNPCAdded(const mapeditor::controllers::NPCDTO &npcDTO);
     void onNPCUpdated(const std::string &id, const mapeditor::controllers::NPCDTO &npcDTO);
     void onNPCDeleted(const std::string &id);
+    void refreshMerchantInventories();
+    void onMerchantInventoryAdded(const mapeditor::controllers::MerchantInventoryDTO &merchantInventoryDTO);
+    void onMerchantInventoryUpdated(const std::string &name, const mapeditor::controllers::MerchantInventoryDTO &merchantInventoryDTO);
+    void onMerchantInventoryDeleted(const std::string &name);
     void onMapPropsComponentBeforeChange();
     void onMapPropsComponentMusicChanged(const std::string &filename);
 };

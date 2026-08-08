@@ -1,4 +1,6 @@
+#include <functional>
 #include <memory>
+#include <optional>
 #include "merchantInventoryListComponentController.hpp"
 #include "types.hpp"
 
@@ -14,6 +16,10 @@ const std::string &MerchantInventoryListComponentController::getLastError() cons
 
 std::vector<MerchantInventoryDTO> MerchantInventoryListComponentController::getMerchantInventories() const {
     return m_glComponentController->getMerchantInventories();
+}
+
+std::optional<std::reference_wrapper<MerchantInventoryDTO>> MerchantInventoryListComponentController::getMerchantInventoryByName(const std::string &name) const {
+    return m_glComponentController->getMerchantInventoryByName(name);
 }
 
 std::shared_ptr<ContainerOfItemStore> MerchantInventoryListComponentController::getItemStores() const {

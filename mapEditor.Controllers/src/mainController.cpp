@@ -15,6 +15,7 @@
 #include "mainController.hpp"
 #include "manageItemStoreController.hpp"
 #include "manageMonsterStoreController.hpp"
+#include "merchantInventoryDTO.hpp"
 #include "monsterStore.hpp"
 #include "monsterStoreStorage.hpp"
 #include "specialFolders.hpp"
@@ -300,6 +301,33 @@ bool MainController::removeNPC(const std::string &id) {
         return false;
     }
     return true;
+}
+
+bool MainController::addMerchantInventory(const MerchantInventoryDTO &merchantInventoryDTO) {
+    m_glComponentController->pushCurrentStateToHistory();
+    if (!m_glComponentController->addMerchantInventory(merchantInventoryDTO)) {
+        this->m_lastError = m_glComponentController->getLastError();
+        return false;
+    }
+    return true;
+}
+
+bool MainController::replaceMerchantInventory(const std::string &name, const MerchantInventoryDTO &merchantInventoryDTO) {
+    m_glComponentController->pushCurrentStateToHistory();
+    if (!m_glComponentController->replaceMerchantInventory(name, merchantInventoryDTO)) {
+        this->m_lastError = m_glComponentController->getLastError();
+        return false;
+    }
+    return true;    
+}
+
+bool MainController::removeMerchantInventory(const std::string &name) {
+    m_glComponentController->pushCurrentStateToHistory();
+    if (!m_glComponentController->removeMerchantInventory(name)) {
+        this->m_lastError = m_glComponentController->getLastError();
+        return false;
+    }
+    return true;   
 }
 
 std::vector<std::string> MainController::getRecentMapsFromConfig() const {

@@ -48,6 +48,7 @@ void AddMerchantInventoryItemForm::connectUIActions() {
     connect(ui.pushButtonOK, &QPushButton::clicked, this, &AddMerchantInventoryItemForm::onPushButtonOKClick);
     connect(ui.pushButtonCancel, &QPushButton::clicked, this, &AddMerchantInventoryItemForm::reject);
     connect(ui.tableWidgetItemCategories->selectionModel(), &QItemSelectionModel::selectionChanged, this, &AddMerchantInventoryItemForm::onTableWidgetItemCategoriesSelectionChanged);
+    connect(ui.tableWidgetItems, &QTableWidget::itemDoubleClicked, this, &AddMerchantInventoryItemForm::onPushButtonOKClick);
 }
 
 void AddMerchantInventoryItemForm::refreshCategoriesTable() {
@@ -109,6 +110,7 @@ void AddMerchantInventoryItemForm::onPushButtonOKClick() {
     auto itemId = getSelectedItemId();
     if (!itemId.has_value()) {
         ErrorMessage::show("You must select an item from the list");
+        return;
     }
     m_result = itemId.value();
     accept();

@@ -55,12 +55,18 @@ void MerchantInventoryListComponent::connectUIActions() {
 }
 
 void MerchantInventoryListComponent::refreshMerchantInventories() {
+    auto getInventoryTypeStr = [](MerchantInventoryType type) {
+        if (type == MerchantInventoryType::WeaponsAndArmors) {
+            return "Weapons and Armors";
+        }
+        return "Stats Items";
+    };
     ui.tableWidgetMerchantInventory->model()->removeRows(0, ui.tableWidgetMerchantInventory->rowCount());
     int index {0};
     for (const auto &merchantInventory : m_controller.getMerchantInventories()) {
         ui.tableWidgetMerchantInventory->insertRow(index);
         ui.tableWidgetMerchantInventory->setItem(index, 0, new QTableWidgetItem(merchantInventory.name.c_str()));
-        ui.tableWidgetMerchantInventory->setItem(index, 1, new QTableWidgetItem(""));
+        ui.tableWidgetMerchantInventory->setItem(index, 1, new QTableWidgetItem(getInventoryTypeStr(merchantInventory.inventoryType)));
         index++;
     }
 }
@@ -132,23 +138,58 @@ void MerchantInventoryListComponent::onPushButtonAddMerchantInventory(MerchantIn
             alreadyUsedMerchantInventoryNames);
     UIUtils::centerToScreen(&formEditMerchantInventory);
     if (formEditMerchantInventory.exec() == QDialog::Accepted) {
-        //emit monsterZoneAdded(formEditMonsterZone.getResult());
+        emit merchantInventoryAdded(formEditMerchantInventory.getResult());
     }
     m_glComponent->startAutoUpdate();
 }
 
 void MerchantInventoryListComponent::onPushButtonEditMerchantInventoryClick() {
     m_glComponent->stopAutoUpdate();
-    //TODO: Code this
+    if (auto merchantInvName = getSelectedMerchantInventoryName(); merchantInvName.has_value()) {
+        auto merchantInventory = m_controller.getMerchantInventoryByName(merchantInvName.value());
+        if (merchantInventory.has_value()) {
+            const std::vector<std::string> alreadyUsedMerchantInventoryNames = m_controller.getAlreadyUsedMerchantInventoryNames();
+            EditMerchantInventoryForm formEditMerchantInventory(this,
+                    m_controller.getItemStores(),
+                    m_resourcesPath,
+                    merchantInventory->get().inventoryType,
+                    merchantInventory.value(),
+                    alreadyUsedMerchantInventoryNames);
+            UIUtils::centerToScreen(&formEditMerchantInventory);
+            if (formEditMerchantInventory.exec() == QDialog::Accepted) {
+                emit merchantInventoryUpdated(merchantInvName.value(), formEditMerchantInventory.getResult());
+            }
+        }
+    }
     m_glComponent->startAutoUpdate();
 }
 
 void MerchantInventoryListComponent::onPushButtonDeleteMerchantInventoryClick() {
-    //TODO: Code this
+    if (auto merchantInvName = getSelectedMerchantInventoryName(); merchantInvName.has_value()) {
+        auto merchantInventory = m_controller.getMerchantInventoryByName(merchantInvName.value());
+        if (merchantInventory.has_value()) {
+            QMessageBox msgBox;
+            msgBox.setText(fmt::format("Are you sure you want to delete the merchant inventory {0}?", merchantInventory->get().name).c_str());
+            msgBox.setWindowTitle("Confirmation");
+            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+            msgBox.setDefaultButton(QMessageBox::Cancel);
+            if (msgBox.exec() == QMessageBox::Yes) {
+                emit merchantInventoryDeleted(merchantInventory->get().name);
+            }
+        }
+    }
 }
 
 void MerchantInventoryListComponent::onTableWidgetMerchantInventoryKeyPressEvent(int key, int /*row*/, int /*column*/) {
     if (key == Qt::Key_Delete) {
         onPushButtonDeleteMerchantInventoryClick();
     }
+}
+
+std::optional<std::string> MerchantInventoryListComponent::getSelectedMerchantInventoryName() const {
+    auto selectedRows = ui.tableWidgetMerchantInventory->selectionModel()->selectedRows();
+    if (selectedRows.count() == 1) {
+        return selectedRows[0].data().toString().toStdString();
+    }
+    return std::nullopt;
 }

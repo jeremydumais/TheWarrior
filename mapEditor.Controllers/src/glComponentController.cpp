@@ -245,6 +245,16 @@ std::vector<MerchantInventoryDTO> GLComponentController::getMerchantInventories(
     return retval;
 }
 
+std::optional<std::reference_wrapper<MerchantInventoryDTO>> GLComponentController::getMerchantInventoryByName(const std::string &name) const {
+    const auto inventory = m_map->getMerchantInventoryByName(name);
+    if (!inventory.has_value()) {
+        return std::nullopt;
+    }
+
+    m_merchantInventoryDTO = MerchantInventoryDTOUtils::fromMerchantInventory(inventory->get());
+    return std::ref(*m_merchantInventoryDTO);
+}
+
 bool GLComponentController::canDisableCanSteppedOnForSelectedTiles() const {
     return !m_map->isTilesIndicesUsedByNPC(m_selectedIndices);
 }
@@ -568,6 +578,40 @@ bool GLComponentController::replaceNPC(const std::string &id, const NPCDTO &npcD
 
 bool GLComponentController::removeNPC(const std::string &id) {
     if (!m_map->removeNPC(id)) {
+        m_lastError = m_map->getLastError();
+        return false;
+    }
+    return true;
+}
+
+bool GLComponentController::addMerchantInventory(const MerchantInventoryDTO &merchantInventoryDTO) {
+    const auto conversionResult = MerchantInventoryDTOUtils::toMerchantInventory(merchantInventoryDTO);
+    if (!conversionResult.success()) {
+        m_lastError = conversionResult.errorMessage;
+        return false;
+    }
+    if (!m_map->addMerchantInventory(conversionResult.merchantInventory.value())) {
+        m_lastError = m_map->getLastError();
+        return false;
+    }
+    return true;
+}
+
+bool GLComponentController::replaceMerchantInventory(const std::string &name, const MerchantInventoryDTO &merchantInventoryDTO) {
+    const auto conversionResult = MerchantInventoryDTOUtils::toMerchantInventory(merchantInventoryDTO);
+    if (!conversionResult.success()) {
+        m_lastError = conversionResult.errorMessage;
+        return false;
+    }
+    if (!m_map->replaceMerchantInventory(name, conversionResult.merchantInventory.value())) {
+        m_lastError = m_map->getLastError();
+        return false;
+    }
+    return true;
+}
+
+bool GLComponentController::removeMerchantInventory(const std::string &name) {
+    if (!m_map->removeMerchantInventory(name)) {
         m_lastError = m_map->getLastError();
         return false;
     }
