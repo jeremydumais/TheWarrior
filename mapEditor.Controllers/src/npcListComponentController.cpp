@@ -12,6 +12,10 @@ NPCListComponentController::NPCListComponentController(GLComponentController *gl
     : m_glComponentController(glComponentController) {
 }
 
+const GLComponentController *NPCListComponentController::getGLComponentController() const {
+    return m_glComponentController;
+}
+
 const std::string &NPCListComponentController::getLastError() const {
     return m_lastError;
 }

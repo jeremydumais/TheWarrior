@@ -442,6 +442,7 @@ void TilePropsComponent::onPushButtonAddTileEventClick() {
                     tile.triggers.end());
         }
         EditMapTileTriggerForm formEditMapTileTrigger(this,
+                m_glComponent->getControllerPtr(),
                 m_glComponent->getResourcesPath(),
                 {},
                 combinedTriggers);
@@ -470,6 +471,7 @@ void TilePropsComponent::onPushButtonEditTileEventClick() {
         auto selectedMapTileTrigger { getSelectedTrigger() };
         if (selectedMapTileTrigger.has_value()) {
             EditMapTileTriggerForm formEditMapTileTrigger(this,
+                    m_controller.getGLComponentController(),
                     m_glComponent->getResourcesPath(),
                     selectedMapTileTrigger,
                     combinedTriggers);

@@ -18,14 +18,19 @@ using thewarrior::models::MapTileTriggerEventConverter;
 
 namespace mapeditor::controllers {
 
-EditMapTileTriggerFormController::EditMapTileTriggerFormController(const boost::optional<mapeditor::controllers::MapTileTriggerDTO> currentTrigger,
+EditMapTileTriggerFormController::EditMapTileTriggerFormController(const GLComponentController *glComponentController,
+        const boost::optional<mapeditor::controllers::MapTileTriggerDTO> currentTrigger,
         const std::vector<MapTileTriggerDTO> &allTriggers)
-
-    : m_currentTrigger(currentTrigger),
+    : m_glComponentController(glComponentController),
+      m_currentTrigger(currentTrigger),
       m_allTriggers(allTriggers),
       m_updatedTrigger(currentTrigger.has_value() ?
             currentTrigger.value() :
             MapTileTriggerDTO {}) {
+}
+
+const GLComponentController *EditMapTileTriggerFormController::getGLComponentController() const {
+    return m_glComponentController;
 }
 
 const boost::optional<mapeditor::controllers::MapTileTriggerDTO> &EditMapTileTriggerFormController::getCurrentTrigger() const {

@@ -7,6 +7,7 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include "conversationScenario.hpp"
 #include "editConversationScenarioFormController.hpp"
+#include "glComponentController.hpp"
 
 using boost::algorithm::to_upper_copy;
 using thewarrior::models::ConversationNode;
@@ -17,15 +18,21 @@ using thewarrior::models::ConversationScenarioId;
 namespace mapeditor::controllers
 {
 
-EditConversationScenarioFormController::EditConversationScenarioFormController(const std::string &resourcesPath,
-                                                                                const std::optional<ConversationScenario> &selectedConversationScenario,
-                                                                                const std::vector<ConversationScenarioId> &alreadyUsedScenarioIds)
-    : m_resourcesPath(resourcesPath),
-        m_selectedConversationScenario(selectedConversationScenario),
-        m_alreadyUsedScenarioIds(alreadyUsedScenarioIds) {
+EditConversationScenarioFormController::EditConversationScenarioFormController(const GLComponentController *glComponentController,
+                                                                               const std::string &resourcesPath,
+                                                                               const std::optional<ConversationScenario> &selectedConversationScenario,
+                                                                               const std::vector<ConversationScenarioId> &alreadyUsedScenarioIds)
+: m_glComponentController(glComponentController),
+  m_resourcesPath(resourcesPath),
+  m_selectedConversationScenario(selectedConversationScenario),
+  m_alreadyUsedScenarioIds(alreadyUsedScenarioIds) {
     if (selectedConversationScenario.has_value()) {
         m_conversationNodes = selectedConversationScenario->getNodes();
     }
+}
+
+const GLComponentController *EditConversationScenarioFormController::getGLComponentController() const {
+    return m_glComponentController;
 }
 
 const std::string &EditConversationScenarioFormController::getResourcesPath() const {

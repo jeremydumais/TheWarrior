@@ -12,6 +12,7 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include "editNPCFormController.hpp"
+#include "glComponentController.hpp"
 #include "iTexturePixmapProvider.hpp"
 #include "npcDTO.hpp"
 #include "npcDTOUtils.hpp"
@@ -26,12 +27,14 @@ using mapeditor::controllers::NPCDTO;
 
 namespace mapeditor::controllers {
 
-EditNPCFormController::EditNPCFormController(const std::string &resourcesPath,
+EditNPCFormController::EditNPCFormController(const GLComponentController *glComponentController,
+                                             const std::string &resourcesPath,
                                              const std::vector<Texture> &textures,
                                              ITexturePixmapProvider &pixmapProvider,
                                              const std::optional<NPCDTO> selectedNPC,
                                              const std::vector<std::string> &alreadyUsedNPCIds)
-: m_resourcesPath(resourcesPath),
+: m_glComponentController(glComponentController),
+m_resourcesPath(resourcesPath),
 m_textures(textures),
 m_texturePixmapProvider(pixmapProvider),
 m_selectedNPC(selectedNPC),
@@ -39,7 +42,10 @@ m_alreadyUsedNPCIds(alreadyUsedNPCIds) {
     if (m_selectedNPC.has_value()) {
         m_conversationScenarios = m_selectedNPC->conversationScenarios;
     }
+}
 
+const GLComponentController *EditNPCFormController::getGLComponentController() const {
+    return m_glComponentController;
 }
 
 const std::string &EditNPCFormController::getResourcesPath() const {

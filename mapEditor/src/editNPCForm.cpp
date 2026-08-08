@@ -9,12 +9,13 @@
 #include "editNPCForm.hpp"
 #include "editNPCFormController.hpp"
 #include "errorMessage.hpp"
-#include "warningMessage.hpp"
+#include "glComponentController.hpp"
 #include "npc.hpp"
 #include "npcDTO.hpp"
 #include "point.hpp"
 #include "selectNPCTextureForm.hpp"
 #include "texture.hpp"
+#include "warningMessage.hpp"
 
 using commoneditor::ui::ErrorMessage;
 using commoneditor::ui::WarningMessage;
@@ -27,13 +28,14 @@ using thewarrior::models::Point;
 using thewarrior::models::Texture;
 
 EditNPCForm::EditNPCForm(QWidget *parent,
+                         const mapeditor::controllers::GLComponentController *glComponentController,
                          const std::string &resourcesPath,
                          const std::vector<Texture> &textures,
                          const std::optional<NPCDTO> &selectedNPC,
                          const std::vector<std::string> &alreadyUsedNPCIds)
     : QDialog(parent),
     ui(Ui::editNPCFormClass()),
-    m_controller(resourcesPath, textures, m_texturePixmapProvider, selectedNPC, alreadyUsedNPCIds) {
+    m_controller(glComponentController, resourcesPath, textures, m_texturePixmapProvider, selectedNPC, alreadyUsedNPCIds) {
     ui.setupUi(this);
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
     this->setFixedSize(this->geometry().size());
@@ -205,6 +207,7 @@ void EditNPCForm::onPushButtonSpawnPositionPickerClick() {
 void EditNPCForm::onPushButtonAddConvScenarioClick() {
     auto existingIds = m_controller.getAlreadyUsedScenarioIds();
     EditConversationScenarioForm conversationScenarioForm(this,
+                                                          m_controller.getGLComponentController(),
                                                           m_controller.getResourcesPath(),
                                                           std::nullopt,
                                                           existingIds);
@@ -224,6 +227,7 @@ void EditNPCForm::onPushButtonEditConvScenarioClick() {
         }
         auto existingIds = m_controller.getAlreadyUsedScenarioIds();
         EditConversationScenarioForm conversationScenarioForm(this,
+                                                              m_controller.getGLComponentController(),
                                                               m_controller.getResourcesPath(),
                                                               itemToEdit,
                                                               existingIds);

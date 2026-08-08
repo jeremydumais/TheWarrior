@@ -95,6 +95,7 @@ void NPCListComponent::restoreEditForm(const Point<> &position) {
 void NPCListComponent::onPushButtonAddNPCClick() {
     const auto alreadyUsedNPCIds = m_controller.getAlreadyUsedNPCIds();
     m_editForm = std::make_unique<EditNPCForm>(this,
+                                               m_controller.getGLComponentController(),
                                                m_resourcesPath,
                                                m_glComponent->getTextures(),
                                                std::nullopt,
@@ -109,6 +110,7 @@ void NPCListComponent::onPushButtonEditNPCClick() {
         m_controller.setEditedId(selectedNPC->id);
         auto alreadyUsedNPCIds = m_controller.getAlreadyUsedNPCIds();
         m_editForm = std::make_unique<EditNPCForm>(this,
+                                                   m_controller.getGLComponentController(),
                                                    m_resourcesPath,
                                                    m_glComponent->getTextures(),
                                                    selectedNPC,

@@ -179,10 +179,38 @@ struct RestRequestedAction {
     }
 };
 
+struct MerchantShopAction {
+    std::string merchantInventoryName;
+    friend bool operator==(const MerchantShopAction &, const MerchantShopAction &) = default;
+
+ private:
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive& ar, const unsigned int) {
+        ar & merchantInventoryName;
+    }
+};
+
+struct SellItemsAction {
+    std::optional<std::string> merchantInventoryName;
+    friend bool operator==(const SellItemsAction &, const SellItemsAction &) = default;
+
+ private:
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive& ar, const unsigned int) {
+        ar & merchantInventoryName;
+    }
+};
+
 using ConversationAction = boost::variant<
     RewardAction,
     ProgressStoryLineAction,
-    RestRequestedAction
+    RestRequestedAction,
+    MerchantShopAction,
+    SellItemsAction
 >;
 
 // Conversations

@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include "fileTexturePixmapProvider.hpp"
+#include "glComponentController.hpp"
 #include "npcDTO.hpp"
 #include "point.hpp"
 #include "texture.hpp"
@@ -20,6 +21,7 @@ Q_OBJECT
 
  public:
     EditNPCForm(QWidget *parent,
+                const mapeditor::controllers::GLComponentController *glComponentController,
                 const std::string &resourcesPath,
                 const std::vector<thewarrior::models::Texture> &textures,
                 const std::optional<mapeditor::controllers::NPCDTO> &selectedNPC,

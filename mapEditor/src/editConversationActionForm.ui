@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>769</width>
-    <height>446</height>
+    <height>455</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -56,9 +56,15 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,1,1">
+      <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,1,1,0,0">
        <item>
         <widget class="QRadioButton" name="radioButtonRestRequested">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string>Rest Requested</string>
          </property>
@@ -66,6 +72,12 @@
        </item>
        <item>
         <widget class="QRadioButton" name="radioButtonProgressStoryLine">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string>Progress Story Line</string>
          </property>
@@ -73,24 +85,56 @@
        </item>
        <item>
         <widget class="QRadioButton" name="radioButtonReward">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string>Reward</string>
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonMerchantShop">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Merchant Shop</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonSellItems">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Sell Items</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
-     <item row="2" column="0">
+     <item row="3" column="0">
       <widget class="QLabel" name="labelRestRequestedConfig">
        <property name="text">
         <string/>
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
+     <item row="3" column="1">
       <widget class="QLabel" name="labelRestRequestedConfig_2">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -118,35 +162,75 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
+     <item row="4" column="0">
       <widget class="QLabel" name="labelRestRequestedGoldCost">
        <property name="text">
-        <string>Gold Cost:</string>
+        <string>Gold Cost :</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
+     <item row="4" column="1">
       <widget class="QSpinBox" name="spinBoxRestRequestedGoldCost">
        <property name="maximum">
         <number>9999</number>
        </property>
       </widget>
      </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="labelFailureTransition">
-       <property name="text">
-        <string>Failure Transition :</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
+     <item row="9" column="0">
       <widget class="QLabel" name="labelTransition">
        <property name="text">
         <string>Transition :</string>
        </property>
       </widget>
      </item>
-     <item row="5" column="1">
+     <item row="9" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QComboBox" name="comboBoxTransitionType">
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>0</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelNextNodeId">
+         <property name="text">
+          <string>Next Node Id :</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="lineEditNextNodeId"/>
+       </item>
+      </layout>
+     </item>
+     <item row="10" column="0">
+      <widget class="QLabel" name="labelFailureTransition">
+       <property name="text">
+        <string>Failure Transition :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="1">
       <layout class="QHBoxLayout" name="horizontalLayoutFailureTransition">
        <item>
         <widget class="QComboBox" name="comboBoxFailureTransitionType">
@@ -186,45 +270,114 @@
        </item>
       </layout>
      </item>
-     <item row="4" column="1">
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item row="5" column="1">
+      <widget class="QLabel" name="labelMerchantShopConfig">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+         <weight>75</weight>
+         <italic>false</italic>
+         <bold>true</bold>
+         <underline>false</underline>
+        </font>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="text">
+        <string>Merchant Shop configuration</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="labelMerchantShop">
+       <property name="text">
+        <string>Merchant Shop :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="QComboBox" name="comboBoxMerchantShop"/>
+     </item>
+     <item row="7" column="1">
+      <widget class="QLabel" name="labelSellItemsConfig">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+         <weight>75</weight>
+         <italic>false</italic>
+         <bold>true</bold>
+         <underline>false</underline>
+        </font>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="text">
+        <string>Sell Items configuration</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0">
+      <widget class="QLabel" name="labelOptionalMerchantShop">
+       <property name="text">
+        <string>Optional Merchant Shop :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
        <item>
-        <widget class="QComboBox" name="comboBoxTransitionType">
-         <property name="minimumSize">
-          <size>
-           <width>120</width>
-           <height>0</height>
-          </size>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QLabel" name="labelNextNodeId">
+        <widget class="QCheckBox" name="checkBoxOptionalMerchantShop">
          <property name="text">
-          <string>Next Node Id :</string>
+          <string>Optional Merchant Shop for sell price override?</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEditNextNodeId"/>
+        <widget class="QComboBox" name="comboBoxOptionalMerchantShop"/>
        </item>
       </layout>
+     </item>
+     <item row="2" column="1">
+      <spacer name="verticalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>
@@ -296,6 +449,8 @@
   <tabstop>radioButtonRestRequested</tabstop>
   <tabstop>radioButtonProgressStoryLine</tabstop>
   <tabstop>radioButtonReward</tabstop>
+  <tabstop>radioButtonMerchantShop</tabstop>
+  <tabstop>radioButtonSellItems</tabstop>
   <tabstop>spinBoxRestRequestedGoldCost</tabstop>
   <tabstop>comboBoxTransitionType</tabstop>
   <tabstop>lineEditNextNodeId</tabstop>

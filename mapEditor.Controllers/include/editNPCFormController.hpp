@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "glComponentController.hpp"
 #include "iTexturePixmapProvider.hpp"
 #include "npcDTO.hpp"
 #include "texture.hpp"
@@ -18,11 +19,13 @@ class EditNPCFormController {
         std::shared_ptr<QPixmap> result;
     };
 
-    EditNPCFormController(const std::string &resourcesPath,
+    EditNPCFormController(const GLComponentController *glComponentController,
+                          const std::string &resourcesPath,
                           const std::vector<thewarrior::models::Texture> &textures,
                           commoneditor::ui::ITexturePixmapProvider &pixmapProvider,
                           const std::optional<mapeditor::controllers::NPCDTO> selectedNPC,
                           const std::vector<std::string> &alreadyUsedNPCIds);
+    const GLComponentController *getGLComponentController() const;                     
     const std::string &getResourcesPath() const;
     const std::string &getLastError() const;
     bool isEditMode() const;
@@ -43,6 +46,7 @@ class EditNPCFormController {
     bool removeConversationScenario(const thewarrior::models::ConversationScenarioId &oldConversationScenarioId);
 
  private:
+    const GLComponentController *m_glComponentController = nullptr;
     std::string m_resourcesPath;
     std::string m_lastError;
     const std::vector<thewarrior::models::Texture> &m_textures;

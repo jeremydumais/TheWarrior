@@ -9,6 +9,7 @@
 #include "ui_editConversationScenarioForm.h"
 #include "conversationScenario.hpp"
 #include "editConversationScenarioFormController.hpp"
+#include "glComponentController.hpp"
 #include "qTableWidgetKeyPressWatcher.h"
 
 class EditConversationScenarioForm : public QDialog {
@@ -16,6 +17,7 @@ Q_OBJECT
 
  public:
     EditConversationScenarioForm(QWidget *parent,
+                const mapeditor::controllers::GLComponentController *glComponentController,
                 const std::string &resourcesPath,
                 const std::optional<thewarrior::models::ConversationScenario> &selectedConversationScenario,
                 const std::vector<thewarrior::models::ConversationScenarioId> &alreadyUsedScenarioIds);

@@ -13,9 +13,11 @@
 #include "editConversationScenarioForm.hpp"
 #include "editConversationScenarioFormController.hpp"
 #include "errorMessage.hpp"
+#include "glComponentController.hpp"
 
 using commoneditor::ui::ErrorMessage;
 using mapeditor::controllers::EditConversationScenarioFormController;
+using mapeditor::controllers::GLComponentController;
 using thewarrior::models::ConversationAction;
 using thewarrior::models::ConversationChoice;
 using thewarrior::models::ConversationNode;
@@ -29,12 +31,13 @@ using thewarrior::models::ConversationScenario;
 
 
 EditConversationScenarioForm::EditConversationScenarioForm(QWidget *parent,
+                         const GLComponentController *glComponentController,
                          const std::string &resourcesPath,
                          const std::optional<ConversationScenario> &selectedConversationScenario,
                          const std::vector<ConversationScenarioId> &alreadyUsedScenarioIds)
     : QDialog(parent),
     ui(Ui::editConversationScenarioFormClass()),
-    m_controller(resourcesPath, selectedConversationScenario, alreadyUsedScenarioIds) {
+    m_controller(glComponentController, resourcesPath, selectedConversationScenario, alreadyUsedScenarioIds) {
     ui.setupUi(this);
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
     this->setFixedSize(this->geometry().size());
@@ -77,7 +80,7 @@ void EditConversationScenarioForm::initializeNodesTable() {
         }
     });
     addMenu->addAction("Action", this, [this]() {
-        EditConversationActionForm formEditAction(this, std::nullopt, m_controller.getAlreadyUsedNodeIds());
+        EditConversationActionForm formEditAction(this, m_controller.getGLComponentController(), std::nullopt, m_controller.getAlreadyUsedNodeIds());
         if (formEditAction.exec() == QDialog::Accepted) {
             m_controller.addConversationNode(formEditAction.getResult());
             refreshNodesTable();
@@ -253,7 +256,7 @@ void EditConversationScenarioForm::onPushButtonEditNodeClick() {
                 refreshNodesTable();
             }
         } else if (boost::get<thewarrior::models::ConversationAction>(&content) != nullptr) {
-            EditConversationActionForm formEditAction(this, itemToEdit, alreadyUsedNodeIds);
+            EditConversationActionForm formEditAction(this, m_controller.getGLComponentController(), itemToEdit, alreadyUsedNodeIds);
             if (formEditAction.exec() == QDialog::Accepted) {
                 if (!m_controller.updateConversationNode(itemToEdit->getId(), formEditAction.getResult())) {
                     ErrorMessage::show(fmt::format("Unable to update the node with id {0}", itemToEdit->getId()));

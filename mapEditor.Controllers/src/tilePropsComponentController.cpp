@@ -19,6 +19,10 @@ TilePropsComponentController::TilePropsComponentController(GLComponentController
     : m_glComponentController(glComponentController) {
 }
 
+const GLComponentController *TilePropsComponentController::getGLComponentController() const {
+    return m_glComponentController;
+}
+
 const std::string &TilePropsComponentController::getLastError() const {
     return m_lastError;
 }

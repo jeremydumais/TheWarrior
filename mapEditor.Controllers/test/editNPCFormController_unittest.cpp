@@ -5,11 +5,13 @@
 #include <string>
 #include <vector>
 #include "editNPCFormController.hpp"
+#include "glComponentController.hpp"
 #include "iTexturePixmapProvider.hpp"
 #include "npcDTO.hpp"
 
 using commoneditor::ui::ITexturePixmapProvider;
 using mapeditor::controllers::EditNPCFormController;
+using mapeditor::controllers::GLComponentController;
 using mapeditor::controllers::NPCDTO;
 using thewarrior::models::ConversationScenario;
 
@@ -26,11 +28,12 @@ FakeTexturePixmapProvider::~FakeTexturePixmapProvider() {}
 class EditNPCFormControllerNewNPC : public ::testing::Test {
  public:
     EditNPCFormControllerNewNPC()
-    : controller("", {}, pixmapProvider, std::nullopt, idSamples) {}
+    : controller(&glComponentController, "", {}, pixmapProvider, std::nullopt, idSamples) {}
     ~EditNPCFormControllerNewNPC() override;
     std::vector<std::string> idSamples { "NPC001", "NPC002" };
     FakeTexturePixmapProvider pixmapProvider;
     EditNPCFormController controller;
+    GLComponentController glComponentController;
 };
 
 EditNPCFormControllerNewNPC::~EditNPCFormControllerNewNPC() {}
@@ -38,11 +41,12 @@ EditNPCFormControllerNewNPC::~EditNPCFormControllerNewNPC() {}
 class EditNPCFormControllerEditNPC : public ::testing::Test {
  public:
     EditNPCFormControllerEditNPC()
-    : controller("", {}, pixmapProvider, NPCDTO {"NPC002", "Joe Blow", "Tex1", 0}, idSamples) {}
+    : controller(&glComponentController, "", {}, pixmapProvider, NPCDTO {"NPC002", "Joe Blow", "Tex1", 0}, idSamples) {}
     ~EditNPCFormControllerEditNPC() override;
     std::vector<std::string> idSamples { "NPC001", "NPC002" };
     FakeTexturePixmapProvider pixmapProvider;
     EditNPCFormController controller;
+    GLComponentController glComponentController;
 };
 
 EditNPCFormControllerEditNPC::~EditNPCFormControllerEditNPC() {}
@@ -93,6 +97,7 @@ TEST_F(EditNPCFormControllerEditNPC, WithNPC001LowerCaseAndSpaces_ReturnTrue) {
 
 TEST(EditNPCFormController_getConversationScenarioById,
      WithMatchingScenarioReturnScenario) {
+    GLComponentController glComponentController;
     FakeTexturePixmapProvider pixmapProvider;
     NPCDTO npc {
         .id = "NPC001",
@@ -102,6 +107,7 @@ TEST(EditNPCFormController_getConversationScenarioById,
         }
     };
     const EditNPCFormController controller(
+        &glComponentController,
         "",
         {},
         pixmapProvider,
@@ -116,6 +122,7 @@ TEST(EditNPCFormController_getConversationScenarioById,
 
 TEST(EditNPCFormController_getConversationScenarioById,
      WithoutMatchingScenarioReturnEmpty) {
+    GLComponentController glComponentController;
     FakeTexturePixmapProvider pixmapProvider;
     NPCDTO npc {
         .id = "NPC001",
@@ -124,6 +131,7 @@ TEST(EditNPCFormController_getConversationScenarioById,
         }
     };
     const EditNPCFormController controller(
+        &glComponentController,
         "",
         {},
         pixmapProvider,
@@ -136,8 +144,10 @@ TEST(EditNPCFormController_getConversationScenarioById,
 
 TEST(EditNPCFormController_getConversationScenarioById,
      WithoutSelectedNPCReturnEmpty) {
+    GLComponentController glComponentController;
     FakeTexturePixmapProvider pixmapProvider;
     const EditNPCFormController controller(
+        &glComponentController,
         "",
         {},
         pixmapProvider,
@@ -150,8 +160,10 @@ TEST(EditNPCFormController_getConversationScenarioById,
 
 TEST(EditNPCFormController_addConversationScenario,
      AddScenarioToController) {
+    GLComponentController glComponentController;
     FakeTexturePixmapProvider pixmapProvider;
     EditNPCFormController controller(
+        &glComponentController,
         "",
         {},
         pixmapProvider,
@@ -166,6 +178,7 @@ TEST(EditNPCFormController_addConversationScenario,
 
 TEST(EditNPCFormController_updateConversationScenario,
      WithMatchingScenarioReplaceScenarioAndReturnTrue) {
+    GLComponentController glComponentController;
     FakeTexturePixmapProvider pixmapProvider;
     NPCDTO npc {
         .id = "NPC001",
@@ -175,6 +188,7 @@ TEST(EditNPCFormController_updateConversationScenario,
         }
     };
     EditNPCFormController controller(
+        &glComponentController,
         "",
         {},
         pixmapProvider,
@@ -191,8 +205,10 @@ TEST(EditNPCFormController_updateConversationScenario,
 
 TEST(EditNPCFormController_updateConversationScenario,
      WithoutMatchingScenarioReturnFalse) {
+    GLComponentController glComponentController;
     FakeTexturePixmapProvider pixmapProvider;
     EditNPCFormController controller(
+        &glComponentController,
         "",
         {},
         pixmapProvider,
@@ -206,6 +222,7 @@ TEST(EditNPCFormController_updateConversationScenario,
 
 TEST(EditNPCFormController_removeConversationScenario,
      WithMatchingScenarioRemoveScenarioAndReturnTrue) {
+    GLComponentController glComponentController;
     FakeTexturePixmapProvider pixmapProvider;
     NPCDTO npc {
         .id = "NPC001",
@@ -215,6 +232,7 @@ TEST(EditNPCFormController_removeConversationScenario,
         }
     };
     EditNPCFormController controller(
+        &glComponentController,
         "",
         {},
         pixmapProvider,
@@ -228,8 +246,10 @@ TEST(EditNPCFormController_removeConversationScenario,
 
 TEST(EditNPCFormController_removeConversationScenario,
      WithoutMatchingScenarioReturnFalse) {
+    GLComponentController glComponentController;
     FakeTexturePixmapProvider pixmapProvider;
     EditNPCFormController controller(
+        &glComponentController,
         "",
         {},
         pixmapProvider,

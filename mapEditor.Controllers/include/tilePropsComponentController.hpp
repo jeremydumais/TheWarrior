@@ -14,6 +14,7 @@ namespace mapeditor::controllers {
 class TilePropsComponentController {
  public:
     explicit TilePropsComponentController(GLComponentController *glComponentController);
+    const GLComponentController *getGLComponentController() const;
     const std::string &getLastError() const;
     std::vector<MapTileDTO> getSelectedTiles() const;
     std::set<MapTileTriggerDTO> getTilesCommonTriggers() const;

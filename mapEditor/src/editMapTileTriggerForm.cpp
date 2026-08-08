@@ -9,12 +9,14 @@
 #include "editTileActionChangeMapPropertiesForm.hpp"
 #include "editTileActionOpenChestPropertiesForm.hpp"
 #include "errorMessage.hpp"
+#include "glComponentController.hpp"
 #include "mapTileTriggerActionConverter.hpp"
 #include "mapTileTriggerConditionConverter.hpp"
 #include "mapTileTriggerDTO.hpp"
 #include "mapTileTriggerEventConverter.hpp"
 
 using commoneditor::ui::ErrorMessage;
+using mapeditor::controllers::GLComponentController;
 using mapeditor::controllers::MapTileTriggerDTO;
 using thewarrior::models::MapTileTriggerAction;
 using thewarrior::models::MapTileTriggerEventConverter;
@@ -22,12 +24,13 @@ using thewarrior::models::MapTileTriggerConditionConverter;
 using thewarrior::models::MapTileTriggerActionConverter;
 
 EditMapTileTriggerForm::EditMapTileTriggerForm(QWidget *parent,
+        const GLComponentController *glComponentController,
         const std::string &resourcesPath,
         const boost::optional<MapTileTriggerDTO> currentTrigger,
         const std::vector<MapTileTriggerDTO> &allTriggers)
     : QDialog(parent),
     ui(Ui::editMapTileTriggerFormClass()),
-    m_controller(currentTrigger, allTriggers),
+    m_controller(glComponentController, currentTrigger, allTriggers),
     m_resourcesPath(resourcesPath),
     m_isEditMode(currentTrigger.has_value()) {
     ui.setupUi(this);
@@ -122,6 +125,7 @@ void EditMapTileTriggerForm::onPushButtonTileActionPropertiesClick() {
     } else if (ui.comboBoxAction->currentIndex() == static_cast<int>(MapTileTriggerAction::ConversationScenario)) {
         EditConversationScenarioForm formEdit(
                 this,
+                m_controller.getGLComponentController(),
                 m_resourcesPath,
                 m_controller.getUpdatedTrigger().conversationScenario,
                 {});

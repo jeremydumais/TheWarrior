@@ -4,8 +4,10 @@
 #include <vector>
 #include "conversationScenario.hpp"
 #include "editConversationScenarioFormController.hpp"
+#include "glComponentController.hpp"
 
 using mapeditor::controllers::EditConversationScenarioFormController;
+using mapeditor::controllers::GLComponentController;
 using thewarrior::models::ConversationDialogue;
 using thewarrior::models::ConversationNode;
 using thewarrior::models::ConversationScenario;
@@ -25,9 +27,10 @@ ConversationNode createDialogueNode(const std::string &id) {
 
 }  // namespace
 
-TEST(EditConversationScenarioFormController_getResourcesPath,
-     ReturnConfiguredResourcesPath) {
+TEST(EditConversationScenarioFormController_getResourcesPath, ReturnConfiguredResourcesPath) {
+    GLComponentController glComponentController;
     const EditConversationScenarioFormController controller(
+        &glComponentController,
         "resources/maps",
         std::nullopt,
         {});
@@ -35,9 +38,10 @@ TEST(EditConversationScenarioFormController_getResourcesPath,
     ASSERT_EQ("resources/maps", controller.getResourcesPath());
 }
 
-TEST(EditConversationScenarioFormController_getLastError,
-     WithNewControllerReturnEmpty) {
+TEST(EditConversationScenarioFormController_getLastError, WithNewControllerReturnEmpty) {
+    GLComponentController glComponentController;
     const EditConversationScenarioFormController controller(
+        &glComponentController,
         "",
         std::nullopt,
         {});
@@ -45,9 +49,10 @@ TEST(EditConversationScenarioFormController_getLastError,
     ASSERT_TRUE(controller.getLastError().empty());
 }
 
-TEST(EditConversationScenarioFormController_isEditMode,
-     WithoutSelectedScenarioReturnFalse) {
+TEST(EditConversationScenarioFormController_isEditMode, WithoutSelectedScenarioReturnFalse) {
+    GLComponentController glComponentController;
     const EditConversationScenarioFormController controller(
+        &glComponentController,
         "",
         std::nullopt,
         {});
@@ -55,9 +60,10 @@ TEST(EditConversationScenarioFormController_isEditMode,
     ASSERT_FALSE(controller.isEditMode());
 }
 
-TEST(EditConversationScenarioFormController_isEditMode,
-     WithSelectedScenarioReturnTrue) {
+TEST(EditConversationScenarioFormController_isEditMode, WithSelectedScenarioReturnTrue) {
+    GLComponentController glComponentController;
     const EditConversationScenarioFormController controller(
+        &glComponentController,
         "",
         createScenario(),
         {});
@@ -65,9 +71,10 @@ TEST(EditConversationScenarioFormController_isEditMode,
     ASSERT_TRUE(controller.isEditMode());
 }
 
-TEST(EditConversationScenarioFormController_isScenarioIdAlreadyUsed,
-     WithUsedScenarioIdReturnTrueCaseInsensitively) {
+TEST(EditConversationScenarioFormController_isScenarioIdAlreadyUsed, WithUsedScenarioIdReturnTrueCaseInsensitively) {
+    GLComponentController glComponentController;
     const EditConversationScenarioFormController controller(
+        &glComponentController,
         "",
         std::nullopt,
         {"intro", "ending"});
@@ -75,9 +82,10 @@ TEST(EditConversationScenarioFormController_isScenarioIdAlreadyUsed,
     ASSERT_TRUE(controller.isScenarioIdAlreadyUsed("INTRO"));
 }
 
-TEST(EditConversationScenarioFormController_isScenarioIdAlreadyUsed,
-     WithUnusedScenarioIdReturnFalse) {
+TEST(EditConversationScenarioFormController_isScenarioIdAlreadyUsed, WithUnusedScenarioIdReturnFalse) {
+    GLComponentController glComponentController;
     const EditConversationScenarioFormController controller(
+        &glComponentController,
         "",
         std::nullopt,
         {"intro", "ending"});
@@ -85,9 +93,10 @@ TEST(EditConversationScenarioFormController_isScenarioIdAlreadyUsed,
     ASSERT_FALSE(controller.isScenarioIdAlreadyUsed("battle"));
 }
 
-TEST(EditConversationScenarioFormController_isScenarioIdAlreadyUsed,
-     WithSelectedScenarioIdReturnFalseCaseInsensitively) {
+TEST(EditConversationScenarioFormController_isScenarioIdAlreadyUsed, WithSelectedScenarioIdReturnFalseCaseInsensitively) {
+    GLComponentController glComponentController;
     const EditConversationScenarioFormController controller(
+        &glComponentController,
         "",
         createScenario(),
         {"scenario", "ending"});
@@ -95,9 +104,10 @@ TEST(EditConversationScenarioFormController_isScenarioIdAlreadyUsed,
     ASSERT_FALSE(controller.isScenarioIdAlreadyUsed("SCENARIO"));
 }
 
-TEST(EditConversationScenarioFormController_getAlreadyUsedNodeIds,
-     WithoutSelectedScenarioReturnEmpty) {
+TEST(EditConversationScenarioFormController_getAlreadyUsedNodeIds, WithoutSelectedScenarioReturnEmpty) {
+    GLComponentController glComponentController;
     const EditConversationScenarioFormController controller(
+        &glComponentController,
         "",
         std::nullopt,
         {});
@@ -105,9 +115,10 @@ TEST(EditConversationScenarioFormController_getAlreadyUsedNodeIds,
     ASSERT_TRUE(controller.getAlreadyUsedNodeIds().empty());
 }
 
-TEST(EditConversationScenarioFormController_getAlreadyUsedNodeIds,
-     WithSelectedScenarioReturnNodeIdsInOrder) {
+TEST(EditConversationScenarioFormController_getAlreadyUsedNodeIds, WithSelectedScenarioReturnNodeIdsInOrder) {
+    GLComponentController glComponentController;
     const EditConversationScenarioFormController controller(
+        &glComponentController,
         "",
         createScenario({
             createDialogueNode("welcome"),
@@ -119,9 +130,10 @@ TEST(EditConversationScenarioFormController_getAlreadyUsedNodeIds,
     ASSERT_EQ(expectedIds, controller.getAlreadyUsedNodeIds());
 }
 
-TEST(EditConversationScenarioFormController_getNodeById,
-     WithMatchingNodeReturnNode) {
+TEST(EditConversationScenarioFormController_getNodeById, WithMatchingNodeReturnNode) {
+    GLComponentController glComponentController;
     const EditConversationScenarioFormController controller(
+        &glComponentController,
         "",
         createScenario({
             createDialogueNode("welcome"),
@@ -135,9 +147,10 @@ TEST(EditConversationScenarioFormController_getNodeById,
     ASSERT_EQ("goodbye", node->getId());
 }
 
-TEST(EditConversationScenarioFormController_getNodeById,
-     WithoutMatchingNodeReturnEmpty) {
+TEST(EditConversationScenarioFormController_getNodeById, WithoutMatchingNodeReturnEmpty) {
+    GLComponentController glComponentController;
     const EditConversationScenarioFormController controller(
+        &glComponentController,
         "",
         createScenario({createDialogueNode("welcome")}),
         {});
@@ -145,9 +158,10 @@ TEST(EditConversationScenarioFormController_getNodeById,
     ASSERT_FALSE(controller.getNodeById("missing").has_value());
 }
 
-TEST(EditConversationScenarioFormController_getNodeById,
-     WithoutSelectedScenarioReturnEmpty) {
+TEST(EditConversationScenarioFormController_getNodeById, WithoutSelectedScenarioReturnEmpty) {
+    GLComponentController glComponentController;
     const EditConversationScenarioFormController controller(
+        &glComponentController,
         "",
         std::nullopt,
         {});
@@ -155,9 +169,10 @@ TEST(EditConversationScenarioFormController_getNodeById,
     ASSERT_FALSE(controller.getNodeById("welcome").has_value());
 }
 
-TEST(EditConversationScenarioFormController_addConversationNode,
-     AddNodeToEndOfNodes) {
+TEST(EditConversationScenarioFormController_addConversationNode, AddNodeToEndOfNodes) {
+    GLComponentController glComponentController;
     EditConversationScenarioFormController controller(
+        &glComponentController,
         "",
         createScenario({createDialogueNode("welcome")}),
         {});
@@ -169,9 +184,10 @@ TEST(EditConversationScenarioFormController_addConversationNode,
     EXPECT_EQ("goodbye", controller.getNodes()[1].getId());
 }
 
-TEST(EditConversationScenarioFormController_updateConversationNode,
-     WithMatchingNodeReplaceNodeAndReturnTrue) {
+TEST(EditConversationScenarioFormController_updateConversationNode, WithMatchingNodeReplaceNodeAndReturnTrue) {
+    GLComponentController glComponentController;
     EditConversationScenarioFormController controller(
+        &glComponentController,
         "",
         createScenario({
             createDialogueNode("welcome"),
@@ -188,9 +204,10 @@ TEST(EditConversationScenarioFormController_updateConversationNode,
     EXPECT_EQ("goodbye", controller.getNodes()[1].getId());
 }
 
-TEST(EditConversationScenarioFormController_updateConversationNode,
-     WithoutMatchingNodeReturnFalseAndLeaveNodesUnchanged) {
+TEST(EditConversationScenarioFormController_updateConversationNode, WithoutMatchingNodeReturnFalseAndLeaveNodesUnchanged) {
+    GLComponentController glComponentController;
     EditConversationScenarioFormController controller(
+        &glComponentController,
         "",
         createScenario({createDialogueNode("welcome")}),
         {});
@@ -203,9 +220,10 @@ TEST(EditConversationScenarioFormController_updateConversationNode,
     EXPECT_EQ("welcome", controller.getNodes()[0].getId());
 }
 
-TEST(EditConversationScenarioFormController_removeConversationNode,
-     WithMatchingNodeRemoveNodeAndReturnTrue) {
+TEST(EditConversationScenarioFormController_removeConversationNode, WithMatchingNodeRemoveNodeAndReturnTrue) {
+    GLComponentController glComponentController;
     EditConversationScenarioFormController controller(
+        &glComponentController,
         "",
         createScenario({
             createDialogueNode("welcome"),
@@ -219,9 +237,10 @@ TEST(EditConversationScenarioFormController_removeConversationNode,
     EXPECT_EQ("goodbye", controller.getNodes()[0].getId());
 }
 
-TEST(EditConversationScenarioFormController_removeConversationNode,
-     WithoutMatchingNodeReturnFalseAndLeaveNodesUnchanged) {
+TEST(EditConversationScenarioFormController_removeConversationNode, WithoutMatchingNodeReturnFalseAndLeaveNodesUnchanged) {
+    GLComponentController glComponentController;
     EditConversationScenarioFormController controller(
+        &glComponentController,
         "",
         createScenario({createDialogueNode("welcome")}),
         {});
