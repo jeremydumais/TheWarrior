@@ -19,6 +19,8 @@
 #include "glChoicePopup.hpp"
 #include "glFormService.hpp"
 #include "glInventory.hpp"
+#include "glMerchantShop.hpp"
+#include "glSellItems.hpp"
 #include "glNPC.hpp"
 #include "glPlayer.hpp"
 #include "glScreenOverlay.hpp"
@@ -43,6 +45,8 @@ enum class GameMapInputMode {
     ConversationChoice,
     CharacterWindow,
     InventoryWindow,
+    MerchantShop,
+    SellItems,
     Battle
 };
 
@@ -97,6 +101,8 @@ class GameMapMode {
     GLBattleWindow m_glBattleWindow;
     GLCharacterWindow m_glCharacterWindow;
     GLInventory m_glInventory;
+    GLMerchantShop m_glMerchantShop;
+    GLSellItems m_glSellItems;
     GLChoicePopup m_choicePopup;
     GLScreenOverlay m_screenOverlay;
     thewarrior::models::Size<> m_screenSize = {1, 1};
@@ -181,6 +187,11 @@ class GameMapMode {
     bool completeConversationAction();
     bool followConversationActionFailure(const thewarrior::models::ConversationNodeTransition &transition);
     bool executeRestRequestedAction(const thewarrior::models::RestRequestedAction &action);
+    bool executeMerchantShopAction(const thewarrior::models::MerchantShopAction &action);
+    void onMerchantShopClose();
+    bool executeSellItemsAction(const thewarrior::models::SellItemsAction &action);
+    void onSellItemsClose();
+    void keepConversationNPCStationary();
     void updateSleepSequence(float deltaTime);
     void restorePlayerAfterSleep();
     void completeSleepAction();

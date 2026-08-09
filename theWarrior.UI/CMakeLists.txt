@@ -23,6 +23,10 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/fadeLoopAnimation.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glBattleWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glInventory.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/glMerchantShop.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/glPurchaseConfirmationDialog.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/glSaleConfirmationDialog.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/glSellItems.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glCharacterWindow.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glChoicePopup.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/glNPC.cpp

@@ -80,6 +80,8 @@ namespace thewarrior::ui
         m_glBattleWindow.initialize(resourcesPath, m_glPlayer, textService, m_controller.getMonsterStore(), &m_texturesGLMonsterStore, inputDevicesState);
         m_glCharacterWindow.initialize(resourcesPath, m_glPlayer, textService, m_controller.getItemStore(), &m_texturesGLItemStore, inputDevicesState);
         m_glInventory.initialize(resourcesPath, m_glPlayer, textService, m_controller.getItemStore(), &m_texturesGLItemStore, inputDevicesState);
+        m_glMerchantShop.initialize(resourcesPath, m_glPlayer, textService, m_controller.getItemStore(), &m_texturesGLItemStore, inputDevicesState);
+        m_glSellItems.initialize(resourcesPath, m_glPlayer, textService, m_controller.getItemStore(), &m_texturesGLItemStore, inputDevicesState);
         m_glInventory.setInventory(m_glPlayer->getInventory());
         m_textBox->initialize(m_controller.getResourcesPath(),
                               textService,
@@ -112,6 +114,8 @@ namespace thewarrior::ui
         generateGLMapObjects();
         m_glCharacterWindow.onCloseEvent.connect(boost::bind(&GameMapMode::onCharacterWindowClose, this));
         m_glInventory.onCloseEvent.connect(boost::bind(&GameMapMode::onInventoryWindowClose, this));
+        m_glMerchantShop.onCloseEvent.connect(boost::bind(&GameMapMode::onMerchantShopClose, this));
+        m_glSellItems.onCloseEvent.connect(boost::bind(&GameMapMode::onSellItemsClose, this));
         return true;
     }
 
@@ -134,6 +138,8 @@ namespace thewarrior::ui
         m_choicePopup.initShader(m_shaderProgram);
         m_glCharacterWindow.initShader(m_shaderProgram);
         m_glInventory.initShader(m_shaderProgram);
+        m_glMerchantShop.initShader(m_shaderProgram);
+        m_glSellItems.initShader(m_shaderProgram);
         return true;
     }
 
@@ -206,6 +212,14 @@ namespace thewarrior::ui
         case GameMapInputMode::InventoryWindow:
             m_glInventory.update();
             break;
+        case GameMapInputMode::MerchantShop:
+            keepConversationNPCStationary();
+            m_glMerchantShop.update();
+            break;
+        case GameMapInputMode::SellItems:
+            keepConversationNPCStationary();
+            m_glSellItems.update();
+            break;
         case GameMapInputMode::CharacterWindow:
             m_glCharacterWindow.update();
             break;
@@ -229,6 +243,8 @@ namespace thewarrior::ui
             npc.onGameWindowTileSizeChanged(m_tileSize);
         }
         m_glInventory.gameWindowSizeChanged(size);
+        m_glMerchantShop.gameWindowSizeChanged(size);
+        m_glSellItems.gameWindowSizeChanged(size);
         m_glBattleWindow.gameWindowSizeChanged(size);
         m_glCharacterWindow.gameWindowSizeChanged(size);
         m_choicePopup.gameWindowSizeChanged(size);
@@ -374,6 +390,12 @@ namespace thewarrior::ui
         }
         if (m_inputMode == GameMapInputMode::InventoryWindow) {
             m_glInventory.render();
+        }
+        if (m_inputMode == GameMapInputMode::MerchantShop) {
+            m_glMerchantShop.render();
+        }
+        if (m_inputMode == GameMapInputMode::SellItems) {
+            m_glSellItems.render();
         }
         if (m_inputMode == GameMapInputMode::CharacterWindow) {
             m_glCharacterWindow.render();
@@ -1339,6 +1361,10 @@ namespace thewarrior::ui
                 if (m_sleepSequenceState != SleepSequenceState::Inactive) {
                     return; // Wait for the sleep sequence.
                 }
+                if (m_inputMode == GameMapInputMode::MerchantShop ||
+                    m_inputMode == GameMapInputMode::SellItems) {
+                    return; // Wait for the player to leave the shop.
+                }
 
                 // The controller now points to the next node.
                 continue;
@@ -1463,6 +1489,14 @@ namespace thewarrior::ui
             return executeRestRequestedAction(*restAction);
         }
 
+        if (const auto *merchantAction = boost::get<MerchantShopAction>(&action)) {
+            return executeMerchantShopAction(*merchantAction);
+        }
+
+        if (const auto *sellAction = boost::get<SellItemsAction>(&action)) {
+            return executeSellItemsAction(*sellAction);
+        }
+
         failConversation("Unknown conversation action type.");
         return false;
     }
@@ -1517,6 +1551,61 @@ namespace thewarrior::ui
         Mix_FadeOutMusic(500);
 
         return true;
+    }
+
+    bool GameMapMode::executeMerchantShopAction(const MerchantShopAction &action) {
+        const auto inventory = m_map->getMerchantInventoryByName(action.merchantInventoryName);
+        if (!inventory.has_value()) {
+            failConversation(fmt::format("Unable to open merchant inventory '{}'.", action.merchantInventoryName));
+            return false;
+        }
+        if (!m_glMerchantShop.open(inventory->get())) {
+            failConversation(fmt::format("Merchant inventory '{}' contains no loadable items.", action.merchantInventoryName));
+            return false;
+        }
+        m_inputMode = GameMapInputMode::MerchantShop;
+        return true;
+    }
+
+    void GameMapMode::onMerchantShopClose() {
+        m_inputMode = GameMapInputMode::Map;
+        if (!completeConversationAction()) {
+            return;
+        }
+        processCurrentConversationNode();
+    }
+
+    bool GameMapMode::executeSellItemsAction(const SellItemsAction &action) {
+        const MerchantInventory *inventory = nullptr;
+        if (action.merchantInventoryName.has_value()) {
+            const auto found = m_map->getMerchantInventoryByName(*action.merchantInventoryName);
+            if (!found.has_value()) {
+                failConversation(fmt::format("Unable to find merchant inventory '{}'.", *action.merchantInventoryName));
+                return false;
+            }
+            inventory = &found->get();
+        }
+        m_glSellItems.open(inventory);
+        m_inputMode = GameMapInputMode::SellItems;
+        return true;
+    }
+
+    void GameMapMode::onSellItemsClose() {
+        m_inputMode = GameMapInputMode::Map;
+        if (!completeConversationAction()) return;
+        processCurrentConversationNode();
+    }
+
+    void GameMapMode::keepConversationNPCStationary() {
+        const auto &npcId = m_conversationController.getNPCId();
+        if (npcId.empty()) {
+            return;
+        }
+        const auto npc = std::ranges::find_if(
+            m_glNPCs, [&npcId](const GLNPC &candidate) { return candidate.getId() == npcId; });
+        if (npc != m_glNPCs.end()) {
+            npc->stopWandering();
+        }
     }
 
     void GameMapMode::updateSleepSequence(float deltaTime)

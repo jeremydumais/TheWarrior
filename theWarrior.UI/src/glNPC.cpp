@@ -163,6 +163,9 @@ namespace thewarrior::ui
         setCurrentBehavior(NPCBehavior::Stationary);
         m_currentPath.clear();
         m_idleTimeRemaining = 0.0F;
+        // A new interaction supersedes any delayed restore left by a previous one.
+        m_hasPendingDefaultRestore = false;
+        m_defaultRestoreTimeRemaining = 0.0F;
     }
 
     void GLNPC::restoreDefaultStateAfterDelay(float durationInSeconds) {
