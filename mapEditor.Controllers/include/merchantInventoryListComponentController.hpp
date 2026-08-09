@@ -22,6 +22,7 @@ class MerchantInventoryListComponentController {
 
     std::shared_ptr<ContainerOfItemStore> getItemStores() const;
     std::vector<std::string> getAlreadyUsedMerchantInventoryNames() const;
+    bool isMerchantInventoryUsed(const std::string &name) const;
 
     void setItemStores(const std::shared_ptr<ContainerOfItemStore> &itemStores);
  private:
@@ -31,4 +32,3 @@ class MerchantInventoryListComponentController {
 };
 
 }  // namespace mapeditor::controllers
-

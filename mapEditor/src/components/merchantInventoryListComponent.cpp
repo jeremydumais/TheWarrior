@@ -13,8 +13,10 @@
 #include "merchantInventory.hpp"
 #include "uiUtils.hpp"
 #include "types.hpp"
+#include "warningMessage.hpp"
 
 using commoneditor::ui::ErrorMessage;
+using commoneditor::ui::WarningMessage;
 using commoneditor::ui::UIUtils;
 using mapeditor::controllers::GLComponentController;
 using mapeditor::controllers::ContainerOfItemStore;
@@ -157,7 +159,14 @@ void MerchantInventoryListComponent::onPushButtonEditMerchantInventoryClick() {
                     alreadyUsedMerchantInventoryNames);
             UIUtils::centerToScreen(&formEditMerchantInventory);
             if (formEditMerchantInventory.exec() == QDialog::Accepted) {
-                emit merchantInventoryUpdated(merchantInvName.value(), formEditMerchantInventory.getResult());
+                // Ensure you cannot rename a MerchantInventory that is used in a ConversationScenario
+                auto result = formEditMerchantInventory.getResult();
+                if (m_controller.isMerchantInventoryUsed(merchantInvName.value()) && merchantInvName.value() != result.name) {
+                    WarningMessage::show(fmt::format("The merchant inventory {} cannnot be renamed to {} because it is currently used by a conversation action. The existing name will be kept.",
+                                                     merchantInvName.value(), result.name));
+                    result.name = merchantInvName.value();
+                }
+                emit merchantInventoryUpdated(merchantInvName.value(), result);
             }
         }
     }
@@ -174,6 +183,11 @@ void MerchantInventoryListComponent::onPushButtonDeleteMerchantInventoryClick() 
             msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
             msgBox.setDefaultButton(QMessageBox::Cancel);
             if (msgBox.exec() == QMessageBox::Yes) {
+                if (m_controller.isMerchantInventoryUsed(merchantInventory->get().name)) {
+                    ErrorMessage::show(fmt::format("The merchant inventory {} is used by a conversation action and cannot be deleted.",
+                                                   merchantInventory->get().name));
+                    return;
+                }
                 emit merchantInventoryDeleted(merchantInventory->get().name);
             }
         }
