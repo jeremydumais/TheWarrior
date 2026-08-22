@@ -1,7 +1,10 @@
 #include "mainController.hpp"
+#include "armorItem.hpp"
 #include "itemStoreStorage.hpp"
 #include "manageItemController.hpp"
+#include "statsItem.hpp"
 #include "textureUtils.hpp"
+#include "weaponItem.hpp"
 #include <fmt/format.h>
 #include <qpixmap.h>
 #include <algorithm>
@@ -10,6 +13,7 @@
 #include <optional>
 #include <set>
 #include <ranges>
+#include <variant>
 
 using namespace commoneditor::ui;
 using namespace thewarrior::models;
@@ -83,15 +87,66 @@ std::vector<ItemListDisplay> MainController::getItemsFromCategory(const std::str
     if (itemType.has_value()) {
         auto items = m_itemStore->getItems();
         auto filterByItemType = [itemType](const auto &item) { return item->getType() == itemType.value(); };
-        auto createItemListDisplay = [](const auto &item) { return ItemListDisplay { item->getId(),
-                                                                                     item->getName(),
-                                                                                     item->getOptionalDescription() }; };
+        auto createItemListDisplay = [type = itemType.value()](const auto &item) {
+            ItemSpecificListFields specificFields = std::monostate();
+            switch (type) {
+                case ItemType::Weapon: {
+                    const auto weapon = std::static_pointer_cast<WeaponItem>(item);
+                    specificFields = WeaponListFields {
+                        WeaponItem::getBodyPartAsString(weapon->getSlotInBodyPart()),
+                        weapon->getAttackGain()
+                    };
+                    break;
+                }
+                case ItemType::Armor: {
+                    const auto armor = std::static_pointer_cast<ArmorItem>(item);
+                    specificFields = ArmorListFields {
+                        ArmorItem::getBodyPartAsString(armor->getSlotInBodyPart()),
+                        armor->getDefenseGain()
+                    };
+                    break;
+                }
+                case ItemType::StatsItem: {
+                    const auto statsItem = std::static_pointer_cast<StatsItem>(item);
+                    const std::string statChanging = [stat = statsItem->getStatChanging()] {
+                        switch (stat) {
+                        case Stats::Vitality: return std::string("Vitality");
+                        case Stats::Strength: return std::string("Strength");
+                        case Stats::Endurance: return std::string("Endurance");
+                        }
+                        return std::string();
+                    }();
+                    specificFields = StatsItemListFields {
+                        statChanging,
+                        statsItem->getGain(),
+                        statsItem->getLimitOfOneApplied(),
+                        statsItem->getDurationInTurn()
+                    };
+                    break;
+                }
+                case ItemType::Item:
+                    break;
+                }
+            return ItemListDisplay {
+            .id = item->getId(),
+            .name = item->getName(),
+            .defaultBuyPrice = item->getDefaultBuyPrice(),
+            .defaultSellPrice = item->getDefaultSellPrice(),
+            .specificFields = std::move(specificFields),
+            .description = item->getOptionalDescription()
+        }; };
         std::ranges::transform(items | std::views::filter(filterByItemType),
                                std::back_inserter(retval),
                                createItemListDisplay);
     }
     return retval;
 }
+
+std::optional<ItemType> MainController::getItemTypeFromCategoryName(const std::string &categoryName) const
+{
+    return itemTypeFromString(categoryName);
+}
+
 
 std::optional<ItemType> MainController::getItemTypeFromItemId(const std::string &id) const
 {

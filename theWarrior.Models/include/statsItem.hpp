@@ -15,7 +15,7 @@ struct StatsItemCreationInfo : public ItemCreationInfo {
     Stats statChanging;
     float gain;
     bool limitOfOneApplied;
-    unsigned int durationInSecs;
+    unsigned int durationInTurn;
 };
 
 class StatsItem : public Item {
@@ -32,18 +32,18 @@ class StatsItem : public Item {
     Stats getStatChanging() const;
     float getGain() const;
     bool getLimitOfOneApplied() const;
-    unsigned int getDurationInSecs() const;
+    unsigned int getDurationInTurn() const;
     void setStatChanging(Stats value);
     void setGain(float value);
     void setLimitOfOneApplied(bool value);
-    void setDurationInSecs(unsigned int value);
+    void setDurationInTurn(unsigned int value);
 
  protected:
     friend class boost::serialization::access;
     Stats m_statChanging;
     float m_gain;
     bool m_limitOfOneApplied;
-    unsigned int m_durationInSecs;
+    unsigned int m_durationInTurn;
     // Serialization method
     template<class Archive>
     void serialize(Archive & ar, const unsigned int) {
@@ -51,7 +51,7 @@ class StatsItem : public Item {
         ar & m_statChanging;
         ar & m_gain;
         ar & m_limitOfOneApplied;
-        ar & m_durationInSecs;
+        ar & m_durationInTurn;
     }
 };
 

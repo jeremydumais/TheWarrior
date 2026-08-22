@@ -11,7 +11,7 @@ StatsItem::StatsItem()
       m_statChanging(Stats::Vitality),
       m_gain(1.1F),
       m_limitOfOneApplied(true),
-      m_durationInSecs(0) {
+      m_durationInTurn(0) {
 }
 
 StatsItem::StatsItem(const StatsItemCreationInfo &itemInfo)
@@ -19,7 +19,7 @@ StatsItem::StatsItem(const StatsItemCreationInfo &itemInfo)
       m_statChanging(itemInfo.statChanging),
       m_gain(itemInfo.gain),
       m_limitOfOneApplied(itemInfo.limitOfOneApplied),
-      m_durationInSecs(itemInfo.durationInSecs) {
+      m_durationInTurn(itemInfo.durationInTurn) {
 }
 
 bool StatsItem::equals(const Item &other) const {
@@ -33,7 +33,7 @@ bool StatsItem::equals(const Item &other) const {
     return this->m_statChanging == otherStatsItem->m_statChanging &&
            this->m_gain == otherStatsItem->m_gain &&
            this->m_limitOfOneApplied == otherStatsItem->m_limitOfOneApplied &&
-           this->m_durationInSecs == otherStatsItem->m_durationInSecs &&
+           this->m_durationInTurn == otherStatsItem->m_durationInTurn &&
            Item::equals(other);
 }
 
@@ -53,8 +53,8 @@ bool StatsItem::getLimitOfOneApplied() const {
     return m_limitOfOneApplied;
 }
 
-unsigned int StatsItem::getDurationInSecs() const {
-    return m_durationInSecs;
+unsigned int StatsItem::getDurationInTurn() const {
+    return m_durationInTurn;
 }
 
 void StatsItem::setStatChanging(Stats value) {
@@ -69,8 +69,8 @@ void StatsItem::setLimitOfOneApplied(bool value) {
     m_limitOfOneApplied = value;
 }
 
-void StatsItem::setDurationInSecs(unsigned int value) {
-    m_durationInSecs = value;
+void StatsItem::setDurationInTurn(unsigned int value) {
+    m_durationInTurn = value;
 }
 
 }  // namespace thewarrior::models

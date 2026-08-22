@@ -258,8 +258,8 @@ void GLInventory::generateStatsItemDetails(std::shared_ptr<const Item> item, flo
     if (statsItem && statsItem->getLimitOfOneApplied()) {
         generateDetailLabelXCentered("Limit of one applied.", yPosition, 0.4F, GLColor::LightGray);
     }
-    if (statsItem && statsItem->getDurationInSecs() > 0) {
-        generateDetailLabelXCentered(fmt::format("Last {0} seconds.", statsItem->getDurationInSecs()),
+    if (statsItem && statsItem->getDurationInTurn() > 0) {
+        generateDetailLabelXCentered(fmt::format("Last {0} seconds.", statsItem->getDurationInTurn()),
                             yPosition + 25.0F,
                             0.4F, GLColor::LightGray);
     }

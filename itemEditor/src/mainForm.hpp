@@ -31,7 +31,7 @@ Q_OBJECT
     static const std::string THEME_PATH;
     static const std::string RECENT_MAPS;
     void initializeCategoriesTableControl();
-    void initializeItemsTableControl();
+    void initializeItemsTableControl(std::optional<thewarrior::models::ItemType> itemType);
     void action_About_Click();
     void action_LightTheme_Click();
     void action_DarkTheme_Click();

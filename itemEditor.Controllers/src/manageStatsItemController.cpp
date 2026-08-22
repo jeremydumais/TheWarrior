@@ -31,7 +31,7 @@ bool ManageStatsItemController::validateGain(const std::string &gainStr) {
     return true;
 }
 
-bool ManageStatsItemController::validateDurationInSecs(const std::string &duration) {
+bool ManageStatsItemController::validateDurationInTurn(const std::string &duration) {
     if (boost::trim_copy(duration).empty()) {
         m_lastError = "The duration value cannot be empty.";
         return false;
@@ -72,7 +72,7 @@ std::unique_ptr<ItemDTO> ManageStatsItemController::getItem(const std::string &i
             retval->statChangingIndex = static_cast<int>(statsItem->getStatChanging());
             retval->gain = statsItem->getGain();
             retval->limitOfOneApplied = statsItem->getLimitOfOneApplied();
-            retval->durationInSecs = statsItem->getDurationInSecs();
+            retval->durationInTurn = statsItem->getDurationInTurn();
             return retval;
         }
     }
@@ -97,7 +97,7 @@ std::shared_ptr<Item> ManageStatsItemController::itemDTOToItem(std::unique_ptr<I
         static_cast<Stats>(statsDTO->statChangingIndex),
         statsDTO->gain,
         statsDTO->limitOfOneApplied,
-        statsDTO->durationInSecs
+        statsDTO->durationInTurn
     };
     std::shared_ptr<Item> updateItem = nullptr;
     try {
