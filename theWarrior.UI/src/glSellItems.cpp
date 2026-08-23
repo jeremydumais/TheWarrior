@@ -17,7 +17,7 @@ constexpr int AttackIcon = 1;
 constexpr int DefenseIcon = 2;
 }
 
-GLSellItems::GLSellItems() : GLPopupWindow({1020.0F, 570.0F}) {
+GLSellItems::GLSellItems() : GLPopupWindow({1080.0F, 570.0F}) {
     m_confirmationDialog.confirmed.connect([this]() { completeSale(); });
     m_confirmationDialog.canceled.connect([this]() { cancelSale(); });
 }
@@ -133,22 +133,22 @@ void GLSellItems::render() {
 
 void GLSellItems::generateGLElements() {
     GLPopupWindow::generateGLElements();
-    addWindowPanel({15.0F, 75.0F}, {205.0F, 450.0F}, 0);
-    addWindowPanel({230.0F, 75.0F}, {565.0F, 450.0F}, 0);
-    addWindowPanel({805.0F, 125.0F}, {190.0F, 145.0F}, 0);
+    addWindowPanel({15.0F, 75.0F}, {265.0F, 450.0F}, 0);
+    addWindowPanel({290.0F, 75.0F}, {565.0F, 450.0F}, 0);
+    addWindowPanel({865.0F, 125.0F}, {190.0F, 145.0F}, 0);
     const auto stats = m_glPlayer->getStats();
-    generateQuad(m_glObjects, {750.0F, 18.0F}, {28.0F, 28.0F}, &m_shopIconsGLTexture.texture, GoldIcon, m_shopIconsGLTexture.glTextureId);
-    addTextObject({fmt::format("{}", m_glPlayer->getGold()), {782.0F, 41.0F}, 0.34F});
-    generateQuad(m_glObjects, {845.0F, 18.0F}, {28.0F, 28.0F}, &m_shopIconsGLTexture.texture, AttackIcon, m_shopIconsGLTexture.glTextureId);
-    addTextObject({fmt::format("{}", stats.attack), {877.0F, 41.0F}, 0.34F});
-    generateQuad(m_glObjects, {925.0F, 18.0F}, {28.0F, 28.0F}, &m_shopIconsGLTexture.texture, DefenseIcon, m_shopIconsGLTexture.glTextureId);
-    addTextObject({fmt::format("{}", stats.defense), {957.0F, 41.0F}, 0.34F});
-    addXCenteredTextObject({"Details", {0.0F, 110.0F}, 0.42F}, 15.0F, 205.0F);
+    generateQuad(m_glObjects, {810.0F, 18.0F}, {28.0F, 28.0F}, &m_shopIconsGLTexture.texture, GoldIcon, m_shopIconsGLTexture.glTextureId);
+    addTextObject({fmt::format("{}", m_glPlayer->getGold()), {842.0F, 41.0F}, 0.34F});
+    generateQuad(m_glObjects, {905.0F, 18.0F}, {28.0F, 28.0F}, &m_shopIconsGLTexture.texture, AttackIcon, m_shopIconsGLTexture.glTextureId);
+    addTextObject({fmt::format("{}", stats.attack), {937.0F, 41.0F}, 0.34F});
+    generateQuad(m_glObjects, {985.0F, 18.0F}, {28.0F, 28.0F}, &m_shopIconsGLTexture.texture, DefenseIcon, m_shopIconsGLTexture.glTextureId);
+    addTextObject({fmt::format("{}", stats.defense), {1017.0F, 41.0F}, 0.34F});
+    addXCenteredTextObject({"Details", {0.0F, 110.0F}, 0.42F}, 15.0F, 265.0F);
 
     for (std::size_t index = 0; index < INVENTORY_MAX; ++index) {
         const auto col = static_cast<float>(index % Columns);
         const auto row = static_cast<float>(index / Columns);
-        const Point<float> position{244.0F + (col * (SlotSize + SlotSpacing)), 88.0F + (row * (SlotSize + SlotSpacing))};
+        const Point<float> position{304.0F + (col * (SlotSize + SlotSpacing)), 88.0F + (row * (SlotSize + SlotSpacing))};
         generateQuad(m_glObjects, position, {SlotSize, SlotSize}, &m_slotsGLTexture.texture,
                      index == m_cursorPosition ? 1 : 0, m_slotsGLTexture.glTextureId);
         const auto item = m_glPlayer->getInventory()->getItem(index);
@@ -163,27 +163,27 @@ void GLSellItems::generateGLElements() {
     }
     const auto selected = m_glPlayer->getInventory()->getItem(m_cursorPosition);
     if (!selected) {
-        addXCenteredTextObject({"Select an item", {0.0F, 195.0F}, 0.34F}, 805.0F, 190.0F);
+        addXCenteredTextObject({"Select an item", {0.0F, 195.0F}, 0.34F}, 865.0F, 190.0F);
         return;
     }
     const auto texture = m_itemStore->getTextureContainer().getTextureByName(selected->getTextureName());
     const auto textureId = m_texturesGLItemStore->find(selected->getTextureName());
     if (texture && textureId != m_texturesGLItemStore->end()) {
-        generateQuad(m_glObjects, {78.0F, 135.0F}, {80.0F, 80.0F}, &texture->get(), selected->getTextureIndex(), textureId->second);
+        generateQuad(m_glObjects, {108.0F, 135.0F}, {80.0F, 80.0F}, &texture->get(), selected->getTextureIndex(), textureId->second);
     }
-    addXCenteredTextObject({selected->getName(), {0.0F, 250.0F}, 0.37F}, 15.0F, 205.0F);
-    const auto wrapped = m_textService->prepareTextForDisplay({180.0F, 110.0F}, selected->getOptionalDescription(), 0.28F);
+    addXCenteredTextObject({selected->getName(), {0.0F, 250.0F}, 0.37F}, 15.0F, 265.0F);
+    const auto wrapped = m_textService->prepareTextForDisplay({240.0F, 110.0F}, selected->getOptionalDescription(), 0.28F);
     std::size_t line = 0;
     for (const auto &text : wrapped.lines) {
-        addXCenteredTextObject({text, {0.0F, 285.0F + (static_cast<float>(line++) * 19.0F)}, 0.28F}, 15.0F, 205.0F);
+        addXCenteredTextObject({text, {0.0F, 285.0F + (static_cast<float>(line++) * 19.0F)}, 0.28F}, 15.0F, 265.0F);
     }
     const auto price = getSellPrice(*selected);
-    addTextObject({fmt::format("Sell price: {}", price), {48.0F, 495.0F}, 0.31F});
-    generateQuad(m_glObjects, {171.0F, 476.0F}, {25.0F, 25.0F}, &m_shopIconsGLTexture.texture, GoldIcon, m_shopIconsGLTexture.glTextureId);
-    addXCenteredTextObject({"You will receive:", {0.0F, 170.0F}, 0.32F}, 805.0F, 190.0F);
-    generateQuad(m_glObjects, {840.0F, 195.0F}, {30.0F, 30.0F}, &m_shopIconsGLTexture.texture, GoldIcon, m_shopIconsGLTexture.glTextureId);
-    addTextObject({fmt::format("{}", price), {880.0F, 217.0F}, 0.43F, GLColor::Green});
-    addXCenteredTextObject({"A: Sell    B: Leave", {0.0F, 320.0F}, 0.31F}, 805.0F, 190.0F);
+    addTextObject({fmt::format("Sell price: {}", price), {78.0F, 495.0F}, 0.31F});
+    generateQuad(m_glObjects, {201.0F, 476.0F}, {25.0F, 25.0F}, &m_shopIconsGLTexture.texture, GoldIcon, m_shopIconsGLTexture.glTextureId);
+    addXCenteredTextObject({"You will receive:", {0.0F, 170.0F}, 0.32F}, 865.0F, 190.0F);
+    generateQuad(m_glObjects, {900.0F, 195.0F}, {30.0F, 30.0F}, &m_shopIconsGLTexture.texture, GoldIcon, m_shopIconsGLTexture.glTextureId);
+    addTextObject({fmt::format("{}", price), {940.0F, 217.0F}, 0.43F, GLColor::Green});
+    addXCenteredTextObject({"A: Sell    B: Leave", {0.0F, 320.0F}, 0.31F}, 865.0F, 190.0F);
 }
 
 void GLSellItems::gameWindowSizeChanged(const Size<> &size) {

@@ -336,12 +336,12 @@ void GameWindow::createNewGame(std::string playerName) {
     Player player(playerName);
     WorldState worldState;
     //HACK: Remove this and uncomment below
-    // worldState.setCurrentMapName("homeHouseV1.map");
-    // worldState.setPlayerPosition(Point<int>(13, 10));
+    worldState.setCurrentMapName("homeHouseV1.map");
+    worldState.setPlayerPosition(Point<int>(13, 10));
     player.addGold(30);
     player.setFacing(PlayerFacing::Up);
-    worldState.setCurrentMapName("krikruVillage-WeaponShop.map");
-    worldState.setPlayerPosition(Point<int>(3, 7));
+    // worldState.setCurrentMapName("krikruVillage-ItemShop.map");
+    // worldState.setPlayerPosition(Point<int>(3, 7));
     //worldState.setCurrentMapName("kingAldricCastle-OuterBailey.map");
     //worldState.setPlayerPosition(Point<int>(18, 14)); 
     GameState newGameState(player, worldState);

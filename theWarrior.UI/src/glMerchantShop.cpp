@@ -33,7 +33,7 @@ std::string formatStatValue(float value, bool showPositiveSign = false) {
 }
 
 GLMerchantShop::GLMerchantShop()
-    : GLPopupWindow({1000.0F, 520.0F}) {
+    : GLPopupWindow({1060.0F, 520.0F}) {
     m_confirmationDialog.confirmed.connect([this]() {
         m_confirmationDisplayed = false;
         buySelectedItem();
@@ -184,25 +184,29 @@ void GLMerchantShop::buySelectedItem() {
 
 void GLMerchantShop::generateGLElements() {
     GLPopupWindow::generateGLElements();
-    addWindowPanel({18.0F, 70.0F}, {205.0F, 410.0F}, 0);
-    addWindowPanel({235.0F, 70.0F}, {410.0F, 410.0F}, 0);
-    addWindowPanel({657.0F, 70.0F}, {325.0F, 330.0F}, 0);
+    addWindowPanel({18.0F, 70.0F}, {265.0F, 410.0F}, 0);
+    addWindowPanel({295.0F, 70.0F}, {410.0F, 410.0F}, 0);
+    addWindowPanel({717.0F, 70.0F}, {325.0F, 330.0F}, 0);
 
     const auto playerStats = m_glPlayer->getStats();
-    generateQuad(m_glObjects, {750.0F, 17.0F}, {28.0F, 28.0F},
+    generateQuad(m_glObjects, {810.0F, 17.0F}, {28.0F, 28.0F},
                  &m_shopIconsGLTexture.texture, GoldIcon, m_shopIconsGLTexture.glTextureId);
-    addTextObject({fmt::format("{}", m_glPlayer->getGold()), {782.0F, 40.0F}, 0.35F});
-    generateQuad(m_glObjects, {838.0F, 17.0F}, {28.0F, 28.0F},
+    addTextObject({fmt::format("{}", m_glPlayer->getGold()), {842.0F, 40.0F}, 0.35F});
+    generateQuad(m_glObjects, {898.0F, 17.0F}, {28.0F, 28.0F},
                  &m_shopIconsGLTexture.texture, AttackIcon, m_shopIconsGLTexture.glTextureId);
-    addTextObject({fmt::format("{}", playerStats.attack), {870.0F, 40.0F}, 0.35F});
-    generateQuad(m_glObjects, {915.0F, 17.0F}, {28.0F, 28.0F},
+    addTextObject({fmt::format("{}", playerStats.attack), {930.0F, 40.0F}, 0.35F});
+    generateQuad(m_glObjects, {975.0F, 17.0F}, {28.0F, 28.0F},
                  &m_shopIconsGLTexture.texture, DefenseIcon, m_shopIconsGLTexture.glTextureId);
-    addTextObject({fmt::format("{}", playerStats.defense), {947.0F, 40.0F}, 0.35F});
-    addXCenteredTextObject({"Details", {0.0F, 105.0F}, 0.45F}, 18.0F, 205.0F);
-    addXCenteredTextObject({"Compared to equipped", {0.0F, 105.0F}, 0.35F}, 657.0F, 325.0F);
+    addTextObject({fmt::format("{}", playerStats.defense), {1007.0F, 40.0F}, 0.35F});
+    addXCenteredTextObject({"Details", {0.0F, 105.0F}, 0.45F}, 18.0F, 265.0F);
+    addXCenteredTextObject({m_inventory->getInventoryType() == MerchantInventoryType::WeaponsAndArmors
+                                ? "Compared to equipped"
+                                : "Owned in inventory",
+                            {0.0F, 105.0F}, 0.35F},
+                           717.0F, 325.0F);
 
     if (m_items.empty()) {
-        addXCenteredTextObject({"No items for sale", {0.0F, 250.0F}, 0.4F}, 235.0F, 410.0F);
+        addXCenteredTextObject({"No items for sale", {0.0F, 250.0F}, 0.4F}, 295.0F, 410.0F);
         return;
     }
 
@@ -211,11 +215,11 @@ void GLMerchantShop::generateGLElements() {
         : 0;
     const auto lastVisible = std::min(firstVisible + VisibleItemCount, m_items.size());
     if (firstVisible > 0) {
-        generateQuad(m_glObjects, {425.0F, 76.0F}, {30.0F, 30.0F},
+        generateQuad(m_glObjects, {485.0F, 76.0F}, {30.0F, 30.0F},
                      &m_shopIconsGLTexture.texture, ScrollUpIcon, m_shopIconsGLTexture.glTextureId);
     }
     if (lastVisible < m_items.size()) {
-        generateQuad(m_glObjects, {425.0F, 443.0F}, {30.0F, 30.0F},
+        generateQuad(m_glObjects, {485.0F, 443.0F}, {30.0F, 30.0F},
                      &m_shopIconsGLTexture.texture, ScrollDownIcon, m_shopIconsGLTexture.glTextureId);
     }
     for (std::size_t index = firstVisible; index < lastVisible; ++index) {
@@ -224,22 +228,22 @@ void GLMerchantShop::generateGLElements() {
         const auto row = index - firstVisible;
         const float y = 110.0F + (static_cast<float>(row) * RowHeight);
         if (index == m_cursorPosition) {
-            generateBoxQuad(m_glObjects, {248.0F, y - 12.0F}, {384.0F, 55.0F},
+            generateBoxQuad(m_glObjects, {308.0F, y - 12.0F}, {384.0F, 55.0F},
                             &m_windowGLTexture.texture, 17, m_windowGLTexture.glTextureId);
         }
         const auto texture = m_itemStore->getTextureContainer()
                                  .getTextureByName(item->getTextureName());
         const auto textureId = m_texturesGLItemStore->find(item->getTextureName());
         if (texture.has_value() && textureId != m_texturesGLItemStore->end()) {
-            generateQuad(m_glObjects, {255.0F, y - 8.0F}, {ItemIconSize, ItemIconSize},
+            generateQuad(m_glObjects, {315.0F, y - 8.0F}, {ItemIconSize, ItemIconSize},
                          &texture->get(), item->getTextureIndex(), textureId->second);
         }
         const bool affordable = static_cast<unsigned int>(m_glPlayer->getGold()) >= price;
-        addTextObject({item->getName(), {315.0F, y + 21.0F}, 0.38F,
+        addTextObject({item->getName(), {375.0F, y + 21.0F}, 0.38F,
                        affordable ? GLColor::White : GLColor::Red});
-        addTextObject({fmt::format("{}", price), {550.0F, y + 21.0F}, 0.38F,
+        addTextObject({fmt::format("{}", price), {610.0F, y + 21.0F}, 0.38F,
                        affordable ? GLColor::White : GLColor::Red});
-        generateQuad(m_glObjects, {598.0F, y - 1.0F}, {25.0F, 25.0F},
+        generateQuad(m_glObjects, {658.0F, y - 1.0F}, {25.0F, 25.0F},
                      &m_shopIconsGLTexture.texture, GoldIcon, m_shopIconsGLTexture.glTextureId);
     }
 
@@ -248,30 +252,41 @@ void GLMerchantShop::generateGLElements() {
     addXCenteredTextObject({m_statusMessage.empty() ? "A: Buy    B: Leave" : m_statusMessage,
                             {0.0F, 455.0F}, 0.35F,
                             m_statusMessage.starts_with("Purchased") ? GLColor::Green : GLColor::White},
-                           657.0F, 325.0F);
+                           717.0F, 325.0F);
 }
 
 void GLMerchantShop::generateDetails(const Item &item, unsigned int price) {
     const auto texture = m_itemStore->getTextureContainer().getTextureByName(item.getTextureName());
     const auto textureId = m_texturesGLItemStore->find(item.getTextureName());
     if (texture.has_value() && textureId != m_texturesGLItemStore->end()) {
-        generateQuad(m_glObjects, {72.0F, 130.0F}, {96.0F, 96.0F},
+        generateQuad(m_glObjects, {102.0F, 130.0F}, {96.0F, 96.0F},
                      &texture->get(), item.getTextureIndex(), textureId->second);
     }
-    addXCenteredTextObject({item.getName(), {0.0F, 257.0F}, 0.4F}, 18.0F, 205.0F);
+    addXCenteredTextObject({item.getName(), {0.0F, 257.0F}, 0.4F}, 18.0F, 265.0F);
     if (!item.getOptionalDescription().empty()) {
-        const auto wrapped = m_textService->prepareTextForDisplay({180.0F, 100.0F},
+        const auto wrapped = m_textService->prepareTextForDisplay({240.0F, 100.0F},
                                                                   item.getOptionalDescription(), 0.3F);
         std::size_t line = 0;
         for (const auto &text : wrapped.lines) {
             addXCenteredTextObject({text, {0.0F, 297.0F + (static_cast<float>(line) * 20.0F)}, 0.3F},
-                                   18.0F, 205.0F);
+                                   18.0F, 265.0F);
             ++line;
         }
     }
-    addTextObject({fmt::format("Price: {}", price), {68.0F, 445.0F}, 0.35F});
-    generateQuad(m_glObjects, {161.0F, 426.0F}, {25.0F, 25.0F},
+    addTextObject({fmt::format("Price: {}", price), {98.0F, 445.0F}, 0.35F});
+    generateQuad(m_glObjects, {191.0F, 426.0F}, {25.0F, 25.0F},
                  &m_shopIconsGLTexture.texture, GoldIcon, m_shopIconsGLTexture.glTextureId);
+
+    if (m_inventory->getInventoryType() == MerchantInventoryType::StatsItems) {
+        const auto &slots = m_glPlayer->getInventory()->getAllSlots();
+        const auto ownedCount = std::count_if(
+            slots.begin(), slots.end(), [&item](const auto &ownedItem) {
+                return ownedItem != nullptr && ownedItem->getId() == item.getId();
+            });
+        addXCenteredTextObject({fmt::format("{}", ownedCount), {0.0F, 220.0F}, 0.7F},
+                               717.0F, 325.0F);
+        return;
+    }
 
     const auto &equipment = m_glPlayer->getEquipment();
     std::string equippedName = "Nothing equipped";
@@ -325,7 +340,7 @@ void GLMerchantShop::generateDetails(const Item &item, unsigned int price) {
             equippedName = equipped->getName();
         }
     }
-    addXCenteredTextObject({equippedName, {0.0F, 145.0F}, 0.34F}, 657.0F, 325.0F);
+    addXCenteredTextObject({equippedName, {0.0F, 145.0F}, 0.34F}, 717.0F, 325.0F);
     const auto currentStats = m_glPlayer->getStats();
     const auto projectedStats = getProjectedStats(item);
     generateStatComparison("Attack: ", currentStats.attack, projectedStats.attack, 190.0F);
@@ -375,12 +390,12 @@ void GLMerchantShop::generateStatComparison(const std::string &label,
                                             float projectedValue,
                                             float yPosition) {
     const float difference = projectedValue - currentValue;
-    addTextObject({label, {685.0F, yPosition}, 0.31F});
-    addTextObject({formatStatValue(currentValue), {775.0F, yPosition}, 0.31F});
-    generateQuad(m_glObjects, {825.0F, yPosition - 22.0F}, {22.0F, 22.0F},
+    addTextObject({label, {745.0F, yPosition}, 0.31F});
+    addTextObject({formatStatValue(currentValue), {835.0F, yPosition}, 0.31F});
+    generateQuad(m_glObjects, {885.0F, yPosition - 22.0F}, {22.0F, 22.0F},
                  &m_shopIconsGLTexture.texture, RightArrowIcon, m_shopIconsGLTexture.glTextureId);
-    addTextObject({formatStatValue(projectedValue), {860.0F, yPosition}, 0.31F});
-    addTextObject({fmt::format("({})", formatStatValue(difference, true)), {905.0F, yPosition}, 0.28F,
+    addTextObject({formatStatValue(projectedValue), {920.0F, yPosition}, 0.31F});
+    addTextObject({fmt::format("({})", formatStatValue(difference, true)), {965.0F, yPosition}, 0.28F,
                    difference > 0.0F ? GLColor::Green : difference < 0.0F ? GLColor::Red : GLColor::White});
 }
 
