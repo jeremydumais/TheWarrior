@@ -56,7 +56,7 @@ GameWindow::GameWindow(const string &title,
     m_fpsCalculator.initialize();
     m_windowSizeChanged(m_WindowSize);
     //HACK: To Remove
-    createNewGame("Jed");
+    //createNewGame("Jed");
 }
 
 GameWindow::~GameWindow() {
@@ -296,6 +296,18 @@ void GameWindow::render() {
                 0.5F,                               // Scale
                 glm::vec3(1.0F, 1.0F, 1.0F));       // Color
     }
+#ifndef NDEBUG
+    if (m_interactionMode == InteractionMode::Game &&
+        m_gameMapMode &&
+        !m_gameMapMode->areMonsterEncountersEnabled()) {
+        m_textService->useShader();
+        m_textService->renderText("Monster encounters: OFF",
+                1.0F,
+                static_cast<float>(m_WindowSize.height()) - 48.0F,
+                0.5F,
+                glm::vec3(1.0F, 1.0F, 1.0F));
+    }
+#endif
     SDL_GL_SwapWindow(m_window);
 }
 
@@ -336,10 +348,10 @@ void GameWindow::createNewGame(std::string playerName) {
     Player player(playerName);
     WorldState worldState;
     //HACK: Remove this and uncomment below
-    worldState.setCurrentMapName("homeHouseV1.map");
+    /*worldState.setCurrentMapName("homeHouseV1.map");
     worldState.setPlayerPosition(Point<int>(13, 10));
     player.addGold(30);
-    player.setFacing(PlayerFacing::Up);
+    player.setFacing(PlayerFacing::Up);*/
     // worldState.setCurrentMapName("krikruVillage-ItemShop.map");
     // worldState.setPlayerPosition(Point<int>(3, 7));
     //worldState.setCurrentMapName("kingAldricCastle-OuterBailey.map");

@@ -147,7 +147,20 @@ namespace thewarrior::ui
         return m_lastError;
     }
 
+    bool GameMapMode::areMonsterEncountersEnabled() const {
+        return m_monsterEncountersEnabled;
+    }
+
     void GameMapMode::processEvents(SDL_Event &e) {
+#ifndef NDEBUG
+        if (e.type == SDL_KEYUP &&
+            e.key.keysym.sym == SDLK_m &&
+            (e.key.keysym.mod & KMOD_CTRL) != 0 &&
+            (e.key.keysym.mod & KMOD_ALT) != 0) {
+            m_monsterEncountersEnabled = !m_monsterEncountersEnabled;
+            return;
+        }
+#endif
         if (e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_i && !m_controller.isMessageDisplayed()) {
             toggleInventoryWindow();
         } else if (e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_c && !m_controller.isMessageDisplayed()) {
@@ -763,6 +776,10 @@ namespace thewarrior::ui
     }
 
     void GameMapMode::checkForMonsterEncounter(const MapTile &tile) {
+        if (!m_monsterEncountersEnabled) {
+            return;
+        }
+
         auto zones = m_map->getMonsterZones();
         if (tile.getMonsterZoneIndex() == -1 ||
             tile.getMonsterZoneIndex() >= static_cast<int>(zones.size())) {

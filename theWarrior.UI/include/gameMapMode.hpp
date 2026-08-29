@@ -81,6 +81,7 @@ class GameMapMode {
     void unloadGLNPCObjects();
     void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
     void onGameWindowUpdate(float delta_time);
+    bool areMonsterEncountersEnabled() const;
     boost::signals2::signal<void()> quitRequested;
 
  private:
@@ -118,6 +119,7 @@ class GameMapMode {
     bool m_blockKeyDown = false;
     bool m_isCharacterWindowDisplayed = false;
     bool m_isInventoryDisplayed = false;
+    bool m_monsterEncountersEnabled = true;
     // Sleep objects
     SleepSequenceState m_sleepSequenceState = SleepSequenceState::Inactive;
     float m_sleepOverlayOpacity = 0.0F;
