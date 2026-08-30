@@ -60,7 +60,8 @@ namespace thewarrior::ui
                                  std::shared_ptr<InputDevicesState> inputDevicesState)
     {
         auto worldState = std::make_shared<WorldState>(gameState.getWorldState());
-        m_controller.initialize(resourcesPath, worldState);
+        const auto &completedStoryIds = gameState.getCompletedStoryIds();
+        m_controller.initialize(resourcesPath, worldState, completedStoryIds);
         if (!loadStores())
         {
             return false;
@@ -158,6 +159,21 @@ namespace thewarrior::ui
             (e.key.keysym.mod & KMOD_CTRL) != 0 &&
             (e.key.keysym.mod & KMOD_ALT) != 0) {
             m_monsterEncountersEnabled = !m_monsterEncountersEnabled;
+            m_controller.completeStory("TEST_STORY_ID");
+            return;
+        }
+        if (e.type == SDL_KEYUP &&
+            e.key.keysym.sym == SDLK_s &&
+            (e.key.keysym.mod & KMOD_CTRL) != 0 &&
+            (e.key.keysym.mod & KMOD_ALT) != 0) {
+            const auto &completedStoryIds = m_controller.getCompletedStoryIds();
+            std::cout << "Completed story IDs (" << completedStoryIds.size() << "):" << '\n';
+            for (const auto &storyId : completedStoryIds) {
+                std::cout << "  - " << storyId << '\n';
+            }
+            if (completedStoryIds.empty()) {
+                std::cout << "  (none)" << '\n';
+            }
             return;
         }
 #endif

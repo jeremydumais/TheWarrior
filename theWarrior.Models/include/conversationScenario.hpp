@@ -10,12 +10,12 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include "story.hpp"
 
 namespace thewarrior::models {
 
 using ConversationNodeId = std::string;
 using ConversationScenarioId = std::string;
-using StoryId = std::string;
 using ItemId = std::string;
 
 enum class ConversationNodeTransitionType {

@@ -38,9 +38,11 @@ GameMapModeController::GameMapModeController()
 }
 
 void GameMapModeController::initialize(const std::string &resourcesPath,
-                                       std::shared_ptr<thewarrior::models::WorldState> worldState) {
+                                       std::shared_ptr<thewarrior::models::WorldState> worldState,
+                                       const std::set<thewarrior::models::StoryId> &completedStoryIds) {
     m_resourcesPath = resourcesPath;
     m_worldState = worldState;
+    m_completedStoryIds = completedStoryIds;
 }
 
 const std::string &GameMapModeController::getResourcesPath() const {
@@ -65,6 +67,10 @@ std::shared_ptr<MonsterStore> GameMapModeController::getMonsterStore() {
 
 std::shared_ptr<thewarrior::models::WorldState> GameMapModeController::getWorldState() {
     return m_worldState;
+}
+
+const std::set<thewarrior::models::StoryId> &GameMapModeController::getCompletedStoryIds() const {
+    return m_completedStoryIds;
 }
 
 const Point<> &GameMapModeController::getPlayerPosition() const {
@@ -109,6 +115,10 @@ bool GameMapModeController::isTileOccupyByNPC(const thewarrior::models::Point<> 
         return coord == Point<size_t>(static_cast<size_t>(position.x()),
                                       static_cast<size_t>(position.y()));
     });
+}
+
+bool GameMapModeController::isStoryIdCompleted(const StoryId &storyId) const {
+    return m_completedStoryIds.contains(storyId);
 }
 
 void GameMapModeController::setCurrentMapName(const std::string &mapName) const {
@@ -308,14 +318,14 @@ bool GameMapModeController::saveGameState(thewarrior::models::Player &player) {
 
     // Create the save game file
     GameStateStorage storage;
-    GameState gameState(player, *m_worldState);
+    GameState gameState(player, *m_worldState, m_completedStoryIds);
     try {
         storage.saveGameState(fullPath, gameState);
     } catch (const std::runtime_error &err) {
         m_lastError = err.what();
         return false;
     }
-     // Convert the time point to a duration in seconds since the Unix epoch
+    // Convert the time point to a duration in seconds since the Unix epoch
     auto epoch_seconds = std::chrono::duration_cast<std::chrono::seconds>(
         now.time_since_epoch());
     // Get the integer count (the time_t equivalent)
@@ -346,5 +356,8 @@ bool GameMapModeController::saveGameState(thewarrior::models::Player &player) {
     return true;
 }
 
+void GameMapModeController::completeStory(const StoryId &storyId) {
+    m_completedStoryIds.insert(storyId);
+}
 
 }  // namespace thewarrior::ui::controllers

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <ostream>
+#include <set>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -13,6 +14,7 @@
 #include "gameStateStorage.hpp"
 #include "player.hpp"
 #include "specialFolders.hpp"
+#include "story.hpp"
 #include "worldState.hpp"
 
 using namespace std;
@@ -347,16 +349,17 @@ void GameWindow::createNewGame(std::string playerName) {
     m_mainMenuMode = nullptr;
     Player player(playerName);
     WorldState worldState;
+    std::set<StoryId> completedStoryIds;
     //HACK: Remove this and uncomment below
-    /*worldState.setCurrentMapName("homeHouseV1.map");
+    worldState.setCurrentMapName("homeHouseV1.map");
     worldState.setPlayerPosition(Point<int>(13, 10));
-    player.addGold(30);
+    /*player.addGold(30);
     player.setFacing(PlayerFacing::Up);*/
     // worldState.setCurrentMapName("krikruVillage-ItemShop.map");
     // worldState.setPlayerPosition(Point<int>(3, 7));
     //worldState.setCurrentMapName("kingAldricCastle-OuterBailey.map");
     //worldState.setPlayerPosition(Point<int>(18, 14)); 
-    GameState newGameState(player, worldState);
+    GameState newGameState(player, worldState, completedStoryIds);
     if (initializeGame(newGameState)) {
         m_interactionMode = InteractionMode::Game;
     } else {
@@ -374,7 +377,8 @@ void GameWindow::loadGame(std::string fileName) {
     m_mainMenuMode = nullptr;
     Player player("Ragnar");
     WorldState worldState;
-    GameState loadedGameState(player, worldState);
+    std::set<StoryId> completedStoryIds;
+    GameState loadedGameState(player, worldState, completedStoryIds);
     storage::GameStateStorage gameStateStorage;
     try {
         std::string fullPath = fs::path(thewarrior::utils::SpecialFolders::getSaveGameDirectory()) / fileName;
