@@ -77,6 +77,40 @@ TEST(GLNPC_isInMovement, WithDefaultConstructed_ReturnFalse) {
     ASSERT_FALSE(glNPC.isInMovement());
 }
 
+TEST(GLNPC_initializeVisibility, StoryCompletionAfterInitialization_DoesNotChangeSnapshot) {
+    auto info = getNPCInfo();
+    info.visibilityRule = NPCVisibilityRule {
+        .condition = NPCVisibilityCondition::NoStoryCompleted,
+        .storyIds = {"guard-moved"}
+    };
+    NPC npc(info);
+    const auto texture = getTexture();
+    GLNPC glNPC(npc, texture);
+
+    glNPC.initializeVisibility({});
+
+    ASSERT_TRUE(glNPC.isCurrentlyVisible());
+    ASSERT_FALSE(glNPC.isVisible({"guard-moved"}));
+    ASSERT_TRUE(glNPC.isCurrentlyVisible());
+}
+
+TEST(GLNPC_setScriptVisible, WithScriptControlledNPC_UpdatesCurrentVisibility) {
+    auto info = getNPCInfo();
+    info.visibilityRule = NPCVisibilityRule {
+        .condition = NPCVisibilityCondition::ScriptControlled
+    };
+    NPC npc(info);
+    const auto texture = getTexture();
+    GLNPC glNPC(npc, texture);
+    glNPC.initializeVisibility({});
+
+    ASSERT_FALSE(glNPC.isCurrentlyVisible());
+
+    glNPC.setScriptVisible(true);
+
+    ASSERT_TRUE(glNPC.isCurrentlyVisible());
+}
+
 TEST(GLNPC_stopWandering, WithWanderNPC_SetCurrentBehaviorToStationary) {
     NPC npc(getNPCInfo());
     const auto texture = getTexture();

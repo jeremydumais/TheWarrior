@@ -22,7 +22,8 @@ enum class NPCFacing { Left, Up, Right, Down };
 
 enum class NPCVisibilityCondition {
     AnyStoryCompleted,
-    NoStoryCompleted
+    NoStoryCompleted,
+    ScriptControlled
 };
 
 struct NPCVisibilityRule {
@@ -55,6 +56,7 @@ struct NPCCreationInfo {
     NPCBehavior defaultBehavior = NPCBehavior::Stationary;
     NPCBehavior currentBehavior = NPCBehavior::Stationary;
     std::optional<NPCVisibilityRule> visibilityRule;
+    bool scriptVisible = false;
 };
 
 class NPC {
@@ -99,6 +101,7 @@ class NPC {
     void setCurrentBehavior(NPCBehavior value);
     void setVisibilityRule(const NPCVisibilityRule &rule);
     void clearVisibilityRule();
+    void setScriptVisible(bool visible);
     void applyCoordinateOffset(int offsetX, int offsetY);
 
  private:
@@ -119,6 +122,7 @@ class NPC {
     NPCBehavior m_defaultBehavior = NPCBehavior::Stationary;
     NPCBehavior m_currentBehavior = NPCBehavior::Stationary;
     std::optional<NPCVisibilityRule> m_visibilityRule;
+    bool m_scriptVisible = false;
 
     void validateId(const std::string &id);
     void validateName(const std::string &name);
@@ -140,6 +144,9 @@ class NPC {
         ar & m_currentBehavior;
         if (version >= 4) {
             ar & m_visibilityRule;
+        }
+        if (version >= 5) {
+            ar & m_scriptVisible;
         }
     }
 
@@ -178,6 +185,11 @@ class NPC {
             } else {
                 m_visibilityRule = std::nullopt;
             }
+            if (version >= 5) {
+                ar & m_scriptVisible;
+            } else {
+                m_scriptVisible = false;
+            }
             refreshDialogueLinesCompatibilityView();
         }
     }
@@ -187,4 +199,4 @@ class NPC {
 
 }  // namespace thewarrior::models
 
-BOOST_CLASS_VERSION(thewarrior::models::NPC, 4)
+BOOST_CLASS_VERSION(thewarrior::models::NPC, 5)

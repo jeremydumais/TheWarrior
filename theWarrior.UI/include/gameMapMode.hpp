@@ -142,6 +142,7 @@ class GameMapMode {
     void drawObjectTile(GLTile &tile);
     void actionButtonPressed();
     bool stopFacingNPCWandering();
+    bool isTileOccupiedByVisibleNPC(const thewarrior::models::Point<> &position);
     void moveUpPressed();
     void moveDownPressed();
     void moveLeftPressed();

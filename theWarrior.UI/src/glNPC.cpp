@@ -158,6 +158,19 @@ namespace thewarrior::ui
         return m_direction != Direction::None;
     }
 
+    void GLNPC::initializeVisibility(const std::set<thewarrior::models::StoryId> &completedStoryIds) {
+        m_currentlyVisible = NPC::isVisible(completedStoryIds);
+    }
+
+    bool GLNPC::isCurrentlyVisible() const {
+        return m_currentlyVisible;
+    }
+
+    void GLNPC::setScriptVisible(bool visible) {
+        NPC::setScriptVisible(visible);
+        m_currentlyVisible = visible;
+    }
+
     void GLNPC::stopWandering()
     {
         setCurrentBehavior(NPCBehavior::Stationary);

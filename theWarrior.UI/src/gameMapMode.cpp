@@ -159,6 +159,7 @@ namespace thewarrior::ui
             (e.key.keysym.mod & KMOD_CTRL) != 0 &&
             (e.key.keysym.mod & KMOD_ALT) != 0) {
             m_monsterEncountersEnabled = !m_monsterEncountersEnabled;
+            //HACK: Remove this before release
             m_controller.completeStory("TEST_STORY_ID");
             return;
         }
@@ -286,11 +287,13 @@ namespace thewarrior::ui
         m_textBox->update(delta_time);
         for (auto &npc : m_glNPCs)
         {
-            npc.onGameWindowUpdate(delta_time,
-                                   *m_map,
-                                   m_controller.getWorldState()->getAllNPCPositions(),
-                                   m_controller.getPlayerPosition(),
-                                   m_textureService);
+            if (npc.isCurrentlyVisible()) {
+                npc.onGameWindowUpdate(delta_time,
+                                       *m_map,
+                                       m_controller.getWorldState()->getAllNPCPositions(),
+                                       m_controller.getPlayerPosition(),
+                                       m_textureService);
+            }
         }
         updateSleepSequence(delta_time);
         updateMapChangeSequence(delta_time);
@@ -390,7 +393,9 @@ namespace thewarrior::ui
         m_glPlayer->draw();
         for (const auto &npc : m_glNPCs)
         {
-            npc.draw();
+            if (npc.isCurrentlyVisible()) {
+                npc.draw();
+            }
         }
 
         // Draw all the object that appears above the player
@@ -520,8 +525,11 @@ namespace thewarrior::ui
         {
             const Point<size_t> convertedPosition(static_cast<size_t>(position.x()),
                                                   static_cast<size_t>(position.y()));
-            return std::ranges::find_if(m_glNPCs, [&worldState, convertedPosition](const GLNPC &npc)
-                                        { return worldState->getNPCPosition(npc.getId()) == convertedPosition; });
+            return std::ranges::find_if(
+                m_glNPCs,
+                [&worldState, convertedPosition](const GLNPC &npc) {
+                    return npc.isCurrentlyVisible() && worldState->getNPCPosition(npc.getId()) == convertedPosition;
+                });
         };
 
         auto iter = findNPCAtPosition(interactionPosition);
@@ -585,6 +593,20 @@ namespace thewarrior::ui
         return true;
     }
 
+    bool GameMapMode::isTileOccupiedByVisibleNPC(const Point<> &position) {
+        if (position.x() < 0 || position.y() < 0) {
+            return false;
+        }
+
+        const Point<size_t> convertedPosition(static_cast<size_t>(position.x()), static_cast<size_t>(position.y()));
+        const auto worldState = m_controller.getWorldState();
+        return std::ranges::any_of(
+            m_glNPCs,
+            [&convertedPosition, &worldState](const GLNPC &npc) {
+                return npc.isCurrentlyVisible() && worldState->getNPCPosition(npc.getId()) == convertedPosition;
+            });
+    }
+
     Point<> GameMapMode::getPlayerFacingTilePosition() const
     {
         Point<> tilePosition = m_controller.getPlayerPosition();
@@ -621,7 +643,7 @@ namespace thewarrior::ui
         {
             const auto targetCoord = Point<int>(playerCoord.x(), playerCoord.y() - 1);
             // Check if there an NPC on the tile we are planning to move
-            const bool isTileOccupyByNPC = m_controller.isTileOccupyByNPC(targetCoord);
+            const bool isTileOccupyByNPC = isTileOccupiedByVisibleNPC(targetCoord);
             if (m_map->canSteppedOnTile(targetCoord) && !isTileOccupyByNPC)
             {
                 m_glPlayer->moveUp();
@@ -641,7 +663,7 @@ namespace thewarrior::ui
         } else {
             const auto targetCoord = Point<int>(playerCoord.x(), playerCoord.y() + 1);
             // Check if there an NPC on the tile we are planning to move
-            const bool isTileOccupyByNPC = m_controller.isTileOccupyByNPC(targetCoord);
+            const bool isTileOccupyByNPC = isTileOccupiedByVisibleNPC(targetCoord);
             if (m_map->canSteppedOnTile(targetCoord) && !isTileOccupyByNPC) {
                 m_glPlayer->moveDown(tile.getIsWallToClimb());
             }
@@ -664,7 +686,7 @@ namespace thewarrior::ui
         } else {
             const auto targetCoord = Point<int>(playerCoord.x() - 1, playerCoord.y());
             // Check if there an NPC on the tile we are planning to move
-            const bool isTileOccupyByNPC = m_controller.isTileOccupyByNPC(targetCoord);
+            const bool isTileOccupyByNPC = isTileOccupiedByVisibleNPC(targetCoord);
             if (m_map->canSteppedOnTile(targetCoord) && !isTileOccupyByNPC) {
                 m_glPlayer->moveLeft();
             }
@@ -687,7 +709,7 @@ namespace thewarrior::ui
         } else {
             const auto targetCoord = Point<int>(playerCoord.x() + 1, playerCoord.y());
             // Check if there an NPC on the tile we are planning to move
-            const bool isTileOccupyByNPC = m_controller.isTileOccupyByNPC(targetCoord);
+            const bool isTileOccupyByNPC = isTileOccupiedByVisibleNPC(targetCoord);
             if (m_map->canSteppedOnTile(targetCoord) && !isTileOccupyByNPC) {
                 m_glPlayer->moveRight();
             }
@@ -891,6 +913,7 @@ namespace thewarrior::ui
                 }
                 GLNPC glNPC(npc, textureResult->get());
                 glNPC.setGLTextureId(m_texturesGLMap[npc.getTextureName()]);
+                glNPC.initializeVisibility(m_controller.getCompletedStoryIds());
                 glNPC.initialize(m_tileSize, m_controller.getWorldState());
                 m_glNPCs.push_back(glNPC);
             }

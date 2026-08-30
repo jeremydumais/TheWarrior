@@ -20,7 +20,8 @@ m_defaultFacing(info.defaultFacing),
 m_currentFacing(info.currentFacing),
 m_defaultBehavior(info.defaultBehavior),
 m_currentBehavior(info.currentBehavior),
-m_visibilityRule(info.visibilityRule) {
+m_visibilityRule(info.visibilityRule),
+m_scriptVisible(info.scriptVisible) {
     validateId(info.id);
     validateName(info.name);
     if (!info.conversationScenarios.empty()) {
@@ -103,6 +104,9 @@ bool NPC::isVisible(const std::set<StoryId> &completedStoryIds) const {
                 [&completedStoryIds](const StoryId &storyId) {
                     return completedStoryIds.contains(storyId);
                 });
+
+        case NPCVisibilityCondition::ScriptControlled:
+            return m_scriptVisible;
     }
 
     return true;
@@ -224,6 +228,10 @@ void NPC::setVisibilityRule(const NPCVisibilityRule &rule) {
     
 void NPC::clearVisibilityRule() {
     m_visibilityRule = std::nullopt;
+}
+
+void NPC::setScriptVisible(bool visible) {
+    m_scriptVisible = visible;
 }
 
 void NPC::applyCoordinateOffset(int offsetX, int offsetY) {

@@ -51,6 +51,7 @@ EditNPCForm::EditNPCForm(QWidget *parent,
     ui.comboBoxDefaultBehavior->setCurrentIndex(0);
     ui.comboBoxVisibilityCondition->addItem("Any completed");
     ui.comboBoxVisibilityCondition->addItem("None completed");
+    ui.comboBoxVisibilityCondition->addItem("Script controlled");
     ui.comboBoxVisibilityCondition->setCurrentIndex(-1);
     if (selectedNPC.has_value()) {
         m_result = selectedNPC.value();
@@ -118,13 +119,23 @@ void EditNPCForm::connectUIActions() {
     connect(ui.pushButtonDeleteConvScenario, &QPushButton::clicked, this, &EditNPCForm::onPushButtonDeleteConvScenarioClick);
     connect(ui.checkBoxEnableConditionalVisibility, &QCheckBox::toggled,
             this, &EditNPCForm::setConditionalVisibilityControlsEnabled);
+    connect(ui.comboBoxVisibilityCondition, qOverload<int>(&QComboBox::currentIndexChanged),
+            this, &EditNPCForm::refreshVisibilityConditionStoryIdsEnabled);
     tableWidgetConvScenarioKeyWatcher.installOn(ui.tableWidgetConvScenarios);
     connect(&tableWidgetConvScenarioKeyWatcher, &QTableWidgetKeyPressWatcher::keyPressed, this, &EditNPCForm::onTableWidgetConvScenarioKeyPressEvent);
 }
 
 void EditNPCForm::setConditionalVisibilityControlsEnabled(bool enabled) {
     ui.comboBoxVisibilityCondition->setEnabled(enabled);
-    ui.lineEditVisibilityConditionStoryIds->setEnabled(enabled);
+    refreshVisibilityConditionStoryIdsEnabled();
+}
+
+void EditNPCForm::refreshVisibilityConditionStoryIdsEnabled() {
+    const auto condition = static_cast<NPCVisibilityCondition>(
+        ui.comboBoxVisibilityCondition->currentIndex());
+    ui.lineEditVisibilityConditionStoryIds->setEnabled(
+        ui.checkBoxEnableConditionalVisibility->isChecked() &&
+        condition != NPCVisibilityCondition::ScriptControlled);
 }
 
 void EditNPCForm::refreshPositionLabel() {
@@ -191,7 +202,10 @@ void EditNPCForm::onPushButtonOKClick() {
             ui.comboBoxVisibilityCondition->setFocus();
             return;
         }
-        if (ui.lineEditVisibilityConditionStoryIds->text().trimmed().isEmpty()) {
+        const auto condition = static_cast<NPCVisibilityCondition>(
+            ui.comboBoxVisibilityCondition->currentIndex());
+        if (condition != NPCVisibilityCondition::ScriptControlled &&
+            ui.lineEditVisibilityConditionStoryIds->text().trimmed().isEmpty()) {
             ErrorMessage::show("You must enter at least one story ID to apply conditional visibility.");
             ui.lineEditVisibilityConditionStoryIds->setFocus();
             return; 
@@ -212,9 +226,13 @@ void EditNPCForm::onPushButtonOKClick() {
     m_result.defaultBehavior = static_cast<NPCBehavior>(ui.comboBoxDefaultBehavior->currentIndex());
     m_result.currentBehavior = m_result.defaultBehavior;
     if (ui.checkBoxEnableConditionalVisibility->isChecked()) {
+        const auto condition = static_cast<NPCVisibilityCondition>(
+            ui.comboBoxVisibilityCondition->currentIndex());
         m_result.visibilityRule = NPCVisibilityRule {
-            .condition = static_cast<NPCVisibilityCondition>(ui.comboBoxVisibilityCondition->currentIndex()),
-            .storyIds = m_controller.splitVisibilityConditionStoryIds(ui.lineEditVisibilityConditionStoryIds->text())
+            .condition = condition,
+            .storyIds = condition == NPCVisibilityCondition::ScriptControlled
+                ? std::set<thewarrior::models::StoryId> {}
+                : m_controller.splitVisibilityConditionStoryIds(ui.lineEditVisibilityConditionStoryIds->text())
         };
     } else {
         m_result.visibilityRule = std::nullopt;

@@ -196,6 +196,23 @@ TEST_F(NPCSample1, isVisible_WithNoStoryCompletedAndMatchingStory_ReturnFalse) {
     ASSERT_FALSE(npc.isVisible({"STORY001"}));
 }
 
+TEST_F(NPCSample1, isVisible_WithScriptControlled_ReturnFalseByDefault) {
+    npc.setVisibilityRule({
+        .condition = NPCVisibilityCondition::ScriptControlled
+    });
+
+    ASSERT_FALSE(npc.isVisible({}));
+}
+
+TEST_F(NPCSample1, isVisible_WithScriptControlledAndSetVisible_ReturnTrue) {
+    npc.setVisibilityRule({
+        .condition = NPCVisibilityCondition::ScriptControlled
+    });
+    npc.setScriptVisible(true);
+
+    ASSERT_TRUE(npc.isVisible({}));
+}
+
 TEST_F(NPCSample1, setId_WithWhiteSpaces_ThrowInvalidArgument) {
     try {
         npc.setId(" ");
