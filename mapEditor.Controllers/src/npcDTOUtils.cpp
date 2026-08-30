@@ -23,7 +23,9 @@ namespace mapeditor::controllers
             .defaultFacing = npc.getDefaultFacing(),
             .currentFacing = npc.getCurrentFacing(),
             .defaultBehavior = npc.getDefaultBehavior(),
-            .currentBehavior = npc.getCurrentBehavior()};
+            .currentBehavior = npc.getCurrentBehavior(),
+            .visibilityRule = npc.getVisibilityRule()
+        };
     }
 
     NPCDTOUtils::NPCConversionResult NPCDTOUtils::toNPC(const NPCDTO &dto) {
@@ -39,7 +41,9 @@ namespace mapeditor::controllers
             .defaultFacing = dto.defaultFacing,
             .currentFacing = dto.currentFacing,
             .defaultBehavior = dto.defaultBehavior,
-            .currentBehavior = dto.currentBehavior};
+            .currentBehavior = dto.currentBehavior,
+            .visibilityRule = dto.visibilityRule
+        };
         try {
             NPC result(creationInfo);
             return {.npc = result, .errorMessage = ""};

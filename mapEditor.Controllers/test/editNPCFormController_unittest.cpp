@@ -2,6 +2,7 @@
 #include <qpixmap.h>
 #include <memory>
 #include <optional>
+#include <set>
 #include <string>
 #include <vector>
 #include "editNPCFormController.hpp"
@@ -14,6 +15,7 @@ using mapeditor::controllers::EditNPCFormController;
 using mapeditor::controllers::GLComponentController;
 using mapeditor::controllers::NPCDTO;
 using thewarrior::models::ConversationScenario;
+using thewarrior::models::NPCVisibilityRule;
 
 class FakeTexturePixmapProvider final : public ITexturePixmapProvider {
  public:
@@ -50,6 +52,49 @@ class EditNPCFormControllerEditNPC : public ::testing::Test {
 };
 
 EditNPCFormControllerEditNPC::~EditNPCFormControllerEditNPC() {}
+
+TEST_F(EditNPCFormControllerNewNPC,
+       getVisibilityConditionStoryIdsText_WithoutVisibilityRule_ReturnEmpty) {
+    ASSERT_TRUE(controller.getVisibilityConditionStoryIdsText().empty());
+}
+
+TEST(EditNPCFormController_getVisibilityConditionStoryIdsText,
+     WithVisibilityRule_ReturnCommaSeparatedStoryIds) {
+    GLComponentController glComponentController;
+    FakeTexturePixmapProvider pixmapProvider;
+    NPCDTO npc {
+        .id = "NPC001",
+        .visibilityRule = NPCVisibilityRule {
+            .storyIds = { "story-c", "story-a", "story-b" }
+        }
+    };
+    const EditNPCFormController controller(
+        &glComponentController,
+        "",
+        {},
+        pixmapProvider,
+        npc,
+        {});
+
+    ASSERT_EQ("story-a,story-b,story-c",
+              controller.getVisibilityConditionStoryIdsText());
+}
+
+TEST(EditNPCFormController_splitVisibilityConditionStoryIds,
+     WithCommaSeparatedValues_ReturnStoryIdSet) {
+    const std::set<thewarrior::models::StoryId> expected {
+        "story-a", "story-b", "story-c"
+    };
+
+    ASSERT_EQ(expected,
+              EditNPCFormController::splitVisibilityConditionStoryIds(
+                  " story-c,story-a, story-b ,story-a,,"));
+}
+
+TEST(EditNPCFormController_splitVisibilityConditionStoryIds,
+     WithEmptyText_ReturnEmptySet) {
+    ASSERT_TRUE(EditNPCFormController::splitVisibilityConditionStoryIds("").empty());
+}
 
 TEST_F(EditNPCFormControllerNewNPC, WithNPC003_ReturnFalse) {
     ASSERT_FALSE(controller.isNPCIdAlreadyUsed("NPC003"));

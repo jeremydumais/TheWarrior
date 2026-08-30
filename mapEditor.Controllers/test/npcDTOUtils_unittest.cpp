@@ -5,6 +5,7 @@
 #include "npcDTO.hpp"
 #include "npcDTOUtils.hpp"
 #include "point.hpp"
+#include "story.hpp"
 
 using mapeditor::controllers::NPCDTO;
 using mapeditor::controllers::NPCDTOUtils;
@@ -13,6 +14,8 @@ using thewarrior::models::NPC;
 using thewarrior::models::NPCBehavior;
 using thewarrior::models::NPCCreationInfo;
 using thewarrior::models::NPCFacing;
+using thewarrior::models::NPCVisibilityCondition;
+using thewarrior::models::NPCVisibilityRule;
 using thewarrior::models::Point;
 
 namespace mapeditor::controllers::npcdtoutils::unittest {
@@ -45,6 +48,7 @@ void assertNPCDTO(const NPCDTO &expected, const NPCDTO &actual) {
     ASSERT_EQ(expected.currentFacing, actual.currentFacing);
     ASSERT_EQ(expected.defaultBehavior, actual.defaultBehavior);
     ASSERT_EQ(expected.currentBehavior, actual.currentBehavior);
+    ASSERT_EQ(expected.visibilityRule, actual.visibilityRule);
 }
 
 void assertNPC(const NPCDTO &expected, const NPC &actual) {
@@ -60,6 +64,7 @@ void assertNPC(const NPCDTO &expected, const NPC &actual) {
     ASSERT_EQ(expected.currentFacing, actual.getCurrentFacing());
     ASSERT_EQ(expected.defaultBehavior, actual.getDefaultBehavior());
     ASSERT_EQ(expected.currentBehavior, actual.getCurrentBehavior());
+    ASSERT_EQ(expected.visibilityRule, actual.getVisibilityRule());
 }
 
 NPCDTO getNPCDTOSample1() {
@@ -84,7 +89,11 @@ NPCDTO getNPCDTOSample1() {
         .defaultFacing = NPCFacing::Left,
         .currentFacing = NPCFacing::Right,
         .defaultBehavior = NPCBehavior::Stationary,
-        .currentBehavior = NPCBehavior::Wander
+        .currentBehavior = NPCBehavior::Wander,
+        .visibilityRule = NPCVisibilityRule {
+            .condition = NPCVisibilityCondition::AnyStoryCompleted,
+            .storyIds = {"TEST_STORY_ID"}
+        }
     };
 }
 
@@ -102,7 +111,8 @@ TEST(npcDTOUtils_fromNPC, withNPC_ReturnValidDTO) {
         .defaultFacing = expected.defaultFacing,
         .currentFacing = expected.currentFacing,
         .defaultBehavior = expected.defaultBehavior,
-        .currentBehavior = expected.currentBehavior
+        .currentBehavior = expected.currentBehavior,
+        .visibilityRule = expected.visibilityRule
     });
 
     assertNPCDTO(expected, NPCDTOUtils::fromNPC(npc));

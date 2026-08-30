@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <vector>
 #include "npc.hpp"
@@ -18,7 +19,8 @@ m_wanderZone(info.wanderZone),
 m_defaultFacing(info.defaultFacing),
 m_currentFacing(info.currentFacing),
 m_defaultBehavior(info.defaultBehavior),
-m_currentBehavior(info.currentBehavior) {
+m_currentBehavior(info.currentBehavior),
+m_visibilityRule(info.visibilityRule) {
     validateId(info.id);
     validateName(info.name);
     if (!info.conversationScenarios.empty()) {
@@ -74,6 +76,36 @@ NPCBehavior NPC::getDefaultBehavior() const {
 
 NPCBehavior NPC::getCurrentBehavior() const {
     return m_currentBehavior;
+}
+    
+const std::optional<NPCVisibilityRule> &NPC::getVisibilityRule() const {
+    return m_visibilityRule;
+}
+
+bool NPC::isVisible(const std::set<StoryId> &completedStoryIds) const {
+    if (!m_visibilityRule.has_value()) {
+        return true;
+    }
+
+    const auto &rule = *m_visibilityRule;
+
+    switch (rule.condition) {
+        case NPCVisibilityCondition::AnyStoryCompleted:
+            return std::ranges::any_of(
+                rule.storyIds,
+                [&completedStoryIds](const StoryId &storyId) {
+                    return completedStoryIds.contains(storyId);
+                });
+
+        case NPCVisibilityCondition::NoStoryCompleted:
+            return std::ranges::none_of(
+                rule.storyIds,
+                [&completedStoryIds](const StoryId &storyId) {
+                    return completedStoryIds.contains(storyId);
+                });
+    }
+
+    return true;
 }
 
 int NPC::getCurrentFacingTextureIndex() const {
@@ -184,6 +216,14 @@ void NPC::setDefaultBehavior(NPCBehavior value) {
 
 void NPC::setCurrentBehavior(NPCBehavior value) {
     m_currentBehavior = value;
+}
+
+void NPC::setVisibilityRule(const NPCVisibilityRule &rule) {
+    m_visibilityRule = rule;
+}
+    
+void NPC::clearVisibilityRule() {
+    m_visibilityRule = std::nullopt;
 }
 
 void NPC::applyCoordinateOffset(int offsetX, int offsetY) {

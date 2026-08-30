@@ -30,7 +30,7 @@
             "program": "${workspaceFolder}/build/bin/MapEditor",
             "args": [
                 "-f",
-                "/home/jed/Programming/TheWarrior/build/bin/resources/maps/krikruVillage-WeaponShop.map"
+                "/home/jed/Programming/TheWarrior/resources/maps/Outworld.map"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build",

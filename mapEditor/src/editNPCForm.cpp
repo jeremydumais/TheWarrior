@@ -24,6 +24,8 @@ using mapeditor::controllers::NPCDTO;
 using thewarrior::models::ConversationScenarioId;
 using thewarrior::models::NPCBehavior;
 using thewarrior::models::NPCFacing;
+using thewarrior::models::NPCVisibilityCondition;
+using thewarrior::models::NPCVisibilityRule;
 using thewarrior::models::Point;
 using thewarrior::models::Texture;
 
@@ -47,6 +49,9 @@ EditNPCForm::EditNPCForm(QWidget *parent,
     ui.comboBoxDefaultBehavior->addItem("Stationary");
     ui.comboBoxDefaultBehavior->addItem("Wander");
     ui.comboBoxDefaultBehavior->setCurrentIndex(0);
+    ui.comboBoxVisibilityCondition->addItem("Any completed");
+    ui.comboBoxVisibilityCondition->addItem("None completed");
+    ui.comboBoxVisibilityCondition->setCurrentIndex(-1);
     if (selectedNPC.has_value()) {
         m_result = selectedNPC.value();
         ui.lineEditId->setText(selectedNPC->id.c_str());
@@ -57,12 +62,19 @@ EditNPCForm::EditNPCForm(QWidget *parent,
         m_result.baseTextureIndex = selectedNPC->baseTextureIndex;
         ui.comboBoxDefaultFacing->setCurrentIndex(static_cast<int>(selectedNPC->defaultFacing));
         ui.comboBoxDefaultBehavior->setCurrentIndex(static_cast<int>(selectedNPC->defaultBehavior));
+        if (selectedNPC->visibilityRule.has_value()) {
+            ui.checkBoxEnableConditionalVisibility->setChecked(true);
+            ui.comboBoxVisibilityCondition->setCurrentIndex(static_cast<int>(selectedNPC->visibilityRule->condition));
+            ui.lineEditVisibilityConditionStoryIds->setText(m_controller.getVisibilityConditionStoryIdsText().c_str());
+        }
         refreshNPCTile();
         refreshConversationScenarioList();
     }
     initializeConversationScenariosTable();
     connectUIActions();
+    setConditionalVisibilityControlsEnabled(ui.checkBoxEnableConditionalVisibility->isChecked());
     refreshPositionLabel();
+
 }
 bool EditNPCForm::isEditMode() const {
     return m_controller.isEditMode();
@@ -104,8 +116,15 @@ void EditNPCForm::connectUIActions() {
     connect(ui.pushButtonEditConvScenario, &QPushButton::clicked, this, &EditNPCForm::onPushButtonEditConvScenarioClick);
     connect(ui.tableWidgetConvScenarios, &QTableWidget::itemDoubleClicked, this, &EditNPCForm::onTableWidgetConvScenarioDoubleClicked);
     connect(ui.pushButtonDeleteConvScenario, &QPushButton::clicked, this, &EditNPCForm::onPushButtonDeleteConvScenarioClick);
+    connect(ui.checkBoxEnableConditionalVisibility, &QCheckBox::toggled,
+            this, &EditNPCForm::setConditionalVisibilityControlsEnabled);
     tableWidgetConvScenarioKeyWatcher.installOn(ui.tableWidgetConvScenarios);
     connect(&tableWidgetConvScenarioKeyWatcher, &QTableWidgetKeyPressWatcher::keyPressed, this, &EditNPCForm::onTableWidgetConvScenarioKeyPressEvent);
+}
+
+void EditNPCForm::setConditionalVisibilityControlsEnabled(bool enabled) {
+    ui.comboBoxVisibilityCondition->setEnabled(enabled);
+    ui.lineEditVisibilityConditionStoryIds->setEnabled(enabled);
 }
 
 void EditNPCForm::refreshPositionLabel() {
@@ -166,6 +185,18 @@ void EditNPCForm::onPushButtonOKClick() {
     if (ui.tableWidgetConvScenarios->rowCount() == 0) {
         WarningMessage::show("Since the conversation scenarion list is empty, nothing will happen if you try to talk to the NPC.");
     }
+    if (ui.checkBoxEnableConditionalVisibility->isChecked()) {
+        if (ui.comboBoxVisibilityCondition->currentIndex() == -1) {
+            ErrorMessage::show("You must select a visibility condition.");
+            ui.comboBoxVisibilityCondition->setFocus();
+            return;
+        }
+        if (ui.lineEditVisibilityConditionStoryIds->text().trimmed().isEmpty()) {
+            ErrorMessage::show("You must enter at least one story ID to apply conditional visibility.");
+            ui.lineEditVisibilityConditionStoryIds->setFocus();
+            return; 
+        }
+    }
 
     m_result.id = npcId;
     m_result.name = ui.lineEditName->text().trimmed().toStdString();
@@ -180,6 +211,14 @@ void EditNPCForm::onPushButtonOKClick() {
     m_result.currentFacing = m_result.defaultFacing;
     m_result.defaultBehavior = static_cast<NPCBehavior>(ui.comboBoxDefaultBehavior->currentIndex());
     m_result.currentBehavior = m_result.defaultBehavior;
+    if (ui.checkBoxEnableConditionalVisibility->isChecked()) {
+        m_result.visibilityRule = NPCVisibilityRule {
+            .condition = static_cast<NPCVisibilityCondition>(ui.comboBoxVisibilityCondition->currentIndex()),
+            .storyIds = m_controller.splitVisibilityConditionStoryIds(ui.lineEditVisibilityConditionStoryIds->text())
+        };
+    } else {
+        m_result.visibilityRule = std::nullopt;
+    }
     if (!m_controller.isDTOValid(m_result)) {
         ErrorMessage::show(m_controller.getLastError());
         return;

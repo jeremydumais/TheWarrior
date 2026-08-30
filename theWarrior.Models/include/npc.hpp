@@ -1,20 +1,44 @@
 #pragma once
 
 #include <cstddef>
+#include <optional>
+#include <set>
 #include <string>
 #include <vector>
 #include <boost/serialization/access.hpp>
+#include <boost/serialization/set.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/version.hpp>
 #include "conversationScenario.hpp"
 #include "point.hpp"
+#include "story.hpp"
 
 namespace thewarrior::models {
 
 enum class NPCBehavior { Stationary, Wander };
 enum class NPCFacing { Left, Up, Right, Down };
+
+enum class NPCVisibilityCondition {
+    AnyStoryCompleted,
+    NoStoryCompleted
+};
+
+struct NPCVisibilityRule {
+    friend bool operator==(const NPCVisibilityRule &, const NPCVisibilityRule &) = default;
+    NPCVisibilityCondition condition = NPCVisibilityCondition::AnyStoryCompleted;
+    std::set<StoryId> storyIds;
+
+ private:
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive &ar, const unsigned int /* version */) {
+        ar & condition;
+        ar & storyIds;
+    }
+};
 
 struct NPCCreationInfo {
     std::string id;
@@ -30,6 +54,7 @@ struct NPCCreationInfo {
     NPCFacing currentFacing = NPCFacing::Down;
     NPCBehavior defaultBehavior = NPCBehavior::Stationary;
     NPCBehavior currentBehavior = NPCBehavior::Stationary;
+    std::optional<NPCVisibilityRule> visibilityRule;
 };
 
 class NPC {
@@ -52,6 +77,8 @@ class NPC {
     NPCFacing getCurrentFacing() const;
     NPCBehavior getDefaultBehavior() const;
     NPCBehavior getCurrentBehavior() const;
+    const std::optional<NPCVisibilityRule> &getVisibilityRule() const;
+    bool isVisible(const std::set<StoryId> &completedStoryIds) const;
     int getCurrentFacingTextureIndex() const;
     void setId(const std::string &id);
     void setName(const std::string &name);
@@ -70,6 +97,8 @@ class NPC {
     void setCurrentFacing(NPCFacing value);
     void setDefaultBehavior(NPCBehavior value);
     void setCurrentBehavior(NPCBehavior value);
+    void setVisibilityRule(const NPCVisibilityRule &rule);
+    void clearVisibilityRule();
     void applyCoordinateOffset(int offsetX, int offsetY);
 
  private:
@@ -89,6 +118,7 @@ class NPC {
     NPCFacing m_currentFacing = NPCFacing::Down;
     NPCBehavior m_defaultBehavior = NPCBehavior::Stationary;
     NPCBehavior m_currentBehavior = NPCBehavior::Stationary;
+    std::optional<NPCVisibilityRule> m_visibilityRule;
 
     void validateId(const std::string &id);
     void validateName(const std::string &name);
@@ -96,7 +126,7 @@ class NPC {
     void refreshDialogueLinesCompatibilityView();
     // Serialization methods
     template<class Archive>
-    void save(Archive& ar, const unsigned int /* version */) const {
+    void save(Archive& ar, const unsigned int version) const {
         ar & m_id;
         ar & m_name;
         ar & m_textureName;
@@ -108,6 +138,9 @@ class NPC {
         ar & m_currentFacing;
         ar & m_defaultBehavior;
         ar & m_currentBehavior;
+        if (version >= 4) {
+            ar & m_visibilityRule;
+        }
     }
 
     template<class Archive>
@@ -140,6 +173,11 @@ class NPC {
             ar & m_currentFacing;
             ar & m_defaultBehavior;
             ar & m_currentBehavior;
+            if (version >= 4) {
+                ar & m_visibilityRule;
+            } else {
+                m_visibilityRule = std::nullopt;
+            }
             refreshDialogueLinesCompatibilityView();
         }
     }
@@ -149,4 +187,4 @@ class NPC {
 
 }  // namespace thewarrior::models
 
-BOOST_CLASS_VERSION(thewarrior::models::NPC, 3)
+BOOST_CLASS_VERSION(thewarrior::models::NPC, 4)

@@ -2,6 +2,8 @@
 
 #include <qpixmap.h>
 #include <memory>
+#include <optional>
+#include <set>
 #include <string>
 #include <vector>
 #include "glComponentController.hpp"
@@ -33,6 +35,8 @@ class EditNPCFormController {
     NPCPixmapResult getNPCPixmap(const std::string &textureName,
                                  const int baseTextureIndex);
     const std::optional<mapeditor::controllers::NPCDTO> &getSelectedNPC() const;                            
+    std::string getVisibilityConditionStoryIdsText() const;
+    static std::set<thewarrior::models::StoryId> splitVisibilityConditionStoryIds(const QString &text);
     bool isNPCIdAlreadyUsed(const std::string &id) const;
     static std::vector<std::string> convertPlainTextToLines(const QString &text);
     bool isDTOValid(mapeditor::controllers::NPCDTO &dto);

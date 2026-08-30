@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <set>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -9,6 +10,8 @@ using thewarrior::models::NPC;
 using thewarrior::models::NPCCreationInfo;
 using thewarrior::models::NPCBehavior;
 using thewarrior::models::NPCFacing;
+using thewarrior::models::NPCVisibilityCondition;
+using thewarrior::models::NPCVisibilityRule;
 using thewarrior::models::Point;
 
 NPCCreationInfo getNPCInfoSample1() {
@@ -131,6 +134,66 @@ TEST_F(NPCSample1, getDefaultBehavior_ReturnStationary) {
 
 TEST_F(NPCSample1, getCurrentBehavior_ReturnWander) {
     ASSERT_EQ(NPCBehavior::Wander, npc.getCurrentBehavior());
+}
+
+TEST_F(NPCSample1, getVisibilityRule_WithNoRule_ReturnNullopt) {
+    ASSERT_FALSE(npc.getVisibilityRule().has_value());
+}
+
+TEST(NPC_Constructor, WithVisibilityRule_ReturnRule) {
+    const NPCVisibilityRule expected {
+        .condition = NPCVisibilityCondition::AnyStoryCompleted,
+        .storyIds = {"STORY001", "STORY002"}
+    };
+    NPC npc({
+        .id = "NPC001",
+        .name = "Joe Blow",
+        .visibilityRule = expected
+    });
+
+    ASSERT_TRUE(npc.getVisibilityRule().has_value());
+    ASSERT_EQ(expected, npc.getVisibilityRule().value());
+}
+
+TEST_F(NPCSample1, isVisible_WithNoVisibilityRule_ReturnTrue) {
+    ASSERT_TRUE(npc.isVisible({}));
+    ASSERT_TRUE(npc.isVisible({"STORY001"}));
+}
+
+TEST_F(NPCSample1, isVisible_WithAnyStoryCompletedAndNoMatchingStory_ReturnFalse) {
+    npc.setVisibilityRule({
+        .condition = NPCVisibilityCondition::AnyStoryCompleted,
+        .storyIds = {"STORY001", "STORY002"}
+    });
+
+    ASSERT_FALSE(npc.isVisible({"STORY003"}));
+}
+
+TEST_F(NPCSample1, isVisible_WithAnyStoryCompletedAndMatchingStory_ReturnTrue) {
+    npc.setVisibilityRule({
+        .condition = NPCVisibilityCondition::AnyStoryCompleted,
+        .storyIds = {"STORY001", "STORY002"}
+    });
+
+    ASSERT_TRUE(npc.isVisible({"STORY002"}));
+}
+
+TEST_F(NPCSample1, isVisible_WithNoStoryCompletedAndNoMatchingStory_ReturnTrue) {
+    npc.setVisibilityRule({
+        .condition = NPCVisibilityCondition::NoStoryCompleted,
+        .storyIds = {"STORY001", "STORY002"}
+    });
+
+    ASSERT_TRUE(npc.isVisible({"STORY003"}));
+}
+
+TEST_F(NPCSample1, isVisible_WithNoStoryCompletedAndMatchingStory_ReturnFalse) {
+    npc.setVisibilityRule({
+        .condition = NPCVisibilityCondition::NoStoryCompleted,
+        .storyIds = {"STORY001", "STORY002"}
+    });
+
+    ASSERT_FALSE(npc.isVisible({"STORY001"}));
 }
 
 TEST_F(NPCSample1, setId_WithWhiteSpaces_ThrowInvalidArgument) {
@@ -347,6 +410,29 @@ TEST_F(NPCSample1, setDefaultBehavior_WithWander_ReturnSuccess) {
 TEST_F(NPCSample1, setCurrentBehavior_WithStationary_ReturnSuccess) {
     npc.setCurrentBehavior(NPCBehavior::Stationary);
     ASSERT_EQ(NPCBehavior::Stationary, npc.getCurrentBehavior());
+}
+
+TEST_F(NPCSample1, setVisibilityRule_WithRule_ReturnSuccess) {
+    const NPCVisibilityRule expected {
+        .condition = NPCVisibilityCondition::NoStoryCompleted,
+        .storyIds = {"STORY001", "STORY002"}
+    };
+
+    npc.setVisibilityRule(expected);
+
+    ASSERT_TRUE(npc.getVisibilityRule().has_value());
+    ASSERT_EQ(expected, npc.getVisibilityRule().value());
+}
+
+TEST_F(NPCSample1, clearVisibilityRule_WithExistingRule_ReturnNullopt) {
+    npc.setVisibilityRule({
+        .condition = NPCVisibilityCondition::AnyStoryCompleted,
+        .storyIds = {"STORY001"}
+    });
+
+    npc.clearVisibilityRule();
+
+    ASSERT_FALSE(npc.getVisibilityRule().has_value());
 }
 
 TEST_F(NPCSample1, applyCoordinateOffset_WithXMinus1_ReturnSuccess) {

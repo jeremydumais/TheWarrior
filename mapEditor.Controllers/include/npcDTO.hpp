@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <optional>
 #include <string>
 #include <vector>
 #include "conversationScenario.hpp"
@@ -20,7 +21,8 @@ struct NPCDTO {
     thewarrior::models::NPCFacing defaultFacing = thewarrior::models::NPCFacing::Down;
     thewarrior::models::NPCFacing currentFacing = thewarrior::models::NPCFacing::Down;
     thewarrior::models::NPCBehavior defaultBehavior = thewarrior::models::NPCBehavior::Stationary;
-    thewarrior::models::NPCBehavior currentBehavior = thewarrior::models::NPCBehavior::Stationary;  
+    thewarrior::models::NPCBehavior currentBehavior = thewarrior::models::NPCBehavior::Stationary;
+    std::optional<thewarrior::models::NPCVisibilityRule> visibilityRule = std::nullopt;
 };
 
 }  // namespace mapeditor::controllers

@@ -7,6 +7,7 @@
 #include <memory>
 #include <optional>
 #include <ranges>
+#include <set>
 #include <string>
 #include <vector>
 #include <boost/algorithm/string/case_conv.hpp>
@@ -95,6 +96,30 @@ const std::optional<mapeditor::controllers::NPCDTO> &EditNPCFormController::getS
     return m_selectedNPC;
 }                            
 
+std::string EditNPCFormController::getVisibilityConditionStoryIdsText() const {
+    if (!m_selectedNPC || !m_selectedNPC->visibilityRule) {
+        return {};
+    }
+
+    std::string result;
+    const auto &storyIds = m_selectedNPC->visibilityRule->storyIds;
+    for (auto storyId = storyIds.begin(); storyId != storyIds.end(); ++storyId) {
+        if (storyId != storyIds.begin()) {
+            result.push_back(',');
+        }
+        result.append(*storyId);
+    }
+    return result;
+}
+
+std::set<thewarrior::models::StoryId> EditNPCFormController::splitVisibilityConditionStoryIds(const QString &text) {
+    std::set<thewarrior::models::StoryId> result;
+    const QStringList storyIds = text.split(',', Qt::SkipEmptyParts);
+    for (const QString &storyId : storyIds) {
+        result.emplace(storyId.trimmed().toStdString());
+    }
+    return result;
+}
 
 bool EditNPCFormController::isNPCIdAlreadyUsed(const std::string &id) const {
     auto sanitizedId = boost::to_lower_copy(boost::trim_copy(id));

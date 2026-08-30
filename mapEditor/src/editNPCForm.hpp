@@ -45,6 +45,7 @@ Q_OBJECT
     void refreshPositionLabel();
     void refreshNPCTile();
     void refreshConversationScenarioList();
+    void setConditionalVisibilityControlsEnabled(bool enabled);
     void onPushButtonCancelClick();
     void onPushButtonOKClick();
     void onPushButtonSelectTextureClick();

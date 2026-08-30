@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>769</width>
-    <height>587</height>
+    <height>650</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -149,25 +149,12 @@
        </item>
       </layout>
      </item>
-     <item row="8" column="0">
-      <widget class="QLabel" name="labelDefaultFacing">
+     <item row="6" column="0">
+      <widget class="QLabel" name="labelConversationScenarios">
        <property name="text">
-        <string>Default Facing :</string>
+        <string>Conversation scenarios :</string>
        </property>
       </widget>
-     </item>
-     <item row="8" column="1">
-      <widget class="QComboBox" name="comboBoxDefaultFacing"/>
-     </item>
-     <item row="10" column="0">
-      <widget class="QLabel" name="labelDefaultBehavior">
-       <property name="text">
-        <string>Default Behavior : </string>
-       </property>
-      </widget>
-     </item>
-     <item row="10" column="1">
-      <widget class="QComboBox" name="comboBoxDefaultBehavior"/>
      </item>
      <item row="6" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -256,10 +243,73 @@
        </item>
       </layout>
      </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="labelConversationScenarios">
+     <item row="8" column="0">
+      <widget class="QLabel" name="labelDefaultFacing">
        <property name="text">
-        <string>Conversation scenarios :</string>
+        <string>Default Facing :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1">
+      <widget class="QComboBox" name="comboBoxDefaultFacing"/>
+     </item>
+     <item row="10" column="0">
+      <widget class="QLabel" name="labelDefaultBehavior">
+       <property name="text">
+        <string>Default Behavior : </string>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="1">
+      <widget class="QComboBox" name="comboBoxDefaultBehavior"/>
+     </item>
+     <item row="11" column="1">
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_7">
+         <item>
+          <widget class="QCheckBox" name="checkBoxEnableConditionalVisibility">
+           <property name="text">
+            <string>Enable</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBoxVisibilityCondition"/>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Story Ids</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEditVisibilityConditionStoryIds"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="font">
+          <font>
+           <italic>true</italic>
+          </font>
+         </property>
+         <property name="text">
+          <string>Story Ids are comma separated values</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="11" column="0">
+      <widget class="QLabel" name="labelVisibleOnConditions">
+       <property name="text">
+        <string>Conditional visibility :</string>
        </property>
       </widget>
      </item>
@@ -350,6 +400,9 @@
   <tabstop>pushButtonMoveDown</tabstop>
   <tabstop>comboBoxDefaultFacing</tabstop>
   <tabstop>comboBoxDefaultBehavior</tabstop>
+  <tabstop>checkBoxEnableConditionalVisibility</tabstop>
+  <tabstop>comboBoxVisibilityCondition</tabstop>
+  <tabstop>lineEditVisibilityConditionStoryIds</tabstop>
   <tabstop>pushButtonOK</tabstop>
   <tabstop>pushButtonCancel</tabstop>
  </tabstops>
