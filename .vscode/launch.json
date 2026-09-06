@@ -30,7 +30,7 @@
             "program": "${workspaceFolder}/build/bin/MapEditor",
             "args": [
                 "-f",
-                "/home/jed/Programming/TheWarrior/resources/maps/Outworld.map"
+                "/home/jed/Programming/TheWarrior/resources/maps/northWestCaveL3.map"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build",

@@ -6,6 +6,23 @@
 
 using namespace thewarrior::ui::controllers;
 
+TEST(GameMapModeController_completeStory, NotifyOnlyWhenCollectionChanges) {
+    GameMapModeController controller;
+    int notifications = 0;
+    controller.completedStoryIdsChanged.connect([&]() {
+        ++notifications;
+        EXPECT_TRUE(controller.isStoryIdCompleted("story1"));
+        EXPECT_EQ(static_cast<size_t>(notifications), controller.getCompletedStoryIds().size());
+    });
+
+    controller.completeStory("story1");
+    EXPECT_EQ(1, notifications);
+    controller.completeStory("story1");
+    EXPECT_EQ(1, notifications);
+    controller.completeStory("story2");
+    EXPECT_EQ(2, notifications);
+}
+
 TEST(GameMapModeController_addMessageToPipeline, WithMessageDTO_AddMessageToPipeline) {
     GameMapModeController controller;
     auto msg = std::make_unique<MessageDTO>();

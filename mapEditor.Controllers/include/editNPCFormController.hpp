@@ -33,7 +33,8 @@ class EditNPCFormController {
     bool isEditMode() const;
     const std::vector<thewarrior::models::Texture> &getTextures();
     NPCPixmapResult getNPCPixmap(const std::string &textureName,
-                                 const int baseTextureIndex);
+                                 const int baseTextureIndex,
+                                 thewarrior::models::NPCSpriteLayout spriteLayout = thewarrior::models::NPCSpriteLayout::Direction12Frames);
     const std::optional<mapeditor::controllers::NPCDTO> &getSelectedNPC() const;                            
     std::string getVisibilityConditionStoryIdsText() const;
     static std::set<thewarrior::models::StoryId> splitVisibilityConditionStoryIds(const QString &text);

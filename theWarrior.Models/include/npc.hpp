@@ -17,6 +17,7 @@
 
 namespace thewarrior::models {
 
+enum class NPCSpriteLayout { SingleFrame, Direction12Frames };
 enum class NPCBehavior { Stationary, Wander };
 enum class NPCFacing { Left, Up, Right, Down };
 
@@ -26,18 +27,27 @@ enum class NPCVisibilityCondition {
     ScriptControlled
 };
 
+enum class NPCVisibilityEvaluationMode {
+    OnMapLoad,
+    OnStoryChange
+};
+
 struct NPCVisibilityRule {
     friend bool operator==(const NPCVisibilityRule &, const NPCVisibilityRule &) = default;
     NPCVisibilityCondition condition = NPCVisibilityCondition::AnyStoryCompleted;
     std::set<StoryId> storyIds;
+    NPCVisibilityEvaluationMode evaluationMode = NPCVisibilityEvaluationMode::OnMapLoad;
 
  private:
     friend class boost::serialization::access;
 
     template<class Archive>
-    void serialize(Archive &ar, const unsigned int /* version */) {
+    void serialize(Archive &ar, const unsigned int version ) {
         ar & condition;
         ar & storyIds;
+        if (version >= 1) {
+            ar & evaluationMode;
+        }
     }
 };
 
@@ -57,6 +67,7 @@ struct NPCCreationInfo {
     NPCBehavior currentBehavior = NPCBehavior::Stationary;
     std::optional<NPCVisibilityRule> visibilityRule;
     bool scriptVisible = false;
+    NPCSpriteLayout spriteLayout = NPCSpriteLayout::Direction12Frames;
 };
 
 class NPC {
@@ -81,6 +92,7 @@ class NPC {
     NPCBehavior getCurrentBehavior() const;
     const std::optional<NPCVisibilityRule> &getVisibilityRule() const;
     bool isVisible(const std::set<StoryId> &completedStoryIds) const;
+    NPCSpriteLayout getSpriteLayout() const;
     int getCurrentFacingTextureIndex() const;
     void setId(const std::string &id);
     void setName(const std::string &name);
@@ -102,6 +114,7 @@ class NPC {
     void setVisibilityRule(const NPCVisibilityRule &rule);
     void clearVisibilityRule();
     void setScriptVisible(bool visible);
+    void setSpriteLayout(NPCSpriteLayout layout);
     void applyCoordinateOffset(int offsetX, int offsetY);
 
  private:
@@ -123,9 +136,8 @@ class NPC {
     NPCBehavior m_currentBehavior = NPCBehavior::Stationary;
     std::optional<NPCVisibilityRule> m_visibilityRule;
     bool m_scriptVisible = false;
+    NPCSpriteLayout m_spriteLayout = NPCSpriteLayout::Direction12Frames;
 
-    void validateId(const std::string &id);
-    void validateName(const std::string &name);
     void migrateDialogueLines(const std::vector<std::string> &lines);
     void refreshDialogueLinesCompatibilityView();
     // Serialization methods
@@ -147,6 +159,9 @@ class NPC {
         }
         if (version >= 5) {
             ar & m_scriptVisible;
+        }
+        if (version >= 6) {
+            ar & m_spriteLayout;
         }
     }
 
@@ -190,6 +205,12 @@ class NPC {
             } else {
                 m_scriptVisible = false;
             }
+            if (version >= 6) {
+                ar & m_spriteLayout;
+            } else {
+                m_spriteLayout = NPCSpriteLayout::Direction12Frames;
+            }
+
             refreshDialogueLinesCompatibilityView();
         }
     }
@@ -199,4 +220,5 @@ class NPC {
 
 }  // namespace thewarrior::models
 
-BOOST_CLASS_VERSION(thewarrior::models::NPC, 5)
+BOOST_CLASS_VERSION(thewarrior::models::NPC, 6)
+BOOST_CLASS_VERSION(thewarrior::models::NPCVisibilityRule, 1)

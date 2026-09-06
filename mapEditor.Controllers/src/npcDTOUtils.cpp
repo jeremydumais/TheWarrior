@@ -24,7 +24,8 @@ namespace mapeditor::controllers
             .currentFacing = npc.getCurrentFacing(),
             .defaultBehavior = npc.getDefaultBehavior(),
             .currentBehavior = npc.getCurrentBehavior(),
-            .visibilityRule = npc.getVisibilityRule()
+            .visibilityRule = npc.getVisibilityRule(),
+            .spriteLayout = npc.getSpriteLayout()
         };
     }
 
@@ -42,7 +43,8 @@ namespace mapeditor::controllers
             .currentFacing = dto.currentFacing,
             .defaultBehavior = dto.defaultBehavior,
             .currentBehavior = dto.currentBehavior,
-            .visibilityRule = dto.visibilityRule
+            .visibilityRule = dto.visibilityRule,
+            .spriteLayout = dto.spriteLayout,
         };
         try {
             NPC result(creationInfo);

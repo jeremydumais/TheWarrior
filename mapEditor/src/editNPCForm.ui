@@ -58,14 +58,14 @@
      <item row="1" column="1">
       <widget class="QLineEdit" name="lineEditName"/>
      </item>
-     <item row="3" column="0">
+     <item row="4" column="0">
       <widget class="QLabel" name="labelTexturePicker">
        <property name="text">
         <string>Texture : </string>
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
+     <item row="4" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
         <widget class="QLabel" name="labelNPCTexture">
@@ -99,7 +99,7 @@
        </item>
       </layout>
      </item>
-     <item row="5" column="0">
+     <item row="6" column="0">
       <widget class="QLabel" name="labelSpawnPosition">
        <property name="minimumSize">
         <size>
@@ -115,7 +115,7 @@
        </property>
       </widget>
      </item>
-     <item row="5" column="1">
+     <item row="6" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_4">
        <item>
         <widget class="QLabel" name="labelSpawnPositionValue">
@@ -149,14 +149,14 @@
        </item>
       </layout>
      </item>
-     <item row="6" column="0">
+     <item row="7" column="0">
       <widget class="QLabel" name="labelConversationScenarios">
        <property name="text">
         <string>Conversation scenarios :</string>
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
+     <item row="7" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_6">
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -243,27 +243,27 @@
        </item>
       </layout>
      </item>
-     <item row="8" column="0">
+     <item row="9" column="0">
       <widget class="QLabel" name="labelDefaultFacing">
        <property name="text">
         <string>Default Facing :</string>
        </property>
       </widget>
      </item>
-     <item row="8" column="1">
+     <item row="9" column="1">
       <widget class="QComboBox" name="comboBoxDefaultFacing"/>
      </item>
-     <item row="10" column="0">
+     <item row="11" column="0">
       <widget class="QLabel" name="labelDefaultBehavior">
        <property name="text">
         <string>Default Behavior : </string>
        </property>
       </widget>
      </item>
-     <item row="10" column="1">
+     <item row="11" column="1">
       <widget class="QComboBox" name="comboBoxDefaultBehavior"/>
      </item>
-     <item row="11" column="1">
+     <item row="12" column="1">
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_7">
@@ -304,14 +304,76 @@
          </property>
         </widget>
        </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_9">
+         <item>
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Visibiliy evaluation : </string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioButtonOnMapLoad">
+           <property name="text">
+            <string>On Map Load</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">buttonGroupVisibilityEvaluation</string>
+           </attribute>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioButtonOnStoryChange">
+           <property name="text">
+            <string>On Story Change</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">buttonGroupVisibilityEvaluation</string>
+           </attribute>
+          </widget>
+         </item>
+        </layout>
+       </item>
       </layout>
      </item>
-     <item row="11" column="0">
+     <item row="12" column="0">
       <widget class="QLabel" name="labelVisibleOnConditions">
        <property name="text">
         <string>Conditional visibility :</string>
        </property>
       </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Sprite layout :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_8">
+       <item>
+        <widget class="QRadioButton" name="radioButtonSpriteSingleFrame">
+         <property name="text">
+          <string>Single Frame</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">buttonGroupSpriteLayout</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonSpriteDirectional12Frames">
+         <property name="text">
+          <string>Directional 12 Frames</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">buttonGroupSpriteLayout</string>
+         </attribute>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
@@ -390,19 +452,23 @@
  <tabstops>
   <tabstop>lineEditId</tabstop>
   <tabstop>lineEditName</tabstop>
+  <tabstop>radioButtonSpriteSingleFrame</tabstop>
+  <tabstop>radioButtonSpriteDirectional12Frames</tabstop>
   <tabstop>pushButtonSelectTexture</tabstop>
   <tabstop>pushButtonSpawnPositionPicker</tabstop>
   <tabstop>tableWidgetConvScenarios</tabstop>
+  <tabstop>pushButtonMoveUp</tabstop>
+  <tabstop>pushButtonMoveDown</tabstop>
   <tabstop>pushButtonAddConvScenario</tabstop>
   <tabstop>pushButtonEditConvScenario</tabstop>
   <tabstop>pushButtonDeleteConvScenario</tabstop>
-  <tabstop>pushButtonMoveUp</tabstop>
-  <tabstop>pushButtonMoveDown</tabstop>
   <tabstop>comboBoxDefaultFacing</tabstop>
   <tabstop>comboBoxDefaultBehavior</tabstop>
   <tabstop>checkBoxEnableConditionalVisibility</tabstop>
   <tabstop>comboBoxVisibilityCondition</tabstop>
   <tabstop>lineEditVisibilityConditionStoryIds</tabstop>
+  <tabstop>radioButtonOnMapLoad</tabstop>
+  <tabstop>radioButtonOnStoryChange</tabstop>
   <tabstop>pushButtonOK</tabstop>
   <tabstop>pushButtonCancel</tabstop>
  </tabstops>
@@ -410,4 +476,8 @@
   <include location="../res/global.qrc"/>
  </resources>
  <connections/>
+ <buttongroups>
+  <buttongroup name="buttonGroupSpriteLayout"/>
+  <buttongroup name="buttonGroupVisibilityEvaluation"/>
+ </buttongroups>
 </ui>

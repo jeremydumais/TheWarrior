@@ -1,4 +1,7 @@
 #include <gtest/gtest.h>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <sstream>
 #include <stdexcept>
 #include "conversationScenario.hpp"
 
@@ -6,6 +9,13 @@ using thewarrior::models::ConversationDialogue;
 using thewarrior::models::ConversationNode;
 using thewarrior::models::ConversationNodeTransition;
 using thewarrior::models::ConversationNodeTransitionType;
+using thewarrior::models::ConversationAction;
+using thewarrior::models::MerchantShopAction;
+using thewarrior::models::MonsterFightAction;
+using thewarrior::models::ProgressStoryLineAction;
+using thewarrior::models::RestRequestedAction;
+using thewarrior::models::RewardAction;
+using thewarrior::models::SellItemsAction;
 
 TEST(ConversationNodeTransition_nextInOrder, ReturnNextInOrderWithEmptyNodeId) {
     const auto transition = ConversationNodeTransition::nextInOrder();
@@ -52,4 +62,35 @@ TEST(ConversationNode_setTransition, WithStopTransitionSetStop) {
 
     ASSERT_EQ(ConversationNodeTransitionType::Stop,
               node.getTransition().getType());
+}
+
+TEST(ConversationAction_Compatibility, PreserveExistingVariantIndexes) {
+    EXPECT_EQ(0, ConversationAction(RewardAction {}).which());
+    EXPECT_EQ(1, ConversationAction(ProgressStoryLineAction {}).which());
+    EXPECT_EQ(2, ConversationAction(RestRequestedAction {}).which());
+    EXPECT_EQ(3, ConversationAction(MerchantShopAction {}).which());
+    EXPECT_EQ(4, ConversationAction(SellItemsAction {}).which());
+    EXPECT_EQ(5, ConversationAction(MonsterFightAction {}).which());
+}
+
+TEST(MonsterFightAction_Serialization, PreserveMonsterId) {
+    const ConversationAction expected = MonsterFightAction {
+        .monsterId = "forest-troll"
+    };
+    std::stringstream serialized;
+    {
+        boost::archive::text_oarchive archive(serialized);
+        archive << expected;
+    }
+
+    ConversationAction actual;
+    {
+        boost::archive::text_iarchive archive(serialized);
+        archive >> actual;
+    }
+
+    ASSERT_EQ(expected.which(), actual.which());
+    const auto *monsterFight = boost::get<MonsterFightAction>(&actual);
+    ASSERT_NE(nullptr, monsterFight);
+    EXPECT_EQ("forest-troll", monsterFight->monsterId);
 }

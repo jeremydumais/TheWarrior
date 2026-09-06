@@ -10,6 +10,7 @@ using thewarrior::models::NPC;
 using thewarrior::models::NPCCreationInfo;
 using thewarrior::models::NPCBehavior;
 using thewarrior::models::NPCFacing;
+using thewarrior::models::NPCSpriteLayout;
 using thewarrior::models::NPCVisibilityCondition;
 using thewarrior::models::NPCVisibilityRule;
 using thewarrior::models::Point;
@@ -134,6 +135,59 @@ TEST_F(NPCSample1, getDefaultBehavior_ReturnStationary) {
 
 TEST_F(NPCSample1, getCurrentBehavior_ReturnWander) {
     ASSERT_EQ(NPCBehavior::Wander, npc.getCurrentBehavior());
+}
+
+TEST_F(NPCSample1, getSpriteLayout_WhenOmitted_ReturnDirection12Frames) {
+    ASSERT_EQ(NPCSpriteLayout::Direction12Frames, npc.getSpriteLayout());
+}
+
+TEST(NPC_Constructor, WithSingleFrameAndStationaryBehaviors_ReturnSuccess) {
+    NPC npc({
+        .id = "NPC001",
+        .name = "Joe Blow",
+        .spriteLayout = NPCSpriteLayout::SingleFrame
+    });
+
+    EXPECT_EQ(NPCSpriteLayout::SingleFrame, npc.getSpriteLayout());
+    EXPECT_EQ(NPCBehavior::Stationary, npc.getDefaultBehavior());
+    EXPECT_EQ(NPCBehavior::Stationary, npc.getCurrentBehavior());
+}
+
+TEST(NPC_Constructor, WithSingleFrameAndWanderingBehavior_ThrowInvalidArgument) {
+    for (const auto defaultBehavior : {NPCBehavior::Stationary, NPCBehavior::Wander}) {
+        for (const auto currentBehavior : {NPCBehavior::Stationary, NPCBehavior::Wander}) {
+            if (defaultBehavior == NPCBehavior::Stationary && currentBehavior == NPCBehavior::Stationary) {
+                continue;
+            }
+            SCOPED_TRACE(::testing::Message() << "defaultBehavior=" << static_cast<int>(defaultBehavior)
+                                            << ", currentBehavior=" << static_cast<int>(currentBehavior));
+            auto info = getNPCInfoSample1();
+            info.spriteLayout = NPCSpriteLayout::SingleFrame;
+            info.defaultBehavior = defaultBehavior;
+            info.currentBehavior = currentBehavior;
+
+            EXPECT_THROW({ NPC npc(info); }, std::invalid_argument);
+        }
+    }
+}
+
+TEST(NPC_Constructor, WithDirection12Frames_AcceptAllBehaviorCombinations) {
+    for (const auto defaultBehavior : {NPCBehavior::Stationary, NPCBehavior::Wander}) {
+        for (const auto currentBehavior : {NPCBehavior::Stationary, NPCBehavior::Wander}) {
+            SCOPED_TRACE(::testing::Message() << "defaultBehavior=" << static_cast<int>(defaultBehavior)
+                                            << ", currentBehavior=" << static_cast<int>(currentBehavior));
+            auto info = getNPCInfoSample1();
+            info.spriteLayout = NPCSpriteLayout::Direction12Frames;
+            info.defaultBehavior = defaultBehavior;
+            info.currentBehavior = currentBehavior;
+
+            NPC npc(info);
+
+            EXPECT_EQ(NPCSpriteLayout::Direction12Frames, npc.getSpriteLayout());
+            EXPECT_EQ(defaultBehavior, npc.getDefaultBehavior());
+            EXPECT_EQ(currentBehavior, npc.getCurrentBehavior());
+        }
+    }
 }
 
 TEST_F(NPCSample1, getVisibilityRule_WithNoRule_ReturnNullopt) {
@@ -427,6 +481,81 @@ TEST_F(NPCSample1, setDefaultBehavior_WithWander_ReturnSuccess) {
 TEST_F(NPCSample1, setCurrentBehavior_WithStationary_ReturnSuccess) {
     npc.setCurrentBehavior(NPCBehavior::Stationary);
     ASSERT_EQ(NPCBehavior::Stationary, npc.getCurrentBehavior());
+}
+
+TEST_F(NPCSample1, setSpriteLayout_WithStationaryBehaviors_ReturnSuccess) {
+    npc.setCurrentBehavior(NPCBehavior::Stationary);
+
+    npc.setSpriteLayout(NPCSpriteLayout::SingleFrame);
+
+    EXPECT_EQ(NPCSpriteLayout::SingleFrame, npc.getSpriteLayout());
+    EXPECT_EQ(NPCBehavior::Stationary, npc.getDefaultBehavior());
+    EXPECT_EQ(NPCBehavior::Stationary, npc.getCurrentBehavior());
+}
+
+TEST_F(NPCSample1, setSpriteLayout_WithDefaultWander_ThrowAndPreserveState) {
+    npc.setCurrentBehavior(NPCBehavior::Stationary);
+    npc.setDefaultBehavior(NPCBehavior::Wander);
+
+    EXPECT_THROW(npc.setSpriteLayout(NPCSpriteLayout::SingleFrame), std::invalid_argument);
+
+    EXPECT_EQ(NPCSpriteLayout::Direction12Frames, npc.getSpriteLayout());
+    EXPECT_EQ(NPCBehavior::Wander, npc.getDefaultBehavior());
+    EXPECT_EQ(NPCBehavior::Stationary, npc.getCurrentBehavior());
+}
+
+TEST_F(NPCSample1, setSpriteLayout_WithCurrentWander_ThrowAndPreserveState) {
+    EXPECT_THROW(npc.setSpriteLayout(NPCSpriteLayout::SingleFrame), std::invalid_argument);
+
+    EXPECT_EQ(NPCSpriteLayout::Direction12Frames, npc.getSpriteLayout());
+    EXPECT_EQ(NPCBehavior::Stationary, npc.getDefaultBehavior());
+    EXPECT_EQ(NPCBehavior::Wander, npc.getCurrentBehavior());
+}
+
+TEST_F(NPCSample1, setDefaultBehavior_WithSingleFrameAndWander_ThrowAndPreserveState) {
+    npc.setCurrentBehavior(NPCBehavior::Stationary);
+    npc.setSpriteLayout(NPCSpriteLayout::SingleFrame);
+
+    EXPECT_THROW(npc.setDefaultBehavior(NPCBehavior::Wander), std::invalid_argument);
+
+    EXPECT_EQ(NPCSpriteLayout::SingleFrame, npc.getSpriteLayout());
+    EXPECT_EQ(NPCBehavior::Stationary, npc.getDefaultBehavior());
+    EXPECT_EQ(NPCBehavior::Stationary, npc.getCurrentBehavior());
+}
+
+TEST_F(NPCSample1, setCurrentBehavior_WithSingleFrameAndWander_ThrowAndPreserveState) {
+    npc.setCurrentBehavior(NPCBehavior::Stationary);
+    npc.setSpriteLayout(NPCSpriteLayout::SingleFrame);
+
+    EXPECT_THROW(npc.setCurrentBehavior(NPCBehavior::Wander), std::invalid_argument);
+
+    EXPECT_EQ(NPCSpriteLayout::SingleFrame, npc.getSpriteLayout());
+    EXPECT_EQ(NPCBehavior::Stationary, npc.getDefaultBehavior());
+    EXPECT_EQ(NPCBehavior::Stationary, npc.getCurrentBehavior());
+}
+
+TEST_F(NPCSample1, setBehaviors_WithSingleFrameAndStationary_ReturnSuccess) {
+    npc.setCurrentBehavior(NPCBehavior::Stationary);
+    npc.setSpriteLayout(NPCSpriteLayout::SingleFrame);
+
+    EXPECT_NO_THROW(npc.setDefaultBehavior(NPCBehavior::Stationary));
+    EXPECT_NO_THROW(npc.setCurrentBehavior(NPCBehavior::Stationary));
+
+    EXPECT_EQ(NPCBehavior::Stationary, npc.getDefaultBehavior());
+    EXPECT_EQ(NPCBehavior::Stationary, npc.getCurrentBehavior());
+}
+
+TEST_F(NPCSample1, setSpriteLayout_FromSingleFrameToDirection12Frames_AllowWander) {
+    npc.setCurrentBehavior(NPCBehavior::Stationary);
+    npc.setSpriteLayout(NPCSpriteLayout::SingleFrame);
+
+    npc.setSpriteLayout(NPCSpriteLayout::Direction12Frames);
+    npc.setDefaultBehavior(NPCBehavior::Wander);
+    npc.setCurrentBehavior(NPCBehavior::Wander);
+
+    EXPECT_EQ(NPCSpriteLayout::Direction12Frames, npc.getSpriteLayout());
+    EXPECT_EQ(NPCBehavior::Wander, npc.getDefaultBehavior());
+    EXPECT_EQ(NPCBehavior::Wander, npc.getCurrentBehavior());
 }
 
 TEST_F(NPCSample1, setVisibilityRule_WithRule_ReturnSuccess) {

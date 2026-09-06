@@ -27,6 +27,7 @@ Q_OBJECT
    mapeditor::controllers::EditConversationActionFormController m_controller;
    thewarrior::models::ConversationNode m_result;
    void connectUIActions();
+   void initializeComboBoxActionType();
    void initializeComboBoxTransitionType();
    void initializeMerchantInventoryComboBoxes();
    void onPushButtonCancelClick();

@@ -45,6 +45,7 @@ Q_OBJECT
     void refreshPositionLabel();
     void refreshNPCTile();
     void refreshConversationScenarioList();
+    void refreshSpriteLayoutControls();
     void setConditionalVisibilityControlsEnabled(bool enabled);
     void refreshVisibilityConditionStoryIdsEnabled();
     void onPushButtonCancelClick();

@@ -14,7 +14,9 @@ using thewarrior::models::NPC;
 using thewarrior::models::NPCBehavior;
 using thewarrior::models::NPCCreationInfo;
 using thewarrior::models::NPCFacing;
+using thewarrior::models::NPCSpriteLayout;
 using thewarrior::models::NPCVisibilityCondition;
+using thewarrior::models::NPCVisibilityEvaluationMode;
 using thewarrior::models::NPCVisibilityRule;
 using thewarrior::models::Point;
 
@@ -49,6 +51,7 @@ void assertNPCDTO(const NPCDTO &expected, const NPCDTO &actual) {
     ASSERT_EQ(expected.defaultBehavior, actual.defaultBehavior);
     ASSERT_EQ(expected.currentBehavior, actual.currentBehavior);
     ASSERT_EQ(expected.visibilityRule, actual.visibilityRule);
+    ASSERT_EQ(expected.spriteLayout, actual.spriteLayout);
 }
 
 void assertNPC(const NPCDTO &expected, const NPC &actual) {
@@ -65,6 +68,7 @@ void assertNPC(const NPCDTO &expected, const NPC &actual) {
     ASSERT_EQ(expected.defaultBehavior, actual.getDefaultBehavior());
     ASSERT_EQ(expected.currentBehavior, actual.getCurrentBehavior());
     ASSERT_EQ(expected.visibilityRule, actual.getVisibilityRule());
+    ASSERT_EQ(expected.spriteLayout, actual.getSpriteLayout());
 }
 
 NPCDTO getNPCDTOSample1() {
@@ -92,13 +96,22 @@ NPCDTO getNPCDTOSample1() {
         .currentBehavior = NPCBehavior::Wander,
         .visibilityRule = NPCVisibilityRule {
             .condition = NPCVisibilityCondition::AnyStoryCompleted,
-            .storyIds = {"TEST_STORY_ID"}
-        }
+            .storyIds = {"TEST_STORY_ID"},
+            .evaluationMode = NPCVisibilityEvaluationMode::OnMapLoad
+        },
+        .spriteLayout = NPCSpriteLayout::Direction12Frames
     };
 }
 
-TEST(npcDTOUtils_fromNPC, withNPC_ReturnValidDTO) {
-    const auto expected = getNPCDTOSample1();
+class NPCDTOUtilsValidSpriteLayout : public ::testing::TestWithParam<NPCSpriteLayout> {};
+
+TEST_P(NPCDTOUtilsValidSpriteLayout, fromNPC_PreserveSpriteLayoutAndVisibilityEvaluationMode) {
+    auto expected = getNPCDTOSample1();
+    expected.spriteLayout = GetParam();
+    if (expected.spriteLayout == NPCSpriteLayout::SingleFrame) {
+        expected.currentBehavior = NPCBehavior::Stationary;
+    }
+    expected.visibilityRule->evaluationMode = NPCVisibilityEvaluationMode::OnStoryChange;
     const NPC npc(NPCCreationInfo {
         .id = expected.id,
         .name = expected.name,
@@ -112,14 +125,84 @@ TEST(npcDTOUtils_fromNPC, withNPC_ReturnValidDTO) {
         .currentFacing = expected.currentFacing,
         .defaultBehavior = expected.defaultBehavior,
         .currentBehavior = expected.currentBehavior,
-        .visibilityRule = expected.visibilityRule
+        .visibilityRule = expected.visibilityRule,
+        .spriteLayout = expected.spriteLayout
     });
 
     assertNPCDTO(expected, NPCDTOUtils::fromNPC(npc));
 }
 
-TEST(npcDTOUtils_toNPC, withValidDTO_ReturnSuccessWithNPC) {
-    const auto dto = getNPCDTOSample1();
+TEST_P(NPCDTOUtilsValidSpriteLayout, toNPC_PreserveSpriteLayoutAndVisibilityEvaluationMode) {
+    auto dto = getNPCDTOSample1();
+    dto.spriteLayout = GetParam();
+    if (dto.spriteLayout == NPCSpriteLayout::SingleFrame) {
+        dto.currentBehavior = NPCBehavior::Stationary;
+    }
+
+    for (const auto evaluationMode : {NPCVisibilityEvaluationMode::OnMapLoad,
+                                      NPCVisibilityEvaluationMode::OnStoryChange}) {
+        SCOPED_TRACE(static_cast<int>(evaluationMode));
+        dto.visibilityRule->evaluationMode = evaluationMode;
+
+        const auto result = NPCDTOUtils::toNPC(dto);
+
+        ASSERT_TRUE(result.success()) << result.errorMessage;
+        ASSERT_TRUE(result.npc.has_value());
+        ASSERT_EQ("", result.errorMessage);
+        assertNPC(dto, result.npc.value());
+        assertNPCDTO(dto, NPCDTOUtils::fromNPC(result.npc.value()));
+    }
+}
+
+INSTANTIATE_TEST_SUITE_P(SpriteLayouts, NPCDTOUtilsValidSpriteLayout,
+                        ::testing::Values(NPCSpriteLayout::SingleFrame,
+                                          NPCSpriteLayout::Direction12Frames));
+
+TEST(npcDTOUtils_toNPC, withSingleFrameAndWanderingBehavior_ReturnErrorMessage) {
+    for (const auto defaultBehavior : {NPCBehavior::Stationary, NPCBehavior::Wander}) {
+        for (const auto currentBehavior : {NPCBehavior::Stationary, NPCBehavior::Wander}) {
+            if (defaultBehavior == NPCBehavior::Stationary && currentBehavior == NPCBehavior::Stationary) {
+                continue;
+            }
+            SCOPED_TRACE(::testing::Message() << "defaultBehavior=" << static_cast<int>(defaultBehavior)
+                                            << ", currentBehavior=" << static_cast<int>(currentBehavior));
+            auto dto = getNPCDTOSample1();
+            dto.spriteLayout = NPCSpriteLayout::SingleFrame;
+            dto.defaultBehavior = defaultBehavior;
+            dto.currentBehavior = currentBehavior;
+
+            const auto result = NPCDTOUtils::toNPC(dto);
+
+            EXPECT_FALSE(result.success());
+            EXPECT_FALSE(result.npc.has_value());
+            EXPECT_EQ("A single-frame NPC must be stationary (current and default behavior).",
+                      result.errorMessage);
+        }
+    }
+}
+
+TEST(npcDTOUtils_toNPC, withDirection12Frames_AcceptAllBehaviorCombinations) {
+    for (const auto defaultBehavior : {NPCBehavior::Stationary, NPCBehavior::Wander}) {
+        for (const auto currentBehavior : {NPCBehavior::Stationary, NPCBehavior::Wander}) {
+            SCOPED_TRACE(::testing::Message() << "defaultBehavior=" << static_cast<int>(defaultBehavior)
+                                            << ", currentBehavior=" << static_cast<int>(currentBehavior));
+            auto dto = getNPCDTOSample1();
+            dto.defaultBehavior = defaultBehavior;
+            dto.currentBehavior = currentBehavior;
+
+            const auto result = NPCDTOUtils::toNPC(dto);
+
+            ASSERT_TRUE(result.success()) << result.errorMessage;
+            ASSERT_TRUE(result.npc.has_value());
+            EXPECT_EQ("", result.errorMessage);
+            assertNPC(dto, result.npc.value());
+        }
+    }
+}
+
+TEST(npcDTOUtils_toNPC, withNoVisibilityRule_PreserveNoRule) {
+    auto dto = getNPCDTOSample1();
+    dto.visibilityRule = std::nullopt;
 
     const auto result = NPCDTOUtils::toNPC(dto);
 
@@ -127,6 +210,7 @@ TEST(npcDTOUtils_toNPC, withValidDTO_ReturnSuccessWithNPC) {
     ASSERT_TRUE(result.npc.has_value());
     ASSERT_EQ("", result.errorMessage);
     assertNPC(dto, result.npc.value());
+    assertNPCDTO(dto, NPCDTOUtils::fromNPC(result.npc.value()));
 }
 
 TEST(npcDTOUtils_toNPC, withInvalidDTO_ReturnErrorMessage) {

@@ -357,7 +357,9 @@ bool GameMapModeController::saveGameState(thewarrior::models::Player &player) {
 }
 
 void GameMapModeController::completeStory(const StoryId &storyId) {
-    m_completedStoryIds.insert(storyId);
+    if (m_completedStoryIds.insert(storyId).second) {
+        completedStoryIdsChanged();
+    }
 }
 
 }  // namespace thewarrior::ui::controllers

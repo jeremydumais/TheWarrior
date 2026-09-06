@@ -23,6 +23,7 @@ struct NPCDTO {
     thewarrior::models::NPCBehavior defaultBehavior = thewarrior::models::NPCBehavior::Stationary;
     thewarrior::models::NPCBehavior currentBehavior = thewarrior::models::NPCBehavior::Stationary;
     std::optional<thewarrior::models::NPCVisibilityRule> visibilityRule = std::nullopt;
+    thewarrior::models::NPCSpriteLayout spriteLayout = thewarrior::models::NPCSpriteLayout::Direction12Frames;
 };
 
 }  // namespace mapeditor::controllers

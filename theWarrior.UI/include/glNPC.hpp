@@ -31,6 +31,7 @@ class GLNPC : public thewarrior::models::NPC {
     void onGameWindowTileSizeChanged(const TileSize &tileSize);
     bool isInMovement() const;
     void initializeVisibility(const std::set<thewarrior::models::StoryId> &completedStoryIds);
+    void onCompletedStoryIdsChanged(const std::set<thewarrior::models::StoryId> &completedStoryIds);
     bool isCurrentlyVisible() const;
     void setScriptVisible(bool visible);
     void stopWandering();

@@ -9,6 +9,10 @@
 
 namespace thewarrior::models {
 
+static void validateId(const std::string &id);
+static void validateName(const std::string &name);
+static void validateSpriteLayoutAndBehavior(NPCSpriteLayout spriteLayout, NPCBehavior behavior);
+
 NPC::NPC(const NPCCreationInfo &info)
 : m_id(info.id),
 m_name(info.name),
@@ -21,7 +25,8 @@ m_currentFacing(info.currentFacing),
 m_defaultBehavior(info.defaultBehavior),
 m_currentBehavior(info.currentBehavior),
 m_visibilityRule(info.visibilityRule),
-m_scriptVisible(info.scriptVisible) {
+m_scriptVisible(info.scriptVisible),
+m_spriteLayout(info.spriteLayout) {
     validateId(info.id);
     validateName(info.name);
     if (!info.conversationScenarios.empty()) {
@@ -29,6 +34,8 @@ m_scriptVisible(info.scriptVisible) {
     } else {
         migrateDialogueLines(info.dialogueLines);
     }
+    validateSpriteLayoutAndBehavior(info.spriteLayout, info.defaultBehavior);
+    validateSpriteLayoutAndBehavior(info.spriteLayout, info.currentBehavior);
 }
 
 const std::string &NPC::getId() const {
@@ -111,6 +118,11 @@ bool NPC::isVisible(const std::set<StoryId> &completedStoryIds) const {
 
     return true;
 }
+
+NPCSpriteLayout NPC::getSpriteLayout() const {
+    return m_spriteLayout;
+}
+
 
 int NPC::getCurrentFacingTextureIndex() const {
     switch (m_currentFacing) {
@@ -215,10 +227,12 @@ void NPC::setCurrentFacing(NPCFacing value) {
 }
 
 void NPC::setDefaultBehavior(NPCBehavior value) {
+    validateSpriteLayoutAndBehavior(m_spriteLayout, value);
     m_defaultBehavior = value;
 }
 
 void NPC::setCurrentBehavior(NPCBehavior value) {
+    validateSpriteLayoutAndBehavior(m_spriteLayout, value);
     m_currentBehavior = value;
 }
 
@@ -234,6 +248,12 @@ void NPC::setScriptVisible(bool visible) {
     m_scriptVisible = visible;
 }
 
+void NPC::setSpriteLayout(NPCSpriteLayout layout) {
+    validateSpriteLayoutAndBehavior(layout, m_defaultBehavior);
+    validateSpriteLayoutAndBehavior(layout, m_currentBehavior);
+    m_spriteLayout = layout;
+}
+
 void NPC::applyCoordinateOffset(int offsetX, int offsetY) {
     m_spawnPosition.setX(static_cast<size_t>(static_cast<std::int64_t>(m_spawnPosition.x()) + offsetX));
     m_spawnPosition.setY(static_cast<size_t>(static_cast<std::int64_t>(m_spawnPosition.y()) + offsetY));
@@ -244,7 +264,7 @@ void NPC::applyCoordinateOffset(int offsetX, int offsetY) {
     }
 }
 
-void NPC::validateId(const std::string &id) {
+static void validateId(const std::string &id) {
     std::string sanitizedId { boost::trim_copy(id) };
     if (sanitizedId.empty()) {
         throw std::invalid_argument("id cannot be empty.");
@@ -254,10 +274,16 @@ void NPC::validateId(const std::string &id) {
     }
 }
 
-void NPC::validateName(const std::string &name) {
+static void validateName(const std::string &name) {
     std::string sanitizedName { boost::trim_copy(name) };
     if (sanitizedName.empty()) {
         throw std::invalid_argument("name cannot be empty.");
+    }
+}
+
+static void validateSpriteLayoutAndBehavior(NPCSpriteLayout spriteLayout, NPCBehavior behavior) {
+    if (spriteLayout == NPCSpriteLayout::SingleFrame && behavior == NPCBehavior::Wander) {
+        throw std::invalid_argument("A single-frame NPC must be stationary (current and default behavior).");
     }
 }
 

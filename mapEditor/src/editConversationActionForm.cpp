@@ -15,12 +15,28 @@ using commoneditor::ui::ErrorMessage;
 using mapeditor::controllers::EditConversationActionFormController;
 using mapeditor::controllers::GLComponentController;
 using thewarrior::models::MerchantShopAction;
+using thewarrior::models::MonsterFightAction;
+using thewarrior::models::ProgressStoryLineAction;
 using thewarrior::models::RestRequestedAction;
+using thewarrior::models::RewardAction;
 using thewarrior::models::SellItemsAction;
 using thewarrior::models::ConversationNode;
 using thewarrior::models::ConversationNodeId;
 using thewarrior::models::ConversationNodeTransition;
 using thewarrior::models::ConversationNodeTransitionType;
+
+namespace {
+
+enum class ActionType {
+    MerchantShop,
+    MonsterFight,
+    ProgressStoryLine,
+    RestRequested,
+    Reward,
+    SellItems
+};
+
+}
 
 EditConversationActionForm::EditConversationActionForm(QWidget *parent,
                                                        const GLComponentController *glComponentController,
@@ -32,19 +48,38 @@ EditConversationActionForm::EditConversationActionForm(QWidget *parent,
     ui.setupUi(this);
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
     this->setFixedSize(this->geometry().size());
-    connectUIActions();
-    onActionTypeChanged();
+    initializeComboBoxActionType();
     initializeComboBoxTransitionType();
     initializeMerchantInventoryComboBoxes();
+    connectUIActions();
+    onActionTypeChanged();
+    onComboBoxTransitionTypeIndexChanged();
+    onComboBoxFailureTransitionTypeIndexChanged();
     if (selectedConversationNode.has_value()) {
         auto transition = selectedConversationNode->getTransition();
         ui.lineEditId->setText(selectedConversationNode->getId().c_str());
         
         if (const auto *action = boost::get<thewarrior::models::ConversationAction>(&selectedConversationNode->getContent()); action != nullptr) {
+            if (boost::get<ProgressStoryLineAction>(action) != nullptr) {
+                ui.comboBoxActionType->setCurrentIndex(static_cast<int>(ActionType::ProgressStoryLine));
+            }
+
+            if (boost::get<RewardAction>(action) != nullptr) {
+                ui.comboBoxActionType->setCurrentIndex(static_cast<int>(ActionType::Reward));
+            }
+
+            if (boost::get<MonsterFightAction>(action) != nullptr) {
+                ui.comboBoxActionType->setCurrentIndex(static_cast<int>(ActionType::MonsterFight));
+            }
+
+            if (boost::get<ProgressStoryLineAction>(action) != nullptr) {
+                ui.comboBoxActionType->setCurrentIndex(static_cast<int>(ActionType::ProgressStoryLine));
+            }
+
             // Rest Requested Action
             const auto *restRequestedAction = boost::get<RestRequestedAction>(action);
             if (restRequestedAction != nullptr) {
-                ui.radioButtonRestRequested->setChecked(true);
+                ui.comboBoxActionType->setCurrentIndex(static_cast<int>(ActionType::RestRequested));
                 ui.spinBoxRestRequestedGoldCost->setValue(static_cast<int>(restRequestedAction->goldCost));
                 const auto &failureTransition = restRequestedAction->failureTransition;
                 ui.comboBoxFailureTransitionType->setCurrentIndex(
@@ -58,14 +93,26 @@ EditConversationActionForm::EditConversationActionForm(QWidget *parent,
             // Merchant Shop
             const auto *merchantShopAction = boost::get<MerchantShopAction>(action);
             if (merchantShopAction != nullptr) {
-                ui.radioButtonMerchantShop->setChecked(true);
+                ui.comboBoxActionType->setCurrentIndex(static_cast<int>(ActionType::MerchantShop));
                 ui.comboBoxMerchantShop->setCurrentText(merchantShopAction->merchantInventoryName.c_str());
             }
+
+            // Monster Fight
+            const auto *monsterFightAction = boost::get<MonsterFightAction>(action);
+            if (monsterFightAction != nullptr) {
+                ui.lineEditMonsterId->setText(monsterFightAction->monsterId.c_str());
+            }
+
+            // Progress Story Line
+            const auto *progressStoryLineAction = boost::get<ProgressStoryLineAction>(action);
+            if (progressStoryLineAction != nullptr) {
+                ui.lineEditStoryId->setText(progressStoryLineAction->storyId.c_str());
+            }  
         
             //Sell Items
             const auto *sellItemsAction = boost::get<SellItemsAction>(action);
             if (sellItemsAction != nullptr) {
-                ui.radioButtonSellItems->setChecked(true);
+                ui.comboBoxActionType->setCurrentIndex(static_cast<int>(ActionType::SellItems));
                 ui.checkBoxOptionalMerchantShop->setChecked(sellItemsAction->merchantInventoryName.has_value());
                 if (sellItemsAction->merchantInventoryName.has_value()) {
                     ui.comboBoxOptionalMerchantShop->setCurrentText(sellItemsAction->merchantInventoryName.value().c_str());
@@ -93,11 +140,10 @@ const ConversationNode &EditConversationActionForm::getResult() const {
 void EditConversationActionForm::connectUIActions() {
     connect(ui.pushButtonCancel, &QPushButton::clicked, this, &EditConversationActionForm::onPushButtonCancelClick);
     connect(ui.pushButtonOK, &QPushButton::clicked, this, &EditConversationActionForm::onPushButtonOKClick);
-    connect(ui.radioButtonRestRequested, &QRadioButton::toggled, this, &EditConversationActionForm::onActionTypeChanged);
-    connect(ui.radioButtonProgressStoryLine, &QRadioButton::toggled, this, &EditConversationActionForm::onActionTypeChanged);
-    connect(ui.radioButtonReward, &QRadioButton::toggled, this, &EditConversationActionForm::onActionTypeChanged);
-    connect(ui.radioButtonMerchantShop, &QRadioButton::toggled, this, &EditConversationActionForm::onActionTypeChanged);
-    connect(ui.radioButtonSellItems, &QRadioButton::toggled, this, &EditConversationActionForm::onActionTypeChanged);
+    connect(ui.comboBoxActionType,
+        qOverload<int>(&QComboBox::currentIndexChanged),
+        this,
+        &EditConversationActionForm::onActionTypeChanged);
     connect(ui.checkBoxOptionalMerchantShop, &QCheckBox::stateChanged, this, &EditConversationActionForm::onCheckBoxOptionalMerchantShopChanged);
     connect(ui.comboBoxTransitionType,
         qOverload<int>(&QComboBox::currentIndexChanged),
@@ -107,6 +153,16 @@ void EditConversationActionForm::connectUIActions() {
         qOverload<int>(&QComboBox::currentIndexChanged),
         this,
         &EditConversationActionForm::onComboBoxFailureTransitionTypeIndexChanged);
+}
+
+void EditConversationActionForm::initializeComboBoxActionType() {
+    ui.comboBoxActionType->insertItem(static_cast<int>(ActionType::MerchantShop), "Merchant Shop");
+    ui.comboBoxActionType->insertItem(static_cast<int>(ActionType::MonsterFight), "Monster Fight");
+    ui.comboBoxActionType->insertItem(static_cast<int>(ActionType::ProgressStoryLine), "Progress Story Line");
+    ui.comboBoxActionType->insertItem(static_cast<int>(ActionType::RestRequested), "Rest Request");
+    ui.comboBoxActionType->insertItem(static_cast<int>(ActionType::Reward), "Reward");
+    ui.comboBoxActionType->insertItem(static_cast<int>(ActionType::SellItems), "Sell Items");
+    ui.comboBoxActionType->setCurrentIndex(-1);
 }
 
 void EditConversationActionForm::initializeComboBoxTransitionType() {
@@ -144,18 +200,20 @@ void EditConversationActionForm::onPushButtonOKClick() {
         return;
     }
 
-    bool restRequestedMode = ui.radioButtonRestRequested->isChecked();
-    bool progressStoryLineMode = ui.radioButtonProgressStoryLine->isChecked();
-    bool rewardMode = ui.radioButtonReward->isChecked();
-    bool merchantShopMode = ui.radioButtonMerchantShop->isChecked();
-    bool sellItemsMode = ui.radioButtonSellItems->isChecked();
+    const auto actionType = static_cast<ActionType>(ui.comboBoxActionType->currentIndex());
+    const bool restRequestedMode = actionType == ActionType::RestRequested;
+    const bool progressStoryLineMode = actionType == ActionType::ProgressStoryLine;
+    const bool rewardMode = actionType == ActionType::Reward;
+    const bool merchantShopMode = actionType == ActionType::MerchantShop;
+    const bool monsterFightMode = actionType == ActionType::MonsterFight;
+    const bool sellItemsMode = actionType == ActionType::SellItems;
 
-    if (!restRequestedMode && !progressStoryLineMode && !rewardMode && !merchantShopMode && !sellItemsMode) {
+    if (ui.comboBoxActionType->currentIndex() == -1) {
         ErrorMessage::show("The action type is required.");
         return;
     }
 
-    if (progressStoryLineMode || rewardMode) {
+    if (rewardMode) {
         ErrorMessage::show("This action type has not yet been implemented.");
         return;
     }
@@ -163,6 +221,20 @@ void EditConversationActionForm::onPushButtonOKClick() {
     if (merchantShopMode) {
         if (ui.comboBoxMerchantShop->currentIndex() == -1) {
             ErrorMessage::show("This merchant inventory is required.");
+            return;
+        }
+    }
+
+    if (monsterFightMode) {
+        if (ui.lineEditMonsterId->text().trimmed().isEmpty()) {
+            ErrorMessage::show("The monster id is required.");
+            return;
+        }
+    }
+
+    if (progressStoryLineMode) {
+        if (ui.lineEditStoryId->text().trimmed().isEmpty()) {
+            ErrorMessage::show("The story id is required.");
             return;
         }
     }
@@ -184,7 +256,9 @@ void EditConversationActionForm::onPushButtonOKClick() {
         ui.comboBoxFailureTransitionType->currentIndex());
     const auto failureNextNodeId =
         ui.lineEditFailureNextNodeId->text().trimmed().toStdString();
-    if (failureTransitionType == ConversationNodeTransitionType::SpecificNode &&
+    const bool fallibleActionMode = restRequestedMode || rewardMode;
+    if (fallibleActionMode &&
+        failureTransitionType == ConversationNodeTransitionType::SpecificNode &&
         failureNextNodeId.empty()) {
         ErrorMessage::show("The failure next node id is required.");
         return;
@@ -222,11 +296,27 @@ void EditConversationActionForm::onPushButtonOKClick() {
                 .merchantInventoryName = ui.comboBoxMerchantShop->currentText().toStdString(),
             },
             transition
+        );
+    } else if (monsterFightMode) {
+        m_result = ConversationNode(
+            id,
+            MonsterFightAction {
+                .monsterId = ui.lineEditMonsterId->text().trimmed().toStdString()
+            },
+            transition
+        );   
+    } else if (progressStoryLineMode) {
+        m_result = ConversationNode(
+            id,
+            ProgressStoryLineAction {
+                .storyId = ui.lineEditStoryId->text().trimmed().toStdString(),
+            },
+            transition
         );   
     } else if (sellItemsMode) {
         std::optional<std::string> optMerchantInventoryName = std::nullopt;
         if (ui.checkBoxOptionalMerchantShop->isChecked()) {
-            optMerchantInventoryName = ui.comboBoxMerchantShop->currentText().toStdString();
+            optMerchantInventoryName = ui.comboBoxOptionalMerchantShop->currentText().toStdString();
         }
         m_result = ConversationNode(
             id,
@@ -248,32 +338,49 @@ void EditConversationActionForm::onComboBoxFailureTransitionTypeIndexChanged() {
     const bool isSpecificNode =
         ui.comboBoxFailureTransitionType->currentIndex() ==
         static_cast<int>(ConversationNodeTransitionType::SpecificNode);
-    ui.labelFailureNextNodeId->setVisible(isSpecificNode);
-    ui.lineEditFailureNextNodeId->setVisible(isSpecificNode);
+    const auto actionType = static_cast<ActionType>(ui.comboBoxActionType->currentIndex());
+    const bool fallibleActionMode =
+        actionType == ActionType::RestRequested || actionType == ActionType::Reward;
+    ui.labelFailureNextNodeId->setVisible(fallibleActionMode && isSpecificNode);
+    ui.lineEditFailureNextNodeId->setVisible(fallibleActionMode && isSpecificNode);
 }
 
 void EditConversationActionForm::onActionTypeChanged() {
+    const auto actionType = static_cast<ActionType>(ui.comboBoxActionType->currentIndex());
+
     // Rest Requested
-    const bool restRequestedMode = ui.radioButtonRestRequested->isChecked();
+    const bool restRequestedMode = actionType == ActionType::RestRequested;
     ui.labelRestRequestedConfig->setVisible(restRequestedMode);
     ui.labelRestRequestedConfig_2->setVisible(restRequestedMode);
     ui.labelRestRequestedGoldCost->setVisible(restRequestedMode);
     ui.spinBoxRestRequestedGoldCost->setVisible(restRequestedMode);
     
     // Merchant Shop
-    const bool merchantShopMode = ui.radioButtonMerchantShop->isChecked();
+    const bool merchantShopMode = actionType == ActionType::MerchantShop;
     ui.labelMerchantShopConfig->setVisible(merchantShopMode);
     ui.labelMerchantShop->setVisible(merchantShopMode);
     ui.comboBoxMerchantShop->setVisible(merchantShopMode);
     
     // Sell Items
-    const bool sellItemsMode = ui.radioButtonSellItems->isChecked();
+    const bool sellItemsMode = actionType == ActionType::SellItems;
     ui.labelSellItemsConfig->setVisible(sellItemsMode);
     ui.labelOptionalMerchantShop->setVisible(sellItemsMode);
     ui.checkBoxOptionalMerchantShop->setVisible(sellItemsMode);
     ui.comboBoxOptionalMerchantShop->setVisible(sellItemsMode && ui.checkBoxOptionalMerchantShop->isChecked());
 
-    const bool fallibleActionMode = restRequestedMode || ui.radioButtonReward->isChecked();
+    // Monster Fight
+    const bool monsterFightMode = actionType == ActionType::MonsterFight;
+    ui.labelMonsterFightConfig->setVisible(monsterFightMode);
+    ui.labelMonsterId->setVisible(monsterFightMode);
+    ui.lineEditMonsterId->setVisible(monsterFightMode);
+
+    // Progress Story Line
+    const bool progressStoryLineMode = actionType == ActionType::ProgressStoryLine;
+    ui.labelProgressStoryLineConfig->setVisible(progressStoryLineMode);
+    ui.labelStoryId->setVisible(progressStoryLineMode);
+    ui.lineEditStoryId->setVisible(progressStoryLineMode);   
+
+    const bool fallibleActionMode = restRequestedMode || actionType == ActionType::Reward;
     ui.labelFailureTransition->setVisible(fallibleActionMode);
     ui.comboBoxFailureTransitionType->setVisible(fallibleActionMode);
     ui.labelFailureNextNodeId->setVisible(
@@ -287,5 +394,7 @@ void EditConversationActionForm::onActionTypeChanged() {
 }
 
 void EditConversationActionForm::onCheckBoxOptionalMerchantShopChanged() {
-    ui.comboBoxOptionalMerchantShop->setVisible(ui.checkBoxOptionalMerchantShop->isChecked());
+    const auto actionType = static_cast<ActionType>(ui.comboBoxActionType->currentIndex());
+    ui.comboBoxOptionalMerchantShop->setVisible(
+        actionType == ActionType::SellItems && ui.checkBoxOptionalMerchantShop->isChecked());
 }

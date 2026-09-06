@@ -21,6 +21,7 @@ using thewarrior::models::GameMap;
 using thewarrior::models::NPC;
 using thewarrior::models::NPCBehavior;
 using thewarrior::models::NPCFacing;
+using thewarrior::models::NPCSpriteLayout;
 using thewarrior::models::Point;
 using thewarrior::models::Texture;
 using thewarrior::utils::RandomGenerator;
@@ -47,7 +48,6 @@ namespace thewarrior::ui
         m_idleTimeRemaining = getRandomIdleTime();
         m_worldState->setNPCPosition(getId(), getSpawnPosition());
         setFacing(getDefaultFacing());
-        m_currentMovementTextureIndex = getCurrentFacingTextureIndex();
         generateGLObject();
         setGLObjectPosition();
     }
@@ -162,6 +162,13 @@ namespace thewarrior::ui
         m_currentlyVisible = NPC::isVisible(completedStoryIds);
     }
 
+    void GLNPC::onCompletedStoryIdsChanged(const std::set<thewarrior::models::StoryId> &completedStoryIds) {
+        const auto &rule = getVisibilityRule();
+        if (rule && rule->evaluationMode == thewarrior::models::NPCVisibilityEvaluationMode::OnStoryChange) {
+            initializeVisibility(completedStoryIds);
+        }
+    }
+
     bool GLNPC::isCurrentlyVisible() const {
         return m_currentlyVisible;
     }
@@ -270,7 +277,8 @@ namespace thewarrior::ui
     void GLNPC::setFacing(thewarrior::models::NPCFacing facing)
     {
         setCurrentFacing(facing);
-        m_currentMovementTextureIndex = getCurrentFacingTextureIndex();
+        m_currentMovementTextureIndex = getSpriteLayout() == NPCSpriteLayout::SingleFrame
+            ? getBaseTextureIndex() : getCurrentFacingTextureIndex();
         m_worldState->setNPCFacing(getId(), facing);
     }
 

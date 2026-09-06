@@ -91,7 +91,60 @@ TEST(GLNPC_initializeVisibility, StoryCompletionAfterInitialization_DoesNotChang
 
     ASSERT_TRUE(glNPC.isCurrentlyVisible());
     ASSERT_FALSE(glNPC.isVisible({"guard-moved"}));
+    glNPC.onCompletedStoryIdsChanged({"guard-moved"});
     ASSERT_TRUE(glNPC.isCurrentlyVisible());
+}
+
+TEST(GLNPC_onCompletedStoryIdsChanged, OnStoryChange_ReevaluateBothStoryConditions) {
+    const auto texture = getTexture();
+    for (const auto condition : {NPCVisibilityCondition::AnyStoryCompleted,
+                                  NPCVisibilityCondition::NoStoryCompleted}) {
+        SCOPED_TRACE(static_cast<int>(condition));
+        auto info = getNPCInfo();
+        info.visibilityRule = NPCVisibilityRule {
+            .condition = condition,
+            .storyIds = {"guard-moved"},
+            .evaluationMode = NPCVisibilityEvaluationMode::OnStoryChange
+        };
+        GLNPC npc(NPC(info), texture);
+        const bool initiallyVisible = condition == NPCVisibilityCondition::NoStoryCompleted;
+        npc.initializeVisibility({});
+        EXPECT_EQ(initiallyVisible, npc.isCurrentlyVisible());
+
+        npc.onCompletedStoryIdsChanged({"unrelated"});
+        EXPECT_EQ(initiallyVisible, npc.isCurrentlyVisible());
+        npc.onCompletedStoryIdsChanged({"guard-moved"});
+        EXPECT_EQ(!initiallyVisible, npc.isCurrentlyVisible());
+        npc.onCompletedStoryIdsChanged({});
+        EXPECT_EQ(initiallyVisible, npc.isCurrentlyVisible());
+    }
+}
+
+TEST(GLNPC_onCompletedStoryIdsChanged, WithoutVisibilityRule_RemainVisible) {
+    const auto texture = getTexture();
+    GLNPC npc(NPC(getNPCInfo()), texture);
+    npc.initializeVisibility({});
+
+    npc.onCompletedStoryIdsChanged({"guard-moved"});
+
+    EXPECT_TRUE(npc.isCurrentlyVisible());
+}
+
+TEST(GLNPC_onCompletedStoryIdsChanged, ScriptControlled_PreserveScriptVisibility) {
+    auto info = getNPCInfo();
+    info.visibilityRule = NPCVisibilityRule {
+        .condition = NPCVisibilityCondition::ScriptControlled,
+        .evaluationMode = NPCVisibilityEvaluationMode::OnStoryChange
+    };
+    const auto texture = getTexture();
+    GLNPC npc(NPC(info), texture);
+    npc.initializeVisibility({});
+    npc.onCompletedStoryIdsChanged({"story1"});
+    EXPECT_FALSE(npc.isCurrentlyVisible());
+
+    npc.setScriptVisible(true);
+    npc.onCompletedStoryIdsChanged({"story1", "story2"});
+    EXPECT_TRUE(npc.isCurrentlyVisible());
 }
 
 TEST(GLNPC_setScriptVisible, WithScriptControlledNPC_UpdatesCurrentVisibility) {

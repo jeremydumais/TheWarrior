@@ -895,7 +895,8 @@ void MapOpenGLWidget::drawNpcOverlay(int index, const MapRendererContext &ctx) c
             if (m_resources.texturesGLMap.contains(npc.getTextureName())) {
                 glBindTexture(GL_TEXTURE_2D, m_resources.texturesGLMap.at(npc.getTextureName()));
                 glPushMatrix();
-                const int baseTextureIndex = npc.getCurrentFacingTextureIndex();
+                const int baseTextureIndex = npc.getSpriteLayout() == NPCSpriteLayout::SingleFrame
+                    ? npc.getBaseTextureIndex() : npc.getCurrentFacingTextureIndex();
                 if (npc.getId() == m_selection.selectedNPCId) {
                     glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
                     drawTileOutlinePass(npc.getTextureName(), baseTextureIndex, ctx.selectedNPCGlowAnimation.getValue());

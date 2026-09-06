@@ -146,7 +146,6 @@ struct RewardAction {
 
 struct ProgressStoryLineAction {
     StoryId storyId;
-    std::string stageId;
     friend bool operator==(const ProgressStoryLineAction &, const ProgressStoryLineAction &) = default;
 
  private:
@@ -155,7 +154,6 @@ struct ProgressStoryLineAction {
     template<class Archive>
     void serialize(Archive &ar, const unsigned int) {
         ar & storyId;
-        ar & stageId;
     }
 };
 
@@ -205,12 +203,26 @@ struct SellItemsAction {
     }
 };
 
+struct MonsterFightAction {
+    std::string monsterId;
+    friend bool operator==(const MonsterFightAction &, const MonsterFightAction &) = default;
+
+ private:
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive& ar, const unsigned int) {
+        ar & monsterId;
+    }
+};
+
 using ConversationAction = boost::variant<
     RewardAction,
     ProgressStoryLineAction,
     RestRequestedAction,
     MerchantShopAction,
-    SellItemsAction
+    SellItemsAction,
+    MonsterFightAction
 >;
 
 // Conversations

@@ -24,7 +24,9 @@ using mapeditor::controllers::NPCDTO;
 using thewarrior::models::ConversationScenarioId;
 using thewarrior::models::NPCBehavior;
 using thewarrior::models::NPCFacing;
+using thewarrior::models::NPCSpriteLayout;
 using thewarrior::models::NPCVisibilityCondition;
+using thewarrior::models::NPCVisibilityEvaluationMode;
 using thewarrior::models::NPCVisibilityRule;
 using thewarrior::models::Point;
 using thewarrior::models::Texture;
@@ -53,26 +55,38 @@ EditNPCForm::EditNPCForm(QWidget *parent,
     ui.comboBoxVisibilityCondition->addItem("None completed");
     ui.comboBoxVisibilityCondition->addItem("Script controlled");
     ui.comboBoxVisibilityCondition->setCurrentIndex(-1);
+    ui.radioButtonSpriteDirectional12Frames->setChecked(true);
     if (selectedNPC.has_value()) {
         m_result = selectedNPC.value();
         ui.lineEditId->setText(selectedNPC->id.c_str());
         ui.lineEditName->setText(selectedNPC->name.c_str());
-        m_spawnPosition = Point<>(static_cast<int>(selectedNPC->spawnPosition.x()),
-                                  static_cast<int>(selectedNPC->spawnPosition.y()));
+        if (selectedNPC->spriteLayout == NPCSpriteLayout::SingleFrame) {
+            ui.radioButtonSpriteSingleFrame->setChecked(true);
+        } else {
+            ui.radioButtonSpriteDirectional12Frames->setChecked(true);
+        }
         m_result.textureName = selectedNPC->textureName;
         m_result.baseTextureIndex = selectedNPC->baseTextureIndex;
+        m_spawnPosition = Point<>(static_cast<int>(selectedNPC->spawnPosition.x()),
+                                  static_cast<int>(selectedNPC->spawnPosition.y()));
         ui.comboBoxDefaultFacing->setCurrentIndex(static_cast<int>(selectedNPC->defaultFacing));
         ui.comboBoxDefaultBehavior->setCurrentIndex(static_cast<int>(selectedNPC->defaultBehavior));
         if (selectedNPC->visibilityRule.has_value()) {
             ui.checkBoxEnableConditionalVisibility->setChecked(true);
             ui.comboBoxVisibilityCondition->setCurrentIndex(static_cast<int>(selectedNPC->visibilityRule->condition));
             ui.lineEditVisibilityConditionStoryIds->setText(m_controller.getVisibilityConditionStoryIdsText().c_str());
+            if (selectedNPC->visibilityRule->evaluationMode == NPCVisibilityEvaluationMode::OnStoryChange) {
+                ui.radioButtonOnStoryChange->setChecked(true);
+            } else {
+                ui.radioButtonOnMapLoad->setChecked(true);
+            }
         }
         refreshNPCTile();
         refreshConversationScenarioList();
     }
     initializeConversationScenariosTable();
     connectUIActions();
+    refreshSpriteLayoutControls();
     setConditionalVisibilityControlsEnabled(ui.checkBoxEnableConditionalVisibility->isChecked());
     refreshPositionLabel();
 
@@ -109,6 +123,7 @@ const NPCDTO &EditNPCForm::getResult() const {
 }
 
 void EditNPCForm::connectUIActions() {
+    connect(ui.radioButtonSpriteSingleFrame, &QRadioButton::toggled, this, &EditNPCForm::refreshSpriteLayoutControls);
     connect(ui.pushButtonCancel, &QPushButton::clicked, this, &EditNPCForm::onPushButtonCancelClick);
     connect(ui.pushButtonOK, &QPushButton::clicked, this, &EditNPCForm::onPushButtonOKClick);
     connect(ui.pushButtonSelectTexture, &QPushButton::clicked, this, &EditNPCForm::onPushButtonSelectTextureClick);
@@ -125,14 +140,25 @@ void EditNPCForm::connectUIActions() {
     connect(&tableWidgetConvScenarioKeyWatcher, &QTableWidgetKeyPressWatcher::keyPressed, this, &EditNPCForm::onTableWidgetConvScenarioKeyPressEvent);
 }
 
+void EditNPCForm::refreshSpriteLayoutControls() {
+    const bool singleFrame = ui.radioButtonSpriteSingleFrame->isChecked();
+    if (singleFrame) {
+        ui.comboBoxDefaultFacing->setCurrentIndex(static_cast<int>(NPCFacing::Down));
+        ui.comboBoxDefaultBehavior->setCurrentIndex(static_cast<int>(NPCBehavior::Stationary));
+    }
+    ui.comboBoxDefaultFacing->setEnabled(!singleFrame);
+    ui.comboBoxDefaultBehavior->setEnabled(!singleFrame);
+}
+
 void EditNPCForm::setConditionalVisibilityControlsEnabled(bool enabled) {
     ui.comboBoxVisibilityCondition->setEnabled(enabled);
     refreshVisibilityConditionStoryIdsEnabled();
+    ui.radioButtonOnMapLoad->setEnabled(enabled);
+    ui.radioButtonOnStoryChange->setEnabled(enabled);
 }
 
 void EditNPCForm::refreshVisibilityConditionStoryIdsEnabled() {
-    const auto condition = static_cast<NPCVisibilityCondition>(
-        ui.comboBoxVisibilityCondition->currentIndex());
+    const auto condition = static_cast<NPCVisibilityCondition>(ui.comboBoxVisibilityCondition->currentIndex());
     ui.lineEditVisibilityConditionStoryIds->setEnabled(
         ui.checkBoxEnableConditionalVisibility->isChecked() &&
         condition != NPCVisibilityCondition::ScriptControlled);
@@ -150,7 +176,9 @@ void EditNPCForm::refreshPositionLabel() {
 
 void EditNPCForm::refreshNPCTile() {
     const auto npcTextureResult = m_controller.getNPCPixmap(m_result.textureName,
-                                                            m_result.baseTextureIndex);
+                                                            m_result.baseTextureIndex,
+                                                            ui.radioButtonSpriteSingleFrame->isChecked()
+                                                                ? NPCSpriteLayout::SingleFrame : NPCSpriteLayout::Direction12Frames);
     if (npcTextureResult.success) {
         ui.labelNPCTexture->setPixmap(*npcTextureResult.result);
     } else {
@@ -178,6 +206,10 @@ void EditNPCForm::onPushButtonOKClick() {
     }
     if (ui.lineEditName->text().trimmed().isEmpty()) {
         ErrorMessage::show("The name is required.");
+        return;
+    }
+    if (!ui.radioButtonSpriteSingleFrame->isChecked() && !ui.radioButtonSpriteDirectional12Frames->isChecked()) {
+        ErrorMessage::show("The sprite layout is required.");
         return;
     }
     if (m_result.textureName.empty() || m_result.baseTextureIndex == -1) {
@@ -210,6 +242,10 @@ void EditNPCForm::onPushButtonOKClick() {
             ui.lineEditVisibilityConditionStoryIds->setFocus();
             return; 
         }
+        if (!ui.radioButtonOnMapLoad->isChecked() && !ui.radioButtonOnStoryChange->isChecked()) {
+            ErrorMessage::show("You must select a visibility evaluation mode.");
+            return; 
+        }
     }
 
     m_result.id = npcId;
@@ -221,6 +257,8 @@ void EditNPCForm::onPushButtonOKClick() {
         m_result.wanderZone = selectedNPC ? selectedNPC->wanderZone : decltype(selectedNPC->wanderZone){};
     }
     m_result.conversationScenarios = m_controller.getConversationScenarios();
+    m_result.spriteLayout = ui.radioButtonSpriteSingleFrame->isChecked()
+        ? NPCSpriteLayout::SingleFrame : NPCSpriteLayout::Direction12Frames;
     m_result.defaultFacing = static_cast<NPCFacing>(ui.comboBoxDefaultFacing->currentIndex());
     m_result.currentFacing = m_result.defaultFacing;
     m_result.defaultBehavior = static_cast<NPCBehavior>(ui.comboBoxDefaultBehavior->currentIndex());
@@ -232,7 +270,8 @@ void EditNPCForm::onPushButtonOKClick() {
             .condition = condition,
             .storyIds = condition == NPCVisibilityCondition::ScriptControlled
                 ? std::set<thewarrior::models::StoryId> {}
-                : m_controller.splitVisibilityConditionStoryIds(ui.lineEditVisibilityConditionStoryIds->text())
+                : EditNPCFormController::splitVisibilityConditionStoryIds(ui.lineEditVisibilityConditionStoryIds->text()),
+            .evaluationMode = ui.radioButtonOnStoryChange->isChecked() ? NPCVisibilityEvaluationMode::OnStoryChange : NPCVisibilityEvaluationMode::OnMapLoad
         };
     } else {
         m_result.visibilityRule = std::nullopt;
@@ -245,9 +284,15 @@ void EditNPCForm::onPushButtonOKClick() {
 }
 
 void EditNPCForm::onPushButtonSelectTextureClick() {
+    if (!ui.radioButtonSpriteSingleFrame->isChecked() && !ui.radioButtonSpriteDirectional12Frames->isChecked()) {
+        ErrorMessage::show("The sprite layout is required before selecting the texture.");
+        return;
+    }
+    NPCSpriteLayout spriteLayout = ui.radioButtonSpriteSingleFrame->isChecked() ? NPCSpriteLayout::SingleFrame : NPCSpriteLayout::Direction12Frames;
     SelectNPCTextureForm formSelectTexture(this,
                                            m_controller.getResourcesPath(),
-                                           m_controller.getTextures());
+                                           m_controller.getTextures(),
+                                           spriteLayout);
     if (formSelectTexture.exec() == QDialog::Accepted) {
         const auto textureResult = formSelectTexture.getResult();
         m_result.textureName = textureResult.textureName;

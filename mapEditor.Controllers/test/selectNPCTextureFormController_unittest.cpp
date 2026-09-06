@@ -9,6 +9,7 @@
 #include "textureInfo.hpp"
 
 using commoneditor::ui::ITexturePixmapProvider;
+using thewarrior::models::NPCSpriteLayout;
 using thewarrior::models::Texture;
 using thewarrior::models::TextureInfo;
 
@@ -44,7 +45,7 @@ class SelectNPCTextureFormControllerWith3Textures : public ::testing::Test {
                 32, 32
                 }),
         }),
-    controller("", textures, texturePixmapProvider) {}
+    controller("", textures, texturePixmapProvider, NPCSpriteLayout::Direction12Frames) {}
     ~SelectNPCTextureFormControllerWith3Textures() override;
     std::vector<Texture> textures;
     FakeTexturePixmapProvider texturePixmapProvider;
@@ -85,6 +86,51 @@ TEST_F(SelectNPCTextureFormControllerWith3Textures, getAvailableNPCs_withNPCText
     ASSERT_EQ(72, result.result.at(6).baseTextureIndex);
     ASSERT_EQ(75, result.result.at(7).baseTextureIndex);
     ASSERT_EQ(78, result.result.at(8).baseTextureIndex);
+}
+
+TEST_F(SelectNPCTextureFormControllerWith3Textures, getAvailableNPCs_withSingleFrameAndNonNPCTexture_ReturnEveryTile) {
+    SelectNPCTextureFormController singleFrameController("", textures, texturePixmapProvider, NPCSpriteLayout::SingleFrame);
+
+    const auto result = singleFrameController.getAvailableNPCs("file");
+
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(17 * 16, result.result.size());
+    for (size_t index = 0; index < result.result.size(); ++index) {
+        EXPECT_EQ(static_cast<int>(index), result.result[index].baseTextureIndex);
+    }
+}
+
+TEST_F(SelectNPCTextureFormControllerWith3Textures, getAvailableNPCs_withSingleFrameAndNPCTexture_ReturnIndividualTiles) {
+    SelectNPCTextureFormController singleFrameController("", textures, texturePixmapProvider, NPCSpriteLayout::SingleFrame);
+
+    const auto result = singleFrameController.getAvailableNPCs("file2");
+
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(12, result.result.size());
+    for (size_t index = 0; index < result.result.size(); ++index) {
+        EXPECT_EQ(static_cast<int>(index), result.result[index].baseTextureIndex);
+    }
+}
+
+TEST_F(SelectNPCTextureFormControllerWith3Textures, getAvailableNPCs_withSingleFrameAndMissingTexture_ReturnError) {
+    SelectNPCTextureFormController singleFrameController("", textures, texturePixmapProvider, NPCSpriteLayout::SingleFrame);
+
+    const auto result = singleFrameController.getAvailableNPCs("notExist");
+
+    EXPECT_FALSE(result.success);
+    EXPECT_TRUE(result.result.empty());
+    EXPECT_EQ("The texture notExist could not be found.", singleFrameController.getLastError());
+}
+
+TEST_F(SelectNPCTextureFormControllerWith3Textures, getAvailableNPCs_withSingleTileTexture_ReturnOneTile) {
+    textures.emplace_back(TextureInfo {"single", "single.png", 32, 32, 32, 32});
+    SelectNPCTextureFormController singleFrameController("", textures, texturePixmapProvider, NPCSpriteLayout::SingleFrame);
+
+    const auto result = singleFrameController.getAvailableNPCs("single");
+
+    ASSERT_TRUE(result.success);
+    ASSERT_EQ(1, result.result.size());
+    EXPECT_EQ(0, result.result.front().baseTextureIndex);
 }
 
 }  // namespace mapeditor::controllers::selectnpctextureformcontroller::unittest

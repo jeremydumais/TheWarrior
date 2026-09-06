@@ -22,6 +22,7 @@
 
 using thewarrior::models::ConversationScenario;
 using thewarrior::models::ConversationScenarioId;
+using thewarrior::models::NPCSpriteLayout;
 using thewarrior::models::Texture;
 using commoneditor::ui::ITexturePixmapProvider;
 using mapeditor::controllers::NPCDTO;
@@ -66,7 +67,8 @@ const std::vector<thewarrior::models::Texture> &EditNPCFormController::getTextur
 }
 
 EditNPCFormController::NPCPixmapResult EditNPCFormController::getNPCPixmap(const std::string &textureName,
-                                                                           const int baseTextureIndex) {
+                                                                           const int baseTextureIndex,
+                                                                           NPCSpriteLayout spriteLayout) {
     // Get requested texture
     const auto iter = std::ranges::find_if(m_textures, [&textureName](const Texture &texture) {
         return texture.getName() == textureName;
@@ -78,7 +80,8 @@ EditNPCFormController::NPCPixmapResult EditNPCFormController::getNPCPixmap(const
     // Load the texture file
     auto completeTexturePath = std::filesystem::path(m_resourcesPath) / "textures" / iter->getFilename();
     const auto tilesPerRow = iter->getWidth() / iter->getTileWidth();
-    const auto frontFacingIndex = baseTextureIndex + (tilesPerRow * 3) + 1;
+    const auto frontFacingIndex = spriteLayout == thewarrior::models::NPCSpriteLayout::SingleFrame
+        ? baseTextureIndex : baseTextureIndex + (tilesPerRow * 3) + 1;
     std::shared_ptr<QPixmap> pixmap = m_texturePixmapProvider.loadPixmap(completeTexturePath);
     if (pixmap) {
         return {

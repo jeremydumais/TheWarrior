@@ -4,6 +4,7 @@
 #include <memory>
 #include <set>
 #include <string>
+#include <boost/signals2.hpp>
 #include "itemDTO.hpp"
 #include "itemStore.hpp"
 #include "messageDTO.hpp"
@@ -54,6 +55,7 @@ class GameMapModeController {
     bool loadMonsterStore(const std::string &filePath);
     bool saveGameState(thewarrior::models::Player &player);
     void completeStory(const thewarrior::models::StoryId &storyId);
+    boost::signals2::signal<void()> completedStoryIdsChanged;
 
  private:
     std::string m_lastError;

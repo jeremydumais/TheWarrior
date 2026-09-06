@@ -120,6 +120,7 @@ class GameMapMode {
     bool m_isCharacterWindowDisplayed = false;
     bool m_isInventoryDisplayed = false;
     bool m_monsterEncountersEnabled = true;
+    bool m_battleStartedByConversation = false;
     // Sleep objects
     SleepSequenceState m_sleepSequenceState = SleepSequenceState::Inactive;
     float m_sleepOverlayOpacity = 0.0F;
@@ -189,11 +190,13 @@ class GameMapMode {
     bool executeConversationAction(const thewarrior::models::ConversationAction &action);
     bool completeConversationAction();
     bool followConversationActionFailure(const thewarrior::models::ConversationNodeTransition &transition);
+    void executeProgressStoryLineAction(const thewarrior::models::ProgressStoryLineAction &action);
     bool executeRestRequestedAction(const thewarrior::models::RestRequestedAction &action);
     bool executeMerchantShopAction(const thewarrior::models::MerchantShopAction &action);
     void onMerchantShopClose();
     bool executeSellItemsAction(const thewarrior::models::SellItemsAction &action);
     void onSellItemsClose();
+    bool executeMonsterFightAction(const thewarrior::models::MonsterFightAction &action);
     void keepConversationNPCStationary();
     void updateSleepSequence(float deltaTime);
     void restorePlayerAfterSleep();

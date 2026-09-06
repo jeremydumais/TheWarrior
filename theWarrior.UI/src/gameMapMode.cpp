@@ -37,15 +37,18 @@ using namespace thewarrior::utils;
 namespace thewarrior::ui
 {
 
-    GameMapMode::GameMapMode()
-    {
+    GameMapMode::GameMapMode() {
+        m_controller.completedStoryIdsChanged.connect([this]() {
+            for (auto &npc : m_glNPCs) {
+                npc.onCompletedStoryIdsChanged(m_controller.getCompletedStoryIds());
+            }
+        });
         m_choicePopup.m_choiceClicked.connect(boost::bind(&GameMapMode::choicePopupClicked, this, boost::placeholders::_1));
         m_choicePopup.m_cancelClicked.connect(boost::bind(&GameMapMode::choicePopupCanceled, this));
         m_glBattleWindow.m_battleCompleted.connect(boost::bind(&GameMapMode::onBattleCompleted, this));
     }
 
-    GameMapMode::~GameMapMode()
-    {
+    GameMapMode::~GameMapMode() {
         m_glPlayer->unloadGLPlayerObject();
         unloadGLMapObjects();
         unloadGLNPCObjects();
@@ -57,17 +60,14 @@ namespace thewarrior::ui
     bool GameMapMode::initialize(const std::string &resourcesPath,
                                  const GameState &gameState,
                                  std::shared_ptr<GLTextService> textService,
-                                 std::shared_ptr<InputDevicesState> inputDevicesState)
-    {
+                                 std::shared_ptr<InputDevicesState> inputDevicesState) {
         auto worldState = std::make_shared<WorldState>(gameState.getWorldState());
         const auto &completedStoryIds = gameState.getCompletedStoryIds();
         m_controller.initialize(resourcesPath, worldState, completedStoryIds);
-        if (!loadStores())
-        {
+        if (!loadStores()) {
             return false;
         }
-        if (!loadShaders())
-        {
+        if (!loadShaders()) {
             return false;
         }
         m_textureService.setResourcesPath(resourcesPath);
@@ -159,8 +159,6 @@ namespace thewarrior::ui
             (e.key.keysym.mod & KMOD_CTRL) != 0 &&
             (e.key.keysym.mod & KMOD_ALT) != 0) {
             m_monsterEncountersEnabled = !m_monsterEncountersEnabled;
-            //HACK: Remove this before release
-            m_controller.completeStory("TEST_STORY_ID");
             return;
         }
         if (e.type == SDL_KEYUP &&
@@ -260,16 +258,14 @@ namespace thewarrior::ui
         calculateTilesToDisplay();
     }
 
-    void GameMapMode::gameWindowSizeChanged(const Size<> &size)
-    {
+    void GameMapMode::gameWindowSizeChanged(const Size<> &size) {
         m_screenSize = size;
         calculateTileSize();
         m_glFormService->gameWindowSizeChanged(size);
         unloadGLMapObjects();
         generateGLMapObjects();
         m_glPlayer->onGameWindowTileSizeChanged(m_tileSize);
-        for (auto &npc : m_glNPCs)
-        {
+        for (auto &npc : m_glNPCs) {
             npc.onGameWindowTileSizeChanged(m_tileSize);
         }
         m_glInventory.gameWindowSizeChanged(size);
@@ -281,12 +277,10 @@ namespace thewarrior::ui
         m_textBox->gameWindowSizeChanged(size);
     }
 
-    void GameMapMode::onGameWindowUpdate(float delta_time)
-    {
+    void GameMapMode::onGameWindowUpdate(float delta_time) {
         m_glPlayer->onGameWindowUpdate(delta_time);
         m_textBox->update(delta_time);
-        for (auto &npc : m_glNPCs)
-        {
+        for (auto &npc : m_glNPCs) {
             if (npc.isCurrentlyVisible()) {
                 npc.onGameWindowUpdate(delta_time,
                                        *m_map,
@@ -299,8 +293,7 @@ namespace thewarrior::ui
         updateMapChangeSequence(delta_time);
     }
 
-    void GameMapMode::calculateTileSize()
-    {
+    void GameMapMode::calculateTileSize() {
         Size<float> screenSizeFloat(static_cast<float>(m_screenSize.width()), static_cast<float>(m_screenSize.height()));
 
         m_tileSize.tileWidth = (1.0F / (screenSizeFloat.width() / 51.2F)) * 2.0F;
@@ -308,43 +301,33 @@ namespace thewarrior::ui
         m_tileSize.tileHalfHeight = (screenSizeFloat.width() * m_tileSize.tileHalfWidth) / screenSizeFloat.height();
     }
 
-    void GameMapMode::showMainMenu()
-    {
+    void GameMapMode::showMainMenu() {
         m_inputMode = GameMapInputMode::MainMenuPopup;
         m_choicePopup.preparePopup({"Inventory", "Character", "Back", "Save", "Exit Game"}, "Menu");
         m_choicePopup.generateGLElements();
     }
 
-    void GameMapMode::toggleInventoryWindow()
-    {
-        if (m_inputMode == GameMapInputMode::Map || m_inputMode == GameMapInputMode::MainMenuPopup)
-        {
+    void GameMapMode::toggleInventoryWindow() {
+        if (m_inputMode == GameMapInputMode::Map || m_inputMode == GameMapInputMode::MainMenuPopup) {
             m_inputMode = GameMapInputMode::InventoryWindow;
             m_glInventory.generateGLInventory();
-        }
-        else if (m_inputMode == GameMapInputMode::InventoryWindow)
-        {
+        } else if (m_inputMode == GameMapInputMode::InventoryWindow) {
             m_inputMode = GameMapInputMode::Map;
             onInventoryWindowClose();
         }
     }
 
-    void GameMapMode::toggleCharacterWindow()
-    {
-        if (m_inputMode == GameMapInputMode::Map || m_inputMode == GameMapInputMode::MainMenuPopup)
-        {
+    void GameMapMode::toggleCharacterWindow()  {
+        if (m_inputMode == GameMapInputMode::Map || m_inputMode == GameMapInputMode::MainMenuPopup) {
             m_inputMode = GameMapInputMode::CharacterWindow;
             m_glCharacterWindow.generateGLElements();
-        }
-        else if (m_inputMode == GameMapInputMode::CharacterWindow)
-        {
+        } else if (m_inputMode == GameMapInputMode::CharacterWindow) {
             m_inputMode = GameMapInputMode::Map;
             onCharacterWindowClose();
         }
     }
 
-    void GameMapMode::render()
-    {
+    void GameMapMode::render() {
         m_tileService->useShader();
         m_tileService->setShaderTranslation(m_map->getWidth(), m_map->getHeight(),
                                             m_screenSize.width(), m_screenSize.height(),
@@ -354,11 +337,9 @@ namespace thewarrior::ui
         glEnable(GL_TEXTURE_2D);
 
         std::vector<GLTile *> tilesToBeDrawedAfterPlayer;
-        for (auto &item : m_glTiles)
-        {
+        for (auto &item : m_glTiles) {
             // Display only the tiles that are visible on the screen
-            if (item.x < m_tileCoordToDisplay[0] || item.x > m_tileCoordToDisplay[1] || item.y < m_tileCoordToDisplay[2] || item.y > m_tileCoordToDisplay[3])
-            {
+            if (item.x < m_tileCoordToDisplay[0] || item.x > m_tileCoordToDisplay[1] || item.y < m_tileCoordToDisplay[2] || item.y > m_tileCoordToDisplay[3]) {
                 continue;
             }
             glBindVertexArray(item.glMainObject.vao);
@@ -366,8 +347,7 @@ namespace thewarrior::ui
             glEnableVertexAttribArray(0);
             glBindBuffer(GL_ARRAY_BUFFER, item.glMainObject.vboColor);
             glEnableVertexAttribArray(1);
-            if (item.tile.hasTexture())
-            {
+            if (item.tile.hasTexture()) {
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, m_texturesGLMap[item.tile.getTextureName()]);
                 glBindBuffer(GL_ARRAY_BUFFER, item.glMainObject.vboTexture);
@@ -376,14 +356,10 @@ namespace thewarrior::ui
             glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
             glBindTexture(GL_TEXTURE_2D, 0);
             // Object
-            if (item.tile.hasTexture() && item.tile.hasObjectTexture())
-            {
-                if (!item.tile.getObjectAbovePlayer())
-                {
+            if (item.tile.hasTexture() && item.tile.hasObjectTexture()) {
+                if (!item.tile.getObjectAbovePlayer()) {
                     drawObjectTile(item);
-                }
-                else
-                {
+                } else {
                     // Add the tile to a list that will be drawed after the player
                     tilesToBeDrawedAfterPlayer.push_back(&item);
                 }
@@ -391,16 +367,14 @@ namespace thewarrior::ui
         }
         // Render the player
         m_glPlayer->draw();
-        for (const auto &npc : m_glNPCs)
-        {
+        for (const auto &npc : m_glNPCs) {
             if (npc.isCurrentlyVisible()) {
                 npc.draw();
             }
         }
 
         // Draw all the object that appears above the player
-        for (auto *item : tilesToBeDrawedAfterPlayer)
-        {
+        for (auto *item : tilesToBeDrawedAfterPlayer) {
             drawObjectTile(*item);
         }
         // Display messages
@@ -844,6 +818,7 @@ namespace thewarrior::ui
         }();
         // Get a list of available Monsters by type
         const auto monsterIdEncounter = selectMonsterEncounter(zone.getMonsterEncounters(), typeOfMonsterEncountered);
+        m_battleStartedByConversation = false;
         m_inputMode = GameMapInputMode::Battle;
         m_glBattleWindow.prepareWindow(monsterIdEncounter);
         Mix_FadeInMusic(m_battleMusic, -1, 2000);
@@ -1250,9 +1225,15 @@ namespace thewarrior::ui
     }
 
     void GameMapMode::onBattleCompleted() {
+        const bool resumeConversation = m_battleStartedByConversation;
+        m_battleStartedByConversation = false;
         m_inputMode = GameMapInputMode::Map;
         Mix_FadeOutMusic(1000);
         Mix_FadeInMusic(m_mapMusic, -1, 2000);
+
+        if (resumeConversation && completeConversationAction()) {
+            processCurrentConversationNode();
+        }
     }
 
     void GameMapMode::completeCurrentMessage(bool allowTextReveal) {
@@ -1418,8 +1399,9 @@ namespace thewarrior::ui
                     return; // Wait for the sleep sequence.
                 }
                 if (m_inputMode == GameMapInputMode::MerchantShop ||
-                    m_inputMode == GameMapInputMode::SellItems) {
-                    return; // Wait for the player to leave the shop.
+                    m_inputMode == GameMapInputMode::SellItems ||
+                    m_inputMode == GameMapInputMode::Battle) {
+                    return; // Wait for the player to leave the action UI.
                 }
 
                 // The controller now points to the next node.
@@ -1533,15 +1515,14 @@ namespace thewarrior::ui
         /*if (const auto *rewardAction =
                 boost::get<RewardAction>(&action)) {
             return executeRewardAction(*rewardAction);
-        }
-
-        if (const auto *storyAction =
-                boost::get<ProgressStoryLineAction>(&action)) {
-            return executeProgressStoryLineAction(*storyAction);
         }*/
 
-        if (const auto *restAction =
-                boost::get<RestRequestedAction>(&action)) {
+        if (const auto *storyAction = boost::get<ProgressStoryLineAction>(&action)) {
+            executeProgressStoryLineAction(*storyAction);
+            return true;
+        }
+
+        if (const auto *restAction = boost::get<RestRequestedAction>(&action)) {
             return executeRestRequestedAction(*restAction);
         }
 
@@ -1551,6 +1532,10 @@ namespace thewarrior::ui
 
         if (const auto *sellAction = boost::get<SellItemsAction>(&action)) {
             return executeSellItemsAction(*sellAction);
+        }
+
+        if (const auto *monsterFightAction = boost::get<MonsterFightAction>(&action)) {
+            return executeMonsterFightAction(*monsterFightAction);
         }
 
         failConversation("Unknown conversation action type.");
@@ -1578,6 +1563,10 @@ namespace thewarrior::ui
 
         failConversation(error);
         return false;
+    }
+
+    void GameMapMode::executeProgressStoryLineAction(const ProgressStoryLineAction &action) {
+        m_controller.completeStory(action.storyId);
     }
 
     bool GameMapMode::executeRestRequestedAction(const RestRequestedAction &action) {
@@ -1650,6 +1639,21 @@ namespace thewarrior::ui
         m_inputMode = GameMapInputMode::Map;
         if (!completeConversationAction()) return;
         processCurrentConversationNode();
+    }
+
+    bool GameMapMode::executeMonsterFightAction(const MonsterFightAction &action) {
+        if (!m_controller.getMonsterStore()->isMonsterExists(action.monsterId)) {
+            failConversation(fmt::format(
+                "Unable to start monster fight: monster '{}' does not exist.",
+                action.monsterId));
+            return false;
+        }
+
+        m_battleStartedByConversation = true;
+        m_inputMode = GameMapInputMode::Battle;
+        m_glBattleWindow.prepareWindow(action.monsterId);
+        Mix_FadeInMusic(m_battleMusic, -1, 2000);
+        return true;
     }
 
     void GameMapMode::keepConversationNPCStationary() {
