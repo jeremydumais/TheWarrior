@@ -62,16 +62,19 @@ std::vector<MonsterCreationInfo> MonsterPickerFormController::getMonsters(const 
         };
         auto createMonsterInfo = [](const auto &monster) {
             return MonsterCreationInfo {
-                monster->getId(),
-                monster->getName(),
-                monster->getTextureName(),
-                monster->getTextureIndex(),
-                monster->getHealthRange(),
-                monster->getMaxHealth(),
-                monster->getAttack(),
-                monster->getDefense(),
-                monster->getGoldRewardRange(),
-                monster->getExperienceRewardRange()
+                .id = monster->getId(),
+                .name = monster->getName(),
+                .textureName = monster->getTextureName(),
+                .textureIndex = monster->getTextureIndex(),
+                .healthRange = monster->getHealthRange(),
+                .maxHealth = monster->getMaxHealth(),
+                .attack = monster->getAttack(),
+                .defense = monster->getDefense(),
+                .gold = monster->getGoldRewardRange(),
+                .experience = monster->getExperienceRewardRange(),
+                .type = monster->getType(),
+                .musicFilename = monster->getMusicFilename()
+
             };
         };
         auto monsters = store->getMonsters();

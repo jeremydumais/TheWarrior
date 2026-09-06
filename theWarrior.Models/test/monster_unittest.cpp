@@ -676,3 +676,62 @@ TEST_F(MonsterSample1, inequalityOperator_WithDifferentGoldMaximum_ReturnTrue) {
     info.gold = std::pair<int, int>(info.gold.first, 3);
     ASSERT_NE(monster, Monster(info));
 }
+
+TEST_F(MonsterSample1, GetType_WithDefaultCreationInfo_ReturnRegular) {
+    ASSERT_EQ(MonsterType::Regular, monster.getType());
+}
+
+TEST_F(MonsterSample1, GetMusicFilename_WithDefaultCreationInfo_ReturnEmpty) {
+    ASSERT_TRUE(monster.getMusicFilename().empty());
+}
+
+TEST(Monster_Constructor, WithBossAndMusic_PreserveTypeAndMusicFilename) {
+    auto info = getMonsterInfoSample1();
+    info.type = MonsterType::Boss;
+    info.musicFilename = "boss1.mp3";
+    const Monster monster(info);
+    ASSERT_EQ(MonsterType::Boss, monster.getType());
+    ASSERT_EQ("boss1.mp3", monster.getMusicFilename());
+}
+
+TEST_F(MonsterSample1, SetType_WithBossThenRegular_ReturnUpdatedType) {
+    monster.setType(MonsterType::Boss);
+    ASSERT_EQ(MonsterType::Boss, monster.getType());
+    monster.setType(MonsterType::Regular);
+    ASSERT_EQ(MonsterType::Regular, monster.getType());
+}
+
+TEST_F(MonsterSample1, SetMusicFilename_WithReplacement_ReturnUpdatedFilename) {
+    monster.setMusicFilename("boss1.mp3");
+    ASSERT_EQ("boss1.mp3", monster.getMusicFilename());
+    monster.setMusicFilename("boss2.mp3");
+    ASSERT_EQ("boss2.mp3", monster.getMusicFilename());
+}
+
+TEST_F(MonsterSample1, SetMusicFilename_WithEmptyFilename_ClearMusic) {
+    monster.setMusicFilename("boss1.mp3");
+    monster.setMusicFilename("");
+    ASSERT_TRUE(monster.getMusicFilename().empty());
+}
+
+TEST_F(MonsterSample1, equalityOperators_WithDifferentType_ReturnNotEqual) {
+    auto other = monster;
+    other.setType(MonsterType::Boss);
+    ASSERT_FALSE(monster == other);
+    ASSERT_TRUE(monster != other);
+}
+
+TEST_F(MonsterSample1, equalityOperators_WithDifferentMusicFilename_ReturnNotEqual) {
+    auto other = monster;
+    other.setMusicFilename("boss1.mp3");
+    ASSERT_FALSE(monster == other);
+    ASSERT_TRUE(monster != other);
+}
+
+TEST_F(MonsterSample1, equalityOperators_WithMatchingBossAndMusic_ReturnEqual) {
+    monster.setType(MonsterType::Boss);
+    monster.setMusicFilename("boss1.mp3");
+    auto other = monster;
+    ASSERT_TRUE(monster == other);
+    ASSERT_FALSE(monster != other);
+}

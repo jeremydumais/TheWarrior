@@ -19,6 +19,8 @@ struct MonsterDTO {
     float defense;
     std::pair<int, int> gold;
     std::pair<int, int> experience;
+    thewarrior::models::MonsterType type = thewarrior::models::MonsterType::Regular;
+    std::string musicFilename;
     virtual ~MonsterDTO() = default;  // Used to make the struct polymorphic
 };
 

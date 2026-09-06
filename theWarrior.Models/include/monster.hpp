@@ -8,6 +8,11 @@
 
 namespace thewarrior::models {
 
+enum class MonsterType {
+    Regular,
+    Boss
+};
+
 struct MonsterCreationInfo {
     std::string id;
     std::string name;
@@ -19,6 +24,8 @@ struct MonsterCreationInfo {
     float defense;
     std::pair<int, int> gold;
     std::pair<int, int> experience;
+    MonsterType type;
+    std::string musicFilename;
 };
 
 class Monster {
@@ -38,6 +45,8 @@ class Monster {
     float getDefense() const;
     std::pair<int, int> getGoldRewardRange() const;
     std::pair<int, int> getExperienceRewardRange() const;
+    MonsterType getType() const;
+    const std::string &getMusicFilename() const;
     bool isDead() const;
     void setId(const std::string &id);
     void setName(const std::string &name);
@@ -50,6 +59,8 @@ class Monster {
     void setDefense(float value);
     void setGoldRewardRange(std::pair<int, int> value);
     void setExperienceRewardRange(std::pair<int, int> value);
+    void setType(MonsterType type);
+    void setMusicFilename(const std::string &filename);
     void reduceHealth(int amount);
     void restoreHealth(int amount);
     static void validateId(const std::string &id, const std::string &field = "id");
@@ -57,9 +68,9 @@ class Monster {
  private:
     friend class boost::serialization::access;
     Monster() = default;  // Needed for deserialization
-    std::string m_id = "";
-    std::string m_name = "";
-    std::string m_textureName = "";
+    std::string m_id;
+    std::string m_name;
+    std::string m_textureName;
     int m_textureIndex = -1;
     std::pair<int, int> m_healthRange = std::pair<int, int>(0, 0);
     int m_maxHealth = 1;
@@ -68,6 +79,8 @@ class Monster {
     float m_defense = 1.0F;
     std::pair<int, int> m_gold = std::pair<int, int>(0, 0);
     std::pair<int, int> m_experience = std::pair<int, int>(0, 0);
+    MonsterType m_type = MonsterType::Regular;
+    std::string m_musicFilename;
     // Serialization method
     template<class Archive>
     void serialize(Archive &ar, const unsigned int version) {
@@ -84,9 +97,13 @@ class Monster {
         if (version > 1) {
             ar & m_experience;
         }
+        if (version > 2) {
+            ar & m_type;
+            ar & m_musicFilename;
+        }
     }
 };
 
 }  // namespace thewarrior::models
 
-BOOST_CLASS_VERSION(thewarrior::models::Monster, 2)
+BOOST_CLASS_VERSION(thewarrior::models::Monster, 3)

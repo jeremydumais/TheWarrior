@@ -116,3 +116,76 @@ TEST_F(MonsterStoreWith2Monsters, updateMonster_WithNonExistingId_ReturnTrue) {
     ASSERT_EQ("tex1", actual->textureName);
     ASSERT_EQ(0, actual->textureIndex);
 }
+
+TEST(MonsterDTO_Constructor, WithDefaults_ReturnRegularAndEmptyMusic) {
+    const MonsterDTO dto{};
+    ASSERT_EQ(MonsterType::Regular, dto.type);
+    ASSERT_TRUE(dto.musicFilename.empty());
+}
+
+TEST_F(MonsterStoreWith2Monsters, getMonster_WithDefaultFields_ReturnRegularAndEmptyMusic) {
+    auto actual = m_controller.getMonster("mon001");
+    ASSERT_NE(nullptr, actual);
+    ASSERT_EQ(MonsterType::Regular, actual->type);
+    ASSERT_TRUE(actual->musicFilename.empty());
+}
+
+TEST_F(MonsterStoreWith2Monsters, getMonster_WithBossAndMusic_ReturnStoredFields) {
+    auto stored = m_monsterStore->findMonster("mon001");
+    ASSERT_NE(nullptr, stored);
+    auto monster = std::make_shared<Monster>(*stored);
+    monster->setType(MonsterType::Boss);
+    monster->setMusicFilename("boss1.mp3");
+    ASSERT_TRUE(m_monsterStore->replaceMonster("mon001", monster));
+    auto actual = m_controller.getMonster("mon001");
+    ASSERT_NE(nullptr, actual);
+    ASSERT_EQ(MonsterType::Boss, actual->type);
+    ASSERT_EQ("boss1.mp3", actual->musicFilename);
+}
+
+TEST(ManageMonsterController_addMonster, WithBossAndMusic_PreserveFields) {
+    auto store = std::make_shared<MonsterStore>();
+    ManageMonsterController controller(store);
+    auto dto = std::make_unique<MonsterDTO>(MonsterDTOSamples::getSample1());
+    dto->type = MonsterType::Boss;
+    dto->musicFilename = "boss1.mp3";
+    ASSERT_TRUE(controller.addMonster(std::move(dto)));
+    auto actual = store->findMonster("mon001");
+    ASSERT_NE(nullptr, actual);
+    ASSERT_EQ(MonsterType::Boss, actual->getType());
+    ASSERT_EQ("boss1.mp3", actual->getMusicFilename());
+}
+
+TEST_F(MonsterStoreWith2Monsters, updateMonster_WithBossAndMusic_UpdateFields) {
+    auto dto = m_controller.getMonster("mon001");
+    ASSERT_NE(nullptr, dto);
+    dto->type = MonsterType::Boss;
+    dto->musicFilename = "boss2.mp3";
+    ASSERT_TRUE(m_controller.updateMonster(std::move(dto), "mon001"));
+    auto actual = m_monsterStore->findMonster("mon001");
+    ASSERT_NE(nullptr, actual);
+    ASSERT_EQ(MonsterType::Boss, actual->getType());
+    ASSERT_EQ("boss2.mp3", actual->getMusicFilename());
+    auto other = m_monsterStore->findMonster("mon002");
+    ASSERT_NE(nullptr, other);
+    ASSERT_EQ(MonsterType::Regular, other->getType());
+    ASSERT_TRUE(other->getMusicFilename().empty());
+}
+
+TEST_F(MonsterStoreWith2Monsters, updateMonster_WithRegularAndEmptyMusic_ClearBossFields) {
+    auto stored = m_monsterStore->findMonster("mon001");
+    ASSERT_NE(nullptr, stored);
+    auto monster = std::make_shared<Monster>(*stored);
+    monster->setType(MonsterType::Boss);
+    monster->setMusicFilename("boss1.mp3");
+    ASSERT_TRUE(m_monsterStore->replaceMonster("mon001", monster));
+    auto dto = m_controller.getMonster("mon001");
+    ASSERT_NE(nullptr, dto);
+    dto->type = MonsterType::Regular;
+    dto->musicFilename.clear();
+    ASSERT_TRUE(m_controller.updateMonster(std::move(dto), "mon001"));
+    auto actual = m_monsterStore->findMonster("mon001");
+    ASSERT_NE(nullptr, actual);
+    ASSERT_EQ(MonsterType::Regular, actual->getType());
+    ASSERT_TRUE(actual->getMusicFilename().empty());
+}

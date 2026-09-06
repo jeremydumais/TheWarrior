@@ -133,7 +133,8 @@ class GameMapMode {
     std::map<std::string, std::string> m_changeMapProperties;
 
     Mix_Music* m_mapMusic = nullptr;
-    Mix_Music* m_battleMusic = nullptr;
+    Mix_Music* m_regularBattleMusic = nullptr;
+    Mix_Music* m_specialBattleMusic = nullptr;
     thewarrior::models::Point<> getPlayerFacingTilePosition() const;
     void calculateTileSize();
     void showMainMenu();

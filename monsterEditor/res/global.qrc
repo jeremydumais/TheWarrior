@@ -1,5 +1,6 @@
 <RCC>
   <qresource>
+    <file>clear.png</file>
     <file>MonsterEditor Icon.png</file>
     <file>../../commonEditor.UI/res/gtk-edit.svg</file>
     <file>../../commonEditor.UI/res/gtk-delete.svg</file>

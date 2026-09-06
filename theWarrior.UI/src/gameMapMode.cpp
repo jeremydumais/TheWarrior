@@ -53,7 +53,8 @@ namespace thewarrior::ui
         unloadGLMapObjects();
         unloadGLNPCObjects();
         Mix_FreeMusic(m_mapMusic);
-        Mix_FreeMusic(m_battleMusic);
+        Mix_FreeMusic(m_regularBattleMusic);
+        Mix_FreeMusic(m_specialBattleMusic);
         Mix_FreeMusic(m_sleepMusic);
     }
 
@@ -99,8 +100,8 @@ namespace thewarrior::ui
         loadMap(fmt::format("{0}/maps/{1}", resourcesPath, mapName), mapName);
 
         // Battle music & sounds
-        m_battleMusic = Mix_LoadMUS(fmt::format("{0}/sounds/battle.mp3", m_controller.getResourcesPath()).c_str());
-        if (m_battleMusic == nullptr) {
+        m_regularBattleMusic = Mix_LoadMUS(fmt::format("{0}/sounds/battle.mp3", m_controller.getResourcesPath()).c_str());
+        if (m_regularBattleMusic == nullptr) {
             std::cerr << fmt::format("Mix_LoadMUS error: {0}\n", Mix_GetError());
             return false;
         }
@@ -821,7 +822,17 @@ namespace thewarrior::ui
         m_battleStartedByConversation = false;
         m_inputMode = GameMapInputMode::Battle;
         m_glBattleWindow.prepareWindow(monsterIdEncounter);
-        Mix_FadeInMusic(m_battleMusic, -1, 2000);
+        Mix_FreeMusic(m_specialBattleMusic);
+        m_specialBattleMusic = nullptr;
+        const auto monster = m_controller.getMonsterStore()->findMonster(monsterIdEncounter);
+        if (monster && !monster->getMusicFilename().empty()) {
+            m_specialBattleMusic = Mix_LoadMUS(fmt::format("{0}/sounds/{1}",
+                m_controller.getResourcesPath(), monster->getMusicFilename()).c_str());
+            if (m_specialBattleMusic == nullptr) {
+                std::cerr << fmt::format("Mix_LoadMUS error: {0}\n", Mix_GetError());
+            }
+        }
+        Mix_FadeInMusic(m_specialBattleMusic != nullptr ? m_specialBattleMusic : m_regularBattleMusic, -1, 2000);
 
         // std::cout << "MonsterZone: " << tile.getMonsterZoneIndex() <<
         //" Name: " << zone.getName() <<
@@ -1652,7 +1663,17 @@ namespace thewarrior::ui
         m_battleStartedByConversation = true;
         m_inputMode = GameMapInputMode::Battle;
         m_glBattleWindow.prepareWindow(action.monsterId);
-        Mix_FadeInMusic(m_battleMusic, -1, 2000);
+        Mix_FreeMusic(m_specialBattleMusic);
+        m_specialBattleMusic = nullptr;
+        const auto monster = m_controller.getMonsterStore()->findMonster(action.monsterId);
+        if (monster && !monster->getMusicFilename().empty()) {
+            m_specialBattleMusic = Mix_LoadMUS(fmt::format("{0}/sounds/{1}",
+                m_controller.getResourcesPath(), monster->getMusicFilename()).c_str());
+            if (m_specialBattleMusic == nullptr) {
+                std::cerr << fmt::format("Mix_LoadMUS error: {0}\n", Mix_GetError());
+            }
+        }
+        Mix_FadeInMusic(m_specialBattleMusic != nullptr ? m_specialBattleMusic : m_regularBattleMusic, -1, 2000);
         return true;
     }
 

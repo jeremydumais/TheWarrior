@@ -1,6 +1,6 @@
 # Set project name
 set(PROJECT_NAME    "MonsterEditor")
-project(${PROJECT_NAME} VERSION 1.0.2)
+project(${PROJECT_NAME} VERSION 1.0.3)
 
 include_directories(${QT_INCLUDE_PATH}
                     ${CMAKE_CURRENT_SOURCE_DIR}/../commonEditor.UI/include

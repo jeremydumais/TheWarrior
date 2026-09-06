@@ -28,6 +28,8 @@ Q_OBJECT
     void onPushButtonOKClick();
     void onPushButtonTexturePickerClick();
     void refreshSelectedTexture();
+    void onPushButtonOpenMusicFileClick();
+    void onPushButtonClearMusicClick();
 };
 
 #endif  // MONSTEREDITOR_SRC_EDITMONSTERFORM_HPP_
