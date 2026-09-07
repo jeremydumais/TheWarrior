@@ -72,6 +72,10 @@ void GLBattleWindow::initialize(const std::string &resourcePath,
     if (m_victorySound == nullptr) {
         std::cerr << fmt::format("Mix_LoadWAV error: {0}\n", Mix_GetError());
     }
+    m_bossDefeatSound = Mix_LoadWAV(fmt::format("{0}/sounds/bossDefeat.mp3", m_resourcesPath).c_str());
+    if (m_bossDefeatSound == nullptr) {
+        std::cerr << fmt::format("Mix_LoadWAV error: {0}\n", Mix_GetError());
+    }
     m_levelUpSound = Mix_LoadWAV(fmt::format("{0}/sounds/levelup.wav", m_resourcesPath).c_str());
     if (m_levelUpSound == nullptr) {
         std::cerr << fmt::format("Mix_LoadWAV error: {0}\n", Mix_GetError());
@@ -84,10 +88,15 @@ GLBattleWindow::~GLBattleWindow() {
     Mix_FreeChunk(m_attackCriticalSound);
     Mix_FreeChunk(m_monsterAttackSound);
     Mix_FreeChunk(m_victorySound);
+    Mix_FreeChunk(m_bossDefeatSound);
     Mix_FreeChunk(m_levelUpSound);
 }
 
 bool GLBattleWindow::initBattleShaders(const std::string &resourcesPath) {
+    if (!m_bossDefeatOverlay.initialize(resourcesPath)) {
+        m_lastError = m_bossDefeatOverlay.getLastError();
+        return false;
+    }
     m_monsterHealthShaderProgram = std::make_shared<GLShaderProgram>(fmt::format("{0}/shaders/monster_330_vs.glsl", resourcesPath),
             fmt::format("{0}/shaders/monster_330_fs.glsl", resourcesPath));
     if (!m_monsterHealthShaderProgram->compileShaders()) {
@@ -109,6 +118,10 @@ void GLBattleWindow::reset() {
     m_goldObtained = 0;
     m_experienceObtained = 0;
     m_didLevelUp = false;
+    m_bossFlashOpacity = 0.0F;
+    m_bossDefeatOpacity = 1.0F;
+    m_bossDefeatShake = 0.0F;
+    m_bossDefeatSoundPlayed = false;
     m_victorySoundPlayed = false;
     m_levelUpSoundPlayed = false;
 }
@@ -160,6 +173,9 @@ void GLBattleWindow::update() {
                 case BattleAction::PlayerRanAway:
                 case BattleAction::PlayerTryToRun:
                     playerRunWorkflow();
+                    break;
+                case BattleAction::BossDefeat:
+                    bossDefeatWorkflow();
                     break;
                 case BattleAction::PlayerWon:
                     playerWonWorkflow();
@@ -276,11 +292,20 @@ void GLBattleWindow::render() {
     float monsterTransparency = m_namedObjectsAnimations.contains(MonsterObj) ?
         m_namedObjectsAnimations[MonsterObj]->getValue() :
         0.0F;
-    drawMonster(m_namedObjects.at(MonsterObj), m_namedObjects.at(MonsterObj).textureGLId, monsterTransparency);
+    if (m_monster->getType() == MonsterType::Boss && m_monster->isDead()) {
+        monsterTransparency = m_bossDefeatOpacity;
+    }
+    if (monsterTransparency > 0.0F || !m_monster->isDead()) {
+        drawMonster(m_namedObjects.at(MonsterObj), m_namedObjects.at(MonsterObj).textureGLId, monsterTransparency);
+    }
+    if (m_monster->getType() == MonsterType::Boss && m_monster->isDead() && m_bossDefeatOpacity <= 0.0F) {
+        return;
+    }
     for (const auto &obj : m_monsterHPBarWindow) {
         m_glFormService->drawQuad(obj, m_windowGLTexture.glTextureId, monsterTransparency);
     }
     drawMonsterHPBar(m_namedObjects.at(MonsterHPBarObj), m_namedObjects.at(MonsterHPBarObj).textureGLId, monsterTransparency);
+    m_bossDefeatOverlay.render(m_bossFlashOpacity, 1.0F);
 }
 
 void GLBattleWindow::gameWindowSizeChanged(const Size<> &size) {
@@ -415,7 +440,11 @@ void GLBattleWindow::playerAttackWorkflow() {
             unsigned int oldLevel = m_glPlayer->getLevel();
             m_glPlayer->addExperience(m_experienceObtained);
             m_didLevelUp = oldLevel != m_glPlayer->getLevel();
-            startAction(BattleAction::PlayerWon, 1000);
+            if (m_monster->getType() == MonsterType::Boss) {
+                startAction(BattleAction::BossDefeat, 1500);
+            } else {
+                startAction(BattleAction::PlayerWon, 1000);
+            }
         } else {
             startAction(BattleAction::MonsterTurn, 500);
         }
@@ -427,19 +456,22 @@ void GLBattleWindow::playerRunWorkflow() {
         // If player's attack is >= than monster defense then 9 on 10 to run away
         // else one chance MonsterDefense-PlayerAttack to a maximum of 10.
         bool runAway = false;
-        float difference = m_monster->getDefense() - m_glPlayer->getStats().attack;
-        if (difference > 10.0F) {
-            difference = 10.0F;
-        }
-        if (difference <= 0.0F) {
-            std::uniform_int_distribution<> distributionAttemptingToRun(1, 10);
-            if (distributionAttemptingToRun(RandomGenerator::instance()) > 1) {
-                runAway = true;
+        // You cannot run away against a boss
+        if (m_monster->getType() != MonsterType::Boss) {
+            float difference = m_monster->getDefense() - m_glPlayer->getStats().attack;
+            if (difference > 10.0F) {
+                difference = 10.0F;
             }
-        } else {
-            std::uniform_int_distribution<> distributionAttemptingToRun(1, static_cast<int>(ceil(difference)));
-            if (distributionAttemptingToRun(RandomGenerator::instance()) == 1) {
-                runAway = true;
+            if (difference <= 0.0F) {
+                std::uniform_int_distribution<> distributionAttemptingToRun(1, 10);
+                if (distributionAttemptingToRun(RandomGenerator::instance()) > 1) {
+                    runAway = true;
+                }
+            } else {
+                std::uniform_int_distribution<> distributionAttemptingToRun(1, static_cast<int>(ceil(difference)));
+                if (distributionAttemptingToRun(RandomGenerator::instance()) == 1) {
+                    runAway = true;
+                }
             }
         }
         if (runAway) {
@@ -448,7 +480,7 @@ void GLBattleWindow::playerRunWorkflow() {
         } else {
             m_currentBattleAction = BattleAction::PlayerTurn;
             m_menuActionsPosition = 0;
-            addBattleLog("You were not able to run away! The battle continues...");
+            addBattleLog("Couldn't escape! Battle continues...");
             startAction(BattleAction::MonsterTurn, 500);
         }
     } else if (m_currentBattleAction == BattleAction::PlayerRanAway) {
@@ -456,12 +488,46 @@ void GLBattleWindow::playerRunWorkflow() {
     }
 }
 
+void GLBattleWindow::bossDefeatWorkflow() {
+    if (!m_bossDefeatSoundPlayed) {
+        m_namedObjectsAnimations.erase(MonsterShaking);
+        startAction(BattleAction::BossDefeat, 0);
+        if (m_bossDefeatSound != nullptr) {
+            Mix_PlayChannel(-1, m_bossDefeatSound, 0);
+        }
+        m_bossDefeatSoundPlayed = true;
+    }
+    constexpr Uint64 FlashDuration = 1220;
+    constexpr Uint64 FlashInterval = 1040;
+    constexpr Uint64 FlashesDuration = FlashInterval * 2;
+    constexpr Uint64 FadeDuration = 2100;
+    const Uint64 elapsed = SDL_GetTicks64() - m_actionStepStartTicks;
+    if (elapsed < FlashesDuration) {
+        const Uint64 flashElapsed = elapsed % FlashInterval;
+        m_bossFlashOpacity = flashElapsed < FlashDuration ?
+            1.0F - static_cast<float>(flashElapsed) / static_cast<float>(FlashDuration) : 0.0F;
+        return;
+    }
+    m_bossFlashOpacity = 0.0F;
+    const Uint64 fadeElapsed = elapsed - FlashesDuration;
+    if (fadeElapsed < FadeDuration) {
+        m_bossDefeatOpacity = 1.0F - static_cast<float>(fadeElapsed) / static_cast<float>(FadeDuration);
+        m_bossDefeatShake = (fadeElapsed / 30 % 2 == 0 ? 14.0F : -14.0F) * m_bossDefeatOpacity;
+        return;
+    }
+    m_bossDefeatOpacity = 0.0F;
+    m_bossDefeatShake = 0.0F;
+    startAction(BattleAction::PlayerWon, 0);
+}
+
 void GLBattleWindow::playerWonWorkflow() {
-    if (!m_victorySoundPlayed) {
+    if (!m_victorySoundPlayed && m_monster->getType() != MonsterType::Boss) {
         Mix_PlayChannel(-1, m_victorySound, 0);
         m_victorySoundPlayed = true;
     }
-    m_namedObjectsAnimations[MoreTextObj]->process();
+    if (m_namedObjectsAnimations.contains(MoreTextObj)) {
+        m_namedObjectsAnimations[MoreTextObj]->process();
+    }
     m_namedObjectsAnimations[MonsterObj]->process();
     if (m_inputDevicesState->getButtonAState() == InputElementState::Released) {
         if (!m_didLevelUp) {
@@ -589,6 +655,7 @@ void GLBattleWindow::drawMonster(const GLObject &glObject, GLuint textureGLIndex
                    !m_namedObjectsAnimations.at(MonsterShaking)->isCompleted() ?
         m_namedObjectsAnimations.at(MonsterShaking)->getValue() :
         0.0F;
+    translationX += m_bossDefeatShake;
     glUniform2f(glGetUniformLocation(m_monsterHealthShaderProgram->getShaderProgramID(), "translation"), translationX, 0.0F);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureGLIndex);

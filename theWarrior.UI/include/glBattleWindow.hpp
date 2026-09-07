@@ -13,6 +13,7 @@
 #include "glPlayer.hpp"
 #include "glPopupWindow.hpp"
 #include "glShaderProgram.hpp"
+#include "glScreenOverlay.hpp"
 #include "glTextService.hpp"
 #include "glTexture.hpp"
 #include "inputDevicesState.hpp"
@@ -29,6 +30,7 @@ enum class BattleAction {
     PlayerTryToRun,
     PlayerRanAway,
     PlayerWon,
+    BossDefeat,
     PlayerGetReward,
     PlayerLevelUp,
     PlayerDied,
@@ -88,6 +90,11 @@ class GLBattleWindow : public GLPopupWindow {
     int m_goldObtained = 0;
     int m_experienceObtained = 0;
     bool m_didLevelUp = false;
+    GLScreenOverlay m_bossDefeatOverlay;
+    float m_bossFlashOpacity = 0.0F;
+    float m_bossDefeatOpacity = 1.0F;
+    float m_bossDefeatShake = 0.0F;
+    bool m_bossDefeatSoundPlayed = false;
     bool m_victorySoundPlayed = false;
     bool m_levelUpSoundPlayed = false;
     BattleAction m_currentBattleAction = BattleAction::PlayerTurn;
@@ -96,6 +103,7 @@ class GLBattleWindow : public GLPopupWindow {
     Mix_Chunk* m_attackCriticalSound = nullptr;
     Mix_Chunk* m_monsterAttackSound = nullptr;
     Mix_Chunk* m_victorySound = nullptr;
+    Mix_Chunk* m_bossDefeatSound = nullptr;
     Mix_Chunk* m_levelUpSound = nullptr;
     void moveUpPressed();
     void moveDownPressed();
@@ -105,6 +113,7 @@ class GLBattleWindow : public GLPopupWindow {
     void playerAttackWorkflow();
     void playerRunWorkflow();
     void playerWonWorkflow();
+    void bossDefeatWorkflow();
     void playerObtainRewardWorkflow();
     void playerObtainNewLevelWorkflow();
     void playerDiedWorkflow();

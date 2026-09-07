@@ -13,7 +13,7 @@ class GLScreenOverlay {
     ~GLScreenOverlay();
 
     bool initialize(const std::string &resourcesPath);
-    void render(float opacity) const;
+    void render(float opacity, float brightness = 0.0F) const;
     void unload();
 
     const std::string &getLastError() const;

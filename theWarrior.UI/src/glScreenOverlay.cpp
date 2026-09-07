@@ -71,7 +71,7 @@ bool GLScreenOverlay::initialize(
     return true;
 }
 
-void GLScreenOverlay::render(float opacity) const {
+void GLScreenOverlay::render(float opacity, float brightness) const {
     if (m_shaderProgram == nullptr || m_vao == 0 || opacity <= 0.0F) {
         return;
     }
@@ -84,9 +84,9 @@ void GLScreenOverlay::render(float opacity) const {
 
     glUniform3f(
         m_colorUniform,
-        0.0F,
-        0.0F,
-        0.0F);
+        brightness,
+        brightness,
+        brightness);
 
     glUniform1f(m_opacityUniform, clampedOpacity);
 

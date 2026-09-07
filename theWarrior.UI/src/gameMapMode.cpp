@@ -1673,7 +1673,7 @@ namespace thewarrior::ui
                 std::cerr << fmt::format("Mix_LoadMUS error: {0}\n", Mix_GetError());
             }
         }
-        Mix_FadeInMusic(m_specialBattleMusic != nullptr ? m_specialBattleMusic : m_regularBattleMusic, -1, 2000);
+        Mix_FadeInMusic(m_specialBattleMusic != nullptr ? m_specialBattleMusic : m_regularBattleMusic, -1, 300);
         return true;
     }
 
