@@ -822,17 +822,7 @@ namespace thewarrior::ui
         m_battleStartedByConversation = false;
         m_inputMode = GameMapInputMode::Battle;
         m_glBattleWindow.prepareWindow(monsterIdEncounter);
-        Mix_FreeMusic(m_specialBattleMusic);
-        m_specialBattleMusic = nullptr;
-        const auto monster = m_controller.getMonsterStore()->findMonster(monsterIdEncounter);
-        if (monster && !monster->getMusicFilename().empty()) {
-            m_specialBattleMusic = Mix_LoadMUS(fmt::format("{0}/sounds/{1}",
-                m_controller.getResourcesPath(), monster->getMusicFilename()).c_str());
-            if (m_specialBattleMusic == nullptr) {
-                std::cerr << fmt::format("Mix_LoadMUS error: {0}\n", Mix_GetError());
-            }
-        }
-        Mix_FadeInMusic(m_specialBattleMusic != nullptr ? m_specialBattleMusic : m_regularBattleMusic, -1, 2000);
+        startBattleMusic(monsterIdEncounter, 2000);
 
         // std::cout << "MonsterZone: " << tile.getMonsterZoneIndex() <<
         //" Name: " << zone.getName() <<
@@ -840,6 +830,30 @@ namespace thewarrior::ui
         //" TypeOfEncounter: " << typeOfMonsterEncountered <<
         //" MonsterId: " << monsterIdEncounter <<
         // std::endl;
+    }
+
+    void GameMapMode::startBattleMusic(const std::string &monsterId, int fadeInMilliseconds) {
+        m_mapMusicResumePosition = -1.0;
+        if (m_mapMusic != nullptr && Mix_PlayingMusic() != 0) {
+            // SDL_mixer has one music stream, so preserve its position before replacing it.
+            Mix_PauseMusic();
+            m_mapMusicResumePosition = Mix_GetMusicPosition(m_mapMusic);
+            if (m_mapMusicResumePosition < 0.0) {
+                std::cerr << fmt::format("Unable to save map music position: {0}\n", Mix_GetError());
+                m_mapMusicResumePosition = 0.0;
+            }
+        }
+        Mix_FreeMusic(m_specialBattleMusic);
+        m_specialBattleMusic = nullptr;
+        const auto monster = m_controller.getMonsterStore()->findMonster(monsterId);
+        if (monster && !monster->getMusicFilename().empty()) {
+            m_specialBattleMusic = Mix_LoadMUS(fmt::format("{0}/sounds/{1}",
+                m_controller.getResourcesPath(), monster->getMusicFilename()).c_str());
+            if (m_specialBattleMusic == nullptr) {
+                std::cerr << fmt::format("Mix_LoadMUS error: {0}\n", Mix_GetError());
+            }
+        }
+        Mix_FadeInMusic(m_specialBattleMusic != nullptr ? m_specialBattleMusic : m_regularBattleMusic, -1, fadeInMilliseconds);
     }
 
     std::string GameMapMode::selectMonsterEncounter(const std::vector<MonsterZoneMonsterEncounter> &encounters,
@@ -885,6 +899,7 @@ namespace thewarrior::ui
     void GameMapMode::loadMap(const std::string &filePath, const std::string &mapName) {
         GameMapStorage mapStorage;
         try {
+            const auto actualMusicFilename = m_map->getMusicFilename();
             mapStorage.loadMap(filePath, m_map);
             m_controller.setCurrentMapName(mapName);
             m_controller.clearNPCsWorldState();
@@ -904,16 +919,19 @@ namespace thewarrior::ui
                 m_glNPCs.push_back(glNPC);
             }
             const std::string mapMusicFilename = m_map->getMusicFilename();
-            if (m_mapMusic != nullptr) {
-                Mix_FreeMusic(m_mapMusic);
-                m_mapMusic = nullptr;
-            }
-            if (!mapMusicFilename.empty()) {
-                m_mapMusic = Mix_LoadMUS(fmt::format("{0}/sounds/{1}", m_controller.getResourcesPath(), mapMusicFilename).c_str());
-                if (m_mapMusic == nullptr) {
-                    std::cerr << fmt::format("Mix_LoadMUS error: {0}\n", Mix_GetError());
-                } else {
-                    Mix_FadeInMusic(m_mapMusic, -1, 2000);
+            // If the map music is not the same as the actual map, change it otherwise just continue playing the same music
+            if (mapMusicFilename != actualMusicFilename) {
+                if (m_mapMusic != nullptr) {
+                    Mix_FreeMusic(m_mapMusic);
+                    m_mapMusic = nullptr;
+                }
+                if (!mapMusicFilename.empty()) {
+                    m_mapMusic = Mix_LoadMUS(fmt::format("{0}/sounds/{1}", m_controller.getResourcesPath(), mapMusicFilename).c_str());
+                    if (m_mapMusic == nullptr) {
+                        std::cerr << fmt::format("Mix_LoadMUS error: {0}\n", Mix_GetError());
+                    } else {
+                        Mix_FadeInMusic(m_mapMusic, -1, 2000);
+                    }
                 }
             }
         }
@@ -1239,8 +1257,14 @@ namespace thewarrior::ui
         const bool resumeConversation = m_battleStartedByConversation;
         m_battleStartedByConversation = false;
         m_inputMode = GameMapInputMode::Map;
-        Mix_FadeOutMusic(1000);
-        Mix_FadeInMusic(m_mapMusic, -1, 2000);
+        Mix_HaltMusic();
+        if (m_mapMusic != nullptr && m_mapMusicResumePosition >= 0.0) {
+            if (Mix_FadeInMusicPos(m_mapMusic, -1, 2000, m_mapMusicResumePosition) == -1) {
+                std::cerr << fmt::format("Unable to resume map music: {0}\n", Mix_GetError());
+                Mix_FadeInMusic(m_mapMusic, -1, 2000);
+            }
+        }
+        m_mapMusicResumePosition = -1.0;
 
         if (resumeConversation && completeConversationAction()) {
             processCurrentConversationNode();
@@ -1663,17 +1687,7 @@ namespace thewarrior::ui
         m_battleStartedByConversation = true;
         m_inputMode = GameMapInputMode::Battle;
         m_glBattleWindow.prepareWindow(action.monsterId);
-        Mix_FreeMusic(m_specialBattleMusic);
-        m_specialBattleMusic = nullptr;
-        const auto monster = m_controller.getMonsterStore()->findMonster(action.monsterId);
-        if (monster && !monster->getMusicFilename().empty()) {
-            m_specialBattleMusic = Mix_LoadMUS(fmt::format("{0}/sounds/{1}",
-                m_controller.getResourcesPath(), monster->getMusicFilename()).c_str());
-            if (m_specialBattleMusic == nullptr) {
-                std::cerr << fmt::format("Mix_LoadMUS error: {0}\n", Mix_GetError());
-            }
-        }
-        Mix_FadeInMusic(m_specialBattleMusic != nullptr ? m_specialBattleMusic : m_regularBattleMusic, -1, 300);
+        startBattleMusic(action.monsterId, 300);
         return true;
     }
 

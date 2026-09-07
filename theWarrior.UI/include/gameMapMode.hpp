@@ -133,6 +133,7 @@ class GameMapMode {
     std::map<std::string, std::string> m_changeMapProperties;
 
     Mix_Music* m_mapMusic = nullptr;
+    double m_mapMusicResumePosition = -1.0;
     Mix_Music* m_regularBattleMusic = nullptr;
     Mix_Music* m_specialBattleMusic = nullptr;
     thewarrior::models::Point<> getPlayerFacingTilePosition() const;
@@ -158,6 +159,7 @@ class GameMapMode {
         thewarrior::models::MapTile *tile = nullptr,
         thewarrior::models::Point<int> tilePosition =
             thewarrior::models::Point<int>(0, 0));
+    void startBattleMusic(const std::string &monsterId, int fadeInMilliseconds);
     void checkForMonsterEncounter(const thewarrior::models::MapTile &tile);
     std::string selectMonsterEncounter(const std::vector<thewarrior::models::MonsterZoneMonsterEncounter> &encounters,
                                        thewarrior::models::MonsterEncounterRatio ratio);
