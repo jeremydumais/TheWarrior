@@ -42,6 +42,8 @@ enum class BattleAction {
     MonsterRun,
 };
 
+enum class DefeatMusicState { FadingOut, Playing, WaitingForInput, Confirmed };
+
 constexpr const char* MoreTextObj = "moreTextObj";
 constexpr const char* MonsterObj = "monsterObj";
 constexpr const char* MonsterHPWindowObj = "monsterHPWindowObj";
@@ -69,6 +71,9 @@ class GLBattleWindow : public GLPopupWindow {
     void prepareWindow(const std::string &id);
     void setBattleLandscapeTextureIndex(int index);
     bool useInventoryItem(size_t slot);
+    bool isPlayerDefeated() const;
+    void processDefeatInput(const SDL_Event &event);
+    boost::signals2::signal<void()> m_defeatConfirmed;
     boost::signals2::signal<void()> m_itemRequested;
     boost::signals2::signal<void()> m_battleCompleted;
 
@@ -105,6 +110,8 @@ class GLBattleWindow : public GLPopupWindow {
     BattleAction m_currentBattleAction = BattleAction::PlayerTurn;
     boost::optional<size_t> m_pendingItemSlot;
     std::shared_ptr<Mix_Chunk> m_restoreHealthSound;
+    std::shared_ptr<Mix_Music> m_playerDefeatMusic;
+    DefeatMusicState m_defeatMusicState = DefeatMusicState::FadingOut;
     Mix_Chunk* m_attackSound = nullptr;
     Mix_Chunk* m_attackMissSound = nullptr;
     Mix_Chunk* m_attackCriticalSound = nullptr;

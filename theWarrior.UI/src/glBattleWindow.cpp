@@ -62,6 +62,12 @@ void GLBattleWindow::initialize(
     m_glTextActions.push_back(
         {.text = "Run", .position = {1.0F, 520.0F}, .scale = 0.6F});
     // Sounds
+    m_playerDefeatMusic = std::shared_ptr<Mix_Music>(
+        Mix_LoadMUS(fmt::format("{0}/sounds/playerDefeat.mp3", resourcePath).c_str()),
+        Mix_FreeMusic);
+    if (!m_playerDefeatMusic) {
+        std::cerr << fmt::format("Mix_LoadMUS error: {0}\n", Mix_GetError());
+    }
     m_restoreHealthSound = std::shared_ptr<Mix_Chunk>(
         Mix_LoadWAV(fmt::format("{0}/sounds/restoreHealth.wav", resourcePath).c_str()),
         Mix_FreeChunk);
@@ -139,6 +145,7 @@ void GLBattleWindow::reset() {
     m_menuActionsPosition = 0;
     m_currentBattleAction = BattleAction::PlayerTurn;
     m_pendingItemSlot = boost::none;
+    m_defeatMusicState = DefeatMusicState::FadingOut;
     m_namedObjectsAnimations.clear();
     m_goldObtained = 0;
     m_experienceObtained = 0;
@@ -433,6 +440,11 @@ void GLBattleWindow::startAction(BattleAction action, Uint64 timeLength) {
     m_currentBattleAction = action;
     m_actionStepStartTicks = SDL_GetTicks64();
     m_actionStepNextTicks = timeLength;
+    if (action == BattleAction::PlayerDied) {
+        m_defeatMusicState = DefeatMusicState::FadingOut;
+        Mix_FadeOutMusic(750);
+        m_inputDevicesState->reset();
+    }
 }
 
 bool GLBattleWindow::useInventoryItem(size_t slot) {
@@ -693,9 +705,40 @@ void GLBattleWindow::playerObtainNewLevelWorkflow() {
 }
 
 void GLBattleWindow::playerDiedWorkflow() {
-    if (m_inputDevicesState->getButtonAState() == InputElementState::Released) {
-        // TODO: Implement the process when you die in a battle
-        throw std::runtime_error("You died");
+    if (m_defeatMusicState == DefeatMusicState::FadingOut) {
+        if (Mix_PlayingMusic() != 0) {
+            return;
+        }
+        if (m_playerDefeatMusic && Mix_FadeInMusic(m_playerDefeatMusic.get(), 0, 750) == 0) {
+            m_defeatMusicState = DefeatMusicState::Playing;
+            return;
+        }
+        if (m_playerDefeatMusic) {
+            std::cerr << fmt::format("Mix_FadeInMusic error: {0}\n", Mix_GetError());
+        }
+    } else if (m_defeatMusicState != DefeatMusicState::Playing || Mix_PlayingMusic() != 0) {
+        return;
+    }
+    m_defeatMusicState = DefeatMusicState::WaitingForInput;
+    m_inputDevicesState->reset();
+    addBattleLog("Press any key to return to the main menu.");
+}
+
+bool GLBattleWindow::isPlayerDefeated() const {
+    return m_currentBattleAction == BattleAction::PlayerDied;
+}
+
+void GLBattleWindow::processDefeatInput(const SDL_Event &event) {
+    if (!isPlayerDefeated() || m_defeatMusicState != DefeatMusicState::WaitingForInput) {
+        return;
+    }
+    const bool keyPressed = event.type == SDL_KEYDOWN && event.key.repeat == 0;
+    const bool controllerPressed = event.type == SDL_CONTROLLERBUTTONDOWN ||
+        event.type == SDL_JOYBUTTONDOWN;
+    if (keyPressed || controllerPressed) {
+        m_defeatMusicState = DefeatMusicState::Confirmed;
+        m_inputDevicesState->suppressUntilRelease(event);
+        m_defeatConfirmed();
     }
 }
 

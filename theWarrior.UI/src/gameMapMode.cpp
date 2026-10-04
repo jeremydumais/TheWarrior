@@ -49,6 +49,7 @@ GameMapMode::GameMapMode() {
         boost::bind(&GameMapMode::choicePopupCanceled, this));
     m_glBattleWindow.m_battleCompleted.connect(
         boost::bind(&GameMapMode::onBattleCompleted, this));
+    m_glBattleWindow.m_defeatConfirmed.connect([this]() { quitRequested(); });
     m_glBattleWindow.m_itemRequested.connect([this]() {
         m_glInventory.setBattleMode(true);
         m_glInventory.generateGLInventory();
@@ -200,6 +201,10 @@ bool GameMapMode::areMonsterEncountersEnabled() const {
 }
 
 void GameMapMode::processEvents(SDL_Event &e) {
+    if (m_glBattleWindow.isPlayerDefeated()) {
+        m_glBattleWindow.processDefeatInput(e);
+        return;
+    }
 #ifndef NDEBUG
     if (e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_m &&
         (e.key.keysym.mod & KMOD_CTRL) != 0 &&

@@ -12,10 +12,17 @@ class BattleWithoutRendering : public GLBattleWindow {
  public:
     explicit BattleWithoutRendering(std::shared_ptr<GLPlayer> player) {
         m_glPlayer = player;
+        m_inputDevicesState = std::make_shared<InputDevicesState>();
     }
     void generateGLElements() override {}
     void finishItemTurn() { playerItemWorkflow(); }
     BattleAction action() const { return m_currentBattleAction; }
+    void setDefeatState(DefeatMusicState state) {
+        m_currentBattleAction = BattleAction::PlayerDied;
+        m_defeatMusicState = state;
+    }
+    void finishDefeatStep() { playerDiedWorkflow(); }
+    DefeatMusicState defeatState() const { return m_defeatMusicState; }
 };
 
 std::shared_ptr<StatsItem> potion(Stats stat = Stats::Vitality) {
@@ -89,6 +96,61 @@ TEST(BattleItems, ResetClearsPendingSelectionWithoutConsumingIt) {
     battle.reset();
     EXPECT_NE(nullptr, player->getInventory()->getItem(0));
     EXPECT_TRUE(battle.useInventoryItem(0));
+}
+
+TEST(BattleDefeat, EarlyKeyPressDoesNotSkipMusicOrQueueConfirmation) {
+    BattleWithoutRendering battle(std::make_shared<GLPlayer>("Warrior"));
+    int confirmations = 0;
+    battle.m_defeatConfirmed.connect([&]() { ++confirmations; });
+    SDL_Event event{};
+    event.type = SDL_KEYDOWN;
+    for (auto state : {DefeatMusicState::FadingOut, DefeatMusicState::Playing}) {
+        battle.setDefeatState(state);
+        battle.processDefeatInput(event);
+        EXPECT_EQ(state, battle.defeatState());
+    }
+    battle.setDefeatState(DefeatMusicState::WaitingForInput);
+    EXPECT_EQ(0, confirmations);
+    battle.processDefeatInput(event);
+    EXPECT_EQ(1, confirmations);
+    battle.processDefeatInput(event);
+    EXPECT_EQ(1, confirmations);
+}
+
+TEST(BattleDefeat, RequiresFreshKeyPressAfterMusic) {
+    BattleWithoutRendering battle(std::make_shared<GLPlayer>("Warrior"));
+    battle.setDefeatState(DefeatMusicState::WaitingForInput);
+    SDL_Event event{};
+    event.type = SDL_KEYUP;
+    battle.processDefeatInput(event);
+    EXPECT_EQ(DefeatMusicState::WaitingForInput, battle.defeatState());
+    event.type = SDL_KEYDOWN;
+    event.key.repeat = 1;
+    battle.processDefeatInput(event);
+    EXPECT_EQ(DefeatMusicState::WaitingForInput, battle.defeatState());
+    event.key.repeat = 0;
+    battle.processDefeatInput(event);
+    EXPECT_EQ(DefeatMusicState::Confirmed, battle.defeatState());
+}
+
+TEST(BattleDefeat, ControllerButtonCanConfirmDefeat) {
+    BattleWithoutRendering battle(std::make_shared<GLPlayer>("Warrior"));
+    battle.setDefeatState(DefeatMusicState::WaitingForInput);
+    SDL_Event event{};
+    event.type = SDL_CONTROLLERBUTTONDOWN;
+    battle.processDefeatInput(event);
+    EXPECT_EQ(DefeatMusicState::Confirmed, battle.defeatState());
+}
+
+TEST(BattleDefeat, MissingMusicStillRequiresConfirmationAndResetClearsState) {
+    BattleWithoutRendering battle(std::make_shared<GLPlayer>("Warrior"));
+    // The uninitialized test battle has no music, exercising the fallback path.
+    battle.setDefeatState(DefeatMusicState::FadingOut);
+    battle.finishDefeatStep();
+    EXPECT_EQ(DefeatMusicState::WaitingForInput, battle.defeatState());
+    battle.reset();
+    EXPECT_FALSE(battle.isPlayerDefeated());
+    EXPECT_EQ(DefeatMusicState::FadingOut, battle.defeatState());
 }
 
 }  // namespace

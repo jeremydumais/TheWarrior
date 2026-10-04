@@ -322,6 +322,35 @@ TEST(InputDevicesState_processJoystick, WithoutJoystick_ClearsKeyboardCancelOnNe
     EXPECT_EQ(InputElementState::Idle, devicesState.getButtonBState());
 }
 
+TEST(InputDevicesState_processEvent, ConsumedConfirmationDoesNotActivateNextMenu) {
+    for (bool useGameController : {false, true}) {
+        InputDevicesState devicesState;
+        SDL_Event event{};
+        event.type = SDL_KEYDOWN;
+        event.key.keysym.sym = SDLK_RETURN;
+        devicesState.processEvent(event);
+        devicesState.suppressUntilRelease(event);
+        devicesState.reset();
+        if (useGameController) {
+            devicesState.processGameController(nullptr);
+        } else {
+            devicesState.processJoystick(nullptr);
+        }
+        event.key.repeat = 1;
+        devicesState.processEvent(event);
+        event.type = SDL_KEYUP;
+        event.key.repeat = 0;
+        devicesState.processEvent(event);
+        EXPECT_EQ(InputElementState::Idle, devicesState.getButtonAState());
+
+        event.type = SDL_KEYDOWN;
+        devicesState.processEvent(event);
+        event.type = SDL_KEYUP;
+        devicesState.processEvent(event);
+        EXPECT_EQ(InputElementState::Released, devicesState.getButtonAState());
+    }
+}
+
 TEST(InputDevicesState_processEvent, ShiftRemainsPressedAcrossFramesUntilReleased) {
     for (auto shiftKey : {SDLK_LSHIFT, SDLK_RSHIFT}) {
         for (bool useGameController : {false, true}) {

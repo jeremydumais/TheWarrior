@@ -56,12 +56,12 @@ GameWindow::GameWindow(const string &title,
     }
 
     subscribeEvents();
-    if (!initializeMenu()) return;
+    if (!initializeMenu()) { return; }
 
     m_fpsCalculator.initialize();
     m_windowSizeChanged(m_WindowSize);
     //HACK: To Remove
-    loadGame("1aas_2026-10-04-14-23-57.bak");
+    loadGame("1aas_2026-10-04-16-10-05.bak");
     //createNewGame("Jed");
     m_mustExit = false;
 }
@@ -80,7 +80,7 @@ GameWindow::~GameWindow() {
 }
 
 void GameWindow::show() {
-    if (!isAlive()) return;
+    if (!isAlive()) { return; }
     SDL_ShowWindow(m_window);
 }
 
@@ -93,7 +93,7 @@ bool GameWindow::isAlive() const {
 }
 
 void GameWindow::processEvents() {
-    if (!isAlive()) return;
+    if (!isAlive()) { return; }
     if (m_nextAction) {
         auto action = std::move(*m_nextAction);
         m_nextAction.reset();

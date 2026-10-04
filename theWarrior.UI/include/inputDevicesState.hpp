@@ -31,6 +31,7 @@ class InputDevicesState {
     bool isADirectionKeyPressed() const;
     InputElementState getKeyShiftState() const;
     void reset();
+    void suppressUntilRelease(const SDL_Event &event);
     void processJoystick(SDL_Joystick *joystick);
     void processGameController(SDL_GameController *controller);
     InputElementState getElementState(bool pressed, bool previouslyPressed) const;
@@ -71,6 +72,9 @@ class InputDevicesState {
     InputElementState m_buttonDState = InputElementState::Idle;
     InputElementState m_keyShiftState = InputElementState::Idle;
     bool m_directionInvalidate = false;
+    std::optional<SDL_Keycode> m_suppressedKey;
+    bool m_suppressControllerButtons = false;
+    void suppressControllerButtons(bool anyPressed);
 };
 
 }  // namespace thewarrior::ui
