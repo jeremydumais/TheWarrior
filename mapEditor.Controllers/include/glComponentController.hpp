@@ -27,6 +27,7 @@ class GLComponentController {
     std::shared_ptr<thewarrior::models::GameMap> getMap() const;
     const std::string &getLastError() const;
     const std::string &getMapMusicFileName() const;
+    int getBattleLandscapeTextureIndex() const;
     std::vector<thewarrior::models::MapTile *> getCurrentMapTiles();
     std::vector<MapTileDTO> getSelectedMapTiles() const;
     const std::set<int> &getSelectedMapTilesIndices() const;
@@ -61,6 +62,7 @@ class GLComponentController {
             int offsetRight,
             int offsetBottom);
     void setMapMusicFilename(const std::string &filename);
+    void setMapBattleLandscapeTextureIndex(int index);
     void setLastSelectedTexture(const std::string &name, int index);
     void setLastSelectedObject(const std::string &name, int index);
     void clearLastSelectedTexture();

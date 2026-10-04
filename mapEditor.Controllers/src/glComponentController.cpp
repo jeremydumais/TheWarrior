@@ -72,6 +72,10 @@ const std::string &GLComponentController::getMapMusicFileName() const {
     return m_map->getMusicFilename();
 }
 
+int GLComponentController::getBattleLandscapeTextureIndex() const {
+    return m_map->getBattleLandscapeTextureIndex();
+}
+
 void GLComponentController::setCurrentMap(std::shared_ptr<GameMap> map) {
     m_map = std::move(map);
     m_currentMapTiles.clear();
@@ -201,6 +205,10 @@ void GLComponentController::resizeMap(int offsetLeft,
    
 void GLComponentController::setMapMusicFilename(const std::string &filename) {
     m_map->setMusicFilename(filename);
+}
+
+void GLComponentController::setMapBattleLandscapeTextureIndex(int index) {
+    m_map->setBattleLandscapeTextureIndex(index);
 }
 
 std::vector<mapeditor::controllers::MonsterZoneDTO> GLComponentController::getMonsterZones() const {

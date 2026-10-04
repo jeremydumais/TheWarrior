@@ -291,3 +291,33 @@ TEST_F(InputDevicesStateWithSetters, setKeyShiftState_WithPressed_ReturnSuccess)
     ASSERT_EQ(InputElementState::Pressed, getKeyShiftState());
 }
 
+
+TEST(InputDevicesState_processJoystick, WithoutJoystick_ClearsKeyboardAcceptOnNextFrame)
+{
+    InputDevicesState devicesState;
+    SDL_Event event{};
+    event.type = SDL_KEYUP;
+    event.key.keysym.sym = SDLK_RETURN;
+
+    devicesState.processJoystick(nullptr);
+    devicesState.processEvent(event);
+    ASSERT_EQ(InputElementState::Released, devicesState.getButtonAState());
+
+    devicesState.processJoystick(nullptr);
+    EXPECT_EQ(InputElementState::Idle, devicesState.getButtonAState());
+}
+
+TEST(InputDevicesState_processJoystick, WithoutJoystick_ClearsKeyboardCancelOnNextFrame)
+{
+    InputDevicesState devicesState;
+    SDL_Event event{};
+    event.type = SDL_KEYUP;
+    event.key.keysym.sym = SDLK_ESCAPE;
+
+    devicesState.processJoystick(nullptr);
+    devicesState.processEvent(event);
+    ASSERT_EQ(InputElementState::Released, devicesState.getButtonBState());
+
+    devicesState.processJoystick(nullptr);
+    EXPECT_EQ(InputElementState::Idle, devicesState.getButtonBState());
+}

@@ -38,6 +38,7 @@ Testing
 workspace.code-workspace
 .cache
 .vimspector.json
+.vscode
 tags
 Session.vim
 CMakeUserPresets.json

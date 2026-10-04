@@ -1,5 +1,6 @@
 #include "mapTileTriggerActionConverter.hpp"
 #include <algorithm>
+#include <boost/optional/optional_io.hpp>
 #include <boost/algorithm/string.hpp>
 
 namespace thewarrior::models {

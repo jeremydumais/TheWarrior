@@ -1,7 +1,18 @@
+#include <fmt/format.h>
+#include <qstring.h>
+#include <qfiledialog.h>
+#include <qfileinfo.h>
+#include <QImageReader>
+#include <stdexcept>
+#include <string>
 #include "mapPropsComponent.hpp"
 #include "errorMessage.hpp"
+#include "texturePickerForm.hpp"
+#include "textureContainer.hpp"
 
 using commoneditor::ui::ErrorMessage;
+using thewarrior::models::TextureContainer;
+using thewarrior::models::TextureInfo;
 
 MapPropsComponent::MapPropsComponent(QWidget *parent,
         MainForm_GLComponent *glComponent)
@@ -16,6 +27,8 @@ void MapPropsComponent::connectUIActions() {
     connect(ui.pushButtonApplySizeChange, &QPushButton::clicked, this, &MapPropsComponent::onPushButtonApplySizeChangeClick);
     connect(ui.pushButtonOpenMusicFile, &QPushButton::clicked, this, &MapPropsComponent::onPushButtonOpenMusicFileClick);
     connect(ui.pushButtonClearMusic, &QPushButton::clicked, this, &MapPropsComponent::onPushButtonClearMusicClick);
+    connect(ui.pushButtonOpenBattleLandscapeTexturePicker, &QPushButton::clicked, this, &MapPropsComponent::onPushButtonOpenBattleLandscapeTexturePickerClick);
+    connect(ui.pushButtonClearBattleLandscapeTextureIndex, &QPushButton::clicked, this, &MapPropsComponent::onPushButtonClearBattleLandscapeTextureIndexClick);
 }
 
 void MapPropsComponent::reset() {
@@ -26,16 +39,22 @@ void MapPropsComponent::reset() {
     ui.spinBoxMapSizeRight->setValue(0);
     ui.spinBoxMapSizeBottom->setValue(0);
     ui.lineEditMusicFilename->setText(m_glComponent->getMapMusicFilename().c_str());
+    setBattleLandscapeTextureIndex(m_glComponent->getBattleLandscapeTextureIndex());
 }
 
 void MapPropsComponent::refresh() {
     ui.lineEditMapWidth->setText(std::to_string(m_glComponent->getMapWidth()).c_str());
     ui.lineEditMapHeight->setText(std::to_string(m_glComponent->getMapHeight()).c_str());
     ui.lineEditMusicFilename->setText(m_glComponent->getMapMusicFilename().c_str());
+    setBattleLandscapeTextureIndex(m_glComponent->getBattleLandscapeTextureIndex());
 }
 
 void MapPropsComponent::setResourcesPath(const std::string &resourcesPath) {
     m_resourcesPath = resourcesPath;
+}
+
+void MapPropsComponent::setBattleLandscapeTextureIndex(int textureIndex) {
+    ui.lineEditBattleLandscapeTextureIndex->setText(textureIndex == -1 ? "" : QString::number(textureIndex));
 }
 
 void MapPropsComponent::onPushButtonApplySizeChangeClick() {
@@ -87,3 +106,36 @@ void MapPropsComponent::onPushButtonClearMusicClick() {
     emit onMusicChanged("");
 }
  
+void MapPropsComponent::onPushButtonOpenBattleLandscapeTexturePickerClick() {
+    // Prepare the Texture container
+    TextureContainer textureContainer;
+    const std::string filename = "battle_landscape.png";
+    QImageReader reader(QString::fromStdString(fmt::format("{}/textures/{}", m_resourcesPath, filename)));
+    const QSize imageSize = reader.size();
+    if (!imageSize.isValid()) {
+        ErrorMessage::show("Cannot read battle landscape image dimensions.");
+        return;
+    }
+    if (!textureContainer.addTexture(TextureInfo {
+        .name = "Battle landscapes",
+        .filename = filename,
+        .width = imageSize.width(),
+        .height = imageSize.height(),
+        .tileWidth = 512,
+        .tileHeight = 512
+    })) {
+        ErrorMessage::show(textureContainer.getLastError());
+        return;
+    }
+    TexturePickerForm pickerForm(this, m_resourcesPath, textureContainer);
+    if (pickerForm.exec() == QDialog::Accepted) {
+        int resultingTextureIndex = pickerForm.getResult().textureIndex;
+        ui.lineEditBattleLandscapeTextureIndex->setText(QString::number(resultingTextureIndex));
+        emit onBattleLandscapeTextureIndexChanged(resultingTextureIndex);
+    }   
+}
+
+void MapPropsComponent::onPushButtonClearBattleLandscapeTextureIndexClick() {
+    ui.lineEditBattleLandscapeTextureIndex->clear();
+    emit onBattleLandscapeTextureIndexChanged(-1);
+}

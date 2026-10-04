@@ -37,6 +37,7 @@ class GameMap {
     unsigned int getWidth() const;
     unsigned int getHeight() const;
     const std::string &getMusicFilename() const;
+    int getBattleLandscapeTextureIndex() const;
     Point<> getCoordFromTileIndex(int index) const;
     int getTileIndexFromCoord(Point<> coord) const;
     const std::vector<Texture> &getTextures() const;
@@ -55,6 +56,7 @@ class GameMap {
                    int offsetRight,
                    int offsetBottom);
     void setMusicFilename(const std::string &filename);
+    void setBattleLandscapeTextureIndex(int value);
     bool addTexture(const TextureInfo &textureInfo);
     bool replaceTexture(const std::string &name, const TextureInfo &textureInfo);
     bool removeTexture(const std::string &name);
@@ -90,6 +92,7 @@ class GameMap {
     TextureContainer m_textureContainer;
     bool m_useOnlyOneMonsterZone = false;
     std::string m_musicFilename;
+    int m_battleLandscapeTextureIndex = -1;
     bool _isShrinkMapFromLeftImpactAssignedTiles(int offset) const;
     bool _isShrinkMapFromTopImpactAssignedTiles(int offset) const;
     bool _isShrinkMapFromRightImpactAssignedTiles(int offset) const;
@@ -121,6 +124,9 @@ class GameMap {
         if (version > 5) {
             ar & m_merchantInventories;
         }
+        if (version > 6) {
+            ar & m_battleLandscapeTextureIndex;
+        }
     }
     template<class Archive>
     void load(Archive& ar, const unsigned int version) {
@@ -128,6 +134,7 @@ class GameMap {
         m_useOnlyOneMonsterZone = false;
         m_npcs.clear();
         m_musicFilename.clear();
+        m_battleLandscapeTextureIndex = -1;
 
         ar & m_tiles;
         ar & m_textureContainer;
@@ -147,6 +154,9 @@ class GameMap {
         if (version > 5) {
             ar & m_merchantInventories;
         }
+        if (version > 6) {
+            ar & m_battleLandscapeTextureIndex;
+        }
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -154,4 +164,4 @@ class GameMap {
 
 }  // namespace thewarrior::models
 
-BOOST_CLASS_VERSION(thewarrior::models::GameMap, 6)
+BOOST_CLASS_VERSION(thewarrior::models::GameMap, 7)

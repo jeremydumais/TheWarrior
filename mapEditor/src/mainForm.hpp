@@ -144,6 +144,7 @@ Q_OBJECT
     void onMerchantInventoryDeleted(const std::string &name);
     void onMapPropsComponentBeforeChange();
     void onMapPropsComponentMusicChanged(const std::string &filename);
+    void onMapPropsComponentBattleLandscapeTextureIndexChanged(int index);
 };
 
 #endif  // MAPEDITOR_SRC_MAINFORM_HPP_

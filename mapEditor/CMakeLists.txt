@@ -52,6 +52,7 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mapOpenGLWidget.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterPickerForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/selectNPCTextureForm.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/texturePickerForm.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/../commonEditor.UI/res/darkstyle/darkstyle.qrc
                          ${CMAKE_CURRENT_SOURCE_DIR}/res/global.qrc)
 

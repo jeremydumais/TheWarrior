@@ -47,6 +47,7 @@ class SampleGameMap5x6WithTwoTextures : public ::testing::Test {
                     .spawnPosition = {0, 0}, .wanderZone = { {0, 0}, {1, 0} }
                    }));
         map.setMusicFilename("mymuz.mp3");
+        map.setBattleLandscapeTextureIndex(2);
     }
     ~SampleGameMap5x6WithTwoTextures() override;
     GameMap map;
@@ -170,6 +171,17 @@ TEST(GameMap_setMusicFilename, WithFilename_SetFilename) {
 
     map.setMusicFilename("battle-theme.mp3");
     ASSERT_EQ("battle-theme.mp3", map.getMusicFilename());
+}
+
+TEST_F(SampleGameMap5x6WithTwoTextures, getBattleLandscapeTextureIndex_With2_Return2) {
+    ASSERT_EQ(2, map.getBattleLandscapeTextureIndex());
+}
+
+TEST(GameMap_setBattleLandscapeTextureIndex, With3_Set3) {
+    GameMap map(5, 6);
+
+    map.setBattleLandscapeTextureIndex(3);
+    ASSERT_EQ(3, map.getBattleLandscapeTextureIndex());
 }
 
 TEST_F(SampleGameMap5x6WithTwoTextures, getTileForEditing_WithIndexMinus1_ThrowInvalidArgument) {

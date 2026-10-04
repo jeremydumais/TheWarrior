@@ -92,6 +92,10 @@ const std::string &MainForm_GLComponent::getMapMusicFilename() const {
     return m_controller.getMapMusicFileName();
 }
 
+int MainForm_GLComponent::getBattleLandscapeTextureIndex() const {
+    return m_controller.getBattleLandscapeTextureIndex();
+}
+
 size_t MainForm_GLComponent::getHistoryCurrentIndex() const {
     return m_controller.getHistoryCurrentIndex();
 }
@@ -235,6 +239,10 @@ void MainForm_GLComponent::resizeMap(int offsetLeft,
 
 void MainForm_GLComponent::setMapMusicFilename(const std::string &filename) {
     m_controller.setMapMusicFilename(filename);
+}
+
+void MainForm_GLComponent::setBattleLandscapeTextureIndex(int index) {
+    m_controller.setMapBattleLandscapeTextureIndex(index);
 }
 
 void MainForm_GLComponent::onTileClicked(const std::set<int> &tileIndices, int, int) {

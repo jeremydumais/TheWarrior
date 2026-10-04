@@ -143,6 +143,10 @@ void GameMap::setMusicFilename(const std::string &filename) {
     m_musicFilename = filename;
 }
 
+void GameMap::setBattleLandscapeTextureIndex(int value) {
+    m_battleLandscapeTextureIndex = value;
+}
+
 bool GameMap::addTexture(const TextureInfo &textureInfo) {
     bool retVal = m_textureContainer.addTexture(textureInfo);
     if (!retVal) {
@@ -186,6 +190,10 @@ OptMonsterZoneConstRef GameMap::getMonsterZoneByName(const std::string &zoneName
 
 const std::string &GameMap::getMusicFilename() const {
     return m_musicFilename;
+}
+
+int GameMap::getBattleLandscapeTextureIndex() const {
+    return m_battleLandscapeTextureIndex;
 }
 
 bool GameMap::addMonsterZone(const MonsterZone &zone) {

@@ -22,6 +22,10 @@ int main(int, char **) {
     //HACK: To remove
     //GameWindow gameWindow("The Warrior", 0, 0, 1120, 1080);
     GameWindow gameWindow("The Warrior", 0, 0, 1120, 1080);
+    if (!gameWindow.isAlive()) {
+        std::cerr << "Game window initialization failed. See the error above.\n";
+        return 1;
+    }
     gameWindow.show();
     while (gameWindow.isAlive()) {
         gameWindow.processEvents();

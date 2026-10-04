@@ -333,7 +333,7 @@ namespace thewarrior::ui
         m_tileService->setShaderTranslation(m_map->getWidth(), m_map->getHeight(),
                                             m_screenSize.width(), m_screenSize.height(),
                                             m_glPlayer->getGLObjectPositionWithMovement());
-        glClearColor(0.3F, 0.3F, 0.3F, 1.0F);
+        glClearColor(0.058F, 0.055F, 0.055F, 1.0F);
         glClear(GL_COLOR_BUFFER_BIT);
         glEnable(GL_TEXTURE_2D);
 

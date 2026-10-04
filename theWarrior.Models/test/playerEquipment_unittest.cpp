@@ -37,13 +37,13 @@ public:
 TEST(PlayerEquipment_DefaultConstructor, ReturnEmptyPlayerEquipment)
 {
     PlayerEquipment playerEquipment;
-    ASSERT_EQ(boost::none, playerEquipment.getMainHand());
-    ASSERT_EQ(boost::none, playerEquipment.getSecondaryHand());
-    ASSERT_EQ(boost::none, playerEquipment.getHead());
-    ASSERT_EQ(boost::none, playerEquipment.getUpperBody());
-    ASSERT_EQ(boost::none, playerEquipment.getLowerBody());
-    ASSERT_EQ(boost::none, playerEquipment.getHands());
-    ASSERT_EQ(boost::none, playerEquipment.getFeet());
+    ASSERT_FALSE(playerEquipment.getMainHand().has_value());
+    ASSERT_FALSE(playerEquipment.getSecondaryHand().has_value());
+    ASSERT_FALSE(playerEquipment.getHead().has_value());
+    ASSERT_FALSE(playerEquipment.getUpperBody().has_value());
+    ASSERT_FALSE(playerEquipment.getLowerBody().has_value());
+    ASSERT_FALSE(playerEquipment.getHands().has_value());
+    ASSERT_FALSE(playerEquipment.getFeet().has_value());
 }
 
 TEST_F(PlayerEquipmentSample1, Constructor_ReturnPlayerEquipmentSample)

@@ -22,12 +22,16 @@ Q_OBJECT
  signals:
     void onBeforeApplyChange();
     void onMusicChanged(const std::string &filename);
+    void onBattleLandscapeTextureIndexChanged(int textureIndex);
 
  private:
     Ui::MapPropsComponent ui;
     MainForm_GLComponent *m_glComponent;
     std::string m_resourcesPath;
+    void setBattleLandscapeTextureIndex(int textureIndex);
     void onPushButtonApplySizeChangeClick();
     void onPushButtonOpenMusicFileClick();
     void onPushButtonClearMusicClick();
+    void onPushButtonOpenBattleLandscapeTexturePickerClick();
+    void onPushButtonClearBattleLandscapeTextureIndexClick();
 };

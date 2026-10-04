@@ -46,10 +46,13 @@ GameWindow::GameWindow(const string &title,
 
     SDL_JoystickEventState(SDL_ENABLE);
     SDL_GameControllerEventState(SDL_ENABLE);
-    if (SDL_IsGameController(0)) {
+    if (SDL_IsGameController(0) == SDL_TRUE) {
         m_gameController = SDL_GameControllerOpen(0);
     } else {
         m_joystick = SDL_JoystickOpen(0);
+        if (m_joystick == nullptr) {
+            SDL_Log("Unable to open joystick: %s", SDL_GetError());
+        }
     }
 
     subscribeEvents();
@@ -60,6 +63,7 @@ GameWindow::GameWindow(const string &title,
     //HACK: To Remove
     loadGame("Mel_2026-09-04-07-29-11.bak");
     //createNewGame("Jed");
+    m_mustExit = false;
 }
 
 GameWindow::~GameWindow() {
@@ -76,6 +80,7 @@ GameWindow::~GameWindow() {
 }
 
 void GameWindow::show() {
+    if (!isAlive()) return;
     SDL_ShowWindow(m_window);
 }
 
@@ -88,6 +93,7 @@ bool GameWindow::isAlive() const {
 }
 
 void GameWindow::processEvents() {
+    if (!isAlive()) return;
     if (m_nextAction) {
         auto action = std::move(*m_nextAction);
         m_nextAction.reset();
@@ -97,6 +103,7 @@ void GameWindow::processEvents() {
     if (m_gameController != nullptr) {
         m_inputDevicesState->processGameController(m_gameController);
     } else {
+        // Also clear transient button states when only the keyboard is connected.
         m_inputDevicesState->processJoystick(m_joystick);
     }
     while (SDL_PollEvent(&e) != 0) {
@@ -119,18 +126,17 @@ void GameWindow::processEvents() {
                 break;
         }
 
-        if (e.type == SDL_WINDOWEVENT) {
-            if (e.window.event == SDL_WINDOWEVENT_RESIZED) {
-                int screenWidth = 0, screenHeight = 0;
-                SDL_GetWindowSize(m_window, &screenWidth, &screenHeight);
-                m_WindowSize.setSize(screenWidth, screenHeight);
-                glViewport(0, 0, m_WindowSize.width(), m_WindowSize.height());
-                m_windowSizeChanged(m_WindowSize);
-            }
+        if (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_RESIZED) {
+            int screenWidth = 0;
+            int screenHeight = 0;
+            SDL_GetWindowSize(m_window, &screenWidth, &screenHeight);
+            m_WindowSize.setSize(screenWidth, screenHeight);
+            glViewport(0, 0, m_WindowSize.width(), m_WindowSize.height());
+            m_windowSizeChanged(m_WindowSize);
         }
     }
     m_inputDevicesState->confirmDirections();
-    const Uint8 *keystate = SDL_GetKeyboardState(NULL);
+    const Uint8 *keystate = SDL_GetKeyboardState(nullptr);
     if ((keystate[SDL_SCANCODE_RCTRL] || keystate[SDL_SCANCODE_LCTRL]) && keystate[SDL_SCANCODE_F]) {
         if (!m_blockKeyDown) {
             m_toggleFPS = !m_toggleFPS;
@@ -159,7 +165,7 @@ bool GameWindow::initializeOpenGL(const std::string &title,
         int width, int height) {
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0) {
-        cerr << fmt::format("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+        cerr << fmt::format("SDL could not initialize! SDL_Error: {0}\n", SDL_GetError());
         return false;
     }
 
@@ -178,7 +184,7 @@ bool GameWindow::initializeOpenGL(const std::string &title,
             SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL);
             //SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL | SDL_WINDOW_MAXIMIZED);
     if (m_window == nullptr) {
-        cerr << fmt::format("Window could not be created! SDL_Error: %s\n", SDL_GetError());
+        cerr << fmt::format("Window could not be created! SDL_Error: {0}\n", SDL_GetError());
         return false;
     }
 
@@ -197,10 +203,9 @@ bool GameWindow::initializeOpenGL(const std::string &title,
         return false;
     }
 
-    // Use Vsync
-    if (SDL_GL_SetSwapInterval(-1) < 0) {
+    // Adaptive VSync is optional; fall back to standard VSync.
+    if (SDL_GL_SetSwapInterval(-1) < 0 && SDL_GL_SetSwapInterval(1) < 0) {
         cerr << fmt::format("Warning: Unable to set VSync! SDL Error: {0}\n", SDL_GetError());
-        return false;
     }
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

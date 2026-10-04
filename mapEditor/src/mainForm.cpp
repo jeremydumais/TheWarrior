@@ -221,6 +221,7 @@ void MainForm::connectUIActions() {
     m_glComponent.connectUIActions();
     connect(m_mapPropsComponent.get(), &MapPropsComponent::onBeforeApplyChange, this, &MainForm::onMapPropsComponentBeforeChange);
     connect(m_mapPropsComponent.get(), &MapPropsComponent::onMusicChanged, this, &MainForm::onMapPropsComponentMusicChanged);
+    connect(m_mapPropsComponent.get(), &MapPropsComponent::onBattleLandscapeTextureIndexChanged, this, &MainForm::onMapPropsComponentBattleLandscapeTextureIndexChanged);
     connect(&m_glComponent, &MainForm_GLComponent::tileSelected, this, &MainForm::onTileSelected);
     connect(&m_glComponent, &MainForm_GLComponent::editHistoryChanged, this, &MainForm::onEditHistoryChanged);
     connect(&m_glComponent, &MainForm_GLComponent::clipboardChanged, this, &MainForm::onClipboardChanged);
@@ -993,5 +994,8 @@ void MainForm::onMapPropsComponentBeforeChange() {
 
 void MainForm::onMapPropsComponentMusicChanged(const std::string &filename) {
     m_glComponent.setMapMusicFilename(filename);
-    this->setWindowTitle("bla");
+}
+
+void MainForm::onMapPropsComponentBattleLandscapeTextureIndexChanged(int index) {
+    m_glComponent.setBattleLandscapeTextureIndex(index);
 }
