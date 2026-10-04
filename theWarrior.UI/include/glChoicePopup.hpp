@@ -11,8 +11,10 @@
 #include "glTexture.hpp"
 #include "glTextureService.hpp"
 #include "inputDevicesState.hpp"
+#include "menuSounds.hpp"
 #include "size.hpp"
 #include <boost/signals2.hpp>
+#include <boost/optional.hpp>
 
 namespace thewarrior::ui {
 
@@ -30,11 +32,14 @@ class GLChoicePopup: public GLPopupWindow {
     void generateGLElements();
     void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
     void setPrompt(const std::string &prompt);
+    void setBackChoice(boost::optional<size_t> choice);
     boost::signals2::signal<void(size_t choice)> m_choiceClicked;
     boost::signals2::signal<void()> m_cancelClicked;
 
  private:
     std::shared_ptr<InputDevicesState> m_inputDevicesState = nullptr;
+    MenuSounds m_menuSounds;
+    boost::optional<size_t> m_backChoice;
     size_t m_menuCursorPosition;
     size_t m_menuItemCount;
     std::string m_prompt;

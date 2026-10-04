@@ -121,6 +121,13 @@ bool GameMapMode::initialize(
     const auto mapName = worldState->getCurrentMapName();
     loadMap(fmt::format("{0}/maps/{1}", resourcesPath, mapName), mapName);
 
+    m_elementFoundSound = std::shared_ptr<Mix_Chunk>(
+        Mix_LoadWAV(fmt::format("{0}/sounds/element_found.wav", resourcesPath).c_str()),
+        Mix_FreeChunk);
+    if (m_elementFoundSound == nullptr) {
+        std::cerr << fmt::format("Mix_LoadWAV error: {0}\n", Mix_GetError());
+    }
+
     // Battle music & sounds
     m_regularBattleMusic = Mix_LoadMUS(
         fmt::format("{0}/sounds/battle.mp3", m_controller.getResourcesPath())
@@ -343,6 +350,7 @@ void GameMapMode::showMainMenu() {
     m_inputMode = GameMapInputMode::MainMenuPopup;
     m_choicePopup.preparePopup(
         {"Inventory", "Character", "Back", "Save", "Exit Game"}, "Menu");
+    m_choicePopup.setBackChoice(2);
     m_choicePopup.generateGLElements();
 }
 
@@ -743,6 +751,9 @@ void GameMapMode::processAction(MapTileTriggerAction action,
                 const auto &itemIdInside = props.getItemId();
                 // Find the item in the item store
                 const auto item = m_controller.findItem(itemIdInside);
+                if (m_elementFoundSound != nullptr) {
+                    Mix_PlayChannel(-1, m_elementFoundSound.get(), 0);
+                }
                 m_controller.addItemToInventory(
                     dynamic_cast<Player *>(m_glPlayer.get()), itemIdInside);
                 // Display the item on the screen
@@ -753,6 +764,9 @@ void GameMapMode::processAction(MapTileTriggerAction action,
                 msg->textureName = item.textureName;
                 m_controller.addMessageToPipeline(std::move(msg));
             } else if (props.getContentType() == ChestContentType::Gold) {
+                if (m_elementFoundSound != nullptr) {
+                    Mix_PlayChannel(-1, m_elementFoundSound.get(), 0);
+                }
                 m_controller.awardGoldToPlayer(
                     dynamic_cast<Player *>(m_glPlayer.get()),
                     props.getGoldAmount());
@@ -765,8 +779,7 @@ void GameMapMode::processAction(MapTileTriggerAction action,
                 msg->maxDurationInMilliseconds = 2000;
                 m_controller.addMessageToPipeline(std::move(msg));
             }
-            m_controller.addTileActionProcessed(
-                m_controller.getCurrentMapName(), tileIndex);
+            m_controller.addTileActionProcessed(m_controller.getCurrentMapName(), tileIndex);
         }
         if (tile != nullptr) {
             tile->setObjectTextureIndex(

@@ -127,6 +127,7 @@ class GameMapMode {
     SleepSequenceState m_sleepSequenceState = SleepSequenceState::Inactive;
     float m_sleepOverlayOpacity = 0.0F;
     Mix_Music *m_sleepMusic = nullptr;
+    std::shared_ptr<Mix_Chunk> m_elementFoundSound;
     bool m_restoreHealthAfterSleep = false;
     
     // Map change sequence

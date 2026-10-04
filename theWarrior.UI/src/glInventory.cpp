@@ -1,4 +1,5 @@
 #include <fmt/format.h>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <string>
@@ -37,8 +38,39 @@ void GLInventory::initialize(const std::string &resourcePath,
     m_itemStore = itemStore;
     m_texturesGLItemStore = texturesGLItemStore;
     m_inputDevicesState = inputDevicesState;
+    m_menuSounds.initialize(resourcePath);
     m_choicePopup.initShader(m_shaderProgram);
     m_choicePopup.initialize(resourcePath, textService, inputDevicesState);
+    m_restoreHealthSound = std::shared_ptr<Mix_Chunk>(
+        Mix_LoadWAV(fmt::format("{0}/sounds/restoreHealth.wav", resourcePath).c_str()),
+        Mix_FreeChunk);
+    if (m_restoreHealthSound == nullptr) {
+        std::cerr << fmt::format("Mix_LoadWAV error: {0}\n", Mix_GetError());
+    }
+    m_itemMovedSound = std::shared_ptr<Mix_Chunk>(
+        Mix_LoadWAV(fmt::format("{0}/sounds/item_moved.wav", resourcePath).c_str()),
+        Mix_FreeChunk);
+    if (m_itemMovedSound == nullptr) {
+        std::cerr << fmt::format("Mix_LoadWAV error: {0}\n", Mix_GetError());
+    }
+    m_itemDropSound = std::shared_ptr<Mix_Chunk>(
+        Mix_LoadWAV(fmt::format("{0}/sounds/item_drop.wav", resourcePath).c_str()),
+        Mix_FreeChunk);
+    if (m_itemDropSound == nullptr) {
+        std::cerr << fmt::format("Mix_LoadWAV error: {0}\n", Mix_GetError());
+    }
+    m_equipArmorSound = std::shared_ptr<Mix_Chunk>(
+        Mix_LoadWAV(fmt::format("{0}/sounds/equip_armor.wav", resourcePath).c_str()),
+        Mix_FreeChunk);
+    if (m_equipArmorSound == nullptr) {
+        std::cerr << fmt::format("Mix_LoadWAV error: {0}\n", Mix_GetError());
+    }
+    m_equipWeaponSound = std::shared_ptr<Mix_Chunk>(
+        Mix_LoadWAV(fmt::format("{0}/sounds/equip_weapon.wav", resourcePath).c_str()),
+        Mix_FreeChunk);
+    if (m_equipWeaponSound == nullptr) {
+        std::cerr << fmt::format("Mix_LoadWAV error: {0}\n", Mix_GetError());
+    }
 }
 
 void GLInventory::setInventory(std::shared_ptr<Inventory> inventory) {
@@ -358,6 +390,7 @@ void GLInventory::updateListMode() {
     if (m_inputDevicesState->getButtonAState() == InputElementState::Released) {
         inventoryActionButtonPressed();
     } else if (m_inputDevicesState->getButtonBState() == InputElementState::Released) {
+        m_menuSounds.playBack();
         onCloseEvent();
     }
 }
@@ -367,6 +400,7 @@ void GLInventory::updateMoveMode() {
     if (m_inputDevicesState->getButtonAState() == InputElementState::Released) {
         completeMoveActionButtonPressed();
     } else if (m_inputDevicesState->getButtonBState() == InputElementState::Released) {
+        m_menuSounds.playBack();
         changeMode(InventoryInputMode::List);
     }
 }
@@ -381,7 +415,8 @@ void GLInventory::updateInventoryMoveKeys() {
         inventoryMoveUpPressed();
         lastMoveUpTicks = inputUpTicks.value();
         return;
-    } else if (!m_inputDevicesState->getUpPressed()) {
+    } 
+    if (!m_inputDevicesState->getUpPressed()) {
         lastMoveUpTicks = 0;
     }
 
@@ -393,7 +428,8 @@ void GLInventory::updateInventoryMoveKeys() {
         inventoryMoveDownPressed();
         lastMoveDownTicks = inputDownTicks.value();
         return;
-    } else if (!m_inputDevicesState->getDownPressed()) {
+    } 
+    if (!m_inputDevicesState->getDownPressed()) {
         lastMoveDownTicks = 0;
     }
 
@@ -404,7 +440,8 @@ void GLInventory::updateInventoryMoveKeys() {
         inventoryMoveLeftPressed();
         lastMoveLeftTicks = inputLeftTicks.value();
         return;
-    } else if (!m_inputDevicesState->getLeftPressed()) {
+    } 
+    if (!m_inputDevicesState->getLeftPressed()) {
         lastMoveLeftTicks = 0;
     }
 
@@ -415,7 +452,8 @@ void GLInventory::updateInventoryMoveKeys() {
         inventoryMoveRightPressed();
         lastMoveRightTicks = inputRightTicks.value();
         return;
-    } else if (!m_inputDevicesState->getRightPressed()) {
+    } 
+    if (!m_inputDevicesState->getRightPressed()) {
         lastMoveRightTicks = 0;
     }
 }
@@ -423,6 +461,7 @@ void GLInventory::updateInventoryMoveKeys() {
 void GLInventory::inventoryMoveUpPressed() {
     if (m_inventoryCursorPosition >= COL_MAX) {
         m_inventoryCursorPosition -= COL_MAX;
+        m_menuSounds.playMove();
         generateGLInventory();
     }
 }
@@ -430,6 +469,7 @@ void GLInventory::inventoryMoveUpPressed() {
 void GLInventory::inventoryMoveDownPressed() {
     if (m_inventoryCursorPosition + COL_MAX < INVENTORY_MAX) {
         m_inventoryCursorPosition += COL_MAX;
+        m_menuSounds.playMove();
         generateGLInventory();
     }
 }
@@ -437,6 +477,7 @@ void GLInventory::inventoryMoveDownPressed() {
 void GLInventory::inventoryMoveLeftPressed() {
     if (m_inventoryCursorPosition > 0) {
         m_inventoryCursorPosition--;
+        m_menuSounds.playMove();
         generateGLInventory();
     }
 }
@@ -444,30 +485,31 @@ void GLInventory::inventoryMoveLeftPressed() {
 void GLInventory::inventoryMoveRightPressed() {
     if (m_inventoryCursorPosition + 1 != INVENTORY_MAX) {
         m_inventoryCursorPosition++;
+        m_menuSounds.playMove();
         generateGLInventory();
     }
 }
 
 void GLInventory::inventoryActionButtonPressed() {
     switch (m_inputMode) {
-    case InventoryInputMode::List:
-        {
-            // Check if the cell contains an Item
-            auto item = m_inventory->getItem(m_inventoryCursorPosition);
-            if (item) {
-                if (item->getType() == ItemType::StatsItem) {
-                    m_choicePopup.preparePopup({ "Use", "Move", "Drop" });
-                    changeMode(InventoryInputMode::StatsItemPopup);
-                } else if (item->getType() == ItemType::Armor || item->getType() == ItemType::Weapon) {
-                    m_choicePopup.preparePopup({ "Equip", "Move", "Drop" });
-                    changeMode(InventoryInputMode::WeaponOrArmorPopup);
-                } else if (item->getType() == ItemType::Item) {
-                    m_choicePopup.preparePopup({ "Move", "Drop" });
-                    changeMode(InventoryInputMode::ItemPopup);
-                }
+    case InventoryInputMode::List: {
+        // Check if the cell contains an Item
+        auto item = m_inventory->getItem(m_inventoryCursorPosition);
+        if (item) {
+            m_menuSounds.playClick();
+            if (item->getType() == ItemType::StatsItem) {
+                m_choicePopup.preparePopup({"Use", "Move", "Drop"});
+                changeMode(InventoryInputMode::StatsItemPopup);
+            } else if (item->getType() == ItemType::Armor ||
+                       item->getType() == ItemType::Weapon) {
+                m_choicePopup.preparePopup({"Equip", "Move", "Drop"});
+                changeMode(InventoryInputMode::WeaponOrArmorPopup);
+            } else if (item->getType() == ItemType::Item) {
+                m_choicePopup.preparePopup({"Move", "Drop"});
+                changeMode(InventoryInputMode::ItemPopup);
             }
         }
-        break;
+    } break;
     default:
         break;
     }
@@ -476,6 +518,11 @@ void GLInventory::inventoryActionButtonPressed() {
 void GLInventory::itemActionPopupClicked(size_t choice) {
     switch (m_inputMode) {
     case InventoryInputMode::StatsItemPopup:
+        if (choice == 0) {
+            applyCurrentStatsItem();
+            m_inventory->dropItem(m_inventoryCursorPosition);
+            changeMode(InventoryInputMode::List);
+        }
         if (choice == 1) {
             prepareMoveItemMode();
         } else if (choice == 2) {
@@ -503,6 +550,9 @@ void GLInventory::itemActionPopupClicked(size_t choice) {
             changeMode(InventoryInputMode::List);
         } else if (choice == 1) {
             m_inventory->dropItem(m_inventoryCursorPosition);
+            if (m_itemDropSound != nullptr) {
+                Mix_PlayChannel(-1, m_itemDropSound.get(), 0);
+            }
             changeMode(InventoryInputMode::List);
         }
         break;
@@ -516,6 +566,9 @@ void GLInventory::itemActionPopupCanceled() {
 }
 
 void GLInventory::completeMoveActionButtonPressed() {
+    if (m_itemMovedSound != nullptr) {
+        Mix_PlayChannel(-1, m_itemMovedSound.get(), 0);
+    }
     m_inventory->moveItem(m_inventoryMoveSrc, m_inventoryCursorPosition);
     changeMode(InventoryInputMode::List);
 }
@@ -527,6 +580,7 @@ void GLInventory::prepareMoveItemMode() {
 
 void GLInventory::prepareDropItemPopup() {
     m_choicePopup.preparePopup({ "No", "Yes" }, "Drop?");
+    m_choicePopup.setBackChoice(0);
     m_choicePopup.setTitle("Drop?");
     changeMode(InventoryInputMode::DropItemPopup);
 }
@@ -536,20 +590,26 @@ void GLInventory::equipCurrentElement() {
     auto &equipment = m_glPlayer->getEquipment();
     if (item != nullptr) {
         if (item->getType() == ItemType::Weapon) {
-            auto *weapon = dynamic_cast<const WeaponItem*>(item.get());
+            const auto *weapon = dynamic_cast<const WeaponItem*>(item.get());
             if (weapon != nullptr && weapon->getSlotInBodyPart() == WeaponBodyPart::MainHand) {
                 auto currentEquipedId = equipment.getMainHand().has_value() ?
                                         boost::optional<std::string>(equipment.getMainHand()->getId()) :
                                         boost::none;
                 equipment.setMainHand(*weapon);
                 completeEquipTransaction(currentEquipedId);
+                if (m_equipWeaponSound != nullptr) {
+                    Mix_PlayChannel(-1, m_equipWeaponSound.get(), 0);
+                }
             } else if (weapon != nullptr && weapon->getSlotInBodyPart() == WeaponBodyPart::SecondaryHand) {
                 auto currentEquipedId = getSecondaryHandEquipId(equipment);
                 equipment.setSecondaryHand(VariantEquipment(*weapon));
                 completeEquipTransaction(currentEquipedId);
+                if (m_equipWeaponSound != nullptr) {
+                    Mix_PlayChannel(-1, m_equipWeaponSound.get(), 0);
+                }
             }
         } else if (item->getType() == ItemType::Armor) {
-            auto *armor = dynamic_cast<const ArmorItem*>(item.get());
+            const auto *armor = dynamic_cast<const ArmorItem*>(item.get());
             if (armor != nullptr) {
                 boost::optional<std::string> currentEquipedId = boost::none;
                 if (armor->getSlotInBodyPart() == ArmorBodyPart::SecondaryHand) {
@@ -572,7 +632,23 @@ void GLInventory::equipCurrentElement() {
                     equipment.setFeet(*armor);
                 }
                 completeEquipTransaction(currentEquipedId);
+                if (m_equipArmorSound != nullptr) {
+                    Mix_PlayChannel(-1, m_equipArmorSound.get(), 0);
+                }
             }
+        }
+    }
+}
+
+void GLInventory::applyCurrentStatsItem() {
+    auto item = m_inventory->getItem(m_inventoryCursorPosition);
+    if (item != nullptr && item->getType() == ItemType::StatsItem) {
+        const auto *statsItem = dynamic_cast<const StatsItem*>(item.get());
+        if (statsItem != nullptr && statsItem->getStatChanging() == Stats::Vitality) {
+            if (m_restoreHealthSound != nullptr) {
+                Mix_PlayChannel(-1, m_restoreHealthSound.get(), 0);
+            }
+            m_glPlayer->restoreHealth(static_cast<int>(statsItem->getGain()));
         }
     }
 }

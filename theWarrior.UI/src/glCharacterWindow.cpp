@@ -28,11 +28,13 @@ void GLCharacterWindow::initialize(const std::string &resourcePath,
     m_itemStore = itemStore;
     m_texturesGLItemStore = texturesGLItemStore;
     m_inputDevicesState = inputDevicesState;
+    m_menuSounds.initialize(resourcePath);
     m_textureService.loadTexture(m_slotsGLTexture);
 }
 
 void GLCharacterWindow::update() {
     if (m_inputDevicesState->getButtonBState() == InputElementState::Released) {
+        m_menuSounds.playBack();
         onCloseEvent();
     }
 }

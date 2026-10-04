@@ -61,7 +61,7 @@ GameWindow::GameWindow(const string &title,
     m_fpsCalculator.initialize();
     m_windowSizeChanged(m_WindowSize);
     //HACK: To Remove
-    loadGame("Mel_2026-09-04-07-29-11.bak");
+    loadGame("1aas_2026-10-04-14-23-57.bak");
     //createNewGame("Jed");
     m_mustExit = false;
 }

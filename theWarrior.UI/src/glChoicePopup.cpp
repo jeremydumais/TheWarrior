@@ -31,6 +31,7 @@ void GLChoicePopup::initialize(const std::string &resourcePath,
     GLPopupWindow::initialize("", resourcePath, textService);
     m_textService = textService;
     m_inputDevicesState = inputDevicesState;
+    m_menuSounds.initialize(resourcePath);
     m_textureService.setResourcesPath(resourcePath);
     m_textureService.loadTexture(m_popupGLTexture);
 }
@@ -46,6 +47,7 @@ void GLChoicePopup::preparePopup(std::vector<std::string> choices,
     }
     m_menuItemCount = choices.size();
     m_menuCursorPosition = 0;
+    m_backChoice = boost::none;
 
     float popupWidth = MinimumPopupWidth;
     for (const auto &choice : m_glTextChoices) {
@@ -99,6 +101,7 @@ void GLChoicePopup::update() {
     if (m_inputDevicesState->getButtonAState() == InputElementState::Released) {
         actionButtonPressed();
     } else if (m_inputDevicesState->getButtonBState() == InputElementState::Released) {
+        m_menuSounds.playBack();
         m_cancelClicked();
     }
 }
@@ -146,6 +149,7 @@ void GLChoicePopup::setPrompt(const std::string &prompt) {
 void GLChoicePopup::moveUpPressed() {
     if (m_menuCursorPosition > 0) {
         m_menuCursorPosition--;
+        m_menuSounds.playMove();
         generateGLElements();
     }
 }
@@ -153,12 +157,25 @@ void GLChoicePopup::moveUpPressed() {
 void GLChoicePopup::moveDownPressed() {
     if (m_menuCursorPosition + 1 < m_menuItemCount) {
         m_menuCursorPosition++;
+        m_menuSounds.playMove();
         generateGLElements();
     }
 }
 
 void GLChoicePopup::actionButtonPressed() {
+    if (m_menuCursorPosition >= m_menuItemCount) {
+        return;
+    }
+    if (m_backChoice && *m_backChoice == m_menuCursorPosition) {
+        m_menuSounds.playBack();
+    } else {
+        m_menuSounds.playClick();
+    }
     m_choiceClicked(m_menuCursorPosition);
+}
+
+void GLChoicePopup::setBackChoice(boost::optional<size_t> choice) {
+    m_backChoice = choice;
 }
 
 }  // namespace thewarrior::ui
