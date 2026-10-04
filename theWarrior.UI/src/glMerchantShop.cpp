@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <fmt/format.h>
 #include <limits>
+#include <iostream>
 #include "armorItem.hpp"
 #include "weaponItem.hpp"
 
@@ -49,6 +50,12 @@ void GLMerchantShop::initialize(
     const std::map<std::string, unsigned int> *texturesGLItemStore,
     std::shared_ptr<InputDevicesState> inputDevicesState) {
     GLPopupWindow::initialize("Buy Items", resourcePath, textService);
+    m_purchaseSound = std::shared_ptr<Mix_Chunk>(
+        Mix_LoadWAV(fmt::format("{0}/sounds/purchase_element.wav", resourcePath).c_str()),
+        Mix_FreeChunk);
+    if (!m_purchaseSound) {
+        std::cerr << fmt::format("Mix_LoadWAV error: {0}\n", Mix_GetError());
+    }
     m_glPlayer = std::move(glPlayer);
     m_itemStore = std::move(itemStore);
     m_texturesGLItemStore = texturesGLItemStore;
@@ -178,6 +185,9 @@ void GLMerchantShop::buySelectedItem() {
     }
 
     m_glPlayer->removeGold(static_cast<int>(price));
+    if (m_purchaseSound) {
+        Mix_PlayChannel(-1, m_purchaseSound.get(), 0);
+    }
     m_statusMessage = fmt::format("Purchased {}.", item->getName());
     generateGLElements();
 }

@@ -2,6 +2,7 @@
 #include <SDL2/SDL_timer.h>
 #include <algorithm>
 #include <climits>
+#include <iostream>
 #include <fmt/format.h>
 
 using namespace thewarrior::models;
@@ -29,6 +30,12 @@ void GLSellItems::initialize(const std::string &resourcePath,
                              const std::map<std::string, unsigned int> *texturesGLItemStore,
                              std::shared_ptr<InputDevicesState> inputDevicesState) {
     GLPopupWindow::initialize("Sell Items", resourcePath, textService);
+    m_sellSound = std::shared_ptr<Mix_Chunk>(
+        Mix_LoadWAV(fmt::format("{0}/sounds/sell_element.wav", resourcePath).c_str()),
+        Mix_FreeChunk);
+    if (!m_sellSound) {
+        std::cerr << fmt::format("Mix_LoadWAV error: {0}\n", Mix_GetError());
+    }
     m_glPlayer = std::move(glPlayer);
     m_itemStore = std::move(itemStore);
     m_texturesGLItemStore = texturesGLItemStore;
@@ -113,6 +120,9 @@ void GLSellItems::completeSale() {
         const auto price = getSellPrice(*item);
         if (m_glPlayer->getInventory()->dropItem(m_cursorPosition)) {
             m_glPlayer->addGold(static_cast<int>(std::min(price, static_cast<unsigned int>(INT_MAX))));
+            if (m_sellSound) {
+                Mix_PlayChannel(-1, m_sellSound.get(), 0);
+            }
         }
     }
     m_confirmationDisplayed = false;

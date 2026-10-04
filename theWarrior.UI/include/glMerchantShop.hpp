@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GL/glew.h>
+#include <SDL2/SDL_mixer.h>
 #include <map>
 #include <memory>
 #include <string>
@@ -33,6 +34,7 @@ class GLMerchantShop : public GLPopupWindow {
 
  private:
     std::shared_ptr<GLPlayer> m_glPlayer;
+    std::shared_ptr<Mix_Chunk> m_purchaseSound;
     std::shared_ptr<thewarrior::models::ItemStore> m_itemStore;
     const std::map<std::string, unsigned int> *m_texturesGLItemStore = nullptr;
     std::shared_ptr<InputDevicesState> m_inputDevicesState;
