@@ -1,4 +1,5 @@
 #include "gameMapMode.hpp"
+#include "configurationManager.hpp"
 #include "facingUtils.hpp"
 #include "gameMap.hpp"
 #include "gameMapStorage.hpp"
@@ -64,6 +65,16 @@ bool GameMapMode::initialize(
     const std::string &resourcesPath, const GameState &gameState,
     std::shared_ptr<GLTextService> textService,
     std::shared_ptr<InputDevicesState> inputDevicesState) {
+    ConfigurationManager gameplayConfig(fmt::format("{}/gameplay.json", resourcesPath));
+    if (gameplayConfig.fileExists() && !gameplayConfig.load()) {
+        m_lastError = gameplayConfig.getLastError();
+        return false;
+    }
+    const int minimumMovements = gameplayConfig.getPTreeNode("randomEncounters")
+        .get<int>("minimumMovements", 5);
+    m_encounterCooldown = EncounterCooldown(
+        minimumMovements >= 0 ? static_cast<unsigned int>(minimumMovements) : 5U);
+
     auto worldState = std::make_shared<WorldState>(gameState.getWorldState());
     const auto &completedStoryIds = gameState.getCompletedStoryIds();
     m_controller.initialize(resourcesPath, worldState, completedStoryIds);
@@ -810,7 +821,7 @@ void GameMapMode::processMapTileTrigger(const MapTileTrigger &trigger,
 }
 
 void GameMapMode::checkForMonsterEncounter(const MapTile &tile) {
-    if (!m_monsterEncountersEnabled) {
+    if (!m_monsterEncountersEnabled || !m_encounterCooldown.canCheckEncounter()) {
         return;
     }
 
@@ -846,6 +857,7 @@ void GameMapMode::checkForMonsterEncounter(const MapTile &tile) {
     // Get a list of available Monsters by type
     const auto monsterIdEncounter = selectMonsterEncounter(
         zone.getMonsterEncounters(), typeOfMonsterEncountered);
+    m_encounterCooldown.reset();
     m_battleStartedByConversation = false;
     m_inputMode = GameMapInputMode::Battle;
     m_glBattleWindow.prepareWindow(monsterIdEncounter);
@@ -942,6 +954,7 @@ void GameMapMode::loadMap(const std::string &filePath,
     try {
         const auto actualMusicFilename = m_map->getMusicFilename();
         mapStorage.loadMap(filePath, m_map);
+        m_encounterCooldown.reset();
         m_controller.setCurrentMapName(mapName);
         m_controller.clearNPCsWorldState();
         loadMapTextures();
@@ -1344,6 +1357,7 @@ void GameMapMode::mainMenuPopupCanceled() {
 void GameMapMode::exitGameAndReturnToMainMenu() { quitRequested(); }
 
 void GameMapMode::onPlayerMoveCompleted() {
+    m_encounterCooldown.onTileMoveCompleted();
     const auto &tile =
         m_map->getTileFromCoord(m_controller.getPlayerPosition());
     auto steppedOnTrigger =
@@ -1805,6 +1819,7 @@ bool GameMapMode::executeMonsterFightAction(const MonsterFightAction &action) {
         return false;
     }
 
+    m_encounterCooldown.reset();
     m_battleStartedByConversation = true;
     m_inputMode = GameMapInputMode::Battle;
     m_glBattleWindow.prepareWindow(action.monsterId);

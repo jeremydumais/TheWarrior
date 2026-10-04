@@ -127,3 +127,17 @@ This project is both a game and a long-term learning playground for engine archi
 
 ⭐ If you like the project, feel free to star it and follow development!
 
+
+## Random encounter cooldown
+
+Set `randomEncounters.minimumMovements` in `resources/gameplay.json` to the
+minimum number of completed tile moves before another random encounter roll
+(default: 5). The fifth move is eligible when the setting is 5; earlier moves
+skip the roll entirely. Set 0 to disable the cooldown. Missing or invalid values
+fall back to 5.
+
+Random and scripted battles restart the cooldown when they start. Loading a map,
+including a same-map teleport or a saved game, also restarts it. Completed moves
+on all tiles count, including trigger tiles and tiles outside monster zones.
+Blocked movement, menus, NPC interactions, dialogue, and combat transitions do
+not advance or reset the count. The cooldown is session state and is not saved.

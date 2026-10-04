@@ -10,6 +10,7 @@
 #include <vector>
 #include <boost/signals2.hpp>
 #include "conversationController.hpp"
+#include "encounterCooldown.hpp"
 #include "conversationScenario.hpp"
 #include "gameMap.hpp"
 #include "gameMapModeController.hpp"
@@ -119,6 +120,7 @@ class GameMapMode {
     bool m_blockKeyDown = false;
     bool m_isCharacterWindowDisplayed = false;
     bool m_isInventoryDisplayed = false;
+    thewarrior::ui::models::EncounterCooldown m_encounterCooldown;
     bool m_monsterEncountersEnabled = true;
     bool m_battleStartedByConversation = false;
     // Sleep objects
