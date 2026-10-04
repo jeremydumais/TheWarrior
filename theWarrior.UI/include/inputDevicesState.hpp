@@ -63,6 +63,8 @@ class InputDevicesState {
     bool m_keyboardDown = false;
     bool m_keyboardLeft = false;
     bool m_keyboardRight = false;
+    bool m_keyboardLeftShift = false;
+    bool m_keyboardRightShift = false;
     InputElementState m_buttonAState = InputElementState::Idle;
     InputElementState m_buttonBState = InputElementState::Idle;
     InputElementState m_buttonCState = InputElementState::Idle;

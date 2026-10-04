@@ -167,6 +167,12 @@ InputElementState InputDevicesState::getElementState(bool pressed, bool previous
 void InputDevicesState::processEvent(SDL_Event &e) {
     if (e.type == SDL_KEYDOWN) {
         switch (e.key.keysym.sym) {
+            case SDLK_LSHIFT:
+                m_keyboardLeftShift = true;
+                break;
+            case SDLK_RSHIFT:
+                m_keyboardRightShift = true;
+                break;
             case SDLK_UP:
                 m_keyboardUp = true;
                 break;
@@ -185,6 +191,12 @@ void InputDevicesState::processEvent(SDL_Event &e) {
     }
     if (e.type == SDL_KEYUP) {
         switch (e.key.keysym.sym) {
+            case SDLK_LSHIFT:
+                m_keyboardLeftShift = false;
+                break;
+            case SDLK_RSHIFT:
+                m_keyboardRightShift = false;
+                break;
             case SDLK_UP:
                 m_keyboardUp = false;
                 break;
@@ -208,8 +220,7 @@ void InputDevicesState::processEvent(SDL_Event &e) {
         setButtonBState(InputElementState::Released);
     }
 
-    const Uint8 *keystate = SDL_GetKeyboardState(NULL);
-    if (keystate[SDL_SCANCODE_LSHIFT] || keystate[SDL_SCANCODE_RSHIFT]) {
+    if (m_keyboardLeftShift || m_keyboardRightShift) {
         setKeyShiftState(InputElementState::Pressed);
     } else {
         setKeyShiftState(InputElementState::Idle);
@@ -217,6 +228,8 @@ void InputDevicesState::processEvent(SDL_Event &e) {
 }
 
 void InputDevicesState::confirmDirections() {
+    setKeyShiftState(m_keyboardLeftShift || m_keyboardRightShift
+        ? InputElementState::Pressed : InputElementState::Idle);
     setUpPressed(m_joystickUp || m_keyboardUp);
     setDownPressed(m_joystickDown || m_keyboardDown);
     setLeftPressed(m_joystickLeft || m_keyboardLeft);

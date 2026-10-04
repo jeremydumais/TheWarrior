@@ -321,3 +321,53 @@ TEST(InputDevicesState_processJoystick, WithoutJoystick_ClearsKeyboardCancelOnNe
     devicesState.processJoystick(nullptr);
     EXPECT_EQ(InputElementState::Idle, devicesState.getButtonBState());
 }
+
+TEST(InputDevicesState_processEvent, ShiftRemainsPressedAcrossFramesUntilReleased) {
+    for (auto shiftKey : {SDLK_LSHIFT, SDLK_RSHIFT}) {
+        for (bool useGameController : {false, true}) {
+            InputDevicesState devicesState;
+            SDL_Event event{};
+            event.type = SDL_KEYDOWN;
+            event.key.keysym.sym = shiftKey;
+            devicesState.processEvent(event);
+            ASSERT_EQ(InputElementState::Pressed, devicesState.getKeyShiftState());
+
+            for (int frame = 0; frame < 3; ++frame) {
+                if (useGameController) {
+                    devicesState.processGameController(nullptr);
+                } else {
+                    devicesState.processJoystick(nullptr);
+                }
+                devicesState.confirmDirections();
+                EXPECT_EQ(InputElementState::Pressed, devicesState.getKeyShiftState());
+            }
+
+            event.type = SDL_KEYUP;
+            devicesState.processEvent(event);
+            devicesState.confirmDirections();
+            EXPECT_EQ(InputElementState::Idle, devicesState.getKeyShiftState());
+        }
+    }
+}
+
+TEST(InputDevicesState_processEvent, ReleasingOneShiftKeepsTheOtherPressed) {
+    InputDevicesState devicesState;
+    SDL_Event event{};
+    event.type = SDL_KEYDOWN;
+    event.key.keysym.sym = SDLK_LSHIFT;
+    devicesState.processEvent(event);
+    event.key.keysym.sym = SDLK_RSHIFT;
+    devicesState.processEvent(event);
+
+    event.type = SDL_KEYUP;
+    event.key.keysym.sym = SDLK_LSHIFT;
+    devicesState.processEvent(event);
+    devicesState.processJoystick(nullptr);
+    devicesState.confirmDirections();
+    EXPECT_EQ(InputElementState::Pressed, devicesState.getKeyShiftState());
+
+    event.key.keysym.sym = SDLK_RSHIFT;
+    devicesState.processEvent(event);
+    devicesState.confirmDirections();
+    EXPECT_EQ(InputElementState::Idle, devicesState.getKeyShiftState());
+}
