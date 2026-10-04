@@ -825,14 +825,14 @@ void GameMapMode::checkForMonsterEncounter(const MapTile &tile) {
         return;
     }
 
-    auto zones = m_map->getMonsterZones();
-    if (tile.getMonsterZoneIndex() == -1 ||
-        tile.getMonsterZoneIndex() >= static_cast<int>(zones.size())) {
+    const auto &zones = m_map->getMonsterZones();
+    const int zoneIndex = m_map->useOnlyOneMonsterZone()
+        ? 0 : tile.getMonsterZoneIndex();
+    if (zoneIndex < 0 || zoneIndex >= static_cast<int>(zones.size())) {
         return;
     }
     // Check if we encounter a monster
-    const MonsterZone zone = m_map->getMonsterZones().at(
-        static_cast<size_t>(tile.getMonsterZoneIndex()));
+    const MonsterZone &zone = zones.at(static_cast<size_t>(zoneIndex));
     std::uniform_int_distribution<> distributionEncounter(
         static_cast<int>(zone.getRatioEncounter()),
         static_cast<int>(zone.getRatioEncounterOn()));

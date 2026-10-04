@@ -251,25 +251,25 @@ int Player::getExperienceByLevel(unsigned int level) {
         case 1:
             return 0;
         case 2:
-            return 7;
-        case 3:
             return 23;
+        case 3:
+            return 56;
         case 4:
-            return 47;
+            return 88;
         case 5:
-            return 110;
+            return 170;
         case 6:
-            return 220;
+            return 320;
         case 7:
-            return 450;
+            return 550;
         case 8:
-            return 800;
+            return 1050;
         case 9:
-            return 1300;
+            return 1600;
         case 10:
-            return 2200;
+            return 3200;
         default:
-            return 2200;
+            return 4200;
     }
 }
 
