@@ -1,4 +1,5 @@
 #include "glBattleWindow.hpp"
+#include "battleAttackCalculation.hpp"
 #include "fadeLoopAnimation.hpp"
 #include "glColor.hpp"
 #include "glObjectService.hpp"
@@ -486,22 +487,9 @@ void GLBattleWindow::playerItemWorkflow() {
 }
 
 void GLBattleWindow::playerAttackWorkflow() {
-    // If player's attack is >= than monster defense 1 on 20 to miss else
-    // PlayerAttack on MonsterDefense to have success (otherwise miss).
-    bool playerMissed = false;
-    if (m_glPlayer->getStats().attack >= m_monster->getDefense()) {
-        std::uniform_int_distribution<> distributionMissChance(1, 20);
-        if (distributionMissChance(RandomGenerator::instance()) == 1) {
-            playerMissed = true;
-        }
-    } else {
-        std::uniform_int_distribution<> distributionMissChance(
-            1, static_cast<int>(ceil(m_monster->getDefense())));
-        if (static_cast<float>(distributionMissChance(
-                RandomGenerator::instance())) > m_glPlayer->getStats().attack) {
-            playerMissed = true;
-        }
-    }
+    std::uniform_real_distribution<float> distributionHitChance(0.0F, 1.0F);
+    const bool playerMissed = distributionHitChance(RandomGenerator::instance()) >=
+        battleHitChance(m_glPlayer->getStats().attack, m_monster->getDefense());
     // Compute the potential damage
     // 1 on 16 to land a critical
     bool critical = false;
@@ -517,9 +505,8 @@ void GLBattleWindow::playerAttackWorkflow() {
     std::uniform_real_distribution<> distributionRandomRoll(0.75, 1.0);
     auto randomRollValue =
         static_cast<float>(distributionRandomRoll(RandomGenerator::instance()));
-    int damage = static_cast<int>(
-        ceil((m_glPlayer->getStats().attack * criticalBonus * randomRollValue) -
-             m_monster->getDefense()));
+    const int damage = battleHitDamage(m_glPlayer->getStats().attack,
+        m_monster->getDefense(), criticalBonus, randomRollValue);
     if (playerMissed || damage <= 0) {
         Mix_PlayChannel(-1, m_attackMissSound, 0);
         addBattleLog("You missed your attack!");
@@ -750,29 +737,16 @@ void GLBattleWindow::monsterTurnWorkflow() {
 }
 
 void GLBattleWindow::monsterAttackWorkflow() {
-    // If monster's attack is >= than player defense 1 on 20 to miss else
-    // MonsterAttack on PlayerDefense to have success (otherwise miss).
-    bool monsterMissed = false;
-    if (m_monster->getAttack() >= m_glPlayer->getStats().defense) {
-        std::uniform_int_distribution<> distributionMissChance(1, 20);
-        if (distributionMissChance(RandomGenerator::instance()) == 1) {
-            monsterMissed = true;
-        }
-    } else {
-        std::uniform_int_distribution<> distributionMissChance(
-            1, static_cast<int>(ceil(m_glPlayer->getStats().defense)));
-        if (static_cast<float>(distributionMissChance(
-                RandomGenerator::instance())) > m_monster->getAttack()) {
-            monsterMissed = true;
-        }
-    }
+    std::uniform_real_distribution<float> distributionHitChance(0.0F, 1.0F);
+    const bool monsterMissed = distributionHitChance(RandomGenerator::instance()) >=
+        battleHitChance(m_monster->getAttack(), m_glPlayer->getStats().defense);
     // Compute the potential damage
-    // 1 on 16 to land a critical
+    // 1 on 32 to land a critical
     bool critical = false;
     float criticalBonus = 1.0F;
     std::uniform_int_distribution<> distributionCriticalChance(1, 32);
     if (distributionCriticalChance(RandomGenerator::instance()) == 1) {
-        // Critical bonus from 1.5 to 2.0
+        // Critical bonus from 1.3 to 1.5
         critical = true;
         std::uniform_real_distribution<> distributionCriticalBonus(1.3, 1.5);
         criticalBonus = static_cast<float>(
@@ -781,9 +755,8 @@ void GLBattleWindow::monsterAttackWorkflow() {
     std::uniform_real_distribution<> distributionRandomRoll(0.75, 1.0);
     auto randomRollValue =
         static_cast<float>(distributionRandomRoll(RandomGenerator::instance()));
-    int damage = static_cast<int>(
-        ceil((m_monster->getAttack() * criticalBonus * randomRollValue) -
-             (m_glPlayer->getStats().defense / 2)));
+    const int damage = battleHitDamage(m_monster->getAttack(),
+        m_glPlayer->getStats().defense / 2.0F, criticalBonus, randomRollValue);
     if (monsterMissed || damage <= 0) {
         Mix_PlayChannel(-1, m_attackMissSound, 0);
         startAction(BattleAction::PlayerTurn, 500);

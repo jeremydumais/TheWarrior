@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "glBattleWindow.hpp"
+#include "battleAttackCalculation.hpp"
 #include "statsItem.hpp"
 #include "item.hpp"
 
@@ -151,6 +152,33 @@ TEST(BattleDefeat, MissingMusicStillRequiresConfirmationAndResetClearsState) {
     battle.reset();
     EXPECT_FALSE(battle.isPlayerDefeated());
     EXPECT_EQ(DefeatMusicState::FadingOut, battle.defeatState());
+}
+
+TEST(BattleAttacks, WeakAttackStillHasAChanceToHit) {
+    EXPECT_FLOAT_EQ(0.15F, battleHitChance(1.0F, 1000.0F));
+    EXPECT_FLOAT_EQ(0.15F, battleHitChance(0.1F, 1000.0F));
+    EXPECT_FLOAT_EQ(0.5F, battleHitChance(10.0F, 20.0F));
+    EXPECT_GT(battleHitChance(10.0F, 20.0F), battleHitChance(5.0F, 20.0F));
+    EXPECT_FLOAT_EQ(0.95F, battleHitChance(20.0F, 20.0F));
+    EXPECT_FLOAT_EQ(0.95F, battleHitChance(100.0F, 20.0F));
+    EXPECT_FLOAT_EQ(0.95F, battleHitChance(1.0F, 0.0F));
+    EXPECT_FLOAT_EQ(0.0F, battleHitChance(0.0F, 20.0F));
+}
+
+TEST(BattleAttacks, LandedWeakHitsDealLimitedDamageForEitherSide) {
+    for (float roll : {0.75F, 1.0F}) {
+        EXPECT_EQ(1, battleHitDamage(1.0F, 100.0F, 1.0F, roll));
+        EXPECT_EQ(1, battleHitDamage(1.0F, 100.0F / 2.0F, 1.0F, roll));
+        EXPECT_EQ(1, battleHitDamage(0.1F, 100.0F, 2.0F, roll));
+        EXPECT_EQ(0, battleHitDamage(0.0F, 100.0F, 1.0F, roll));
+    }
+}
+
+TEST(BattleAttacks, StrongAttackDamageAndCriticalBonusArePreserved) {
+    EXPECT_EQ(10, battleHitDamage(20.0F, 5.0F, 1.0F, 0.75F));
+    EXPECT_EQ(15, battleHitDamage(20.0F, 5.0F, 1.0F, 1.0F));
+    EXPECT_EQ(25, battleHitDamage(20.0F, 5.0F, 2.0F, 0.75F));
+    EXPECT_EQ(18, battleHitDamage(20.0F, 5.0F / 2.0F, 1.0F, 1.0F));
 }
 
 }  // namespace
