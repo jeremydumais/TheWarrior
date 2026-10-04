@@ -77,6 +77,21 @@ void GLInventory::setInventory(std::shared_ptr<Inventory> inventory) {
     m_inventory = inventory;
 }
 
+void GLInventory::setBattleMode(bool enabled) {
+    m_battleMode = enabled;
+    m_inputMode = InventoryInputMode::List;
+    m_inputDevicesState->reset();
+}
+
+bool GLInventory::isBattleMode() const {
+    return m_battleMode;
+}
+
+bool GLInventory::canUseInBattle(const Item &item) const {
+    const auto *statsItem = dynamic_cast<const StatsItem*>(&item);
+    return statsItem != nullptr && statsItem->getStatChanging() == Stats::Vitality;
+}
+
 void GLInventory::generateGLInventory() {
     GLPopupWindow::generateGLElements();
     // Detail box
@@ -99,6 +114,7 @@ void GLInventory::generateGLInventory() {
                      &m_itemStore->getTextureContainer().getTextureByName(itemMap.second->getTextureName()).value().get(),
                      itemMap.second->getTextureIndex(),
                      m_texturesGLItemStore->at(itemMap.second->getTextureName()));
+        m_glObjects.back().grayedOut = m_battleMode && !canUseInBattle(*itemMap.second);
     }
 
     const auto stats = m_glPlayer->getStats();
@@ -159,6 +175,7 @@ void GLInventory::generateDetailsInfo() {
                      iconTexture,
                      item->getTextureIndex(),
                      m_texturesGLItemStore->at(item->getTextureName()));
+        m_glObjects.back().grayedOut = m_battleMode && !canUseInBattle(*item);
         generateDetailLabelXCentered(item->getName(), 160.0F, 0.4F);
         int index = 0;
         if (!item->getOptionalDescription().empty()) {
@@ -495,6 +512,14 @@ void GLInventory::inventoryActionButtonPressed() {
     case InventoryInputMode::List: {
         // Check if the cell contains an Item
         auto item = m_inventory->getItem(m_inventoryCursorPosition);
+        if (m_battleMode) {
+            if (item && canUseInBattle(*item)) {
+                m_menuSounds.playClick();
+                m_choicePopup.preparePopup({"Use"});
+                changeMode(InventoryInputMode::StatsItemPopup);
+            }
+            break;
+        }
         if (item) {
             m_menuSounds.playClick();
             if (item->getType() == ItemType::StatsItem) {
@@ -516,6 +541,15 @@ void GLInventory::inventoryActionButtonPressed() {
 }
 
 void GLInventory::itemActionPopupClicked(size_t choice) {
+    if (m_battleMode) {
+        auto item = m_inventory->getItem(m_inventoryCursorPosition);
+        if (m_inputMode == InventoryInputMode::StatsItemPopup && choice == 0 &&
+            item && canUseInBattle(*item)) {
+            m_inputMode = InventoryInputMode::List;
+            m_battleItemSelected(m_inventoryCursorPosition);
+        }
+        return;
+    }
     switch (m_inputMode) {
     case InventoryInputMode::StatsItemPopup:
         if (choice == 0) {

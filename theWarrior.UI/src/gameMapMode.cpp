@@ -49,6 +49,16 @@ GameMapMode::GameMapMode() {
         boost::bind(&GameMapMode::choicePopupCanceled, this));
     m_glBattleWindow.m_battleCompleted.connect(
         boost::bind(&GameMapMode::onBattleCompleted, this));
+    m_glBattleWindow.m_itemRequested.connect([this]() {
+        m_glInventory.setBattleMode(true);
+        m_glInventory.generateGLInventory();
+        m_inputMode = GameMapInputMode::InventoryWindow;
+    });
+    m_glInventory.m_battleItemSelected.connect([this](size_t slot) {
+        if (m_glBattleWindow.useInventoryItem(slot)) {
+            onInventoryWindowClose();
+        }
+    });
 }
 
 GameMapMode::~GameMapMode() {
@@ -450,6 +460,9 @@ void GameMapMode::render() {
         m_choicePopup.render();
     }
     if (m_inputMode == GameMapInputMode::InventoryWindow) {
+        if (m_glInventory.isBattleMode()) {
+            m_glBattleWindow.render();
+        }
         m_glInventory.render();
     }
     if (m_inputMode == GameMapInputMode::MerchantShop) {
@@ -1325,7 +1338,8 @@ void GameMapMode::onCharacterWindowClose() {
 
 void GameMapMode::onInventoryWindowClose() {
     m_isInventoryDisplayed = false;
-    m_inputMode = GameMapInputMode::Map;
+    m_inputMode = m_glInventory.isBattleMode() ? GameMapInputMode::Battle : GameMapInputMode::Map;
+    m_glInventory.setBattleMode(false);
 }
 
 void GameMapMode::mainMenuPopupClicked(size_t choice) {

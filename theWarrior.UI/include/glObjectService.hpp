@@ -11,6 +11,7 @@ struct GLObject {
     GLuint vboColor = 0;
     GLuint vboTexture = 0;
     GLuint textureGLId = 0;
+    bool grayedOut = false;
 };
 
 struct GenerateGLObjectInfo {

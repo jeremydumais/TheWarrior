@@ -44,6 +44,9 @@ class GLInventory : public GLPopupWindow {
                     const std::map<std::string, unsigned int> *texturesGLItemStore,
                     std::shared_ptr<InputDevicesState> inputDevicesState);
     void setInventory(std::shared_ptr<thewarrior::models::Inventory> inventory);
+    void setBattleMode(bool enabled);
+    bool isBattleMode() const;
+    boost::signals2::signal<void(size_t)> m_battleItemSelected;
     void update();
     void generateGLInventory();
     void render();
@@ -58,6 +61,8 @@ class GLInventory : public GLPopupWindow {
     std::shared_ptr<Mix_Chunk> m_equipArmorSound;
     std::shared_ptr<Mix_Chunk> m_equipWeaponSound;
     MenuSounds m_menuSounds;
+    bool m_battleMode = false;
+    bool canUseInBattle(const thewarrior::models::Item &item) const;
     size_t m_inventoryCursorPosition = 0;
     InventoryInputMode m_inputMode = InventoryInputMode::List;
     size_t m_inventoryMoveSrc = 0;

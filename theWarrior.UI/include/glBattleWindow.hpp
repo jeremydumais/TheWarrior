@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <boost/signals2.hpp>
+#include <boost/optional.hpp>
 #include "IAnimation.hpp"
 #include "glObjectService.hpp"
 #include "glPlayer.hpp"
@@ -62,11 +63,13 @@ class GLBattleWindow : public GLPopupWindow {
     bool initBattleShaders(const std::string &resourcesPath);
     void reset();
     void update();
-    void generateGLElements();
+    virtual void generateGLElements();
     void render();
     void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
     void prepareWindow(const std::string &id);
     void setBattleLandscapeTextureIndex(int index);
+    bool useInventoryItem(size_t slot);
+    boost::signals2::signal<void()> m_itemRequested;
     boost::signals2::signal<void()> m_battleCompleted;
 
  protected:
@@ -100,6 +103,8 @@ class GLBattleWindow : public GLPopupWindow {
     bool m_levelUpSoundPlayed = false;
     int m_battleLandscapeTextureIndex = 0;
     BattleAction m_currentBattleAction = BattleAction::PlayerTurn;
+    boost::optional<size_t> m_pendingItemSlot;
+    std::shared_ptr<Mix_Chunk> m_restoreHealthSound;
     Mix_Chunk* m_attackSound = nullptr;
     Mix_Chunk* m_attackMissSound = nullptr;
     Mix_Chunk* m_attackCriticalSound = nullptr;
@@ -113,6 +118,7 @@ class GLBattleWindow : public GLPopupWindow {
     void addBattleLog(const std::string &log);
     void startAction(BattleAction action, Uint64 timeLength);
     void playerAttackWorkflow();
+    void playerItemWorkflow();
     void playerRunWorkflow();
     void playerWonWorkflow();
     void bossDefeatWorkflow();

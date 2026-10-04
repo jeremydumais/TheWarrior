@@ -6,6 +6,7 @@
 #include "randomUtils.hpp"
 #include "shakingAnimation.hpp"
 #include "valueChangeAnimation.hpp"
+#include "statsItem.hpp"
 #include <SDL2/SDL_timer.h>
 #include <cstddef>
 #include <fmt/core.h>
@@ -61,6 +62,12 @@ void GLBattleWindow::initialize(
     m_glTextActions.push_back(
         {.text = "Run", .position = {1.0F, 520.0F}, .scale = 0.6F});
     // Sounds
+    m_restoreHealthSound = std::shared_ptr<Mix_Chunk>(
+        Mix_LoadWAV(fmt::format("{0}/sounds/restoreHealth.wav", resourcePath).c_str()),
+        Mix_FreeChunk);
+    if (!m_restoreHealthSound) {
+        std::cerr << fmt::format("Mix_LoadWAV error: {0}\n", Mix_GetError());
+    }
     m_attackSound = Mix_LoadWAV(
         fmt::format("{0}/sounds/attack.wav", m_resourcesPath).c_str());
     if (m_attackSound == nullptr) {
@@ -131,6 +138,7 @@ void GLBattleWindow::reset() {
     m_battleLog = std::queue<std::string>();
     m_menuActionsPosition = 0;
     m_currentBattleAction = BattleAction::PlayerTurn;
+    m_pendingItemSlot = boost::none;
     m_namedObjectsAnimations.clear();
     m_goldObtained = 0;
     m_experienceObtained = 0;
@@ -189,6 +197,9 @@ void GLBattleWindow::update() {
                 break;
             case BattleAction::PlayerAttack:
                 playerAttackWorkflow();
+                break;
+            case BattleAction::PlayerItem:
+                playerItemWorkflow();
                 break;
             case BattleAction::PlayerRanAway:
             case BattleAction::PlayerTryToRun:
@@ -402,8 +413,7 @@ void GLBattleWindow::actionButtonPressed() {
         // Spell
         addBattleLog("<Not implemented yet>");
     } else if (m_menuActionsPosition == 2) {
-        // Item
-        addBattleLog("<Not implemented yet>");
+        m_itemRequested();
     } else if (m_menuActionsPosition == 3) {
         // Run
         addBattleLog("Attempting to run away...");
@@ -423,6 +433,44 @@ void GLBattleWindow::startAction(BattleAction action, Uint64 timeLength) {
     m_currentBattleAction = action;
     m_actionStepStartTicks = SDL_GetTicks64();
     m_actionStepNextTicks = timeLength;
+}
+
+bool GLBattleWindow::useInventoryItem(size_t slot) {
+    if (m_currentBattleAction != BattleAction::PlayerTurn || m_pendingItemSlot ||
+        slot >= INVENTORY_MAX) {
+        return false;
+    }
+    auto item = m_glPlayer->getInventory()->getItem(slot);
+    const auto *statsItem = dynamic_cast<const StatsItem*>(item.get());
+    if (!statsItem || statsItem->getStatChanging() != Stats::Vitality) {
+        return false;
+    }
+    m_pendingItemSlot = slot;
+    startAction(BattleAction::PlayerItem, 750);
+    addBattleLog(fmt::format("You use a {}...", statsItem->getName()));
+    return true;
+}
+
+void GLBattleWindow::playerItemWorkflow() {
+    auto inventory = m_glPlayer->getInventory();
+    auto item = m_pendingItemSlot ? inventory->getItem(*m_pendingItemSlot) : nullptr;
+    const auto *statsItem = dynamic_cast<const StatsItem*>(item.get());
+    if (!statsItem || statsItem->getStatChanging() != Stats::Vitality) {
+        m_pendingItemSlot = boost::none;
+        startAction(BattleAction::PlayerTurn, 0);
+        addBattleLog("That item is no longer available.");
+        return;
+    }
+    const auto previousHealth = m_glPlayer->getStats().health;
+    inventory->dropItem(*m_pendingItemSlot);
+    m_pendingItemSlot = boost::none;
+    m_glPlayer->restoreHealth(static_cast<int>(statsItem->getGain()));
+    if (m_restoreHealthSound) {
+        Mix_PlayChannel(-1, m_restoreHealthSound.get(), 0);
+    }
+    startAction(BattleAction::MonsterTurn, 500);
+    addBattleLog(fmt::format("You recovered {} HP!",
+        m_glPlayer->getStats().health - previousHealth));
 }
 
 void GLBattleWindow::playerAttackWorkflow() {
