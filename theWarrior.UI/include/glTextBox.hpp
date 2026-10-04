@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GL/glew.h>
+#include <SDL2/SDL_mixer.h>
 #include <map>
 #include <memory>
 #include <string>
@@ -37,6 +38,8 @@ class GLTextBox : public GLPopupWindow {
     std::shared_ptr<thewarrior::ui::controllers::MessageDTO> m_messageDTO;
     ComputedTextForDisplay m_computedTextForDisplay;
     float m_visibleCharacterCount = 0.0F;
+    std::shared_ptr<Mix_Chunk> m_typewriterSound;
+    float m_typewriterSoundElapsedTime = 0.0F;
     float m_nextPageArrowBlinkElapsedTime = 0.0F;
     bool m_isRevealingText = false;
     bool m_isNextPageArrowGenerated = false;

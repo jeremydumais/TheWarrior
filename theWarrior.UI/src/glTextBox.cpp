@@ -1,6 +1,8 @@
 #include <fmt/format.h>
 #include <algorithm>
 #include <cmath>
+#include <cctype>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <stdexcept>
@@ -16,6 +18,7 @@ using namespace thewarrior::ui::controllers;
 namespace thewarrior::ui {
 
 constexpr float TextRevealCharactersPerSecond = 45.0F;
+constexpr float TypewriterSoundIntervalInSeconds = 0.04F;
 constexpr float NextPageArrowBlinkPeriodInSeconds = 0.8F;
 
 GLTextBox::GLTextBox()
@@ -36,6 +39,14 @@ void GLTextBox::initialize(const std::string &resourcePath,
     GLPopupWindow::initialize("", resourcePath, textService);
     m_itemStore = itemStore;
     m_texturesGLItemStore = texturesGLItemStore;
+    m_typewriterSound = std::shared_ptr<Mix_Chunk>(
+        Mix_LoadWAV(fmt::format("{0}/sounds/typewriter.wav", resourcePath).c_str()),
+        Mix_FreeChunk);
+    if (m_typewriterSound) {
+        Mix_VolumeChunk(m_typewriterSound.get(), MIX_MAX_VOLUME / 4);
+    } else {
+        std::cerr << fmt::format("Mix_LoadWAV error: {0}\n", Mix_GetError());
+    }
 }
 
 void GLTextBox::generateMessage(std::shared_ptr<MessageDTO> messageDTO) {
@@ -44,6 +55,7 @@ void GLTextBox::generateMessage(std::shared_ptr<MessageDTO> messageDTO) {
     freeGLObjects(m_nextPageArrowObjects);
     m_isNextPageArrowGenerated = false;
     m_nextPageArrowBlinkElapsedTime = 0.0F;
+    m_typewriterSoundElapsedTime = TypewriterSoundIntervalInSeconds;
     const auto totalCharacterCount = getTotalCharacterCount();
     if (m_messageDTO->getType() == MessageDTOType::NPCDialogueMessage) {
         m_visibleCharacterCount = 0.0F;
@@ -92,7 +104,40 @@ void GLTextBox::update(float deltaTime) {
         return;
     }
 
+    const auto previousVisibleCount = static_cast<size_t>(m_visibleCharacterCount);
     m_visibleCharacterCount += TextRevealCharactersPerSecond * deltaTime;
+    m_typewriterSoundElapsedTime += deltaTime;
+    const auto visibleCount = std::min(
+        static_cast<size_t>(m_visibleCharacterCount), getTotalCharacterCount());
+    if (m_typewriterSound && visibleCount > previousVisibleCount &&
+        m_typewriterSoundElapsedTime >= TypewriterSoundIntervalInSeconds) {
+        size_t lineStart = 0;
+        bool hasRevealedCharacter = false;
+        for (const auto &line : m_computedTextForDisplay.lines) {
+            const auto begin = previousVisibleCount > lineStart ?
+                std::min(previousVisibleCount - lineStart, line.size()) : 0;
+            const auto end = visibleCount > lineStart ?
+                std::min(visibleCount - lineStart, line.size()) : 0;
+            for (size_t i = begin; i < end; ++i) {
+                const auto character = static_cast<unsigned char>(line[i]);
+                if (!std::isspace(character) && (character & 0xC0) != 0x80) {
+                    hasRevealedCharacter = true;
+                    break;
+                }
+            }
+            if (hasRevealedCharacter) {
+                break;
+            }
+            lineStart += line.size();
+            if (lineStart >= visibleCount) {
+                break;
+            }
+        }
+        if (hasRevealedCharacter) {
+            Mix_PlayChannel(-1, m_typewriterSound.get(), 0);
+            m_typewriterSoundElapsedTime = 0.0F;
+        }
+    }
     if (m_visibleCharacterCount >= static_cast<float>(getTotalCharacterCount())) {
         revealAllText();
     }
