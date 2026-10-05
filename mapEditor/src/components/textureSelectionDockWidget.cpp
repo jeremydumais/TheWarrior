@@ -1,5 +1,7 @@
 #include "textureSelectionDockWidget.hpp"
 #include <QtGlobal>
+#include <QPainter>
+#include <QSignalBlocker>
 #include <fmt/format.h>
 #include <qnamespace.h>
 #include <string>
@@ -21,6 +23,10 @@ TextureSelectionDockWidget::TextureSelectionDockWidget(QWidget *parent,
 }
 
 void TextureSelectionDockWidget::connectUIActions() {
+    connect(ui.checkBoxDisplayGrid, &QCheckBox::toggled, this, [this](bool enabled) {
+        displaySelectedTextureImage();
+        emit displayGridChanged(enabled);
+    });
     connect(ui.pushButtonSelectedTextureClear, &QPushButton::clicked, this, &TextureSelectionDockWidget::onPushButtonSelectedTextureClearClick);
     connect(ui.pushButtonSelectedObjectClear, &QPushButton::clicked, this, &TextureSelectionDockWidget::onPushButtonSelectedObjectClearClick);
     connect(ui.labelImageTexture, &QClickableLabel::onMouseReleaseEvent, this, &TextureSelectionDockWidget::onLabelImageTextureMouseReleaseEvent);
@@ -38,15 +44,38 @@ void TextureSelectionDockWidget::refreshTextureList() {
     displaySelectedTextureImage();
 }
 
+void TextureSelectionDockWidget::setDisplayGrid(bool enabled) {
+    const QSignalBlocker blocker(ui.checkBoxDisplayGrid);
+    ui.checkBoxDisplayGrid->setChecked(enabled);
+    displaySelectedTextureImage();
+}
+
 void TextureSelectionDockWidget::displaySelectedTextureImage() {
     // Find the selected texture
     auto texture { m_glComponent->getTextureByName(ui.comboBoxTexture->itemText(ui.comboBoxTexture->currentIndex()).toStdString()) };
     if (texture.has_value()) {
         QImageReader reader(fmt::format("{0}/textures/{1}", m_glComponent->getResourcesPath(), texture->get().getFilename()).c_str());
         const QImage image { reader.read() };
+        m_texturePixmap = QPixmap::fromImage(image);
+        QPixmap preview = m_texturePixmap;
+        const int tileWidth = texture->get().getTileWidth();
+        const int tileHeight = texture->get().getTileHeight();
+        if (ui.checkBoxDisplayGrid->isChecked() && !preview.isNull()
+                && tileWidth > 0 && tileHeight > 0) {
+            QPainter painter(&preview);
+            painter.setPen(QPen(Qt::white, 1));
+            for (int x = 0; x < preview.width(); x += tileWidth) {
+                painter.drawLine(x, 0, x, preview.height() - 1);
+            }
+            for (int y = 0; y < preview.height(); y += tileHeight) {
+                painter.drawLine(0, y, preview.width() - 1, y);
+            }
+            painter.drawRect(0, 0, preview.width() - 1, preview.height() - 1);
+        }
         ui.labelImageTexture->setFixedSize(image.width(), image.height());
-        ui.labelImageTexture->setPixmap(QPixmap::fromImage(image));
+        ui.labelImageTexture->setPixmap(preview);
     } else {
+        m_texturePixmap = QPixmap();
         ui.labelImageTexture->clear();
         m_glComponent->clearLastSelectedTexture();
         m_glComponent->clearLastSelectedObject();
@@ -73,7 +102,7 @@ void TextureSelectionDockWidget::onLabelImageTextureMouseReleaseEvent(QMouseEven
         std::string name { textureName };
         int index = TextureUtils::getTextureIndexFromPosition(Point(event->pos().x(), event->pos().y()), texture->get());
         // Display the selected texture or object on the selected image
-        auto qpixmap = TextureUtils::getTexturePixmapFromLabel(ui.labelImageTexture);
+        auto qpixmap = m_texturePixmap;
         auto imagePart { TextureUtils::getTextureTileImageFromTexture(&qpixmap, index, texture->get()) };
         if (ui.radioButtonTexture->isChecked()) {
             m_glComponent->setLastSelectedTexture(name, index);
@@ -94,7 +123,7 @@ void TextureSelectionDockWidget::onPickerToolTileSelected(const PickerToolSelect
     auto texture { m_glComponent->getTextureByName(selection.textureName) };
     if (texture.has_value()) {
         ui.comboBoxTexture->setCurrentText(selection.textureName.c_str());
-        auto qpixmap = TextureUtils::getTexturePixmapFromLabel(ui.labelImageTexture);
+        auto qpixmap = m_texturePixmap;
         auto imagePart { TextureUtils::getTextureTileImageFromTexture(&qpixmap,
                 selection.textureIndex,
                 texture->get()) };
@@ -104,7 +133,7 @@ void TextureSelectionDockWidget::onPickerToolTileSelected(const PickerToolSelect
     auto textureObj { m_glComponent->getTextureByName(selection.objectTextureName) };
     if (textureObj.has_value()) {
         ui.comboBoxTexture->setCurrentText(selection.objectTextureName.c_str());
-        auto qpixmapObj = TextureUtils::getTexturePixmapFromLabel(ui.labelImageTexture);
+        auto qpixmapObj = m_texturePixmap;
         auto imagePartObj { TextureUtils::getTextureTileImageFromTexture(&qpixmapObj,
                 selection.objectTextureIndex,
                 textureObj->get()) };

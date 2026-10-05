@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>349</height>
+    <height>483</height>
    </rect>
   </property>
   <property name="allowedAreas">
@@ -28,7 +28,7 @@
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>100</height>
+          <height>130</height>
          </size>
         </property>
         <layout class="QFormLayout" name="formLayout_3">
@@ -70,6 +70,9 @@
                <height>32</height>
               </size>
              </property>
+             <property name="frameShape">
+              <enum>QFrame::Box</enum>
+             </property>
              <property name="text">
               <string/>
              </property>
@@ -103,7 +106,7 @@
            </item>
           </layout>
          </item>
-         <item row="5" column="0">
+         <item row="4" column="0">
           <widget class="QLabel" name="label_10">
            <property name="minimumSize">
             <size>
@@ -116,7 +119,7 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
+         <item row="4" column="1">
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
             <widget class="QLabel" name="labelSelectedObject">
@@ -131,6 +134,9 @@
                <width>32</width>
                <height>32</height>
               </size>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::Box</enum>
              </property>
              <property name="text">
               <string/>
@@ -160,6 +166,24 @@
              </property>
              <property name="text">
               <string>Clear</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Display grid?:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <widget class="QCheckBox" name="checkBoxDisplayGrid">
+             <property name="text">
+              <string>Yes</string>
              </property>
             </widget>
            </item>
@@ -197,6 +221,20 @@
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="QRadioButton" name="radioButtonMultTexture">
+           <property name="text">
+            <string>Multi-Texture</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioButtonMultiObject">
+           <property name="text">
+            <string>Multi-Object</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>
@@ -210,8 +248,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>378</width>
-           <height>85</height>
+           <width>382</width>
+           <height>193</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
@@ -243,7 +281,6 @@
   <tabstop>pushButtonSelectedTextureClear</tabstop>
   <tabstop>pushButtonSelectedObjectClear</tabstop>
   <tabstop>radioButtonTexture</tabstop>
-  <tabstop>radioButtonObject</tabstop>
   <tabstop>scrollArea</tabstop>
  </tabstops>
  <resources/>

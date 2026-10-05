@@ -17,12 +17,15 @@ Q_OBJECT
     void connectUIActions();
     void refreshTextureList();
     void displaySelectedTextureImage();
+    void setDisplayGrid(bool enabled);
 
  signals:
+    void displayGridChanged(bool enabled);
 
  private:
     Ui::TextureSelectionDockWidget ui;
     MainForm_GLComponent *m_glComponent;
+    QPixmap m_texturePixmap;
     void onPushButtonSelectedTextureClearClick();
     void onPushButtonSelectedObjectClearClick();
     void onLabelImageTextureMouseReleaseEvent(QMouseEvent *event);
