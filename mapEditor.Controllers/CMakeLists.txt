@@ -37,6 +37,7 @@ include_directories(${QT_INCLUDE_PATH}
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/npcListComponentController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/selectNPCTextureFormController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/texturePickerController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/textureStamp.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/tilePropsComponentController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/editorStateInfoJSONSerializer.cpp)
 

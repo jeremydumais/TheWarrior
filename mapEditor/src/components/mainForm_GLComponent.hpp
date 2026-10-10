@@ -103,6 +103,7 @@ class MainForm_GLComponent : public QWidget {
     void editHistoryChanged();
     void clipboardChanged();
     void zoomChanged(int zoomPercentage);
+    void textureStampPreviewChanged(bool active);
     void npcSpawnPositionPickerModeChanged(bool enabled);
     void npcSpawnPositionPickerTileSelected(const thewarrior::models::Point<> &position);
 
@@ -118,4 +119,5 @@ class MainForm_GLComponent : public QWidget {
     void onNPCSpawnPositionPickerToolCanceled();
     void onZoomChanged(int zoomPercentage);
     void onClipboardPasted();
+    void onTextureStampPreviewChanged(bool active);
 };

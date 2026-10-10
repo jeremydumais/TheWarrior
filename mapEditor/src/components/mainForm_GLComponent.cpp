@@ -59,6 +59,10 @@ void MainForm_GLComponent::connectUIActions() {
             this,
             &MainForm_GLComponent::onClipboardPasted);
     connect(this->m_glWidget,
+            &MapOpenGLWidget::onTextureStampPreviewChanged,
+            this,
+            &MainForm_GLComponent::onTextureStampPreviewChanged);
+    connect(this->m_glWidget,
             &MapOpenGLWidget::onNPCSpawnPositionPickerToolTileSelected,
             this,
             &MainForm_GLComponent::onNPCSpawnPositionPickerToolTileSelected);
@@ -266,6 +270,10 @@ void MainForm_GLComponent::onZoomChanged(int zoomPercentage) {
 void MainForm_GLComponent::onClipboardPasted() {
     m_controller.pushCurrentStateToHistory();
     emit editHistoryChanged();
+}
+
+void MainForm_GLComponent::onTextureStampPreviewChanged(bool active) {
+    emit textureStampPreviewChanged(active);
 }
 
 void MainForm_GLComponent::onNPCSpawnPositionPickerToolTileSelected(const MapTile &tile,

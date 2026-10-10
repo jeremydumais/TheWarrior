@@ -222,7 +222,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="radioButtonMultTexture">
+          <widget class="QRadioButton" name="radioButtonMultiTexture">
            <property name="text">
             <string>Multi-Texture</string>
            </property>

@@ -24,6 +24,7 @@
 #include "pickerToolSelection.hpp"
 #include "point.hpp"
 #include "selectionMode.hpp"
+#include "textureStampMimeData.hpp"
 
 using namespace thewarrior::models;
 using thewarrior::ui::getVec3FromRGBString;
@@ -32,6 +33,7 @@ MapOpenGLWidget::MapOpenGLWidget(QWidget *parent)
 : QOpenGLWidget(parent) {
     connect(&m_repaintTimer, SIGNAL(timeout()), this, SLOT(updateScene()));
     setMouseTracking(true);
+    setAcceptDrops(true);
     setAutoFillBackground(false);
     QSurfaceFormat fmt;
     fmt.setSwapInterval(1);  // Enable VSync
@@ -53,6 +55,8 @@ const std::string &MapOpenGLWidget::getLastSelectedNPC() const {
 void MapOpenGLWidget::setCurrentMap(std::shared_ptr<GameMap> map) {
     m_resources.currentMap = std::move(map);
     m_selection.selectedTileIndices = {};
+    m_previousDragPaste.reset();
+    m_paste.textureStamp.reset();
     m_paste.pasteResult = {};
     m_paste.pasteResultIndices = {};
     m_paste.dragInProgress = false;
@@ -180,6 +184,10 @@ void MapOpenGLWidget::setResourcesPath(const std::string &path) {
 }
 
 void MapOpenGLWidget::setSelectionMode(SelectionMode mode) {
+    if (mode != SelectionMode::Paste && m_paste.textureStamp) {
+        m_paste = {};
+        emit onTextureStampPreviewChanged(false);
+    }
     m_selection.previousMode = m_selection.currentMode;
     m_selection.currentMode = mode;
 }
@@ -265,11 +273,104 @@ void MapOpenGLWidget::resetMapMovePosition() {
 
 void MapOpenGLWidget::pasteClipboard(const std::vector<thewarrior::models::MapTile> &tiles,
                                      const std::set<int> &clipboardSelectedTileIndices) {
+    m_paste = {};
     m_paste.pasteResult = tiles;
     m_paste.pasteResultIndices = clipboardSelectedTileIndices;
     m_paste.dragStartPosition = QPoint(0, 0);
     m_paste.dragEndPosition = QPoint(0, 0);
     calculatePasteSelectionZone(m_paste.dragEndPosition, true);
+}
+
+bool MapOpenGLWidget::positionTextureStamp(const mapeditor::controllers::TextureStamp &stamp, QPoint origin) {
+    if (!m_resources.currentMap || !m_resources.currentMap->getTextureByName(stamp.textureName).has_value()) {
+        return false;
+    }
+    auto preview = mapeditor::controllers::makeTextureStampPreview(*m_resources.currentMap, stamp,
+            {origin.x(), origin.y()});
+    if (!preview) {
+        return false;
+    }
+    m_paste.textureStamp = stamp;
+    m_paste.pasteResult = std::move(*preview);
+    m_paste.pasteResultIndices.clear();
+    for (int y = 0; y < stamp.height; ++y) {
+        for (int x = 0; x < stamp.width; ++x) {
+            m_paste.pasteResultIndices.insert(m_resources.currentMap->getTileIndexFromCoord(
+                    {origin.x() + x, origin.y() + y}));
+        }
+    }
+    m_paste.selectionStartPosition = origin;
+    m_paste.selectionEndPosition = origin + QPoint(stamp.width - 1, stamp.height - 1);
+    update();
+    return true;
+}
+
+bool MapOpenGLWidget::previewTextureStampDrag(const QMimeData *mimeData, QPoint position) {
+    const auto *stampData = dynamic_cast<const TextureStampMimeData *>(mimeData);
+    if (!stampData || !m_resources.currentMap) {
+        return false;
+    }
+    const int index = tileIndexAtScreenPos(position.x(), position.y());
+    if (index == -1) {
+        return false;
+    }
+    const auto point = m_resources.currentMap->getCoordFromTileIndex(index);
+    return positionTextureStamp(stampData->stamp, QPoint(point.x(), point.y()) - stampData->tileAnchor);
+}
+
+void MapOpenGLWidget::dragEnterEvent(QDragEnterEvent *event) {
+    if (!dynamic_cast<const TextureStampMimeData *>(event->mimeData()) || !m_resources.currentMap) {
+        event->ignore();
+        return;
+    }
+    m_previousDragPaste = m_paste;
+    m_previousDragMode = m_selection.currentMode;
+    m_paste = {};
+    m_selection.currentMode = SelectionMode::Paste;
+    previewTextureStampDrag(event->mimeData(), event->pos());
+    event->setDropAction(Qt::CopyAction);
+    event->accept();
+}
+
+void MapOpenGLWidget::dragMoveEvent(QDragMoveEvent *event) {
+    if (previewTextureStampDrag(event->mimeData(), event->pos())) {
+        event->setDropAction(Qt::CopyAction);
+        event->accept();
+    } else {
+        m_paste = {};
+        event->ignore();
+        update();
+    }
+}
+
+void MapOpenGLWidget::restoreBeforeTextureDrag() {
+    if (m_previousDragPaste) {
+        m_paste = std::move(*m_previousDragPaste);
+        m_previousDragPaste.reset();
+        m_selection.currentMode = m_previousDragMode;
+        update();
+    }
+}
+
+void MapOpenGLWidget::dragLeaveEvent(QDragLeaveEvent *event) {
+    restoreBeforeTextureDrag();
+    event->accept();
+}
+
+void MapOpenGLWidget::dropEvent(QDropEvent *event) {
+    if (!previewTextureStampDrag(event->mimeData(), event->pos())) {
+        restoreBeforeTextureDrag();
+        event->ignore();
+        return;
+    }
+    m_previousDragPaste.reset();
+    m_input.mousePressed = false;
+    m_selection.preMapDragMode.reset();
+    m_selection.currentMode = SelectionMode::Paste;
+    setFocus();
+    emit onTextureStampPreviewChanged(true);
+    event->setDropAction(Qt::CopyAction);
+    event->accept();
 }
 
 void MapOpenGLWidget::wheelEvent(QWheelEvent *event) {
@@ -285,6 +386,15 @@ void MapOpenGLWidget::wheelEvent(QWheelEvent *event) {
 
 void MapOpenGLWidget::keyPressEvent(QKeyEvent *event) {
     if (event->key() == Qt::Key_Escape) {
+        if (m_selection.currentMode == SelectionMode::Paste && m_paste.textureStamp) {
+            m_paste = {};
+            m_input.mousePressed = false;
+            m_selection.currentMode = SelectionMode::Select;
+            emit onTextureStampPreviewChanged(false);
+            update();
+            event->accept();
+            return;
+        }
         emit onNPCSpawnPositionPickerToolCanceled();
     } else {
         QOpenGLWidget::keyPressEvent(event);
@@ -292,6 +402,9 @@ void MapOpenGLWidget::keyPressEvent(QKeyEvent *event) {
 }
 
 void MapOpenGLWidget::mousePressEvent(QMouseEvent *event) {
+    if (m_paste.textureStamp && event->button() != Qt::LeftButton) {
+        return;
+    }
     this->setFocus();
     bool altPressed = QGuiApplication::keyboardModifiers().testFlag(Qt::AltModifier);
     if (altPressed) {
@@ -313,6 +426,9 @@ void MapOpenGLWidget::mousePressEvent(QMouseEvent *event) {
 }
 
 void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event) {
+    if (m_paste.textureStamp && event->button() != Qt::LeftButton) {
+        return;
+    }
     m_input.mousePressed = false;
     m_camera.translationX += m_camera.dragAndDropX;
     m_camera.dragAndDropX = 0;
@@ -382,13 +498,20 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event) {
                 .textureName = tile.getTextureName(),
                 .textureIndex = tile.getTextureIndex(),
                 .objectTextureName = tile.getObjectTextureName(),
-                .objectTextureIndex = tile.getObjectTextureIndex()
+                .objectTextureIndex = tile.getObjectTextureIndex(),
             });
         }
     } else if (m_selection.currentMode == SelectionMode::Paste) {
         if (m_paste.dragInProgress) {
             calculatePasteSelectionZone(event->pos());
-        } else {
+        } else if (!m_paste.pasteResultIndices.empty() && event->button() == Qt::LeftButton) {
+            const bool textureStamp = m_paste.textureStamp.has_value();
+            if (textureStamp && !positionTextureStamp(*m_paste.textureStamp, m_paste.selectionStartPosition)) {
+                m_paste = {};
+                m_selection.currentMode = SelectionMode::Select;
+                emit onTextureStampPreviewChanged(false);
+                return;
+            }
             emit onClipboardPasted();
             m_selection.currentMode = SelectionMode::Select;
             size_t tileIndexInSelection = 0;
@@ -398,6 +521,10 @@ void MapOpenGLWidget::mouseReleaseEvent(QMouseEvent *event) {
             }
             m_paste.pasteResult = {};
             m_paste.pasteResultIndices = {};
+            m_paste.textureStamp.reset();
+            if (textureStamp) {
+                emit onTextureStampPreviewChanged(false);
+            }
         }
         m_paste.dragInProgress = false;
     } else if (m_selection.currentMode == SelectionMode::NPCSpawnPositionPickerTool) {
@@ -419,6 +546,9 @@ void MapOpenGLWidget::leaveEvent(QEvent */*event*/) {
 }
 
 void MapOpenGLWidget::mouseMoveEvent(QMouseEvent *event) {
+    if (m_selection.currentMode == SelectionMode::Paste && m_paste.dragInProgress && m_paste.textureStamp) {
+        calculatePasteSelectionZone(event->pos());
+    }
     if (m_input.mousePressed &&
             m_selection.currentMode == SelectionMode::MoveMap) {
         m_camera.dragAndDropX = static_cast<float>(event->pos().x() - m_input.lastCursorPosition.x()) / (m_metrics.onScreenTileSizePx * m_metrics.translationXToPixel);
@@ -460,7 +590,7 @@ void MapOpenGLWidget::recomputeTileMetrics() {
         .glTileHeight = m_metrics.glTileHeight,
         .translationXToPixel = m_metrics.translationXToPixel,
         .translationYToPixel = m_metrics.translationYToPixel,
-        .tileSizeInPx = static_cast<unsigned int>(m_metrics.onScreenTileSizePx)
+        .tileSizeInPx = static_cast<unsigned int>(m_metrics.onScreenTileSizePx),
     };
     emit onRecalculateTileSize(info);
 }
@@ -562,7 +692,7 @@ MapOpenGLWidget::VisibleTileBounds MapOpenGLWidget::computeVisibleTileBounds() c
         .firstColumn = firstColumn,
         .lastColumn = lastColumn,
         .firstRow = firstRow,
-        .lastRow = lastRow
+        .lastRow = lastRow,
     };
 }
 
@@ -740,6 +870,9 @@ void MapOpenGLWidget::drawSelectionRectOverlay() const {
 }
 
 void MapOpenGLWidget::drawPastePreview() {
+    if (m_paste.pasteResultIndices.empty()) {
+        return;
+    }
     size_t index = 0;
     std::vector<int> tileIndices = {};
     std::ranges::transform(m_paste.pasteResultIndices,
@@ -764,7 +897,11 @@ void MapOpenGLWidget::drawPastePreview() {
     glBindTexture(GL_TEXTURE_2D, 0);
     glTranslatef(static_cast<float>(m_paste.selectionStartPosition.x()) * (m_metrics.glTileWidth + m_metrics.tileSpacing),
             static_cast<float>(m_paste.selectionStartPosition.y()) * -(m_metrics.glTileHeight + m_metrics.tileSpacing), 0.0F);
-    glColor4f(1.0F, 1.0F, 1.0F, 0.7F);
+    if (m_paste.textureStamp) {
+        glColor4f(0.0F, 1.0F, 0.0F, 1.0F);
+    } else {
+        glColor4f(1.0F, 1.0F, 1.0F, 0.7F);
+    }
     glBegin(GL_LINES);
     glVertex3f(-m_metrics.glTileHalfWidth, m_metrics.glTileHalfHeight, 0);
     glVertex3f(-m_metrics.glTileHalfWidth, -m_metrics.glTileHalfHeight - selectionBoxHeight, 0);
@@ -961,20 +1098,19 @@ void MapOpenGLWidget::drawBlockedBordersOverlay(const thewarrior::models::MapTil
 }
 
 int MapOpenGLWidget::tileIndexAtScreenPos(int onScreenX, int onScreenY) {
-    if (static_cast<float>(onScreenX) / m_metrics.onScreenTileSizePx > static_cast<float>(m_resources.currentMap->getWidth())) {
-        return -1;
-    }
-    if (static_cast<float>(onScreenY) / m_metrics.onScreenTileSizePx > static_cast<float>(m_resources.currentMap->getHeight())) {
+    if (!m_resources.currentMap || m_metrics.onScreenTileSizePx <= 0.0F) {
         return -1;
     }
     float xPos = static_cast<float>(onScreenX) - (m_camera.translationX * m_metrics.translationXToPixel * m_metrics.onScreenTileSizePx);
     float yPos = static_cast<float>(onScreenY) + (m_camera.translationY * m_metrics.translationYToPixel * m_metrics.onScreenTileSizePx);
+    if (xPos < 0.0F || yPos < 0.0F
+            || xPos >= static_cast<float>(m_resources.currentMap->getWidth()) * m_metrics.onScreenTileSizePx
+            || yPos >= static_cast<float>(m_resources.currentMap->getHeight()) * m_metrics.onScreenTileSizePx) {
+        return -1;
+    }
     int indexX = static_cast<int>(xPos / m_metrics.onScreenTileSizePx);
     int indexY = static_cast<int>(yPos / m_metrics.onScreenTileSizePx);
     int tileIndex { indexX + (indexY * static_cast<int>(m_resources.currentMap->getWidth())) };
-    if (tileIndex < 0 || (tileIndex > static_cast<int>(m_resources.currentMap->getWidth() * m_resources.currentMap->getHeight()))) {
-        return -1;
-    }
     return tileIndex;
 }
 
@@ -1039,8 +1175,24 @@ void MapOpenGLWidget::updateSelectedTileColor() {
 }
 
 void MapOpenGLWidget::calculatePasteSelectionZone(QPoint dragEndPosition, bool initialCalculation) {
+    if (!m_resources.currentMap || m_paste.pasteResultIndices.empty()) {
+        return;
+    }
     auto startTileIndex = tileIndexAtScreenPos(m_paste.dragStartPosition.x(), m_paste.dragStartPosition.y());
     auto endTileIndex = tileIndexAtScreenPos(dragEndPosition.x(), dragEndPosition.y());
+    if (m_paste.textureStamp) {
+        if (startTileIndex == -1 || endTileIndex == -1) {
+            return;
+        }
+        const auto start = m_resources.currentMap->getCoordFromTileIndex(startTileIndex);
+        const auto end = m_resources.currentMap->getCoordFromTileIndex(endTileIndex);
+        const auto origin = m_paste.selectionStartPosition + QPoint(end.x() - start.x(), end.y() - start.y());
+        if (positionTextureStamp(*m_paste.textureStamp, origin)) {
+            m_paste.dragStartPosition = dragEndPosition;
+            m_paste.dragEndPosition = dragEndPosition;
+        }
+        return;
+    }
     auto lastMapTileIndex = m_resources.currentMap->getTileIndexFromCoord(Point<>(static_cast<int>(m_resources.currentMap->getWidth()) - 1,
                                                                         static_cast<int>(m_resources.currentMap->getHeight()) - 1));
     auto firstMapTilePosition = tileTopLeftScreenPos(0);
@@ -1094,6 +1246,9 @@ void MapOpenGLWidget::calculatePasteSelectionZone(QPoint dragEndPosition, bool i
 }
 
 bool MapOpenGLWidget::isCursorInPasteSelectionZone(QPoint cursorPosition) const {
+    if (!m_resources.currentMap || m_paste.pasteResultIndices.empty()) {
+        return false;
+    }
     auto selectionZoneStartTileIndex = m_resources.currentMap->getTileIndexFromCoord(Point<int>(m_paste.selectionStartPosition.x(), m_paste.selectionStartPosition.y()));
     auto selectionZoneStartCoord = tileTopLeftScreenPos(selectionZoneStartTileIndex);
     auto selectionZoneEndTileIndex = m_resources.currentMap->getTileIndexFromCoord(Point<int>(m_paste.selectionEndPosition.x(), m_paste.selectionEndPosition.y()));

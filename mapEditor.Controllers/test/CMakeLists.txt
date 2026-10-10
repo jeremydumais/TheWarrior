@@ -33,6 +33,7 @@ add_executable(${PROJECT_UNITTEST_NAME} ${INCLUDE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}/glComponentController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/selectNPCTextureFormController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/texturePickerController_unittest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/textureStamp_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/tilePropsComponentController_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/toolbarStateInfoJSONSerializer_unittest.cpp)
 

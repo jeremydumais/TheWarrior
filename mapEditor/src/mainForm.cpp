@@ -223,9 +223,18 @@ void MainForm::connectUIActions() {
     connect(m_mapPropsComponent.get(), &MapPropsComponent::onMusicChanged, this, &MainForm::onMapPropsComponentMusicChanged);
     connect(m_mapPropsComponent.get(), &MapPropsComponent::onBattleLandscapeTextureIndexChanged, this, &MainForm::onMapPropsComponentBattleLandscapeTextureIndexChanged);
     connect(&m_glComponent, &MainForm_GLComponent::tileSelected, this, &MainForm::onTileSelected);
-    connect(&m_glComponent, &MainForm_GLComponent::editHistoryChanged, this, &MainForm::onEditHistoryChanged);
-    connect(&m_glComponent, &MainForm_GLComponent::clipboardChanged, this, &MainForm::onClipboardChanged);
-    connect(&m_glComponent, &MainForm_GLComponent::zoomChanged, this, &MainForm::onZoomChanged);
+    connect(&m_glComponent, &MainForm_GLComponent::editHistoryChanged, this, [this]() {
+        refreshUndoControls();
+    });
+    connect(&m_glComponent, &MainForm_GLComponent::clipboardChanged, this, [this]() {
+        refreshClipboardControls();
+    });
+    connect(&m_glComponent, &MainForm_GLComponent::zoomChanged, this, [this](int zoomPercentage) {
+        sliderZoom->setValue(zoomPercentage);
+    });
+    connect(&m_glComponent, &MainForm_GLComponent::textureStampPreviewChanged, this, [this](bool active) {
+        setActiveToolbarActionChecked(active ? SelectionMode::Paste : SelectionMode::Select);
+    });
     connect(&m_glComponent, &MainForm_GLComponent::npcSpawnPositionPickerModeChanged, this, &MainForm::onNPCSpawnPositionPickerModeChanged);
     connect(&m_glComponent, &MainForm_GLComponent::npcSpawnPositionPickerTileSelected, this, &MainForm::onNPCSpawnPositionPickerTileSelected);
     connect(m_textureListComponent.get(), &TextureListComponent::textureAdded, this, &MainForm::onTextureAdded);
@@ -743,18 +752,6 @@ void MainForm::widgetDebugInfoClosed(QEvent *event) {
 void MainForm::onTileSelected(std::vector<MapTileDTO>) {
     ui.toolBox->setCurrentWidget(m_tilePropsComponent.get());
     refreshClipboardControls();
-}
-
-void MainForm::onEditHistoryChanged() {
-    refreshUndoControls();
-}
-
-void MainForm::onClipboardChanged() {
-    refreshClipboardControls();
-}
-
-void MainForm::onZoomChanged(int zoomPercentage) {
-    sliderZoom->setValue(zoomPercentage);
 }
 
 void MainForm::onNPCSpawnPositionPickerModeChanged(bool enabled) {

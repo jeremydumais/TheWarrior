@@ -118,9 +118,6 @@ Q_OBJECT
     void widgetTextureSelectionClosed(QEvent *event);
     void widgetDebugInfoClosed(QEvent *event);
     void onTileSelected(std::vector<mapeditor::controllers::MapTileDTO>);
-    void onEditHistoryChanged();
-    void onClipboardChanged();
-    void onZoomChanged(int zoomPercentage);
     void onNPCSpawnPositionPickerModeChanged(bool enabled);
     void onNPCSpawnPositionPickerTileSelected(const thewarrior::models::Point<> &position);
     void onTextureAdded(const commoneditor::ui::TextureDTO &textureDTO);
