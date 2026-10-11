@@ -61,8 +61,8 @@ GameWindow::GameWindow(const string &title,
     m_fpsCalculator.initialize();
     m_windowSizeChanged(m_WindowSize);
     //HACK: To Remove
-    loadGame("1aas_2026-10-04-16-10-05.bak");
-    //createNewGame("Jed");
+    //loadGame("1aas_2026-10-04-16-10-05.bak");
+    createNewGame("Jed");
     m_mustExit = false;
 }
 
@@ -357,8 +357,8 @@ void GameWindow::createNewGame(std::string playerName) {
     WorldState worldState;
     std::set<StoryId> completedStoryIds;
     //HACK: Remove this and uncomment below
-    worldState.setCurrentMapName("homeHouseV1.map");
-    worldState.setPlayerPosition(Point<int>(13, 10));
+    worldState.setCurrentMapName("kingAldricCastle-OuterBailey-Church.map");
+    worldState.setPlayerPosition(Point<int>(10, 27));
     /*player.addGold(30);
     player.setFacing(PlayerFacing::Up);*/
     // worldState.setCurrentMapName("krikruVillage-ItemShop.map");
