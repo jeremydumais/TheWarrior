@@ -257,15 +257,15 @@ TEST_F(PlayerSample, AddExperienceWithIntMaxMinus1AndPlayerHad1Experience_Return
     ASSERT_EQ(max, player.getExperience());
 }
 
-TEST_F(PlayerSample, AddExperienceWith23_ReturnSuccessAndLevelUp) {
-    player.addExperience(23);
-    ASSERT_EQ(23, player.getExperience());
+TEST_F(PlayerSample, AddExperienceWith56_ReturnSuccessAndLevelUp) {
+    player.addExperience(56);
+    ASSERT_EQ(56, player.getExperience());
     ASSERT_EQ(2, player.getLevel());
 }
 
-TEST_F(PlayerSample, AddExperienceWith24_ReturnSuccessAndLevelUp) {
-    player.addExperience(24);
-    ASSERT_EQ(24, player.getExperience());
+TEST_F(PlayerSample, AddExperienceWith57_ReturnSuccessAndLevelUp) {
+    player.addExperience(57);
+    ASSERT_EQ(57, player.getExperience());
     ASSERT_EQ(2, player.getLevel());
 }
 
