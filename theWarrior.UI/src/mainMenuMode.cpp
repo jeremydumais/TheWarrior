@@ -196,6 +196,7 @@ void MainMenuMode::loadMenuTextures() {
     try {
         m_textures[TextureWindow] = std::make_shared<Texture>(textureInfoWindow);
         m_windowGLTexture = std::make_shared<GLTexture>(*m_textures[TextureWindow], 0);
+        m_windowGLTexture->texture.setSampling(TextureSampling::UIAtlas);
         m_textureService->loadTexture(*m_windowGLTexture);
     } catch (const std::invalid_argument &err) {
         std::cerr << "Unable to load the window texture: " << err.what() << std::endl;

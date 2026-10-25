@@ -26,9 +26,9 @@ void GLTextureService::loadTexture(const Texture &texture, unsigned int &texture
     glBindTexture(GL_TEXTURE_2D, textureGLId);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    // Preserve pixel-art edges without blending adjacent atlas tiles.
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    const GLint filter = texture.getSampling() == TextureSampling::UIAtlas ? GL_LINEAR : GL_NEAREST;
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
 
     int width, height, nrChannels;
     std::string texFileName { texture.getFilename() };
@@ -53,11 +53,13 @@ void GLTextureService::setTextureUVFromIndex(const Texture *texture, GLfloat uvM
     const int row = index / tilesPerRow;
     const float width = static_cast<float>(texture->getWidth());
     const float height = static_cast<float>(texture->getHeight());
-    // Use the complete tile: an inset crops edge pixels and breaks tile seams.
-    const float left = static_cast<float>(column * texture->getTileWidth()) / width;
-    const float right = static_cast<float>((column + 1) * texture->getTileWidth()) / width;
-    const float top = 1.0f - static_cast<float>(row * texture->getTileHeight()) / height;
-    const float bottom = 1.0f - static_cast<float>((row + 1) * texture->getTileHeight()) / height;
+    // UI cells sample texel centers to prevent bleeding when stretched.
+    // Pixel-art tiles retain complete bounds so adjacent map tiles meet.
+    const float inset = texture->getSampling() == TextureSampling::UIAtlas ? 0.5f : 0.0f;
+    const float left = (static_cast<float>(column * texture->getTileWidth()) + inset) / width;
+    const float right = (static_cast<float>((column + 1) * texture->getTileWidth()) - inset) / width;
+    const float top = 1.0f - (static_cast<float>(row * texture->getTileHeight()) + inset) / height;
+    const float bottom = 1.0f - (static_cast<float>((row + 1) * texture->getTileHeight()) - inset) / height;
 
     uvMap[0][0] = left;
     uvMap[0][1] = bottom;

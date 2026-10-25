@@ -33,6 +33,7 @@ void GLChoicePopup::initialize(const std::string &resourcePath,
     m_inputDevicesState = inputDevicesState;
     m_menuSounds.initialize(resourcePath);
     m_textureService.setResourcesPath(resourcePath);
+    m_popupGLTexture.texture.setSampling(TextureSampling::UIAtlas);
     m_textureService.loadTexture(m_popupGLTexture);
 }
 

@@ -8,6 +8,11 @@
 
 namespace thewarrior::models {
 
+enum class TextureSampling {
+    PixelArt,
+    UIAtlas
+};
+
 class Texture {
  public:
     explicit Texture(const TextureInfo &textureInfo);
@@ -20,6 +25,8 @@ class Texture {
     float getTileWidthGL() const;
     float getTileHeightGL() const;
     TextureInfo getTextureInfo() const;
+    TextureSampling getSampling() const { return m_sampling; }
+    void setSampling(TextureSampling sampling) { m_sampling = sampling; }
     void setName(const std::string &name);
     void setFilename(const std::string &filename);
     void setWidth(int value);
@@ -28,6 +35,8 @@ class Texture {
     void setTileHeight(int value);
 
  private:
+    // Rendering preference only; deliberately excluded from map serialization.
+    TextureSampling m_sampling = TextureSampling::PixelArt;
     friend class boost::serialization::access;
     Texture() = default;  // Needed for deserialization
     std::string m_name;

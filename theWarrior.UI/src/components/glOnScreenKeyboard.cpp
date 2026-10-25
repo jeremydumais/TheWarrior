@@ -20,6 +20,23 @@ using namespace thewarrior::models;
 
 namespace thewarrior::ui::components {
 
+namespace {
+constexpr float KeyboardSourceWidth = 1290.0F;
+constexpr float KeyboardSourceHeight = 451.0F;
+constexpr int KeyboardDisplayWidth = 840;
+constexpr int KeyboardDisplayHeight = 353;
+
+// Centers of the key faces in mainmenu_keyboard.png, including its padding.
+constexpr std::array<float, 10> KeyColumnCenters = {
+    101.0F, 224.0F, 345.0F, 466.0F, 589.0F,
+    710.0F, 833.0F, 955.0F, 1072.0F, 1190.5F
+};
+constexpr std::array<float, 4> KeyRowCenters = {59.0F, 135.0F, 211.0F, 286.0F};
+constexpr std::array<float, 3> ActionKeyCenters = {272.0F, 647.0F, 1027.0F};
+constexpr float ActionKeyY = 375.0F;
+}  // namespace
+
+
 GLOnScreenKeyboard::GLOnScreenKeyboard(GLContext &glContext, Point<float> location)
 : GLComponentBase(glContext, location, Size<float>(700.0F, 700.0F)),
 m_focusPosition(0, 0),
@@ -43,7 +60,7 @@ bool GLOnScreenKeyboard::loadTextures() {
 
 void GLOnScreenKeyboard::onGenerateGLElements() {
     generateGLObject(TextureMainMenuKeyboard,
-                     Size<>(840, 353),
+                     Size<>(KeyboardDisplayWidth, KeyboardDisplayHeight),
                      components::HorizontalAlignment::Center,
                      components::VerticalAlignment::Center,
                      Point<>(static_cast<int>(m_initialLocation.x()),
@@ -171,9 +188,13 @@ void GLOnScreenKeyboard::generateKeyboardItems() {
     m_buttonRows.at(3).clear();
     m_buttonRows.at(4).clear();
     size_t indexChar = 0;
-    float buttonTop = -136.0F + m_initialLocation.y();
+    const auto keyPosition = [this](float sourceX, float sourceY) -> Point<float> {
+        return {
+            (sourceX / KeyboardSourceWidth - 0.5F) * KeyboardDisplayWidth + m_initialLocation.x(),
+            (sourceY / KeyboardSourceHeight - 0.5F) * KeyboardDisplayHeight + m_initialLocation.y()
+        };
+    };
     for (size_t i = 0; i < 4; i++) {
-        float buttonLeft = -374.0F + m_initialLocation.x();
         for (size_t j = 0; j < 10; j++) {
             std::string buttonText = std::string(ONSCREENKEYBOARD_BUTTONSTEXT.at(indexChar));
             if (m_isInCapsMode) {
@@ -181,23 +202,17 @@ void GLOnScreenKeyboard::generateKeyboardItems() {
             }
             auto button = std::make_shared<GLLabel>(m_glContext,
                                                     buttonText,
-                                                    Point<float>(buttonLeft, buttonTop),
+                                                    keyPosition(KeyColumnCenters[j], KeyRowCenters[i]),
                                                     GLColor::Brown);
             m_buttonRows[i].push_back(button);
-            buttonLeft += 83.0F;
             indexChar++;
         }
-        buttonTop += 62.0F;
     }
-    m_buttonRows[4].push_back(std::make_shared<GLLabel>(m_glContext, std::string(ONSCREENKEYBOARD_BUTTONSTEXT.at(40)),
-                              Point<float>(-258.0F + m_initialLocation.x(), 124.0F + m_initialLocation.y()),
-                              GLColor::Brown));
-    m_buttonRows[4].push_back(std::make_shared<GLLabel>(m_glContext, std::string(ONSCREENKEYBOARD_BUTTONSTEXT.at(41)),
-                              Point<float>(0.0F + m_initialLocation.x(), 124.0F + m_initialLocation.y()),
-                              GLColor::Brown));
-    m_buttonRows[4].push_back(std::make_shared<GLLabel>(m_glContext, std::string(ONSCREENKEYBOARD_BUTTONSTEXT.at(42)),
-                              Point<float>(260.0F + m_initialLocation.x(), 124.0F + m_initialLocation.y()),
-                              GLColor::Brown));
+    for (size_t i = 0; i < ActionKeyCenters.size(); ++i) {
+        m_buttonRows[4].push_back(std::make_shared<GLLabel>(
+            m_glContext, std::string(ONSCREENKEYBOARD_BUTTONSTEXT.at(40 + i)),
+            keyPosition(ActionKeyCenters[i], ActionKeyY), GLColor::Brown));
+    }
     for (const auto& row : m_buttonRows | std::views::all) {
         for (auto& button : row | std::views::all) {
             button->initialize(getComponentBaseInfo());
