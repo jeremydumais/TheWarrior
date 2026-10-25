@@ -12,6 +12,7 @@ add_executable(${PROJECT_UNITTEST_NAME} ${INCLUDE_PATH}
                ${CMAKE_CURRENT_SOURCE_DIR}/glColor_unittest.cpp
                ${CMAKE_CURRENT_SOURCE_DIR}/glBattleWindow_unittest.cpp
                ${CMAKE_CURRENT_SOURCE_DIR}/glNPC_unittest.cpp
+               ${CMAKE_CURRENT_SOURCE_DIR}/glTextureService_unittest.cpp
                ${CMAKE_CURRENT_SOURCE_DIR}/inputDevicesState_unittest.cpp
                ${CMAKE_CURRENT_SOURCE_DIR}/shakingAnimation_unittest.cpp)
 

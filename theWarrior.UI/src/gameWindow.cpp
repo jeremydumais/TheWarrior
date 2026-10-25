@@ -357,8 +357,8 @@ void GameWindow::createNewGame(std::string playerName) {
     WorldState worldState;
     std::set<StoryId> completedStoryIds;
     //HACK: Remove this and uncomment below
-    worldState.setCurrentMapName("krikruVillage-ItemShop.map");
-    worldState.setPlayerPosition(Point<int>(3, 9));
+    worldState.setCurrentMapName("Outworld.map");
+    worldState.setPlayerPosition(Point<int>(97, 31));
     /*player.addGold(30);
     player.setFacing(PlayerFacing::Up);*/
     // worldState.setCurrentMapName("krikruVillage-ArmorShop.map");

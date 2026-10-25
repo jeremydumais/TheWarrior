@@ -24,12 +24,11 @@ void GLTextureService::loadTexture(GLTexture &glTexture) {
 void GLTextureService::loadTexture(const Texture &texture, unsigned int &textureGLId) {
     glGenTextures(1, &textureGLId);
     glBindTexture(GL_TEXTURE_2D, textureGLId);
-    // set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);  // set texture wrapping to GL_REPEAT (default wrapping method)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    // Preserve pixel-art edges without blending adjacent atlas tiles.
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     int width, height, nrChannels;
     std::string texFileName { texture.getFilename() };
@@ -49,23 +48,25 @@ void GLTextureService::unloadTexture(unsigned int &textureGLId) {
 }
 
 void GLTextureService::setTextureUVFromIndex(const Texture *texture, GLfloat uvMap[4][2], int index) const {
-    float indexTile { static_cast<float>(index) };
-    const int NBTEXTUREPERLINE { texture->getWidth() / texture->getTileWidth() };
-    float lineIndex = floor(indexTile / static_cast<float>(NBTEXTUREPERLINE));
-    const float TEXTURETILEWIDTH { texture->getTileWidthGL() };
-    const float TEXTURETILEHEIGHT { texture->getTileHeightGL() };
-    const float TEXTUREWIDTHADJUSTMENT { TEXTURETILEWIDTH / 40.0f };
-    const float TEXTUREHEIGHTADJUSTMENT { TEXTURETILEHEIGHT / 40.0f };
-    GLfloat lowerLeftCorner { indexTile / static_cast<float>(NBTEXTUREPERLINE) - floor(indexTile / static_cast<float>(NBTEXTUREPERLINE))  };
+    const int tilesPerRow = texture->getWidth() / texture->getTileWidth();
+    const int column = index % tilesPerRow;
+    const int row = index / tilesPerRow;
+    const float width = static_cast<float>(texture->getWidth());
+    const float height = static_cast<float>(texture->getHeight());
+    // Use the complete tile: an inset crops edge pixels and breaks tile seams.
+    const float left = static_cast<float>(column * texture->getTileWidth()) / width;
+    const float right = static_cast<float>((column + 1) * texture->getTileWidth()) / width;
+    const float top = 1.0f - static_cast<float>(row * texture->getTileHeight()) / height;
+    const float bottom = 1.0f - static_cast<float>((row + 1) * texture->getTileHeight()) / height;
 
-    uvMap[0][0] = (lowerLeftCorner) + TEXTUREWIDTHADJUSTMENT;
-    uvMap[0][1] = 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTURETILEHEIGHT + TEXTUREHEIGHTADJUSTMENT;
-    uvMap[1][0] = lowerLeftCorner + TEXTURETILEWIDTH - TEXTUREWIDTHADJUSTMENT;
-    uvMap[1][1] = 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTURETILEHEIGHT + TEXTUREHEIGHTADJUSTMENT;
-    uvMap[2][0] = lowerLeftCorner + TEXTURETILEWIDTH - TEXTUREWIDTHADJUSTMENT;
-    uvMap[2][1] = 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTUREHEIGHTADJUSTMENT;
-    uvMap[3][0] = lowerLeftCorner + TEXTUREWIDTHADJUSTMENT;
-    uvMap[3][1] = 1.0f-(TEXTURETILEHEIGHT * lineIndex) - TEXTUREHEIGHTADJUSTMENT;
+    uvMap[0][0] = left;
+    uvMap[0][1] = bottom;
+    uvMap[1][0] = right;
+    uvMap[1][1] = bottom;
+    uvMap[2][0] = right;
+    uvMap[2][1] = top;
+    uvMap[3][0] = left;
+    uvMap[3][1] = top;
 }
 
 }  // namespace thewarrior::ui
