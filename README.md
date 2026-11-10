@@ -80,6 +80,10 @@ Legend:
 
 ---
 
+## What I am working on for the next release (Version 0.7.0)
+
+![V0.7](https://raw.githubusercontent.com/jeremydumais/TheWarrior/medias/NextSprintV0.7.0.png)
+
 ## 📸 Screenshots
 
 ### 🌍 Game World — Sample Map
