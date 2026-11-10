@@ -203,8 +203,8 @@ bool GameWindow::initializeOpenGL(const std::string &title,
         return false;
     }
 
-    // Adaptive VSync is optional; fall back to standard VSync.
-    if (SDL_GL_SetSwapInterval(-1) < 0 && SDL_GL_SetSwapInterval(1) < 0) {
+    // Synchronize every frame with the display to prevent tearing while scrolling.
+    if (SDL_GL_SetSwapInterval(1) < 0) {
         cerr << fmt::format("Warning: Unable to set VSync! SDL Error: {0}\n", SDL_GetError());
     }
     glEnable(GL_BLEND);

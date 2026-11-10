@@ -10,6 +10,9 @@ using namespace thewarrior::ui;
 using thewarrior::utils::SpecialFolders;
 
 int main(int, char **) {
+    // Keep X11 compositing enabled to avoid tearing during map scrolling.
+    SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
+
     // Create the necessary data folders
     const std::string savesFolder = SpecialFolders::getSaveGameDirectory();
 
