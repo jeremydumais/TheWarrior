@@ -107,9 +107,10 @@ void MainController::saveMap(const std::string &filePath) {
 }
 
 void MainController::initializeExecutablePath() {
-    char result[PATH_MAX];
+    char result[PATH_MAX + 1];
     ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
     if (count != -1) {
+        result[count] = '\0';
         m_executablePath = dirname(result);
     } else {
         m_executablePath = "";

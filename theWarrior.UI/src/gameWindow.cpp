@@ -354,12 +354,12 @@ void GameWindow::createNewGame(std::string playerName) {
     m_mainMenuMode.reset();
     m_mainMenuMode = nullptr;
     Player player(playerName);
+    player.setFacing(thewarrior::models::PlayerFacing::Down);
     WorldState worldState;
     std::set<StoryId> completedStoryIds;
     //HACK: Remove this and uncomment below
-    
-    //worldState.setCurrentMapName("homeHouse.map");
-    //worldState.setPlayerPosition(Point<int>(6, 4));
+    worldState.setCurrentMapName("homeHouse.map");
+    worldState.setPlayerPosition(Point<int>(6, 4));
     GameState newGameState(player, worldState, completedStoryIds);
     if (initializeGame(newGameState)) {
         m_interactionMode = InteractionMode::Game;

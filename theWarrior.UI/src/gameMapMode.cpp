@@ -596,17 +596,6 @@ bool GameMapMode::stopFacingNPCWandering() {
     iter->face(getNPCFacingOppositeOfPlayer(m_glPlayer->getFacing()),
                m_textureService);
 
-    // TODO: Remove this
-    /*const auto &dialogueLines = iter->getDialogueLines();
-    if (!dialogueLines.empty()) {
-        auto msg = std::make_unique<NPCDialogueMessageDTO>();
-        msg->npcId = iter->getId();
-        msg->dialogueLines = dialogueLines;
-        msg->message = dialogueLines.front();
-        m_controller.addMessageToPipeline(std::move(msg));
-    } else {
-        restoreNPCDefaultBehavior(iter->getId());
-    }*/
     const auto &scenarios = iter->getConversationScenarios();
 
     if (scenarios.empty()) {

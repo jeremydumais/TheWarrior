@@ -69,7 +69,20 @@ namespace thewarrior::ui
         m_xMove = 0.0F;
         m_yMove = 0.0F;
         m_baseTextureIndex = 9;
-        m_currentMovementTextureIndex = m_baseTextureIndex + 1;
+        switch (getFacing()) {
+            case PlayerFacing::Up:
+                faceUp();
+                break;
+            case PlayerFacing::Down:
+                faceDown();
+                break;
+            case PlayerFacing::Left:
+                faceLeft();
+                break;
+            case PlayerFacing::Right:
+                faceRight();
+                break;
+        }
         m_direction = Direction::None;
         m_textureService.setResourcesPath(resourcePath);
 

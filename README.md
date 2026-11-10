@@ -21,7 +21,7 @@ The project focuses on:
 - Persistent game states
 - Tooling-first development (editors before content)
 
-> 🚧 **The game is actively developed** — features are added sprint by sprint.
+> 🚧 **The game is actively developed** — v0.6.0 adds interactive NPCs, trading, story progression, and an expanded game world.
 
 ---
 
@@ -29,27 +29,32 @@ The project focuses on:
 
 **v0.6.0**
 
-- Core engine foundation in place
-- Functional editors (Map, Item, Monster)
-- Early combat system
-- UI & menu system actively evolving
-- Early NPC system
+- NPC dialogue, branching conversations, and wandering behavior
+- Merchant buying and selling, inn stays, and treasure rewards
+- Saved story progression with conditional conversations and NPC visibility
+- Turn-based battles with vitality items, boss encounters, and configurable encounter spacing
+- Map and battle music, sound effects, and improved pixel rendering
+- Expanded maps and new content authoring tools across the editors
 
 ---
 
-## 🧭 Next Sprint — NPC Development
+## 🧭 What's New in 0.6.0
 
-The next development sprint focuses on adding more features on the **Non-Playable Characters (NPCs)**.
+### NPCs, Trading & Story
 
-<p align="center">
-  <img src="https://github.com/jeremydumais/TheWarrior/blob/medias/NextSprintNPC.png?raw=true" alt="Next Sprint - NPC Development" />
-</p>
+NPCs can wander within configured zones, face the player, and take part in paginated dialogue with a typewriter effect. Branching conversations support choices, rewards, merchant shops, paid inn stays, scripted fights, and story events. Completed story IDs are saved with the game and can control conversations and NPC visibility.
 
-### Planned NPC Features
-- Dialogue system
-- Merchant interactions
-- Animations & visual feedback
-- Integration with maps and quests
+### Battles & Presentation
+
+Use vitality items on your turn, encounter bosses with their own music and victory effects, and explore with a configurable cooldown between random battles. Maps now support their own music and battle backgrounds, with music continuity across maps and after combat. New sound effects accompany combat, dialogue, inventory actions, and trading.
+
+### World & Editors
+
+Explore refreshed areas in Krikru Village and King Aldric's castle and outer bailey, plus the three-level North West Cave with treasures and monster zones. The Outworld map is also being expanded.
+
+Map Editor 1.4.0 adds NPC and conversation authoring, merchant inventories, music and battle background settings, and multi-tile texture/object placement with previews and undo. The Item Editor supports default trading prices, while the Monster Editor supports boss types and battle music.
+
+See [CHANGELOG.md](CHANGELOG.md) for the full release highlights.
 
 ---
 
@@ -59,9 +64,9 @@ The next development sprint focuses on adding more features on the **Non-Playabl
 |-----|--------|--------|
 | **Core Gameplay** | Game Engine | ✅ Done |
 | | Combat System | 🟡 In progress |
-| | NPC | 🟡 In progress |
-| | Trading | ⏳ Not started |
-| | Story & Quests | ⏳ Not started |
+| | NPC dialogue & wandering | ✅ Available |
+| | Merchant trading & inns | ✅ Available |
+| | Story & Quests | 🟡 Story progression foundation available |
 | **Game Presentation** | Audio & Music | 🟡 In progress |
 | | Menus & Navigation | 🟡 In progress |
 | **Tools** | Item Editor | 🟡 In progress |
@@ -69,7 +74,7 @@ The next development sprint focuses on adding more features on the **Non-Playabl
 | | Monster Editor | 🟡 In progress |
 
 Legend:
-- ✅ Done
+- ✅ Available
 - 🟡 In progress
 - ⏳ Planned
 
@@ -78,23 +83,23 @@ Legend:
 ## 📸 Screenshots
 
 ### 🌍 Game World — Sample Map
-![Sample Map](https://raw.githubusercontent.com/jeremydumais/TheWarrior/medias/SampleMap1.png)
+![Sample Map](https://raw.githubusercontent.com/jeremydumais/TheWarrior/medias/SampleMap1v2.png)
 
 ### 🎒 Inventory System
-![Inventory](https://raw.githubusercontent.com/jeremydumais/TheWarrior/medias/GameInventoryWindow.png)
+![Inventory](https://raw.githubusercontent.com/jeremydumais/TheWarrior/medias/GameInventoryWindowV2.png)
 
 ### 🧙 Character Window
-![Character Window](https://raw.githubusercontent.com/jeremydumais/TheWarrior/medias/GameCharacterWindow.png)
+![Character Window](https://raw.githubusercontent.com/jeremydumais/TheWarrior/medias/GameCharacterWindowV2.png)
 
 ### ⚔️ Battle System
-![Battle System](https://raw.githubusercontent.com/jeremydumais/TheWarrior/medias/BattleSystem.png)
+![Battle System](https://raw.githubusercontent.com/jeremydumais/TheWarrior/medias/BattleSystemV2.png)
 
 ---
 
 ## 🛠️ Tools & Editors
 
 ### 🗺️ Map Editor
-![Map Editor](https://raw.githubusercontent.com/jeremydumais/TheWarrior/medias/MapEditor1.png)
+![Map Editor](https://raw.githubusercontent.com/jeremydumais/TheWarrior/medias/MapEditor1V2.png)
 
 ### 🧾 Item Editor
 ![Item Editor](https://raw.githubusercontent.com/jeremydumais/TheWarrior/medias/ItemEditor1.png)

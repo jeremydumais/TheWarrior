@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <filesystem>
 #include <stdexcept>
 #include "glComponentController.hpp"
 #include "mainController.hpp"
@@ -53,6 +54,16 @@ TEST(MainController_Constructor, Default_ReturnSuccess) {
     GLComponentController glController;
     mainController.setGLComponentController(&glController);
     ASSERT_EQ(nullptr, mainController.getMap());
+}
+
+TEST(MainController_initializeExecutablePath, UsesExecutableDirectoryForResources) {
+    MainController mainController;
+    mainController.initializeExecutablePath();
+    mainController.initializeResourcesPath();
+
+    const auto expectedDirectory = std::filesystem::canonical("/proc/self/exe").parent_path();
+    EXPECT_EQ(expectedDirectory.string(), mainController.getExecutablePath());
+    EXPECT_EQ(expectedDirectory.string() + "/resources/", mainController.getResourcesPath());
 }
 
 TEST(MainController_createMap, WithInvalidWidth_ReturnFalse) {
