@@ -14,6 +14,7 @@
 #include "aboutBoxForm.hpp"
 #include "components/debugInfoDockWidget.hpp"
 #include "components/mapPropsComponent.hpp"
+#include "components/merchantInventoryListComponent.hpp"
 #include "components/npcListComponent.hpp"
 #include "constants.hpp"
 #include "errorMessage.hpp"
@@ -21,15 +22,19 @@
 #include "manageItemStoreForm.hpp"
 #include "manageMonsterStoreForm.hpp"
 #include "mapView.hpp"
+#include "merchantInventoryDTO.hpp"
 #include "monsterZoneDTO.hpp"
 #include "npcDTO.hpp"
 #include "point.hpp"
 #include "selectionMode.hpp"
 #include "textureDTO.hpp"
+#include "uiUtils.hpp"
 
 using commoneditor::ui::ErrorMessage;
 using commoneditor::ui::TextureDTO;
+using commoneditor::ui::UIUtils;
 using mapeditor::controllers::MapTileDTO;
+using mapeditor::controllers::MerchantInventoryDTO;
 using mapeditor::controllers::MonsterZoneDTO;
 using mapeditor::controllers::NPCDTO;
 using thewarrior::models::Point;
@@ -50,6 +55,7 @@ MainForm::MainForm(QWidget *parent,
     if (!m_controller.loadConfigurationFile()) {
         ErrorMessage::show(m_controller.getLastError());
     }
+    m_controller.loadConfiguredItemStores();
     m_controller.loadConfiguredMonsterStores();
 
     m_glComponent.initializeUIObjects(ui.mapOpenGLWidget);
@@ -107,6 +113,7 @@ MainForm::MainForm(QWidget *parent,
     refreshTextureList();
     refreshMonsterZones();
     refreshNPCs();
+    refreshMerchantInventories();
     m_mapPropsComponent->reset();
     action_SelectClick();
     tabWidgetMapViewChanged(static_cast<int>(MapView::Standard));
@@ -115,6 +122,7 @@ MainForm::MainForm(QWidget *parent,
 void MainForm::componentInitialization() {
     m_mapPropsComponent = std::make_shared<MapPropsComponent>(this,
             &m_glComponent);
+    m_mapPropsComponent->setResourcesPath(m_controller.getResourcesPath());
     ui.toolBox->addItem(m_mapPropsComponent.get(), "Map properties");
 
     m_tilePropsComponent = std::make_shared<TilePropsComponent>(this,
@@ -139,6 +147,13 @@ void MainForm::componentInitialization() {
             m_glComponent.getControllerPtr());
     m_npcListComponent->setResourcesPath(m_controller.getResourcesPath());
     ui.toolBox->addItem(m_npcListComponent.get(), "NPC list");
+
+    m_merchantInventoryListComponent = std::make_shared<MerchantInventoryListComponent>(this,
+            &m_glComponent,
+            m_glComponent.getControllerPtr());
+    m_merchantInventoryListComponent->setItemStores(m_controller.getItemStores());
+    m_merchantInventoryListComponent->setResourcesPath(m_controller.getResourcesPath());
+    ui.toolBox->addItem(m_merchantInventoryListComponent.get(), "Merchant Inventory");
 
     ui.toolBox->removeItem(0);
 
@@ -205,10 +220,21 @@ void MainForm::connectUIActions() {
     connect(m_debugInfoDockWidget.get(), &QClosableDockWidget::onCloseEvent, this, &MainForm::widgetDebugInfoClosed);
     m_glComponent.connectUIActions();
     connect(m_mapPropsComponent.get(), &MapPropsComponent::onBeforeApplyChange, this, &MainForm::onMapPropsComponentBeforeChange);
+    connect(m_mapPropsComponent.get(), &MapPropsComponent::onMusicChanged, this, &MainForm::onMapPropsComponentMusicChanged);
+    connect(m_mapPropsComponent.get(), &MapPropsComponent::onBattleLandscapeTextureIndexChanged, this, &MainForm::onMapPropsComponentBattleLandscapeTextureIndexChanged);
     connect(&m_glComponent, &MainForm_GLComponent::tileSelected, this, &MainForm::onTileSelected);
-    connect(&m_glComponent, &MainForm_GLComponent::editHistoryChanged, this, &MainForm::onEditHistoryChanged);
-    connect(&m_glComponent, &MainForm_GLComponent::clipboardChanged, this, &MainForm::onClipboardChanged);
-    connect(&m_glComponent, &MainForm_GLComponent::zoomChanged, this, &MainForm::onZoomChanged);
+    connect(&m_glComponent, &MainForm_GLComponent::editHistoryChanged, this, [this]() {
+        refreshUndoControls();
+    });
+    connect(&m_glComponent, &MainForm_GLComponent::clipboardChanged, this, [this]() {
+        refreshClipboardControls();
+    });
+    connect(&m_glComponent, &MainForm_GLComponent::zoomChanged, this, [this](int zoomPercentage) {
+        sliderZoom->setValue(zoomPercentage);
+    });
+    connect(&m_glComponent, &MainForm_GLComponent::textureStampPreviewChanged, this, [this](bool active) {
+        setActiveToolbarActionChecked(active ? SelectionMode::Paste : SelectionMode::Select);
+    });
     connect(&m_glComponent, &MainForm_GLComponent::npcSpawnPositionPickerModeChanged, this, &MainForm::onNPCSpawnPositionPickerModeChanged);
     connect(&m_glComponent, &MainForm_GLComponent::npcSpawnPositionPickerTileSelected, this, &MainForm::onNPCSpawnPositionPickerTileSelected);
     connect(m_textureListComponent.get(), &TextureListComponent::textureAdded, this, &MainForm::onTextureAdded);
@@ -221,6 +247,9 @@ void MainForm::connectUIActions() {
     connect(m_npcListComponent.get(), &NPCListComponent::npcAdded, this, &MainForm::onNPCAdded);
     connect(m_npcListComponent.get(), &NPCListComponent::npcUpdated, this, &MainForm::onNPCUpdated);
     connect(m_npcListComponent.get(), &NPCListComponent::npcDeleted, this, &MainForm::onNPCDeleted);
+    connect(m_merchantInventoryListComponent.get(), &MerchantInventoryListComponent::merchantInventoryAdded, this, &MainForm::onMerchantInventoryAdded);
+    connect(m_merchantInventoryListComponent.get(), &MerchantInventoryListComponent::merchantInventoryUpdated, this, &MainForm::onMerchantInventoryUpdated);
+    connect(m_merchantInventoryListComponent.get(), &MerchantInventoryListComponent::merchantInventoryDeleted, this, &MainForm::onMerchantInventoryDeleted);
 }
 
 void MainForm::action_Open_Click() {
@@ -392,6 +421,7 @@ void MainForm::action_DisplayNPCs_Click() {
 void MainForm::action_ManageItemStore_Click() {
     ManageItemStoreForm manageItemStoreForm(this, m_controller.getResourcesPath(), m_controller.getUserConfigFolder());
     manageItemStoreForm.exec();
+    m_controller.loadConfiguredItemStores();
 }
 
 void MainForm::action_ManageMonsterStore_Click() {
@@ -428,6 +458,7 @@ void MainForm::action_UndoClick() {
     refreshTextureList();
     refreshMonsterZones();
     refreshNPCs();
+    refreshMerchantInventories();
     m_mapPropsComponent->refresh();
     m_tilePropsComponent->refresh();
     m_monsterZoneListComponent->enableFieldsChangeEvent();
@@ -441,6 +472,7 @@ void MainForm::action_RedoClick() {
     refreshTextureList();
     refreshMonsterZones();
     refreshNPCs();
+    refreshMerchantInventories();
     m_mapPropsComponent->refresh();
     m_tilePropsComponent->refresh();
     m_monsterZoneListComponent->enableFieldsChangeEvent();
@@ -532,6 +564,7 @@ void MainForm::action_ClearMonsterZone() {
 void MainForm::onComboBoxToolbarNPCWanderingZoneCurrentIndexChanged() {
     if (comboBoxToolbarNPCWanderingZone->currentIndex() != -1) {
         m_glComponent.setLastSelectedNPC(comboBoxToolbarNPCWanderingZone->currentText().toStdString());
+        toggleNPCAssignationControls();
     } else {
         m_glComponent.clearLastSelectedNPC();
     }
@@ -604,6 +637,7 @@ void MainForm::openMap(const std::string &filePath) {
     refreshTextureList();
     refreshMonsterZones();
     refreshNPCs();
+    refreshMerchantInventories();
     m_tilePropsComponent->reset();
     m_mapPropsComponent->reset();
 }
@@ -718,18 +752,6 @@ void MainForm::widgetDebugInfoClosed(QEvent *event) {
 void MainForm::onTileSelected(std::vector<MapTileDTO>) {
     ui.toolBox->setCurrentWidget(m_tilePropsComponent.get());
     refreshClipboardControls();
-}
-
-void MainForm::onEditHistoryChanged() {
-    refreshUndoControls();
-}
-
-void MainForm::onClipboardChanged() {
-    refreshClipboardControls();
-}
-
-void MainForm::onZoomChanged(int zoomPercentage) {
-    sliderZoom->setValue(zoomPercentage);
 }
 
 void MainForm::onNPCSpawnPositionPickerModeChanged(bool enabled) {
@@ -892,8 +914,10 @@ void MainForm::refreshNPCs() {
 void MainForm::toggleNPCAssignationControls() {
     bool active = !m_npcListComponent->isNPCListEmpty();
     comboBoxToolbarNPCWanderingZone->setEnabled(active);
-    ui.action_ApplyNPCWanderingZone->setEnabled(active);
-    ui.action_ClearNPCWanderingZone->setEnabled(active);
+    const std::string selectedNPCId = comboBoxToolbarNPCWanderingZone->currentText().toStdString();
+    const auto selectedNPCSupportsWanderingZones = m_npcListComponent->isNPCSupportingWanderingZones(selectedNPCId);
+    ui.action_ApplyNPCWanderingZone->setEnabled(active && selectedNPCSupportsWanderingZones);
+    ui.action_ClearNPCWanderingZone->setEnabled(active && selectedNPCSupportsWanderingZones);
 }
 
 void MainForm::onNPCAdded(const NPCDTO &npcDTO) {
@@ -927,7 +951,48 @@ void MainForm::onNPCDeleted(const std::string &id) {
     m_tilePropsComponent->enableFieldsChangeEvent();
 }
 
+void MainForm::refreshMerchantInventories() {
+    m_merchantInventoryListComponent->refreshMerchantInventories();
+}
+
+void MainForm::onMerchantInventoryAdded(const MerchantInventoryDTO &merchantInventoryDTO) {
+    m_tilePropsComponent->disableFieldsChangeEvent();
+    if (!m_controller.addMerchantInventory(merchantInventoryDTO)) {
+        ErrorMessage::show(m_controller.getLastError());
+    }
+    refreshMerchantInventories();
+    refreshUndoControls();
+    m_tilePropsComponent->enableFieldsChangeEvent();
+}
+    
+void MainForm::onMerchantInventoryUpdated(const std::string &name, const MerchantInventoryDTO &merchantInventoryDTO) {
+    m_tilePropsComponent->disableFieldsChangeEvent();
+    if (!m_controller.replaceMerchantInventory(name, merchantInventoryDTO)) {
+        ErrorMessage::show(m_controller.getLastError());
+    }
+    refreshMerchantInventories();
+    refreshUndoControls();
+    m_tilePropsComponent->enableFieldsChangeEvent();
+}
+
+void MainForm::onMerchantInventoryDeleted(const std::string &name) {
+    m_tilePropsComponent->disableFieldsChangeEvent();
+    if (!m_controller.removeMerchantInventory(name)) {
+        ErrorMessage::show(m_controller.getLastError());
+    }
+    refreshMerchantInventories();
+    refreshUndoControls();
+    m_tilePropsComponent->enableFieldsChangeEvent();  
+}
+
 void MainForm::onMapPropsComponentBeforeChange() {
     m_glComponent.pushCurrentStateToHistory();
 }
 
+void MainForm::onMapPropsComponentMusicChanged(const std::string &filename) {
+    m_glComponent.setMapMusicFilename(filename);
+}
+
+void MainForm::onMapPropsComponentBattleLandscapeTextureIndexChanged(int index) {
+    m_glComponent.setBattleLandscapeTextureIndex(index);
+}

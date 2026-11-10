@@ -66,35 +66,51 @@ TEST(MapTileTriggerEventConverter_eventToString, withActionButtonPressed_ReturnA
 }
 
 TEST(MapTileTriggerEventConverter_eventFromString, withNone_ReturnNoneEvent) {
-    ASSERT_EQ(MapTileTriggerEvent::None, MapTileTriggerEventConverter::eventFromString("None"));
+    const auto actual = MapTileTriggerEventConverter::eventFromString("None");
+    ASSERT_TRUE(actual.has_value());
+    ASSERT_EQ(MapTileTriggerEvent::None, *actual);
 }
 
 TEST(MapTileTriggerEventConverter_eventFromString, withNoneLowerCase_ReturnNoneEvent) {
-    ASSERT_EQ(MapTileTriggerEvent::None, MapTileTriggerEventConverter::eventFromString("none"));
+    const auto actual = MapTileTriggerEventConverter::eventFromString("none");
+    ASSERT_TRUE(actual.has_value());
+    ASSERT_EQ(MapTileTriggerEvent::None, *actual);
 }
 
 TEST(MapTileTriggerEventConverter_eventFromString, withSteppedOn_ReturnSteppedOnEvent) {
-    ASSERT_EQ(MapTileTriggerEvent::SteppedOn, MapTileTriggerEventConverter::eventFromString("SteppedOn"));
+    const auto actual = MapTileTriggerEventConverter::eventFromString("SteppedOn");
+    ASSERT_TRUE(actual.has_value());
+    ASSERT_EQ(MapTileTriggerEvent::SteppedOn, *actual);
 }
 
 TEST(MapTileTriggerEventConverter_eventFromString, withMoveUpPressed_ReturnMoveUpPressedEvent) {
-    ASSERT_EQ(MapTileTriggerEvent::MoveUpPressed, MapTileTriggerEventConverter::eventFromString("MoveUpPressed"));
+    const auto actual = MapTileTriggerEventConverter::eventFromString("MoveUpPressed");
+    ASSERT_TRUE(actual.has_value());
+    ASSERT_EQ(MapTileTriggerEvent::MoveUpPressed, *actual);
 }
 
 TEST(MapTileTriggerEventConverter_eventFromString, withMoveDownPressed_ReturnMoveDownPressedEvent) {
-    ASSERT_EQ(MapTileTriggerEvent::MoveDownPressed, MapTileTriggerEventConverter::eventFromString("MoveDownPressed"));
+    const auto actual = MapTileTriggerEventConverter::eventFromString("MoveDownPressed");
+    ASSERT_TRUE(actual.has_value());
+    ASSERT_EQ(MapTileTriggerEvent::MoveDownPressed, *actual);
 }
 
 TEST(MapTileTriggerEventConverter_eventFromString, withMoveLeftPressed_ReturnMoveLeftPressedEvent) {
-    ASSERT_EQ(MapTileTriggerEvent::MoveLeftPressed, MapTileTriggerEventConverter::eventFromString("MoveLeftPressed"));
+    const auto actual = MapTileTriggerEventConverter::eventFromString("MoveLeftPressed");
+    ASSERT_TRUE(actual.has_value());
+    ASSERT_EQ(MapTileTriggerEvent::MoveLeftPressed, *actual);
 }
 
 TEST(MapTileTriggerEventConverter_eventFromString, withMoveRightPressed_ReturnMoveRightPressedEvent) {
-    ASSERT_EQ(MapTileTriggerEvent::MoveRightPressed, MapTileTriggerEventConverter::eventFromString("MoveRightPressed"));
+    const auto actual = MapTileTriggerEventConverter::eventFromString("MoveRightPressed");
+    ASSERT_TRUE(actual.has_value());
+    ASSERT_EQ(MapTileTriggerEvent::MoveRightPressed, *actual);
 }
 
 TEST(MapTileTriggerEventConverter_eventFromString, withActionButtonPressed_ReturnActionButtonPressedEvent) {
-    ASSERT_EQ(MapTileTriggerEvent::ActionButtonPressed, MapTileTriggerEventConverter::eventFromString("ActionButtonPressed"));
+    const auto actual = MapTileTriggerEventConverter::eventFromString("ActionButtonPressed");
+    ASSERT_TRUE(actual.has_value());
+    ASSERT_EQ(MapTileTriggerEvent::ActionButtonPressed, *actual);
 }
 
 TEST(MapTileTriggerEventConverter_eventFromString, withNonExistantEvent_ReturnEmpty) {

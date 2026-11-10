@@ -31,6 +31,8 @@ class MainForm_GLComponent : public QWidget {
     SelectionMode getSelectionMode() const;
     unsigned int getMapWidth() const;
     unsigned int getMapHeight() const;
+    const std::string &getMapMusicFilename() const;
+    int getBattleLandscapeTextureIndex() const;
     size_t getHistoryCurrentIndex() const;
     size_t getHistoryCount() const;
     bool isClipboardEmpty() const;
@@ -68,6 +70,8 @@ class MainForm_GLComponent : public QWidget {
             int offsetTop,
             int offsetRight,
             int offsetBottom);
+    void setMapMusicFilename(const std::string &filename);
+    void setBattleLandscapeTextureIndex(int index);
     std::vector<mapeditor::controllers::MonsterZoneDTO> getMonsterZones() const;
     mapeditor::controllers::OptMonsterZoneDTOConst getMonsterZoneByName(const std::string &name) const;
     std::vector<std::string> getAlreadyUsedMonsterZoneNames() const;
@@ -99,6 +103,7 @@ class MainForm_GLComponent : public QWidget {
     void editHistoryChanged();
     void clipboardChanged();
     void zoomChanged(int zoomPercentage);
+    void textureStampPreviewChanged(bool active);
     void npcSpawnPositionPickerModeChanged(bool enabled);
     void npcSpawnPositionPickerTileSelected(const thewarrior::models::Point<> &position);
 
@@ -114,4 +119,5 @@ class MainForm_GLComponent : public QWidget {
     void onNPCSpawnPositionPickerToolCanceled();
     void onZoomChanged(int zoomPercentage);
     void onClipboardPasted();
+    void onTextureStampPreviewChanged(bool active);
 };

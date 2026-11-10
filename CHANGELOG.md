@@ -207,17 +207,71 @@ and Quit actions.
 
 ## [0.6.0]
 
-### Map Editor (Version 1.4.0)
-
-#### New features
-- Added the NPC management feature to the editor.
-- NPCs can be shown or hidden on the map.
-- NPCs are persisted in the map file.
-
-#### Change
-- Revamp the View main menu.
-
 ### Game
 
 #### New features
-- Display the NPCs on the map at their spawn location.
+- Added NPCs with configurable facing, collision, and random wandering within assigned zones. NPCs face the player during conversations and resume their behavior afterward.
+- Added paginated NPC dialogue with a typewriter effect and sound, branching choices, and optional cancellation. Player movement is blocked during dialogue.
+- Added conversation scenarios for NPCs and tile triggers, supporting item and gold rewards, inn stays, merchant shops, scripted battles, and story progression.
+- Added merchant buying and selling with confirmation dialogs, configurable inventories, and item prices.
+- Added paid inn stays that restore health, with sleep effects and audio.
+- Added persistent completed story IDs, story-dependent conversations, and conditional NPC visibility that can update as the story progresses. Scripted battle victories can advance conversations and story events.
+- Added boss types, configurable battle music, boss victory effects, and restrictions on fleeing boss battles.
+- Added vitality item use during battles. Healing and consumption occur on the player's turn; canceling item selection does not spend a turn.
+- Added map-specific background music and battle backgrounds. Music continues between maps using the same track and resumes after battles.
+- Added sound effects for combat, level-ups, inventory actions, dialogue, and merchant transactions.
+- Added gold rewards in treasure chests.
+- Added a configurable movement cooldown between random encounters through `resources/gameplay.json` (five completed tile moves by default).
+- Added an overlay and delay during map transitions.
+
+#### Content and presentation
+- Expanded and refreshed Krikru Village, King Aldric's castle and outer bailey, the home house, shops, and church.
+- Added the three-level North West Cave with treasures and monster zones, and continued development of the Outworld map.
+- Updated the main menu background, tilesets, and monster artwork.
+- Adjusted player experience progression and combat calculations so weaker attackers can occasionally hit for minimal damage.
+- New games begin in the home house with the player facing down. The startup window uses the primary display's dimensions.
+
+#### Bug fixes
+- Fixed running while holding Shift and directional input handling for joysticks.
+- Return to the main menu after battle defeat music and confirmation, and prevent input from carrying over into subsequent screens.
+- Fixed visible tile seams, UI texture sampling, and on-screen keyboard label alignment.
+- Fixed player sprite initialization to respect the stored facing direction in new and loaded games.
+
+### Map Editor (Version 1.4.0)
+
+#### New features
+- Added NPC creation, editing, deletion, texture and spawn selection, facing, behavior, wandering zones, and story-based visibility settings, persisted in map files.
+- Added an NPC list, selection outlines, map visibility toggles, and tools to apply or clear wandering zones.
+- Added conversation scenario editing with dialogue, choices, actions, and node transitions.
+- Added merchant inventory editing with item selection and pricing. Inventories referenced by conversation scenarios cannot be renamed or deleted.
+- Added per-map background music and battle background configuration.
+- Added a tile option allowing interaction through objects such as counters.
+- Added multi-tile texture and object drag-and-drop with placement previews and undo support.
+- Added an optional grid in the texture selection component.
+
+#### Change
+- Reorganized the View menu and added NPC wandering zone and monster zone toolbars.
+- Updated the editor icon.
+
+#### Bug fixes
+- Preserved NPC wandering zones when editing NPC properties.
+- Added safeguards against resizing away NPC spawn tiles, blocking occupied NPC tiles, or deleting textures used by NPCs.
+- Clear NPC data when opening another map and indicate NPCs without dialogue during editing.
+
+### Item Editor (Version 1.0.2)
+
+#### New features
+- Added default buy and sell prices for items, weapons, armor, and stat items.
+- Added item grids with icons in the main window.
+
+#### Change
+- Changed stat item duration configuration from seconds to turns.
+- Updated the editor icon.
+
+### Monster Editor (Version 1.0.3)
+
+#### New features
+- Added monster type and battle music configuration for regular and boss encounters.
+
+#### Change
+- Updated the editor icon.

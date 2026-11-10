@@ -33,7 +33,7 @@ bool ManageArmorItemController::validateDefenseGain(const std::string &defenseGa
 std::unique_ptr<ItemDTO> ManageArmorItemController::getItem(const std::string &id) const {
     auto item = m_itemStore->findItem(id);
     if (item != nullptr) {
-        auto armorItem = dynamic_cast<const ArmorItem *>(item.get());
+        const auto *armorItem = dynamic_cast<const ArmorItem *>(item.get());
         if (armorItem != nullptr) {
             auto retval = std::make_unique<ArmorItemDTO>();
             retval->id = armorItem->getId();
@@ -41,6 +41,8 @@ std::unique_ptr<ItemDTO> ManageArmorItemController::getItem(const std::string &i
             retval->textureName = armorItem->getTextureName();
             retval->textureIndex = armorItem->getTextureIndex();
             retval->optionalDescription = armorItem->getOptionalDescription();
+            retval->defaultBuyPrice = armorItem->getDefaultBuyPrice();
+            retval->defaultSellPrice = armorItem->getDefaultSellPrice();
             retval->defenseGain = armorItem->getDefenseGain();
             retval->slotInBodyPartIndex = static_cast<int>(armorItem->getSlotInBodyPart());
             return retval;
@@ -50,8 +52,8 @@ std::unique_ptr<ItemDTO> ManageArmorItemController::getItem(const std::string &i
 }
 
 std::shared_ptr<Item> ManageArmorItemController::itemDTOToItem(std::unique_ptr<ItemDTO> dto) {
-    ArmorItemDTO *armorDTO = dynamic_cast<ArmorItemDTO *>(dto.get());
-    if (!armorDTO) {
+    auto *armorDTO = dynamic_cast<ArmorItemDTO *>(dto.get());
+    if (armorDTO == nullptr) {
         return nullptr;
     }
     ArmorItemCreationInfo creationInfo {
@@ -60,7 +62,9 @@ std::shared_ptr<Item> ManageArmorItemController::itemDTOToItem(std::unique_ptr<I
             armorDTO->name,
             armorDTO->textureName,
             armorDTO->textureIndex,
-            armorDTO->optionalDescription
+            armorDTO->optionalDescription,
+            armorDTO->defaultBuyPrice,
+            armorDTO->defaultSellPrice
         },
         armorDTO->defenseGain,
         static_cast<ArmorBodyPart>(armorDTO->slotInBodyPartIndex)

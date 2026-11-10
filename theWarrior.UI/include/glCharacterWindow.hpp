@@ -10,6 +10,7 @@
 #include "glTexture.hpp"
 #include "inputDevicesState.hpp"
 #include "itemStore.hpp"
+#include "menuSounds.hpp"
 #include "point.hpp"
 
 namespace thewarrior::ui {
@@ -34,6 +35,7 @@ class GLCharacterWindow : public GLPopupWindow {
     std::shared_ptr<thewarrior::models::ItemStore> m_itemStore;
     const std::map<std::string, unsigned int> *m_texturesGLItemStore;
     std::shared_ptr<InputDevicesState> m_inputDevicesState = nullptr;
+    MenuSounds m_menuSounds;
     GLTexture m_slotsGLTexture;
     void addSlot(thewarrior::models::Point<float> location);
     void addItemToSlot(const thewarrior::models::Item *item, thewarrior::models::Point<float> location);

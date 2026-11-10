@@ -19,6 +19,10 @@ TilePropsComponentController::TilePropsComponentController(GLComponentController
     : m_glComponentController(glComponentController) {
 }
 
+const GLComponentController *TilePropsComponentController::getGLComponentController() const {
+    return m_glComponentController;
+}
+
 const std::string &TilePropsComponentController::getLastError() const {
     return m_lastError;
 }
@@ -111,6 +115,13 @@ void TilePropsComponentController::setTilesCanSteppedOn(bool value) {
     auto tiles = m_glComponentController->getCurrentMapTiles();
     std::for_each(tiles.begin(), tiles.end(), [&value](MapTile *tile) {
         tile->setCanPlayerSteppedOn(value);
+    });
+}
+
+void TilePropsComponentController::setTilesAllowsInteractionThrough(bool value) {
+    auto tiles = m_glComponentController->getCurrentMapTiles();
+    std::for_each(tiles.begin(), tiles.end(), [&value](MapTile *tile) {
+        tile->setAllowsInteractionThrough(value);
     });
 }
 

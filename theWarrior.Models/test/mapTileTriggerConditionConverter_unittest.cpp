@@ -35,22 +35,30 @@ TEST(MapTileTriggerConditionConverter_conditionToString, withMustHaveItem_Return
 
 TEST(MapTileTriggerConditionConverter_conditionFromString, withNone_ReturnNoneCondition)
 {
-    ASSERT_EQ(MapTileTriggerCondition::None, MapTileTriggerConditionConverter::conditionFromString("None"s));
+    const auto actual = MapTileTriggerConditionConverter::conditionFromString("None"s);
+    ASSERT_TRUE(actual.has_value());
+    ASSERT_EQ(MapTileTriggerCondition::None, *actual);
 }
 
 TEST(MapTileTriggerConditionConverter_conditionFromString, withNoneLowerCase_ReturnNoneCondition)
 {
-    ASSERT_EQ(MapTileTriggerCondition::None, MapTileTriggerConditionConverter::conditionFromString("none"s));
+    const auto actual = MapTileTriggerConditionConverter::conditionFromString("none"s);
+    ASSERT_TRUE(actual.has_value());
+    ASSERT_EQ(MapTileTriggerCondition::None, *actual);
 }
 
 TEST(MapTileTriggerConditionConverter_conditionFromString, withMustBeFacing_ReturnMustBeFacingCondition)
 {
-    ASSERT_EQ(MapTileTriggerCondition::MustBeFacing, MapTileTriggerConditionConverter::conditionFromString("MustBeFacing"s));
+    const auto actual = MapTileTriggerConditionConverter::conditionFromString("MustBeFacing"s);
+    ASSERT_TRUE(actual.has_value());
+    ASSERT_EQ(MapTileTriggerCondition::MustBeFacing, *actual);
 }
 
 TEST(MapTileTriggerConditionConverter_conditionFromString, withMustHaveItem_ReturnMustHaveItemCondition)
 {
-    ASSERT_EQ(MapTileTriggerCondition::MustHaveItem, MapTileTriggerConditionConverter::conditionFromString("MustHaveItem"s));
+    const auto actual = MapTileTriggerConditionConverter::conditionFromString("MustHaveItem"s);
+    ASSERT_TRUE(actual.has_value());
+    ASSERT_EQ(MapTileTriggerCondition::MustHaveItem, *actual);
 }
 
 TEST(MapTileTriggerConditionConverter_conditionFromString, withNonExistantCondition_ReturnEmpty)

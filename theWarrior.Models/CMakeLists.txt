@@ -5,12 +5,15 @@ find_package(Boost CONFIG REQUIRED)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameMap.cpp
+set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/conversationScenario.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/gameMap.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mapTile.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mapTileTrigger.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mapTileTriggerEventConverter.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mapTileTriggerConditionConverter.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/mapTileTriggerActionConverter.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/openChestActionProperties.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/openChestActionPropertiesConverter.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/texture.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/textureContainer.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/itemStore.cpp
@@ -22,6 +25,7 @@ set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gameMap.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/player.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/playerEquipment.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/inventory.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/merchantInventory.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/npc.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/monster.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterStore.cpp

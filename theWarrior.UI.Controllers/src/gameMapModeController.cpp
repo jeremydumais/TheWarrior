@@ -10,12 +10,16 @@
 #include "gameState.hpp"
 #include "gameStateMetadata.hpp"
 #include "gameStateStorage.hpp"
+#include "goldFoundMessage.hpp"
+#include "goldFoundMessageDTO.hpp"
 #include "iGameStateRepository.hpp"
 #include "itemFoundMessage.hpp"
 #include "itemFoundMessageDTO.hpp"
 #include "itemStore.hpp"
 #include "itemStoreStorage.hpp"
 #include "monsterStoreStorage.hpp"
+#include "npcDialogueMessage.hpp"
+#include "npcDialogueMessageDTO.hpp"
 #include "saveGamePaths.hpp"
 #include "specialFolders.hpp"
 #include "sqliteGameStateRepository.hpp"
@@ -34,9 +38,11 @@ GameMapModeController::GameMapModeController()
 }
 
 void GameMapModeController::initialize(const std::string &resourcesPath,
-                                       std::shared_ptr<thewarrior::models::WorldState> worldState) {
+                                       std::shared_ptr<thewarrior::models::WorldState> worldState,
+                                       const std::set<thewarrior::models::StoryId> &completedStoryIds) {
     m_resourcesPath = resourcesPath;
     m_worldState = worldState;
+    m_completedStoryIds = completedStoryIds;
 }
 
 const std::string &GameMapModeController::getResourcesPath() const {
@@ -63,11 +69,15 @@ std::shared_ptr<thewarrior::models::WorldState> GameMapModeController::getWorldS
     return m_worldState;
 }
 
+const std::set<thewarrior::models::StoryId> &GameMapModeController::getCompletedStoryIds() const {
+    return m_completedStoryIds;
+}
+
 const Point<> &GameMapModeController::getPlayerPosition() const {
     return m_worldState->getPlayerPosition();
 }
 
-ItemDTO GameMapModeController::findItem(const std::string &id) const {
+ ItemDTO GameMapModeController::findItem(const std::string &id) const {
     ItemDTO dto;
     const auto item = m_itemStore->findItem(id);
     if (item) {
@@ -107,6 +117,10 @@ bool GameMapModeController::isTileOccupyByNPC(const thewarrior::models::Point<> 
     });
 }
 
+bool GameMapModeController::isStoryIdCompleted(const StoryId &storyId) const {
+    return m_completedStoryIds.contains(storyId);
+}
+
 void GameMapModeController::setCurrentMapName(const std::string &mapName) const {
     m_worldState->setCurrentMapName(mapName);
 }
@@ -131,6 +145,10 @@ bool GameMapModeController::addItemToInventory(Player *player, const std::string
     return player->getInventory()->addItem(item);
 }
 
+void GameMapModeController::awardGoldToPlayer(Player *player, unsigned int amount) {
+    player->addGold(static_cast<int>(amount));
+}
+
 void GameMapModeController::addMessageToPipeline(std::unique_ptr<MessageDTO> messageDTO) {
     auto message = createMessageFromMessageDTO(std::move(messageDTO));
     if (message != nullptr) {
@@ -149,6 +167,28 @@ void GameMapModeController::displayCurrentMessage() {
     }
 }
 
+bool GameMapModeController::currentNPCDialogueMessageHasNextPage() const {
+    auto currentMessage = m_messagePipeline->getCurrentMessage();
+    if (!currentMessage || currentMessage->getType() != MessageType::NPCDialogueMessage) {
+        return false;
+    }
+
+    auto *npcDialogueMessage = dynamic_cast<NPCDialogueMessage *>(currentMessage.get());
+    return npcDialogueMessage != nullptr && npcDialogueMessage->hasNextPage(NPCDialogueLinesPerPage);
+}
+
+void GameMapModeController::advanceCurrentNPCDialogueMessagePage() {
+    auto currentMessage = m_messagePipeline->getCurrentMessage();
+    if (!currentMessage || currentMessage->getType() != MessageType::NPCDialogueMessage) {
+        return;
+    }
+
+    auto *npcDialogueMessage = dynamic_cast<NPCDialogueMessage *>(currentMessage.get());
+    if (npcDialogueMessage != nullptr) {
+        npcDialogueMessage->advancePage(NPCDialogueLinesPerPage);
+    }
+}
+
 std::shared_ptr<Message> GameMapModeController::createMessageFromMessageDTO(std::unique_ptr<MessageDTO> dto) const {
     if (!dto) {
         return nullptr;
@@ -159,12 +199,29 @@ std::shared_ptr<Message> GameMapModeController::createMessageFromMessageDTO(std:
             return std::make_shared<Message>(dto->message, dto->maxDurationInMilliseconds, dto->scale);
         case MessageDTOType::ItemFoundMessage:
             {
-                ItemFoundMessageDTO *itemFoundMsgDTO = dynamic_cast<ItemFoundMessageDTO *>(dto.get());
+                auto *itemFoundMsgDTO = dynamic_cast<ItemFoundMessageDTO *>(dto.get());
                 return std::make_shared<ItemFoundMessage>(itemFoundMsgDTO->message,
                         itemFoundMsgDTO->maxDurationInMilliseconds,
                         itemFoundMsgDTO->scale,
                         itemFoundMsgDTO->itemId,
                         itemFoundMsgDTO->textureName);
+            }
+        case MessageDTOType::GoldFoundMessage:
+            {
+                auto *goldMsgDTO = dynamic_cast<GoldFoundMessageDTO *>(dto.get());
+                return std::make_shared<GoldFoundMessage>(goldMsgDTO->message,
+                        goldMsgDTO->maxDurationInMilliseconds,
+                        goldMsgDTO->scale,
+                        goldMsgDTO->goldAmount);
+            }
+        case MessageDTOType::NPCDialogueMessage: 
+            {
+                auto *npcDialogueMsgDTO = dynamic_cast<NPCDialogueMessageDTO *>(dto.get());
+                return std::make_shared<NPCDialogueMessage>(npcDialogueMsgDTO->message,
+                        npcDialogueMsgDTO->maxDurationInMilliseconds,
+                        npcDialogueMsgDTO->scale,
+                        npcDialogueMsgDTO->npcId,
+                        npcDialogueMsgDTO->dialogueLines);
             }
         default:
             return nullptr;
@@ -183,10 +240,29 @@ std::unique_ptr<MessageDTO> GameMapModeController::createMessageDTOFromMessage(s
         case MessageType::ItemFoundMessage:
             {
                 retval = std::make_unique<ItemFoundMessageDTO>();
-                ItemFoundMessage *itemFoundMessage = dynamic_cast<ItemFoundMessage *>(message.get());
-                ItemFoundMessageDTO *dto = dynamic_cast<ItemFoundMessageDTO *>(retval.get());
+                auto *itemFoundMessage = dynamic_cast<ItemFoundMessage *>(message.get());
+                auto *dto = dynamic_cast<ItemFoundMessageDTO *>(retval.get());
                 dto->itemId = itemFoundMessage->getItemId();
                 dto->textureName = itemFoundMessage->getTextureName();
+                break;
+            }
+        case MessageType::GoldFoundMessage:
+            {
+                retval = std::make_unique<GoldFoundMessageDTO>();
+                auto *goldFoundMessage = dynamic_cast<GoldFoundMessage *>(message.get());
+                auto *dto = dynamic_cast<GoldFoundMessageDTO *>(retval.get());
+                dto->goldAmount = goldFoundMessage->getGoldAmount();
+                break;
+            }
+        case MessageType::NPCDialogueMessage:
+            {
+                retval = std::make_unique<NPCDialogueMessageDTO>();
+                auto *npcDialogueMessage = dynamic_cast<NPCDialogueMessage *>(message.get());
+                auto *dto = dynamic_cast<NPCDialogueMessageDTO *>(retval.get());
+                dto->npcId = npcDialogueMessage->getNPCId();
+                dto->dialogueLines = npcDialogueMessage->getDialogueLines();
+                dto->currentLineIndex = npcDialogueMessage->getCurrentLineIndex();
+                dto->hasNextPage = (npcDialogueMessage->getCurrentLineIndex() + NPCDialogueLinesPerPage) < npcDialogueMessage->getDialogueLines().size();
                 break;
             }
         default:
@@ -242,14 +318,14 @@ bool GameMapModeController::saveGameState(thewarrior::models::Player &player) {
 
     // Create the save game file
     GameStateStorage storage;
-    GameState gameState(player, *m_worldState);
+    GameState gameState(player, *m_worldState, m_completedStoryIds);
     try {
         storage.saveGameState(fullPath, gameState);
     } catch (const std::runtime_error &err) {
         m_lastError = err.what();
         return false;
     }
-     // Convert the time point to a duration in seconds since the Unix epoch
+    // Convert the time point to a duration in seconds since the Unix epoch
     auto epoch_seconds = std::chrono::duration_cast<std::chrono::seconds>(
         now.time_since_epoch());
     // Get the integer count (the time_t equivalent)
@@ -280,5 +356,10 @@ bool GameMapModeController::saveGameState(thewarrior::models::Player &player) {
     return true;
 }
 
+void GameMapModeController::completeStory(const StoryId &storyId) {
+    if (m_completedStoryIds.insert(storyId).second) {
+        completedStoryIdsChanged();
+    }
+}
 
 }  // namespace thewarrior::ui::controllers

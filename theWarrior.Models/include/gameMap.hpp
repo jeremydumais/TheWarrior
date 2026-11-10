@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include "mapTile.hpp"
+#include "merchantInventory.hpp"
 #include "monsterZone.hpp"
 #include "npc.hpp"
 #include "point.hpp"
@@ -12,6 +13,8 @@
 #include "textureContainer.hpp"
 #include <boost/optional.hpp>
 #include <boost/serialization/access.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/optional.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/version.hpp>
@@ -20,6 +23,7 @@ namespace thewarrior::models {
 
 using OptMonsterZoneConstRef = std::optional<std::reference_wrapper<const MonsterZone>>;
 using OptNPCConstRef = std::optional<std::reference_wrapper<const NPC>>;
+using OptMerchantInventoryConstRef = std::optional<std::reference_wrapper<const MerchantInventory>>;
 
 class GameMap {
  public:
@@ -32,6 +36,8 @@ class GameMap {
     const MapTile &getTileFromCoord(Point<> coord) const;
     unsigned int getWidth() const;
     unsigned int getHeight() const;
+    const std::string &getMusicFilename() const;
+    int getBattleLandscapeTextureIndex() const;
     Point<> getCoordFromTileIndex(int index) const;
     int getTileIndexFromCoord(Point<> coord) const;
     const std::vector<Texture> &getTextures() const;
@@ -40,6 +46,7 @@ class GameMap {
     bool useOnlyOneMonsterZone() const;
     const std::vector<MonsterZone> &getMonsterZones() const;
     OptMonsterZoneConstRef getMonsterZoneByName(const std::string &zoneName) const;
+    OptMerchantInventoryConstRef getMerchantInventoryByName(const std::string &inventoryName) const;
     bool isShrinkMapImpactAssignedTiles(int offsetLeft,
             int offsetTop,
             int offsetRight,
@@ -48,6 +55,8 @@ class GameMap {
                    int offsetTop,
                    int offsetRight,
                    int offsetBottom);
+    void setMusicFilename(const std::string &filename);
+    void setBattleLandscapeTextureIndex(int value);
     bool addTexture(const TextureInfo &textureInfo);
     bool replaceTexture(const std::string &name, const TextureInfo &textureInfo);
     bool removeTexture(const std::string &name);
@@ -67,6 +76,11 @@ class GameMap {
     bool removeNPC(const std::string &npcId);
     bool addNPCWanderingZone(const std::string &npcId, const std::set<int> &selectedTilesIndices);
     bool removeNPCWanderingZone(const std::string &npcId, const std::set<int> &selectedTilesIndices);
+    // Merchant Inventory methods
+    const std::vector<MerchantInventory> &getMerchantInventories() const;
+    bool addMerchantInventory(const MerchantInventory &inventory);
+    bool replaceMerchantInventory(const std::string &name, const MerchantInventory &inventory);
+    bool removeMerchantInventory(const std::string &name);
 
  private:
     friend class boost::serialization::access;
@@ -74,8 +88,11 @@ class GameMap {
     std::vector<std::vector<MapTile>> m_tiles;
     std::vector<MonsterZone> m_monsterZones;
     std::vector<NPC> m_npcs;
+    std::vector<MerchantInventory> m_merchantInventories;
     TextureContainer m_textureContainer;
-    bool m_useOnlyOneMonsterZone;
+    bool m_useOnlyOneMonsterZone = false;
+    std::string m_musicFilename;
+    int m_battleLandscapeTextureIndex = -1;
     bool _isShrinkMapFromLeftImpactAssignedTiles(int offset) const;
     bool _isShrinkMapFromTopImpactAssignedTiles(int offset) const;
     bool _isShrinkMapFromRightImpactAssignedTiles(int offset) const;
@@ -86,6 +103,7 @@ class GameMap {
     void _resizeMapFromBottom(int offset);
     std::vector<MonsterZone>::iterator getMonsterZoneIterator(const std::string &name);
     std::vector<NPC>::iterator getNPCIterator(const std::string &npcId);
+    std::vector<MerchantInventory>::iterator getMerchantInventoryIterator(const std::string &name);
     // Serialization methods
     template<class Archive>
     void save(Archive& ar, const unsigned int version) const {
@@ -100,12 +118,23 @@ class GameMap {
         if (version > 3) {
             ar & m_npcs;
         }
+        if (version > 4) {
+            ar & m_musicFilename;
+        }
+        if (version > 5) {
+            ar & m_merchantInventories;
+        }
+        if (version > 6) {
+            ar & m_battleLandscapeTextureIndex;
+        }
     }
     template<class Archive>
     void load(Archive& ar, const unsigned int version) {
         m_monsterZones.clear();
         m_useOnlyOneMonsterZone = false;
         m_npcs.clear();
+        m_musicFilename.clear();
+        m_battleLandscapeTextureIndex = -1;
 
         ar & m_tiles;
         ar & m_textureContainer;
@@ -119,6 +148,15 @@ class GameMap {
         if (version > 3) {
             ar & m_npcs;
         }
+        if (version > 4) {
+            ar & m_musicFilename;
+        }
+        if (version > 5) {
+            ar & m_merchantInventories;
+        }
+        if (version > 6) {
+            ar & m_battleLandscapeTextureIndex;
+        }
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -126,4 +164,4 @@ class GameMap {
 
 }  // namespace thewarrior::models
 
-BOOST_CLASS_VERSION(thewarrior::models::GameMap, 4)
+BOOST_CLASS_VERSION(thewarrior::models::GameMap, 7)

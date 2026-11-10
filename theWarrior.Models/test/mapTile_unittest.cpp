@@ -272,6 +272,18 @@ TEST(MapTile_getCanPlayerSteppedOn, WithFalse_ReturnFalse) {
     ASSERT_FALSE(tile.canPlayerSteppedOn());
 }
 
+TEST(MapTile_getAllowsInteractionThrough, WithTrue_ReturnTrue) {
+    MapTile tile;
+    tile.setAllowsInteractionThrough(true);
+    ASSERT_TRUE(tile.getAllowsInteractionThrough());
+}
+
+TEST(MapTile_getAllowsInteractionThrough, WithFalse_ReturnFalse) {
+    MapTile tile;
+    tile.setAllowsInteractionThrough(false);
+    ASSERT_FALSE(tile.getAllowsInteractionThrough());
+}
+
 TEST(MapTile_getObjectAbovePlayer, WhenObjectAbovePlayerIsTrue_ReturnTrue) {
     MapTile tile;
     tile.setObjectAbovePlayer(true);
@@ -367,6 +379,19 @@ TEST(MapTile_setCanPlayerSteppedOn, WithTrue_ReturnSuccess) {
 TEST(MapTile_setCanPlayerSteppedOn, WithFalse_ReturnSuccess) {
     MapTile tile;
     ASSERT_NO_THROW(tile.setCanPlayerSteppedOn(false));
+}
+
+TEST(MapTile_setAllowsInteractionThrough, WithTrue_ReturnSuccess) {
+    MapTile tile;
+    ASSERT_NO_THROW(tile.setAllowsInteractionThrough(true));
+    ASSERT_TRUE(tile.getAllowsInteractionThrough());
+}
+
+TEST(MapTile_setAllowsInteractionThrough, WithFalse_ReturnSuccess) {
+    MapTile tile;
+    tile.setAllowsInteractionThrough(true);
+    ASSERT_NO_THROW(tile.setAllowsInteractionThrough(false));
+    ASSERT_FALSE(tile.getAllowsInteractionThrough());
 }
 
 TEST(MapTile_setObjectAbovePlayer, WhenSettingTrue_ReturnTrue) {

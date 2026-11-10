@@ -1,9 +1,15 @@
 #pragma  once
 
 #include <memory>
+#include <set>
+#include <vector>
 #include "direction.hpp"
+#include "gameMap.hpp"
 #include "glObjectService.hpp"
+#include "glTextureService.hpp"
+#include "movementResult.hpp"
 #include "npc.hpp"
+#include "point.hpp"
 #include "texture.hpp"
 #include "tileSize.hpp"
 #include "worldState.hpp"
@@ -23,6 +29,19 @@ class GLNPC : public thewarrior::models::NPC {
     void setGLTextureId(unsigned int textureId);
     void setGLObjectPosition() const;
     void onGameWindowTileSizeChanged(const TileSize &tileSize);
+    bool isInMovement() const;
+    void initializeVisibility(const std::set<thewarrior::models::StoryId> &completedStoryIds);
+    void onCompletedStoryIdsChanged(const std::set<thewarrior::models::StoryId> &completedStoryIds);
+    bool isCurrentlyVisible() const;
+    void setScriptVisible(bool visible);
+    void stopWandering();
+    void restoreDefaultStateAfterDelay(float durationInSeconds);
+    void face(thewarrior::models::NPCFacing facing, const GLTextureService &textureService);
+    void onGameWindowUpdate(float deltaTime,
+                            const thewarrior::models::GameMap &map,
+                            const std::vector<thewarrior::models::Point<size_t>> &occupiedPositions,
+                            const thewarrior::models::Point<> &playerPosition,
+                            const GLTextureService &textureService);
 
  private:
     std::shared_ptr<thewarrior::models::WorldState> m_worldState = nullptr;
@@ -31,9 +50,25 @@ class GLNPC : public thewarrior::models::NPC {
     unsigned int glTextureId;
     TileSize m_tileSize;
     thewarrior::models::Direction m_direction;
+    float m_xMove = 0.0F;
+    float m_yMove = 0.0F;
+    float m_idleTimeRemaining = 0.0F;
+    int m_currentMovementTextureIndex = -1;
+    bool m_hasPendingDefaultRestore = false;
+    bool m_currentlyVisible = true;
+    float m_defaultRestoreTimeRemaining = 0.0F;
+    std::vector<thewarrior::models::Point<size_t>> m_currentPath;
     const thewarrior::models::Point<size_t> &getPosition() const;
     thewarrior::models::NPCFacing getFacing();
     void setFacing(thewarrior::models::NPCFacing facing);
+    bool tryStartNextWanderPath(const thewarrior::models::GameMap &map);
+    void moveToNextPathTile();
+    MovementResult processMoving(float deltaTime);
+    void applyCurrentGLTexture(const GLTextureService &textureService) const;
+    float getRandomIdleTime() const;
+    bool isPositionOccupied(const thewarrior::models::Point<size_t> &position,
+                            const std::vector<thewarrior::models::Point<size_t>> &occupiedPositions,
+                            const thewarrior::models::Point<> &playerPosition) const;
 };
 
 }  // namespace thewarrior::ui

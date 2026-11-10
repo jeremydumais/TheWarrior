@@ -10,8 +10,7 @@ using namespace thewarrior::models;
 namespace monstereditor::controllers {
 
 ManageMonsterController::ManageMonsterController(std::shared_ptr<MonsterStore> monsterStore)
-    : m_monsterStore(monsterStore),
-      m_lastError("") {
+    : m_monsterStore(monsterStore) {
 }
 
 const std::string& ManageMonsterController::getLastError() const {
@@ -40,6 +39,8 @@ std::unique_ptr<MonsterDTO> ManageMonsterController::getMonster(const std::strin
         retval->defense = monster->getDefense();
         retval->gold = monster->getGoldRewardRange();
         retval->experience = monster->getExperienceRewardRange();
+        retval->type = monster->getType();
+        retval->musicFilename = monster->getMusicFilename();
         return retval;
     }
     return nullptr;
@@ -92,16 +93,18 @@ bool ManageMonsterController::deleteMonster(const std::string &monsterId) {
 
 std::shared_ptr<Monster> ManageMonsterController::monsterDTOToMonster(std::unique_ptr<MonsterDTO> dto) {
     MonsterCreationInfo creationInfo = {
-        dto->id,
-        dto->name,
-        dto->textureName,
-        dto->textureIndex,
-        dto->healthRange,
-        dto->maxHealth,
-        dto->attack,
-        dto->defense,
-        dto->gold,
-        dto->experience
+        .id = dto->id,
+        .name = dto->name,
+        .textureName = dto->textureName,
+        .textureIndex = dto->textureIndex,
+        .healthRange = dto->healthRange,
+        .maxHealth = dto->maxHealth,
+        .attack = dto->attack,
+        .defense = dto->defense,
+        .gold = dto->gold,
+        .experience = dto->experience,
+        .type = dto->type,
+        .musicFilename = dto->musicFilename
     };
     std::shared_ptr<Monster> updateMonster = nullptr;
     try {

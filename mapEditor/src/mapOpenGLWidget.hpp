@@ -8,6 +8,7 @@
 #include <qpoint.h>
 #include <map>
 #include <memory>
+#include <optional>
 #include <set>
 #include <string>
 #include <unordered_map>
@@ -20,6 +21,7 @@
 #include "mapView.hpp"
 #include "pickerToolSelection.hpp"
 #include "selectionMode.hpp"
+#include "textureStamp.hpp"
 
 struct ResizeGLComponentInfo {
     int componentWidth;
@@ -71,6 +73,10 @@ class MapOpenGLWidget : public QOpenGLWidget {
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void leaveEvent(QEvent *event) override;
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dragMoveEvent(QDragMoveEvent *event) override;
+    void dragLeaveEvent(QDragLeaveEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
 
  private slots:
     void updateScene();
@@ -134,6 +140,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
     };
 
     struct PasteState {
+        std::optional<mapeditor::controllers::TextureStamp> textureStamp;
         std::vector<thewarrior::models::MapTile> pasteResult;
         std::set<int> pasteResultIndices;
 
@@ -177,6 +184,8 @@ class MapOpenGLWidget : public QOpenGLWidget {
     InputState m_input;
     SelectionState m_selection;
     PasteState m_paste;
+    std::optional<PasteState> m_previousDragPaste;
+    SelectionMode m_previousDragMode = SelectionMode::Select;
     WidgetConfig m_config;
     MapRendererContext m_frame;
 
@@ -211,6 +220,9 @@ class MapOpenGLWidget : public QOpenGLWidget {
     void updateSelectedTileColor();
     void calculatePasteSelectionZone(QPoint dragEndPosition, bool initialCalculation = false);
     bool isCursorInPasteSelectionZone(QPoint cursorPosition) const;
+    bool positionTextureStamp(const mapeditor::controllers::TextureStamp &stamp, QPoint origin);
+    bool previewTextureStampDrag(const QMimeData *mimeData, QPoint position);
+    void restoreBeforeTextureDrag();
 
  signals:
     void onRecalculateTileSize(ResizeGLComponentInfo info);
@@ -223,6 +235,7 @@ class MapOpenGLWidget : public QOpenGLWidget {
     void onNPCSpawnPositionPickerToolCanceled();
     void onZoomChanged(int zoomPercentage);
     void onClipboardPasted();
+    void onTextureStampPreviewChanged(bool active);
 };
 
 #endif  // MAPEDITOR_SRC_MAPOPENGLWIDGET_HPP_

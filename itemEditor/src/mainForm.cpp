@@ -1,4 +1,4 @@
-#include <libgen.h>  // dirname
+ #include <libgen.h>  // dirname
 #include <linux/limits.h>  // PATH_MAX
 #include <unistd.h>  // readlink
 #include <fmt/format.h>
@@ -10,6 +10,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <type_traits>
 #include <vector>
 #include <boost/filesystem.hpp>
 #include "aboutBoxForm.hpp"
@@ -77,7 +78,7 @@ MainForm::MainForm(QWidget *parent,
     }
 
     initializeCategoriesTableControl();
-    initializeItemsTableControl();
+    initializeItemsTableControl(std::nullopt);
     refreshRecentMapsMenu();
     connectUIActions();
     if (!currentFilePath.empty()) {
@@ -92,11 +93,43 @@ void MainForm::initializeCategoriesTableControl() {
     ui.tableWidgetItemCategories->setHorizontalHeaderItem(0, new QTableWidgetItem("Categories"));
 }
 
-void MainForm::initializeItemsTableControl() {
+void MainForm::initializeItemsTableControl(std::optional<ItemType> itemType) {
+    ui.tableWidgetItems->setColumnCount(5);
     ui.tableWidgetItems->setHorizontalHeaderItem(0, new QTableWidgetItem("Id"));
     ui.tableWidgetItems->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
-    ui.tableWidgetItems->setHorizontalHeaderItem(2, new QTableWidgetItem("Description"));
-    ui.tableWidgetItems->setColumnWidth(1, 200);
+    ui.tableWidgetItems->setHorizontalHeaderItem(2, new QTableWidgetItem("Default Buy Price"));
+    ui.tableWidgetItems->setHorizontalHeaderItem(3, new QTableWidgetItem("Default Sell Price"));
+    ui.tableWidgetItems->setColumnWidth(1, 150);
+    ui.tableWidgetItems->setColumnWidth(2, 120);
+    ui.tableWidgetItems->setColumnWidth(3, 120);
+    if (itemType == ItemType::Weapon) {
+        ui.tableWidgetItems->setColumnCount(7);
+        ui.tableWidgetItems->setHorizontalHeaderItem(4, new QTableWidgetItem("Body part"));
+        ui.tableWidgetItems->setHorizontalHeaderItem(5, new QTableWidgetItem("Attack Gain"));
+        ui.tableWidgetItems->setHorizontalHeaderItem(6, new QTableWidgetItem("Description"));
+        ui.tableWidgetItems->setColumnWidth(4, 120);
+        ui.tableWidgetItems->setColumnWidth(5, 120);
+    } else if (itemType == ItemType::Armor) {
+        ui.tableWidgetItems->setColumnCount(7);
+        ui.tableWidgetItems->setHorizontalHeaderItem(4, new QTableWidgetItem("Body part"));
+        ui.tableWidgetItems->setHorizontalHeaderItem(5, new QTableWidgetItem("Defense Gain"));
+        ui.tableWidgetItems->setHorizontalHeaderItem(6, new QTableWidgetItem("Description"));
+        ui.tableWidgetItems->setColumnWidth(4, 120);
+        ui.tableWidgetItems->setColumnWidth(5, 120);
+    } else if (itemType == ItemType::StatsItem) {
+        ui.tableWidgetItems->setColumnCount(9);
+        ui.tableWidgetItems->setHorizontalHeaderItem(4, new QTableWidgetItem("Stats changing"));
+        ui.tableWidgetItems->setHorizontalHeaderItem(5, new QTableWidgetItem("Gain"));
+        ui.tableWidgetItems->setHorizontalHeaderItem(6, new QTableWidgetItem("Limit one applied"));
+        ui.tableWidgetItems->setHorizontalHeaderItem(7, new QTableWidgetItem("Duration in turn"));
+        ui.tableWidgetItems->setHorizontalHeaderItem(8, new QTableWidgetItem("Description"));
+        ui.tableWidgetItems->setColumnWidth(4, 120);
+        ui.tableWidgetItems->setColumnWidth(5, 70);
+        ui.tableWidgetItems->setColumnWidth(6, 140);
+        ui.tableWidgetItems->setColumnWidth(7, 140);
+    } else {
+        ui.tableWidgetItems->setHorizontalHeaderItem(4, new QTableWidgetItem("Description"));
+    }
 }
 
 void MainForm::connectUIActions() {
@@ -308,10 +341,14 @@ void MainForm::refreshCategoriesTable() {
 }
 
 void MainForm::refreshItemsTable() {
+    const bool sortingEnabled = ui.tableWidgetItems->isSortingEnabled();
+    ui.tableWidgetItems->setSortingEnabled(false);
     ui.tableWidgetItems->model()->removeRows(0, ui.tableWidgetItems->rowCount());
     auto currentItemCategorySelections = ui.tableWidgetItemCategories->selectionModel()->selectedRows();
     if (currentItemCategorySelections.length() == 1) {
         auto selectedItemCategory = currentItemCategorySelections[0].data().toString().toStdString();
+        auto itemType = m_controller.getItemTypeFromCategoryName(selectedItemCategory);
+        initializeItemsTableControl(itemType);
         auto itemsToDisplay = m_controller.getItemsFromCategory(selectedItemCategory);
         std::vector<std::string> itemIds;
         std::transform(itemsToDisplay.begin(),
@@ -328,22 +365,45 @@ void MainForm::refreshItemsTable() {
             }
             ui.tableWidgetItems->setItem(index, 0, idItem);
             ui.tableWidgetItems->setItem(index, 1, new QTableWidgetItem(item.name.c_str()));
-            ui.tableWidgetItems->setItem(index, 2, new QTableWidgetItem(item.description.c_str()));
+            ui.tableWidgetItems->setItem(index, 2, new QTableWidgetItem(QString::number(item.defaultBuyPrice)));
+            ui.tableWidgetItems->setItem(index, 3, new QTableWidgetItem(QString::number(item.defaultSellPrice)));
+            const int descriptionColumn = std::visit([this, index](const auto &fields) {
+                using Fields = std::decay_t<decltype(fields)>;
+                if constexpr (std::is_same_v<Fields, itemeditor::controllers::WeaponListFields>) {
+                    ui.tableWidgetItems->setItem(index, 4, new QTableWidgetItem(fields.bodyPart.c_str()));
+                    ui.tableWidgetItems->setItem(index, 5, new QTableWidgetItem(QString::number(fields.attackGain)));
+                    return 6;
+                } else if constexpr (std::is_same_v<Fields, itemeditor::controllers::ArmorListFields>) {
+                    ui.tableWidgetItems->setItem(index, 4, new QTableWidgetItem(fields.bodyPart.c_str()));
+                    ui.tableWidgetItems->setItem(index, 5, new QTableWidgetItem(QString::number(fields.defenseGain)));
+                    return 6;
+                } else if constexpr (std::is_same_v<Fields, itemeditor::controllers::StatsItemListFields>) {
+                    ui.tableWidgetItems->setItem(index, 4, new QTableWidgetItem(fields.statChanging.c_str()));
+                    ui.tableWidgetItems->setItem(index, 5, new QTableWidgetItem(QString::number(fields.gain)));
+                    ui.tableWidgetItems->setItem(index, 6, new QTableWidgetItem(fields.limitOfOneApplied ? "Yes" : "No"));
+                    ui.tableWidgetItems->setItem(index, 7, new QTableWidgetItem(QString::number(fields.durationInTurns)));
+                    return 8;
+                }
+                return 4;
+            }, item.specificFields);
+            ui.tableWidgetItems->setItem(index, descriptionColumn, new QTableWidgetItem(item.description.c_str()));
             index++;
         }
     }
+    ui.tableWidgetItems->setSortingEnabled(sortingEnabled);
 }
 
 QIcon MainForm::getCategoryIcon(const std::string &categoryName) const {
     if (categoryName == "Weapon") {
         return QIcon(":/sword.png");
-    } else if (categoryName == "Armor") {
+    } 
+    if (categoryName == "Armor") {
         return QIcon(":/shield.png");
-    } else if (categoryName == "StatsItem") {
+    } 
+    if (categoryName == "Stats Item") {
         return QIcon(":/statsitem.png");
-    } else {
-        return QIcon(":/item.png");
-    }
+    } 
+    return QIcon(":/item.png");
 }
 
 void MainForm::action_ManageTextures_Click() {

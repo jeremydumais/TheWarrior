@@ -1,24 +1,28 @@
 #include <gtest/gtest.h>
 #include "editMapTileTriggerFormController.hpp"
+#include "glComponentController.hpp"
 #include "mapTileTriggerDTO.hpp"
 
 using mapeditor::controllers::EditMapTileTriggerFormController;
+using mapeditor::controllers::GLComponentController;
 using mapeditor::controllers::MapTileTriggerDTO;
 
 class EditMapTileTriggerFormControllerAddSample : public ::testing::Test {
  public:
      EditMapTileTriggerFormControllerAddSample()
-         : controller({}, { MapTileTriggerDTO {
+         : controller(&glComponentController, {}, { MapTileTriggerDTO {
                  "SteppedOn", "None", "None", {}
                  }}) {
      }
      EditMapTileTriggerFormController controller;
+     GLComponentController glComponentController;
 };
 
 class EditMapTileTriggerFormControllerUpdateSample : public ::testing::Test {
  public:
      EditMapTileTriggerFormControllerUpdateSample()
-         : controller(MapTileTriggerDTO {
+         : controller(&glComponentController, 
+                 MapTileTriggerDTO {
                  "SteppedOn", "None", "ChangeMap", {}
                  },
                  { MapTileTriggerDTO {
@@ -31,12 +35,14 @@ class EditMapTileTriggerFormControllerUpdateSample : public ::testing::Test {
                  }}) {
      }
      EditMapTileTriggerFormController controller;
+     GLComponentController glComponentController;
 };
 
 class EditMapTileTriggerFormControllerUpdateInvalidSample : public ::testing::Test {
  public:
      EditMapTileTriggerFormControllerUpdateInvalidSample()
-         : controller(MapTileTriggerDTO {
+         : controller(&glComponentController, 
+                 MapTileTriggerDTO {
                  "Step", "No", "Non", {}
                  },
                  { MapTileTriggerDTO {
@@ -49,6 +55,7 @@ class EditMapTileTriggerFormControllerUpdateInvalidSample : public ::testing::Te
                  }}) {
      }
      EditMapTileTriggerFormController controller;
+     GLComponentController glComponentController;
 };
 
 TEST_F(EditMapTileTriggerFormControllerAddSample, getCurrentTrigger_ReturnEmpty) {

@@ -51,6 +51,8 @@ bool EditWeaponItemForm::loadExistingItemToForm()
             ui.lineEditTextureName->setText(weaponDTO->textureName.c_str());
             ui.spinBoxTextureIndex->setValue(weaponDTO->textureIndex);
             ui.lineEditOptionalDescription->setText(weaponDTO->optionalDescription.c_str());
+            ui.spinBoxDefaultBuyPrice->setValue(static_cast<int>(existingItem->defaultBuyPrice));
+            ui.spinBoxDefaultSellPrice->setValue(static_cast<int>(existingItem->defaultSellPrice));
             ui.lineEditAttackGain->setText(std::to_string(weaponDTO->attackGain).c_str());
             ui.comboBoxSlotInBodyPart->setCurrentIndex(weaponDTO->slotInBodyPartIndex);
         }
@@ -83,6 +85,8 @@ void EditWeaponItemForm::onPushButtonOKClick()
     itemInfo->textureName = ui.lineEditTextureName->text().toStdString();
     itemInfo->textureIndex = ui.spinBoxTextureIndex->value();
     itemInfo->optionalDescription = ui.lineEditOptionalDescription->text().toStdString();
+    itemInfo->defaultBuyPrice = static_cast<unsigned int>(ui.spinBoxDefaultBuyPrice->value());
+    itemInfo->defaultSellPrice = static_cast<unsigned int>(ui.spinBoxDefaultSellPrice->value());
     itemInfo->attackGain = stof(ui.lineEditAttackGain->text().toStdString());
     itemInfo->slotInBodyPartIndex = ui.comboBoxSlotInBodyPart->currentIndex();
     if (!m_itemIdToEdit.has_value()) {

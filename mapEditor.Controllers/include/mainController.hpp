@@ -7,6 +7,7 @@
 #include "configurationManager.hpp"
 #include "gameMap.hpp"
 #include "glComponentController.hpp"
+#include "merchantInventoryDTO.hpp"
 #include "monsterZoneDTO.hpp"
 #include "npcDTO.hpp"
 #include "textureDTO.hpp"
@@ -24,6 +25,7 @@ class MainController {
     const std::string &getUserConfigFolder() const;
     const std::vector<thewarrior::models::Texture>& getTextures() const;
     const std::shared_ptr<ContainerOfMonsterStore> &getMonsterStores() const;
+    const std::shared_ptr<ContainerOfItemStore> &getItemStores() const;
     bool canDisableCanSteppedOnForSelectedTiles() const;
     void setGLComponentController(GLComponentController *controller);
     bool createMap(unsigned int width, unsigned int height);
@@ -41,10 +43,14 @@ class MainController {
     bool addMonsterZone(const MonsterZoneDTO &monsterZoneDTO);
     bool replaceMonsterZone(const std::string &name, const MonsterZoneDTO &monsterZoneDTO);
     bool removeMonsterZone(const std::string &name);
+    bool loadConfiguredItemStores();
     bool loadConfiguredMonsterStores();
     bool addNPC(const NPCDTO &npcDTO);
     bool replaceNPC(const std::string &id, const NPCDTO &npcDTO);
     bool removeNPC(const std::string &id);
+    bool addMerchantInventory(const MerchantInventoryDTO &merchantInventoryDTO);
+    bool replaceMerchantInventory(const std::string &name, const MerchantInventoryDTO &merchantInventoryDTO);
+    bool removeMerchantInventory(const std::string &name);
     std::vector<std::string> getRecentMapsFromConfig() const;
     bool addNewRecentMap(const std::string &filePath);
     bool getDisplayGridConfigState() const;
@@ -75,6 +81,7 @@ class MainController {
     std::unique_ptr<thewarrior::storage::ConfigurationManager> m_configManager = nullptr;
     GLComponentController *m_glComponentController = nullptr;
     std::shared_ptr<thewarrior::models::GameMap> m_map = nullptr;
+    std::shared_ptr<ContainerOfItemStore> m_itemStores = nullptr;
     std::shared_ptr<ContainerOfMonsterStore> m_monsterStores = nullptr;
 };
 

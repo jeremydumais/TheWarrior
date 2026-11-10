@@ -18,15 +18,19 @@ using thewarrior::models::MapTileTriggerEventConverter;
 
 namespace mapeditor::controllers {
 
-EditMapTileTriggerFormController::EditMapTileTriggerFormController(const boost::optional<mapeditor::controllers::MapTileTriggerDTO> currentTrigger,
+EditMapTileTriggerFormController::EditMapTileTriggerFormController(const GLComponentController *glComponentController,
+        const boost::optional<mapeditor::controllers::MapTileTriggerDTO> currentTrigger,
         const std::vector<MapTileTriggerDTO> &allTriggers)
-
-    : m_currentTrigger(currentTrigger),
+    : m_glComponentController(glComponentController),
+      m_currentTrigger(currentTrigger),
       m_allTriggers(allTriggers),
       m_updatedTrigger(currentTrigger.has_value() ?
             currentTrigger.value() :
-            MapTileTriggerDTO {}),
-      m_lastError("") {
+            MapTileTriggerDTO {}) {
+}
+
+const GLComponentController *EditMapTileTriggerFormController::getGLComponentController() const {
+    return m_glComponentController;
 }
 
 const boost::optional<mapeditor::controllers::MapTileTriggerDTO> &EditMapTileTriggerFormController::getCurrentTrigger() const {
@@ -111,11 +115,21 @@ void EditMapTileTriggerFormController::setCondition(const std::string &condition
 
 void EditMapTileTriggerFormController::setAction(const std::string &action) {
     m_updatedTrigger.action = action;
+    const auto convertedAction = MapTileTriggerActionConverter::actionFromString(action);
+    if (!convertedAction.has_value() ||
+        convertedAction.value() != MapTileTriggerAction::ConversationScenario) {
+        m_updatedTrigger.conversationScenario.reset();
+    }
 }
 
 void EditMapTileTriggerFormController::setActionProperties(const std::map<std::string, std::string> &props) {
     m_updatedTrigger.actionProperties = props;
 }
 
+void EditMapTileTriggerFormController::setConversationScenario(
+    const thewarrior::models::ConversationScenario &scenario) {
+    m_updatedTrigger.conversationScenario = scenario;
+    m_updatedTrigger.actionProperties.clear();
+}
 
 }  // namespace mapeditor::controllers

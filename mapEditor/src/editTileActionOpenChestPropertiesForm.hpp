@@ -19,6 +19,7 @@ Q_OBJECT
     std::map<std::string, std::string> m_properties;
     void showErrorMessage(const std::string &message) const;
     void onPushButtonOK();
+    void onRewardTypeChanged();
 };
 
 #endif  // MAPEDITOR_SRC_EDITTILEACTIONOPENCHESTPROPERTIESFORM_HPP_

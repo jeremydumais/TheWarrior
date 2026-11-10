@@ -10,8 +10,12 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/filesystem.hpp>
 #include "configurationManager.hpp"
+#include "itemStore.hpp"
+#include "itemStoreStorage.hpp"
 #include "mainController.hpp"
+#include "manageItemStoreController.hpp"
 #include "manageMonsterStoreController.hpp"
+#include "merchantInventoryDTO.hpp"
 #include "monsterStore.hpp"
 #include "monsterStoreStorage.hpp"
 #include "specialFolders.hpp"
@@ -20,9 +24,11 @@
 
 using commoneditor::ui::TextureDTO;
 using thewarrior::models::GameMap;
+using thewarrior::models::ItemStore;
 using thewarrior::models::MonsterStore;
 using thewarrior::models::Texture;
 using thewarrior::storage::ConfigurationManager;
+using thewarrior::storage::ItemStoreStorage;
 using thewarrior::storage::MonsterStoreStorage;
 using thewarrior::utils::SpecialFolders;
 
@@ -70,6 +76,10 @@ const std::shared_ptr<ContainerOfMonsterStore> &MainController::getMonsterStores
     return m_monsterStores;
 }
 
+const std::shared_ptr<ContainerOfItemStore> &MainController::getItemStores() const {
+    return m_itemStores;
+}
+
 bool MainController::canDisableCanSteppedOnForSelectedTiles() const {
     return m_glComponentController->canDisableCanSteppedOnForSelectedTiles();
 }
@@ -97,9 +107,10 @@ void MainController::saveMap(const std::string &filePath) {
 }
 
 void MainController::initializeExecutablePath() {
-    char result[PATH_MAX];
+    char result[PATH_MAX + 1];
     ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
     if (count != -1) {
+        result[count] = '\0';
         m_executablePath = dirname(result);
     } else {
         m_executablePath = "";
@@ -214,6 +225,32 @@ bool MainController::removeMonsterZone(const std::string &name) {
     return true;
 }
 
+bool MainController::loadConfiguredItemStores() {
+    if (m_itemStores == nullptr) {
+        m_itemStores = std::make_shared<ContainerOfItemStore>();
+    }
+    ManageItemStoreController manageItemStoreController(m_resourcesPath, m_userConfigFolder);
+    if (!manageItemStoreController.loadItemStore()) {
+        m_lastError = fmt::format("Unable to load configured item store list. {0}",
+                                  manageItemStoreController.getLastError());
+        return false;
+    }
+    m_itemStores->clear();
+    for (const auto &itemStoreInfo : manageItemStoreController.getItemStores()) {
+        ItemStoreStorage storage;
+        std::shared_ptr<ItemStore> store = std::make_shared<ItemStore>();
+        try {
+            storage.loadItemStore(fmt::format("{0}/items/{1}", m_resourcesPath, itemStoreInfo.filename), store);
+            m_itemStores->insert({ itemStoreInfo.name, store });
+        }
+        catch(const std::exception &err) {
+            m_lastError = err.what();
+            return false;
+        }
+    }
+    return true;
+}
+
 bool MainController::loadConfiguredMonsterStores() {
     if (m_monsterStores == nullptr) {
         m_monsterStores = std::make_shared<ContainerOfMonsterStore>();
@@ -265,6 +302,33 @@ bool MainController::removeNPC(const std::string &id) {
         return false;
     }
     return true;
+}
+
+bool MainController::addMerchantInventory(const MerchantInventoryDTO &merchantInventoryDTO) {
+    m_glComponentController->pushCurrentStateToHistory();
+    if (!m_glComponentController->addMerchantInventory(merchantInventoryDTO)) {
+        this->m_lastError = m_glComponentController->getLastError();
+        return false;
+    }
+    return true;
+}
+
+bool MainController::replaceMerchantInventory(const std::string &name, const MerchantInventoryDTO &merchantInventoryDTO) {
+    m_glComponentController->pushCurrentStateToHistory();
+    if (!m_glComponentController->replaceMerchantInventory(name, merchantInventoryDTO)) {
+        this->m_lastError = m_glComponentController->getLastError();
+        return false;
+    }
+    return true;    
+}
+
+bool MainController::removeMerchantInventory(const std::string &name) {
+    m_glComponentController->pushCurrentStateToHistory();
+    if (!m_glComponentController->removeMerchantInventory(name)) {
+        this->m_lastError = m_glComponentController->getLastError();
+        return false;
+    }
+    return true;   
 }
 
 std::vector<std::string> MainController::getRecentMapsFromConfig() const {

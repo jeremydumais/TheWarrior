@@ -9,10 +9,10 @@ namespace thewarrior::ui {
 struct GLTile {
     GLObject glMainObject;
     GLObject glSecondObject;
-    GLuint vaoSecondObject;
-    GLuint vboSecondTextureObject;
-    int x;
-    int y;
+    GLuint vaoSecondObject = 0;
+    GLuint vboSecondTextureObject = 0;
+    int x = 0;
+    int y = 0;
     thewarrior::models::MapTile tile;
 };
 

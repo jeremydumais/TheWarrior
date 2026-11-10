@@ -1,12 +1,17 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <vector>
 #include "npc.hpp"
 #include <boost/algorithm/string/trim.hpp>
 
 namespace thewarrior::models {
+
+static void validateId(const std::string &id);
+static void validateName(const std::string &name);
+static void validateSpriteLayoutAndBehavior(NPCSpriteLayout spriteLayout, NPCBehavior behavior);
 
 NPC::NPC(const NPCCreationInfo &info)
 : m_id(info.id),
@@ -15,11 +20,22 @@ m_textureName(info.textureName),
 m_baseTextureIndex(info.baseTextureIndex),
 m_spawnPosition(info.spawnPosition),
 m_wanderZone(info.wanderZone),
-m_dialogueLines(info.dialogueLines),
 m_defaultFacing(info.defaultFacing),
-m_currentFacing(info.currentFacing) {
+m_currentFacing(info.currentFacing),
+m_defaultBehavior(info.defaultBehavior),
+m_currentBehavior(info.currentBehavior),
+m_visibilityRule(info.visibilityRule),
+m_scriptVisible(info.scriptVisible),
+m_spriteLayout(info.spriteLayout) {
     validateId(info.id);
     validateName(info.name);
+    if (!info.conversationScenarios.empty()) {
+        setConversationScenarios(info.conversationScenarios);
+    } else {
+        migrateDialogueLines(info.dialogueLines);
+    }
+    validateSpriteLayoutAndBehavior(info.spriteLayout, info.defaultBehavior);
+    validateSpriteLayoutAndBehavior(info.spriteLayout, info.currentBehavior);
 }
 
 const std::string &NPC::getId() const {
@@ -50,6 +66,10 @@ const::std::vector<std::string> &NPC::getDialogueLines() const {
     return m_dialogueLines;
 }
 
+const std::vector<ConversationScenario> &NPC::getConversationScenarios() const {
+    return m_conversationScenarios;
+}
+
 NPCFacing NPC::getDefaultFacing() const {
     return m_defaultFacing;
 }
@@ -57,6 +77,52 @@ NPCFacing NPC::getDefaultFacing() const {
 NPCFacing NPC::getCurrentFacing() const {
     return m_currentFacing;
 }
+
+NPCBehavior NPC::getDefaultBehavior() const {
+    return m_defaultBehavior;
+}
+
+NPCBehavior NPC::getCurrentBehavior() const {
+    return m_currentBehavior;
+}
+    
+const std::optional<NPCVisibilityRule> &NPC::getVisibilityRule() const {
+    return m_visibilityRule;
+}
+
+bool NPC::isVisible(const std::set<StoryId> &completedStoryIds) const {
+    if (!m_visibilityRule.has_value()) {
+        return true;
+    }
+
+    const auto &rule = *m_visibilityRule;
+
+    switch (rule.condition) {
+        case NPCVisibilityCondition::AnyStoryCompleted:
+            return std::ranges::any_of(
+                rule.storyIds,
+                [&completedStoryIds](const StoryId &storyId) {
+                    return completedStoryIds.contains(storyId);
+                });
+
+        case NPCVisibilityCondition::NoStoryCompleted:
+            return std::ranges::none_of(
+                rule.storyIds,
+                [&completedStoryIds](const StoryId &storyId) {
+                    return completedStoryIds.contains(storyId);
+                });
+
+        case NPCVisibilityCondition::ScriptControlled:
+            return m_scriptVisible;
+    }
+
+    return true;
+}
+
+NPCSpriteLayout NPC::getSpriteLayout() const {
+    return m_spriteLayout;
+}
+
 
 int NPC::getCurrentFacingTextureIndex() const {
     switch (m_currentFacing) {
@@ -119,7 +185,37 @@ void NPC::removeFromWanderZone(const std::vector<Point<size_t>> &zone) {
 }
 
 void NPC::setDialogueLines(const::std::vector<std::string> &lines) {
-    m_dialogueLines = lines;
+    if (m_conversationScenarios.empty()) {
+        migrateDialogueLines(lines);
+        return;
+    }
+    m_conversationScenarios.front().setDialogueLines(lines);
+    refreshDialogueLinesCompatibilityView();
+}
+
+void NPC::setConversationScenarios(const std::vector<ConversationScenario> &scenarios) {
+    m_conversationScenarios = scenarios;
+    refreshDialogueLinesCompatibilityView();
+}
+
+void NPC::addConversationScenario(const ConversationScenario &scenario) {
+    m_conversationScenarios.push_back(scenario);
+    refreshDialogueLinesCompatibilityView();
+}
+
+bool NPC::removeConversationScenario(const ConversationScenarioId &scenarioId) {
+    const auto iter = std::find_if(
+        m_conversationScenarios.begin(),
+        m_conversationScenarios.end(),
+        [&scenarioId](const ConversationScenario &scenario) {
+            return scenario.getId() == scenarioId;
+        });
+    if (iter == m_conversationScenarios.end()) {
+        return false;
+    }
+    m_conversationScenarios.erase(iter);
+    refreshDialogueLinesCompatibilityView();
+    return true;
 }
 
 void NPC::setDefaultFacing(NPCFacing value) {
@@ -128,6 +224,34 @@ void NPC::setDefaultFacing(NPCFacing value) {
 
 void NPC::setCurrentFacing(NPCFacing value) {
     m_currentFacing = value;
+}
+
+void NPC::setDefaultBehavior(NPCBehavior value) {
+    validateSpriteLayoutAndBehavior(m_spriteLayout, value);
+    m_defaultBehavior = value;
+}
+
+void NPC::setCurrentBehavior(NPCBehavior value) {
+    validateSpriteLayoutAndBehavior(m_spriteLayout, value);
+    m_currentBehavior = value;
+}
+
+void NPC::setVisibilityRule(const NPCVisibilityRule &rule) {
+    m_visibilityRule = rule;
+}
+    
+void NPC::clearVisibilityRule() {
+    m_visibilityRule = std::nullopt;
+}
+
+void NPC::setScriptVisible(bool visible) {
+    m_scriptVisible = visible;
+}
+
+void NPC::setSpriteLayout(NPCSpriteLayout layout) {
+    validateSpriteLayoutAndBehavior(layout, m_defaultBehavior);
+    validateSpriteLayoutAndBehavior(layout, m_currentBehavior);
+    m_spriteLayout = layout;
 }
 
 void NPC::applyCoordinateOffset(int offsetX, int offsetY) {
@@ -140,7 +264,7 @@ void NPC::applyCoordinateOffset(int offsetX, int offsetY) {
     }
 }
 
-void NPC::validateId(const std::string &id) {
+static void validateId(const std::string &id) {
     std::string sanitizedId { boost::trim_copy(id) };
     if (sanitizedId.empty()) {
         throw std::invalid_argument("id cannot be empty.");
@@ -150,13 +274,33 @@ void NPC::validateId(const std::string &id) {
     }
 }
 
-void NPC::validateName(const std::string &name) {
+static void validateName(const std::string &name) {
     std::string sanitizedName { boost::trim_copy(name) };
     if (sanitizedName.empty()) {
         throw std::invalid_argument("name cannot be empty.");
     }
 }
 
+static void validateSpriteLayoutAndBehavior(NPCSpriteLayout spriteLayout, NPCBehavior behavior) {
+    if (spriteLayout == NPCSpriteLayout::SingleFrame && behavior == NPCBehavior::Wander) {
+        throw std::invalid_argument("A single-frame NPC must be stationary (current and default behavior).");
+    }
+}
+
+void NPC::migrateDialogueLines(const std::vector<std::string> &lines) {
+    m_dialogueLines = lines;
+    m_conversationScenarios.clear();
+    if (!lines.empty()) {
+        m_conversationScenarios.push_back(
+            ConversationScenario::fromLegacyDialogueLines(lines));
+    }
+}
+
+void NPC::refreshDialogueLinesCompatibilityView() {
+    m_dialogueLines.clear();
+    if (!m_conversationScenarios.empty()) {
+        m_dialogueLines = m_conversationScenarios.front().getDialogueLines();
+    }
+}
+
 }  // namespace thewarrior::models
-
-

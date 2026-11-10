@@ -8,7 +8,7 @@ class ArmorItemCreationInfoSamples
 {
 public:
     static ArmorItemCreationInfo getSample1() {
-        return { "swd001", "armor1", "tex1", 0, "test", 1.0F, ArmorBodyPart::Head };
+        return { "swd001", "armor1", "tex1", 0, "test", 2, 1, 1.0F, ArmorBodyPart::Head };
     }
 };
 
@@ -30,6 +30,8 @@ TEST(ArmorItem_DefaultConstructor, CreateWithDefaultValues)
     ASSERT_EQ("tmp", item.getTextureName());
     ASSERT_EQ(0, item.getTextureIndex());
     ASSERT_EQ("", item.getOptionalDescription());
+    ASSERT_EQ(0, item.getDefaultBuyPrice());
+    ASSERT_EQ(0, item.getDefaultSellPrice());
     ASSERT_FLOAT_EQ(0.0F, item.getDefenseGain());
     ASSERT_EQ(ArmorBodyPart::Head, item.getSlotInBodyPart());
 }
@@ -37,7 +39,7 @@ TEST(ArmorItem_DefaultConstructor, CreateWithDefaultValues)
 TEST(ArmorItem_Constructor, WithNullId_ThrowInvalidArgument)
 {
     try {
-        ArmorItem armorItem({ "", "armor1", "tex1", 0, "", 1.0F, ArmorBodyPart::Head });
+        ArmorItem armorItem({ "", "armor1", "tex1", 0, "", 2, 1, 1.0F, ArmorBodyPart::Head });
     }
     catch(const std::invalid_argument &err) {
         ASSERT_STREQ("id cannot be empty.", err.what());
@@ -52,6 +54,8 @@ TEST(ArmorItem_Constructor, WithValidValues_ReturnSuccess)
     ASSERT_EQ("tex1", armorItem.getTextureName());
     ASSERT_EQ(0, armorItem.getTextureIndex());
     ASSERT_EQ("test", armorItem.getOptionalDescription());
+    ASSERT_EQ(2, armorItem.getDefaultBuyPrice());
+    ASSERT_EQ(1, armorItem.getDefaultSellPrice());
     ASSERT_FLOAT_EQ(1.0F, armorItem.getDefenseGain());
     ASSERT_EQ(ArmorBodyPart::Head, armorItem.getSlotInBodyPart());
 }

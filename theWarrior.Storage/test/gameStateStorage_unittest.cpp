@@ -1,11 +1,13 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <memory>
+#include <set>
 #include <stdexcept>
 #include <utility>
 #include "gameState.hpp"
 #include "gameStateStorage.hpp"
 #include "player.hpp"
+#include "story.hpp"
 
 using namespace thewarrior::models;
 using namespace thewarrior::storage;
@@ -28,9 +30,10 @@ class StubBinaryFileStream : public IBinaryFileStream<T> {
 class GameStateStorageDefault : public ::testing::Test {
  public:
     GameStateStorageDefault()
-    : player("Test"), gameState(player, worldState) {}
+    : player("Test"), gameState(player, worldState, completedStoryIds) {}
     Player player;
     WorldState worldState;
+    std::set<StoryId> completedStoryIds;
     GameState gameState;
     GameStateStorage gameStateStorage;
 };
@@ -40,7 +43,7 @@ class GameStateStorageEmptyISStubFS : public ::testing::Test {
     GameStateStorageEmptyISStubFS()
     : stubBFS(std::make_unique<NiceMock<StubBinaryFileStream<GameState>>>()),
     player("Test"),
-    gameState(player, worldState) {
+    gameState(player, worldState, completedStoryIds) {
         ON_CALL(*stubBFS, open(_)).WillByDefault(Return(true));
         ON_CALL(*stubBFS, readAllInto(_)).WillByDefault(Return(true));
         ON_CALL(*stubBFS, write(_)).WillByDefault(Return(true));
@@ -50,6 +53,7 @@ class GameStateStorageEmptyISStubFS : public ::testing::Test {
     std::unique_ptr<NiceMock<StubBinaryFileStream<GameState>>> stubBFS;
     Player player;
     WorldState worldState;
+    std::set<StoryId> completedStoryIds;
     GameState gameState;
     GameStateStorage gameStateStorage;
 };

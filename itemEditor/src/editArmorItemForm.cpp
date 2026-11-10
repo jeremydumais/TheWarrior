@@ -56,6 +56,8 @@ bool EditArmorItemForm::loadExistingItemToForm()
             ui.lineEditTextureName->setText(armorDTO->textureName.c_str());
             ui.spinBoxTextureIndex->setValue(armorDTO->textureIndex);
             ui.lineEditOptionalDescription->setText(armorDTO->optionalDescription.c_str());
+            ui.spinBoxDefaultBuyPrice->setValue(static_cast<int>(existingItem->defaultBuyPrice));
+            ui.spinBoxDefaultSellPrice->setValue(static_cast<int>(existingItem->defaultSellPrice));
             ui.lineEditDefenseGain->setText(std::to_string(armorDTO->defenseGain).c_str());
             ui.comboBoxSlotInBodyPart->setCurrentIndex(armorDTO->slotInBodyPartIndex);
         }
@@ -88,6 +90,8 @@ void EditArmorItemForm::onPushButtonOKClick()
     itemInfo->textureName = ui.lineEditTextureName->text().toStdString();
     itemInfo->textureIndex = ui.spinBoxTextureIndex->value();
     itemInfo->optionalDescription = ui.lineEditOptionalDescription->text().toStdString();
+    itemInfo->defaultBuyPrice = static_cast<unsigned int>(ui.spinBoxDefaultBuyPrice->value());
+    itemInfo->defaultSellPrice = static_cast<unsigned int>(ui.spinBoxDefaultSellPrice->value());
     itemInfo->defenseGain = stof(ui.lineEditDefenseGain->text().toStdString());
     itemInfo->slotInBodyPartIndex = ui.comboBoxSlotInBodyPart->currentIndex();
     if (!m_itemIdToEdit.has_value()) {

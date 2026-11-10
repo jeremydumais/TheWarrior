@@ -24,7 +24,7 @@ GameMap::GameMap(unsigned int width, unsigned int height)
 : m_tiles({}),
 m_monsterZones({}),
 m_npcs({}),
-m_useOnlyOneMonsterZone(false) {
+m_merchantInventories({}) {
     if (width == 0) {
         throw std::invalid_argument("width must be greater than zero.");
     }
@@ -138,6 +138,14 @@ const std::vector<Texture> &GameMap::getTextures() const {
 std::optional<std::reference_wrapper<const Texture>> GameMap::getTextureByName(const std::string &name) const {
     return m_textureContainer.getTextureByName(name);
 }
+    
+void GameMap::setMusicFilename(const std::string &filename) {
+    m_musicFilename = filename;
+}
+
+void GameMap::setBattleLandscapeTextureIndex(int value) {
+    m_battleLandscapeTextureIndex = value;
+}
 
 bool GameMap::addTexture(const TextureInfo &textureInfo) {
     bool retVal = m_textureContainer.addTexture(textureInfo);
@@ -178,6 +186,14 @@ OptMonsterZoneConstRef GameMap::getMonsterZoneByName(const std::string &zoneName
         return {*it};
     }
     return std::nullopt;
+}
+
+const std::string &GameMap::getMusicFilename() const {
+    return m_musicFilename;
+}
+
+int GameMap::getBattleLandscapeTextureIndex() const {
+    return m_battleLandscapeTextureIndex;
 }
 
 bool GameMap::addMonsterZone(const MonsterZone &zone) {
@@ -363,6 +379,58 @@ bool GameMap::removeNPCWanderingZone(const std::string &npcId, const std::set<in
         }
     }
     npcIter->removeFromWanderZone(pointsToAdd);
+    return true;
+}
+
+const std::vector<MerchantInventory> &GameMap::getMerchantInventories() const {
+    return m_merchantInventories;
+}
+
+OptMerchantInventoryConstRef GameMap::getMerchantInventoryByName(const std::string &inventoryName) const {
+    auto it = std::ranges::find_if(m_merchantInventories,
+            [inventoryName](const MerchantInventory &inventory) {
+                return to_upper_copy(inventory.getName()) == to_upper_copy(inventoryName);
+            });
+    if (it != m_merchantInventories.end()) {
+        return {*it};
+    }
+    return std::nullopt;
+}
+
+bool GameMap::addMerchantInventory(const MerchantInventory &inventory) {
+    // Ensure that the merchant inventory does not exist
+    const auto iter = getMerchantInventoryIterator(inventory.getName());
+    if (iter == m_merchantInventories.end()) {
+        m_merchantInventories.push_back(inventory);
+        return true;
+    }
+
+    m_lastError = fmt::format("The merchant inventory {0} already exist.", inventory.getName());
+    return false;
+}
+
+bool GameMap::replaceMerchantInventory(const std::string &name, const MerchantInventory &inventory) {
+    const auto merchantInventoryToUpdateIter = getMerchantInventoryIterator(name);
+    if (merchantInventoryToUpdateIter == m_merchantInventories.end()) {
+        m_lastError = fmt::format("Unable to find the merchant inventory {0} to update.", name);
+        return false;
+    }
+    const auto isNameAlreadyExist = getMerchantInventoryByName(inventory.getName()).has_value();
+    if (isNameAlreadyExist && to_upper_copy(name) != to_upper_copy(inventory.getName())) {
+        m_lastError = fmt::format("The merchant inventory {0} already exist.", inventory.getName());
+        return false;
+    }
+    *merchantInventoryToUpdateIter = inventory;
+    return true;
+}
+
+bool GameMap::removeMerchantInventory(const std::string &name) {
+    const auto merchantInventoryToRemoveIter = getMerchantInventoryIterator(name);
+    if (merchantInventoryToRemoveIter == m_merchantInventories.end()) {
+        m_lastError = fmt::format("Unable to find the merchant inventory {0} to delete.", name);
+        return false;
+    }
+    m_merchantInventories.erase(merchantInventoryToRemoveIter);
     return true;
 }
 
@@ -562,6 +630,12 @@ std::vector<MonsterZone>::iterator GameMap::getMonsterZoneIterator(const std::st
 std::vector<NPC>::iterator GameMap::getNPCIterator(const std::string &npcId) {
     return std::ranges::find_if(m_npcs, [&npcId](const auto &npc) {
             return to_upper_copy(npc.getId()) == to_upper_copy(npcId);
+            });
+}
+
+std::vector<MerchantInventory>::iterator GameMap::getMerchantInventoryIterator(const std::string &name) {
+    return std::ranges::find_if(m_merchantInventories, [&name](const auto &merchantInventory) {
+            return to_upper_copy(merchantInventory.getName()) == to_upper_copy(name);
             });
 }
 

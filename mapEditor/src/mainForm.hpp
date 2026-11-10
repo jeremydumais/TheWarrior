@@ -12,12 +12,14 @@
 #include "components/debugInfoDockWidget.hpp"
 #include "components/mainForm_GLComponent.hpp"
 #include "components/mapPropsComponent.hpp"
+#include "components/merchantInventoryListComponent.hpp"
 #include "components/monsterZoneListComponent.hpp"
 #include "components/npcListComponent.hpp"
 #include "components/textureListComponent.hpp"
 #include "components/textureSelectionDockWidget.hpp"
 #include "components/tilePropsComponent.hpp"
 #include "mapTileDTO.hpp"
+#include "merchantInventoryDTO.hpp"
 #include "monsterZoneDTO.hpp"
 #include "npcDTO.hpp"
 #include "point.hpp"
@@ -41,6 +43,7 @@ Q_OBJECT
     std::shared_ptr<MapPropsComponent> m_mapPropsComponent = nullptr;
     std::shared_ptr<TilePropsComponent> m_tilePropsComponent = nullptr;
     std::shared_ptr<MonsterZoneListComponent> m_monsterZoneListComponent = nullptr;
+    std::shared_ptr<MerchantInventoryListComponent> m_merchantInventoryListComponent = nullptr;
     std::shared_ptr<NPCListComponent> m_npcListComponent = nullptr;
     std::shared_ptr<TextureListComponent> m_textureListComponent = nullptr;
     std::shared_ptr<TextureSelectionDockWidget> m_textureSelectionDockWidget = nullptr;
@@ -115,9 +118,6 @@ Q_OBJECT
     void widgetTextureSelectionClosed(QEvent *event);
     void widgetDebugInfoClosed(QEvent *event);
     void onTileSelected(std::vector<mapeditor::controllers::MapTileDTO>);
-    void onEditHistoryChanged();
-    void onClipboardChanged();
-    void onZoomChanged(int zoomPercentage);
     void onNPCSpawnPositionPickerModeChanged(bool enabled);
     void onNPCSpawnPositionPickerTileSelected(const thewarrior::models::Point<> &position);
     void onTextureAdded(const commoneditor::ui::TextureDTO &textureDTO);
@@ -135,7 +135,13 @@ Q_OBJECT
     void onNPCAdded(const mapeditor::controllers::NPCDTO &npcDTO);
     void onNPCUpdated(const std::string &id, const mapeditor::controllers::NPCDTO &npcDTO);
     void onNPCDeleted(const std::string &id);
+    void refreshMerchantInventories();
+    void onMerchantInventoryAdded(const mapeditor::controllers::MerchantInventoryDTO &merchantInventoryDTO);
+    void onMerchantInventoryUpdated(const std::string &name, const mapeditor::controllers::MerchantInventoryDTO &merchantInventoryDTO);
+    void onMerchantInventoryDeleted(const std::string &name);
     void onMapPropsComponentBeforeChange();
+    void onMapPropsComponentMusicChanged(const std::string &filename);
+    void onMapPropsComponentBattleLandscapeTextureIndexChanged(int index);
 };
 
 #endif  // MAPEDITOR_SRC_MAINFORM_HPP_

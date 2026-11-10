@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include "fileTexturePixmapProvider.hpp"
+#include "npc.hpp"
 #include "texture.hpp"
 #include "ui_selectNPCTextureForm.h"
 #include "selectNPCTextureFormController.hpp"
@@ -24,7 +25,8 @@ Q_OBJECT
 
     SelectNPCTextureForm(QWidget *parent,
                          const std::string &resourcesPath,
-                         const std::vector<thewarrior::models::Texture> &textures);
+                         const std::vector<thewarrior::models::Texture> &textures,
+                         thewarrior::models::NPCSpriteLayout spriteLayout);
     SelectNPCTextureResult getResult() const;
 
  private:

@@ -58,31 +58,29 @@ std::vector<MonsterEncounterDTO> EditMonsterZoneFormController::getMonsterEncoun
     std::vector<MonsterEncounterDTO> retval = {};
     std::vector<std::string> monsterIds = getMonsterEncounterIds();
     std::map<std::string, QIcon> icons = getMonsterIconByMonsterIds(monsterIds);
-    std::transform(m_monsterEncounters.begin(),
-                   m_monsterEncounters.end(),
-                   std::back_inserter(retval),
-                   [this, &icons](const auto &monsterEncounter) {
-                        std::optional<QIcon> icon = icons.contains(monsterEncounter.getMonsterId()) ?
-                                                    std::make_optional(icons.at(monsterEncounter.getMonsterId())) :
-                                                    std::nullopt;
-                        return MonsterEncounterDTO {
-                            .monsterId = monsterEncounter.getMonsterId(),
-                            .monsterName = getMonsterNameById(monsterEncounter.getMonsterId()),
-                            .encounterRatio = MonsterUtils::getEncounterRatioStr(monsterEncounter.getEncounterRatio()),
-                            .monsterIcon = icon
-                        };
-                   });
+    std::ranges::transform(m_monsterEncounters,
+                           std::back_inserter(retval),
+                           [this, &icons](const auto &monsterEncounter) {
+                                   std::optional<QIcon> icon = icons.contains(monsterEncounter.getMonsterId()) ?
+                                                               std::make_optional(icons.at(monsterEncounter.getMonsterId())) :
+                                                               std::nullopt;
+                                   return MonsterEncounterDTO {
+                                       .monsterId = monsterEncounter.getMonsterId(),
+                                       .monsterName = getMonsterNameById(monsterEncounter.getMonsterId()),
+                                       .encounterRatio = MonsterUtils::getEncounterRatioStr(monsterEncounter.getEncounterRatio()),
+                                       .monsterIcon = icon
+                                   };
+                           });
     return retval;
 }
 
 std::vector<std::string> EditMonsterZoneFormController::getMonsterEncounterIds() const {
     std::vector<std::string> monsterIds = {};
-    std::transform(m_monsterEncounters.begin(),
-                   m_monsterEncounters.end(),
-                   std::back_inserter(monsterIds),
-                   [](const auto &monster) {
-                        return monster.getMonsterId();
-                   });
+    std::ranges::transform(m_monsterEncounters,
+                           std::back_inserter(monsterIds),
+                           [](const auto &monster) {
+                                  return monster.getMonsterId();
+                           });
     return monsterIds;
 }
 
@@ -123,19 +121,17 @@ std::map<std::string, QIcon> EditMonsterZoneFormController::getMonsterIconByMons
 }
 
 bool EditMonsterZoneFormController::isMonsterZoneNameAlreadyUsed(const std::string &zoneName) const {
-    return std::find_if(m_alreadyUsedZoneNames.begin(),
-                        m_alreadyUsedZoneNames.end(),
-                        [zoneName](const std::string &name) {
-                            return to_upper_copy(zoneName) == to_upper_copy(name);
-                        }) != m_alreadyUsedZoneNames.end();
+    return std::ranges::find_if(m_alreadyUsedZoneNames,
+                                [zoneName](const std::string &name) {
+                                    return to_upper_copy(zoneName) == to_upper_copy(name);
+                                }) != m_alreadyUsedZoneNames.end();
 }
 
 bool EditMonsterZoneFormController::isAtLeastAMonsterEncounterWithNormalRatio() const {
-    return std::any_of(m_monsterEncounters.begin(),
-                       m_monsterEncounters.end(),
-                       [](const auto &encounter) {
-                            return encounter.getEncounterRatio() == MonsterEncounterRatio::Normal;
-                       });
+    return std::ranges::any_of(m_monsterEncounters,
+                               [](const auto &encounter) {
+                                   return encounter.getEncounterRatio() == MonsterEncounterRatio::Normal;
+                               });
 }
 
 bool EditMonsterZoneFormController::addMonsterEncounter(mapeditor::controllers::MonsterEncounterDTO monsterEncounter) {
@@ -149,7 +145,7 @@ bool EditMonsterZoneFormController::addMonsterEncounter(mapeditor::controllers::
             m_lastError = fmt::format("Monster {0} is already part of the zone.", monsterEncounter.monsterId);
             return false;
         }
-        m_monsterEncounters.push_back(MonsterZoneMonsterEncounter(monsterEncounter.monsterId, ratio));
+        m_monsterEncounters.emplace_back(monsterEncounter.monsterId, ratio);
     }
     catch(const std::invalid_argument &err) {
         m_lastError = err.what();

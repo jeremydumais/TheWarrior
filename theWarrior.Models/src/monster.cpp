@@ -26,7 +26,9 @@ Monster::Monster(MonsterCreationInfo info)
       m_attack(info.attack),
       m_defense(info.defense),
       m_gold(info.gold),
-      m_experience(info.experience) {
+      m_experience(info.experience),
+      m_type(info.type),
+      m_musicFilename(info.musicFilename) {
     Monster::validateId(m_id);
     validateMonsterName(m_name);
     validateMonsterTextureName(m_textureName);
@@ -50,7 +52,9 @@ bool Monster::operator==(const Monster &other) const {
            this->m_attack == other.m_attack &&
            this->m_defense == other.m_defense &&
            this->m_gold == other.m_gold &&
-           this->m_experience == other.m_experience;
+           this->m_experience == other.m_experience &&
+           this->m_type == other.m_type &&
+           this->m_musicFilename == other.m_musicFilename;
 }
 
 bool Monster::operator!=(const Monster &other) const {
@@ -108,6 +112,14 @@ std::pair<int, int> Monster::getGoldRewardRange() const {
 
 std::pair<int, int> Monster::getExperienceRewardRange() const {
     return m_experience;
+}
+
+MonsterType Monster::getType() const {
+    return m_type;
+}
+
+const std::string &Monster::getMusicFilename() const {
+    return m_musicFilename;
 }
 
 bool Monster::isDead() const {
@@ -170,6 +182,15 @@ void Monster::setGoldRewardRange(std::pair<int, int> value) {
 void Monster::setExperienceRewardRange(std::pair<int, int> value) {
     validateMonsterExperienceReward(value);
     m_experience = value;
+}
+
+
+void Monster::setType(MonsterType type) {
+    m_type = type;
+}
+
+void Monster::setMusicFilename(const std::string &filename) {
+    m_musicFilename = filename;
 }
 
 void Monster::reduceHealth(int amount) {

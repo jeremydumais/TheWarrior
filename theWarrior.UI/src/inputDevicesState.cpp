@@ -1,5 +1,6 @@
 #include "inputDevicesState.hpp"
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL_gamecontroller.h>
 #include <SDL2/SDL_timer.h>
 
 namespace thewarrior::ui {
@@ -72,23 +73,47 @@ void InputDevicesState::reset() {
     m_keyShiftState = InputElementState::Idle;
 }
 
+void InputDevicesState::suppressUntilRelease(const SDL_Event &event) {
+    reset();
+    invalidateDirections();
+    if (event.type == SDL_KEYDOWN) {
+        m_suppressedKey = event.key.keysym.sym;
+    } else if (event.type == SDL_CONTROLLERBUTTONDOWN || event.type == SDL_JOYBUTTONDOWN) {
+        m_suppressControllerButtons = true;
+    }
+}
+
+void InputDevicesState::suppressControllerButtons(bool anyPressed) {
+    if (m_suppressControllerButtons) {
+        m_buttonAState = InputElementState::Idle;
+        m_buttonBState = InputElementState::Idle;
+        m_buttonCState = InputElementState::Idle;
+        m_buttonDState = InputElementState::Idle;
+        if (!anyPressed) {
+            m_suppressControllerButtons = false;
+        }
+    }
+}
+
 void InputDevicesState::processJoystick(SDL_Joystick *joystick) {
     bool buttonAPressed = false;
     bool buttonBPressed = false;
     bool buttonCPressed = false;
     bool buttonDPressed = false;
-    for (int i = 0; i < SDL_JoystickNumButtons(joystick); i++) {
-        if (i == 0 && SDL_JoystickGetButton(joystick, i)) {
-            buttonBPressed = true;
-        }
-        if (i == 1 && SDL_JoystickGetButton(joystick, i)) {
-            buttonAPressed = true;
-        }
-        if (i == 2 && SDL_JoystickGetButton(joystick, i)) {
-            buttonCPressed = true;
-        }
-        if (i == 3 && SDL_JoystickGetButton(joystick, i)) {
-            buttonDPressed = true;
+    if (joystick != nullptr) {
+        for (int i = 0; i < SDL_JoystickNumButtons(joystick); i++) {
+            if (i == 0 && SDL_JoystickGetButton(joystick, i)) {
+                buttonBPressed = true;
+            }
+            if (i == 1 && SDL_JoystickGetButton(joystick, i)) {
+                buttonAPressed = true;
+            }
+            if (i == 2 && SDL_JoystickGetButton(joystick, i)) {
+                buttonCPressed = true;
+            }
+            if (i == 3 && SDL_JoystickGetButton(joystick, i)) {
+                buttonDPressed = true;
+            }
         }
     }
     auto buttonAPreviousState = m_buttonAState;
@@ -100,25 +125,57 @@ void InputDevicesState::processJoystick(SDL_Joystick *joystick) {
     setButtonBState(getElementState(buttonBPressed, buttonBPreviousState == InputElementState::Pressed));
     setButtonCState(getElementState(buttonCPressed, buttonCPreviousState == InputElementState::Pressed));
     setButtonDState(getElementState(buttonDPressed, buttonDPreviousState == InputElementState::Pressed));
+    suppressControllerButtons(buttonAPressed || buttonBPressed || buttonCPressed || buttonDPressed);
     m_joystickUp = false;
     m_joystickDown = false;
     m_joystickLeft = false;
     m_joystickRight = false;
-    for (int i = 0; i < SDL_JoystickNumHats(joystick); i++) {
-        if (SDL_JoystickGetHat(joystick, i) == SDL_HAT_UP) {
-            m_joystickUp = true;
-            break;
-        } else if (SDL_JoystickGetHat(joystick, i) == SDL_HAT_DOWN) {
-            m_joystickDown = true;
-            break;
-        } else if (SDL_JoystickGetHat(joystick, i) == SDL_HAT_LEFT) {
-            m_joystickLeft = true;
-            break;
-        } else if (SDL_JoystickGetHat(joystick, i) == SDL_HAT_RIGHT) {
-            m_joystickRight = true;
-            break;
+    if (joystick != nullptr) {
+        for (int i = 0; i < SDL_JoystickNumHats(joystick); i++) {
+            if (SDL_JoystickGetHat(joystick, i) == SDL_HAT_UP) {
+                m_joystickUp = true;
+                break;
+            } else if (SDL_JoystickGetHat(joystick, i) == SDL_HAT_DOWN) {
+                m_joystickDown = true;
+                break;
+            } else if (SDL_JoystickGetHat(joystick, i) == SDL_HAT_LEFT) {
+                m_joystickLeft = true;
+                break;
+            } else if (SDL_JoystickGetHat(joystick, i) == SDL_HAT_RIGHT) {
+                m_joystickRight = true;
+                break;
+            }
         }
     }
+}
+
+void InputDevicesState::processGameController(SDL_GameController *controller) {
+    bool buttonAPressed = false;
+    bool buttonBPressed = false;
+    bool buttonCPressed = false;
+    bool buttonDPressed = false;
+    if (controller != nullptr) {
+        buttonAPressed = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
+        buttonBPressed = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
+        buttonCPressed = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_X);
+        buttonDPressed = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y);
+    }
+
+    auto buttonAPreviousState = m_buttonAState;
+    auto buttonBPreviousState = m_buttonBState;
+    auto buttonCPreviousState = m_buttonCState;
+    auto buttonDPreviousState = m_buttonDState;
+    reset();
+    setButtonAState(getElementState(buttonAPressed, buttonAPreviousState == InputElementState::Pressed));
+    setButtonBState(getElementState(buttonBPressed, buttonBPreviousState == InputElementState::Pressed));
+    setButtonCState(getElementState(buttonCPressed, buttonCPreviousState == InputElementState::Pressed));
+    setButtonDState(getElementState(buttonDPressed, buttonDPreviousState == InputElementState::Pressed));
+    suppressControllerButtons(buttonAPressed || buttonBPressed || buttonCPressed || buttonDPressed);
+
+    m_joystickUp = controller != nullptr && SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
+    m_joystickDown = controller != nullptr && SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
+    m_joystickLeft = controller != nullptr && SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
+    m_joystickRight = controller != nullptr && SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
 }
 
 InputElementState InputDevicesState::getElementState(bool pressed, bool previouslyPressed) const {
@@ -132,8 +189,21 @@ InputElementState InputDevicesState::getElementState(bool pressed, bool previous
 }
 
 void InputDevicesState::processEvent(SDL_Event &e) {
+    const bool suppressedKeyAction = (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) &&
+        m_suppressedKey && e.key.keysym.sym == *m_suppressedKey;
+    if (suppressedKeyAction) {
+        if (e.type == SDL_KEYUP) {
+            m_suppressedKey.reset();
+        }
+    }
     if (e.type == SDL_KEYDOWN) {
         switch (e.key.keysym.sym) {
+            case SDLK_LSHIFT:
+                m_keyboardLeftShift = true;
+                break;
+            case SDLK_RSHIFT:
+                m_keyboardRightShift = true;
+                break;
             case SDLK_UP:
                 m_keyboardUp = true;
                 break;
@@ -152,6 +222,12 @@ void InputDevicesState::processEvent(SDL_Event &e) {
     }
     if (e.type == SDL_KEYUP) {
         switch (e.key.keysym.sym) {
+            case SDLK_LSHIFT:
+                m_keyboardLeftShift = false;
+                break;
+            case SDLK_RSHIFT:
+                m_keyboardRightShift = false;
+                break;
             case SDLK_UP:
                 m_keyboardUp = false;
                 break;
@@ -168,15 +244,14 @@ void InputDevicesState::processEvent(SDL_Event &e) {
                 break;
         }
     }
-    if (e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_RETURN) {
+    if (!suppressedKeyAction && e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_RETURN) {
         setButtonAState(InputElementState::Released);
     }
-    if (e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_ESCAPE) {
+    if (!suppressedKeyAction && e.type == SDL_KEYUP && e.key.keysym.sym == SDLK_ESCAPE) {
         setButtonBState(InputElementState::Released);
     }
 
-    const Uint8 *keystate = SDL_GetKeyboardState(NULL);
-    if (keystate[SDL_SCANCODE_LSHIFT] || keystate[SDL_SCANCODE_RSHIFT]) {
+    if (m_keyboardLeftShift || m_keyboardRightShift) {
         setKeyShiftState(InputElementState::Pressed);
     } else {
         setKeyShiftState(InputElementState::Idle);
@@ -184,6 +259,8 @@ void InputDevicesState::processEvent(SDL_Event &e) {
 }
 
 void InputDevicesState::confirmDirections() {
+    setKeyShiftState(m_keyboardLeftShift || m_keyboardRightShift
+        ? InputElementState::Pressed : InputElementState::Idle);
     setUpPressed(m_joystickUp || m_keyboardUp);
     setDownPressed(m_joystickDown || m_keyboardDown);
     setLeftPressed(m_joystickLeft || m_keyboardLeft);

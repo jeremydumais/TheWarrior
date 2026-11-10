@@ -4,8 +4,10 @@ set(PROJECT_NAME    "theWarrior.UI.Models")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/message.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/goldFoundMessage.cpp
                          ${CMAKE_CURRENT_SOURCE_DIR}/src/itemFoundMessage.cpp
-                         ${CMAKE_CURRENT_SOURCE_DIR}/src/messagePipeline.cpp)
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/messagePipeline.cpp
+                         ${CMAKE_CURRENT_SOURCE_DIR}/src/npcDialogueMessage.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCE_FILES})
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")

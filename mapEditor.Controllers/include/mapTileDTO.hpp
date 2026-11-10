@@ -7,18 +7,17 @@
 namespace mapeditor::controllers {
 
 struct MapTileDTO {
-    std::string textureName = "";
+    std::string textureName;
     int textureIndex = -1;
-    std::string objectTextureName = "";
+    std::string objectTextureName;
     int objectTextureIndex = -1;
     bool canSteppedOn = true;
+    bool allowsInteractionThrough = false;
     bool objectAbovePlayer = false;
     bool isWallToClimb = false;
     int monsterZoneIndex = -1;
-    std::vector<MapTileTriggerDTO> triggers = {};
+    std::vector<MapTileTriggerDTO> triggers;
 };
 
 
 }  // namespace mapeditor::controllers
-
-

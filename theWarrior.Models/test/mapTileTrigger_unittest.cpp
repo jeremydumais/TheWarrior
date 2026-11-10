@@ -1,11 +1,17 @@
 #include "mapTileTrigger.hpp"
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 #include <gtest/gtest.h>
 #include <map>
+#include <sstream>
 
 using thewarrior::models::MapTileTrigger;
 using thewarrior::models::MapTileTriggerEvent;
 using thewarrior::models::MapTileTriggerCondition;
 using thewarrior::models::MapTileTriggerAction;
+using thewarrior::models::ConversationDialogue;
+using thewarrior::models::ConversationNode;
+using thewarrior::models::ConversationScenario;
 
 MapTileTrigger getTriggerSample1() {
     return MapTileTrigger (MapTileTriggerEvent::SteppedOn,
@@ -163,4 +169,78 @@ TEST(MapTileTrigger_SetActionProperties, WithSample1AndOneKey_ReturnSuccess) {
         {"Test98", "Test99" }
     };
     ASSERT_EQ(expected, props);
+}
+
+TEST(MapTileTrigger_SetConversationScenario, StoreTypedConversationAction) {
+    MapTileTrigger trigger;
+    const ConversationScenario scenario(
+        "bed-rest",
+        "",
+        {
+            ConversationNode(
+                "prompt",
+                ConversationDialogue { .lines = {"Rest?"} })
+        });
+
+    trigger.setConversationScenario(scenario);
+
+    EXPECT_EQ(
+        MapTileTriggerAction::ConversationScenario,
+        trigger.getAction());
+    EXPECT_TRUE(trigger.getActionProperties().empty());
+    ASSERT_NE(nullptr, trigger.getConversationScenario());
+    EXPECT_EQ(scenario, *trigger.getConversationScenario());
+}
+
+TEST(MapTileTrigger_OperatorEqual, WithDifferentConversationScenariosReturnFalse) {
+    MapTileTrigger first;
+    first.setConversationScenario(ConversationScenario(
+        "first",
+        "",
+        {
+            ConversationNode(
+                "dialogue",
+                ConversationDialogue { .lines = {"First"} })
+        }));
+
+    MapTileTrigger second;
+    second.setConversationScenario(ConversationScenario(
+        "second",
+        "",
+        {
+            ConversationNode(
+                "dialogue",
+                ConversationDialogue { .lines = {"Second"} })
+        }));
+
+    EXPECT_NE(first, second);
+}
+
+TEST(MapTileTrigger_Serialization, PreserveConversationScenarioAction) {
+    MapTileTrigger expected;
+    expected.setEvent(MapTileTriggerEvent::ActionButtonPressed);
+    expected.setConversationScenario(ConversationScenario(
+        "bed-rest",
+        "",
+        {
+            ConversationNode(
+                "dialogue",
+                ConversationDialogue { .lines = {"Rest well."} })
+        }));
+
+    std::stringstream serialized;
+    {
+        boost::archive::text_oarchive archive(serialized);
+        archive << expected;
+    }
+
+    MapTileTrigger actual;
+    {
+        boost::archive::text_iarchive archive(serialized);
+        archive >> actual;
+    }
+
+    EXPECT_EQ(expected, actual);
+    ASSERT_NE(nullptr, actual.getConversationScenario());
+    EXPECT_EQ("bed-rest", actual.getConversationScenario()->getId());
 }

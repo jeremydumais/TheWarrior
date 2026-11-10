@@ -10,22 +10,34 @@ include_directories(${QT_INCLUDE_PATH}
 
                     set(PROJECT_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/mainController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/glComponentController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/itemIconProvider.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/itemStoreInfoJSONSerializer.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/manageItemStoreController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/manageMonsterStoreController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterStoreInfoJSONSerializer.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/addMerchantInventoryItemFormController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/editConversationActionFormController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/editConversationChoiceFormController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/editConversationDialogueFormController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/editConversationNodeBaseFormController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/editConversationScenarioFormController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/editMapTileTriggerFormController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/editMerchantInventoryFormController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterZoneFormController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/editMonsterEncounterFormController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/editNPCFormController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/mapTileDTOUtils.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/mapTileTriggerDTOUtils.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/merchantInventoryDTOUtils.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/merchantInventoryListComponentController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterPickerFormController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterZoneDTOUtils.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/monsterZoneListComponentController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/npcDTOUtils.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/npcListComponentController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/selectNPCTextureFormController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/texturePickerController.cpp
+                                             ${CMAKE_CURRENT_SOURCE_DIR}/src/textureStamp.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/tilePropsComponentController.cpp
                                              ${CMAKE_CURRENT_SOURCE_DIR}/src/editorStateInfoJSONSerializer.cpp)
 

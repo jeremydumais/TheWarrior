@@ -118,6 +118,8 @@ void GLFormService::drawQuad(const GLObject &glObject, GLuint textureGLIndex, fl
     m_shaderProgram->use();
     GLint uniformTransparency = glGetUniformLocation(m_shaderProgram->getShaderProgramID(), "transparency");
     glUniform1f(uniformTransparency, transparency);
+    glUniform1i(glGetUniformLocation(m_shaderProgram->getShaderProgramID(), "grayedOut"),
+                glObject.grayedOut ? 1 : 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureGLIndex);
     glBindVertexArray(glObject.vao);

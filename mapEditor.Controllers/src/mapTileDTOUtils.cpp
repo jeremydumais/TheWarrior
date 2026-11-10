@@ -26,6 +26,7 @@ MapTileDTO MapTileDTOUtils::fromMapTile(const MapTile &tile) {
         tile.getObjectTextureName(),
         tile.getObjectTextureIndex(),
         tile.canPlayerSteppedOn(),
+        tile.getAllowsInteractionThrough(),
         tile.getObjectAbovePlayer(),
         tile.getIsWallToClimb(),
         tile.getMonsterZoneIndex(),
@@ -40,6 +41,7 @@ MapTile MapTileDTOUtils::toMapTile(const MapTileDTO &dto) {
     tile.setObjectTextureName(dto.objectTextureName);
     tile.setObjectTextureIndex(dto.objectTextureIndex);
     tile.setCanPlayerSteppedOn(dto.canSteppedOn);
+    tile.setAllowsInteractionThrough(dto.allowsInteractionThrough);
     tile.setObjectAbovePlayer(dto.objectAbovePlayer);
     tile.setIsWallToClimb(dto.isWallToClimb);
     tile.setMonsterZoneIndex(dto.monsterZoneIndex);

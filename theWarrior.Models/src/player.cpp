@@ -19,6 +19,11 @@ const std::string &Player::getName() const {
 unsigned int Player::getLevel() const {
     return m_level;
 }
+    
+PlayerFacing Player::getFacing() const {
+    return m_playerFacing;
+}
+
 
 std::shared_ptr<Inventory> Player::getInventory() {
     return m_inventory;
@@ -246,25 +251,25 @@ int Player::getExperienceByLevel(unsigned int level) {
         case 1:
             return 0;
         case 2:
-            return 7;
+            return 56;
         case 3:
-            return 23;
+            return 120;
         case 4:
-            return 47;
+            return 250;
         case 5:
-            return 110;
+            return 380;
         case 6:
-            return 220;
+            return 550;
         case 7:
-            return 450;
+            return 1200;
         case 8:
-            return 800;
+            return 1600;
         case 9:
-            return 1300;
+            return 3200;
         case 10:
-            return 2200;
+            return 5000;
         default:
-            return 2200;
+            return 7500;
     }
 }
 

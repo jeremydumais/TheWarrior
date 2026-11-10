@@ -60,4 +60,8 @@ void Message::setDisplayed(std::chrono::_V2::system_clock::time_point startTime)
     m_displayStartTime = startTime;
 }
 
+void Message::clearDisplayed() {
+    m_displayStartTime = std::nullopt;
+}
+
 }  // namespace thewarrior::ui::models

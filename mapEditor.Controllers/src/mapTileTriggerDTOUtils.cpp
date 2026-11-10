@@ -19,6 +19,10 @@ MapTileTriggerDTO MapTileTriggerDTOUtils::fromMapTileTrigger(const MapTileTrigge
     dto.condition = MapTileTriggerConditionConverter::conditionToString(trigger.getCondition());
     dto.action = MapTileTriggerActionConverter::actionToString(trigger.getAction());
     dto.actionProperties = trigger.getActionProperties();
+    const auto *scenario = trigger.getConversationScenario();
+    if (scenario != nullptr) {
+        dto.conversationScenario = *scenario;
+    }
     return dto;
 }
 
@@ -43,6 +47,13 @@ MapTileTrigger MapTileTriggerDTOUtils::toMapTileTrigger(const MapTileTriggerDTO 
         throw std::invalid_argument(fmt::format("Unknown trigger action value : {0}", dto.action));
     }
     trigger.setActionProperties(dto.actionProperties);
+    if (action == thewarrior::models::MapTileTriggerAction::ConversationScenario) {
+        if (!dto.conversationScenario.has_value()) {
+            throw std::invalid_argument(
+                "ConversationScenario action requires a conversation scenario.");
+        }
+        trigger.setConversationScenario(*dto.conversationScenario);
+    }
     return trigger;
 }
 

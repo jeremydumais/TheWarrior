@@ -19,7 +19,9 @@ Item::Item(const ItemCreationInfo &itemInfo)
       m_name(itemInfo.name),
       m_textureName(itemInfo.textureName),
       m_textureIndex(itemInfo.textureIndex),
-      m_optionalDescription(itemInfo.optionalDescription) {
+      m_optionalDescription(itemInfo.optionalDescription),
+      m_defaultBuyPrice(itemInfo.defaultBuyPrice),
+      m_defaultSellPrice(itemInfo.defaultSellPrice) {
     validateItemId(m_id);
     validateItemName(m_name);
     validateItemTextureName(m_textureName);
@@ -31,8 +33,7 @@ Item::Item()
     : m_id("tmp999"),
       m_name("<temp item>"),
       m_textureName("tmp"),
-      m_textureIndex(0),
-      m_optionalDescription("") {
+      m_textureIndex(0) {
 }
 
 bool Item::equals(const Item &other) const {
@@ -43,7 +44,9 @@ bool Item::equals(const Item &other) const {
            this->m_name == other.m_name &&
            this->m_textureName == other.m_textureName &&
            this->m_textureIndex == other.m_textureIndex &&
-           this->m_optionalDescription == other.m_optionalDescription;
+           this->m_optionalDescription == other.m_optionalDescription &&
+           this->m_defaultBuyPrice == other.m_defaultBuyPrice &&
+           this->m_defaultSellPrice == other.m_defaultSellPrice;
 }
 
 bool Item::operator==(const Item &other) const {
@@ -77,6 +80,14 @@ int Item::getTextureIndex() const {
 const std::string &Item::getOptionalDescription() const {
     return m_optionalDescription;
 }
+    
+unsigned int Item::getDefaultBuyPrice() const {
+    return m_defaultBuyPrice;
+}
+    
+unsigned int Item::getDefaultSellPrice() const {
+    return m_defaultSellPrice;
+}
 
 void Item::setId(const std::string &id) {
     validateItemId(id);
@@ -100,6 +111,14 @@ void Item::setTextureIndex(const int index) {
 
 void Item::setOptionalDescription(const std::string &description) {
     m_optionalDescription = description;
+}
+ 
+void Item::setDefaultBuyPrice(unsigned int price) {
+    m_defaultBuyPrice = price;
+}
+    
+void Item::setDefaultSellPrice(unsigned int price) {
+    m_defaultSellPrice = price;
 }
 
 void validateItemId(const std::string &id) {

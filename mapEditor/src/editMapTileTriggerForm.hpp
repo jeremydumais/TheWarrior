@@ -6,6 +6,7 @@
 #include <vector>
 #include <boost/optional/optional.hpp>
 #include "editMapTileTriggerFormController.hpp"
+#include "glComponentController.hpp"
 #include "mapTileTriggerDTO.hpp"
 #include "ui_editMapTileTriggerForm.h"
 
@@ -14,6 +15,7 @@ class EditMapTileTriggerForm : public QDialog {
 
  public:
     explicit EditMapTileTriggerForm(QWidget *parent,
+            const mapeditor::controllers::GLComponentController *glComponentController,
             const std::string &resourcesPath,
             const boost::optional<mapeditor::controllers::MapTileTriggerDTO> currentTrigger,
             const std::vector<mapeditor::controllers::MapTileTriggerDTO> &allTriggers);

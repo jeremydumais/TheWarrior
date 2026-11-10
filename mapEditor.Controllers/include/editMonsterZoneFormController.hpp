@@ -35,9 +35,9 @@ class EditMonsterZoneFormController {
  private:
     std::shared_ptr<mapeditor::controllers::ContainerOfMonsterStore> m_monsterStores;
     std::string m_resourcesPath;
-    std::string m_lastError = "";
-    std::string m_emptyName = "";
-    std::vector<thewarrior::models::MonsterZoneMonsterEncounter> m_monsterEncounters = {};
+    std::string m_lastError;
+    std::string m_emptyName;
+    std::vector<thewarrior::models::MonsterZoneMonsterEncounter> m_monsterEncounters;
     std::optional<MonsterZoneDTO> m_selectedZone;
     std::vector<std::string> m_alreadyUsedZoneNames;
     const std::shared_ptr<const thewarrior::models::Monster> getMonsterById(const std::string &monsterId) const;

@@ -59,6 +59,10 @@ void MainForm_GLComponent::connectUIActions() {
             this,
             &MainForm_GLComponent::onClipboardPasted);
     connect(this->m_glWidget,
+            &MapOpenGLWidget::onTextureStampPreviewChanged,
+            this,
+            &MainForm_GLComponent::onTextureStampPreviewChanged);
+    connect(this->m_glWidget,
             &MapOpenGLWidget::onNPCSpawnPositionPickerToolTileSelected,
             this,
             &MainForm_GLComponent::onNPCSpawnPositionPickerToolTileSelected);
@@ -86,6 +90,14 @@ unsigned int MainForm_GLComponent::getMapWidth() const {
 
 unsigned int MainForm_GLComponent::getMapHeight() const {
     return this->m_glWidget->getMapHeight();
+}
+
+const std::string &MainForm_GLComponent::getMapMusicFilename() const {
+    return m_controller.getMapMusicFileName();
+}
+
+int MainForm_GLComponent::getBattleLandscapeTextureIndex() const {
+    return m_controller.getBattleLandscapeTextureIndex();
 }
 
 size_t MainForm_GLComponent::getHistoryCurrentIndex() const {
@@ -229,6 +241,14 @@ void MainForm_GLComponent::resizeMap(int offsetLeft,
             offsetBottom);
 }
 
+void MainForm_GLComponent::setMapMusicFilename(const std::string &filename) {
+    m_controller.setMapMusicFilename(filename);
+}
+
+void MainForm_GLComponent::setBattleLandscapeTextureIndex(int index) {
+    m_controller.setMapBattleLandscapeTextureIndex(index);
+}
+
 void MainForm_GLComponent::onTileClicked(const std::set<int> &tileIndices, int, int) {
     if (m_glWidget->getSelectionMode() == SelectionMode::Select && !tileIndices.empty()) {
         m_controller.selectTilesForEditing(tileIndices);
@@ -250,6 +270,10 @@ void MainForm_GLComponent::onZoomChanged(int zoomPercentage) {
 void MainForm_GLComponent::onClipboardPasted() {
     m_controller.pushCurrentStateToHistory();
     emit editHistoryChanged();
+}
+
+void MainForm_GLComponent::onTextureStampPreviewChanged(bool active) {
+    emit textureStampPreviewChanged(active);
 }
 
 void MainForm_GLComponent::onNPCSpawnPositionPickerToolTileSelected(const MapTile &tile,

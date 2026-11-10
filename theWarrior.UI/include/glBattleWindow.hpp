@@ -1,17 +1,20 @@
 #pragma once
 
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL_mixer.h>
 #include <map>
 #include <memory>
 #include <queue>
 #include <string>
 #include <vector>
 #include <boost/signals2.hpp>
+#include <boost/optional.hpp>
 #include "IAnimation.hpp"
 #include "glObjectService.hpp"
 #include "glPlayer.hpp"
 #include "glPopupWindow.hpp"
 #include "glShaderProgram.hpp"
+#include "glScreenOverlay.hpp"
 #include "glTextService.hpp"
 #include "glTexture.hpp"
 #include "inputDevicesState.hpp"
@@ -28,6 +31,7 @@ enum class BattleAction {
     PlayerTryToRun,
     PlayerRanAway,
     PlayerWon,
+    BossDefeat,
     PlayerGetReward,
     PlayerLevelUp,
     PlayerDied,
@@ -35,19 +39,22 @@ enum class BattleAction {
     MonsterAttack,
     MonsterSpell,
     MonsterItem,
-    MonsterRun
+    MonsterRun,
 };
+
+enum class DefeatMusicState { FadingOut, Playing, WaitingForInput, Confirmed };
 
 constexpr const char* MoreTextObj = "moreTextObj";
 constexpr const char* MonsterObj = "monsterObj";
 constexpr const char* MonsterHPWindowObj = "monsterHPWindowObj";
 constexpr const char* MonsterHPBarObj = "monsterHPBarObj";
 constexpr const char* MonsterShaking = "monsterShaking";
+constexpr const char* PlayerHPShaking = "playerHPShaking";
 
 class GLBattleWindow : public GLPopupWindow {
  public:
     GLBattleWindow();
-    ~GLBattleWindow() override = default;
+    ~GLBattleWindow() override;
     void
         initialize(const std::string &resourcePath,
                 std::shared_ptr<GLPlayer> glPlayer,
@@ -58,10 +65,16 @@ class GLBattleWindow : public GLPopupWindow {
     bool initBattleShaders(const std::string &resourcesPath);
     void reset();
     void update();
-    void generateGLElements();
+    virtual void generateGLElements();
     void render();
     void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
     void prepareWindow(const std::string &id);
+    void setBattleLandscapeTextureIndex(int index);
+    bool useInventoryItem(size_t slot);
+    bool isPlayerDefeated() const;
+    void processDefeatInput(const SDL_Event &event);
+    boost::signals2::signal<void()> m_defeatConfirmed;
+    boost::signals2::signal<void()> m_itemRequested;
     boost::signals2::signal<void()> m_battleCompleted;
 
  protected:
@@ -71,12 +84,13 @@ class GLBattleWindow : public GLPopupWindow {
     const std::map<std::string, unsigned int> *m_texturesGLMonsterStore;
     std::shared_ptr<InputDevicesState> m_inputDevicesState = nullptr;
     GLTexture m_slotsGLTexture;
-    std::map<std::string, GLObject> m_namedObjects = {};
-    std::map<std::string, std::shared_ptr<IAnimation>> m_namedObjectsAnimations = {};
-    std::vector<GLObject> m_monsterHPBarWindow = {};
+    std::map<std::string, GLObject> m_namedObjects;
+    std::map<std::string, std::shared_ptr<IAnimation>> m_namedObjectsAnimations;
+    std::vector<GLObject> m_monsterHPBarWindow;
     std::unique_ptr<thewarrior::models::Monster> m_monster;
     std::vector<GLTextObject> m_glTextActions;
-    size_t m_menuActionsPosition;
+    GLTextObject m_glPlayerHPStat;
+    size_t m_menuActionsPosition = 0;
     std::queue<std::string> m_battleLog;
     Uint64 m_lastMoveUpTicks = 0;
     Uint64 m_lastMoveDownTicks = 0;
@@ -85,20 +99,42 @@ class GLBattleWindow : public GLPopupWindow {
     int m_goldObtained = 0;
     int m_experienceObtained = 0;
     bool m_didLevelUp = false;
+    GLScreenOverlay m_bossDefeatOverlay;
+    float m_bossFlashOpacity = 0.0F;
+    float m_bossDefeatOpacity = 1.0F;
+    float m_bossDefeatShake = 0.0F;
+    bool m_bossDefeatSoundPlayed = false;
+    bool m_victorySoundPlayed = false;
+    bool m_levelUpSoundPlayed = false;
+    int m_battleLandscapeTextureIndex = 0;
     BattleAction m_currentBattleAction = BattleAction::PlayerTurn;
+    boost::optional<size_t> m_pendingItemSlot;
+    std::shared_ptr<Mix_Chunk> m_restoreHealthSound;
+    std::shared_ptr<Mix_Music> m_playerDefeatMusic;
+    DefeatMusicState m_defeatMusicState = DefeatMusicState::FadingOut;
+    Mix_Chunk* m_attackSound = nullptr;
+    Mix_Chunk* m_attackMissSound = nullptr;
+    Mix_Chunk* m_attackCriticalSound = nullptr;
+    Mix_Chunk* m_monsterAttackSound = nullptr;
+    Mix_Chunk* m_victorySound = nullptr;
+    Mix_Chunk* m_bossDefeatSound = nullptr;
+    Mix_Chunk* m_levelUpSound = nullptr;
     void moveUpPressed();
     void moveDownPressed();
     void actionButtonPressed();
     void addBattleLog(const std::string &log);
     void startAction(BattleAction action, Uint64 timeLength);
     void playerAttackWorkflow();
+    void playerItemWorkflow();
     void playerRunWorkflow();
     void playerWonWorkflow();
+    void bossDefeatWorkflow();
     void playerObtainRewardWorkflow();
     void playerObtainNewLevelWorkflow();
     void playerDiedWorkflow();
     void monsterTurnWorkflow();
     void monsterAttackWorkflow();
+    void drawPlayerHPStat(const GLTextObject &textObject);
     void drawMonster(const GLObject &glObject, GLuint textureGLIndex, float transparency);
     void drawMonsterHPBar(const GLObject &glObject, GLuint textureGLIndex, float transparency);
 };

@@ -58,7 +58,7 @@ PRIVATE "-Wfatal-errors" # stops on first error
 )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-target_compile_definitions(${PROJECT_NAME}
+target_compile_definitions(${PROJECT_N    const std::string &getMusicFilename() const;AME}
  PUBLIC /wdC4251
  INTERFACE NOMINMAX # avoid Win macro definition of min/max, use std one
  INTERFACE _SCL_SECURE_NO_WARNINGS) # disable security-paranoia warning

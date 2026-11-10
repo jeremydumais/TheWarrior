@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL_gamecontroller.h>
 #include <SDL2/SDL_stdinc.h>
 #include <optional>
 
@@ -30,7 +31,9 @@ class InputDevicesState {
     bool isADirectionKeyPressed() const;
     InputElementState getKeyShiftState() const;
     void reset();
+    void suppressUntilRelease(const SDL_Event &event);
     void processJoystick(SDL_Joystick *joystick);
+    void processGameController(SDL_GameController *controller);
     InputElementState getElementState(bool pressed, bool previouslyPressed) const;
     void processEvent(SDL_Event &e);
     void confirmDirections();
@@ -61,12 +64,17 @@ class InputDevicesState {
     bool m_keyboardDown = false;
     bool m_keyboardLeft = false;
     bool m_keyboardRight = false;
+    bool m_keyboardLeftShift = false;
+    bool m_keyboardRightShift = false;
     InputElementState m_buttonAState = InputElementState::Idle;
     InputElementState m_buttonBState = InputElementState::Idle;
     InputElementState m_buttonCState = InputElementState::Idle;
     InputElementState m_buttonDState = InputElementState::Idle;
     InputElementState m_keyShiftState = InputElementState::Idle;
     bool m_directionInvalidate = false;
+    std::optional<SDL_Keycode> m_suppressedKey;
+    bool m_suppressControllerButtons = false;
+    void suppressControllerButtons(bool anyPressed);
 };
 
 }  // namespace thewarrior::ui

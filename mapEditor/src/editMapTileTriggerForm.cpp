@@ -1,18 +1,22 @@
 #include "editMapTileTriggerForm.hpp"
+#include "editConversationScenarioForm.hpp"
 #include <fmt/format.h>
 #include <QFileDialog>
 #include <QImageReader>
 #include <algorithm>
 #include <boost/optional/optional.hpp>
+#include "editConversationScenarioForm.hpp"
 #include "editTileActionChangeMapPropertiesForm.hpp"
 #include "editTileActionOpenChestPropertiesForm.hpp"
 #include "errorMessage.hpp"
+#include "glComponentController.hpp"
 #include "mapTileTriggerActionConverter.hpp"
 #include "mapTileTriggerConditionConverter.hpp"
 #include "mapTileTriggerDTO.hpp"
 #include "mapTileTriggerEventConverter.hpp"
 
 using commoneditor::ui::ErrorMessage;
+using mapeditor::controllers::GLComponentController;
 using mapeditor::controllers::MapTileTriggerDTO;
 using thewarrior::models::MapTileTriggerAction;
 using thewarrior::models::MapTileTriggerEventConverter;
@@ -20,16 +24,18 @@ using thewarrior::models::MapTileTriggerConditionConverter;
 using thewarrior::models::MapTileTriggerActionConverter;
 
 EditMapTileTriggerForm::EditMapTileTriggerForm(QWidget *parent,
+        const GLComponentController *glComponentController,
         const std::string &resourcesPath,
         const boost::optional<MapTileTriggerDTO> currentTrigger,
         const std::vector<MapTileTriggerDTO> &allTriggers)
     : QDialog(parent),
     ui(Ui::editMapTileTriggerFormClass()),
-    m_controller(currentTrigger, allTriggers),
+    m_controller(glComponentController, currentTrigger, allTriggers),
     m_resourcesPath(resourcesPath),
     m_isEditMode(currentTrigger.has_value()) {
     ui.setupUi(this);
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
+    generateComboxItems();
     connect(ui.pushButtonMapTileActionProperties,
             &QPushButton::clicked,
             this,
@@ -54,8 +60,6 @@ EditMapTileTriggerForm::EditMapTileTriggerForm(QWidget *parent,
             static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this,
             &EditMapTileTriggerForm::onComboBoxActionIndexChanged);
-
-    generateComboxItems();
 
     if (!m_isEditMode) {
         this->setWindowTitle("Add map tile trigger");
@@ -117,6 +121,16 @@ void EditMapTileTriggerForm::onPushButtonTileActionPropertiesClick() {
                 m_controller.getUpdatedTrigger().actionProperties);
         if (formEdit.exec() == QDialog::Accepted) {
             m_controller.setActionProperties(formEdit.getUpdatedProperties());
+        }
+    } else if (ui.comboBoxAction->currentIndex() == static_cast<int>(MapTileTriggerAction::ConversationScenario)) {
+        EditConversationScenarioForm formEdit(
+                this,
+                m_controller.getGLComponentController(),
+                m_resourcesPath,
+                m_controller.getUpdatedTrigger().conversationScenario,
+                {});
+        if (formEdit.exec() == QDialog::Accepted) {
+            m_controller.setConversationScenario(formEdit.getResult());
         }
     }
 }

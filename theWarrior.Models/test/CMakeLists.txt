@@ -3,6 +3,7 @@ set(PROJECT_UNITTEST_NAME   "theWarrior.Models_unittests")
 project(${PROJECT_UNITTEST_NAME} LANGUAGES CXX)
 
 find_package(GTest REQUIRED)
+find_package(fmt CONFIG REQUIRED)
 
 include_directories(PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
@@ -18,6 +19,8 @@ add_executable(${PROJECT_UNITTEST_NAME} ${INCLUDE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}/mapTileTriggerEventConverter_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/mapTileTriggerConditionConverter_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/mapTileTriggerActionConverter_unittest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/openChestActionProperties_unittest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/openChestActionPropertiesConverter_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/itemStore_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/itemType_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/item_unittest.cpp
@@ -25,15 +28,22 @@ add_executable(${PROJECT_UNITTEST_NAME} ${INCLUDE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}/statsItem_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/weaponItem_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/player_unittest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/facingUtils_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/playerEquipment_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/inventory_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/monster_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/monsterStore_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/monsterZone_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/monsterZoneMonsterEncounter_unittest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/conversationScenario_unittest.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/merchantInventory_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/npc_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/rgbItemColor_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/worldState_unittest.cpp)
 
-target_link_libraries(${PROJECT_UNITTEST_NAME} PRIVATE theWarrior.Models gtest fmt)
+target_link_libraries(${PROJECT_UNITTEST_NAME} PRIVATE
+  theWarrior.Models
+  boost_serialization
+  gtest
+  fmt::fmt)
 gtest_discover_tests(${PROJECT_UNITTEST_NAME})

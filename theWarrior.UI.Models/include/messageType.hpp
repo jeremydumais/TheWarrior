@@ -5,7 +5,9 @@ namespace thewarrior::ui::models {
 enum class MessageType
 {
     Message,
-    ItemFoundMessage
+    ItemFoundMessage,
+    GoldFoundMessage,
+    NPCDialogueMessage
 };
 
 } // namespace thewarrior::ui::models

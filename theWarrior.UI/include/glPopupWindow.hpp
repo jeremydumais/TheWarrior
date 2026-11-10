@@ -47,6 +47,7 @@ class GLPopupWindow : public IShaderService {
 
  protected:
     std::string m_lastError;
+    std::string m_resourcesPath;
     thewarrior::models::Point<float> m_windowLocation;
     thewarrior::models::Size<float> m_windowSize;
     thewarrior::models::Point<float> m_windowCenter;

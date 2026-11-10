@@ -28,6 +28,8 @@ class FakePlayer : public Player {
                                                "Tex1",
                                                1,
                                                "",
+                                               2,
+                                               1,
                                                1.6F,
                                                WeaponBodyPart::MainHand}));
         getEquipment().setSecondaryHand(VariantEquipment(FakePlayer::getFakeArmor(1.7F, ArmorBodyPart::SecondaryHand)));
@@ -44,6 +46,8 @@ class FakePlayer : public Player {
                           "Tex1",
                           1,
                           "",
+                          2,
+                          1,
                           defenseGain,
                           bodyPart});
     }
@@ -84,6 +88,10 @@ TEST_F(PlayerSample, getName_ReturnPlayer1) {
 
 TEST_F(PlayerSample, getLevel_Return1) {
     ASSERT_EQ(1, player.getLevel());
+}
+
+TEST_F(PlayerSample, getFacing_ReturnUp) {
+    ASSERT_EQ(PlayerFacing::Up, player.getFacing());
 }
 
 TEST_F(PlayerSample, getStats_ReturnLvl1Stats) {
@@ -168,6 +176,11 @@ TEST_F(PlayerSample, IncrementLevelOnMaxLevel_ReturnSuccessUnChanged) {
     ASSERT_EQ(10, player.getLevel());
 }
 
+TEST_F(PlayerSample, SetFacing_ReturnSuccess) {
+    player.setFacing(PlayerFacing::Left);
+    ASSERT_EQ(PlayerFacing::Left, player.getFacing());
+}
+
 TEST_F(PlayerSample, AddGoldWith15_ReturnSuccess) {
     player.addGold(15);
     ASSERT_EQ(15, player.getGold());
@@ -244,15 +257,15 @@ TEST_F(PlayerSample, AddExperienceWithIntMaxMinus1AndPlayerHad1Experience_Return
     ASSERT_EQ(max, player.getExperience());
 }
 
-TEST_F(PlayerSample, AddExperienceWith7_ReturnSuccessAndLevelUp) {
-    player.addExperience(7);
-    ASSERT_EQ(7, player.getExperience());
+TEST_F(PlayerSample, AddExperienceWith56_ReturnSuccessAndLevelUp) {
+    player.addExperience(56);
+    ASSERT_EQ(56, player.getExperience());
     ASSERT_EQ(2, player.getLevel());
 }
 
-TEST_F(PlayerSample, AddExperienceWith8_ReturnSuccessAndLevelUp) {
-    player.addExperience(8);
-    ASSERT_EQ(8, player.getExperience());
+TEST_F(PlayerSample, AddExperienceWith57_ReturnSuccessAndLevelUp) {
+    player.addExperience(57);
+    ASSERT_EQ(57, player.getExperience());
     ASSERT_EQ(2, player.getLevel());
 }
 

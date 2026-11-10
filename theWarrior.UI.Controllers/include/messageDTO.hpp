@@ -6,12 +6,14 @@ namespace thewarrior::ui::controllers {
 
 enum class MessageDTOType {
     Message,
-    ItemFoundMessage
+    ItemFoundMessage,
+    GoldFoundMessage,
+    NPCDialogueMessage
 };
 
 struct MessageDTO {
     std::string message;
-    int maxDurationInMilliseconds;
+    int maxDurationInMilliseconds = -1;
     float scale = 0.6F;
     bool isDisplayed;
     bool isExpired;

@@ -15,6 +15,8 @@ struct ItemCreationInfo {
     std::string textureName;
     int textureIndex;
     std::string optionalDescription;
+    unsigned int defaultBuyPrice = 0;
+    unsigned int defaultSellPrice = 0;
 };
 
 class Item {
@@ -35,11 +37,15 @@ class Item {
     const std::string &getTextureName() const;
     int getTextureIndex() const;
     const std::string &getOptionalDescription() const;
+    unsigned int getDefaultBuyPrice() const;
+    unsigned int getDefaultSellPrice() const;
     void setId(const std::string &id);
     void setName(const std::string &name);
     void setTextureName(const std::string &name);
     void setTextureIndex(int index);
     void setOptionalDescription(const std::string &description);
+    void setDefaultBuyPrice(unsigned int price);
+    void setDefaultSellPrice(unsigned int price);
 
  protected:
     friend class boost::serialization::access;
@@ -48,6 +54,8 @@ class Item {
     std::string m_textureName;
     int m_textureIndex;
     std::string m_optionalDescription;
+    unsigned int m_defaultBuyPrice = 0;
+    unsigned int m_defaultSellPrice = 0;
     // Serialization method
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version) {
@@ -55,12 +63,16 @@ class Item {
         ar & m_name;
         ar & m_textureName;
         ar & m_textureIndex;
-        if (version == 1) {
+        if (version >= 1) {
             ar & m_optionalDescription;
+        }
+        if (version >= 2) {
+            ar & m_defaultBuyPrice;
+            ar & m_defaultSellPrice;
         }
     }
 };
 
 }  // namespace thewarrior::models
 
-BOOST_CLASS_VERSION(thewarrior::models::Item, 1)
+BOOST_CLASS_VERSION(thewarrior::models::Item, 2)

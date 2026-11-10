@@ -1,10 +1,13 @@
 #include <fmt/format.h>
 #include <qdialog.h>
+#include <qfiledialog.h>
+#include <qstring.h>
 #include <qtimer.h>
 #include <qwidget.h>
 #include <memory>
 #include <string>
 #include <utility>
+#include <QFileInfo>
 #include "editMonsterForm.hpp"
 #include "errorMessage.hpp"
 #include "texturePickerForm.hpp"
@@ -51,6 +54,8 @@ void EditMonsterForm::connectUIActions() {
     connect(ui.pushButtonCancel, &QPushButton::clicked, this, &EditMonsterForm::onPushButtonCancelClick);
     connect(ui.pushButtonOK, &QPushButton::clicked, this, &EditMonsterForm::onPushButtonOKClick);
     connect(ui.pushButtonTexturePicker, &QPushButton::clicked, this, &EditMonsterForm::onPushButtonTexturePickerClick);
+    connect(ui.pushButtonOpenMusicFile, &QPushButton::clicked, this, &EditMonsterForm::onPushButtonOpenMusicFileClick);
+    connect(ui.pushButtonClearMusic, &QPushButton::clicked, this, &EditMonsterForm::onPushButtonClearMusicClick);
 }
 
 bool EditMonsterForm::loadExistingMonsterToForm() {
@@ -68,6 +73,12 @@ bool EditMonsterForm::loadExistingMonsterToForm() {
         ui.spinBoxGoldMax->setValue(existingMonster->gold.second);
         ui.spinBoxExperienceMin->setValue(existingMonster->experience.first);
         ui.spinBoxExperienceMax->setValue(existingMonster->experience.second);
+        if (existingMonster->type == MonsterType::Boss) {
+            ui.radioButtonTypeBoss->setChecked(true);
+        } else {
+            ui.radioButtonTypeRegular->setChecked(true);
+        }
+        ui.lineEditMusicFilename->setText(existingMonster->musicFilename.c_str());
         refreshSelectedTexture();
     } else {
         ErrorMessage::show("Unable to load the selected monster");
@@ -81,6 +92,11 @@ void EditMonsterForm::onPushButtonCancelClick() {
 }
 
 void EditMonsterForm::onPushButtonOKClick() {
+    if (!ui.radioButtonTypeRegular->isChecked() && !ui.radioButtonTypeBoss->isChecked()) {
+        ErrorMessage::show("The monster type is required.");
+        return;
+    }
+
     auto monsterInfo = std::make_unique<MonsterDTO>();
     monsterInfo->id = ui.lineEditId->text().toStdString();
     monsterInfo->name = ui.lineEditName->text().toStdString();
@@ -95,6 +111,12 @@ void EditMonsterForm::onPushButtonOKClick() {
     monsterInfo->gold.second = ui.spinBoxGoldMax->value();
     monsterInfo->experience.first = ui.spinBoxExperienceMin->value();
     monsterInfo->experience.second = ui.spinBoxExperienceMax->value();
+    MonsterType type = MonsterType::Regular;;
+    if (ui.radioButtonTypeBoss->isChecked()) {
+        type = MonsterType::Boss;
+    }
+    monsterInfo->type = type;
+    monsterInfo->musicFilename = ui.lineEditMusicFilename->text().trimmed().toStdString();
 
     if (!m_monsterIdToEdit.has_value()) {
         if (!m_controller.addMonster(std::move(monsterInfo))) {
@@ -132,14 +154,13 @@ std::optional<TextureSelectionInfo> showTexturePicker(QWidget *parent,
             textureContainer);
     auto selectedTexture = info.textureName;
     if (!boost::trim_copy(selectedTexture).empty()) {
-        texturePickerForm.setCurrentSelection(selectedTexture,
-                info.textureIndex);
+        texturePickerForm.setCurrentSelection(selectedTexture, info.textureIndex);
     }
     if (texturePickerForm.exec() == QDialog::Accepted) {
         const auto &result = texturePickerForm.getResult();
         return TextureSelectionInfo {
-            result.textureName,
-                result.textureIndex
+            .textureName = result.textureName,
+            .textureIndex = result.textureIndex
         };
     }
     return std::nullopt;
@@ -162,4 +183,18 @@ void EditMonsterForm::refreshSelectedTexture() {
             ui.labelIcon->setPixmap(iconPixmap);
         }
     }
+}
+
+void EditMonsterForm::onPushButtonOpenMusicFileClick() {
+    QString fullFilePath { QFileDialog::getOpenFileName(this,
+            tr("Open Music file"),
+            m_resourcesPath.c_str(),
+            tr("Music File (*.mp3)")) };
+    QFileInfo fileInfo(fullFilePath);
+    std::string filename { fileInfo.fileName().toStdString() };
+    ui.lineEditMusicFilename->setText(filename.c_str());
+}
+
+void EditMonsterForm::onPushButtonClearMusicClick() {
+    ui.lineEditMusicFilename->clear();
 }

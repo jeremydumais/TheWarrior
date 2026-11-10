@@ -33,7 +33,7 @@ bool ManageWeaponItemController::validateAttackGain(const std::string &attackGai
 std::unique_ptr<ItemDTO> ManageWeaponItemController::getItem(const std::string &id) const {
     auto item = m_itemStore->findItem(id);
     if (item != nullptr) {
-        auto weaponItem = dynamic_cast<const WeaponItem *>(item.get());
+        const auto *weaponItem = dynamic_cast<const WeaponItem *>(item.get());
         if (weaponItem != nullptr) {
             auto retval = std::make_unique<WeaponItemDTO>();
             retval->id = weaponItem->getId();
@@ -41,6 +41,8 @@ std::unique_ptr<ItemDTO> ManageWeaponItemController::getItem(const std::string &
             retval->textureName = weaponItem->getTextureName();
             retval->textureIndex = weaponItem->getTextureIndex();
             retval->optionalDescription = weaponItem->getOptionalDescription();
+            retval->defaultBuyPrice = weaponItem->getDefaultBuyPrice();
+            retval->defaultSellPrice = weaponItem->getDefaultSellPrice();
             retval->attackGain = weaponItem->getAttackGain();
             retval->slotInBodyPartIndex = static_cast<int>(weaponItem->getSlotInBodyPart());
             return retval;
@@ -50,8 +52,8 @@ std::unique_ptr<ItemDTO> ManageWeaponItemController::getItem(const std::string &
 }
 
 std::shared_ptr<Item> ManageWeaponItemController::itemDTOToItem(std::unique_ptr<ItemDTO> dto) {
-    WeaponItemDTO *weaponDTO = dynamic_cast<WeaponItemDTO *>(dto.get());
-    if (!weaponDTO) {
+    auto *weaponDTO = dynamic_cast<WeaponItemDTO *>(dto.get());
+    if (weaponDTO == nullptr) {
         return nullptr;
     }
     WeaponItemCreationInfo creationInfo = {
@@ -61,6 +63,8 @@ std::shared_ptr<Item> ManageWeaponItemController::itemDTOToItem(std::unique_ptr<
             weaponDTO->textureName,
             weaponDTO->textureIndex,
             weaponDTO->optionalDescription,
+            weaponDTO->defaultBuyPrice,
+            weaponDTO->defaultSellPrice
         },
         weaponDTO->attackGain,
         static_cast<WeaponBodyPart>(weaponDTO->slotInBodyPartIndex)

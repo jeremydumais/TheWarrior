@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>580</width>
-    <height>371</height>
+    <width>587</width>
+    <height>445</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -272,6 +272,88 @@
        </property>
       </widget>
      </item>
+     <item row="8" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Type : </string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_6">
+       <item>
+        <widget class="QRadioButton" name="radioButtonTypeRegular">
+         <property name="text">
+          <string>Regular</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonTypeBoss">
+         <property name="text">
+          <string>Boss</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="9" column="0">
+      <widget class="QLabel" name="label_17">
+       <property name="text">
+        <string>Music filename :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_7">
+       <item>
+        <widget class="QLineEdit" name="lineEditMusicFilename">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButtonOpenMusicFile">
+         <property name="minimumSize">
+          <size>
+           <width>25</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>25</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>...</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButtonClearMusic">
+         <property name="maximumSize">
+          <size>
+           <width>32</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Clear the music</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../res/global.qrc">
+           <normaloff>:/clear.png</normaloff>:/clear.png</iconset>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
     </layout>
    </item>
   </layout>
@@ -290,11 +372,17 @@
   <tabstop>spinBoxGoldMax</tabstop>
   <tabstop>spinBoxExperienceMin</tabstop>
   <tabstop>spinBoxExperienceMax</tabstop>
-  <tabstop>pushButtonOK</tabstop>
+  <tabstop>radioButtonTypeRegular</tabstop>
+  <tabstop>radioButtonTypeBoss</tabstop>
+  <tabstop>lineEditMusicFilename</tabstop>
+  <tabstop>pushButtonOpenMusicFile</tabstop>
   <tabstop>pushButtonCancel</tabstop>
+  <tabstop>pushButtonOK</tabstop>
+  <tabstop>pushButtonClearMusic</tabstop>
  </tabstops>
  <resources>
   <include location="../res/global.qrc"/>
+  <include location="../../mapEditor/res/global.qrc"/>
  </resources>
  <connections/>
 </ui>

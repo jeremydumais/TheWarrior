@@ -1,12 +1,17 @@
 #pragma once
 
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL_mixer.h>
 #include <array>
 #include <map>
 #include <memory>
+#include <ranges>
 #include <string>
 #include <vector>
 #include <boost/signals2.hpp>
+#include "conversationController.hpp"
+#include "encounterCooldown.hpp"
+#include "conversationScenario.hpp"
 #include "gameMap.hpp"
 #include "gameMapModeController.hpp"
 #include "gameState.hpp"
@@ -15,8 +20,11 @@
 #include "glChoicePopup.hpp"
 #include "glFormService.hpp"
 #include "glInventory.hpp"
+#include "glMerchantShop.hpp"
+#include "glSellItems.hpp"
 #include "glNPC.hpp"
 #include "glPlayer.hpp"
+#include "glScreenOverlay.hpp"
 #include "glTextBox.hpp"
 #include "glTextService.hpp"
 #include "glTextureService.hpp"
@@ -32,12 +40,29 @@
 
 namespace thewarrior::ui {
 
-enum GameMapInputMode {
+enum class GameMapInputMode {
     Map,
     MainMenuPopup,
+    ConversationChoice,
     CharacterWindow,
     InventoryWindow,
+    MerchantShop,
+    SellItems,
     Battle
+};
+
+enum class SleepSequenceState {
+    Inactive,
+    FadingOut,
+    PlayingJingle,
+    FadingIn
+};
+
+enum class ChangeMapSequenceState {
+    Inactive,
+    FadingOut,
+    ChangeMap,
+    FadingIn
 };
 
 class GameMapMode {
@@ -57,10 +82,12 @@ class GameMapMode {
     void unloadGLNPCObjects();
     void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
     void onGameWindowUpdate(float delta_time);
+    bool areMonsterEncountersEnabled() const;
     boost::signals2::signal<void()> quitRequested;
 
  private:
     thewarrior::ui::controllers::GameMapModeController m_controller;
+    thewarrior::ui::controllers::ConversationController m_conversationController;
     std::string m_lastError;
     GameMapInputMode m_inputMode = GameMapInputMode::Map;
     std::shared_ptr<thewarrior::models::GameMap> m_map;
@@ -76,7 +103,10 @@ class GameMapMode {
     GLBattleWindow m_glBattleWindow;
     GLCharacterWindow m_glCharacterWindow;
     GLInventory m_glInventory;
+    GLMerchantShop m_glMerchantShop;
+    GLSellItems m_glSellItems;
     GLChoicePopup m_choicePopup;
+    GLScreenOverlay m_screenOverlay;
     thewarrior::models::Size<> m_screenSize = {1, 1};
     std::vector<GLTile> m_glTiles;
     std::map<std::string, unsigned int> m_texturesGLMap;
@@ -90,6 +120,26 @@ class GameMapMode {
     bool m_blockKeyDown = false;
     bool m_isCharacterWindowDisplayed = false;
     bool m_isInventoryDisplayed = false;
+    thewarrior::ui::models::EncounterCooldown m_encounterCooldown;
+    bool m_monsterEncountersEnabled = true;
+    bool m_battleStartedByConversation = false;
+    // Sleep objects
+    SleepSequenceState m_sleepSequenceState = SleepSequenceState::Inactive;
+    float m_sleepOverlayOpacity = 0.0F;
+    Mix_Music *m_sleepMusic = nullptr;
+    std::shared_ptr<Mix_Chunk> m_elementFoundSound;
+    bool m_restoreHealthAfterSleep = false;
+    
+    // Map change sequence
+    ChangeMapSequenceState m_changeMapSequenceState = ChangeMapSequenceState::Inactive;
+    float m_changeMapOverlayOpacity = 0.0F;
+    std::map<std::string, std::string> m_changeMapProperties;
+
+    Mix_Music* m_mapMusic = nullptr;
+    double m_mapMusicResumePosition = -1.0;
+    Mix_Music* m_regularBattleMusic = nullptr;
+    Mix_Music* m_specialBattleMusic = nullptr;
+    thewarrior::models::Point<> getPlayerFacingTilePosition() const;
     void calculateTileSize();
     void showMainMenu();
     void toggleInventoryWindow();
@@ -97,6 +147,8 @@ class GameMapMode {
     void generateGLMapObjects();
     void drawObjectTile(GLTile &tile);
     void actionButtonPressed();
+    bool stopFacingNPCWandering();
+    bool isTileOccupiedByVisibleNPC(const thewarrior::models::Point<> &position);
     void moveUpPressed();
     void moveDownPressed();
     void moveLeftPressed();
@@ -105,11 +157,18 @@ class GameMapMode {
                        std::map<std::string, std::string> properties,
                        thewarrior::models::MapTile *tile = nullptr,
                        thewarrior::models::Point<int> tilePosition = thewarrior::models::Point<int>(0, 0));
+    void processMapTileTrigger(
+        const thewarrior::models::MapTileTrigger &trigger,
+        thewarrior::models::MapTile *tile = nullptr,
+        thewarrior::models::Point<int> tilePosition =
+            thewarrior::models::Point<int>(0, 0));
+    void startBattleMusic(const std::string &monsterId, int fadeInMilliseconds);
     void checkForMonsterEncounter(const thewarrior::models::MapTile &tile);
     std::string selectMonsterEncounter(const std::vector<thewarrior::models::MonsterZoneMonsterEncounter> &encounters,
                                        thewarrior::models::MonsterEncounterRatio ratio);
     void loadMap(const std::string &filePath, const std::string &mapName);
     void changeMap(const std::string &filePath, const std::string &mapName);
+    void updateMapChangeSequence(float deltaTime);
     void calculateGLTileCoord(const thewarrior::models::Point<> &tilePosition, GLfloat tileCoord[4][2]);
     void calculateTilesToDisplay();
     void loadMapTextures();
@@ -124,6 +183,34 @@ class GameMapMode {
     void exitGameAndReturnToMainMenu();
     void onPlayerMoveCompleted();
     void onBattleCompleted();
+    void completeCurrentMessage(bool allowTextReveal);
+    void choicePopupClicked(std::size_t choiceIndex);
+    void choicePopupCanceled();
+    void restoreNPCDefaultBehavior(const std::string &npcId);
+    void processCurrentConversationNode();
+    void finishConversation();
+    void failConversation(const std::string &error);
+    void displayConversationDialogue(const thewarrior::models::ConversationDialogue &dialogue);
+    void displayConversationChoice(const thewarrior::models::ConversationChoice &choice);
+    void conversationChoiceSelected(std::size_t choiceIndex);
+    bool executeConversationAction(const thewarrior::models::ConversationAction &action);
+    bool completeConversationAction();
+    bool followConversationActionFailure(const thewarrior::models::ConversationNodeTransition &transition);
+    void executeProgressStoryLineAction(const thewarrior::models::ProgressStoryLineAction &action);
+    bool executeRestRequestedAction(const thewarrior::models::RestRequestedAction &action);
+    bool executeMerchantShopAction(const thewarrior::models::MerchantShopAction &action);
+    void onMerchantShopClose();
+    bool executeSellItemsAction(const thewarrior::models::SellItemsAction &action);
+    void onSellItemsClose();
+    bool executeMonsterFightAction(const thewarrior::models::MonsterFightAction &action);
+    void keepConversationNPCStationary();
+    void updateSleepSequence(float deltaTime);
+    void restorePlayerAfterSleep();
+    void completeSleepAction();
+
+
+
+
 };
 
 }  // namespace thewarrior::ui

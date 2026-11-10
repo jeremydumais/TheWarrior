@@ -11,8 +11,10 @@
 #include "glTexture.hpp"
 #include "glTextureService.hpp"
 #include "inputDevicesState.hpp"
+#include "menuSounds.hpp"
 #include "size.hpp"
 #include <boost/signals2.hpp>
+#include <boost/optional.hpp>
 
 namespace thewarrior::ui {
 
@@ -23,20 +25,25 @@ class GLChoicePopup: public GLPopupWindow {
                     std::shared_ptr<GLTextService> textService,
                     std::shared_ptr<InputDevicesState> inputDevicesState);
     void preparePopup(std::vector<std::string> choices,
-                      const std::string &title = "");
+                      const std::string &title = "",
+                      const std::string &prompt = "");
     void update();
     void render();
     void generateGLElements();
     void gameWindowSizeChanged(const thewarrior::models::Size<> &size);
+    void setPrompt(const std::string &prompt);
+    void setBackChoice(boost::optional<size_t> choice);
     boost::signals2::signal<void(size_t choice)> m_choiceClicked;
     boost::signals2::signal<void()> m_cancelClicked;
 
  private:
     std::shared_ptr<InputDevicesState> m_inputDevicesState = nullptr;
+    MenuSounds m_menuSounds;
+    boost::optional<size_t> m_backChoice;
     size_t m_menuCursorPosition;
     size_t m_menuItemCount;
-    //TODO: Code the Optional question
-    std::string m_optionalQuestion;
+    std::string m_prompt;
+    GLTextObject m_glPrompt;
     GLTextureService m_textureService;
     GLTexture m_popupGLTexture;
     std::vector<GLObject> m_menuObjects;

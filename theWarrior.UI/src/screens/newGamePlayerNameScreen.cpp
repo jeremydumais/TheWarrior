@@ -26,7 +26,7 @@ namespace thewarrior::ui::screens {
 NewGamePlayerNameScreen::NewGamePlayerNameScreen(GLContext &glContext)
 : MenuScreenBase(glContext),
 m_onScreenKeyboard(glContext, Point<float>(0.0F, 130.0F)),
-m_newGameLabel(glContext, "New Game", Point<float>(0.0F, -300.0F), GLColor::Brown, 0.9F),
+m_newGameLabel(glContext, "New Game", Point<float>(0.0F, -286.0F), GLColor::Brown, 0.9F),
 m_enterPlayerNameLabel(glContext, "Enter Your Name:", Point<float>(0.0F, -200.0F), GLColor::Brown),
 m_playerNameLabel(glContext, "", Point<float>(0.0F, -137.0F), GLColor::Brown, 0.8F),
 m_menuPanel(glContext, Size<float>(1100.0F, 777.0F), {

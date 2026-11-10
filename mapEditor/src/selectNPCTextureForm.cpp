@@ -4,16 +4,20 @@
 #include <cstddef>
 #include <string>
 #include <vector>
-#include "selectNPCTextureForm.hpp"
 #include "errorMessage.hpp"
+#include "npc.hpp"
+#include "selectNPCTextureForm.hpp"
 #include "selectNPCTextureFormController.hpp"
+
+using thewarrior::models::NPCSpriteLayout;
 
 SelectNPCTextureForm::SelectNPCTextureForm(QWidget *parent,
                                            const std::string &resourcesPath,
-                                           const std::vector<thewarrior::models::Texture> &textures)
+                                           const std::vector<thewarrior::models::Texture> &textures,
+                                           NPCSpriteLayout spriteLayout)
 : QDialog(parent),
 ui(Ui::selectNPCTextureFormClass()),
-m_controller(resourcesPath, textures, m_texturePixmapProvider),
+m_controller(resourcesPath, textures, m_texturePixmapProvider, spriteLayout),
 m_timerAnimateNPC(this) {
     ui.setupUi(this);
     setWindowIcon(QIcon(":/MapEditor Icon.png"));
@@ -53,14 +57,25 @@ void SelectNPCTextureForm::onPushButtonOKClick() {
 }
 
 void SelectNPCTextureForm::onComboBoxTextureNameChanged(int index) {
+    m_timerAnimateNPC.stop();
+    static_cast<QStandardItemModel *>(ui.listViewNPCAvailable->model())->clear();
+    ui.labelNPCUp->clear();
+    ui.labelNPCRight->clear();
+    ui.labelNPCLeft->clear();
+    ui.labelNPCDown->clear();
     ui.labelErrorLoading->clear();
     if (index != -1) {
         const auto availableNPC = m_controller.getAvailableNPCs(ui.comboBoxTextureName->currentText().toStdString());
         if (availableNPC.success) {
             size_t indexNPC = 1;
             for (const auto &npcResult : availableNPC.result) {
-                auto* item = new QStandardItem(fmt::format("NPC {0}", indexNPC).c_str());
-                item->setData(*npcResult.icon.get(), Qt::DecorationRole);
+                const auto label = m_controller.getSpriteLayout() == NPCSpriteLayout::SingleFrame
+                    ? fmt::format("Tile {0}", npcResult.baseTextureIndex)
+                    : fmt::format("NPC {0}", indexNPC);
+                auto* item = new QStandardItem(label.c_str());
+                if (npcResult.icon) {
+                    item->setData(*npcResult.icon, Qt::DecorationRole);
+                }
                 item->setData(npcResult.baseTextureIndex, Qt::UserRole + 1);
                 reinterpret_cast<QStandardItemModel *>(ui.listViewNPCAvailable->model())->appendRow(item);
                 indexNPC++;
@@ -80,6 +95,11 @@ void SelectNPCTextureForm::onComboBoxTextureNameChanged(int index) {
 void SelectNPCTextureForm::onListViewNPCAvailableCurrentChanged(const QModelIndex &current,
                                                                 const QModelIndex &) {
     if (current.isValid()) {
+        if (m_controller.getSpriteLayout() == NPCSpriteLayout::SingleFrame) {
+            m_timerAnimateNPC.stop();
+            ui.labelNPCDown->setPixmap(current.data(Qt::DecorationRole).value<QPixmap>());
+            return;
+        }
         const int baseTextureIndex = current.data(Qt::UserRole + 1).toInt();
         m_animationNPC = m_controller.getNPCAnimationTiles(ui.comboBoxTextureName->currentText().toStdString(),
                                                            baseTextureIndex);

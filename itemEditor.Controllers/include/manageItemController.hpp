@@ -8,11 +8,13 @@
 namespace itemeditor::controllers {
 
 struct ItemDTO {
-    std::string id = "";
-    std::string name = "";
-    std::string textureName = "";
+    std::string id;
+    std::string name;
+    std::string textureName;
     int textureIndex = -1;
-    std::string optionalDescription = "";
+    std::string optionalDescription;
+    unsigned int defaultBuyPrice = 0;
+    unsigned int defaultSellPrice = 0;
     virtual ~ItemDTO() = default;  //Used to make the struct polymorphic
 };
 

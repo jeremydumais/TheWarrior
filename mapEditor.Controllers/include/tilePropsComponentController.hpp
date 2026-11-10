@@ -14,6 +14,7 @@ namespace mapeditor::controllers {
 class TilePropsComponentController {
  public:
     explicit TilePropsComponentController(GLComponentController *glComponentController);
+    const GLComponentController *getGLComponentController() const;
     const std::string &getLastError() const;
     std::vector<MapTileDTO> getSelectedTiles() const;
     std::set<MapTileTriggerDTO> getTilesCommonTriggers() const;
@@ -26,6 +27,7 @@ class TilePropsComponentController {
     void setTilesObjectTextureIndex(int index);
     void setTilesObjectAbovePlayer(bool value);
     void setTilesCanSteppedOn(bool value);
+    void setTilesAllowsInteractionThrough(bool value);
     void setTilesIsWallToClimb(bool value);
     void setTilesMonsterZoneIndex(int index);
     bool addTilesTrigger(const MapTileTriggerDTO &triggerDTO);

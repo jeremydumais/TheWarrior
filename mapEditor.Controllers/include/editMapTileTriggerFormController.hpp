@@ -4,14 +4,18 @@
 #include <string>
 #include <vector>
 #include <boost/optional/optional.hpp>
+#include "conversationScenario.hpp"
+#include "glComponentController.hpp"
 #include "mapTileTriggerDTO.hpp"
 
 namespace mapeditor::controllers {
 
 class EditMapTileTriggerFormController {
  public:
-    EditMapTileTriggerFormController(const boost::optional<mapeditor::controllers::MapTileTriggerDTO> currentTrigger,
+    EditMapTileTriggerFormController(const GLComponentController *glComponentController,
+            const boost::optional<mapeditor::controllers::MapTileTriggerDTO> currentTrigger,
             const std::vector<MapTileTriggerDTO> &allTriggers);
+    const GLComponentController *getGLComponentController() const;
     const boost::optional<mapeditor::controllers::MapTileTriggerDTO> &getCurrentTrigger() const;
     int getTriggerEventIndex() const;
     int getTriggerConditionIndex() const;
@@ -23,8 +27,10 @@ class EditMapTileTriggerFormController {
     void setCondition(const std::string &condition);
     void setAction(const std::string &action);
     void setActionProperties(const std::map<std::string, std::string> &props);
+    void setConversationScenario(const thewarrior::models::ConversationScenario &scenario);
 
  private:
+    const GLComponentController *m_glComponentController = nullptr;
     const boost::optional<mapeditor::controllers::MapTileTriggerDTO> m_currentTrigger;
     const std::vector<MapTileTriggerDTO> m_allTriggers;
     mapeditor::controllers::MapTileTriggerDTO m_updatedTrigger;
@@ -32,4 +38,3 @@ class EditMapTileTriggerFormController {
 };
 
 }  // namespace mapeditor::controllers
-

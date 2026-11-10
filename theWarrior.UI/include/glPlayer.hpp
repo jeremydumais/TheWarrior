@@ -33,7 +33,7 @@ class GLPlayer : public thewarrior::models::Player {
     void setTexture(const thewarrior::models::TextureInfo &textureInfo);
     void applyCurrentGLTexture(const GLTextureService &textureService);
     void setGLObjectPosition();
-    void draw();
+    void draw() const;
     void moveUp();
     void moveDown(bool isInClimbingMode);
     void moveLeft();

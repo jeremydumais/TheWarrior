@@ -2,6 +2,7 @@
 
 #include <GL/glew.h>
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL_mixer.h>
 #include <map>
 #include <memory>
 #include <string>
@@ -15,6 +16,7 @@
 #include "glTextService.hpp"
 #include "glTexture.hpp"
 #include "inputDevicesState.hpp"
+#include "menuSounds.hpp"
 #include "point.hpp"
 #include "size.hpp"
 #include "texture.hpp"
@@ -28,7 +30,7 @@ enum InventoryInputMode {
     StatsItemPopup,
     WeaponOrArmorPopup,
     MoveItem,
-    DropItemPopup
+    DropItemPopup,
 };
 
 class GLInventory : public GLPopupWindow {
@@ -42,6 +44,9 @@ class GLInventory : public GLPopupWindow {
                     const std::map<std::string, unsigned int> *texturesGLItemStore,
                     std::shared_ptr<InputDevicesState> inputDevicesState);
     void setInventory(std::shared_ptr<thewarrior::models::Inventory> inventory);
+    void setBattleMode(bool enabled);
+    bool isBattleMode() const;
+    boost::signals2::signal<void(size_t)> m_battleItemSelected;
     void update();
     void generateGLInventory();
     void render();
@@ -50,6 +55,14 @@ class GLInventory : public GLPopupWindow {
  private:
     std::shared_ptr<thewarrior::models::Inventory> m_inventory = nullptr;
     std::shared_ptr<GLPlayer> m_glPlayer = nullptr;
+    std::shared_ptr<Mix_Chunk> m_restoreHealthSound;
+    std::shared_ptr<Mix_Chunk> m_itemMovedSound;
+    std::shared_ptr<Mix_Chunk> m_itemDropSound;
+    std::shared_ptr<Mix_Chunk> m_equipArmorSound;
+    std::shared_ptr<Mix_Chunk> m_equipWeaponSound;
+    MenuSounds m_menuSounds;
+    bool m_battleMode = false;
+    bool canUseInBattle(const thewarrior::models::Item &item) const;
     size_t m_inventoryCursorPosition = 0;
     InventoryInputMode m_inputMode = InventoryInputMode::List;
     size_t m_inventoryMoveSrc = 0;
@@ -101,6 +114,7 @@ class GLInventory : public GLPopupWindow {
     void prepareMoveItemMode();
     void prepareDropItemPopup();
     void equipCurrentElement();
+    void applyCurrentStatsItem();
     boost::optional<std::string> getSecondaryHandEquipId(const thewarrior::models::PlayerEquipment &equipment) const;
     boost::optional<std::string> getArmorItemEquipId(const boost::optional<thewarrior::models::ArmorItem> &armor) const;
     void completeEquipTransaction(const boost::optional<std::string> &currentEquipedId);

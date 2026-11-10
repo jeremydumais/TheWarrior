@@ -4,6 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <ostream>
+#include <set>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -13,6 +14,7 @@
 #include "gameStateStorage.hpp"
 #include "player.hpp"
 #include "specialFolders.hpp"
+#include "story.hpp"
 #include "worldState.hpp"
 
 using namespace std;
@@ -43,24 +45,42 @@ GameWindow::GameWindow(const string &title,
     m_inputDevicesState = std::make_shared<InputDevicesState>();
 
     SDL_JoystickEventState(SDL_ENABLE);
-    m_joystick = SDL_JoystickOpen(0);
+    SDL_GameControllerEventState(SDL_ENABLE);
+    if (SDL_IsGameController(0) == SDL_TRUE) {
+        m_gameController = SDL_GameControllerOpen(0);
+    } else {
+        m_joystick = SDL_JoystickOpen(0);
+        if (m_joystick == nullptr) {
+            SDL_Log("Unable to open joystick: %s", SDL_GetError());
+        }
+    }
 
     subscribeEvents();
-    if (!initializeMenu()) return;
+    if (!initializeMenu()) { return; }
 
     m_fpsCalculator.initialize();
     m_windowSizeChanged(m_WindowSize);
+    //HACK: To Remove
+    //loadGame("1aas_2026-10-04-16-10-05.bak");
+    //createNewGame("Jed");
+    m_mustExit = false;
 }
 
 GameWindow::~GameWindow() {
     if (m_mainMenuMode) m_mainMenuMode->unloadGLMapObjects();
     if (m_gameMapMode) m_gameMapMode->unloadGLMapObjects();
-    SDL_JoystickClose(m_joystick);
+    if (m_gameController != nullptr) {
+        SDL_GameControllerClose(m_gameController);
+    }
+    if (m_joystick != nullptr) {
+        SDL_JoystickClose(m_joystick);
+    }
     SDL_DestroyWindow(m_window);
     SDL_Quit();
 }
 
 void GameWindow::show() {
+    if (!isAlive()) { return; }
     SDL_ShowWindow(m_window);
 }
 
@@ -73,13 +93,19 @@ bool GameWindow::isAlive() const {
 }
 
 void GameWindow::processEvents() {
+    if (!isAlive()) { return; }
     if (m_nextAction) {
         auto action = std::move(*m_nextAction);
         m_nextAction.reset();
         action();
     }
     SDL_Event e;
-    m_inputDevicesState->processJoystick(m_joystick);
+    if (m_gameController != nullptr) {
+        m_inputDevicesState->processGameController(m_gameController);
+    } else {
+        // Also clear transient button states when only the keyboard is connected.
+        m_inputDevicesState->processJoystick(m_joystick);
+    }
     while (SDL_PollEvent(&e) != 0) {
         m_inputDevicesState->processEvent(e);
         if (e.type == SDL_KEYUP) {
@@ -100,18 +126,17 @@ void GameWindow::processEvents() {
                 break;
         }
 
-        if (e.type == SDL_WINDOWEVENT) {
-            if (e.window.event == SDL_WINDOWEVENT_RESIZED) {
-                int screenWidth = 0, screenHeight = 0;
-                SDL_GetWindowSize(m_window, &screenWidth, &screenHeight);
-                m_WindowSize.setSize(screenWidth, screenHeight);
-                glViewport(0, 0, m_WindowSize.width(), m_WindowSize.height());
-                m_windowSizeChanged(m_WindowSize);
-            }
+        if (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_RESIZED) {
+            int screenWidth = 0;
+            int screenHeight = 0;
+            SDL_GetWindowSize(m_window, &screenWidth, &screenHeight);
+            m_WindowSize.setSize(screenWidth, screenHeight);
+            glViewport(0, 0, m_WindowSize.width(), m_WindowSize.height());
+            m_windowSizeChanged(m_WindowSize);
         }
     }
     m_inputDevicesState->confirmDirections();
-    const Uint8 *keystate = SDL_GetKeyboardState(NULL);
+    const Uint8 *keystate = SDL_GetKeyboardState(nullptr);
     if ((keystate[SDL_SCANCODE_RCTRL] || keystate[SDL_SCANCODE_LCTRL]) && keystate[SDL_SCANCODE_F]) {
         if (!m_blockKeyDown) {
             m_toggleFPS = !m_toggleFPS;
@@ -140,7 +165,7 @@ bool GameWindow::initializeOpenGL(const std::string &title,
         int width, int height) {
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0) {
-        cerr << fmt::format("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+        cerr << fmt::format("SDL could not initialize! SDL_Error: {0}\n", SDL_GetError());
         return false;
     }
 
@@ -159,7 +184,7 @@ bool GameWindow::initializeOpenGL(const std::string &title,
             SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL);
             //SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL | SDL_WINDOW_MAXIMIZED);
     if (m_window == nullptr) {
-        cerr << fmt::format("Window could not be created! SDL_Error: %s\n", SDL_GetError());
+        cerr << fmt::format("Window could not be created! SDL_Error: {0}\n", SDL_GetError());
         return false;
     }
 
@@ -178,10 +203,9 @@ bool GameWindow::initializeOpenGL(const std::string &title,
         return false;
     }
 
-    // Use Vsync
-    if (SDL_GL_SetSwapInterval(-1) < 0) {
+    // Synchronize every frame with the display to prevent tearing while scrolling.
+    if (SDL_GL_SetSwapInterval(1) < 0) {
         cerr << fmt::format("Warning: Unable to set VSync! SDL Error: {0}\n", SDL_GetError());
-        return false;
     }
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -280,6 +304,18 @@ void GameWindow::render() {
                 0.5F,                               // Scale
                 glm::vec3(1.0F, 1.0F, 1.0F));       // Color
     }
+#ifndef NDEBUG
+    if (m_interactionMode == InteractionMode::Game &&
+        m_gameMapMode &&
+        !m_gameMapMode->areMonsterEncountersEnabled()) {
+        m_textService->useShader();
+        m_textService->renderText("Monster encounters: OFF",
+                1.0F,
+                static_cast<float>(m_WindowSize.height()) - 48.0F,
+                0.5F,
+                glm::vec3(1.0F, 1.0F, 1.0F));
+    }
+#endif
     SDL_GL_SwapWindow(m_window);
 }
 
@@ -318,13 +354,13 @@ void GameWindow::createNewGame(std::string playerName) {
     m_mainMenuMode.reset();
     m_mainMenuMode = nullptr;
     Player player(playerName);
+    player.setFacing(thewarrior::models::PlayerFacing::Down);
     WorldState worldState;
+    std::set<StoryId> completedStoryIds;
     //HACK: Remove this and uncomment below
-    worldState.setCurrentMapName("homeHouseV1.map");
-    worldState.setPlayerPosition(Point<int>(8, 8));
-    //worldState.setCurrentMapName("Outworld.map");
-    //worldState.setPlayerPosition(Point<int>(22, 24));
-    GameState newGameState(player, worldState);
+    worldState.setCurrentMapName("homeHouse.map");
+    worldState.setPlayerPosition(Point<int>(6, 4));
+    GameState newGameState(player, worldState, completedStoryIds);
     if (initializeGame(newGameState)) {
         m_interactionMode = InteractionMode::Game;
     } else {
@@ -342,7 +378,8 @@ void GameWindow::loadGame(std::string fileName) {
     m_mainMenuMode = nullptr;
     Player player("Ragnar");
     WorldState worldState;
-    GameState loadedGameState(player, worldState);
+    std::set<StoryId> completedStoryIds;
+    GameState loadedGameState(player, worldState, completedStoryIds);
     storage::GameStateStorage gameStateStorage;
     try {
         std::string fullPath = fs::path(thewarrior::utils::SpecialFolders::getSaveGameDirectory()) / fileName;

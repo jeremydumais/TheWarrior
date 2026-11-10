@@ -51,10 +51,12 @@ bool EditStatsItemForm::loadExistingItemToForm()
             ui.lineEditTextureName->setText(statsItemDTO->textureName.c_str());
             ui.spinBoxTextureIndex->setValue(statsItemDTO->textureIndex);
             ui.lineEditOptionalDescription->setText(statsItemDTO->optionalDescription.c_str());
+            ui.spinBoxDefaultBuyPrice->setValue(static_cast<int>(existingItem->defaultBuyPrice));
+            ui.spinBoxDefaultSellPrice->setValue(static_cast<int>(existingItem->defaultSellPrice));
             ui.comboBoxStatChanging->setCurrentIndex(statsItemDTO->statChangingIndex);
             ui.lineEditGain->setText(std::to_string(statsItemDTO->gain).c_str());
             ui.checkBoxLimitOfOneApplied->setChecked(statsItemDTO->limitOfOneApplied);
-            ui.lineEditDurationInSecs->setText(std::to_string(statsItemDTO->durationInSecs).c_str());
+            ui.lineEditDurationInTurn->setText(std::to_string(statsItemDTO->durationInTurn).c_str());
         }
         else {
             ErrorMessage::show("Unable to cast the selected item to stats item type");
@@ -76,7 +78,7 @@ void EditStatsItemForm::onPushButtonCancelClick()
 void EditStatsItemForm::onPushButtonOKClick()
 {
     if (!m_controller.validateGain(ui.lineEditGain->text().toStdString()) ||
-            !m_controller.validateDurationInSecs(ui.lineEditDurationInSecs->text().toStdString())) {
+            !m_controller.validateDurationInTurn(ui.lineEditDurationInTurn->text().toStdString())) {
         ErrorMessage::show(m_controller.getLastError());
         return;
     }
@@ -87,10 +89,12 @@ void EditStatsItemForm::onPushButtonOKClick()
     itemInfo->textureName = ui.lineEditTextureName->text().toStdString();
     itemInfo->textureIndex = ui.spinBoxTextureIndex->value();
     itemInfo->optionalDescription = ui.lineEditOptionalDescription->text().toStdString();
+    itemInfo->defaultBuyPrice = static_cast<unsigned int>(ui.spinBoxDefaultBuyPrice->value());
+    itemInfo->defaultSellPrice = static_cast<unsigned int>(ui.spinBoxDefaultSellPrice->value());
     itemInfo->statChangingIndex = ui.comboBoxStatChanging->currentIndex();
     itemInfo->gain = stof(ui.lineEditGain->text().toStdString());
     itemInfo->limitOfOneApplied = ui.checkBoxLimitOfOneApplied->isChecked();
-    itemInfo->durationInSecs = static_cast<unsigned int>(std::stoul(ui.lineEditDurationInSecs->text().toStdString()));
+    itemInfo->durationInTurn = static_cast<unsigned int>(std::stoul(ui.lineEditDurationInTurn->text().toStdString()));
     if (!m_itemIdToEdit.has_value()) {
         if (!m_controller.addItem(std::move(itemInfo))) {
             ErrorMessage::show(m_controller.getLastError());

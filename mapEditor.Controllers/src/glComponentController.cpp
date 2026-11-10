@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <iterator>
 #include <memory>
+#include <ranges>
 #include <set>
 #include <string>
 #include <utility>
@@ -13,6 +14,9 @@
 #include "mapTileDTOUtils.hpp"
 #include "mapTileTrigger.hpp"
 #include "mapTileTriggerEventConverter.hpp"
+#include "merchantInventory.hpp"
+#include "merchantInventoryDTO.hpp"
+#include "merchantInventoryDTOUtils.hpp"
 #include "monsterZone.hpp"
 #include "monsterZoneDTOUtils.hpp"
 #include "npc.hpp"
@@ -36,7 +40,9 @@ using thewarrior::models::MapTileTriggerCondition;
 using thewarrior::models::MapTileTriggerEvent;
 using thewarrior::models::MapTileTriggerEventConverter;
 using thewarrior::models::MapTileTriggerAction;
+using thewarrior::models::MerchantInventory;
 using thewarrior::models::Point;
+using mapeditor::controllers::MerchantInventoryDTO;
 using mapeditor::controllers::MonsterZoneDTO;
 using mapeditor::controllers::NPCDTO;
 
@@ -60,6 +66,14 @@ std::shared_ptr<GameMap> GLComponentController::getMap() const {
 
 const std::string &GLComponentController::getLastError() const {
     return m_lastError;
+}
+
+const std::string &GLComponentController::getMapMusicFileName() const {
+    return m_map->getMusicFilename();
+}
+
+int GLComponentController::getBattleLandscapeTextureIndex() const {
+    return m_map->getBattleLandscapeTextureIndex();
 }
 
 void GLComponentController::setCurrentMap(std::shared_ptr<GameMap> map) {
@@ -137,6 +151,17 @@ std::vector<std::string> GLComponentController::getAlreadyUsedNPCIds() const {
     return alreadyUsedNPCIds;
 }
 
+std::vector<std::string> GLComponentController::getAlreadyUsedMerchantInventoryNames() const {
+    std::vector<std::string> alreadyUsedMerchantInventoryNames;
+    if (m_map != nullptr) {
+        std::ranges::transform(m_map->getMerchantInventories(),
+                               back_inserter(alreadyUsedMerchantInventoryNames),
+                               [](MerchantInventory const& x) { return x.getName(); });
+    }
+    return alreadyUsedMerchantInventoryNames;
+}
+
+
 bool isTextureNameUsedInTile(const std::string &name, const MapTile &tile) {
     return tile.getTextureName() == name ||
            tile.getObjectTextureName() == name;
@@ -177,6 +202,14 @@ void GLComponentController::resizeMap(int offsetLeft,
             offsetRight,
             offsetBottom);
 }
+   
+void GLComponentController::setMapMusicFilename(const std::string &filename) {
+    m_map->setMusicFilename(filename);
+}
+
+void GLComponentController::setMapBattleLandscapeTextureIndex(int index) {
+    m_map->setBattleLandscapeTextureIndex(index);
+}
 
 std::vector<mapeditor::controllers::MonsterZoneDTO> GLComponentController::getMonsterZones() const {
     std::vector<MonsterZoneDTO> retval = {};
@@ -210,6 +243,24 @@ OptNPCDTOConst GLComponentController::getNPCById(const std::string &name) const 
         return OptNPCDTOConst { npcDTO };
     }
     return std::nullopt;
+}
+
+std::vector<MerchantInventoryDTO> GLComponentController::getMerchantInventories() const {
+    std::vector<MerchantInventoryDTO> retval = {};
+    std::ranges::transform(m_map->getMerchantInventories(),
+                           std::back_inserter(retval),
+                           MerchantInventoryDTOUtils::fromMerchantInventory);
+    return retval;
+}
+
+std::optional<std::reference_wrapper<MerchantInventoryDTO>> GLComponentController::getMerchantInventoryByName(const std::string &name) const {
+    const auto inventory = m_map->getMerchantInventoryByName(name);
+    if (!inventory.has_value()) {
+        return std::nullopt;
+    }
+
+    m_merchantInventoryDTO = MerchantInventoryDTOUtils::fromMerchantInventory(inventory->get());
+    return std::ref(*m_merchantInventoryDTO);
 }
 
 bool GLComponentController::canDisableCanSteppedOnForSelectedTiles() const {
@@ -535,6 +586,40 @@ bool GLComponentController::replaceNPC(const std::string &id, const NPCDTO &npcD
 
 bool GLComponentController::removeNPC(const std::string &id) {
     if (!m_map->removeNPC(id)) {
+        m_lastError = m_map->getLastError();
+        return false;
+    }
+    return true;
+}
+
+bool GLComponentController::addMerchantInventory(const MerchantInventoryDTO &merchantInventoryDTO) {
+    const auto conversionResult = MerchantInventoryDTOUtils::toMerchantInventory(merchantInventoryDTO);
+    if (!conversionResult.success()) {
+        m_lastError = conversionResult.errorMessage;
+        return false;
+    }
+    if (!m_map->addMerchantInventory(conversionResult.merchantInventory.value())) {
+        m_lastError = m_map->getLastError();
+        return false;
+    }
+    return true;
+}
+
+bool GLComponentController::replaceMerchantInventory(const std::string &name, const MerchantInventoryDTO &merchantInventoryDTO) {
+    const auto conversionResult = MerchantInventoryDTOUtils::toMerchantInventory(merchantInventoryDTO);
+    if (!conversionResult.success()) {
+        m_lastError = conversionResult.errorMessage;
+        return false;
+    }
+    if (!m_map->replaceMerchantInventory(name, conversionResult.merchantInventory.value())) {
+        m_lastError = m_map->getLastError();
+        return false;
+    }
+    return true;
+}
+
+bool GLComponentController::removeMerchantInventory(const std::string &name) {
+    if (!m_map->removeMerchantInventory(name)) {
         m_lastError = m_map->getLastError();
         return false;
     }

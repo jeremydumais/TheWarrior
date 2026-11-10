@@ -38,12 +38,13 @@ class GameWindow {
 
  private:
     thewarrior::ui::controllers::GameWindowController m_controller;
-    SDL_Window *m_window;
-    SDL_GLContext m_gContext;
+    SDL_Window *m_window = nullptr;
+    SDL_GLContext m_gContext = nullptr;
     thewarrior::models::Size<> m_WindowSize;
     boost::signals2::signal<void(const thewarrior::models::Size<> &)> m_windowSizeChanged;
     boost::signals2::signal<void(float deltaTime)> m_windowUpdate;
-    bool m_mustExit = false;
+    // Remain inactive until construction completes successfully.
+    bool m_mustExit = true;
     bool m_mustCreateNewGame = false;
     bool m_mustLoadGame = false;
     bool m_mustReturnToMainMenu = false;
@@ -60,6 +61,7 @@ class GameWindow {
     std::shared_ptr<InputDevicesState> m_inputDevicesState = nullptr;
     bool m_blockKeyDown = false;
     SDL_Joystick *m_joystick = nullptr;
+    SDL_GameController *m_gameController = nullptr;
     std::optional<std::function<void()>> m_nextAction;
     bool initializeOpenGL(const std::string &title,
                           int x, int y,

@@ -11,7 +11,7 @@ struct StatsItemDTO : public ItemDTO {
     int statChangingIndex;
     float gain;
     bool limitOfOneApplied;
-    unsigned int durationInSecs;
+    unsigned int durationInTurn;
 };
 
 class ManageStatsItemController : public ManageItemController {
@@ -19,7 +19,7 @@ class ManageStatsItemController : public ManageItemController {
     explicit ManageStatsItemController(std::shared_ptr<thewarrior::models::ItemStore> itemStore);
     ~ManageStatsItemController() override = default;
     bool validateGain(const std::string &gainStr);
-    bool validateDurationInSecs(const std::string &duration);
+    bool validateDurationInTurn(const std::string &duration);
     std::unique_ptr<ItemDTO> getItem(const std::string &id) const override;
 
  private:

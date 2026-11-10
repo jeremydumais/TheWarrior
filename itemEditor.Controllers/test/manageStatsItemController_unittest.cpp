@@ -57,42 +57,42 @@ TEST_F(ManageStatsItemControllerEmptyStoreSample, validateGain_WithNumberOutOfRa
     ASSERT_EQ("The gain value is out of range.", controller.getLastError());
 }
 
-TEST_F(ManageStatsItemControllerEmptyStoreSample, validateDurationInSecs_WithEmptyString_ReturnFalse)
+TEST_F(ManageStatsItemControllerEmptyStoreSample, validateDurationInTurn_WithEmptyString_ReturnFalse)
 {
-    ASSERT_FALSE(controller.validateDurationInSecs(""));
+    ASSERT_FALSE(controller.validateDurationInTurn(""));
     ASSERT_EQ("The duration value cannot be empty.", controller.getLastError());
 }
 
-TEST_F(ManageStatsItemControllerEmptyStoreSample, validateDurationInSecs_WithWhitespacesString_ReturnFalse)
+TEST_F(ManageStatsItemControllerEmptyStoreSample, validateDurationInTurn_WithWhitespacesString_ReturnFalse)
 {
-    ASSERT_FALSE(controller.validateDurationInSecs("   "));
+    ASSERT_FALSE(controller.validateDurationInTurn("   "));
     ASSERT_EQ("The duration value cannot be empty.", controller.getLastError());
 }
 
 TEST_F(ManageStatsItemControllerEmptyStoreSample, validateduration_WithAAA_ReturnFalse)
 {
-    ASSERT_FALSE(controller.validateDurationInSecs("AAA"));
+    ASSERT_FALSE(controller.validateDurationInTurn("AAA"));
     ASSERT_EQ("Unable to perform the unsigned int conversion of the duration.", controller.getLastError());
 }
 
 TEST_F(ManageStatsItemControllerEmptyStoreSample, validateDuration_WithNumber3_ReturnTrue)
 {
-    ASSERT_TRUE(controller.validateDurationInSecs("3"));
+    ASSERT_TRUE(controller.validateDurationInTurn("3"));
 }
 
 TEST_F(ManageStatsItemControllerEmptyStoreSample, validateDuration_WithNumber3Comma14_ReturnTrue)
 {
-    ASSERT_TRUE(controller.validateDurationInSecs("3,14"));
+    ASSERT_TRUE(controller.validateDurationInTurn("3,14"));
 }
 
 TEST_F(ManageStatsItemControllerEmptyStoreSample, validateDuration_WithNumber3Dot14_ReturnTrue)
 {
-    ASSERT_TRUE(controller.validateDurationInSecs("3.14"));
+    ASSERT_TRUE(controller.validateDurationInTurn("3.14"));
 }
 
 TEST_F(ManageStatsItemControllerEmptyStoreSample, validateDuration_WithNumberOutOfRangeNumberUnsignedLong_ReturnFalse)
 {
-    ASSERT_FALSE(controller.validateDurationInSecs("-1"));
+    ASSERT_FALSE(controller.validateDurationInTurn("-1"));
     ASSERT_EQ("The duration value is out of range.", controller.getLastError());
 }
 
@@ -101,7 +101,7 @@ TEST_F(ManageStatsItemControllerEmptyStoreSample, validateDuration_WithNumberOut
     unsigned long outOfRangeValue = std::numeric_limits<unsigned int>::max();
     outOfRangeValue++;
 
-    ASSERT_FALSE(controller.validateDurationInSecs(std::to_string(outOfRangeValue)));
+    ASSERT_FALSE(controller.validateDurationInTurn(std::to_string(outOfRangeValue)));
     ASSERT_EQ("The duration value is out of range.", controller.getLastError());
 }
 

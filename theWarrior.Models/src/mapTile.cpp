@@ -9,6 +9,7 @@ MapTile::MapTile()
       m_objectTextureName(""),
       m_objectTextureIndex(-1),
       m_canSteppedOn(true),
+      m_allowsInteractionThrough(false),
       m_objectAbovePlayer(false),
       m_isWallToClimb(false),
       m_monsterZoneIndex(-1),
@@ -66,6 +67,10 @@ bool MapTile::canPlayerSteppedOn() const {
     return m_canSteppedOn;
 }
 
+bool MapTile::getAllowsInteractionThrough() const {
+    return m_allowsInteractionThrough;
+}
+
 bool MapTile::getObjectAbovePlayer() const {
     return m_objectAbovePlayer;
 }
@@ -118,6 +123,10 @@ void MapTile::setObjectTextureIndex(int index) {
 
 void MapTile::setCanPlayerSteppedOn(bool value) {
     m_canSteppedOn = value;
+}
+
+void MapTile::setAllowsInteractionThrough(bool value) {
+    m_allowsInteractionThrough = value;
 }
 
 void MapTile::setObjectAbovePlayer(bool value) {

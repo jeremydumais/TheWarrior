@@ -12,6 +12,7 @@ namespace mapeditor::controllers {
 class NPCListComponentController {
  public:
     explicit NPCListComponentController(GLComponentController *glComponentController);
+    const GLComponentController *getGLComponentController() const;
     const std::string &getLastError() const;
     const std::vector<std::string> getAlreadyUsedNPCIds() const;
     const std::vector<mapeditor::controllers::NPCDTO> getNPCs() const;

@@ -30,9 +30,10 @@ const std::string &GameWindowController::getLastError() const {
 
 void GameWindowController::initializeResourcesPath() {
     std::string executablePath = "";
-    char result[PATH_MAX];
+    char result[PATH_MAX + 1];
     ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
     if (count != -1) {
+        result[count] = '\0';
         executablePath = dirname(result);
     }
     m_resourcesPath = fmt::format("{0}/resources/", executablePath);
