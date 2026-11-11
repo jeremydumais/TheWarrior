@@ -1,0 +1,34 @@
+#ifndef GAMEDATAEDITOR_SRC_MANAGETEXTURESFORM_HPP_
+#define GAMEDATAEDITOR_SRC_MANAGETEXTURESFORM_HPP_
+
+#include <memory>
+#include <string>
+#include "manageTexturesController.hpp"
+#include "qTableWidgetKeyPressWatcher.h"
+#include "ui_manageTexturesForm.h"
+
+class ManageTexturesForm : public QDialog {
+Q_OBJECT
+
+ public:
+    ManageTexturesForm(QWidget *parent,
+            const std::string &resourcesPath,
+            thewarrior::models::TextureContainer &textureContainer);
+    void connectUIActions();
+
+ private:
+    Ui::manageTexturesFormClass ui;
+    const std::string m_resourcesPath;
+    commoneditor::ui::ManageTextureController m_controller;
+    QTableWidgetKeyPressWatcher tableWidgetTexturesKeyWatcher;
+    void refreshTextureList();
+    void onPushButtonCloseClick();
+    std::unique_ptr<commoneditor::ui::TextureDTO> getSelectedTextureInTextureList();
+    void onPushButtonAddClick();
+    void onPushButtonEditClick();
+    void onPushButtonDeleteClick();
+    void onTableWidgetTexturesDoubleClicked(QTableWidgetItem *item);
+    void onTableWidgetTexturesKeyPressEvent(int key, int, int);
+};
+
+#endif  // GAMEDATAEDITOR_SRC_MANAGETEXTURESFORM_HPP_

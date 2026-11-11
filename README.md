@@ -52,7 +52,7 @@ Use vitality items on your turn, encounter bosses with their own music and victo
 
 Explore refreshed areas in Krikru Village and King Aldric's castle and outer bailey, plus the three-level North West Cave with treasures and monster zones. The Outworld map is also being expanded.
 
-Map Editor 1.4.0 adds NPC and conversation authoring, merchant inventories, music and battle background settings, and multi-tile texture/object placement with previews and undo. The Item Editor supports default trading prices, while the Monster Editor supports boss types and battle music.
+Map Editor 1.4.0 adds NPC and conversation authoring, merchant inventories, music and battle background settings, and multi-tile texture/object placement with previews and undo. The Game Data Editor supports default trading prices, while the Monster Editor supports boss types and battle music.
 
 See [CHANGELOG.md](CHANGELOG.md) for the full release highlights.
 
@@ -69,7 +69,7 @@ See [CHANGELOG.md](CHANGELOG.md) for the full release highlights.
 | | Story & Quests | 🟡 Story progression foundation available |
 | **Game Presentation** | Audio & Music | 🟡 In progress |
 | | Menus & Navigation | 🟡 In progress |
-| **Tools** | Item Editor | 🟡 In progress |
+| **Tools** | Game Data Editor | 🟡 In progress |
 | | Map Editor | 🟡 In progress |
 | | Monster Editor | 🟡 In progress |
 
@@ -105,8 +105,8 @@ Legend:
 ### 🗺️ Map Editor
 ![Map Editor](https://raw.githubusercontent.com/jeremydumais/TheWarrior/medias/MapEditor1V2.png)
 
-### 🧾 Item Editor
-![Item Editor](https://raw.githubusercontent.com/jeremydumais/TheWarrior/medias/ItemEditor1.png)
+### 🧾 Game Data Editor
+![Game Data Editor](https://raw.githubusercontent.com/jeremydumais/TheWarrior/medias/ItemEditor1.png)
 
 ### 👹 Monster Editor
 ![Monster Editor](https://raw.githubusercontent.com/jeremydumais/TheWarrior/medias/MonsterEditor1.png)

@@ -202,7 +202,7 @@
  </tabstops>
  <resources>
   <include location="../res/global.qrc"/>
-  <include location="../../itemEditor/res/global.qrc"/>
+  <include location="../../gameDataEditor/res/global.qrc"/>
  </resources>
  <connections/>
 </ui>

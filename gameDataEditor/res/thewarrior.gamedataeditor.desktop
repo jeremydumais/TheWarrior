@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=0.1
+Name=The Warrior - Game Data Editor
+Comment=The Game Data Editor for The Warrior game
+Exec=GameDataEditor
+Icon=thewarrior_gamedataeditor
+Terminal=false
+StartupWMClass=GameDataEditor
+Type=Application
+Categories=Game;Utility;
+Keywords=warrior;game;data;item;editor;
