@@ -16,8 +16,7 @@ int main(int argc, char *argv[]) {
     po::options_description desc("Usage : GameDataEditor [options]");
     desc.add_options()
         ("help,h", "produce help message")
-        ("version,v", "display the version")
-        ("file,f", po::value<std::string>(), "item store file (*.itm)");
+        ("version,v", "display the version");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -34,16 +33,12 @@ int main(int argc, char *argv[]) {
         std::cout << "Version: " << PROJECT_VERSION << "\n";
         return 0;
     }
-    std::string inputFile = "";
-    if (vm.count("file")) {
-       inputFile = vm["file"].as<std::string>();
-    }
     QApplication app(argc, argv);
     QCoreApplication::setOrganizationName(ORGANIZATIONNAME);
     QCoreApplication::setApplicationName(APPLICATIONNAME);
     QCoreApplication::setApplicationVersion(QT_VERSION_STR);
     QGuiApplication::setDesktopFileName("thewarrior.gamedataeditor.desktop");
-    MainForm mainWin(nullptr, inputFile);
+    MainForm mainWin(nullptr);
     UIUtils::centerToScreen(&mainWin);
     mainWin.showMaximized();
     return QApplication::exec();

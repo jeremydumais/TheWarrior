@@ -1,5 +1,6 @@
 #pragma once
 
+#include "gameData.hpp"
 #include "itemStore.hpp"
 #include "textureContainer.hpp"
 #include <qicon.h>
@@ -49,21 +50,24 @@ struct ItemListDisplay {
 class MainController {
  public:
     MainController();
-    thewarrior::models::TextureContainer &getTextureContainerForEdition();
-    std::shared_ptr<thewarrior::models::ItemStore> getItemStore();
+    const thewarrior::models::ItemStore &getItemStore() const;
+    std::shared_ptr<thewarrior::models::ItemStore> getItemStoreForEdition();
     const std::string &getLastError() const;
-    bool openItemStore(const std::string &fileName);
-    bool saveItemStore(const std::string &fileName);
     std::set<std::string> getItemCategories() const;
     std::vector<ItemListDisplay> getItemsFromCategory(const std::string &categoryName) const;
     std::optional<thewarrior::models::ItemType> getItemTypeFromCategoryName(const std::string &categoryName) const;
     std::optional<thewarrior::models::ItemType> getItemTypeFromItemId(const std::string &id) const;
     std::map<std::string, QIcon> getIconsFromItemIds(std::vector<std::string> itemIds,
                                                      const std::string &resourcesPath) const;
+    void setResourcesPath(const std::string &resourcesPath);
+    bool loadOrCreateGameData();
     bool deleteItem(const std::string &id);
  private:
-    std::shared_ptr<thewarrior::models::ItemStore> m_itemStore;
+    std::string m_resourcesPath;
+    std::string m_gameDataFilePath;
+    std::shared_ptr<thewarrior::models::GameData> m_gameData;
     std::string m_lastError;
+
 };
 
 } // namespace gamedataeditor::controllers

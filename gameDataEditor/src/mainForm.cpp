@@ -37,15 +37,13 @@ using thewarrior::utils::SpecialFolders;
 const std::string MainForm::THEME_PATH{"Display.Theme"};
 const std::string MainForm::RECENT_MAPS{"ItemsDB.Recents"};
 
-MainForm::MainForm(QWidget *parent,
-        const std::string &currentFilePath)
+MainForm::MainForm(QWidget *parent)
     : QMainWindow(parent),
     ui(Ui::MainForm()),
     m_functionAfterShownCalled(false),
     m_userConfigFolder(""),
     m_executablePath(""),
     m_resourcesPath(""),
-    m_currentFilePath(""),
     m_controller(MainController()) {
     ui.setupUi(this);
 
@@ -73,17 +71,18 @@ MainForm::MainForm(QWidget *parent,
     if (configManager.load()) {
         setAppStylesheet(configManager.getStringValue(MainForm::THEME_PATH));
     } else {
-        ErrorMessage::show("An error occurred while loading the configuration file.",
-                configManager.getLastError());
+        ErrorMessage::show("An error occurred while loading the configuration file.", configManager.getLastError());
+    }
+
+    m_controller.setResourcesPath(getResourcesPath());
+    if (!m_controller.loadOrCreateGameData()) {
+        ErrorMessage::show("Unable to open the game data file. Error: ", m_controller.getLastError());
     }
 
     initializeCategoriesTableControl();
     initializeItemsTableControl(std::nullopt);
     refreshRecentMapsMenu();
     connectUIActions();
-    if (!currentFilePath.empty()) {
-        openItemStore(currentFilePath);
-    }
     refreshCategoriesTable();
     refreshItemsTable();
 }
@@ -215,7 +214,8 @@ void MainForm::action_DarkTheme_Click() {
 }
 
 void MainForm::action_OpenItemStore_Click() {
-    QString fullFilePath{QFileDialog::getOpenFileName(this,
+    //TODO: v0.7.0 To Remove
+    /*QString fullFilePath{QFileDialog::getOpenFileName(this,
             tr("Open the item store"),
             "",
             tr("Item store file (*.itm)"))};
@@ -225,7 +225,7 @@ void MainForm::action_OpenItemStore_Click() {
         refreshCategoriesTable();
         refreshItemsTable();
     }
-    refreshWindowTitle();
+    refreshWindowTitle();*/
 }
 
 void MainForm::action_OpenRecentItemsDB_Click() {
@@ -235,15 +235,17 @@ void MainForm::action_OpenRecentItemsDB_Click() {
 }
 
 void MainForm::action_SaveItemStore_Click() {
-    if (m_currentFilePath == "") {
+    //TODO: v0.7.0 To Transform
+    /*if (m_currentFilePath == "") {
         action_SaveAsItemStore_Click();
     } else {
         saveItemStore(m_currentFilePath);
-    }
+    }*/
 }
 
 void MainForm::action_SaveAsItemStore_Click() {
-    QString filter = "Item store file (*.itm)";
+    //TODO: v0.7.0 To Remove
+    /*QString filter = "Item store file (*.itm)";
     QString fullFilePath{QFileDialog::getSaveFileName(this,
             tr("Save the item store"),
             "",
@@ -253,7 +255,7 @@ void MainForm::action_SaveAsItemStore_Click() {
         saveItemStore(m_currentFilePath);
         addNewRecentItemsDB(m_currentFilePath);
     }
-    refreshWindowTitle();
+    refreshWindowTitle();*/
 }
 
 void MainForm::refreshRecentMapsMenu() {
@@ -407,10 +409,11 @@ QIcon MainForm::getCategoryIcon(const std::string &categoryName) const {
 }
 
 void MainForm::action_ManageTextures_Click() {
-    ManageTexturesForm manageTexturesForm(this,
+    //TODO: v0.7.0 To Transform
+    /*ManageTexturesForm manageTexturesForm(this,
             getResourcesPath(),
             m_controller.getTextureContainerForEdition());
-    manageTexturesForm.exec();
+    manageTexturesForm.exec();*/
 }
 
 const std::string &MainForm::getExecutablePath() {
@@ -452,7 +455,8 @@ void MainForm::setAppStylesheet(const std::string &style) {
 }
 
 void MainForm::openItemStore(const std::string &filePath) {
-    if (!m_controller.openItemStore(filePath)) {
+    //TODO: v0.7.0 To Remove
+    /*if (!m_controller.openItemStore(filePath)) {
         ErrorMessage::show("An error occurred while loading the item store.",
                 m_controller.getLastError());
         return;
@@ -460,18 +464,19 @@ void MainForm::openItemStore(const std::string &filePath) {
     m_currentFilePath = filePath;
     addNewRecentItemsDB(m_currentFilePath);
     refreshCategoriesTable();
-    refreshItemsTable();
+    refreshItemsTable();*/
 }
 
 void MainForm::saveItemStore(const std::string &filePath) {
-    if (!m_controller.saveItemStore(filePath)) {
+    //TODO: v0.7.0 To Transform
+    /*if (!m_controller.saveItemStore(filePath)) {
         ErrorMessage::show("An error occurred while saving the item store.",
                 m_controller.getLastError());
-    }
+    }*/
 }
 
 void MainForm::refreshWindowTitle() {
-    setWindowTitle(m_currentFilePath.empty() ? "Game Data Editor" : fmt::format("Game Data Editor - {0}", m_currentFilePath).c_str());
+    setWindowTitle("Game Data Editor");
 }
 
 void MainForm::onTableWidgetItemCategoriesSelectionChanged() {
@@ -549,25 +554,25 @@ std::unique_ptr<QDialog> MainForm::getItemTypeForm(ItemType itemType, std::optio
         case ItemType::Item:
             dialog = std::make_unique<EditItemForm>(this,
                     getResourcesPath(),
-                    m_controller.getItemStore(),
+                    m_controller.getItemStoreForEdition(),
                     itemIdToEdit);
             break;
         case ItemType::Weapon:
             dialog = std::make_unique<EditWeaponItemForm>(this,
                     getResourcesPath(),
-                    m_controller.getItemStore(),
+                    m_controller.getItemStoreForEdition(),
                     itemIdToEdit);
             break;
         case ItemType::Armor:
             dialog = std::make_unique<EditArmorItemForm>(this,
                     getResourcesPath(),
-                    m_controller.getItemStore(),
+                    m_controller.getItemStoreForEdition(),
                     itemIdToEdit);
             break;
         case ItemType::StatsItem:
             dialog = std::make_unique<EditStatsItemForm>(this,
                     getResourcesPath(),
-                    m_controller.getItemStore(),
+                    m_controller.getItemStoreForEdition(),
                     itemIdToEdit);
             break;
     }

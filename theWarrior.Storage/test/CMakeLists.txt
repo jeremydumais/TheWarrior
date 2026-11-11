@@ -9,6 +9,7 @@ include_directories(PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include
 
 add_executable(${PROJECT_UNITTEST_NAME} ${INCLUDE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/gameDataStorage_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/gameMapStorage_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/gameStateStorage_unittest.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/configurationManager_unittest.cpp

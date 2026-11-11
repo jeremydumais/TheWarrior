@@ -12,8 +12,7 @@ class MainForm : public QMainWindow {
 Q_OBJECT
 
  public:
-    explicit MainForm(QWidget *parent = nullptr,
-            const std::string &currentFilePath = "");
+    explicit MainForm(QWidget *parent = nullptr);
     ~MainForm() override = default;
     void connectUIActions();
     bool event(QEvent *event) override;
@@ -25,7 +24,6 @@ Q_OBJECT
     std::string m_userConfigFolder;
     std::string m_executablePath;
     std::string m_resourcesPath;
-    std::string m_currentFilePath;
     gamedataeditor::controllers::MainController m_controller;
     QTableWidgetKeyPressWatcher tableWidgetItemsKeyWatcher;
     static const std::string THEME_PATH;
