@@ -5,6 +5,7 @@
 #include <QtCore/qfile.h>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMessageBox>
+#include <QCloseEvent>
 #include <algorithm>
 #include <filesystem>
 #include <memory>
@@ -37,20 +38,22 @@ using thewarrior::utils::SpecialFolders;
 const std::string MainForm::THEME_PATH{"Display.Theme"};
 const std::string MainForm::RECENT_MAPS{"ItemsDB.Recents"};
 
-MainForm::MainForm(QWidget *parent)
+MainForm::MainForm(QWidget *parent, const std::string &resourcesPath, const std::string &configFolder)
     : QMainWindow(parent),
     ui(Ui::MainForm()),
     m_functionAfterShownCalled(false),
-    m_userConfigFolder(""),
+    m_userConfigFolder(configFolder),
     m_executablePath(""),
-    m_resourcesPath(""),
+    m_resourcesPath(resourcesPath),
     m_controller(MainController()) {
     ui.setupUi(this);
 
     // Check if the user configuration folder exist
-    m_userConfigFolder = SpecialFolders::getAppConfigDirectory(fmt::format("{0}/{1}",
+    if (m_userConfigFolder.empty()) {
+        m_userConfigFolder = SpecialFolders::getAppConfigDirectory(fmt::format("{0}/{1}",
                                                                            ORGANIZATIONNAME,
                                                                            APPLICATIONNAME));
+    }
     if (!boost::filesystem::exists(m_userConfigFolder)) {
         if (!boost::filesystem::create_directory(m_userConfigFolder)) {
             ErrorMessage::show(fmt::format("Unable to create the folder {0}", m_userConfigFolder), "");
@@ -84,6 +87,7 @@ MainForm::MainForm(QWidget *parent)
     connectUIActions();
     refreshCategoriesTable();
     refreshItemsTable();
+    refreshWindowTitle();
 }
 
 void MainForm::initializeCategoriesTableControl() {
@@ -216,12 +220,32 @@ void MainForm::action_DarkTheme_Click() {
 }
 
 void MainForm::action_SaveItemStore_Click() {
-    //TODO: v0.7.0 To Transform
-    /*if (m_currentFilePath == "") {
-        action_SaveAsItemStore_Click();
-    } else {
-        saveItemStore(m_currentFilePath);
-    }*/
+    saveGameData();
+}
+
+bool MainForm::saveGameData() {
+    if (!m_controller.saveGameData()) {
+        ErrorMessage::show("Unable to save the game data.", m_controller.getLastError());
+        return false;
+    }
+    refreshWindowTitle();
+    return true;
+}
+
+void MainForm::closeEvent(QCloseEvent *event) {
+    refreshWindowTitle();
+    if (isWindowModified()) {
+        const auto answer = QMessageBox::warning(this, tr("Unsaved changes"),
+            tr("The game data has unsaved changes. Do you want to save before exiting?"),
+            QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
+            QMessageBox::Cancel);
+        if (answer == QMessageBox::Cancel ||
+            (answer == QMessageBox::Save && !saveGameData())) {
+            event->ignore();
+            return;
+        }
+    }
+    event->accept();
 }
 
 void MainForm::refreshCategoriesTable() {
@@ -324,6 +348,7 @@ void MainForm::action_ManageItemsTexture_Click() {
              return;
         }
         refreshItemsTable();
+        refreshWindowTitle();
     }
 }
 
@@ -365,29 +390,9 @@ void MainForm::setAppStylesheet(const std::string &style) {
     }
 }
 
-void MainForm::openItemStore(const std::string &filePath) {
-    //TODO: v0.7.0 To Remove
-    /*if (!m_controller.openItemStore(filePath)) {
-        ErrorMessage::show("An error occurred while loading the item store.",
-                m_controller.getLastError());
-        return;
-    }
-    m_currentFilePath = filePath;
-    addNewRecentItemsDB(m_currentFilePath);
-    refreshCategoriesTable();
-    refreshItemsTable();*/
-}
-
-void MainForm::saveItemStore(const std::string &filePath) {
-    //TODO: v0.7.0 To Transform
-    /*if (!m_controller.saveItemStore(filePath)) {
-        ErrorMessage::show("An error occurred while saving the item store.",
-                m_controller.getLastError());
-    }*/
-}
-
 void MainForm::refreshWindowTitle() {
-    setWindowTitle("Game Data Editor");
+    setWindowTitle("Game Data Editor[*]");
+    setWindowModified(m_controller.isDirty());
 }
 
 void MainForm::onTableWidgetItemCategoriesSelectionChanged() {
@@ -412,6 +417,7 @@ void MainForm::onPushButtonAddItemClick() {
         std::unique_ptr<QDialog> dialog = getItemTypeForm(addItemChooserForm.getResult(),
                 std::nullopt);
         if (dialog != nullptr && dialog->exec() == QDialog::Accepted) {
+            refreshWindowTitle();
             refreshCategoriesTable();
             refreshItemsTable();
         }
@@ -425,6 +431,7 @@ void MainForm::onPushButtonEditItemClick() {
             std::unique_ptr<QDialog> dialog = getItemTypeForm(itemType.value(),
                     itemId.value());
             if (dialog != nullptr && dialog->exec() == QDialog::Accepted) {
+                refreshWindowTitle();
                 refreshCategoriesTable();
                 refreshItemsTable();
             }
@@ -445,6 +452,7 @@ void MainForm::onPushButtonDeleteItemClick() {
             if (!m_controller.deleteItem(itemId.value())) {
                 ErrorMessage::show("Unable to remove the item.", m_controller.getLastError());
             }
+            refreshWindowTitle();
             refreshCategoriesTable();
             refreshItemsTable();
         }

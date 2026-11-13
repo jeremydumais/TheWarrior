@@ -99,5 +99,16 @@ install(FILES "res/GameDataEditor Icon256.png" DESTINATION "${CMAKE_INSTALL_DATA
 install(FILES "res/GameDataEditor Icon512.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/512x512/apps" RENAME "thewarrior_gamedataeditor.png")
 install(FILES "res/thewarrior.gamedataeditor.desktop" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
 
+if (NOT DEFINED BUILD_TESTING OR BUILD_TESTING)
+  find_package(GTest REQUIRED)
+  set(FORM_TEST_SOURCES ${PROJECT_SOURCE_FILES})
+  list(REMOVE_ITEM FORM_TEST_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
+  add_executable(GameDataEditor_unittests ${FORM_TEST_SOURCES} test/mainForm_unittest.cpp)
+  target_compile_definitions(GameDataEditor_unittests PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
+  target_link_libraries(GameDataEditor_unittests PRIVATE GameDataEditor.Controllers
+    theWarrior.Models theWarrior.Storage commonEditor.UI theWarrior.Utils Qt5::Widgets gtest)
+  gtest_discover_tests(GameDataEditor_unittests)
+endif()
+
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/../resources DESTINATION ${CMAKE_BINARY_DIR}/bin)
 file(COPY ${RESOURCE_FILES} DESTINATION ${CMAKE_BINARY_DIR}/bin/resources)

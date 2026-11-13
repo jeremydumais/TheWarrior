@@ -63,6 +63,8 @@ class MainController {
                                                      const std::string &resourcesPath) const;
     void setResourcesPath(const std::string &resourcesPath);
     bool loadOrCreateGameData();
+    bool saveGameData();
+    bool isDirty() const;
     bool deleteItem(const std::string &id);
     bool setItemStoreTexture(std::unique_ptr<commoneditor::ui::TextureDTO> textureDTO);
  private:
@@ -70,6 +72,8 @@ class MainController {
     std::string m_gameDataFilePath;
     std::shared_ptr<thewarrior::models::GameData> m_gameData;
     std::string m_lastError;
+    std::string m_savedGameData;
+    std::string serializeGameData() const;
 
 };
 

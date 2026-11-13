@@ -57,6 +57,94 @@ TEST_F(MainControllerLoadedGameData, getItemCategories_WithEmptyItemStore_Return
     ASSERT_EQ(0, controller.getItemCategories().size());
 }
 
+TEST(MainControllerDirtyState, UnloadedControllerIsCleanAndCannotSave) {
+    MainController controller;
+    EXPECT_FALSE(controller.isDirty());
+    EXPECT_FALSE(controller.saveGameData());
+    EXPECT_EQ("No game data is loaded.", controller.getLastError());
+}
+
+TEST_F(MainControllerLoadedGameData, ReadingGameDataDoesNotMarkItDirty) {
+    EXPECT_FALSE(controller.isDirty());
+    controller.getItemStoreForEdition();
+    controller.getItemCategories();
+    controller.getItemStoreTexture();
+    EXPECT_FALSE(controller.isDirty());
+    EXPECT_FALSE(controller.deleteItem("absent"));
+    EXPECT_FALSE(controller.setItemStoreTexture(nullptr));
+    EXPECT_FALSE(controller.isDirty());
+}
+
+TEST_F(MainControllerSampleWithOneItem, SavingSharedStoreChangesClearsDirtyStateAndPersistsData) {
+    EXPECT_TRUE(controller.isDirty());
+    ASSERT_TRUE(controller.saveGameData()) << controller.getLastError();
+    EXPECT_FALSE(controller.isDirty());
+
+    // Item editors mutate this same shared store rather than calling MainController.
+    const auto item = controller.getItemStoreForEdition()->getItems().front();
+    item->setName("Edited item");
+    EXPECT_TRUE(controller.isDirty());
+    item->setName("Item1");
+    EXPECT_FALSE(controller.isDirty());
+    item->setName("Edited item");
+    ASSERT_TRUE(controller.saveGameData()) << controller.getLastError();
+    EXPECT_FALSE(controller.isDirty());
+
+    MainController reloaded;
+    reloaded.setResourcesPath(resources.path().toStdString());
+    ASSERT_TRUE(reloaded.loadOrCreateGameData()) << reloaded.getLastError();
+    EXPECT_FALSE(reloaded.isDirty());
+    ASSERT_NE(nullptr, reloaded.getItemStore().findItem("ite001"));
+    EXPECT_EQ("Edited item", reloaded.getItemStore().findItem("ite001")->getName());
+    ASSERT_TRUE(controller.deleteItem("ite001"));
+    EXPECT_TRUE(controller.isDirty());
+    ASSERT_TRUE(controller.saveGameData());
+    EXPECT_FALSE(controller.isDirty());
+}
+
+TEST_F(MainControllerSampleWithOneItemPerCategory, SavingPreservesAllItemTypesAndClearsDirtyState) {
+    EXPECT_TRUE(controller.isDirty());
+    ASSERT_TRUE(controller.saveGameData()) << controller.getLastError();
+    EXPECT_FALSE(controller.isDirty());
+    MainController reloaded;
+    reloaded.setResourcesPath(resources.path().toStdString());
+    ASSERT_TRUE(reloaded.loadOrCreateGameData()) << reloaded.getLastError();
+    EXPECT_FALSE(reloaded.isDirty());
+    ASSERT_EQ(4, reloaded.getItemStore().getItemCount());
+    for (const auto &item : controller.getItemStore().getItems()) {
+        const auto savedItem = reloaded.getItemStore().findItem(item->getId());
+        ASSERT_NE(nullptr, savedItem);
+        EXPECT_EQ(*item, *savedItem);
+    }
+}
+
+TEST_F(MainControllerLoadedGameData, TextureChangesAreDirtyButIdenticalReplacementIsClean) {
+    const commoneditor::ui::TextureDTO texture{"ItemsTile", "items.png", 512, 256, 32, 16};
+    ASSERT_TRUE(controller.setItemStoreTexture(std::make_unique<commoneditor::ui::TextureDTO>(texture)));
+    EXPECT_TRUE(controller.isDirty());
+    ASSERT_TRUE(controller.saveGameData());
+    EXPECT_FALSE(controller.isDirty());
+    ASSERT_TRUE(controller.setItemStoreTexture(std::make_unique<commoneditor::ui::TextureDTO>(texture)));
+    EXPECT_FALSE(controller.isDirty());
+    auto changed = std::make_unique<commoneditor::ui::TextureDTO>(texture);
+    changed->filename = "changed.png";
+    ASSERT_TRUE(controller.setItemStoreTexture(std::move(changed)));
+    EXPECT_TRUE(controller.isDirty());
+}
+
+TEST_F(MainControllerSampleWithOneItem, FailedSaveKeepsDirtyStateAndAllowsRetry) {
+    const auto path = std::filesystem::path(resources.path().toStdString()) / "gamedata" / "gameData.gdt";
+    ASSERT_TRUE(std::filesystem::remove(path));
+    ASSERT_TRUE(std::filesystem::create_directory(path));
+    EXPECT_FALSE(controller.saveGameData());
+    EXPECT_FALSE(controller.getLastError().empty());
+    EXPECT_TRUE(controller.isDirty());
+    EXPECT_NE(nullptr, controller.getItemStore().findItem("ite001"));
+    ASSERT_TRUE(std::filesystem::remove(path));
+    ASSERT_TRUE(controller.saveGameData()) << controller.getLastError();
+    EXPECT_FALSE(controller.isDirty());
+}
+
 TEST_F(MainControllerLoadedGameData, setItemStoreTexture_PickerUsesUpdatedTexture)
 {
     TexturePickerController picker(controller.getItemStore().getTextureContainer());

@@ -15,9 +15,12 @@
 #include <memory>
 #include <optional>
 #include <qpixmap.h>
+#include <QSaveFile>
 #include <ranges>
 #include <set>
 #include <variant>
+#include <sstream>
+#include <boost/archive/binary_oarchive.hpp>
 
 using namespace commoneditor::ui;
 using namespace thewarrior::models;
@@ -218,6 +221,45 @@ bool MainController::loadOrCreateGameData() {
             m_gameData = std::make_shared<GameData>();
             storage.loadGameData(m_gameDataFilePath, m_gameData);
         }
+        m_savedGameData = serializeGameData();
+        return true;
+    } catch (const std::exception &err) {
+        m_lastError = err.what();
+        return false;
+    }
+}
+
+std::string MainController::serializeGameData() const {
+    std::ostringstream stream;
+    {
+        boost::archive::binary_oarchive archive(stream);
+        archive << *m_gameData;
+    }
+    return stream.str();
+}
+
+bool MainController::isDirty() const {
+    return m_gameData != nullptr && serializeGameData() != m_savedGameData;
+}
+
+bool MainController::saveGameData() {
+    if (m_gameData == nullptr || m_gameDataFilePath.empty()) {
+        m_lastError = "No game data is loaded.";
+        return false;
+    }
+    try {
+        auto snapshot = serializeGameData();
+        // Commit the same binary representation atomically so a failed write
+        // leaves the previously saved game data intact.
+        QSaveFile file(QString::fromStdString(m_gameDataFilePath));
+        const auto size = static_cast<qint64>(snapshot.size());
+        if (!file.open(QIODevice::WriteOnly) ||
+            file.write(snapshot.data(), size) != size || !file.commit()) {
+            m_lastError = fmt::format("Unable to save the game data {}: {}",
+                                     m_gameDataFilePath, file.errorString().toStdString());
+            return false;
+        }
+        m_savedGameData = std::move(snapshot);
         return true;
     } catch (const std::exception &err) {
         m_lastError = err.what();

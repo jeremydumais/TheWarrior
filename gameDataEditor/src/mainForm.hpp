@@ -12,11 +12,15 @@ class MainForm : public QMainWindow {
 Q_OBJECT
 
  public:
-    explicit MainForm(QWidget *parent = nullptr);
+    explicit MainForm(QWidget *parent = nullptr, const std::string &resourcesPath = "",
+                      const std::string &configFolder = "");
     ~MainForm() override = default;
     void connectUIActions();
     bool event(QEvent *event) override;
     void functionAfterShown();
+
+ protected:
+    void closeEvent(QCloseEvent *event) override;
 
  private:
     Ui::MainForm ui;
@@ -35,6 +39,7 @@ Q_OBJECT
     void action_LightTheme_Click();
     void action_DarkTheme_Click();
     void action_SaveItemStore_Click();
+    bool saveGameData();
     void refreshCategoriesTable();
     void refreshItemsTable();
     QIcon getCategoryIcon(const std::string &categoryName) const;
@@ -42,8 +47,6 @@ Q_OBJECT
     const std::string &getExecutablePath();
     const std::string &getResourcesPath();
     void setAppStylesheet(const std::string &style);
-    void openItemStore(const std::string &filePath);
-    void saveItemStore(const std::string &filePath);
     void refreshWindowTitle();
     void onTableWidgetItemCategoriesSelectionChanged();
     void onTableWidgetItemsDoubleClicked(QTableWidgetItem *item);
