@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>884</width>
-    <height>590</height>
+    <width>1118</width>
+    <height>788</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,151 +20,225 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QSplitter" name="splitter">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <widget class="QTableWidget" name="tableWidgetItemCategories">
-         <property name="font">
-          <font>
-           <pointsize>12</pointsize>
-          </font>
-         </property>
-         <property name="editTriggers">
-          <set>QAbstractItemView::NoEditTriggers</set>
-         </property>
-         <property name="selectionMode">
-          <enum>QAbstractItemView::SingleSelection</enum>
-         </property>
-         <property name="selectionBehavior">
-          <enum>QAbstractItemView::SelectRows</enum>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>24</width>
-           <height>24</height>
-          </size>
-         </property>
-         <property name="columnCount">
-          <number>1</number>
-         </property>
-         <attribute name="horizontalHeaderVisible">
-          <bool>true</bool>
-         </attribute>
-         <attribute name="horizontalHeaderStretchLastSection">
-          <bool>true</bool>
-         </attribute>
-         <attribute name="verticalHeaderVisible">
-          <bool>false</bool>
-         </attribute>
-         <column/>
-        </widget>
-        <widget class="QWidget" name="verticalLayoutWidget">
-         <layout class="QVBoxLayout" name="verticalLayout">
+     <widget class="QTabWidget" name="tabWidgetSections">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tabItems">
+       <attribute name="title">
+        <string>Items</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="itemsLayout">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
-           <widget class="QTableWidget" name="tableWidgetItems">
-            <property name="font">
-             <font>
-              <pointsize>12</pointsize>
-             </font>
+           <widget class="QSplitter" name="splitter">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
             </property>
-            <property name="editTriggers">
-             <set>QAbstractItemView::NoEditTriggers</set>
-            </property>
-            <property name="alternatingRowColors">
-             <bool>true</bool>
-            </property>
-            <property name="selectionMode">
-             <enum>QAbstractItemView::SingleSelection</enum>
-            </property>
-            <property name="selectionBehavior">
-             <enum>QAbstractItemView::SelectRows</enum>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>24</width>
-              <height>24</height>
-             </size>
-            </property>
-            <property name="sortingEnabled">
-             <bool>true</bool>
-            </property>
-            <property name="rowCount">
-             <number>0</number>
-            </property>
-            <property name="columnCount">
-             <number>5</number>
-            </property>
-            <attribute name="horizontalHeaderStretchLastSection">
-             <bool>true</bool>
-            </attribute>
-            <attribute name="verticalHeaderVisible">
-             <bool>false</bool>
-            </attribute>
-            <column/>
-            <column/>
-            <column/>
-            <column/>
-            <column/>
+            <widget class="QTableWidget" name="tableWidgetItemCategories">
+             <property name="font">
+              <font>
+               <pointsize>12</pointsize>
+              </font>
+             </property>
+             <property name="editTriggers">
+              <set>QAbstractItemView::NoEditTriggers</set>
+             </property>
+             <property name="selectionMode">
+              <enum>QAbstractItemView::SingleSelection</enum>
+             </property>
+             <property name="selectionBehavior">
+              <enum>QAbstractItemView::SelectRows</enum>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="columnCount">
+              <number>1</number>
+             </property>
+             <attribute name="horizontalHeaderVisible">
+              <bool>true</bool>
+             </attribute>
+             <attribute name="horizontalHeaderStretchLastSection">
+              <bool>true</bool>
+             </attribute>
+             <attribute name="verticalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+             <column/>
+            </widget>
+            <widget class="QWidget" name="verticalLayoutWidget">
+             <layout class="QVBoxLayout" name="verticalLayout">
+              <item>
+               <widget class="QTableWidget" name="tableWidgetItems">
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="editTriggers">
+                 <set>QAbstractItemView::NoEditTriggers</set>
+                </property>
+                <property name="alternatingRowColors">
+                 <bool>true</bool>
+                </property>
+                <property name="selectionMode">
+                 <enum>QAbstractItemView::SingleSelection</enum>
+                </property>
+                <property name="selectionBehavior">
+                 <enum>QAbstractItemView::SelectRows</enum>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>24</width>
+                  <height>24</height>
+                 </size>
+                </property>
+                <property name="sortingEnabled">
+                 <bool>true</bool>
+                </property>
+                <property name="rowCount">
+                 <number>0</number>
+                </property>
+                <property name="columnCount">
+                 <number>5</number>
+                </property>
+                <attribute name="horizontalHeaderStretchLastSection">
+                 <bool>true</bool>
+                </attribute>
+                <attribute name="verticalHeaderVisible">
+                 <bool>false</bool>
+                </attribute>
+                <column/>
+                <column/>
+                <column/>
+                <column/>
+                <column/>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_2">
+                <item>
+                 <widget class="QPushButton" name="pushButtonAddItem">
+                  <property name="text">
+                   <string>&amp;Add Item</string>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="../res/global.qrc">
+                    <normaloff>:/commonEditor.UI/res/gtk-add.svg</normaloff>:/commonEditor.UI/res/gtk-add.svg</iconset>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="pushButtonEditItem">
+                  <property name="text">
+                   <string>&amp;Edit item</string>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="../res/global.qrc">
+                    <normaloff>:/commonEditor.UI/res/gtk-edit.svg</normaloff>:/commonEditor.UI/res/gtk-edit.svg</iconset>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="pushButtonDeleteItem">
+                  <property name="text">
+                   <string>&amp;Delete item</string>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="../res/global.qrc">
+                    <normaloff>:/commonEditor.UI/res/gtk-delete.svg</normaloff>:/commonEditor.UI/res/gtk-delete.svg</iconset>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
            </widget>
           </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_2">
-            <item>
-             <widget class="QPushButton" name="pushButtonAddItem">
-              <property name="text">
-               <string>&amp;Add Item</string>
-              </property>
-              <property name="icon">
-               <iconset resource="../res/global.qrc">
-                <normaloff>:/commonEditor.UI/res/gtk-add.svg</normaloff>:/commonEditor.UI/res/gtk-add.svg</iconset>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="pushButtonEditItem">
-              <property name="text">
-               <string>&amp;Edit item</string>
-              </property>
-              <property name="icon">
-               <iconset resource="../res/global.qrc">
-                <normaloff>:/commonEditor.UI/res/gtk-edit.svg</normaloff>:/commonEditor.UI/res/gtk-edit.svg</iconset>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="pushButtonDeleteItem">
-              <property name="text">
-               <string>&amp;Delete item</string>
-              </property>
-              <property name="icon">
-               <iconset resource="../res/global.qrc">
-                <normaloff>:/commonEditor.UI/res/gtk-delete.svg</normaloff>:/commonEditor.UI/res/gtk-delete.svg</iconset>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
          </layout>
-        </widget>
-       </widget>
-      </item>
-     </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabSpells">
+       <attribute name="title">
+        <string>Spells</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="spellsLayout">
+        <item>
+         <widget class="QLabel" name="labelSpellsPlaceholder">
+          <property name="text">
+           <string>Spell editing is not available yet.</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabQuests">
+       <attribute name="title">
+        <string>Quests</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="questsLayout">
+        <item>
+         <widget class="QLabel" name="labelQuestsPlaceholder">
+          <property name="text">
+           <string>Quest editing is not available yet.</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabStoryFlags">
+       <attribute name="title">
+        <string>Story Flags</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="storyFlagsLayout">
+        <item>
+         <widget class="QLabel" name="labelStoryFlagsPlaceholder">
+          <property name="text">
+           <string>Story flag editing is not available yet.</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -173,17 +247,17 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>884</width>
-     <height>30</height>
+     <width>1118</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
     <property name="geometry">
      <rect>
-      <x>267</x>
-      <y>160</y>
+      <x>273</x>
+      <y>179</y>
       <width>260</width>
-      <height>204</height>
+      <height>129</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -211,17 +285,15 @@
      <addaction name="action_RecentMap4"/>
      <addaction name="action_RecentMap5"/>
     </widget>
-    <addaction name="action_Open"/>
     <addaction name="menu_RecentItemsDB"/>
     <addaction name="separator"/>
     <addaction name="action_Save"/>
-    <addaction name="action_SaveAs"/>
     <addaction name="separator"/>
     <addaction name="action_Quit"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
-     <string>Help</string>
+     <string>&amp;Help</string>
     </property>
     <addaction name="action_About"/>
    </widget>
@@ -245,17 +317,30 @@
     <addaction name="action_AddItem"/>
     <addaction name="action_EditItem"/>
     <addaction name="action_DeleteItem"/>
-   </widget>
-   <widget class="QMenu" name="menu_Textures">
-    <property name="title">
-     <string>&amp;Textures</string>
-    </property>
+    <addaction name="separator"/>
     <addaction name="action_ManageTextures"/>
+   </widget>
+   <widget class="QMenu" name="menu_Spells">
+    <property name="title">
+     <string>&amp;Spells</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menu_Quests">
+    <property name="title">
+     <string>&amp;Quests</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menu_StoryFlags">
+    <property name="title">
+     <string>S&amp;tory Flags</string>
+    </property>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
    <addaction name="menu_Items"/>
-   <addaction name="menu_Textures"/>
+   <addaction name="menu_Spells"/>
+   <addaction name="menu_Quests"/>
+   <addaction name="menu_StoryFlags"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -289,18 +374,6 @@
     <string>&amp;Dark</string>
    </property>
   </action>
-  <action name="action_Open">
-   <property name="icon">
-    <iconset resource="../res/global.qrc">
-     <normaloff>:/commonEditor.UI/res/document-open.svg</normaloff>:/commonEditor.UI/res/document-open.svg</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Open...</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+O</string>
-   </property>
-  </action>
   <action name="action_Save">
    <property name="icon">
     <iconset resource="../res/global.qrc">
@@ -313,23 +386,9 @@
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="action_SaveAs">
-   <property name="icon">
-    <iconset resource="../res/global.qrc">
-     <normaloff>:/commonEditor.UI/res/document-save-as.svg</normaloff>:/commonEditor.UI/res/document-save-as.svg</iconset>
-   </property>
-   <property name="text">
-    <string>Save as...</string>
-   </property>
-  </action>
   <action name="action_AddItem">
    <property name="text">
     <string>&amp;Add an item...</string>
-   </property>
-  </action>
-  <action name="action_ManageTextures">
-   <property name="text">
-    <string>&amp;Manage textures...</string>
    </property>
   </action>
   <action name="action_EditItem">
@@ -385,6 +444,16 @@
    </property>
    <property name="visible">
     <bool>false</bool>
+   </property>
+  </action>
+  <action name="action_ManageTextures">
+   <property name="text">
+    <string>&amp;Manage texture...</string>
+   </property>
+  </action>
+  <action name="action">
+   <property name="text">
+    <string>---</string>
    </property>
   </action>
  </widget>

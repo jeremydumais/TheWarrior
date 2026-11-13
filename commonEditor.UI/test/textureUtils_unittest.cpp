@@ -95,3 +95,27 @@ TEST(TextureUtils_textureDTOToTextureInfo, WithNonEmptyDTO_ReturnNonEmptyInfo) {
     TextureInfoComparer(expected, actual);
 }
 
+TEST(TextureUtils_textureInfoToTextureDTO, WithEmptyInfo_ReturnEmptyDTO) {
+    const TextureInfo info;
+    const auto actual = TextureUtils::TextureInfoToTextureDTO(info);
+
+    EXPECT_TRUE(actual.name.empty());
+    EXPECT_TRUE(actual.filename.empty());
+    EXPECT_EQ(0, actual.width);
+    EXPECT_EQ(0, actual.height);
+    EXPECT_EQ(0, actual.tileWidth);
+    EXPECT_EQ(0, actual.tileHeight);
+}
+
+TEST(TextureUtils_textureInfoToTextureDTO, WithNonEmptyInfo_ReturnAllFields) {
+    const TextureInfo info { "ItemsTile", "items.png", 512, 256, 32, 16 };
+    const auto actual = TextureUtils::TextureInfoToTextureDTO(info);
+
+    EXPECT_EQ("ItemsTile", actual.name);
+    EXPECT_EQ("items.png", actual.filename);
+    EXPECT_EQ(512, actual.width);
+    EXPECT_EQ(256, actual.height);
+    EXPECT_EQ(32, actual.tileWidth);
+    EXPECT_EQ(16, actual.tileHeight);
+}
+

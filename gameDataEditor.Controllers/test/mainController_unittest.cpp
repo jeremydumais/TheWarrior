@@ -7,8 +7,11 @@
 #include <filesystem>
 #include <fstream>
 #include <QTemporaryDir>
+#include <QGuiApplication>
+#include <QImage>
 #include "gameDataStorage.hpp"
 #include "itemStoreStorage.hpp"
+#include "texturePickerController.hpp"
 
 using namespace gamedataeditor::controllers;
 using namespace thewarrior::models;
@@ -52,6 +55,35 @@ public:
 TEST_F(MainControllerLoadedGameData, getItemCategories_WithEmptyItemStore_ReturnEmpty)
 {
     ASSERT_EQ(0, controller.getItemCategories().size());
+}
+
+TEST_F(MainControllerLoadedGameData, setItemStoreTexture_PickerUsesUpdatedTexture)
+{
+    TexturePickerController picker(controller.getItemStore().getTextureContainer());
+    auto texture = std::make_unique<commoneditor::ui::TextureDTO>();
+    texture->name = "ItemsTile";
+    texture->filename = "original-items-texture.png";
+    texture->width = 512;
+    texture->height = 256;
+    texture->tileWidth = 32;
+    texture->tileHeight = 16;
+    ASSERT_TRUE(controller.setItemStoreTexture(std::move(texture))) << controller.getLastError();
+    ASSERT_EQ(std::vector<std::string>{"ItemsTile"}, picker.getTextureNames());
+    ASSERT_EQ("/resources/textures/original-items-texture.png",
+              picker.getTextureFileName("/resources", "ItemsTile"));
+
+    auto replacement = std::make_unique<commoneditor::ui::TextureDTO>();
+    replacement->name = "ItemsTile";
+    replacement->filename = "replacement-items-texture.png";
+    replacement->width = 256;
+    replacement->height = 128;
+    replacement->tileWidth = 16;
+    replacement->tileHeight = 16;
+    ASSERT_TRUE(controller.setItemStoreTexture(std::move(replacement))) << controller.getLastError();
+    ASSERT_EQ(std::vector<std::string>{"ItemsTile"}, picker.getTextureNames());
+    ASSERT_EQ("/resources/textures/replacement-items-texture.png",
+              picker.getTextureFileName("/resources", "ItemsTile"));
+    ASSERT_EQ(1, picker.getTextureIndexFromPosition(Point(17, 127), "ItemsTile"));
 }
 
 TEST_F(MainControllerSampleWithOneItem, getItemCategories_ReturnOneCategory)
@@ -301,4 +333,179 @@ TEST_F(MainControllerSampleWithOneItemPerCategory, ListIncludesPricesDescription
 TEST_F(MainControllerSampleWithOneItem, IconsSkipMissingItemsAndMissingTextures) {
     EXPECT_TRUE(controller.getIconsFromItemIds({"missing", "ite001"},
                                                resources.path().toStdString()).empty());
+}
+
+class MainControllerWithTexture : public MainControllerLoadedGameData {
+protected:
+    void SetUp() override {
+        ASSERT_NO_FATAL_FAILURE(MainControllerLoadedGameData::SetUp());
+        ASSERT_TRUE(controller.getItemStoreForEdition()->getTextureContainerForEdition().addTexture(
+            TextureInfo{"ItemsTile", "items.png", 512, 256, 32, 16}));
+    }
+
+    void expectOriginalTexture() {
+        const auto &container = controller.getItemStore().getTextureContainer();
+        ASSERT_EQ(1, container.getCount());
+        const auto texture = container.getTextureByName("ItemsTile");
+        ASSERT_TRUE(texture.has_value());
+        EXPECT_EQ("items.png", texture->get().getFilename());
+        EXPECT_EQ(512, texture->get().getWidth());
+        EXPECT_EQ(256, texture->get().getHeight());
+        EXPECT_EQ(32, texture->get().getTileWidth());
+        EXPECT_EQ(16, texture->get().getTileHeight());
+    }
+};
+
+TEST_F(MainControllerLoadedGameData, getItemStoreTexture_WithNoTexture_ReturnsNull) {
+    EXPECT_EQ(nullptr, controller.getItemStoreTexture());
+}
+
+TEST_F(MainControllerWithTexture, getItemStoreTexture_ReturnsAllFieldsAsIndependentCopy) {
+    auto texture = controller.getItemStoreTexture();
+    ASSERT_NE(nullptr, texture);
+    EXPECT_EQ("ItemsTile", texture->name);
+    EXPECT_EQ("items.png", texture->filename);
+    EXPECT_EQ(512, texture->width);
+    EXPECT_EQ(256, texture->height);
+    EXPECT_EQ(32, texture->tileWidth);
+    EXPECT_EQ(16, texture->tileHeight);
+
+    texture->name = "Changed";
+    texture->filename = "changed.png";
+    texture->width = 128;
+    expectOriginalTexture();
+}
+
+TEST_F(MainControllerWithTexture, setItemStoreTexture_ReplacesAllFieldsWithoutAddingTexture) {
+    auto replacement = std::make_unique<commoneditor::ui::TextureDTO>(
+        commoneditor::ui::TextureDTO{"ItemsTile", "replacement.png", 128, 64, 8, 4});
+    ASSERT_TRUE(controller.setItemStoreTexture(std::move(replacement))) << controller.getLastError();
+    EXPECT_EQ(1, controller.getItemStore().getTextureContainer().getCount());
+    const auto actual = controller.getItemStoreTexture();
+    ASSERT_NE(nullptr, actual);
+    EXPECT_EQ("ItemsTile", actual->name);
+    EXPECT_EQ("replacement.png", actual->filename);
+    EXPECT_EQ(128, actual->width);
+    EXPECT_EQ(64, actual->height);
+    EXPECT_EQ(8, actual->tileWidth);
+    EXPECT_EQ(4, actual->tileHeight);
+}
+
+TEST_F(MainControllerLoadedGameData, setItemStoreTexture_NullInputLeavesEmptyStore) {
+    EXPECT_FALSE(controller.setItemStoreTexture(nullptr));
+    EXPECT_EQ("The texture info cannot be null", controller.getLastError());
+    EXPECT_EQ(0, controller.getItemStore().getTextureContainer().getCount());
+}
+
+TEST_F(MainControllerWithTexture, setItemStoreTexture_NullInputPreservesExistingTexture) {
+    EXPECT_FALSE(controller.setItemStoreTexture(nullptr));
+    EXPECT_EQ("The texture info cannot be null", controller.getLastError());
+    expectOriginalTexture();
+}
+
+TEST_F(MainControllerLoadedGameData, setItemStoreTexture_InvalidInputLeavesEmptyStore) {
+    auto invalid = std::make_unique<commoneditor::ui::TextureDTO>(
+        commoneditor::ui::TextureDTO{"ItemsTile", "items.png", 0, 256, 32, 16});
+    EXPECT_FALSE(controller.setItemStoreTexture(std::move(invalid)));
+    EXPECT_EQ("Unable to add the texture to the item store", controller.getLastError());
+    EXPECT_EQ(0, controller.getItemStore().getTextureContainer().getCount());
+}
+
+TEST_F(MainControllerWithTexture, setItemStoreTexture_InvalidReplacementPreservesExistingTexture) {
+    auto invalid = std::make_unique<commoneditor::ui::TextureDTO>(
+        commoneditor::ui::TextureDTO{"ItemsTile", "replacement.png", 512, 256, 0, 16});
+    EXPECT_FALSE(controller.setItemStoreTexture(std::move(invalid)));
+    EXPECT_EQ("Unable to replace the texture in the item store", controller.getLastError());
+    expectOriginalTexture();
+}
+
+TEST_F(MainControllerWithTexture, setItemStoreTexture_DuplicateNamePreservesBothTextures) {
+    ASSERT_TRUE(controller.getItemStoreForEdition()->getTextureContainerForEdition().addTexture(
+        TextureInfo{"OtherTile", "other.png", 64, 32, 8, 4}));
+    auto duplicate = std::make_unique<commoneditor::ui::TextureDTO>(
+        commoneditor::ui::TextureDTO{"OtherTile", "replacement.png", 128, 64, 16, 8});
+    EXPECT_FALSE(controller.setItemStoreTexture(std::move(duplicate)));
+    EXPECT_EQ("Unable to replace the texture in the item store", controller.getLastError());
+    const auto &container = controller.getItemStore().getTextureContainer();
+    ASSERT_EQ(2, container.getCount());
+    const auto original = container.getTextureByName("ItemsTile");
+    ASSERT_TRUE(original.has_value());
+    EXPECT_EQ("items.png", original->get().getFilename());
+    const auto other = container.getTextureByName("OtherTile");
+    ASSERT_TRUE(other.has_value());
+    EXPECT_EQ("other.png", other->get().getFilename());
+    EXPECT_EQ(64, other->get().getWidth());
+}
+
+TEST_F(MainControllerLoadedGameData, StatsListIncludesVitalityStrengthAndDuration) {
+    auto store = controller.getItemStoreForEdition();
+    ASSERT_TRUE(store->addItem(std::make_shared<StatsItem>(StatsItemCreationInfo{
+        "vit001", "Vitality potion", "ItemsTile", 0, "Restores vitality", 12, 6,
+        Stats::Vitality, 7.5F, false, 3})));
+    ASSERT_TRUE(store->addItem(std::make_shared<StatsItem>(StatsItemCreationInfo{
+        "str001", "Strength potion", "ItemsTile", 1, "Adds strength", 20, 10,
+        Stats::Strength, 2.5F, true, 5})));
+
+    const auto items = controller.getItemsFromCategory("Stats Item");
+    ASSERT_EQ(2, items.size());
+    for (const auto &item : items) {
+        SCOPED_TRACE(item.id);
+        ASSERT_TRUE(std::holds_alternative<StatsItemListFields>(item.specificFields));
+        const auto &fields = std::get<StatsItemListFields>(item.specificFields);
+        if (item.id == "vit001") {
+            EXPECT_EQ("Vitality", fields.statChanging);
+            EXPECT_FLOAT_EQ(7.5F, fields.gain);
+            EXPECT_FALSE(fields.limitOfOneApplied);
+            EXPECT_EQ(3, fields.durationInTurns);
+            EXPECT_EQ("Restores vitality", item.description);
+            EXPECT_EQ(12, item.defaultBuyPrice);
+            EXPECT_EQ(6, item.defaultSellPrice);
+        } else {
+            ASSERT_EQ("str001", item.id);
+            EXPECT_EQ("Strength", fields.statChanging);
+            EXPECT_FLOAT_EQ(2.5F, fields.gain);
+            EXPECT_TRUE(fields.limitOfOneApplied);
+            EXPECT_EQ(5, fields.durationInTurns);
+        }
+    }
+}
+
+TEST_F(MainControllerLoadedGameData, IconsExtractDistinctTilesFromSharedTexture) {
+    int argc = 3;
+    char program[] = "mainController_icons_test";
+    char platformOption[] = "-platform";
+    char platform[] = "offscreen";
+    char *argv[] = {program, platformOption, platform, nullptr};
+    QGuiApplication app(argc, argv);
+    const auto texturesPath = std::filesystem::path(resources.path().toStdString()) / "textures";
+    std::filesystem::create_directories(texturesPath);
+    QImage image(32, 16, QImage::Format_ARGB32);
+    image.fill(Qt::red);
+    for (int y = 0; y < 16; ++y) {
+        for (int x = 16; x < 32; ++x) {
+            image.setPixelColor(x, y, Qt::blue);
+        }
+    }
+    ASSERT_TRUE(image.save(QString::fromStdString((texturesPath / "items.png").string())));
+    auto store = controller.getItemStoreForEdition();
+    ASSERT_TRUE(store->getTextureContainerForEdition().addTexture(
+        TextureInfo{"ItemsTile", "items.png", 32, 16, 16, 16}));
+    ASSERT_TRUE(store->addItem(std::make_shared<Item>(
+        ItemCreationInfo{"red001", "Red item", "ItemsTile", 0})));
+    ASSERT_TRUE(store->addItem(std::make_shared<Item>(
+        ItemCreationInfo{"blu001", "Blue item", "ItemsTile", 1})));
+
+    const auto icons = controller.getIconsFromItemIds(
+        {"red001", "blu001", "missing"}, resources.path().toStdString());
+    ASSERT_EQ(2, icons.size());
+    ASSERT_EQ(1, icons.count("red001"));
+    ASSERT_EQ(1, icons.count("blu001"));
+    const auto red = icons.at("red001").pixmap(16, 16).toImage();
+    const auto blue = icons.at("blu001").pixmap(16, 16).toImage();
+    ASSERT_FALSE(red.isNull());
+    ASSERT_FALSE(blue.isNull());
+    EXPECT_EQ(QSize(16, 16), red.size());
+    EXPECT_EQ(QSize(16, 16), blue.size());
+    EXPECT_EQ(QColor(Qt::red), red.pixelColor(8, 8));
+    EXPECT_EQ(QColor(Qt::blue), blue.pixelColor(8, 8));
 }

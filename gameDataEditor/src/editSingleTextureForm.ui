@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>editTextureFormClass</class>
- <widget class="QDialog" name="editTextureFormClass">
+ <class>editSingleTextureFormClass</class>
+ <widget class="QDialog" name="editSingleTextureFormClass">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -23,16 +23,13 @@
    <item>
     <layout class="QFormLayout" name="formLayout_3">
      <item row="0" column="0">
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Name : </string>
+        <string>Filename :</string>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="lineEditName"/>
-     </item>
-     <item row="1" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
         <widget class="QLineEdit" name="lineEditFilename">
@@ -63,13 +60,13 @@
       </layout>
      </item>
      <item row="1" column="0">
-      <widget class="QLabel" name="label_2">
+      <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>Filename :</string>
+        <string>Width :</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
+     <item row="1" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
         <widget class="QLabel" name="labelImageWidth">
@@ -98,20 +95,13 @@
       </layout>
      </item>
      <item row="2" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Width :</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
       <widget class="QLabel" name="label_5">
        <property name="text">
         <string>Tile width :</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
+     <item row="2" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_4">
        <item>
         <widget class="QSpinBox" name="spinBoxTileWidth">
@@ -198,8 +188,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>600</width>
-        <height>442</height>
+        <width>596</width>
+        <height>502</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout">
@@ -304,7 +294,6 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>lineEditName</tabstop>
   <tabstop>lineEditFilename</tabstop>
   <tabstop>pushButtonOpenFilename</tabstop>
   <tabstop>spinBoxTileWidth</tabstop>

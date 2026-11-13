@@ -5,6 +5,7 @@
 #include "itemStoreStorage.hpp"
 #include "manageItemController.hpp"
 #include "statsItem.hpp"
+#include "textureDTO.hpp"
 #include "textureUtils.hpp"
 #include "weaponItem.hpp"
 #include <algorithm>
@@ -32,6 +33,17 @@ const ItemStore &MainController::getItemStore() const {
 
 std::shared_ptr<ItemStore> MainController::getItemStoreForEdition() {
     return m_gameData->getItemStoreForEdition();
+}
+
+std::unique_ptr<commoneditor::ui::TextureDTO> MainController::getItemStoreTexture() {
+    const auto &itemStore = m_gameData->getItemStore();
+    const auto &textureContainer = itemStore.getTextureContainer();
+    if (textureContainer.getCount() == 0) {
+        return nullptr;
+    } else {
+        auto textureInfo =  textureContainer.getTextures().begin()->getTextureInfo();
+        return std::make_unique<commoneditor::ui::TextureDTO>(TextureUtils::TextureInfoToTextureDTO(textureInfo));
+    }
 }
 
 const std::string &MainController::getLastError() const { return m_lastError; }
@@ -221,5 +233,29 @@ bool MainController::deleteItem(const std::string &id) {
     }
     return true;
 }
+
+bool MainController::setItemStoreTexture(std::unique_ptr<commoneditor::ui::TextureDTO> textureDTO) {
+    if (textureDTO == nullptr) {
+        m_lastError = "The texture info cannot be null";
+        return false;
+    }
+    auto &itemTextureContainer = m_gameData->getItemStoreForEdition()->getTextureContainerForEdition();
+    auto textureInfo = TextureUtils::TextureDTOToTextureInfo(*textureDTO);
+    if (itemTextureContainer.getCount() == 0) {
+        if (!itemTextureContainer.addTexture(textureInfo)) {
+            m_lastError = "Unable to add the texture to the item store";
+            return false;
+        }
+    } else {
+        const auto &textureName = itemTextureContainer.getTextures().begin()->getName();
+        if (!itemTextureContainer.replaceTexture(textureName, textureInfo)) {
+            m_lastError = "Unable to replace the texture in the item store";
+            return false;       
+        }
+    }
+    return true;
+
+}
+
 
 } // namespace gamedataeditor::controllers

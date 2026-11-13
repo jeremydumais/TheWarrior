@@ -39,7 +39,7 @@ Q_OBJECT
     void refreshRecentMapsMenu();
     void addNewRecentMonstersDB(const std::string &filePath);
     void refreshMonstersTable();
-    void action_ManageTextures_Click();
+    void action_ManageTexture_Click();
     const std::string &getExecutablePath();
     const std::string &getResourcesPath();
     void setAppStylesheet(const std::string &style);

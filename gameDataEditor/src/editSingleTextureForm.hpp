@@ -1,32 +1,30 @@
-
-#ifndef GAMEDATAEDITOR_SRC_EDITTEXTUREFORM_HPP_
-#define GAMEDATAEDITOR_SRC_EDITTEXTUREFORM_HPP_
+#ifndef GAMEDATAEDITOR_SRC_EDITSINGLETEXTUREFORM_HPP_
+#define GAMEDATAEDITOR_SRC_EDITSINGLETEXTUREFORM_HPP_
 
 #include <memory>
 #include <string>
 #include <vector>
 #include "editTextureFormController.hpp"
-#include "ui_editTextureForm.h"
+#include "ui_editSingleTextureForm.h"
 
-class EditTextureForm : public QDialog {
+class EditSingleTextureForm : public QDialog {
 Q_OBJECT
 
  public:
-    explicit EditTextureForm(QWidget *parent,
+    explicit EditSingleTextureForm(QWidget *parent,
             const std::string &resourcesPath,
-            std::unique_ptr<commoneditor::ui::TextureDTO> originalTexture,
-            const std::vector<std::string> &allTextureNames);
+            std::unique_ptr<commoneditor::ui::TextureDTO> originalTexture);
     std::unique_ptr<commoneditor::ui::TextureDTO> getTextureInfo() const;
 
  private:
-    Ui::editTextureFormClass ui;
+    Ui::editSingleTextureFormClass ui;
     bool m_isEditMode;
+    std::vector<std::string> m_emptyNameVector;
     commoneditor::ui::EditTextureFormController m_controller;
     void loadExistingItemToForm();
     void refreshTextureImage();
     void refreshZoomDisplayValue();
     void onPushButtonOK();
-    void onLineEditNameTextChanged(const QString &text);
     void onPushButtonOpenFilenameClick();
     void onSpinBoxTileWidthValueChanged(int value);
     void onSpinBoxTileHeightValueChanged(int value);
@@ -35,4 +33,4 @@ Q_OBJECT
     void onPushButtonGridWhiteClick();
 };
 
-#endif  // GAMEDATAEDITOR_SRC_EDITTEXTUREFORM_HPP_
+#endif  // GAMEDATAEDITOR_SRC_EDITSINGLETEXTUREFORM_HPP_

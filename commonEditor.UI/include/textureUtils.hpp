@@ -19,6 +19,7 @@ class TextureUtils {
                                                   const thewarrior::models::Texture &texture);
     static QPixmap getTexturePixmapFromLabel(const QLabel *label);
     static thewarrior::models::TextureInfo TextureDTOToTextureInfo(const TextureDTO dto);
+    static TextureDTO TextureInfoToTextureDTO(const thewarrior::models::TextureInfo &textureInfo);
 };
 
 }  // namespace commoneditor::ui

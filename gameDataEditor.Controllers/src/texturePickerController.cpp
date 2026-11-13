@@ -67,16 +67,7 @@ QPixmap TexturePickerController::getTextureTileImageFromTexture(const QPixmap *s
 
 std::optional<std::reference_wrapper<const Texture>> TexturePickerController::getTextureByName(const std::string &name) const
 {
-    auto textures = m_textureContainer.getTextures();
-    auto iter =  std::find_if(textures.begin(),
-                              textures.end(),
-                              [name](const Texture &texture) {
-                                  return texture.getName() == name;
-                                  });
-    if (iter == textures.end()) {
-        return std::nullopt;
-    }
-    return {*iter};
+    return m_textureContainer.getTextureByName(name);
 }
 
 } // namespace gamedataeditor::controllers

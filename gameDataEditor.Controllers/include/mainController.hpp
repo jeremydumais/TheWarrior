@@ -2,6 +2,7 @@
 
 #include "gameData.hpp"
 #include "itemStore.hpp"
+#include "../../commonEditor.UI/include/textureDTO.hpp"
 #include "textureContainer.hpp"
 #include <qicon.h>
 #include <map>
@@ -52,6 +53,7 @@ class MainController {
     MainController();
     const thewarrior::models::ItemStore &getItemStore() const;
     std::shared_ptr<thewarrior::models::ItemStore> getItemStoreForEdition();
+    std::unique_ptr<commoneditor::ui::TextureDTO> getItemStoreTexture();
     const std::string &getLastError() const;
     std::set<std::string> getItemCategories() const;
     std::vector<ItemListDisplay> getItemsFromCategory(const std::string &categoryName) const;
@@ -62,6 +64,7 @@ class MainController {
     void setResourcesPath(const std::string &resourcesPath);
     bool loadOrCreateGameData();
     bool deleteItem(const std::string &id);
+    bool setItemStoreTexture(std::unique_ptr<commoneditor::ui::TextureDTO> textureDTO);
  private:
     std::string m_resourcesPath;
     std::string m_gameDataFilePath;

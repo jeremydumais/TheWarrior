@@ -54,4 +54,16 @@ TextureInfo TextureUtils::TextureDTOToTextureInfo(const TextureDTO dto) {
     };
 }
 
+TextureDTO TextureUtils::TextureInfoToTextureDTO(const thewarrior::models::TextureInfo &textureInfo) {
+    return TextureDTO {
+        .name = textureInfo.name,
+        .filename = textureInfo.filename,
+        .width = textureInfo.width,
+        .height = textureInfo.height,
+        .tileWidth = textureInfo.tileWidth,
+        .tileHeight = textureInfo.tileHeight
+    };
+}
+
+
 }  // namespace commoneditor::ui

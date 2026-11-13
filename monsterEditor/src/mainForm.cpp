@@ -108,7 +108,7 @@ void MainForm::connectUIActions() {
     connect(ui.action_RecentMap5, &QAction::triggered, this, &MainForm::action_OpenRecentMonstersDB_Click);
     connect(ui.action_Save, &QAction::triggered, this, &MainForm::action_SaveMonsterStore_Click);
     connect(ui.action_SaveAs, &QAction::triggered, this, &MainForm::action_SaveAsMonsterStore_Click);
-    connect(ui.action_ManageTextures, &QAction::triggered, this, &MainForm::action_ManageTextures_Click);
+    connect(ui.action_ManageTextures, &QAction::triggered, this, &MainForm::action_ManageTexture_Click);
     connect(ui.action_AddMonster, &QAction::triggered, this, &MainForm::onPushButtonAddMonsterClick);
     connect(ui.action_EditMonster, &QAction::triggered, this, &MainForm::onPushButtonEditMonsterClick);
     connect(ui.action_DeleteMonster, &QAction::triggered, this, &MainForm::onPushButtonDeleteMonsterClick);
@@ -304,7 +304,7 @@ void MainForm::refreshMonstersTable() {
     }
 }
 
-void MainForm::action_ManageTextures_Click() {
+void MainForm::action_ManageTexture_Click() {
     ManageTexturesForm manageTexturesForm(this,
             getResourcesPath(),
             m_controller.getTextureContainerForEdition());

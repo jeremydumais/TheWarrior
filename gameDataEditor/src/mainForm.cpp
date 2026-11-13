@@ -24,7 +24,7 @@
 #include "errorMessage.hpp"
 #include "itemType.hpp"
 #include "mainForm.hpp"
-#include "manageTexturesForm.hpp"
+#include "editSingleTextureForm.hpp"
 #include "specialFolders.hpp"
 
 using commoneditor::ui::ErrorMessage;
@@ -81,7 +81,6 @@ MainForm::MainForm(QWidget *parent)
 
     initializeCategoriesTableControl();
     initializeItemsTableControl(std::nullopt);
-    refreshRecentMapsMenu();
     connectUIActions();
     refreshCategoriesTable();
     refreshItemsTable();
@@ -132,26 +131,17 @@ void MainForm::initializeItemsTableControl(std::optional<ItemType> itemType) {
 }
 
 void MainForm::connectUIActions() {
+    connect(ui.tabWidgetSections, &QTabWidget::currentChanged, this, [this](int) {
+        updateSectionActions();
+    });
+    updateSectionActions();
     connect(ui.action_Quit, &QAction::triggered, this, &MainForm::close);
     connect(ui.action_LightTheme, &QAction::triggered, this, &MainForm::action_LightTheme_Click);
     connect(ui.action_DarkTheme, &QAction::triggered, this, &MainForm::action_DarkTheme_Click);
     connect(ui.action_About, &QAction::triggered, this, &MainForm::action_About_Click);
-    connect(ui.action_Open, &QAction::triggered, this, &MainForm::action_OpenItemStore_Click);
-    connect(ui.action_RecentMap1, &QAction::triggered, this, &MainForm::action_OpenRecentItemsDB_Click);
-    connect(ui.action_RecentMap2, &QAction::triggered, this, &MainForm::action_OpenRecentItemsDB_Click);
-    connect(ui.action_RecentMap3, &QAction::triggered, this, &MainForm::action_OpenRecentItemsDB_Click);
-    connect(ui.action_RecentMap4, &QAction::triggered, this, &MainForm::action_OpenRecentItemsDB_Click);
-    connect(ui.action_RecentMap5, &QAction::triggered, this, &MainForm::action_OpenRecentItemsDB_Click);
     connect(ui.action_Save, &QAction::triggered, this, &MainForm::action_SaveItemStore_Click);
-    connect(ui.action_SaveAs, &QAction::triggered, this, &MainForm::action_SaveAsItemStore_Click);
-    connect(ui.action_ManageTextures, &QAction::triggered, this, &MainForm::action_ManageTextures_Click);
+    connect(ui.action_ManageTextures, &QAction::triggered, this, &MainForm::action_ManageItemsTexture_Click);
     connect(ui.action_AddItem, &QAction::triggered, this, &MainForm::onPushButtonAddItemClick);
-    connect(ui.action_AddItem, &QAction::triggered, this, &MainForm::onPushButtonAddItemClick);
-    connect(ui.action_EditItem, &QAction::triggered, this, &MainForm::onPushButtonEditItemClick);
-    connect(ui.action_DeleteItem, &QAction::triggered, this, &MainForm::onPushButtonDeleteItemClick);
-    connect(ui.pushButtonAddItem, &QPushButton::clicked, this, &MainForm::onPushButtonAddItemClick);
-    connect(ui.pushButtonEditItem, &QPushButton::clicked, this, &MainForm::onPushButtonEditItemClick);
-    connect(ui.pushButtonDeleteItem, &QPushButton::clicked, this, &MainForm::onPushButtonDeleteItemClick);
     connect(ui.action_EditItem, &QAction::triggered, this, &MainForm::onPushButtonEditItemClick);
     connect(ui.action_DeleteItem, &QAction::triggered, this, &MainForm::onPushButtonDeleteItemClick);
     connect(ui.pushButtonAddItem, &QPushButton::clicked, this, &MainForm::onPushButtonAddItemClick);
@@ -161,6 +151,18 @@ void MainForm::connectUIActions() {
     connect(ui.tableWidgetItems, &QTableWidget::itemDoubleClicked, this, &MainForm::onTableWidgetItemsDoubleClicked);
     tableWidgetItemsKeyWatcher.installOn(ui.tableWidgetItems);
     connect(&tableWidgetItemsKeyWatcher, &QTableWidgetKeyPressWatcher::keyPressed, this, &MainForm::onTableWidgetItemsKeyPressEvent);
+}
+
+void MainForm::updateSectionActions() {
+    const bool itemsSelected = ui.tabWidgetSections->currentWidget() == ui.tabItems;
+    const bool spellsSelected = ui.tabWidgetSections->currentWidget() == ui.tabSpells;
+    const bool questsSelected = ui.tabWidgetSections->currentWidget() == ui.tabQuests;
+    const bool storyFlagsSelected = ui.tabWidgetSections->currentWidget() == ui.tabStoryFlags;
+    ui.menu_Items->menuAction()->setVisible(itemsSelected);
+    ui.menu_Spells->menuAction()->setVisible(spellsSelected);
+    ui.menu_Quests->menuAction()->setVisible(questsSelected);
+    ui.menu_StoryFlags->menuAction()->setVisible(storyFlagsSelected);
+
 }
 
 void MainForm::functionAfterShown() {
@@ -213,27 +215,6 @@ void MainForm::action_DarkTheme_Click() {
     }
 }
 
-void MainForm::action_OpenItemStore_Click() {
-    //TODO: v0.7.0 To Remove
-    /*QString fullFilePath{QFileDialog::getOpenFileName(this,
-            tr("Open the item store"),
-            "",
-            tr("Item store file (*.itm)"))};
-    if (fullFilePath != "") {
-        openItemStore(fullFilePath.toStdString());
-        m_currentFilePath = fullFilePath.toStdString();
-        refreshCategoriesTable();
-        refreshItemsTable();
-    }
-    refreshWindowTitle();*/
-}
-
-void MainForm::action_OpenRecentItemsDB_Click() {
-    QAction *recentAction = qobject_cast<QAction *>(sender());
-    std::string filename = recentAction->text().toStdString();
-    openItemStore(filename);
-}
-
 void MainForm::action_SaveItemStore_Click() {
     //TODO: v0.7.0 To Transform
     /*if (m_currentFilePath == "") {
@@ -241,80 +222,6 @@ void MainForm::action_SaveItemStore_Click() {
     } else {
         saveItemStore(m_currentFilePath);
     }*/
-}
-
-void MainForm::action_SaveAsItemStore_Click() {
-    //TODO: v0.7.0 To Remove
-    /*QString filter = "Item store file (*.itm)";
-    QString fullFilePath{QFileDialog::getSaveFileName(this,
-            tr("Save the item store"),
-            "",
-            filter, &filter)};
-    if (fullFilePath != "") {
-        m_currentFilePath = fullFilePath.toStdString();
-        saveItemStore(m_currentFilePath);
-        addNewRecentItemsDB(m_currentFilePath);
-    }
-    refreshWindowTitle();*/
-}
-
-void MainForm::refreshRecentMapsMenu() {
-    auto recents = std::vector<std::string>{};
-    const auto filepath = (std::filesystem::path(m_userConfigFolder) / "config.json").string();
-    ConfigurationManager configManager(filepath);
-    if (configManager.load()) {
-        recents = configManager.getVectorOfStringValue(MainForm::RECENT_MAPS);
-    } else {
-        ErrorMessage::show("An error occurred while loading the configuration file.",
-                configManager.getLastError());
-        return;
-    }
-
-    if (recents.size() > 5) {
-        recents.resize(5);
-    }
-    ui.menu_RecentItemsDB->setEnabled(!recents.empty());
-    std::vector<QAction *> actions{
-        ui.action_RecentMap1,
-            ui.action_RecentMap2,
-            ui.action_RecentMap3,
-            ui.action_RecentMap4,
-            ui.action_RecentMap5};
-    for (size_t i = 0; i < recents.size(); i++) {
-        actions[i]->setVisible(true);
-        actions[i]->setText(recents[i].c_str());
-    }
-}
-
-void MainForm::addNewRecentItemsDB(const std::string &filePath) {
-    auto recents = std::vector<std::string>{};
-    // Load existing recent maps
-    const auto filepath = (std::filesystem::path(m_userConfigFolder) / "config.json").string();
-    ConfigurationManager configManager(filepath);
-    if (configManager.load()) {
-        recents = configManager.getVectorOfStringValue(MainForm::RECENT_MAPS);
-    } else {
-        ErrorMessage::show("An error occurred while loading the configuration file.",
-                configManager.getLastError());
-        return;
-    }
-    // Scan to find the currentMap, if found remove it from the list
-    auto iter = std::find(recents.begin(), recents.end(), filePath);
-    if (iter != recents.end()) {
-        recents.erase(iter);
-    }
-    // Add it at the beginning of the vector
-    recents.insert(recents.begin(), filePath);
-    if (recents.size() > 5) {
-        recents.resize(5);
-    }
-    configManager.setVectorOfStringValue(MainForm::RECENT_MAPS, recents);
-    if (!configManager.save()) {
-        ErrorMessage::show("An error occurred while saving the configuration file.",
-                configManager.getLastError());
-        return;
-    }
-    refreshRecentMapsMenu();
 }
 
 void MainForm::refreshCategoriesTable() {
@@ -408,12 +315,16 @@ QIcon MainForm::getCategoryIcon(const std::string &categoryName) const {
     return QIcon(":/item.png");
 }
 
-void MainForm::action_ManageTextures_Click() {
-    //TODO: v0.7.0 To Transform
-    /*ManageTexturesForm manageTexturesForm(this,
-            getResourcesPath(),
-            m_controller.getTextureContainerForEdition());
-    manageTexturesForm.exec();*/
+void MainForm::action_ManageItemsTexture_Click() {
+    EditSingleTextureForm editItemTextureForm(this, getResourcesPath(), m_controller.getItemStoreTexture());
+    if (editItemTextureForm.exec() == QDialog::Accepted) {
+        auto textureInfo = editItemTextureForm.getTextureInfo();
+        if (!m_controller.setItemStoreTexture(std::move(textureInfo))) {
+             ErrorMessage::show(m_controller.getLastError());
+             return;
+        }
+        refreshItemsTable();
+    }
 }
 
 const std::string &MainForm::getExecutablePath() {
